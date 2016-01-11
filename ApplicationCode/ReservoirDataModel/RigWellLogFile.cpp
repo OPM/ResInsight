@@ -19,7 +19,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "well.hpp"
 #include "laswell.hpp"
@@ -29,8 +29,6 @@
 
 #include <exception>
 #include <cmath> // Needed for HUGE_VAL on Linux
-
-#define RIG_WELL_FOOTPERMETER 3.2808399
 
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +104,7 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
 
     const std::map<std::string, std::vector<double> >& contLogs = well->GetContLog();
     std::map<std::string, std::vector<double> >::const_iterator itCL;
-    for (itCL = contLogs.begin(); itCL != contLogs.end(); itCL++)
+    for (itCL = contLogs.begin(); itCL != contLogs.end(); ++itCL)
     {
         QString logName = QString::fromStdString(itCL->first);
         wellLogNames.append(logName);
@@ -172,33 +170,18 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 
     if (m_wellLogFile->HasContLog(name.toStdString()))
     {
-        if (name == m_depthLogName && (depthUnit().toUpper() == "F" || depthUnit().toUpper() == "FT"))
-        {
-            std::vector<double> footValues = m_wellLogFile->GetContLog(name.toStdString());
-            
-            std::vector<double> meterValues;
-            meterValues.reserve(footValues.size());
-
-            for (size_t vIdx = 0; vIdx < footValues.size(); vIdx++)
-            {
-                meterValues.push_back(footValues[vIdx]/RIG_WELL_FOOTPERMETER);
-            }
-
-            return meterValues;
-        }
-
-        std::vector<double> values = m_wellLogFile->GetContLog(name.toStdString());
+        std::vector<double> logValues = m_wellLogFile->GetContLog(name.toStdString());
         
-        for (size_t vIdx = 0; vIdx < values.size(); vIdx++)
+        for (size_t vIdx = 0; vIdx < logValues.size(); vIdx++)
         {
-            if (m_wellLogFile->IsMissing(values[vIdx]))
+            if (m_wellLogFile->IsMissing(logValues[vIdx]))
             {
                 // Convert missing ("NULL") values to HUGE_VAL
-                values[vIdx] = HUGE_VAL;
+                logValues[vIdx] = HUGE_VAL;
             }
         }
 
-        return values;
+        return logValues;
     }
 
     return std::vector<double>();
@@ -207,7 +190,7 @@ std::vector<double> RigWellLogFile::values(const QString& name) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::depthUnit() const
+QString RigWellLogFile::depthUnitString() const
 {
     QString unit;
 
@@ -223,7 +206,7 @@ QString RigWellLogFile::depthUnit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) const
+QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const
 {
     QString unit;
 
@@ -233,10 +216,19 @@ QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) co
         unit = QString::fromStdString(lasWell->unitName(wellLogChannelName.toStdString()));
     }
 
-    // Special handling of depth unit - we convert depth to meter 
-    if (unit == depthUnit())
+    if (unit == depthUnitString())
     {
-        return "m";
+        if (displayDepthUnit != depthUnit())
+        {
+            if (displayDepthUnit == RimDefines::UNIT_METER)
+            {
+                return "M";
+            }
+            else if (displayDepthUnit == RimDefines::UNIT_FEET)
+            {
+                return "FT";
+            }
+        }
     }
 
     return unit;
@@ -245,7 +237,7 @@ QString RigWellLogFile::wellLogChannelUnit(const QString& wellLogChannelName) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QString& fileName)
+bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString& fileName)
 {
     CVF_ASSERT(curve);
 
@@ -279,7 +271,16 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
     NRLib::LasWell lasFile;
     lasFile.addWellInfo("WELL", curve->wellName().trimmed().toStdString());
     lasFile.addWellInfo("DATE", wellLogDate.toStdString());
-    lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
+
+    if (curveData->depthUnit() == RimDefines::UNIT_METER)
+    {
+        lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
+    }
+    else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
+    {
+        lasFile.AddLog("DEPTH", "FT", "Depth in feet", curveData->measuredDepths());
+    }
+
     lasFile.AddLog(wellLogChannelName.trimmed().toStdString(), "NO_UNIT", "", wellLogValues);
     lasFile.SetMissing(absentValue);
 
@@ -289,7 +290,15 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
 
     lasFile.setStartDepth(minDepth);
     lasFile.setStopDepth(maxDepth);
-    lasFile.setDepthUnit("M");
+
+    if (curveData->depthUnit() == RimDefines::UNIT_METER)
+    {
+        lasFile.setDepthUnit("M");
+    }
+    else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
+    {
+        lasFile.setDepthUnit("FT");
+    }
 
     lasFile.setVersionInfo("2.0");
 
@@ -297,4 +306,19 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogPlotCurve* curve, const QSt
     lasFile.WriteToFile(fileName.toStdString(), commentHeader);
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::DepthUnitType RigWellLogFile::depthUnit() const
+{
+    RimDefines::DepthUnitType unitType = RimDefines::UNIT_METER;
+
+    if (depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT")
+    {
+        unitType = RimDefines::UNIT_FEET;
+    }
+
+    return unitType;
 }

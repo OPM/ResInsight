@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,17 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfMatrix4.h"
+#include "cafPdmCoreMat4d.h"
 
 #include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmUiFieldSpecialization.h"
 #include "cafPdmUiItem.h"
 
-#include "cafPdmCoreMat4d.h"
+#include "cvfBase.h"
+#include "cvfMatrix4.h"
 
 namespace caf 
 {
@@ -58,7 +57,6 @@ public:
     {
         return PdmValueFieldSpecialization< cvf::Mat4d >::convert(value);
     }
-
 
     /// Set the field value from a QVariant
     static void setFromVariant(const QVariant& variantValue, cvf::Mat4d& value)

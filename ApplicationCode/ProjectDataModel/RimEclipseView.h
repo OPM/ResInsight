@@ -55,6 +55,7 @@ class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
 class RivReservoirPipesPartMgr;
+class RivCrossSectionPartMgr;
 
 namespace cvf
 {
@@ -99,9 +100,10 @@ public:
     caf::PdmField<bool>                             showMainGrid;
 
     // Access internal objects
+    virtual const RimPropertyFilterCollection*      propertyFilterCollection() const;
 
-    RimEclipsePropertyFilterCollection*             propertyFilterCollection();
-    const RimEclipsePropertyFilterCollection*       propertyFilterCollection() const;
+    RimEclipsePropertyFilterCollection*             eclipsePropertyFilterCollection();
+    const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
     void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
 
     RimReservoirCellResultsStorage*                 currentGridCellResults();
@@ -110,6 +112,7 @@ public:
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase();
+    virtual RimCase*                                ownerCase();
 
     // Display model generation
 
@@ -131,10 +134,15 @@ public:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     void                                            updateIconStateForFilterCollections();
 
+    virtual void                                    axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+
 protected:
     virtual void                                    initAfterRead();
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+
+    virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
+    virtual bool                                    showActiveCellsOnly();
 
 private:
     void                                            createDisplayModel();
@@ -157,15 +165,8 @@ private:
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();
-    void                                            addWellPathsToScene(cvf::Scene* scene,
-                                                                        const cvf::Vec3d& displayModelOffset, 
-                                                                        double characteristicCellSize, 
-                                                                        const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                                                        cvf::Transform* scaleTransform);
 
     void                                            clampCurrentTimestep();
-
-    virtual RimCase*                                ownerCase();
 
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 

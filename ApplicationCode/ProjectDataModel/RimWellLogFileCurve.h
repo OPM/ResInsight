@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "cafPdmPtrField.h"
 #include "cafPdmField.h"
@@ -33,7 +33,7 @@ class RimWellLogFileChannel;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogFileCurve : public RimWellLogPlotCurve
+class RimWellLogFileCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 

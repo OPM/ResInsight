@@ -9,6 +9,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.h
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.h
+${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.h
@@ -63,14 +64,18 @@ ${CEE_CURRENT_LIST_DIR}RimViewController.h
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
-${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrack.h
-${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.h
+${CEE_CURRENT_LIST_DIR}RimWellLogTrack.h
+${CEE_CURRENT_LIST_DIR}RimWellLogCurve.h
 ${CEE_CURRENT_LIST_DIR}RimViewLinker.h
 ${CEE_CURRENT_LIST_DIR}RimViewLinkerCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFile.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.h
+${CEE_CURRENT_LIST_DIR}RimCrossSection.h
+${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.h
+${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.h
+${CEE_CURRENT_LIST_DIR}RimGridCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -78,6 +83,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.cpp
+${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.cpp
@@ -132,14 +138,18 @@ ${CEE_CURRENT_LIST_DIR}RimViewController.cpp
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp
-${CEE_CURRENT_LIST_DIR}RimWellLogPlotTrack.cpp
-${CEE_CURRENT_LIST_DIR}RimWellLogPlotCurve.cpp
+${CEE_CURRENT_LIST_DIR}RimWellLogTrack.cpp
+${CEE_CURRENT_LIST_DIR}RimWellLogCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewLinker.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewLinkerCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFile.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.cpp
+${CEE_CURRENT_LIST_DIR}RimCrossSection.cpp
+${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.cpp
+${CEE_CURRENT_LIST_DIR}RimGridCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -458,7 +458,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
             (*cellVisibility)[cellIdx] = (*rangeVisibility)[cellIdx] || (*fenceVisibility)[cellIdx];
         }
 
-        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
+        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->eclipsePropertyFilterCollection()); 
 
         m_propFilteredGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
     } 
@@ -542,7 +542,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
             (*cellVisibility)[cellIdx] =  (*wellFenceCells)[cellIdx] || (*rangeVisibility)[cellIdx] || (*wellCellsOutsideRange)[cellIdx];
         }
 
-        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
+        computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->eclipsePropertyFilterCollection()); 
 
         m_propFilteredWellGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
     }
@@ -785,6 +785,10 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const double lowerBound = propertyFilter->lowerBound();
                 const double upperBound = propertyFilter->upperBound();
 
+                const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
+
+                RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
+
                 size_t adjustedTimeStepIndex = timeStepIndex;
 
                 // Set time step to zero for static results
@@ -793,12 +797,9 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                     adjustedTimeStepIndex = 0;
                 }
 
-                const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
-
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(propertyFilter->resultDefinition()->porosityModel());
-                RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
-
                 cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
+
                 CVF_ASSERT(resultAccessor.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)

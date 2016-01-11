@@ -86,12 +86,12 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     double ignoredScalarValue = cellEdgeResultColors->ignoredScalarValue();
 
     const std::vector<cvf::ubyte>* isWellPipeVisible = NULL;
-    cvf::ref<cvf::UIntArray>       gridCellToWellindexMap;
+    cvf::cref<cvf::UIntArray>      gridCellToWellindexMap;
 
     if (opacityLevel < 1.0f)
     {
-        isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex));
-        gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(gridIndex);
+        isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->resultWellPipeVisibilities(timeStepIndex));
+        gridCellToWellindexMap = eclipseCase->gridCellToResultWellIndex(gridIndex);
     }
 
 #pragma omp parallel for
@@ -144,10 +144,9 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
         }
 
 
-        float edgeColor;
         for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
         {
-            edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
+            float edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
             double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
 
@@ -244,10 +243,9 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 
         size_t cellIndex = quadToCellFaceMapper->cellIndex(quadIdx);
 
-        float edgeColor;
         for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
         {
-            edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
+            float edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
             double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
 

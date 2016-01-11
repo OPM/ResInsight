@@ -36,6 +36,8 @@ class GeometryTools
 public:
     static cvf::Vec3d computeFaceCenter(const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3);
 
+    static cvf::Vec3d projectPointOnLine(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection);
+
     static double     linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3);
     static int        intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf::Vec3d p1, 
                                                     const cvf::Vec3d t0, const cvf::Vec3d t1, const cvf::Vec3d t2,

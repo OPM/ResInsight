@@ -29,7 +29,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
-#include "cafPdmUiTreeView.h"
 
 #include <QAction>
 
@@ -54,7 +53,7 @@ void RicNewStatisticsCaseFeature::onActionTriggered(bool isChecked)
         RimEclipseStatisticsCase* newCase = addStatisticalCalculation(uiItem);
         if (newCase)
         {
-            RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(newCase);
+            RiuMainWindow::instance()->selectAsCurrentItem(newCase);
         }
     }
 }

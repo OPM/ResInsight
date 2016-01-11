@@ -19,61 +19,63 @@
 
 #include "RiuViewerCommands.h"
 
+#include "RicViewerEventInterface.h"
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
-#include "Commands/WellLogCommands/RicNewWellLogFileCurveFeature.h"
-#include "Commands/WellLogCommands/RicNewWellLogCurveExtractionFeature.h"
 
 #include "RigCaseData.h"
+#include "RigFault.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellEdgeColors.h"
+#include "RimContextCommandBuilder.h"
+#include "RimCrossSection.h"
+#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimView.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimWellLogFile.h"
 
-#include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
-#include "RiuResultTextBuilder.h"
+#include "RiuSelectionColors.h"
+#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
+#include "RivCrossSectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
+#include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
-#include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfHitItemCollection.h"
+#include "cvfOverlayAxisCross.h"
+#include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
+
+#include "WellPathCommands/RicWellPathViewerEventHandler.h"
 
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
+
 
 //==================================================================================================
 //
@@ -84,9 +86,22 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer) : QObject(ownerViewer), m_viewer(ownerViewer)
+RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer) 
+    : QObject(ownerViewer), 
+      m_viewer(ownerViewer), 
+      m_currentGridIdx(-1),
+      m_currentCellIndex(-1)  
 {
+    {
+        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
+        CVF_ASSERT(cmdFeature);
 
+        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(cmdFeature));
+    }
+
+    {
+        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicWellPathViewerEventHandler::instance()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,7 +120,6 @@ void RiuViewerCommands::setOwnerView(RimView * owner)
     m_reservoirView = owner;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +133,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     QMenu menu;
 
-    uint faceIndex = cvf::UNDEFINED_UINT;
+    uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
     cvf::Part* firstHitPart = NULL;
@@ -129,16 +143,16 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
-        extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &faceIndex, &nncFirstHitPart, NULL);
-        updateSelectionFromPickedPart(firstHitPart);
+        extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &nncFirstHitPart, NULL);
     }
 
-    if (firstHitPart && faceIndex != cvf::UNDEFINED_UINT)
+    if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
     {
         const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
         const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
+        const RivCrossSectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivCrossSectionSourceInfo*>(firstHitPart->sourceInfo());
 
-        if (rivSourceInfo || femSourceInfo)
+        if (rivSourceInfo || femSourceInfo || crossSectionSourceInfo)
         {
             if (rivSourceInfo)
             {
@@ -147,13 +161,21 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 // Set the data regarding what was hit
 
                 m_currentGridIdx = rivSourceInfo->gridIndex();
-                m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
-                m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
+                m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(firstPartTriangleIndex);
+                m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(firstPartTriangleIndex);
             }
-            else
+            else if (femSourceInfo)
             {
                 m_currentGridIdx = femSourceInfo->femPartIndex();
-                m_currentCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(faceIndex);
+                m_currentCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(firstPartTriangleIndex);
+            }
+            else if (crossSectionSourceInfo)
+            {
+                findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
+                m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
+                m_currentCrossSection = const_cast<RimCrossSection*>(crossSectionSourceInfo->crossSection());
+
+                menu.addAction(QString("Hide intersection"), this, SLOT(slotHideIntersection()));
             }
 
             // IJK -slice commands
@@ -216,6 +238,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         }
     }
 
+    QStringList commandIds;
+
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
     {
@@ -225,57 +249,40 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
-                caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+                caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
-                RicNewWellLogFileCurveFeature* newWellLogFileCurveFeature = dynamic_cast<RicNewWellLogFileCurveFeature*>(commandManager->getCommandFeature("RicNewWellLogFileCurveFeature"));
-                if (newWellLogFileCurveFeature && newWellLogFileCurveFeature->canFeatureBeExecuted())
-                {
-                    menu.addAction(newWellLogFileCurveFeature->action());
-                }
-
-                RicNewWellLogCurveExtractionFeature* newExtractionCurveFeature = dynamic_cast<RicNewWellLogCurveExtractionFeature*>(commandManager->getCommandFeature("RicNewWellLogCurveExtractionFeature"));
-                if (newExtractionCurveFeature && newExtractionCurveFeature->canFeatureBeExecuted())
-                {
-                    menu.addAction(newExtractionCurveFeature->action());
-                }
+                commandIds << "RicNewWellLogFileCurveFeature";
+                commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicNewWellPathCrossSectionFeature";
             }
         }
+
+        const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
+        if (eclipseWellSourceInfo)
+        {
+            RimEclipseWell* well = eclipseWellSourceInfo->well();
+            if (well)
+            {
+                caf::SelectionManager::instance()->setSelectedItem(well);
+
+                commandIds << "RicNewSimWellCrossSectionFeature";
+            }
+        }
+
     }
 
     // View Link commands
     if (!firstHitPart)
     {
-        QStringList commandIds;
-
         commandIds << "RicLinkViewFeature";
         commandIds << "RicUnLinkViewFeature";
         commandIds << "RicShowLinkOptionsFeature";
         commandIds << "RicSetMasterViewFeature";
-
-        bool firstLinkAction = true;
-
-        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-        for (int i = 0; i < commandIds.size(); i++)
-        {
-            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-            if (feature->canFeatureBeExecuted())
-            {
-                QAction* act = commandManager->action(commandIds[i]);
-                CVF_ASSERT(act);
-
-                if (firstLinkAction)
-                {
-                    if (menu.actions().size() > 0)
-                    {
-                        menu.addSeparator();
-                    }
-                    firstLinkAction = false;
-                }
-
-                menu.addAction(act);
-            }
-        }
     }
+
+    commandIds << "RicNewPolylineCrossSectionFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
     if (menu.actions().size() > 0)
     {
@@ -341,7 +348,6 @@ void RiuViewerCommands::createSliceRangeFilter(int ijOrk)
     eclipseView->setSurfaceDrawstyle();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -349,7 +355,6 @@ void RiuViewerCommands::slotHideFault()
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if(!eclipseView) return;
-
 
     const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
     const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
@@ -377,7 +382,7 @@ void RiuViewerCommands::slotAddEclipsePropertyFilter()
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if (eclipseView)
     {
-        RimEclipsePropertyFilterCollection* filterCollection = eclipseView->propertyFilterCollection();
+        RimEclipsePropertyFilterCollection* filterCollection = eclipseView->eclipsePropertyFilterCollection();
         RicEclipsePropertyFilterNewExec* propCmdExe = new RicEclipsePropertyFilterNewExec(filterCollection);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
     }
@@ -391,7 +396,7 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
     if (geoMechView)
     {
-        RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->propertyFilterCollection();
+        RimGeoMechPropertyFilterCollection* filterCollection = geoMechView->geoMechPropertyFilterCollection();
         RicGeoMechPropertyFilterNewExec* propCmdExe = new RicGeoMechPropertyFilterNewExec(filterCollection);
         caf::CmdExecCommandManager::instance()->processExecuteCommand(propCmdExe);
     }
@@ -400,13 +405,33 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
+void RiuViewerCommands::slotHideIntersection()
 {
+    if (m_currentCrossSection)
+    {
+        m_currentCrossSection->isActive = false;
+        m_currentCrossSection->updateConnectedEditors();
+
+        if (m_reservoirView)
+        {
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers)
+{
+    if (handleOverlayItemPicking(winPosX, winPosY))
+    {
+        return;
+    }
 
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
-    RimWellPath* wellPath = NULL;
     cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
@@ -419,18 +444,25 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         uint nncPartTriangleIndex = cvf::UNDEFINED_UINT;
 
         cvf::HitItemCollection hitItems;
-
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
             extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
-            updateSelectionFromPickedPart(firstHitPart);
+
+            cvf::ref<RicViewerEventObject> eventObj = new RicViewerEventObject(localIntersectionPoint, firstHitPart, firstPartTriangleIndex);
+            for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
+            {
+                if (m_viewerEventHandlers[i]->handleEvent(eventObj.p()))
+                {
+                    return;
+                }
+            }
         }
 
         if (firstHitPart && firstHitPart->sourceInfo())
         {
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
-            const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
+            const RivCrossSectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivCrossSectionSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -448,13 +480,11 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
                 gridIndex = femSourceInfo->femPartIndex();
                 cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(firstPartTriangleIndex);
             }
-            else if (wellPathSourceInfo)
+            else if (crossSectionSourceInfo)
             {
-                wellPath = wellPathSourceInfo->wellPath();
+                findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
             }
         }
-       
-
 
         if (firstNncHitPart && firstNncHitPart->sourceInfo())
         {
@@ -469,52 +499,72 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY)
         }
     }
 
-    // Compose a info text regarding the hit
-
-    QString pickInfo = "No hits";
-    QString resultInfo = "";
-
-    if (cellIndex != cvf::UNDEFINED_SIZE_T || nncIndex != cvf::UNDEFINED_SIZE_T)
+    if (cellIndex == cvf::UNDEFINED_SIZE_T)
     {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-        RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-
-        if (eclipseView)
+        RiuSelectionManager::instance()->deleteAllItems();
+    }
+    else 
+    {
+        bool appendToSelection = false;
+        if (keyboardModifiers & Qt::ControlModifier)
         {
-            RiuResultTextBuilder textBuilder(eclipseView, gridIndex, cellIndex, eclipseView->currentTimeStep());
-            textBuilder.setFace(face);
-            textBuilder.setNncIndex(nncIndex);
-            textBuilder.setIntersectionPoint(localIntersectionPoint);
-
-            resultInfo = textBuilder.mainResultText();
-
-            pickInfo = textBuilder.topologyText(", ");
+            appendToSelection = true;
         }
-        else if (geomView)
+
+        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
+        if (RiuSelectionManager::instance()->isEmpty() || !appendToSelection)
         {
-            RiuFemResultTextBuilder textBuilder(geomView, (int)gridIndex, (int)cellIndex, geomView->currentTimeStep());
-            //textBuilder.setFace(face);
-           
-            textBuilder.setIntersectionPoint(localIntersectionPoint);
+            curveColor = RiuSelectionColors::singleCurveColor();
+        }
 
-            resultInfo = textBuilder.mainResultText();
+        RiuSelectionItem* selItem = NULL;
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+            if (eclipseView)
+            {
+                selItem = new RiuEclipseSelectionItem(eclipseView, gridIndex, cellIndex, nncIndex, curveColor, face, localIntersectionPoint);
+            }
 
-            pickInfo = textBuilder.topologyText(", ");
+            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+            if (geomView)
+            {
+                selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, localIntersectionPoint);
+            }
+        }
+
+        if (appendToSelection)
+        {
+            RiuSelectionManager::instance()->appendItemToSelection(selItem);
+        }
+        else
+        {
+            RiuSelectionManager::instance()->setSelectedItem(selItem);
         }
     }
+}
 
-    if (wellPath)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::findCellAndGridIndex(const RivCrossSectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex)
+{
+    CVF_ASSERT(cellIndex && gridIndex);
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+    if (eclipseView)
     {
-        pickInfo = QString("Well path hit: %1").arg(wellPath->name());
+        size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+
+        const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
+        *cellIndex = cell.gridLocalCellIndex();
+        *gridIndex = cell.hostGrid()->gridIndex();
     }
-
-    // Display the text
-
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    mainWnd->statusBar()->showMessage(pickInfo);
-    mainWnd->setResultInfo(resultInfo);
+    else if (geomView)
+    {
+        *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+        *gridIndex = 0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -657,18 +707,54 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::updateSelectionFromPickedPart(cvf::Part* part)
+bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 {
-    if (part && part->sourceInfo())
+    cvf::OverlayItem* pickedOverlayItem = m_viewer->overlayItem(winPosX, winPosY);
+    if (pickedOverlayItem)
     {
-        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
-        if (wellPathSourceInfo)
+        caf::PdmObject* objToSelect = NULL;
+
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+        if (eclipseView)
         {
-            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-            if (wellPath)
+            if (eclipseView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
             {
-                RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(wellPath);
+                objToSelect = eclipseView->cellResult()->legendConfig();
+            }
+            else if (eclipseView->cellResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->cellResult()->ternaryLegendConfig();
+            }
+            else if (eclipseView->faultResultSettings()->customFaultResult()->legendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->faultResultSettings()->customFaultResult()->legendConfig();
+            }
+            else if (eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->faultResultSettings()->customFaultResult()->ternaryLegendConfig();
+            }
+            else if (eclipseView->cellEdgeResult()->legendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = eclipseView->cellEdgeResult()->legendConfig();
             }
         }
+
+        RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+        if (geomView)
+        {
+            if (geomView->cellResult()->legendConfig()->legend() == pickedOverlayItem)
+            {
+                objToSelect = geomView->cellResult()->legendConfig();
+            }
+        }
+
+        if (objToSelect)
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem(objToSelect);
+
+            return true;
+        }
     }
+
+    return false;
 }

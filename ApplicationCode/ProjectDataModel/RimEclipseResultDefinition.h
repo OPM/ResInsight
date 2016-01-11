@@ -81,16 +81,12 @@ protected:
 
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
-
 protected:
     void updateFieldVisibility();
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-
-
-
 private:
-    QStringList getResultVariableListForCurrentUIFieldSettings();
-    static void removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
+    QList<caf::PdmOptionItemInfo>   calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    QStringList                     getResultVariableListForCurrentUIFieldSettings();
+    static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 };
 

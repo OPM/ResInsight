@@ -52,7 +52,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 //------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase::RimEclipseCase()
+RimEclipseCase::RimEclipseCase() 
 {
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
     reservoirViews.uiCapability()->setUiHidden(true);
@@ -195,7 +195,7 @@ void RimEclipseCase::removeResult(const QString& resultName)
             rebuildDisplayModel = true;
         }
 
-        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
+        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->eclipsePropertyFilterCollection();
         for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
         {
             RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
@@ -320,23 +320,6 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimEclipseCase::parentGridCaseGroup()
-{
-    RimCaseCollection* caseColl = parentCaseCollection();
-    if (caseColl) 
-    {
-        return caseColl->parentCaseGroup();
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEclipseCase::setReservoirData(RigCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;
@@ -353,6 +336,51 @@ void RimEclipseCase::setReservoirData(RigCaseData* eclipseCase)
         m_matrixModelResults()->setCellResults(NULL);
         m_fractureModelResults()->setMainGrid(NULL);
         m_matrixModelResults()->setMainGrid(NULL);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
+{
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS))
+    {
+        return m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->geometryBoundingBox();
+    }
+    else
+    {
+        return cvf::BoundingBox();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimEclipseCase::allCellsBoundingBox() const
+{
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->mainGrid())
+    {
+        return m_rigEclipseCase->mainGrid()->boundingBox();
+    }
+    else
+    {
+        return cvf::BoundingBox();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimEclipseCase::displayModelOffset() const
+{
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->mainGrid())
+    {
+        return m_rigEclipseCase->mainGrid()->displayModelOffset();
+    }
+    else
+    {
+        return cvf::Vec3d::ZERO;
     }
 }
 
@@ -428,27 +456,44 @@ QStringList RimEclipseCase::timeStepStrings()
 {
     QStringList stringList;
 
-    std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
-
-    bool showHoursAndMinutes = false;
-    for (size_t i = 0; i < timeStepDates.size(); i++)
+    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepCount(0));
+    for (int i = 0; i < timeStepCount; i++)
     {
-        if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-        {
-            showHoursAndMinutes = true;
-        }
-    }
-
-    QString formatString = "dd.MMM yyyy";
-    if (showHoursAndMinutes)
-    {
-        formatString += " - hh:mm";
-    }
-
-    for (size_t i = 0; i < timeStepDates.size(); i++)
-    {
-        stringList += timeStepDates[i].toString(formatString);
+        stringList += this->timeStepName(i);
     }
 
     return stringList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+QString RimEclipseCase::timeStepName(int frameIdx)
+{
+    if (m_timeStepFormatString.isEmpty())
+    {
+        std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+
+        bool hasHrsAndMinutesInTimesteps = false;
+        for (size_t i = 0; i < timeStepDates.size(); i++)
+        {
+            if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            {
+                hasHrsAndMinutesInTimesteps = true;
+                break;
+            }
+        }
+
+        m_timeStepFormatString = "dd.MMM yyyy";
+        if (hasHrsAndMinutesInTimesteps)
+        {
+            m_timeStepFormatString += " - hh:mm";
+        }
+    }
+
+
+    QDateTime date = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDate(0,frameIdx);
+    return date.toString(m_timeStepFormatString);
+
 }

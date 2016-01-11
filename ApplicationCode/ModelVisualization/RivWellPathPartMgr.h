@@ -22,7 +22,6 @@
 
 #include "cafPdmPointer.h"
 #include "cvfBoundingBox.h"
-#include <list>
 
 namespace cvf
 {
@@ -37,12 +36,11 @@ namespace cvf
 class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
-class RimWellPathCollection;
 
 class RivWellPathPartMgr : public cvf::Object
 {
 public:
-    RivWellPathPartMgr(RimWellPathCollection* wellPathCollection, RimWellPath* wellPath);
+    RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
     void                                    setScaleTransform(cvf::Transform * scaleTransform);
@@ -52,15 +50,16 @@ public:
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
 
+    size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
+
 private:
-    caf::PdmPointer<RimWellPathCollection>  m_wellPathCollection;
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
     cvf::ref<cvf::Transform>                m_scaleTransform; 
     bool                                    m_needsTransformUpdate;
 
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
-
+    void                                    clearAllBranchData();
     struct RivPipeBranchData
     {
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
@@ -71,7 +70,6 @@ private:
     };
 
     RivPipeBranchData                       m_pipeBranchData;
-    std::list<RivPipeBranchData>            m_wellBranches;
     cvf::ref<cvf::Part>                     m_wellLabelPart;
 
     cvf::ref<cvf::ScalarMapper>             m_scalarMapper;

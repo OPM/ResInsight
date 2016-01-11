@@ -66,6 +66,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
+#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "cafAppEnum.h"
@@ -206,6 +207,35 @@ RiaApplication* RiaApplication::instance()
     return static_cast<RiaApplication*>qApp;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// Return -1 if unit test is not executed, returns 0 if test passed, returns 1 if tests failed
+//--------------------------------------------------------------------------------------------------
+int RiaApplication::parseArgumentsAndRunUnitTestsIfRequested()
+{
+    cvf::ProgramOptions progOpt;
+    progOpt.registerOption("unittest", "", "Execute unit tests");
+    progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
+
+    QStringList arguments = QCoreApplication::arguments();
+
+    bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
+    if (!parseOk)
+    {
+        return -1;
+    }
+
+    // Unit testing
+    // --------------------------------------------------------
+    if (cvf::Option o = progOpt.option("unittest"))
+    {
+        int testReturnValue = launchUnitTestsWithConsole();
+
+        return testReturnValue;
+    }
+
+    return -1;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -350,7 +380,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         {
             //printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
             oilField->wellPathCollection = new RimWellPathCollection();
-            oilField->wellPathCollection->setProject(m_project);
         }
 
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
@@ -473,7 +502,6 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
     {
         //printf("Create well path collection.\n");
         oilField->wellPathCollection = new RimWellPathCollection();
-        oilField->wellPathCollection->setProject(m_project);
 
         m_project->updateConnectedEditors();
     }
@@ -496,7 +524,6 @@ void RiaApplication::addWellLogsToModel(const QList<QString>& wellLogFilePaths)
     if (oilField->wellPathCollection == NULL)
     {
         oilField->wellPathCollection = new RimWellPathCollection();
-        oilField->wellPathCollection->setProject(m_project);
 
         m_project->updateConnectedEditors();
     }
@@ -568,10 +595,19 @@ bool RiaApplication::saveProjectPromptForFileName()
 bool RiaApplication::saveProjectAs(const QString& fileName)
 {
     m_project->fileName = fileName;
-    m_project->writeFile();
+
+    if (!m_project->writeFile())
+    {
+        QMessageBox::warning(NULL, "Error when saving project file", QString("Not possible to save project file. Make sure you have sufficient access rights.\n\nProject file location : %1").arg(fileName));
+
+        return false;
+    }
 
     m_preferences->lastUsedProjectFileName = fileName;
     caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
+
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    mainWnd->addRecentFiles(fileName);
 
     return true;
 }
@@ -607,6 +643,8 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
             return false;
         }
     }
+
+    RiuSelectionManager::instance()->deleteAllItems();
 
     mainWnd->cleanupGuiBeforeProjectClose();
 
@@ -721,7 +759,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     analysisModels->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
 
 
     return true;
@@ -757,7 +795,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     analysisModels->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
 
     return true;
 }
@@ -803,7 +841,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 
     m_project->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
     
     return true;
 }
@@ -1140,34 +1178,36 @@ bool RiaApplication::parseArguments()
         return false;
     }
 
-    // Unit testing
-    // --------------------------------------------------------
-    if (cvf::Option o = progOpt.option("unittest"))
-    {
-        launchUnitTests();
-    }
-
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::launchUnitTests()
+int RiaApplication::launchUnitTests()
 {
+#ifdef USE_UNIT_TESTS
     cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
 
     int argc = QCoreApplication::argc();
     testing::InitGoogleTest(&argc, QCoreApplication::argv());
 
-    //int result = RUN_ALL_TESTS();
-    RUN_ALL_TESTS();
+    // Use this macro in main() to run all tests.  It returns 0 if all
+    // tests are successful, or 1 otherwise.
+    //
+    // RUN_ALL_TESTS() should be invoked after the command line has been
+    // parsed by InitGoogleTest().
+
+    return RUN_ALL_TESTS();
+#else
+    return -1;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::launchUnitTestsWithConsole()
+int RiaApplication::launchUnitTestsWithConsole()
 {
     // Following code is taken from cvfAssert.cpp
 #ifdef WIN32
@@ -1215,7 +1255,7 @@ void RiaApplication::launchUnitTestsWithConsole()
     }
 #endif
 
-    launchUnitTests();
+    return launchUnitTests();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1334,7 +1374,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     }
 
     // If multiple cases are present, invoke launchProcess() which will set next current case, and run script on this case 
-    if (m_currentCaseIds.size() > 0)
+    if (!m_currentCaseIds.empty())
     {
         launchProcess(m_currentProgram, m_currentArguments);
     }
@@ -1353,7 +1393,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
     if (m_workerProcess == NULL)
     {
         // If multiple cases are present, pop the first case ID from the list and set as current case
-        if (m_currentCaseIds.size() > 0)
+        if (!m_currentCaseIds.empty())
         {
             int nextCaseId = m_currentCaseIds.front();
             m_currentCaseIds.pop_front();
@@ -1619,6 +1659,10 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
                 clearViewsScheduledForUpdate();
 
+                //riv->updateCurrentTimeStepAndRedraw();
+                riv->createDisplayModelAndRedraw();
+                viewer->repaint();
+
                 QString fileName = cas->caseUserDescription() + "-" + riv->name();
                 fileName.replace(" ", "_");
 
@@ -1713,6 +1757,19 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
     RiaImageCompareReporter imageCompareReporter;
 
+    // Minor workaround
+    // Use registry to define if interactive diff images should be created
+    // Defined by user in RiaRegressionTest
+    {
+        QSettings settings;
+
+        bool useInteractiveDiff = settings.value("showInteractiveDiffImages").toBool();
+        if (useInteractiveDiff)
+        {
+            imageCompareReporter.showInteractiveOnly();
+        }
+    }
+
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
@@ -1730,21 +1787,6 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
     // Open HTML report
     QDesktopServices::openUrl(htmlReportFileName);
-
-    // Keep current preferences values to be able to restore when regression tests are completed
-    std::vector<QVariant> preferencesValues;
-    {
-        std::vector<caf::PdmFieldHandle*> fields;
-        this->preferences()->fields(fields);
-        for (size_t i = 0; i < fields.size(); i++)
-        {
-            QVariant v = fields[i]->uiCapability()->uiValue();
-            preferencesValues.push_back(v);
-        }
-    }
-    
-    // Set preferences to make sure regression tests behave identical
-    this->preferences()->configureForRegressionTests();
 
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
@@ -1784,18 +1826,6 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
 
              closeProject(false);
-        }
-
-        // Restore preferences
-        {
-            std::vector<caf::PdmFieldHandle*> fields;
-            this->preferences()->fields(fields);
-            CVF_ASSERT(fields.size() == preferencesValues.size());
-
-            for (size_t i = 0; i < preferencesValues.size(); i++)
-            {
-                fields[i]->uiCapability()->setValueFromUi(preferencesValues[i]);
-            }
         }
     }
 
@@ -1925,7 +1955,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
     if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {
-        RiuMainWindow::instance()->setCurrentObjectInTreeView(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
+        RiuMainWindow::instance()->selectAsCurrentItem(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
     }
 
     return true;
@@ -2158,16 +2188,16 @@ void RiaApplication::executeCommandObjects()
         {
             toBeRemoved->redo();
 
-            it++;
+            ++it;
             m_commandQueue.remove(toBeRemoved);
         }
         else
         {
-            it++;
+            ++it;
         }
     }
 
-    if (m_commandQueue.size() > 0)
+    if (!m_commandQueue.empty())
     {
         std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
 
@@ -2244,19 +2274,6 @@ void RiaApplication::regressionTestConfigureProject()
 
                 // This size is set to match the regression test reference images
                 riv->viewer()->setFixedSize(1000, 745);
-            }
-
-            RimEclipseView* resvView = dynamic_cast<RimEclipseView*>(riv);
-
-            if (resvView)
-            {
-                resvView->faultCollection->setShowFaultsOutsideFilters(false);
-
-                caf::PdmUiFieldHandle* uiFieldHandle = resvView->faultResultSettings->showCustomFaultResult.uiCapability();
-                if (uiFieldHandle)
-                {
-                    uiFieldHandle->setValueFromUi(false);
-                }
             }
         }
     }

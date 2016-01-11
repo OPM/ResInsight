@@ -55,6 +55,10 @@ namespace caf
 
 class NavigationPolicy : public cvf::Object  
 {
+public:
+    NavigationPolicy();
+    virtual ~NavigationPolicy();
+    
     friend class Viewer;
 public: // protected: // Should be protected but this friending does not work on gcc 4.1.2
 

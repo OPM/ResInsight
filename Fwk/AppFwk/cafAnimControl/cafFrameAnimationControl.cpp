@@ -71,8 +71,8 @@ FrameAnimationControl::FrameAnimationControl(QObject* parent)
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::setDefault()
 {
-    setNumFrames(0);
     setCurrentFrame(0);
+    setNumFrames(0);
     setTimeout(TIMEOUT_DEFAULT);
     setForward(true);
     setRepeatFromStart(false);

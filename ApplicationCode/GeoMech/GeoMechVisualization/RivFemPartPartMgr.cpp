@@ -144,7 +144,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Grid mesh " + m_gridIdx);
+            part->setName("Grid mesh " + cvf::String(m_gridIdx));
             part->setDrawable(geoMesh.p());
 
             part->setTransform(m_scaleTransform.p());
@@ -217,8 +217,6 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultColors)
 {
     CVF_ASSERT(cellResultColors);
-
-   // RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
@@ -295,7 +293,12 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         cellResultColors->firstAnchestorOrThisOfType(view);
         CVF_ASSERT(view);
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, view->isLightingDisabled());
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), 
+                                                        m_surfaceFacesTextureCoords.p(), 
+                                                        mapper, 
+                                                        m_opacityLevel, 
+                                                        caf::FC_NONE, 
+                                                        view->isLightingDisabled());
     }
 }
 

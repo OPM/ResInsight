@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
 
@@ -63,6 +64,8 @@ public:
     const std::vector<size_t>&  quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx;}
 
     RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p();}
+
+    static cvf::ref<cvf::DrawableGeo> createMeshDrawableFromSingleElement(const RigFemPart* grid, size_t elementIndex);
 
 private:
     static cvf::ref<cvf::UIntArray> 

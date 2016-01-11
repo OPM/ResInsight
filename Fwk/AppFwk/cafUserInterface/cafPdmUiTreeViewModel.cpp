@@ -39,6 +39,7 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiTreeItemEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -684,7 +685,7 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
             PdmUiFieldHandle* userDescriptionUiField = uiObject->userDescriptionField()->uiCapability();
             if (userDescriptionUiField)
             {
-                userDescriptionUiField->setValueFromUi(value);
+                PdmUiCommandSystemProxy::instance()->setUiValueToField(userDescriptionUiField, value);
             }
 
             return true;
@@ -698,7 +699,7 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
             PdmUiFieldHandle* toggleUiField = uiObject->objectToggleField()->uiCapability();
             if (toggleUiField)
             {
-                toggleUiField->setValueFromUi(value);
+                PdmUiCommandSystemProxy::instance()->setUiValueToField(toggleUiField, toggleOn);
             }
 
             return true;

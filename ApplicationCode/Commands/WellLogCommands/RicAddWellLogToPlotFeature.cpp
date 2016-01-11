@@ -25,7 +25,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellLogFileCurve.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
@@ -37,7 +37,7 @@
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiTreeView.h"
@@ -68,13 +68,11 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
-    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addTrack(plotTrack);
     plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
 
     plot->loadDataAndUpdate();
-
-    caf::PdmUiItem* uiItem = NULL;
 
     for (size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++)
     {
@@ -87,13 +85,17 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         wellLog->firstAnchestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
-            size_t curveIdx = plotTrack->curveCount();
-
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
             plotTrack->addCurve(curve);
 
             RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFile();
             CVF_ASSERT(wellLogDataFile);
+
+            if (wlIdx == 0)
+            {
+                // Initialize plot with depth unit from the first log file
+                plot->setDepthUnit(wellLogDataFile->depthUnit());
+            }
 
             cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
             curve->setColor(curveColor);
@@ -101,24 +103,16 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->setWellLogChannelName(wellLog->name());
 
             curve->updatePlotData();
-
-            if (wlIdx == selection.size() - 1)
-            {
-                uiItem = curve;
-            }
         }        
     }
 
     plot->calculateAvailableDepthRange();
-    plot->zoomAllDepth();
+    plot->updateDepthZoom();
     plotTrack->viewer()->replot();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    if (uiItem)
-    {
-        RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(uiItem);
-    }
+    RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selection.back());
 }
 
 //--------------------------------------------------------------------------------------------------

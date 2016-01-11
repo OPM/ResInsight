@@ -31,25 +31,30 @@
 
 #include "cvfArray.h"
 #include "cvfBase.h"
+#include "cvfCollection.h"
 #include "cvfObject.h"
-
 
 #include <QPointer>
 
 class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilter;
+class RimGridCollection;
 class RimCellRangeFilterCollection;
-class RiuViewer;
-class RimViewLinker;
+class RimCrossSectionCollection;
+class RimPropertyFilterCollection;
 class RimViewController;
+class RimViewLinker;
+class RiuViewer;
 
 namespace cvf
 {
     class BoundingBox;
     class ModelBasicList;
     class Scene;
+    class String;
     class Transform;
+    class Part;
 }
 
 //==================================================================================================
@@ -71,20 +76,23 @@ public:
 
     caf::PdmField<bool>                     showWindow;
     caf::PdmField<cvf::Mat4d>               cameraPosition;
+    caf::PdmField<bool>                     isPerspectiveView;
     caf::PdmField< cvf::Color3f >           backgroundColor;
 
     caf::PdmField<int>                      maximumFrameRate;
     caf::PdmField<bool>                     hasUserRequestedAnimation;
 
+    virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
     RimCellRangeFilterCollection*           rangeFilterCollection();
     const RimCellRangeFilterCollection*     rangeFilterCollection() const;
 
-    RimCellRangeFilterCollection*           overrideRangeFilterCollection();
+    bool                                    hasOverridenRangeFilterCollection();
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
     void                                    replaceRangeFilterCollectionWithOverride();
 
     caf::PdmField< std::vector<int> >       windowGeometry;
 
+    caf::PdmChildField<RimCrossSectionCollection*>      crossSectionCollection;
 
     // Draw style 
 
@@ -104,6 +112,7 @@ public:
 
     caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
+    caf::PdmField<bool>                     showGridBox;
 
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
@@ -114,7 +123,7 @@ public:
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
    
-    void                                    setShowFaultsOnly(bool showFaults);
+    void                                    showGridCells(bool enableHideGridCells);
     bool                                    isGridVisualizationMode() const;
 
     void                                    setScaleZAndUpdate(double scaleZ);
@@ -128,12 +137,18 @@ public:
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
     void                                    createDisplayModelAndRedraw();
+    void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
 
     RimViewController*                      viewController() const;
     bool                                    isMasterView() const;
     RimViewLinker*                          assosiatedViewLinker() const;
 
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
+
+    virtual bool                            showActiveCellsOnly();
+    virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
+
+    void                                    selectOverlayInfoConfig();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
@@ -151,7 +166,15 @@ protected:
                                                                 const cvf::BoundingBox& wellPathClipBoundingBox, 
                                                                 cvf::Transform* scaleTransform);
 
+    static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
+
     virtual void                            createDisplayModel() = 0;
+    
+    void                                    createHighlightAndGridBoxDisplayModel();
+    void                                    updateGridBoxData();
+
+    virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
+    
     virtual void                            updateDisplayModelVisibility() = 0;
     virtual void                            clampCurrentTimestep() = 0;
 
@@ -174,17 +197,22 @@ protected:
 
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*>   m_overrideRangeFilterCollection;
-
+    
+    caf::PdmChildField<RimGridCollection*>              m_gridCollection;
+    
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
+    
+    cvf::ref<cvf::ModelBasicList>           m_wellPathPipeVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_crossSectionVizModel;
+    cvf::ref<cvf::ModelBasicList>           m_highlightVizModel;
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
-
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;

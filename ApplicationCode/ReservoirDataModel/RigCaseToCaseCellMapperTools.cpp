@@ -49,7 +49,7 @@ public:
         if (offsetK > 0 && m_baseK == m_mainGrid->cellCountK()-1) return NULL;
 
         size_t gridLocalCellIndex = m_mainGrid->cellIndexFromIJK(m_baseI + offsetI, m_baseJ + offsetJ, m_baseK + offsetK);
-        const RigCell& cell = m_mainGrid->cells()[gridLocalCellIndex];
+        const RigCell& cell = m_mainGrid->globalCellArray()[gridLocalCellIndex];
         return &(cell.cornerIndices());
     }
 

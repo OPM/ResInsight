@@ -148,14 +148,11 @@ void RiuMultiCaseImportDialog::on_m_removeSearchFolderButton_clicked()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::updateGridFileList()
 {
-
     QStringList folderNames =  m_searchFolders->stringList();
     QStringList gridFileNames;
 
-
     // Filter the search folders to remove subfolders of existing roots'
 
-    bool okToAdd = true;
     QStringList searchFoldersToRemove;
 
     for (int i = 0; i < folderNames.size(); ++i)

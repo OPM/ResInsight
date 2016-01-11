@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA
+//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,8 +20,6 @@
 
 #pragma once
 
-//class RivPipeQuadToSegmentMapper;
-
 class RivPipeGeometryGenerator : public cvf::Object
 {
 public:
@@ -31,6 +31,7 @@ public:
         
     // Pipe bends with a opening angle below given angle is modified with extra bend coordinates
     void setMinimumBendAngle(double degrees);
+    
     // Scaling factor used to control how far from original pipe position the extra bend coordinates are located
     // This will affect how sharp or smooth bend will appear
     void setBendScalingFactor(double scaleFactor);
@@ -45,6 +46,9 @@ public:
 
     void pipeSurfaceTextureCoords(cvf::Vec2fArray* textureCoords, const std::vector<double>& segmentResults, const cvf::ScalarMapper* mapper) const;
     void centerlineTextureCoords(cvf::Vec2fArray* textureCoords, const std::vector<double>& segmentResults, const cvf::ScalarMapper* mapper) const;
+
+    void    setFirstSegmentIndex(size_t segmentIndex);
+    size_t  segmentIndexFromTriangleIndex(size_t triangleIndex) const;
 
 private:
     void clearComputedData();
@@ -72,8 +76,7 @@ private:
     // Map from generated cylinder segments to pipe result indices
     std::vector<size_t>         m_filteredPipeSegmentToResult;
 
-    // TODO: implement
-    //RivPipeQuadToSegmentMapper* m_quadToSegmentMapper;
+    size_t                      m_firstSegmentIndex;
 
     double                      m_radius;
     double                      m_minimumBendAngle;

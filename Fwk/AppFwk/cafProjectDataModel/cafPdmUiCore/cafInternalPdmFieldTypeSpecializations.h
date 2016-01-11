@@ -2,6 +2,7 @@
 
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
+#include "cafInternalPdmValueFieldSpecializations.h"
 
 #include <QStringList>
 
@@ -111,28 +112,13 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const std::vector<T>& value)
     {
-        QList<QVariant> returnList;
-        typename std::vector<T>::const_iterator it;
-        for (it = value.begin(); it != value.end() ; ++it)
-        {
-            returnList.push_back(QVariant(*it));
-        }
-        return returnList;
+        return PdmValueFieldSpecialization< std::vector<T> >::convert(value);
     }
 
     /// Set the field value from a QVariant
     static void setFromVariant(const QVariant& variantValue, std::vector<T>& value)
     {
-        if (variantValue.canConvert< QList<QVariant> >())
-        {
-            value.clear();
-            QList<QVariant> lst = variantValue.toList();
-            int i;
-            for (i = 0; i < lst.size(); ++i)
-            {
-                value.push_back(lst[i].value<T>());
-            }
-        }
+        return PdmValueFieldSpecialization< std::vector<T> >::setFromVariant(variantValue, value);
     }
 
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)

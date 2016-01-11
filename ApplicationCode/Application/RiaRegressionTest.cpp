@@ -32,6 +32,8 @@ RiaRegressionTest::RiaRegressionTest(void)
     
     CAF_PDM_InitFieldNoDefault(&regressionTestFolder,   "regressionTestFolder", "Regression Test Folder", "", "", "");
     regressionTestFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive diff images", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

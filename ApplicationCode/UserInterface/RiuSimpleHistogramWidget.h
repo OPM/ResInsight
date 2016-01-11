@@ -10,7 +10,7 @@ public:
     RiuSimpleHistogramWidget( QWidget * parent = 0, Qt::WindowFlags f = 0);
 
     void                setHistogramData(double min, double max, const std::vector<size_t>& histogram);
-    void                setPercentiles(double pmin, double pmax) {m_minPercentile = pmin; m_maxPercentile = pmax;}
+    void                setPercentiles(double pmin, double pmax);
     void                setMean(double mean) {m_mean = mean;}
 
 protected:
@@ -19,10 +19,10 @@ protected:
 private:
     void                draw(QPainter *painter,int x, int y, int width, int height );
 
-    int                 xPosFromColIdx(size_t colIdx)          { return  (int)(m_x + 1 + (m_width - 2 ) * colIdx/m_histogramData.size());}
-    int                 yPosFromCount(size_t colHeight)        { return  (int)(m_y + m_height - 1 - (m_height - 3 ) * colHeight/m_maxHistogramCount);}
+    int                 xPosFromColIdx(size_t colIdx);
+    int                 yPosFromCount(size_t colHeight);
 
-    int                 xPosFromDomainValue(double value) { double range = m_max - m_min; return  (range == 0.0) ? (int)(m_x + 1) : (int)(m_x + 1 + (m_width - 2 ) * (value - m_min)/(m_max - m_min));}
+    int                 xPosFromDomainValue(double value);
 
     std::vector<size_t> m_histogramData;
     double              m_max;

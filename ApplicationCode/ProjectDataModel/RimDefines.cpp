@@ -44,6 +44,14 @@ namespace caf
         setDefault(RimDefines::MATRIX_MODEL);
     }
 
+    template<>
+    void caf::AppEnum< RimDefines::DepthUnitType >::setUp()
+    {
+        addItem(RimDefines::UNIT_METER,  "UNIT_METER",   "Meter");
+        addItem(RimDefines::UNIT_FEET,   "UNIT_FEET",    "Feet");
+
+        setDefault(RimDefines::UNIT_METER);
+    }
 }
 
 

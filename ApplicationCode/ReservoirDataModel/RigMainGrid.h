@@ -45,8 +45,8 @@ public:
     std::vector<cvf::Vec3d>&                nodes() {return m_nodes;}
     const std::vector<cvf::Vec3d>&          nodes() const {return m_nodes;}
 
-    std::vector<RigCell>&                   cells() {return m_cells;}
-    const std::vector<RigCell>&             cells() const {return m_cells;}
+    std::vector<RigCell>&                   globalCellArray() {return m_cells;}
+    const std::vector<RigCell>&             globalCellArray() const {return m_cells;}
 
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
@@ -69,11 +69,13 @@ public:
 
     void                                    setFlipAxis(bool flipXAxis, bool flipYAxis);
     void                                    findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const;
-    cvf::BoundingBox                        boundingBox() const;             
+
+    cvf::BoundingBox                        boundingBox() const;
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
+    void                                    buildCellSearchTree();
 
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
@@ -87,7 +89,7 @@ private:
     cvf::ref<RigFaultsPrCellAccumulator>    m_faultsPrCellAcc;
 
     cvf::Vec3d                              m_displayModelOffset;
-    mutable cvf::ref<cvf::BoundingBoxTree>  m_cellSearchTree;
+    cvf::ref<cvf::BoundingBoxTree>          m_cellSearchTree;
     mutable cvf::BoundingBox                m_boundingBox;    
 
     bool                                    m_flipXAxis;

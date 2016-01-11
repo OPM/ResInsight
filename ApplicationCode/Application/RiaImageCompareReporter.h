@@ -30,10 +30,14 @@ public:
     void addImageDirectoryComparisonSet(const std::string& title, const std::string& baseImageDir, const std::string& newImagesDir, const std::string& diffImagesDir  );
     void generateHTMLReport(const std::string& filenName);
 
+    void showInteractiveOnly();
+
  
 private:
     static std::vector<std::string> getPngFilesInDirectory(const std::string& searchPath);
+    std::string cssString() const;
 
+private:
     struct DirSet
     {
         DirSet(const std::string& title, const std::string& baseImageDir, const std::string& newImagesDir, const std::string& diffImagesDir )
@@ -50,5 +54,9 @@ private:
     };
 
     std::vector<DirSet> m_directorySets;
+
+    bool m_showOriginal;
+    bool m_showGenerated;
+    bool m_showInteractiveDiff;
 };
 

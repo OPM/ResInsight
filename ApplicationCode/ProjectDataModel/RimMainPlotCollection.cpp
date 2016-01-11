@@ -68,17 +68,6 @@ caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::recreateWellLogPlotCollection()
-{
-    if (!wellLogPlotCollection())
-    {
-        m_wellLogPlotCollection = new RimWellLogPlotCollection();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
 {
     return m_wellLogPlotCollection();

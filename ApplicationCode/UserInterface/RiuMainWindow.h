@@ -23,6 +23,7 @@
 #include <QEvent>
 #include <QMainWindow>
 #include <QPointer>
+#include <QMdiArea>
 
 class QActionGroup;
 class QComboBox;
@@ -30,7 +31,6 @@ class QFrame;
 class QItemSelection;
 class QLabel;
 class QLineEdit;
-class QMdiArea;
 class QMdiSubWindow;
 class QSpinBox;
 class QTreeView;
@@ -42,6 +42,7 @@ class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
 class RiuWellLogPlot;
+class RiuResultQwtPlot;
 
 namespace caf
 {
@@ -92,7 +93,7 @@ public:
     void            loadWinGeoAndDockToolBarLayout();
     void            showWindow();
 
-    void            setCurrentObjectInTreeView(caf::PdmObject* object);
+    void            selectAsCurrentItem(caf::PdmObject* object);
 
     void            selectedCases(std::vector<RimCase*>& cases);
 
@@ -111,6 +112,9 @@ public:
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
+	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
+
+    RiuResultQwtPlot* resultPlot();
 
 protected:
     virtual void    closeEvent(QCloseEvent* event);
@@ -198,6 +202,8 @@ private:
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
     
+    RiuResultQwtPlot*   m_resultQwtPlot;
+    
     QMenu*              m_windowMenu;
 
 
@@ -235,7 +241,7 @@ private slots:
     void    slotScaleChanged(int scaleValue);
 
     void slotDrawStyleChanged(QAction* activatedAction);
-    void slotToggleFaultsAction(bool);
+    void slotToggleHideGridCellsAction(bool);
     void slotToggleFaultLabelsAction(bool);
     void slotDisableLightingAction(bool);
 
@@ -295,7 +301,7 @@ private:
 
     QActionGroup*               m_dsActionGroup;
     QAction*                    m_disableLightingAction;
-    QAction*                    m_drawStyleToggleFaultsAction;
+    QAction*                    m_drawStyleHideGridCellsAction;
     QAction*                    m_toggleFaultsLabelAction;
     QAction*                    m_drawStyleLinesAction;
     QAction*                    m_drawStyleLinesSolidAction;

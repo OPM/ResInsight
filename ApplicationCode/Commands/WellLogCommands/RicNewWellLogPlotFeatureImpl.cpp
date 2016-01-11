@@ -19,49 +19,15 @@
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RimProject.h"
 #include "RimMainPlotCollection.h"
-#include "RimWellLogPlotCollection.h"
+#include "RimProject.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogTrack.h"
 
 #include "RiaApplication.h"
 
 #include "cvfAssert.h"
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimMainPlotCollection* RicNewWellLogPlotFeatureImpl::mainPlotCollection()
-{
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    if (!mainPlotColl)
-    {
-        project->recreateMainPlotCollection();
-    }
-
-    return project->mainPlotCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
-{
-    RimMainPlotCollection* mainPlotColl = mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimWellLogPlotCollection* wellLogPlotColl = mainPlotColl->wellLogPlotCollection();
-    if (!wellLogPlotColl)
-    {
-        mainPlotColl->recreateWellLogPlotCollection();
-    }
-
-    return mainPlotColl->wellLogPlotCollection();
-}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -83,11 +49,11 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack()
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack()
 {
     RimWellLogPlot* plot = createWellLogPlot();
 
-    RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack();
+    RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addTrack(plotTrack);
     plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
 
@@ -96,4 +62,21 @@ RimWellLogPlotTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack()
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     return plotTrack;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
+{
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT(project);
+
+    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
+    CVF_ASSERT(mainPlotColl);
+
+    RimWellLogPlotCollection* wellLogPlotColl = mainPlotColl->wellLogPlotCollection();
+    CVF_ASSERT(wellLogPlotColl);
+
+    return mainPlotColl->wellLogPlotCollection();
 }

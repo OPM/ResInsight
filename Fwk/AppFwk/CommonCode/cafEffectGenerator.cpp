@@ -887,4 +887,54 @@ EffectGenerator* MeshEffectGenerator::copy() const
 
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TextEffectGenerator::TextEffectGenerator()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool TextEffectGenerator::isEqual(const EffectGenerator* other) const
+{
+    const TextEffectGenerator* otherSurfaceEffect = dynamic_cast<const TextEffectGenerator*>(other);
+    if (otherSurfaceEffect)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+EffectGenerator* TextEffectGenerator::copy() const
+{
+    TextEffectGenerator* effGen = new TextEffectGenerator;
+
+    return effGen;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) const
+{
+    // See OpenGLResourceManager::getLinkedTextShaderProgram for code to be used here
+    // Detected some issues on RHEL 6 related to text, so use an empty effect for now
+    // Will fall back to fixed function rendering
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) const
+{
+
+}
+
 } // End namespace caf

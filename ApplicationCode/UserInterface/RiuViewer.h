@@ -28,17 +28,23 @@
 #include "cafMouseState.h"
 #include "cvfStructGrid.h"
 
+class RicCommandFeature;
 class RimView;
+class RiuSimpleHistogramWidget;
+class RiuViewerCommands;
+class RivGridBoxGenerator;
+
+class QCDEStyle;
 class QLabel;
 class QProgressBar;
-class RiuSimpleHistogramWidget;
-class QCDEStyle;
-class RiuViewerCommands;
 
 namespace cvf
 {
-    class Part;
+    class Color3f;
+    class Model;
     class OverlayItem;
+    class Part;
+    class OverlayAxisCross;
 }
 
 //==================================================================================================
@@ -67,6 +73,9 @@ public:
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
+    void            updateGridBoxData();
+    cvf::Model*     gridBoxModel() const;
+
     void            showAnimationProgress(bool enable);
     
     void            removeAllColorLegends();
@@ -78,20 +87,34 @@ public:
 
     void            setCurrentFrame(int frameIndex);
 
+    void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
 
+protected:
+    virtual void    optimizeClippingPlanes();
+
 private:
+    void            updateTextAndTickMarkColorForOverlayItems();
+    void            updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend);
+
+    cvf::Color3f    computeContrastColor() const;
+
+    void            updateAxisCrossTextColor();
+
     void            paintOverlayItems(QPainter* painter);
 
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
 
+private:
+    QLabel*         m_infoLabel;
+    QRect           m_infoLabelOverlayArea;
 
-    QLabel*         m_InfoLabel;
     QLabel*         m_versionInfoLabel;
-    bool            m_showInfoText;; 
+    bool            m_showInfoText; 
 
     QProgressBar*   m_animationProgress;
     bool            m_showAnimProgress; 
@@ -100,12 +123,14 @@ private:
 
     QCDEStyle*      m_progressBarStyle;
 
-
+    cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
 
-    caf::PdmPointer<RimView> m_reservoirView;
-    QPoint          m_lastMousePressPosition;
+    caf::PdmPointer<RimView>    m_rimView;
+    QPoint                      m_lastMousePressPosition;
 
-    RiuViewerCommands * m_viewerCommands;
+    RiuViewerCommands*          m_viewerCommands;
+
+    RivGridBoxGenerator*        m_gridBoxGenerator;
 };
 

@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCase.h"
+
 #include "cafPdmObjectFactory.h"
 
 #include <QFile>
@@ -203,4 +204,12 @@ QString RimCase::relocateFile(const QString& orgFileName,  const QString& orgNew
     if (foundFile) *foundFile = false;
 
     return fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimCase::displayModelOffset() const
+{
+    return cvf::Vec3d::ZERO;
 }

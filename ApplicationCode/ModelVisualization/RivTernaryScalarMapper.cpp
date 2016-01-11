@@ -77,10 +77,7 @@ bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image, float opaci
     CVF_ASSERT(image);
     image->allocate(m_textureSize.x(), m_textureSize.y());
 
-    // For now fill with white so we can see any errors more easily
-    image->fill(cvf::Color4ub(cvf::Color3::WHITE));
-
-    
+    image->fill(cvf::Color4ub(cvf::Color3ub(m_undefScalarColor)));
     
     cvf::uint halfTextureHeight = m_textureSize.y() / 2;
     

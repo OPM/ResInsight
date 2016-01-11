@@ -22,6 +22,7 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSectionCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimProject.h"
@@ -29,7 +30,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPathCollection.h"
 
 #include "cafNotificationCenter.h"
@@ -102,6 +103,13 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        RimCrossSectionCollection* crossSectionColl;
+        parentObj->firstAnchestorOrThisOfType(crossSectionColl);
+        if (view && crossSectionColl)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
         RimWellPathCollection* wellPathColl;
         parentObj->firstAnchestorOrThisOfType(wellPathColl);
 
@@ -117,14 +125,14 @@ void RicDeleteItemExec::redo()
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->zoomAllDepth();
+            wellLogPlot->updateDepthZoom();
         }
 
-        RimWellLogPlotTrack* wellLogPlotTrack;
+        RimWellLogTrack* wellLogPlotTrack;
         parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->zoomAllXAxis();
+            wellLogPlotTrack->zoomAllXAxisIfAutoScale();
         }
         
         // Update due to delete plots

@@ -38,7 +38,7 @@ RigFemNativeStatCalc::RigFemNativeStatCalc(RigFemPartResultsCollection* femResul
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
-    for (int pIdx = 0; pIdx < static_cast<int>(m_resultsData->m_femPartResults.size()); ++pIdx)
+    for (int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx)
     {
         const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
 
@@ -68,7 +68,7 @@ void RigFemNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& 
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
-    for (int pIdx = 0; pIdx < static_cast<int>(m_resultsData->m_femPartResults.size()); ++pIdx)
+    for (int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx)
     {
         const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
 
@@ -92,53 +92,48 @@ void RigFemNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFemNativeStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleCount)
-{
-   int timestepCount = (int)(this->timeStepCount());
-   int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
-
-   for (int pIdx = 0; pIdx < partCount; ++pIdx)
-   {
-       for (int tIdx = 0; tIdx < timestepCount; tIdx++)
-       {
-           const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tIdx);
-           size_t undefValueCount = 0;
-           for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-           {
-               double value = values[cIdx];
-               if (value == HUGE_VAL || value != value)
-               {
-                   ++undefValueCount;
-                   continue;
-               }
-
-               valueSum += value;
-           }
-
-           sampleCount += values.size();
-           sampleCount -= undefValueCount;
-       }
-   }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeStatCalc::addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator)
+void RigFemNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
-    int timestepCount = (int)(this->timeStepCount());
-    int partCount = static_cast<int>(m_resultsData->m_femPartResults.size());
+    int tsIdx = static_cast<int>(timeStepIndex);
+    int partCount = m_resultsData->partCount();
+
     for (int pIdx = 0; pIdx < partCount; ++pIdx)
     {
-        for (int tIdx = 0; tIdx < timestepCount; tIdx++)
+        const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tsIdx);
+        size_t undefValueCount = 0;
+        for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
         {
-            const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, tIdx);
+            double value = values[cIdx];
+            if (value == HUGE_VAL || value != value)
+            {
+                ++undefValueCount;
+                continue;
+            }
 
-            histogramCalculator.addData(values);
+            valueSum += value;
         }
+
+        sampleCount += values.size();
+        sampleCount -= undefValueCount;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
+{
+    int partCount = m_resultsData->partCount();
+    for (int pIdx = 0; pIdx < partCount; ++pIdx)
+    {
+        const std::vector<float>& values = m_resultsData->resultValues(m_resVarAddr, pIdx, static_cast<int>(timeStepIndex));
+
+        histogramCalculator.addData(values);
     }
 }
 

@@ -45,9 +45,6 @@ public:
     std::vector<RimEclipseInputProperty*> findInputProperties(QString fileName);
     RimEclipseInputProperty* findInputProperty(QString resultName);
 
-    void removeInputProperty(RimEclipseInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers);
-
-
     // Fields:                        
     caf::PdmChildArrayField<RimEclipseInputProperty*> inputProperties;
 

@@ -17,11 +17,11 @@ add_subdirectory(cafCommand)
 add_subdirectory(cafUserInterface)
 
 #executables
-add_subdirectory(cafTests/cafProjectDataModel_UnitTests)
 add_subdirectory(cafTests/cafTestApplication)
 
 add_subdirectory (cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
 add_subdirectory (cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
+add_subdirectory (cafProjectDataModel/cafProjectDataModel_UnitTests)
 
 # Organize sub-projects into folders on Visual Studio
 # Turn on using solution folders

@@ -326,7 +326,7 @@ float RigFemPart::characteristicElementSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RigFemPart::boundingBox()
+cvf::BoundingBox RigFemPart::boundingBox() const
 {
     if (m_boundingBox.isValid()) return m_boundingBox;
 

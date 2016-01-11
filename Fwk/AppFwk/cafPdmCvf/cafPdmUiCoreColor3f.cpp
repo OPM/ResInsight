@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -47,7 +47,7 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiColorEditor, cvf::Color3f);
 // in a cpp file, a dummy static class must be used to make sure the compile unit
 // is included
 //--------------------------------------------------------------------------------------------------
-Color3fDummy::Color3fDummy()
+PdmColor3fInitializer::PdmColor3fInitializer()
 {
 
 }

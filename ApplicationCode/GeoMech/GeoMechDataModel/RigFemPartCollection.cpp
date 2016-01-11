@@ -103,7 +103,7 @@ float RigFemPartCollection::characteristicElementSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RigFemPartCollection::boundingBox()
+cvf::BoundingBox RigFemPartCollection::boundingBox() const
 {
     cvf::BoundingBox bBox;
     for (int i = 0; i < partCount(); i++)

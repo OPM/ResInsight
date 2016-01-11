@@ -25,9 +25,10 @@
 #include "cafAppEnum.h"
 
 #include <QPointer>
+#include "RimDefines.h"
 
 class RiuWellLogPlot;
-class RimWellLogPlotTrack;
+class RimWellLogTrack;
 
 
 //==================================================================================================
@@ -52,16 +53,20 @@ public:
     void                                            setDescription(const QString& description);
 
     DepthTypeEnum                                   depthType() const;
+
+    RimDefines::DepthUnitType                       depthUnit() const;
+    void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
+
     QString                                         depthPlotTitle() const;
 
     caf::PdmField< std::vector<int> >               windowGeometry;
 
-    void                                            addTrack(RimWellLogPlotTrack* track);
-    void                                            insertTrack(RimWellLogPlotTrack* track, size_t index);
+    void                                            addTrack(RimWellLogTrack* track);
+    void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
-    void                                            removeTrack(RimWellLogPlotTrack* track);
-    size_t                                          trackIndex(RimWellLogPlotTrack* track);
-    void                                            moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove);
+    void                                            removeTrack(RimWellLogTrack* track);
+    size_t                                          trackIndex(RimWellLogTrack* track);
+    void                                            moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove);
 
     void                                            loadDataAndUpdate();
     void                                            updateTracks();
@@ -69,7 +74,7 @@ public:
 
     RiuWellLogPlot*                                 viewer();
 
-    void                                            zoomAllDepth();
+    void                                            updateDepthZoom();
     void                                            setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter);
     void                                            panDepth(double panFactor);
     void                                            setDepthZoomMinMax(double minimumDepth, double maximumDepth);
@@ -91,20 +96,24 @@ protected:
 private:
     void                                            updateViewerWidget();
     void                                            updateViewerWidgetWindowTitle();
-    void                                            updateDepthZoomInQwt();
+    void                                            applyZoomAllDepths();
+    void                                            applyDepthZoomFromVisibleDepth();
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
     void                                            handleViewerDeletion();
 
 private:
-    
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
-    caf::PdmField< caf::AppEnum< DepthTypeEnum > >  m_depthType;
-    caf::PdmChildArrayField<RimWellLogPlotTrack*>   m_tracks;
+    
+    caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;
+    caf::PdmField< caf::AppEnum< RimDefines::DepthUnitType > >  m_depthUnit;
+
+    caf::PdmChildArrayField<RimWellLogTrack*>       m_tracks;
 
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;
+    caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
 
     double                                          m_minAvailableDepth;
     double                                          m_maxAvailableDepth;

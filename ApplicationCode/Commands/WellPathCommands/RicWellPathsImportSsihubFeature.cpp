@@ -86,16 +86,14 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 
     // Get password/username from application cache
     {
+#ifdef _DEBUG
+        // Valid credentials for ssihubfake received in mail from Håkon 
+        QString ssihubUsername = "admin";
+        QString ssihubPassword = "resinsight";
+#else
         QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
         QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
-
-#ifdef _DEBUG
-
-        // Valid credentials for ssihubfake received in mail from Håkon 
-        ssihubUsername = "admin";
-        ssihubPassword = "resinsight";
 #endif
-
         wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
     }
 

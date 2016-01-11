@@ -18,14 +18,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGeoMechCase.h"
-#include "RimGeoMechView.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RifOdbReader.h"
-#include "RigGeoMechCaseData.h"
+
+#include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
-#include "RimProject.h"
+#include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimWellLogPlotCollection.h"
 
 #include <QFile>
@@ -92,9 +97,7 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 {
     // If read already, return
-
     if (this->m_geoMechCaseData.notNull()) return true;
-
 
     if (!QFile::exists(m_caseFileName()))
     {
@@ -103,7 +106,15 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 
     m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().toStdString());
 
-    return m_geoMechCaseData->openAndReadFemParts(errorMessage);
+    bool fileOpenSuccess = m_geoMechCaseData->openAndReadFemParts(errorMessage);
+    if (!fileOpenSuccess)
+    {
+        // If opening failed, release all data
+        // Also, several places is checked for this data to validate availability of data
+        m_geoMechCaseData = NULL;
+    }
+
+    return fileOpenSuccess;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,3 +180,91 @@ QStringList RimGeoMechCase::timeStepStrings()
 
     return stringList;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::timeStepName(int frameIdx)
+{
+   std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
+
+   return QString::fromStdString(stepNames[frameIdx]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimGeoMechCase::activeCellsBoundingBox() const
+{
+    return allCellsBoundingBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
+{
+    if (m_geoMechCaseData.notNull() && m_geoMechCaseData->femParts())
+    {
+        return m_geoMechCaseData->femParts()->boundingBox();
+    }
+    else
+    {
+        return cvf::BoundingBox();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
+{
+    std::vector<QDateTime> dates;
+
+    QString dateFormat = "ddMMyyyy";
+
+    for (int i = 0; i < timeStepStrings.size(); i++)
+    {
+        QString timeStepString = timeStepStrings[i];
+
+        QString dateStr = subStringOfDigits(timeStepString, dateFormat.size());
+
+        QDateTime dateTime = QDateTime::fromString(dateStr, dateFormat);
+        if (dateTime.isValid())
+        {
+            dates.push_back(dateTime);
+        }
+    }
+
+    return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int numberOfDigitsToFind)
+{
+    for (int j = 0; j < inputString.size(); j++)
+    {
+        if (inputString.at(j).isDigit())
+        {
+            QString digitString;
+
+            for (int k = 0; k < numberOfDigitsToFind; k++)
+            {
+                if (j + k < inputString.size() && inputString.at(j + k).isDigit())
+                {
+                    digitString += inputString.at(j + k);
+                }
+            }
+
+            if (digitString.size() == numberOfDigitsToFind)
+            {
+                return digitString;
+            }
+        }
+    }
+
+    return "";
+}
+

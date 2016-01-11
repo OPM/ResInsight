@@ -19,10 +19,10 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuWellLogPlot.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeView.h"
@@ -66,8 +66,12 @@ RimWellLogPlot::RimWellLogPlot()
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
     CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Depth type",   "", "", "");
 
+    caf::AppEnum< RimDefines::DepthUnitType > depthUnit = RimDefines::UNIT_METER;
+    CAF_PDM_InitField(&m_depthUnit, "DepthUnit", depthUnit, "Depth unit", "", "", "");
+
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
+    CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
@@ -85,7 +89,10 @@ RimWellLogPlot::RimWellLogPlot()
 RimWellLogPlot::~RimWellLogPlot()
 {
     RiuMainWindow::instance()->removeViewer(m_viewer);
+    
     detachAllCurves();
+    m_tracks.deleteAllChildObjects();
+
     delete m_viewer;
 }
 
@@ -144,13 +151,20 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth)
     {
-        updateDepthZoomInQwt();
+        applyDepthZoomFromVisibleDepth();
+
+        m_isAutoScaleDepthEnabled = false;
+    }
+    else if (changedField == &m_isAutoScaleDepthEnabled)
+    {
+        updateDepthZoom();
     }
     else if (changedField == &m_userName)
     {
         updateViewerWidgetWindowTitle();
     }
-    if (changedField == &m_depthType)
+    if (changedField == &m_depthType ||
+        changedField == &m_depthUnit)
     {
         updateTracks();
     }
@@ -167,7 +181,7 @@ caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
+void RimWellLogPlot::addTrack(RimWellLogTrack* track)
 {
     m_tracks.push_back(track);
     if (m_viewer)
@@ -182,7 +196,7 @@ void RimWellLogPlot::addTrack(RimWellLogPlotTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::insertTrack(RimWellLogPlotTrack* track, size_t index)
+void RimWellLogPlot::insertTrack(RimWellLogTrack* track, size_t index)
 {
     m_tracks.insert(index, track);
 
@@ -198,7 +212,7 @@ void RimWellLogPlot::insertTrack(RimWellLogPlotTrack* track, size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
+void RimWellLogPlot::removeTrack(RimWellLogTrack* track)
 {
     if (track)
     {
@@ -210,11 +224,11 @@ void RimWellLogPlot::removeTrack(RimWellLogPlotTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::moveTracks(RimWellLogPlotTrack* insertAfterTrack, const std::vector<RimWellLogPlotTrack*>& tracksToMove)
+void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove)
 {
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
-        RimWellLogPlotTrack* track = tracksToMove[tIdx];
+        RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* wellLogPlot;
         track->firstAnchestorOrThisOfType(wellLogPlot);
@@ -275,7 +289,7 @@ void RimWellLogPlot::setDepthZoomMinMax(double minimumDepth, double maximumDepth
     m_minVisibleDepth.uiCapability()->updateConnectedEditors();
     m_maxVisibleDepth.uiCapability()->updateConnectedEditors();
 
-    updateDepthZoomInQwt();
+    applyDepthZoomFromVisibleDepth();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -366,8 +380,10 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_depthType);
+    uiOrdering.add(&m_depthUnit);
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
+    gridGroup->add(&m_isAutoScaleDepthEnabled);
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
 }
@@ -395,7 +411,7 @@ void RimWellLogPlot::updateTracks()
         }
 
         calculateAvailableDepthRange();
-        updateDepthZoomInQwt();
+        updateDepthZoom();
     }
 }
 
@@ -413,7 +429,22 @@ void RimWellLogPlot::updateTrackNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateDepthZoomInQwt()
+void RimWellLogPlot::updateDepthZoom()
+{
+    if (m_isAutoScaleDepthEnabled)
+    {
+        applyZoomAllDepths();
+    }
+    else
+    {
+        applyDepthZoomFromVisibleDepth();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::applyDepthZoomFromVisibleDepth()
 {
     if (m_viewer)
     {
@@ -428,11 +459,11 @@ void RimWellLogPlot::updateDepthZoomInQwt()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::zoomAllDepth()
+void RimWellLogPlot::applyZoomAllDepths()
 {
     if (hasAvailableDepthRange())
     {
-        setDepthZoomMinMax(m_minAvailableDepth, m_maxAvailableDepth);
+        setDepthZoomMinMax(m_minAvailableDepth, m_maxAvailableDepth + 0.01*(m_maxAvailableDepth - m_minAvailableDepth));
     }
     else
     {
@@ -512,6 +543,14 @@ RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimDefines::DepthUnitType RimWellLogPlot::depthUnit() const
+{
+    return m_depthUnit.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::depthPlotTitle() const
 {
     QString depthTitle = "Depth";
@@ -527,15 +566,33 @@ QString RimWellLogPlot::depthPlotTitle() const
             break;
     }
 
-    depthTitle += " [m]";
+    if (m_depthUnit == RimDefines::UNIT_METER)
+    {
+        depthTitle += " [m]";
+    }
+    else if (m_depthUnit == RimDefines::UNIT_FEET)
+    {
+        depthTitle += " [ft]";
+    }
+
     return depthTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimWellLogPlot::trackIndex(RimWellLogPlotTrack* track)
+size_t RimWellLogPlot::trackIndex(RimWellLogTrack* track)
 {
     return m_tracks.index(track);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setDepthUnit(RimDefines::DepthUnitType depthUnit)
+{
+    m_depthUnit = depthUnit;
+
+    updateTracks();
 }
 

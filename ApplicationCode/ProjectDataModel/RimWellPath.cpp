@@ -24,7 +24,6 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
-#include "RimWellPathCollection.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
@@ -92,7 +91,6 @@ RimWellPath::RimWellPath()
     m_wellLogFile.uiCapability()->setUiHidden(true);
 
     m_wellPath = NULL;
-    m_project = NULL;
 }
 
 
@@ -131,7 +129,6 @@ caf::PdmFieldHandle* RimWellPath::userDescriptionField()
     return &name;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -144,17 +141,20 @@ void RimWellPath::setSurveyType(QString surveyType)
         wellPathColor = cvf::Color3f(0.0f, 0.333f, 0.999f);
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr* RimWellPath::partMgr()
 {
     if (m_wellPathPartMgr.isNull()) 
     {
-        m_wellPathPartMgr = new RivWellPathPartMgr(m_wellPathCollection, this);
+        RimWellPathCollection* wpColl;
+        this->firstAnchestorOrThisOfType(wpColl);
+        if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(this);
     }
 
     return m_wellPathPartMgr.p();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -162,9 +162,11 @@ RivWellPathPartMgr* RimWellPath::partMgr()
 void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     partMgr()->scheduleGeometryRegen();
-    if (m_project) m_project->createDisplayModelAndRedrawAllViews();
-}
 
+    RimProject* proj;
+    this->firstAnchestorOrThisOfType(proj);
+    if (proj) proj->createDisplayModelAndRedrawAllViews();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -174,11 +176,10 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
     return &showWellPath;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::readWellPathFile(QString* errorMessage)
+bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileReader* asciiReader)
 {
     QFileInfo fileInf(filepath());
 
@@ -190,7 +191,7 @@ bool RimWellPath::readWellPathFile(QString* errorMessage)
         }
         else
         {
-            this->readAsciiWellPathFile();
+            this->readAsciiWellPathFile(asciiReader);
         }
 
         return true;
@@ -255,9 +256,11 @@ void RimWellPath::readJsonWellPathFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::readAsciiWellPathFile()
+void RimWellPath::readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader)
 {
-    RifWellPathAsciiFileReader::WellData wpData = m_wellPathCollection->asciiFileReader()->readWellData(filepath(), wellPathIndexInFile());
+    CVF_ASSERT(asciiReader);
+
+    RifWellPathAsciiFileReader::WellData wpData = asciiReader->readWellData(filepath(), wellPathIndexInFile());
     this->name = wpData.m_name;
 
     setWellPathGeometry(wpData.m_wellPathGeometry.p());

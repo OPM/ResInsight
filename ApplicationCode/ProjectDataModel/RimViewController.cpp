@@ -268,7 +268,7 @@ void RimViewController::updateOverrides()
                 {
                     if (isPropertyFilterOveridden())
                     {
-                        manEclView->setOverridePropertyFilterCollection(masterEclipseView->propertyFilterCollection());
+                        manEclView->setOverridePropertyFilterCollection(masterEclipseView->eclipsePropertyFilterCollection());
                     }
                     else
                     {
@@ -284,7 +284,7 @@ void RimViewController::updateOverrides()
                 {
                     if (isPropertyFilterOveridden())
                     {
-                        manGeoView->setOverridePropertyFilterCollection(masterGeoView->propertyFilterCollection());
+                        manGeoView->setOverridePropertyFilterCollection(masterGeoView->geoMechPropertyFilterCollection());
                     }
                     else
                     {
@@ -785,7 +785,7 @@ bool RimViewController::isRangeFilterMappingApliccable()
 
     if (eclipseView && geomView)
     {
-        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
+        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase() && geomView->geoMechCase()->geoMechData())
         {
             RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
             RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
@@ -941,7 +941,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 //--------------------------------------------------------------------------------------------------
 void RimViewController::applyRangeFilterCollectionByUserChoice()
 {
-    if (!m_managedView->overrideRangeFilterCollection())
+    if (!m_managedView->hasOverridenRangeFilterCollection())
     {
         return;
     }

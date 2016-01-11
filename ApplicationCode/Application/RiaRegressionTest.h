@@ -35,6 +35,7 @@ public:
 public:
     caf::PdmField<QString>  applicationWorkingFolder;
     caf::PdmField<QString>  regressionTestFolder;
+    caf::PdmField<bool>     showInteractiveDiffImages;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

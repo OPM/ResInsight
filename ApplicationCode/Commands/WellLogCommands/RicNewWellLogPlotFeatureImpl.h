@@ -19,10 +19,9 @@
 
 #pragma once
 
-class RimMainPlotCollection;
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
-class RimWellLogPlotTrack;
+class RimWellLogTrack;
 
 //==================================================================================================
 /// 
@@ -30,9 +29,9 @@ class RimWellLogPlotTrack;
 class RicNewWellLogPlotFeatureImpl
 {
 public:
+    static RimWellLogPlot*  createWellLogPlot();
+    static RimWellLogTrack* createWellLogPlotTrack();
 
-    static RimMainPlotCollection*      mainPlotCollection();
-    static RimWellLogPlotCollection*   wellLogPlotCollection();
-    static RimWellLogPlot*             createWellLogPlot();
-    static RimWellLogPlotTrack*        createWellLogPlotTrack();
+private:
+    static RimWellLogPlotCollection* wellLogPlotCollection();
 };

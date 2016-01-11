@@ -23,10 +23,13 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 
+#include "RimCase.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+
+#include "RivGridBoxGenerator.h"
 
 #include "RiuCadNavigation.h"
 #include "RiuGeoQuestNavigation.h"
@@ -36,9 +39,13 @@
 
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
+
 #include "cvfCamera.h"
 #include "cvfFont.h"
+#include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
@@ -70,10 +77,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 : caf::Viewer(format, parent)
 {
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-    cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
-    axisCross->setAxisLabels("E", "N", "Z");
-    axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
-    m_mainRendering->addOverlayItem(axisCross);
+    m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
+    m_axisCross->setAxisLabels("X", "Y", "Z");
+    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+    m_mainRendering->addOverlayItem(m_axisCross.p());
 
     this->enableOverlyPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
@@ -108,9 +115,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     p.setColor(QPalette::Dark, progressAndHistogramColor);
 
     // Info Text
-    m_InfoLabel = new QLabel();
-    m_InfoLabel->setPalette(p);
-    m_InfoLabel->setFrameShape(QFrame::Box);
+    m_infoLabel = new QLabel();
+    m_infoLabel->setPalette(p);
+    m_infoLabel->setFrameShape(QFrame::Box);
+    m_infoLabel->setMinimumWidth(275);
     m_showInfoText = true;
 
     // Version info label
@@ -144,10 +152,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     if (RiaApplication::instance()->isRunningRegressionTests())
     {
-        QFont regTestFont = m_InfoLabel->font();
+        QFont regTestFont = m_infoLabel->font();
         regTestFont.setPixelSize(11);
 
-        m_InfoLabel->setFont(regTestFont);
+        m_infoLabel->setFont(regTestFont);
         m_versionInfoLabel->setFont(regTestFont);
         m_animationProgress->setFont(regTestFont);
         m_histogramWidget->setFont(regTestFont);
@@ -158,6 +166,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     // Setting this policy will make sure the handling is not deferred to the widget's parent,
     // which solves the problem
     setContextMenuPolicy(Qt::PreventContextMenu);
+
+    m_gridBoxGenerator = new RivGridBoxGenerator;
 }
 
 
@@ -166,17 +176,18 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuViewer::~RiuViewer()
 {
-    if (m_reservoirView)
+    if (m_rimView)
     {
-        m_reservoirView->showWindow = false;
-        m_reservoirView->uiCapability()->updateUiIconFromToggleField();
+        m_rimView->showWindow = false;
+        m_rimView->uiCapability()->updateUiIconFromToggleField();
 
-        m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
+        m_rimView->cameraPosition = m_mainCamera->viewMatrix();
     }
-    delete m_InfoLabel;
+    delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
     delete m_progressBarStyle;
+    delete m_gridBoxGenerator;
 }
 
 
@@ -185,20 +196,12 @@ RiuViewer::~RiuViewer()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setDefaultView()
 {
-    cvf::BoundingBox bb;
-
-    cvf::Scene* scene = m_renderingSequence->firstRendering()->scene();
-    if (scene)
-    {
-        bb = scene->boundingBox();
-    }
-
+    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
     if (!bb.isValid())
     {
         bb.add(cvf::Vec3d(-1, -1, -1));
         bb.add(cvf::Vec3d( 1,  1,  1));
     }
-
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
@@ -225,8 +228,27 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
     if (event->button() == Qt::LeftButton)
     {
-        m_viewerCommands->handlePickAction(event->x(), event->y());
+        QPoint diffPoint = event->pos() - m_lastMousePressPosition;
+        if (diffPoint.manhattanLength() > 3)
+        {
+            // We are possibly in navigation mode, only clean press event will launch
+            return;
+        }
+
+        if (!m_infoLabelOverlayArea.isNull())
+        {
+            if (m_infoLabelOverlayArea.contains(event->x(), event->y()))
+            {
+                m_rimView->selectOverlayInfoConfig();
+
+                return;
+            }
+        }
+
+        m_viewerCommands->handlePickAction(event->x(), event->y(), event->modifiers());
+
         return;
+
     }
     else if (event->button() == Qt::RightButton)
     {
@@ -250,7 +272,7 @@ void RiuViewer::slotEndAnimation()
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
 
-    if (m_reservoirView) m_reservoirView->endAnimation();
+    if (m_rimView) m_rimView->endAnimation();
     
     caf::Viewer::slotEndAnimation();
 
@@ -264,12 +286,12 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
 {
     setCurrentFrame(frameIndex);
 
-    if (m_reservoirView)
+    if (m_rimView)
     {
-        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateTimeStep(m_reservoirView, frameIndex);
+            viewLinker->updateTimeStep(m_rimView, frameIndex);
         }
     }
 }
@@ -295,8 +317,15 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setOwnerReservoirView(RimView * owner)
 {
-    m_reservoirView = owner;
+    m_rimView = owner;
     m_viewerCommands->setOwnerView(owner);
+
+    cvf::String xLabel;
+    cvf::String yLabel;
+    cvf::String zLabel;
+
+    m_rimView->axisLabels(&xLabel, &yLabel, &zLabel);
+    setAxisLabels(xLabel, yLabel, zLabel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,12 +355,14 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     if (isAnimationActive() && frameCount() > 1) showAnimBar = true;
 
     //if (showAnimBar)       columnWidth = CVF_MAX(columnWidth, m_animationProgress->width());
-    if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_InfoLabel->sizeHint().width());
+    if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_infoLabel->sizeHint().width());
 
     int columnPos = this->width() - columnWidth - margin;
 
     if (showAnimBar && m_showAnimProgress)
     {
+        QString stepName = m_rimView->ownerCase()->timeStepName(currentFrameIndex());
+        m_animationProgress->setFormat("Time Step: %v/%m " + stepName);
         m_animationProgress->setMinimum(0);
         m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
         m_animationProgress->setValue(currentFrameIndex());
@@ -344,9 +375,19 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 
     if (m_showInfoText)
     {
-        m_InfoLabel->resize(columnWidth, m_InfoLabel->sizeHint().height());
-        m_InfoLabel->render(painter, QPoint(columnPos, yPos));
-        yPos +=  m_InfoLabel->height() + margin;
+        QPoint topLeft = QPoint(columnPos, yPos);
+        m_infoLabel->resize(columnWidth, m_infoLabel->sizeHint().height());
+        m_infoLabel->render(painter, topLeft);
+
+        m_infoLabelOverlayArea.setTopLeft(topLeft);
+        m_infoLabelOverlayArea.setBottom(yPos + m_infoLabel->height());
+        m_infoLabelOverlayArea.setRight(columnPos + columnWidth);
+
+        yPos +=  m_infoLabel->height() + margin;
+    }
+    else
+    {
+        m_infoLabelOverlayArea = QRect();
     }
 
     if (m_showHistogram)
@@ -371,7 +412,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setInfoText(QString text)
 {
-    m_InfoLabel->setText(text);
+    m_infoLabel->setText(text);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,6 +489,8 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
 
     if (legend)
     {
+        updateLegendTextAndTickMarkColor(legend);
+
         legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
         firstRendering->addOverlayItem(legend);
 
@@ -491,12 +534,12 @@ void RiuViewer::navigationPolicyUpdate()
 {
     caf::Viewer::navigationPolicyUpdate();
 
-    if (m_reservoirView)
+    if (m_rimView)
     {
-        RimViewLinker* viewLinker = m_reservoirView->assosiatedViewLinker();
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateCamera(m_reservoirView);
+            viewLinker->updateCamera(m_rimView);
         }
     }
 }
@@ -509,7 +552,7 @@ void RiuViewer::setCurrentFrame(int frameIndex)
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
 
-    if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
+    if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }
@@ -519,5 +562,119 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 RimView* RiuViewer::ownerReservoirView()
 {
-    return m_reservoirView;
+    return m_rimView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::optimizeClippingPlanes()
+{
+    m_gridBoxGenerator->updateFromCamera(mainCamera());
+
+    caf::Viewer::optimizeClippingPlanes();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateGridBoxData()
+{
+    if (ownerReservoirView() && ownerReservoirView()->ownerCase())
+    {
+        RimView* rimView = ownerReservoirView();
+        RimCase* rimCase = rimView->ownerCase();
+
+        m_gridBoxGenerator->setScaleZ(rimView->scaleZ);
+        m_gridBoxGenerator->setDisplayModelOffset(rimCase->displayModelOffset());
+        m_gridBoxGenerator->updateFromBackgroundColor(rimView->backgroundColor);
+
+        if (rimView->showActiveCellsOnly())
+        {
+            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->activeCellsBoundingBox());
+        }
+        else
+        {
+            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->allCellsBoundingBox());
+        }
+
+        m_gridBoxGenerator->createGridBoxParts();
+
+        updateTextAndTickMarkColorForOverlayItems();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Model* RiuViewer::gridBoxModel() const
+{
+    return m_gridBoxGenerator->model();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel)
+{
+    m_axisCross->setAxisLabels(xLabel, yLabel, zLabel);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
+{
+    if (m_rimView.isNull()) return;
+
+    cvf::Color3f contrastColor = computeContrastColor();
+
+    cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(legend);
+    if (scalarMapperLegend)
+    {
+        scalarMapperLegend->setColor(contrastColor);
+        scalarMapperLegend->setLineColor(contrastColor);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateTextAndTickMarkColorForOverlayItems()
+{
+    for (size_t i = 0; i < m_visibleLegends.size(); i++)
+    {
+        updateLegendTextAndTickMarkColor(m_visibleLegends.at(i));
+    }
+
+    updateAxisCrossTextColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateAxisCrossTextColor()
+{
+    cvf::Color3f contrastColor = computeContrastColor();
+
+    m_axisCross->setAxisLabelsColor(contrastColor);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiuViewer::computeContrastColor() const
+{
+    cvf::Color3f contrastColor = cvf::Color3f::WHITE;
+
+    if (m_rimView.notNull())
+    {
+        cvf::Color3f backgroundColor = m_rimView->backgroundColor;
+        if (backgroundColor.r() + backgroundColor.g() + backgroundColor.b() > 1.5f)
+        {
+            contrastColor = cvf::Color3f::BLACK;
+        }
+    }
+    
+    return contrastColor;
 }

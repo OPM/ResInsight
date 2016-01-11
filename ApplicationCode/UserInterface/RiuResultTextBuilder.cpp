@@ -90,8 +90,7 @@ QString RiuResultTextBuilder::mainResultText()
         {
             text = "NNC : " + nncText;
         }
-
-        if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
+        else if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
         {
             QString faultText = faultResultText();
 
@@ -516,8 +515,8 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // First cell of NNC
                     {
-                        CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
-                        const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
+                        CVF_ASSERT(conn.m_c1GlobIdx < grid->globalCellArray().size());
+                        const RigCell& cell = grid->globalCellArray()[conn.m_c1GlobIdx];
 
                         RigGridBase* hostGrid = cell.hostGrid();
                         size_t gridLocalCellIndex = cell.gridLocalCellIndex();
@@ -537,8 +536,8 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // Second cell of NNC
                     {
-                        CVF_ASSERT(conn.m_c2GlobIdx < grid->cells().size());
-                        const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
+                        CVF_ASSERT(conn.m_c2GlobIdx < grid->globalCellArray().size());
+                        const RigCell& cell = grid->globalCellArray()[conn.m_c2GlobIdx];
 
                         RigGridBase* hostGrid = cell.hostGrid();
                         size_t gridLocalCellIndex = cell.gridLocalCellIndex();

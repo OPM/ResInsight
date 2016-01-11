@@ -69,7 +69,7 @@ void RicRangeFilterInsertExec::redo()
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 
-        RiuMainWindow::instance()->setCurrentObjectInTreeView(rangeFilter);
+        RiuMainWindow::instance()->selectAsCurrentItem(rangeFilter);
     }
 }
 

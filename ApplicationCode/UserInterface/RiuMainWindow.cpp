@@ -58,6 +58,7 @@
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
+#include "RiuResultQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
@@ -180,6 +181,8 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 
     setPdmRoot(NULL);
     setResultInfo("");
+
+    m_resultQwtPlot->deleteAllCurves();
     
     if (m_pdmUiPropertyView)
     {
@@ -347,9 +350,9 @@ void RiuMainWindow::createActions()
     connect(m_disableLightingAction,    SIGNAL(toggled(bool)), SLOT(slotDisableLightingAction(bool)));
 
 
-    m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
-    m_drawStyleToggleFaultsAction->setCheckable(true);
-    connect(m_drawStyleToggleFaultsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+    m_drawStyleHideGridCellsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Hide Grid Cells", this);
+    m_drawStyleHideGridCellsAction->setCheckable(true);
+    connect(m_drawStyleHideGridCellsAction,    SIGNAL(toggled(bool)), SLOT(slotToggleHideGridCellsAction(bool)));
 
     m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
     m_toggleFaultsLabelAction->setCheckable(true);
@@ -546,7 +549,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
     m_viewToolBar->addAction(m_disableLightingAction);
-    m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+    m_viewToolBar->addAction(m_drawStyleHideGridCellsAction);
     m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
@@ -661,19 +664,15 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
 
-    // Test - create well log viewer in a dock widget
-    // TODO: remove after making MDI widgets for well log viewers
-//     {
-//         QDockWidget* dockPanel = new QDockWidget("TEST - Well Log Viewer", this);
-//         dockPanel->setObjectName("dockWellLogViewer");
-//         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-//         
-//         RiuWellLogViewer* wellLogViewer = new RiuWellLogViewer(dockPanel);
-//         dockPanel->setWidget(wellLogViewer);
-// 
-//         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
-//     }
+    {
+        QDockWidget* dockPanel = new QDockWidget("Result Plot", this);
+        dockPanel->setObjectName("dockTimeHistoryPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_resultQwtPlot = new RiuResultQwtPlot(dockPanel);
+        dockPanel->setWidget(m_resultQwtPlot);
 
+        addDockWidget(Qt::RightDockWidgetArea, dockPanel);
+    }
  
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
@@ -1025,7 +1024,7 @@ void RiuMainWindow::slotInputMockModel()
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::checkForDocumentModifications()
 {
-    RiaApplication* app = RiaApplication::instance();
+//    RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* project = app->sceneManager();
 //     if (project && project->isModified())
 //     {
@@ -1166,6 +1165,22 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
+{
+	return m_mdiArea->subWindowList(order);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuResultQwtPlot* RiuMainWindow::resultPlot()
+{
+    return m_resultQwtPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1854,11 +1869,11 @@ void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
+void RiuMainWindow::slotToggleHideGridCellsAction(bool hideGridCells)
 {
     if (!RiaApplication::instance()->activeReservoirView()) return;
 
-    RiaApplication::instance()->activeReservoirView()->setShowFaultsOnly(showFaults);
+    RiaApplication::instance()->activeReservoirView()->showGridCells(!hideGridCells);
 }
 
 
@@ -1890,26 +1905,28 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
     m_disableLightingAction->setEnabled(enable);
 
-    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
 
     m_disableLightingAction->blockSignals(true);
     m_disableLightingAction->setChecked(lightingDisabledInView);
     m_disableLightingAction->blockSignals(false);
 
+    if (enable)
+    {
+        m_drawStyleHideGridCellsAction->setEnabled(true);
+    }
+
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
     enable = enable && eclView;
 
-    m_drawStyleToggleFaultsAction->setEnabled(enable);
     m_toggleFaultsLabelAction->setEnabled(enable);
-
     m_addWellCellsToRangeFilterAction->setEnabled(enable);
 
     if (enable) 
     {   
-        m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(!eclView->isGridVisualizationMode());
-        m_drawStyleToggleFaultsAction->blockSignals(false);
+        m_drawStyleHideGridCellsAction->blockSignals(true);
+        m_drawStyleHideGridCellsAction->setChecked(!eclView->isGridVisualizationMode());
+        m_drawStyleHideGridCellsAction->blockSignals(false);
 
         m_toggleFaultsLabelAction->blockSignals(true);
         m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
@@ -1981,7 +1998,7 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
+void RiuMainWindow::selectAsCurrentItem(caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
 }

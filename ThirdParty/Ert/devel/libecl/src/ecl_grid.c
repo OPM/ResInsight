@@ -2287,10 +2287,6 @@ static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_fil
   int num_nnchead_kw = ecl_file_get_num_named_kw( ecl_file , NNCHEAD_KW );
   int i;
 
-  if(num_nnchead_kw > 0 && main_grid->eclipse_version == 2015){
-      return; //Eclipse 2015 has an error with nnc.
-  }
-
   for (i = 0; i < num_nnchead_kw; i++) {
     ecl_file_push_block(ecl_file);               /* <---------------------------------------------------------------- */
     ecl_file_select_block(ecl_file , NNCHEAD_KW , i);

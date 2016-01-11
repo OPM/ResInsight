@@ -245,16 +245,27 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex) const
         CVF_ASSERT(false);
     }
 
+    mainElmDirections[0].normalize();
+    mainElmDirections[1].normalize();
+    mainElmDirections[2].normalize();
+
     // Match the element main directions with best XYZ match (IJK respectively)
-    // Find the max component of a mainElmDirection. 
-    // Assign the index of that mainElmDirection to the mainElmDirectionIdxForIJK at the index of the max component.
+    // Find the mainElmDirection with the largest component starting with Z
+    // and use that for the corresponding IJK direction.
+    // Find the Z (for K) first. Then select among the other two the Y (for J), 
+    // and select the remaining for I
 
     int mainElmDirectionIdxForIJK[3] ={ -1, -1, -1 };
-    for (int dIdx = 0; dIdx < 3; ++dIdx)
+    for (int cIdx = 2; cIdx >= 0 ; --cIdx) // Check Z first as it is more important
     {
-        double maxAbsComp = 0;
-        for (int cIdx = 2; cIdx >= 0 ; --cIdx)
+        double maxAbsComp = -1.0;
+        int usedDir1 = -1;
+        int usedDir2 = -1;
+
+        for (int dIdx = 0; dIdx < 3 ; ++dIdx)
         {
+            if (dIdx == usedDir1 || dIdx == usedDir2) continue;
+
             float absComp = fabs(mainElmDirections[dIdx][cIdx]);
             if (absComp > maxAbsComp)
             {
@@ -262,25 +273,9 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces(int elementIndex) const
                 mainElmDirectionIdxForIJK[cIdx] = dIdx;
             }
         }
-    }
 
-    // make sure all the main directions are used
-
-    bool mainDirsUsed[3] ={ false, false, false };
-    mainDirsUsed[mainElmDirectionIdxForIJK[0]] = true;
-    mainDirsUsed[mainElmDirectionIdxForIJK[1]] = true;
-    mainDirsUsed[mainElmDirectionIdxForIJK[2]] = true;
-
-    int unusedDir = -1;
-    if (!mainDirsUsed[0]) unusedDir = 0;
-    if (!mainDirsUsed[1]) unusedDir = 1;
-    if (!mainDirsUsed[2]) unusedDir = 2;
-
-    if (unusedDir >= 0)
-    {
-        if (mainElmDirectionIdxForIJK[0] == mainElmDirectionIdxForIJK[1]) mainElmDirectionIdxForIJK[0] = unusedDir;
-        else if (mainElmDirectionIdxForIJK[1] == mainElmDirectionIdxForIJK[2]) mainElmDirectionIdxForIJK[1] = unusedDir;
-        else if (mainElmDirectionIdxForIJK[2] == mainElmDirectionIdxForIJK[0]) mainElmDirectionIdxForIJK[2] = unusedDir;
+        if (usedDir1 == -1) usedDir1 = mainElmDirectionIdxForIJK[cIdx];
+        else usedDir2 = mainElmDirectionIdxForIJK[cIdx];
     }
 
     // Assign the correct face based on the main direction

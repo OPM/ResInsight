@@ -116,6 +116,8 @@ void RigMainGrid::computeCachedData()
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
+
+    buildCellSearchTree();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,6 +410,8 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 {
     CVF_ASSERT(m_faultsPrCellAcc.notNull());
 
+    if (face == cvf::StructGridInterface::NO_FACE) return NULL;
+
     int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
     if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
     {
@@ -448,6 +452,16 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const
 {
+    CVF_ASSERT(m_cellSearchTree.notNull());
+
+    m_cellSearchTree->findIntersections(inputBB, cellIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::buildCellSearchTree()
+{
     if (m_cellSearchTree.isNull())
     {
         // build tree
@@ -460,6 +474,9 @@ void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::ve
         for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
         {
             const caf::SizeTArray8& cellIndices = m_cells[cIdx].cornerIndices();
+            
+            if (m_cells[cIdx].isInvalid()) continue;
+
             cvf::BoundingBox& cellBB = cellBoundingBoxes[cIdx];
             cellBB.add(m_nodes[cellIndices[0]]);
             cellBB.add(m_nodes[cellIndices[1]]);
@@ -474,8 +491,6 @@ void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::ve
         m_cellSearchTree = new cvf::BoundingBoxTree;
         m_cellSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, NULL);
     }
-
-    m_cellSearchTree->findIntersections(inputBB, cellIndices);
 }
 
 //--------------------------------------------------------------------------------------------------

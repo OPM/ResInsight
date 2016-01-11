@@ -98,13 +98,15 @@ void PdmDocument::readFile(QIODevice* xmlFile)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::writeFile()
+bool PdmDocument::writeFile()
 {
     QFile xmlFile(fileName);
     if (!xmlFile.open(QIODevice::WriteOnly ))
-        return;
+        return false;
 
     writeFile(&xmlFile);
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

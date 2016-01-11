@@ -31,6 +31,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
+    ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
@@ -60,8 +61,6 @@ set( APPLICATION_FILES
     Application/RiaImageCompareReporter.cpp
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
-    
-    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
 )
 
 set( USER_INTERFACE_FILES
@@ -84,12 +83,20 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuTreeViewEventFilter.h
 	UserInterface/RiuWellLogPlot.cpp
 	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogPlotCurve.cpp
-	UserInterface/RiuWellLogPlotCurve.h
-	UserInterface/RiuWellLogTrackPlot.cpp
-	UserInterface/RiuWellLogTrackPlot.h
+	UserInterface/RiuLineSegmentQwtPlotCurve.cpp
+	UserInterface/RiuLineSegmentQwtPlotCurve.h
+	UserInterface/RiuWellLogTrack.cpp
+	UserInterface/RiuWellLogTrack.h
 	UserInterface/RiuProjectPropertyView.h
 	UserInterface/RiuProjectPropertyView.cpp
+	UserInterface/RiuResultQwtPlot.h
+	UserInterface/RiuResultQwtPlot.cpp
+	UserInterface/RiuSelectionManager.h
+	UserInterface/RiuSelectionManager.cpp
+	UserInterface/RiuSelectionColors.h
+	UserInterface/RiuSelectionColors.cpp
+	UserInterface/RiuSelectionChangedHandler.h
+	UserInterface/RiuSelectionChangedHandler.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -103,12 +110,6 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketDataTransfer.cpp
 )
 
-set( UNIT_TEST_FILES
-    ProjectDataModel/ProjectDataModel_UnitTests/RimWellLogExtractionCurveImpl-Test.cpp 
-    ProjectDataModel/ProjectDataModel_UnitTests/WellPathAsciiFileReader-Test.cpp 
-)
-
-
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
      ${USER_INTERFACE_FILES}
@@ -116,23 +117,40 @@ list( APPEND CPP_SOURCES
      ${UNIT_TEST_FILES}
 )
 
-
-
 list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
+    GeoMech/GeoMechVisualization/CMakeLists_files.cmake
+    
     ModelVisualization/CMakeLists_files.cmake
-	GeoMech/GeoMechVisualization/CMakeLists_files.cmake
-	Commands/CMakeLists_files.cmake
+    ModelVisualization/GridBox/CMakeLists_files.cmake
+	
+    Commands/CMakeLists_files.cmake
 	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
+    Commands/CrossSectionCommands/CMakeLists_files.cmake
 )
+
+option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
+if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
+	add_definitions(-DUSE_UNIT_TESTS)
+
+    list( APPEND REFERENCED_CMAKE_FILES
+        UnitTests/CMakeLists_files.cmake
+        )
+    
+    list( APPEND CPP_SOURCES 
+        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc	
+        )
+    
+endif()
+
 
 # Include source file lists from *.cmake files
 foreach (referencedfile ${REFERENCED_CMAKE_FILES})
@@ -182,7 +200,7 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuViewerCommands.h
 	UserInterface/RiuTreeViewEventFilter.h
 	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogTrackPlot.h
+	UserInterface/RiuWellLogTrack.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
@@ -486,6 +504,12 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 		if (${RESINSIGHT_USE_ODB_API})
 			set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RI_ALL_ODB_DLLS})
 		endif()
+
+        # CRT
+        set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
+        set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
+        include(InstallRequiredSystemLibraries)
+        install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${RESINSIGHT_FINAL_NAME})
 
     endif()
 

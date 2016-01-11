@@ -171,7 +171,7 @@ public:
         hostCellK.reserve(numMatrixModelActiveCells);
         globalCoarseningBoxIdx.reserve(numMatrixModelActiveCells);
 
-        const std::vector<RigCell>& reservoirCells = reservoirCase->reservoirData()->mainGrid()->cells();
+        const std::vector<RigCell>& reservoirCells = reservoirCase->reservoirData()->mainGrid()->globalCellArray();
 
 
         std::vector<size_t> globalCoarseningBoxIndexStart;

@@ -19,11 +19,11 @@
 
 #include "RiuWellLogPlot.h"
 
-#include "RiuWellLogTrackPlot.h"
+#include "RiuWellLogTrack.h"
 #include "RiuMainWindow.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmUiTreeView.h"
 #include "cvfAssert.h"
@@ -73,7 +73,7 @@ RiuWellLogPlot::~RiuWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
+void RiuWellLogPlot::addTrackPlot(RiuWellLogTrack* trackPlot)
 {
     // Insert the plot to the left of the scroll bar
     insertTrackPlot(trackPlot, m_trackPlots.size());
@@ -82,7 +82,7 @@ void RiuWellLogPlot::addTrackPlot(RiuWellLogTrackPlot* trackPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index)
+void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
 {
     trackPlot->setParent(this);
     
@@ -113,7 +113,7 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t inde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrackPlot* trackPlot)
+void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrack* trackPlot)
 {
     if (!trackPlot) return;
 
@@ -196,14 +196,19 @@ void RiuWellLogPlot::updateScrollBar(double minDepth, double maxDepth)
     double availableMinDepth;
     double availableMaxDepth;
     m_plotDefinition->availableDepthRange(&availableMinDepth, &availableMaxDepth);
+    availableMaxDepth += 0.01*(availableMaxDepth-availableMinDepth);
 
     double visibleDepth = maxDepth - minDepth;
 
-    m_scrollBar->setRange((int) availableMinDepth, (int) (ceil(availableMaxDepth - visibleDepth)));
-    m_scrollBar->setPageStep((int) visibleDepth);
-    m_scrollBar->setValue((int) minDepth);
+    m_scrollBar->blockSignals(true);
+    {
+        m_scrollBar->setRange((int) availableMinDepth, (int) ((availableMaxDepth - visibleDepth)));
+        m_scrollBar->setPageStep((int) visibleDepth);
+        m_scrollBar->setValue((int) minDepth);
 
-    m_scrollBar->setVisible(true);
+        m_scrollBar->setVisible(true);
+    }
+    m_scrollBar->blockSignals(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,8 +291,8 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
                     realTrackWidth += 1;
                     --trackWidthExtra;
                 }
-
-                m_legends[tIdx]->setGeometry(trackX, 0, realTrackWidth, maxLegendHeight);
+                int realLegendWidth = std::max(realTrackWidth, m_legends[tIdx]->sizeHint().width()); 
+                m_legends[tIdx]->setGeometry(trackX, 0, realLegendWidth, maxLegendHeight);
                 m_trackPlots[tIdx]->setGeometry(trackX, maxLegendHeight, realTrackWidth, trackHeight);
 
                 trackX += realTrackWidth;
@@ -296,7 +301,6 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
     }
 
     if (m_scrollBar->isVisible()) m_scrollBar->setGeometry(trackX, maxLegendHeight, scrollBarWidth, trackHeight);
-
 }
 
 //--------------------------------------------------------------------------------------------------

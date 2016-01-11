@@ -186,7 +186,28 @@ RigHistogramCalculator::RigHistogramCalculator(double min, double max, size_t nB
     for (size_t i = 0; i < m_histogram->size(); ++i) (*m_histogram)[i] = 0;
 
     m_range = max - min;
-    maxIndex = nBins-1;
+    m_maxIndex = nBins-1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigHistogramCalculator::addValue(double value)
+{
+    if (value == HUGE_VAL || value != value)
+    {
+        return;
+    }
+
+    size_t index = 0;
+
+    if (m_maxIndex > 0) index = (size_t)(m_maxIndex*(value - m_min)/m_range);
+
+    if (index < m_histogram->size()) // Just clip to the max min range (-index will overflow to positive )
+    {
+        (*m_histogram)[index]++;
+        m_observationCount++;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,20 +218,7 @@ void RigHistogramCalculator::addData(const std::vector<double>& data)
     assert(m_histogram);
     for (size_t i = 0; i < data.size(); ++i) 
     {
-        if (data[i] == HUGE_VAL)
-        {
-            continue;
-        }
-
-        size_t index = 0;
-
-        if (maxIndex > 0) index = (size_t)(maxIndex*(data[i] - m_min)/m_range);
-
-        if(index < m_histogram->size()) // Just clip to the max min range (-index will overflow to positive )
-        {
-            (*m_histogram)[index]++;
-            m_observationCount++;
-        }
+        addValue(data[i]);
     }
 }
 
@@ -222,20 +230,7 @@ void RigHistogramCalculator::addData(const std::vector<float>& data)
     assert(m_histogram);
     for (size_t i = 0; i < data.size(); ++i) 
     {
-        if (data[i] == HUGE_VAL)
-        {
-            continue;
-        }
-
-        size_t index = 0;
-
-        if (maxIndex > 0) index = (size_t)(maxIndex*(data[i] - m_min)/m_range);
-
-        if(index < m_histogram->size()) // Just clip to the max min range (-index will overflow to positive )
-        {
-            (*m_histogram)[index]++;
-            m_observationCount++;
-        }
+        addValue(data[i]);
     }
 }
 

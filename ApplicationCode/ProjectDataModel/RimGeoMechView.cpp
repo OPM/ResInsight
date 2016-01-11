@@ -29,23 +29,30 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGridCollection.h"
 #include "RimLegendConfig.h"
+#include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"
+#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivGeoMechPartMgr.h"
 #include "RivGeoMechPartMgrCache.h"
 #include "RivGeoMechVizLogic.h"
+#include "RivSingleCellPartGenerator.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafFrameAnimationControl.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
+
 #include "cvfModelBasicList.h"
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
@@ -54,9 +61,6 @@
 #include "cvfqtUtils.h"
 
 #include <QMessageBox>
-#include "RimViewLinker.h"
-#include "cafPdmUiTreeOrdering.h"
-
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechView, "GeoMechView");
@@ -92,6 +96,9 @@ RimGeoMechView::RimGeoMechView(void)
 RimGeoMechView::~RimGeoMechView(void)
 {
     m_geomechCase = NULL;
+
+    delete cellResult;
+    delete m_propertyFilterCollection;
 }
 
 
@@ -152,7 +159,8 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.setProgressDescription("Create Display model");
    
     updateViewerWidget();
-    this->propertyFilterCollection()->loadAndInitializePropertyFilters();
+
+    this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -217,23 +225,32 @@ void RimGeoMechView::createDisplayModel()
    m_viewer->setMainScene(mainScene.p());
 
    // Grid model
-   cvf::ref<cvf::ModelBasicList> mainSceneModel =  new cvf::ModelBasicList;
-   m_vizLogic->appendNoAnimPartsToModel(mainSceneModel.p());
-   mainSceneModel->updateBoundingBoxesRecursive();
-   mainScene->addModel(mainSceneModel.p());
+   cvf::ref<cvf::ModelBasicList> mainSceneGridVizModel =  new cvf::ModelBasicList;
+   mainSceneGridVizModel->setName("GridModel");
+   m_vizLogic->appendNoAnimPartsToModel(mainSceneGridVizModel.p());
+   mainSceneGridVizModel->updateBoundingBoxesRecursive();
+   mainScene->addModel(mainSceneGridVizModel.p());
 
    // Well path model
 
    double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
    cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
-   cvf::ref<cvf::ModelBasicList> wellPathModel =  new cvf::ModelBasicList;
-   addWellPathsToModel(wellPathModel.p(),
+
+   m_wellPathPipeVizModel->removeAllParts();
+   addWellPathsToModel(m_wellPathPipeVizModel.p(),
                        cvf::Vec3d(0, 0, 0),
                        characteristicCellSize,
                        femBBox,
                        scaleTransform());
-   mainScene->addModel(wellPathModel.p());
 
+   m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
+
+
+   // Cross sections
+
+   m_crossSectionVizModel->removeAllParts();
+   crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
+   m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
    // If the animation was active before recreating everything, make viewer view current frame
 
@@ -264,24 +281,14 @@ void RimGeoMechView::updateCurrentTimeStep()
             cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
             if (frameScene)
             {
-                frameScene->removeAllModels();
-
                 // Grid model
                 cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+                frameParts->setName("GridModel");
                 m_vizLogic->appendPartsToModel(m_currentTimeStep, frameParts.p());
                 frameParts->updateBoundingBoxesRecursive();
+
+                this->removeModelByName(frameScene, frameParts->name());
                 frameScene->addModel(frameParts.p());
-                             
-                // Well Path model       
-                double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
-                cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
-                cvf::ref<cvf::ModelBasicList> wellPathModel =  new cvf::ModelBasicList;
-                addWellPathsToModel(wellPathModel.p(),
-                                    cvf::Vec3d(0, 0, 0),
-                                    characteristicCellSize,
-                                    femBBox,
-                                    scaleTransform());
-                frameScene->addModel(wellPathModel.p());
             }
         }
 
@@ -289,6 +296,11 @@ void RimGeoMechView::updateCurrentTimeStep()
             m_vizLogic->updateCellResultColor(m_currentTimeStep(), this->cellResult());
         else
             m_vizLogic->updateStaticCellColors(m_currentTimeStep());
+
+        if (this->cellResult()->hasResult())
+            crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+        else
+            crossSectionCollection->applySingleColorEffect();
 
     }
     else
@@ -454,7 +466,7 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible()
 {
-    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->propertyFilterCollection()->hasActiveFilters());
+    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,6 +490,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             bool generateDisplayModel = (viewer() == NULL);
             updateViewerWidget();
+
             if (generateDisplayModel)
             {
                 scheduleCreateDisplayModelAndRedraw();
@@ -549,7 +562,21 @@ void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilterCollection* RimGeoMechView::propertyFilterCollection()
+RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterCollection()
+{
+    if (m_overridePropertyFilterCollection)
+    {
+        return m_overridePropertyFilterCollection;
+    }
+    else
+    {
+        return m_propertyFilterCollection;
+    }
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterCollection() const
 {
     if (m_overridePropertyFilterCollection)
     {
@@ -572,6 +599,33 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
+{
+    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    std::vector<RiuSelectionItem*> items;
+    riuSelManager->selectedItems(items);
+    for (size_t i = 0; i < items.size(); i++)
+    {
+        if (items[i]->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
+        {
+            RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>(items[i]);
+            if (geomSelItem &&
+                geomSelItem->m_view == this &&
+                geomSelItem->m_view->geoMechCase())
+            {
+                RivSingleCellPartGenerator partGen(geomSelItem->m_view->geoMechCase(), geomSelItem->m_gridIndex, geomSelItem->m_cellIndex);
+                cvf::ref<cvf::Part> part = partGen.createPart(geomSelItem->m_color);
+                part->setTransform(this->scaleTransform());
+
+                parts->push_back(part.p());
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateIconStateForFilterCollections()
 {
     m_rangeFilterCollection()->updateIconState();
@@ -585,15 +639,38 @@ void RimGeoMechView::updateIconStateForFilterCollections()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel)
+{
+    CVF_ASSERT(xLabel && yLabel && zLabel);
+
+    *xLabel = "E(x,1)";
+    *yLabel = "N(y,2)";
+    *zLabel = "Z(3)";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_overlayInfoConfig());
+    uiTreeOrdering.add(m_gridCollection());
 
     uiTreeOrdering.add(cellResult());
+
+    uiTreeOrdering.add(crossSectionCollection());
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
     
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() const
+{
+    return geoMechPropertyFilterCollection();
 }
 

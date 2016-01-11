@@ -42,7 +42,7 @@ RimEclipseInputPropertyCollection::RimEclipseInputPropertyCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputPropertyCollection::~RimEclipseInputPropertyCollection()
 {
-
+    inputProperties.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,26 +61,6 @@ std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInp
     }
 
     return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Remove given input property from collection and checks if the associated file is referenced by other input
-/// properties
-//--------------------------------------------------------------------------------------------------
-void RimEclipseInputPropertyCollection::removeInputProperty(RimEclipseInputProperty* inputProperty, bool& isPropertyFileReferencedByOthers)
-{
-    CVF_ASSERT(inputProperty);
-
-    this->inputProperties.removeChildObject(inputProperty);
-
-    isPropertyFileReferencedByOthers = false;
-    for (size_t i = 0; i < this->inputProperties.size(); i++)
-    {
-        if (inputProperties[i]->fileName() == inputProperty->fileName)
-        {
-            isPropertyFileReferencedByOthers = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

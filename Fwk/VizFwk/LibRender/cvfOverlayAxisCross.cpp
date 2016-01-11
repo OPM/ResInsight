@@ -102,7 +102,8 @@ void OverlayAxisCross::setAxisLabels( const String& xLabel, const String& yLabel
 {
     // Clipping of axis label text is depends on m_size and
     // z-part of axisMatrix.setTranslation(Vec3d(0, 0, -4.4)) defined in OverlayAxisCross::render()
-    CVF_ASSERT (xLabel.size() < 5 && yLabel.size() < 5 && zLabel.size() < 5);
+
+    CVF_ASSERT (xLabel.size() < 7 && yLabel.size() < 7 && zLabel.size() < 7);
 
     m_xLabel = xLabel;
     m_yLabel = yLabel;
@@ -174,7 +175,7 @@ void OverlayAxisCross::render(OpenGLContext* oglContext, const Vec2i& position, 
 
     // Position the camera far enough away to make the axis and the text fit within the viewport
     Mat4d axisMatrix = viewMatrix;
-    axisMatrix.setTranslation(Vec3d(0, 0, -4.4));
+    axisMatrix.setTranslation(Vec3d(-0.4, 0, -4.4));
 
     // Setup camera
     Camera cam;

@@ -198,7 +198,7 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
        }
 
        double normDist32 =  e12*p32 / length34;
-       double normDist31 = -e12*p13 / length34;
+       //double normDist31 = -e12*p13 / length34;
 
        // Set up fractions along lines to the edge2 vertex actually touching edge 1.
        /// if two, select the one furthest from the start
@@ -327,7 +327,31 @@ GeometryTools::inPlaneLineIntersect3D(  const cvf::Vec3d& planeNormal,
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Compute projection of point p3 on the line p1 - p2
+//  If projection is out side the line segment, the end of line is returned
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d GeometryTools::projectPointOnLine(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection)
+{
+    cvf::Vec3d v31 = p3 - p1;
+    cvf::Vec3d v21 = p2 - p1;
+
+    double u = (v31*v21) / (v21*v21);
+    cvf::Vec3d projectedPoint(0, 0, 0);
+    if (0 < u && u < 1) projectedPoint = p1 + u*v21;
+    else if (u <= 0) projectedPoint = p1;
+    else projectedPoint = p2;
+
+    if (normalizedIntersection)
+    {
+        *normalizedIntersection = u;
+    }
+
+    return projectedPoint;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Use GeometryTools::projectPointOnLine
 //--------------------------------------------------------------------------------------------------
 double    GeometryTools::linePointSquareDist(const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3)
 {
@@ -471,8 +495,8 @@ cvf::Vec3d GeometryTools::barycentricCoords(const cvf::Vec3d&  t0, const cvf::Ve
     cvf::Vec3d m = (t1 - t0 ^ t2 - t0);
 
     // Absolute components for determining projection plane
-    int X = 0, Y = 1, Z = 2;
-    Z = findClosestAxis(m);
+    int X = 0, Y = 1;
+    int Z = findClosestAxis(m);
     switch (Z)
     {
     case 0: X = 1; Y = 2; break; // x is largest, project to the yz plane
@@ -507,7 +531,7 @@ inline double triArea3D(const cvf::Vec3d& v0,
 
 //--------------------------------------------------------------------------------------------------
 /// Barycentric coordinates of a Quad
-/// See http://geometry.caltech.edu/pubs/MHBD02.pdf for details
+/// See http://geometry.caltech.edu/pubs/MHBD02.pdf for details Eqn. 6.
 /// W_i = a_i / Sum(a_0 ... a_3)
 /// a_i = Area(v_(i-1), v_i, v_(i+1))*Area(p, v_(i-2), v_(i-1))*Area(p, v_(i+1), v_(i+2))
 
@@ -590,6 +614,8 @@ void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* poly
             polygon->insert(polygon->end(), std::make_pair((cvf::uint)midPointIndex, true));
 
         ++it;
+
+        if (it == polygon->end()) break;
     }
 }
 
@@ -745,7 +771,7 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
     while (numVertices > 2)
     {
         // if we loop, it is probably a non-simple polygon 
-        if (count <= 0 )
+        if (count == 0 )
         {
             // Triangulate: ERROR - probable bad polygon!
             return false;
@@ -877,7 +903,7 @@ double EarClipTesselator::calculateProjectedPolygonArea() const
         A += (*m_nodeCoords)[*p][m_X] * (*m_nodeCoords)[*q][m_Y] - (*m_nodeCoords)[*q][m_X]*(*m_nodeCoords)[*p][m_Y];
 
         p = q;
-        q++;
+        ++q;
     }
 
     return A*0.5;
@@ -975,10 +1001,10 @@ bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
     std::list< std::list<size_t> > restPolygons;
     bool wasPreviousTriangleValid = true;
 
-    for (it1 = m_polygonIndices.begin(); it1 != m_polygonIndices.end(); it1++)
+    for (it1 = m_polygonIndices.begin(); it1 != m_polygonIndices.end(); ++it1)
     {
         it2 = it1;
-        it2++;
+        ++it2;
 
         if (it2 == m_polygonIndices.end()) it2 = m_polygonIndices.begin();
 

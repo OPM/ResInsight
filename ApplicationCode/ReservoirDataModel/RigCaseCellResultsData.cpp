@@ -23,8 +23,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
-#include "RigMultipleDatasetStatCalc.h"
-#include "RigNativeStatCalc.h"
+#include "RigEclipseMultiPropertyStatCalc.h"
+#include "RigEclipseNativeStatCalc.h"
 
 #include <QDateTime>
 #include <math.h>
@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid)
+RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid) : m_activeCellInfo(NULL)
 {
     CVF_ASSERT(ownerGrid != NULL);
     m_ownerMainGrid = ownerGrid;
@@ -90,6 +90,14 @@ const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(siz
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex, size_t timeStepIndex)
+{
+    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram(timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
 {
     m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(p10, p90);
@@ -98,9 +106,25 @@ void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, do
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90)
+{
+    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(timeStepIndex, p10, p90);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
 {
     m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(timeStepIndex, meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,7 +182,7 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
 {
     std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == type && it->m_resultName == resultName)
         {
@@ -174,9 +198,7 @@ size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) const
 {
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
-    scalarResultIndex = this->findScalarResultIndex(RimDefines::STATIC_NATIVE, resultName);
+    size_t scalarResultIndex = this->findScalarResultIndex(RimDefines::STATIC_NATIVE, resultName);
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
@@ -225,7 +247,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
 
     if (resultName == RimDefines::combinedTransmissibilityResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX"));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY"));
@@ -235,7 +257,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedMultResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX"));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX-"));
@@ -248,7 +270,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedRiTranResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName()));
@@ -256,7 +278,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedRiMultResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName()));
@@ -264,7 +286,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else if (resultName == RimDefines::combinedRiAreaNormTranResultName())
     {
-        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName()));
@@ -272,7 +294,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     }
     else
     {
-        statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
+        statisticsCalculator = new RigEclipseNativeStatCalc(this, scalarResultIndex);
     }
 
     cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
@@ -289,7 +311,7 @@ QStringList RigCaseCellResultsData::resultNames(RimDefines::ResultCatType resTyp
 {
     QStringList varList;
     std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == resType )
         {
@@ -317,7 +339,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
     
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
-    if (firstTimeStepResultValueCount == m_ownerMainGrid->cells().size()) return false;
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalCellArray().size()) return false;
 
     return true;
 }
@@ -473,7 +495,7 @@ RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromP
 bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 {
     std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)
         {
@@ -490,7 +512,7 @@ bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 {
     std::vector<ResultInfo>::iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)
         {

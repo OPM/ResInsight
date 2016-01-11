@@ -173,7 +173,7 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
     size_t mainGridCellCount = mainGridNodeCount / 8;
 
     // Must create cells in main grid here, as this information is used when creating LGRs
-    appendCells(0, mainGridCellCount, eclipseCase->mainGrid(), eclipseCase->mainGrid()->cells());
+    appendCells(0, mainGridCellCount, eclipseCase->mainGrid(), eclipseCase->mainGrid()->globalCellArray());
 
     size_t totalCellCount = mainGridCellCount;
 
@@ -217,7 +217,7 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
         size_t cellIdx;
         for (cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++)
         {
-            RigCell& cell = eclipseCase->mainGrid()->cells()[mainGridIndicesWithSubGrid[cellIdx]];
+            RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[mainGridIndicesWithSubGrid[cellIdx]];
             
             caf::SizeTArray8& indices = cell.cornerIndices();
             int nodeIdx;
@@ -233,7 +233,7 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
         appendNodes(bb.min(), bb.max(), lgrCellDimensions, mainGridNodes);
 
         size_t subGridCellCount = (mainGridNodes.size() / 8) - totalCellCount;
-        appendCells(totalCellCount*8, subGridCellCount, localGrid, eclipseCase->mainGrid()->cells());
+        appendCells(totalCellCount*8, subGridCellCount, localGrid, eclipseCase->mainGrid()->globalCellArray());
         totalCellCount += subGridCellCount;
     }
 
@@ -248,14 +248,14 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    activeCellInfo->setReservoirCellCount(eclipseCase->mainGrid()->cells().size());
-    for (size_t i = 0; i < eclipseCase->mainGrid()->cells().size(); i++)
+    activeCellInfo->setReservoirCellCount(eclipseCase->mainGrid()->globalCellArray().size());
+    for (size_t i = 0; i < eclipseCase->mainGrid()->globalCellArray().size(); i++)
     {
         activeCellInfo->setCellResultIndex(i, i);
     }
 
     activeCellInfo->setGridCount(1);
-    activeCellInfo->setGridActiveCellCounts(0, eclipseCase->mainGrid()->cells().size());
+    activeCellInfo->setGridActiveCellCounts(0, eclipseCase->mainGrid()->globalCellArray().size());
     activeCellInfo->computeDerivedData();
 
     // Add grid coarsening for main grid
@@ -300,7 +300,7 @@ bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QStr
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
 
-    for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
+    for (k = 0; k < eclipseCase->mainGrid()->globalCellArray().size(); k++)
     {
         values->push_back(k * iSecret);
     }
@@ -313,12 +313,12 @@ bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QStr
 //--------------------------------------------------------------------------------------------------
 bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QString& result, std::vector<double>* values)
 {
-    values->resize(eclipseCase->mainGrid()->cells().size());
+    values->resize(eclipseCase->mainGrid()->globalCellArray().size());
 
 #pragma omp parallel for
-    for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->cells().size()); k++)
+    for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->globalCellArray().size()); k++)
     {
-        values->at(k) = (k * 2) % eclipseCase->mainGrid()->cells().size();
+        values->at(k) = (k * 2) % eclipseCase->mainGrid()->globalCellArray().size();
     }
 
     return false;
@@ -341,12 +341,12 @@ bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QStr
     double scaleValue = 1.0 + resultIndex * 0.1;
     double offsetValue = 100 * resultIndex;
 
-    values->resize(eclipseCase->mainGrid()->cells().size());
+    values->resize(eclipseCase->mainGrid()->globalCellArray().size());
 
 #pragma omp parallel for
-    for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->cells().size()); k++)
+    for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->globalCellArray().size()); k++)
     {
-        double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
+        double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->globalCellArray().size() );
         values->at(k) = val;
     }
 

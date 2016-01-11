@@ -20,7 +20,6 @@
 
 #include "RimEclipseWell.h"
 
-#include "RigSingleWellResultsData.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 
@@ -51,7 +50,7 @@ RimEclipseWell::RimEclipseWell()
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
 
-    m_wellIndex = cvf::UNDEFINED_SIZE_T;
+    m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
     m_reservoirView = NULL;
 }
@@ -255,9 +254,17 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 {
-    CVF_ASSERT(m_wellIndex != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_resultWellIndex != cvf::UNDEFINED_SIZE_T);
 
     // Return the possibly cached value
-    return m_reservoirView->wellCollection()->isWellPipesVisible(frameIndex)[m_wellIndex];
+    return m_reservoirView->wellCollection()->resultWellPipeVisibilities(frameIndex)[m_resultWellIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWell::setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex)
+{
+    m_wellResults = wellResults; m_resultWellIndex = resultWellIndex;
 }
 

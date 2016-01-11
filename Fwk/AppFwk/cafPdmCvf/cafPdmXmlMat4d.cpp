@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -36,10 +36,9 @@
 
 #include "cafPdmXmlMat4d.h"
 
-
 #include <QTextStream>
 
-void operator >> (QTextStream& str, cvf::Mat4d& value)
+QTextStream& operator >> (QTextStream& str, cvf::Mat4d& value)
 {
     for (int r = 0; r < 4; ++r)
     {
@@ -48,15 +47,24 @@ void operator >> (QTextStream& str, cvf::Mat4d& value)
             str >> value(r, c);
         }
     }
+
+    return str;
 }
 
-void operator << (QTextStream& str, const cvf::Mat4d& value)
+QTextStream& operator << (QTextStream& str, const cvf::Mat4d& value)
 {
     for (int r = 0; r < 4; ++r)
     {
         for (int c = 0; c < 4; ++c)
         {
-            str << value(r, c) << " ";
+            str << value(r, c);
+            
+            if (r * c < 9)
+            {
+                str << " ";
+            }
         }
     }
+
+    return str;
 }

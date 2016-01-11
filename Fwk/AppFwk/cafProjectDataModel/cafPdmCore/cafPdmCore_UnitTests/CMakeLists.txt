@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 
-find_package ( Qt4 COMPONENTS QtCore  )
+find_package ( Qt4 COMPONENTS QtCore QtGui  )
 include (${QT_USE_FILE})
 
 project ( cafPdmCore_UnitTests )
@@ -41,6 +41,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
     ${QT_LIBRARIES}
 )
+
 
 # Copy Qt Dlls
 if (MSVC)

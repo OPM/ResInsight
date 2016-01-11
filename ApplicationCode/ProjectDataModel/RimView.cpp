@@ -7,10 +7,13 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimGridCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimPropertyFilterCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -39,8 +42,8 @@ template<>
 void caf::AppEnum< RimView::MeshModeType >::setUp()
 {
     addItem(RimView::FULL_MESH,      "FULL_MESH",       "All");
-    addItem(RimView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
-    addItem(RimView::NO_MESH,        "NO_MESH",        "None");
+    addItem(RimView::FAULTS_MESH,    "FAULTS_MESH",     "Faults only");
+    addItem(RimView::NO_MESH,        "NO_MESH",         "None");
     setDefault(RimView::FULL_MESH);
 }
 
@@ -74,6 +77,9 @@ RimView::RimView(void)
     showWindow.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
+    
+    CAF_PDM_InitField(&isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "");
+    isPerspectiveView.uiCapability()->setUiHidden(true); // For now as this is experimental
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
@@ -99,6 +105,8 @@ RimView::RimView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
+    CAF_PDM_InitField(&showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
+
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
     CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
@@ -113,7 +121,24 @@ RimView::RimView(void)
     m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
     m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
 
+    CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
+    crossSectionCollection.uiCapability()->setUiHidden(true);
+    crossSectionCollection = new RimCrossSectionCollection();
+
+    CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
+    m_gridCollection.uiCapability()->setUiHidden(true);
+    m_gridCollection = new RimGridCollection();
+
     m_previousGridModeMeshLinesWasFaults = false;
+
+    m_crossSectionVizModel = new cvf::ModelBasicList;
+    m_crossSectionVizModel->setName("CrossSectionModel");
+
+    m_highlightVizModel = new cvf::ModelBasicList;
+    m_highlightVizModel->setName("HighlightModel");
+
+    m_wellPathPipeVizModel = new cvf::ModelBasicList;
+    m_wellPathPipeVizModel->setName("WellPathPipeModel");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +177,8 @@ RimView::~RimView(void)
 
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
+    delete crossSectionCollection;
+    delete m_gridCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,6 +220,8 @@ void RimView::updateViewerWidget()
 
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
+        this->updateGridBoxData();
 
         m_viewer->update();
     }
@@ -240,6 +269,10 @@ void RimView::setCurrentTimeStep(int frameIndex)
     clampCurrentTimestep();
 
     this->hasUserRequestedAnimation = true;
+    if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())
+    {  
+        m_currentReservoirCellVisibility = NULL; 
+    }
     this->updateCurrentTimeStep();
 }
 //--------------------------------------------------------------------------------------------------
@@ -262,6 +295,7 @@ void RimView::createDisplayModelAndRedraw()
         this->clampCurrentTimestep();
 
         createDisplayModel();
+        createHighlightAndGridBoxDisplayModel();
         updateDisplayModelVisibility();
 
         if (cameraPosition().isIdentity())
@@ -403,9 +437,9 @@ void RimView::setSurfOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::setShowFaultsOnly(bool showFaults)
+void RimView::showGridCells(bool enableGridCells)
 {
-    if (showFaults)
+    if (!enableGridCells)
     {
         m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
         if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(FAULTS);
@@ -416,6 +450,10 @@ void RimView::setShowFaultsOnly(bool showFaults)
         if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
         if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
     }
+
+    m_gridCollection->isActive = enableGridCells;
+    m_gridCollection->updateConnectedEditors();
+    m_gridCollection->updateUiIconFromState(enableGridCells);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,11 +492,18 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         createDisplayModel();
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+        RiuMainWindow::instance()->refreshAnimationActions();
+    }
+    else if (changedField == &isPerspectiveView)
+    {
+        if (m_viewer) m_viewer->enableParallelProjection(!isPerspectiveView());
     }
     else if (changedField == &scaleZ)
     {
         if (scaleZ < 1) scaleZ = 1;
 
+        this->updateGridBoxData();
+        
         // Regenerate well paths
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
@@ -498,11 +543,17 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         createDisplayModel();
         updateDisplayModelVisibility();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+        RiuMainWindow::instance()->refreshAnimationActions();
+    }
+    else if (changedField == &showGridBox)
+    {
+        createHighlightAndGridBoxDisplayModelWithRedraw();
     }
     else if (changedField == &m_disableLighting)
     {
         createDisplayModel();
         RiuMainWindow::instance()->refreshDrawStyleActions();
+        RiuMainWindow::instance()->refreshAnimationActions();
     }
     else if (changedField == &name)
     {
@@ -718,9 +769,9 @@ bool RimView::isMasterView() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilterCollection* RimView::overrideRangeFilterCollection()
+bool RimView::hasOverridenRangeFilterCollection()
 {
-    return m_overrideRangeFilterCollection();
+    return m_overrideRangeFilterCollection() != NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -744,5 +795,94 @@ void RimView::replaceRangeFilterCollectionWithOverride()
     m_rangeFilterCollection = overrideRfc;
 
     this->uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::removeModelByName(cvf::Scene* scene, const cvf::String& modelName)
+{
+    std::vector<cvf::Model*> modelsToBeRemoved;
+    for (cvf::uint i = 0; i < scene->modelCount(); i++)
+    {
+        if (scene->model(i)->name() == modelName)
+        {
+            modelsToBeRemoved.push_back(scene->model(i));
+        }
+    }
+
+    for (size_t i = 0; i < modelsToBeRemoved.size(); i++)
+    {
+        scene->removeModel(modelsToBeRemoved[i]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateGridBoxData()
+{
+    if (m_viewer)
+    {
+        m_viewer->updateGridBoxData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::createHighlightAndGridBoxDisplayModelWithRedraw()
+{
+    createHighlightAndGridBoxDisplayModel();
+
+    if (m_viewer)
+    {
+        m_viewer->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::createHighlightAndGridBoxDisplayModel()
+{
+    m_viewer->removeStaticModel(m_highlightVizModel.p());
+    m_viewer->removeStaticModel(m_viewer->gridBoxModel());
+
+    m_highlightVizModel->removeAllParts();
+
+    cvf::Collection<cvf::Part> parts;
+    createPartCollectionFromSelection(&parts);
+    if (parts.size() > 0)
+    {
+        for (size_t i = 0; i < parts.size(); i++)
+        {
+            m_highlightVizModel->addPart(parts[i].p());
+        }
+
+        m_highlightVizModel->updateBoundingBoxesRecursive();
+        m_viewer->addStaticModelOnce(m_highlightVizModel.p());
+    }
+
+    if (showGridBox)
+    {
+        m_viewer->addStaticModelOnce(m_viewer->gridBoxModel());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimView::showActiveCellsOnly()
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::selectOverlayInfoConfig()
+{
+    RiuMainWindow::instance()->selectAsCurrentItem(m_overlayInfoConfig);
 }
 

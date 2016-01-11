@@ -37,8 +37,15 @@ public:
     virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) = 0;
     
     void            meanCellScalarValue(double& meanValue);
-    virtual void    valueSumAndSampleCount(double& valueSum, size_t& sampleCount) = 0;
-    virtual void    addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator) = 0;
+    void            meanCellScalarValue(size_t timeStepIndex, double& meanValue);
+
+    void            valueSumAndSampleCount(double& valueSum, size_t& sampleCount);
+    virtual void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount) = 0;
+
+    void            addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
+    virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator) = 0;
 
     virtual size_t  timeStepCount() = 0;
+
+    static void posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg);
 };

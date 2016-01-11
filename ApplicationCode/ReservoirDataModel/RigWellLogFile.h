@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
@@ -30,7 +32,7 @@ namespace NRLib
     class Well;
 }
 
-class RimWellLogPlotCurve;
+class RimWellLogCurve;
 
 //==================================================================================================
 /// 
@@ -49,13 +51,14 @@ public:
     std::vector<double> depthValues() const;
     std::vector<double> values(const QString& name) const;
 
-    QString depthUnit() const;
-    QString wellLogChannelUnit(const QString& wellLogChannelName) const;
+    QString wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const;
+    RimDefines::DepthUnitType depthUnit() const;
 
-    static bool exportToLasFile(const RimWellLogPlotCurve* curve, const QString& fileName);
+    static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);
 
 private:
-    void close();
+    void    close();
+    QString depthUnitString() const;
 
     NRLib::Well*    m_wellLogFile;
     QStringList     m_wellLogChannelNames;

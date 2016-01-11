@@ -22,12 +22,13 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RimWellLogPlotTrack.h"
+#include "RimProject.h"
+#include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimView.h"
-#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
@@ -54,7 +55,7 @@ bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogPlotTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
         addCurve(wellLogPlotTrack, NULL, NULL);
@@ -64,10 +65,18 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
         RimWellPath* wellPath = selectedWellPath();
         if (wellPath)
         {
-            RimWellLogPlotTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
             RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath);
- 
+
             plotCurve->updatePlotData();
+
+            RimWellLogPlot* plot = NULL;
+            wellLogPlotTrack->firstAnchestorOrThisOfType(plot);
+            if (plot && plotCurve->curveData())
+            {
+                plot->setDepthUnit(plotCurve->curveData()->depthUnit());
+            }
+
             plotCurve->updateConnectedEditors();
         }
     }
@@ -84,9 +93,9 @@ void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotTrack* RicNewWellLogCurveExtractionFeature::selectedWellLogPlotTrack() const
+RimWellLogTrack* RicNewWellLogCurveExtractionFeature::selectedWellLogPlotTrack() const
 {
-    std::vector<RimWellLogPlotTrack*> selection;
+    std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection.size() > 0 ? selection[0] : NULL;
 }
@@ -115,12 +124,9 @@ bool RicNewWellLogCurveExtractionFeature::caseAvailable() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogPlotTrack* plotTrack, RimView* view, RimWellPath* wellPath)
+RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath)
 {
     CVF_ASSERT(plotTrack);
-
-    size_t curveIndex = plotTrack->curveCount();
-
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
@@ -130,7 +136,7 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(curve);
+    RiuMainWindow::instance()->selectAsCurrentItem(curve);
 
     return curve;
 }

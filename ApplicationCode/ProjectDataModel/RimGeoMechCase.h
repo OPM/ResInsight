@@ -28,6 +28,8 @@
 
 #include "cvfObject.h"
 
+#include <QDateTime>
+
 class RimGeoMechView;
 class RigGeoMechCaseData;
 class RifGeoMechReaderInterface;
@@ -57,13 +59,20 @@ public:
     virtual std::vector<RimView*>           views();
 
     virtual QStringList                     timeStepStrings();
+    virtual QString                         timeStepName(int frameIdx);
 
+    virtual cvf::BoundingBox                activeCellsBoundingBox() const;
+    virtual cvf::BoundingBox                allCellsBoundingBox() const;
 
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 
+    static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
+
 private:
     virtual void                            initAfterRead();
+    static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
+
 private:
     cvf::ref<RigGeoMechCaseData>            m_geoMechCaseData;
     caf::PdmField<QString>                  m_caseFileName;

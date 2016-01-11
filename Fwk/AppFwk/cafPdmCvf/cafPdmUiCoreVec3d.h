@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,23 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfVector3.h"
+#include "cafPdmCoreVec3d.h"
 
 #include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmUiFieldSpecialization.h"
 #include "cafPdmUiItem.h"
 
-#include "cafPdmCoreVec3d.h"
-
-class Vec3dDummy
-{
-public:
-    Vec3dDummy();
-};
+#include "cvfBase.h"
+#include "cvfVector3.h"
 
 
 namespace caf 
@@ -63,11 +56,8 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const cvf::Vec3d& value)
     {
-        static Vec3dDummy dummy;
-
         return PdmValueFieldSpecialization< cvf::Vec3d >::convert(value);
     }
-
 
     /// Set the field value from a QVariant
     static void setFromVariant(const QVariant& variantValue, cvf::Vec3d& value)
@@ -89,8 +79,20 @@ public:
     /// Methods to retrieve the possible PdmObject pointed to by a field
     static void childObjects(const PdmDataValueField< cvf::Vec3d >&, std::vector<PdmObjectHandle*>*)
     { }
-
 };
 
 } // end namespace caf
 
+
+
+//--------------------------------------------------------------------------------------------------
+// If the macro for registering the editor is put as the single statement
+// in a cpp file, a dummy static class must be used to make sure the compile unit
+// is included
+//--------------------------------------------------------------------------------------------------
+class PdmVec3dInitializer
+{
+public:
+    PdmVec3dInitializer();
+};
+static PdmVec3dInitializer pdmVec3dInitializer;

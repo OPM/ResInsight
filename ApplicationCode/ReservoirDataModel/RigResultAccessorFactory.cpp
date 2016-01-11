@@ -30,6 +30,8 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 
+#include "RimEclipseResultDefinition.h"
+
 #include "cvfAssert.h"
 #include "cvfBase.h"
 #include "cvfLibCore.h"
@@ -145,7 +147,34 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         return NULL;
     }
 
-    return createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, scalarSetIndex);
+    size_t adjustedTimeStepIndex = timeStepIndex;
+    if (resultType == RimDefines::STATIC_NATIVE)
+    {
+        adjustedTimeStepIndex = 0;
+    }
+
+    return createResultAccessor(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, scalarSetIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase, size_t gridIndex, size_t timeStepIndex, RimEclipseResultDefinition* resultDefinition)
+{
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultDefinition->porosityModel());
+
+    size_t adjustedTimeStepIndex = timeStepIndex;
+    if (resultDefinition->hasStaticResult())
+    {
+        adjustedTimeStepIndex = 0;
+    }
+
+    return RigResultAccessorFactory::createResultAccessor(
+        eclipseCase, 
+        gridIndex,
+        porosityModel,
+        adjustedTimeStepIndex,
+        resultDefinition->resultVariable());
 }
 
 //--------------------------------------------------------------------------------------------------

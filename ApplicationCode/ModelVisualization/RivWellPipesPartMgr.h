@@ -53,6 +53,7 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     void updatePipeResultColor(size_t frameIndex);
 
+    const std::vector< std::vector <cvf::Vec3d> >&  centerLineOfWellBranches() { return m_pipeBranchesCLCoords;}
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
@@ -63,13 +64,6 @@ private:
 
     void buildWellPipeParts();
  
-
-    //void calculateWellPipeCenterline(std::vector<cvf::Vec3d>& coords) const;
-
-    void calculateWellPipeCenterline(std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                     std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds ) const;
-
-    void finishPipeCenterLine( std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter ) const;
 
     struct RivPipeBranchData
     {
@@ -89,4 +83,6 @@ private:
     cvf::ref<cvf::ScalarMapper> m_scalarMapper;
     cvf::ref<cvf::Effect>       m_scalarMapperSurfaceEffect; 
     cvf::ref<cvf::Effect>       m_scalarMapperMeshEffect; 
+
+    std::vector< std::vector <cvf::Vec3d> > m_pipeBranchesCLCoords;
 };

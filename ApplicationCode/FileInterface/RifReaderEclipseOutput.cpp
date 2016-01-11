@@ -99,12 +99,12 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
 
     int cellCount = ecl_grid_get_global_size(localEclGrid);
-    size_t cellStartIndex = mainGrid->cells().size();
+    size_t cellStartIndex = mainGrid->globalCellArray().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
     RigCell defaultCell;
     defaultCell.setHostGrid(localGrid);
-    mainGrid->cells().resize(cellStartIndex + cellCount, defaultCell);
+    mainGrid->globalCellArray().resize(cellStartIndex + cellCount, defaultCell);
 
     mainGrid->nodes().resize(nodeStartIndex + cellCount*8, cvf::Vec3d(0,0,0));
 
@@ -117,7 +117,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
 #pragma omp parallel for
     for (int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex)
     {
-        RigCell& cell = mainGrid->cells()[cellStartIndex + gridLocalCellIndex];
+        RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
 
         cell.setGridLocalCellIndex(gridLocalCellIndex);
 
@@ -295,7 +295,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 
     // Reserve room for the cells and nodes and fill them with data
 
-    mainGrid->cells().reserve(totalCellCount);
+    mainGrid->globalCellArray().reserve(totalCellCount);
     mainGrid->nodes().reserve(8*totalCellCount);
 
     caf::ProgressInfo progInfo(3 + numLGRs, "");
@@ -569,7 +569,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             }
 
             // Check if number of cells is matching
-            if (m_eclipseCase->mainGrid()->cells().size() != reservoirCellCount)
+            if (m_eclipseCase->mainGrid()->globalCellArray().size() != reservoirCellCount)
             {
                 return false;
             }
@@ -920,7 +920,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 /// Inverse distance interpolation of the supplied points and distance weights for 
 /// the contributing points which are closest above, and closest below
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> positions)
+cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution>& positions)
 {
     std::vector<SegmentPositionContribution> filteredPositions;
     filteredPositions.reserve(positions.size());
@@ -1179,6 +1179,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     if (ert_wellhead)
                     {
                         wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+
+                        // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
+                        // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
+                        wellResFrame.m_wellHead.m_isOpen = false; 
                         break;
                     }
                 }
@@ -1480,7 +1484,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                 while (posContribIt != segmentIdToPositionContrib.end())
                 {
                     bottomPositions[posContribIt->first] = interpolate3DPosition(posContribIt->second);
-                    posContribIt++;
+                    ++posContribIt;
                 }
 
                 // Distribute the positions to the resultpoints stored in the wellResultBranch.m_branchResultPoints
@@ -1528,6 +1532,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     if (ert_wellhead)
                     {
                         wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
+                        // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
+                        wellResFrame.m_wellHead.m_isOpen = false; 
+
                         //std::cout << "Wellhead YES at timeIdx: " << timeIdx <<  " wellIdx: " << wellIdx << " Grid: " << gridNr << std::endl;
                     }
                     else

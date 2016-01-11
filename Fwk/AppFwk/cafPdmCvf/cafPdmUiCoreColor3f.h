@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
@@ -46,11 +45,6 @@
 
 #include "cafPdmCoreColor3f.h"
 
-class Color3fDummy
-{
-public:
-    Color3fDummy();
-};
 
 namespace caf 
 {
@@ -62,8 +56,6 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const cvf::Color3f& value)
     {
-        static Color3fDummy dummy;
-
         return PdmValueFieldSpecialization< cvf::Color3f >::convert(value);
     }
 
@@ -93,3 +85,15 @@ public:
 
 } // end namespace caf
 
+
+//--------------------------------------------------------------------------------------------------
+// If the macro for registering the editor is put as the single statement
+// in a cpp file, a dummy static class must be used to make sure the compile unit
+// is included
+//--------------------------------------------------------------------------------------------------
+class PdmColor3fInitializer
+{
+public:
+    PdmColor3fInitializer();
+};
+static PdmColor3fInitializer pdmColor3fInitializer;

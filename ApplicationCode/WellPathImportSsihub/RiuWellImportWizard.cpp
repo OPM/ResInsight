@@ -34,6 +34,7 @@
 #include <QtGui>
 #include <QtNetwork>
 
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -890,6 +891,8 @@ void WellSelectionPage::buildWellTreeView()
 
                         fieldGroup->objects.push_back(wellPathCopy);
                     }
+
+                    sortObjectsByDescription(fieldGroup);
                 }
             }
         }
@@ -956,7 +959,42 @@ void WellSelectionPage::selectedWellPathEntries(std::vector<DownloadEntity>& dow
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool lessByDescription(const caf::PdmPointer<caf::PdmObjectHandle>& obj1, const caf::PdmPointer<caf::PdmObjectHandle>& obj2)
+{
+    caf::PdmUiFieldHandle* uiFieldHandle1 = NULL;
+    caf::PdmUiFieldHandle* uiFieldHandle2 = NULL;
 
+    if (obj1.notNull() && obj1->uiCapability() && obj1->uiCapability()->userDescriptionField())
+    {
+        uiFieldHandle1 = obj1->uiCapability()->userDescriptionField()->uiCapability();
+    }
+
+    if (obj2.notNull() && obj2->uiCapability() && obj2->uiCapability()->userDescriptionField())
+    {
+        uiFieldHandle2 = obj2->uiCapability()->userDescriptionField()->uiCapability();
+    }
+
+    if (uiFieldHandle1 && uiFieldHandle2)
+    {
+        QString string1 = uiFieldHandle1->uiValue().toString();
+        QString string2 = uiFieldHandle2->uiValue().toString();
+
+        return string1 < string2;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WellSelectionPage::sortObjectsByDescription(caf::PdmObjectCollection* objects)
+{
+    std::sort(objects->objects.begin(), objects->objects.end(), lessByDescription);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

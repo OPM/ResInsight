@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RigSingleWellResultsData.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -30,7 +32,6 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
-class RigSingleWellResultsData;
 class RimEclipseView;
 
 //==================================================================================================
@@ -46,11 +47,11 @@ public:
     virtual ~RimEclipseWell();
     
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
-    void                                setWellIndex(size_t val) { m_wellIndex = val; }
 
-    void                                setWellResults(RigSingleWellResultsData* wellResults) { m_wellResults = wellResults;}
+    void                                setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex);
     RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
-    
+    size_t                              resultWellIndex() { return m_resultWellIndex; }
+
     bool                                isWellPipeVisible(size_t frameIndex);
 
     bool                                calculateWellPipeVisibility(size_t frameIndex);
@@ -75,7 +76,7 @@ public:
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;
-    size_t                              m_wellIndex;
+    size_t                              m_resultWellIndex;
 
     RimEclipseView*                   m_reservoirView;
 };

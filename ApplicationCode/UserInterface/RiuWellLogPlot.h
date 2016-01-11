@@ -24,7 +24,7 @@
 #include "cafPdmPointer.h"
 
 class RimWellLogPlot;
-class RiuWellLogTrackPlot;
+class RiuWellLogTrack;
 
 class QHBoxLayout;
 class QScrollBar;
@@ -46,9 +46,9 @@ public:
 
     RimWellLogPlot*                 ownerPlotDefinition();
 
-    void                            addTrackPlot(RiuWellLogTrackPlot* trackPlot);
-    void                            insertTrackPlot(RiuWellLogTrackPlot* trackPlot, size_t index);
-    void                            removeTrackPlot(RiuWellLogTrackPlot* trackPlot);
+    void                            addTrackPlot(RiuWellLogTrack* trackPlot);
+    void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
+    void                            removeTrackPlot(RiuWellLogTrack* trackPlot);
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
 
@@ -73,7 +73,7 @@ private:
     QHBoxLayout*                    m_layout;
     QScrollBar*                     m_scrollBar;
     QList<QwtLegend*>               m_legends;
-    QList<RiuWellLogTrackPlot*>     m_trackPlots;
+    QList<RiuWellLogTrack*>     m_trackPlots;
     caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
     QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
 };

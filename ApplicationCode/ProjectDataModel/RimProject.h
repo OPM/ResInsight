@@ -93,8 +93,6 @@ public:
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
 
-    void            recreateMainPlotCollection();
-
 protected:
     // Overridden methods
     void            initScriptDirectories();

@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -39,15 +39,16 @@
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiListEditor.h"
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiLineEditor, cvf::Vec3d);
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiListEditor, std::vector<cvf::Vec3d>);
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement
 // in a cpp file, a dummy static class must be used to make sure the compile unit
 // is included
 //--------------------------------------------------------------------------------------------------
-Vec3dDummy::Vec3dDummy()
+PdmVec3dInitializer::PdmVec3dInitializer()
 {
-
 }

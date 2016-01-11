@@ -27,11 +27,15 @@ add_library( ${PROJECT_NAME}
 	RigFemScalarResultFrames.cpp
 	RigFemNativeStatCalc.h
 	RigFemNativeStatCalc.cpp
+	RigFemNativeVisibleCellsStatCalc.h
+	RigFemNativeVisibleCellsStatCalc.cpp
 	RigFemFaceComparator.h
 	RigFemPartGrid.h
 	RigFemPartGrid.cpp
 	RigFemResultAddress.h
 	RigFemResultPosEnum.h
+    RigFemTimeHistoryResultAccessor.h
+    RigFemTimeHistoryResultAccessor.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME} LibCore cafTensor ResultStatisticsCache)

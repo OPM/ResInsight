@@ -156,14 +156,14 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
             std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
             std::list< RigWellResultPoint >::iterator sEndIt;
-            size_t  rStartIdx;
-            size_t  rEndIdx;
+            size_t  rStartIdx = -1;
+            size_t  rEndIdx = -1;
 
             // First detect if we have cells on the start of the result frame, that is not in the static frame
             {
                 sEndIt = stBranch.begin();
                 bool found = false;
-                if (stBranch.size())
+                if (!stBranch.empty())
                 {
                     for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                     {
@@ -283,11 +283,6 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
 {
     CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);
 
-    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
-    {
-        return &m_wellHead;
-    }
-
     for (size_t wb = 0; wb < m_wellResultBranches.size(); ++wb)
     {
         for (size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc)
@@ -298,6 +293,15 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
                 return &(m_wellResultBranches[wb].m_branchResultPoints[wc]);
             }
         }
+    }
+
+    // If we could not find the cell among the real connections, we try the wellhead.
+    // The wellhead does however not have a real connection state, and is thereby always rendered as closed
+    // If we have a real connection in the wellhead, we should not end here. See Github issue #712
+
+    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+    {
+        return &m_wellHead;
     }
 
     return NULL;

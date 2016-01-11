@@ -40,8 +40,8 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 
     for (size_t cnIdx = 0; cnIdx < m_connections.size(); ++cnIdx)
     {
-        const RigCell& c1 = mainGrid.cells()[m_connections[cnIdx].m_c1GlobIdx];
-        const RigCell& c2 = mainGrid.cells()[m_connections[cnIdx].m_c2GlobIdx];
+        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c1GlobIdx];
+        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c2GlobIdx];
 
         // Try to find the shared face
 

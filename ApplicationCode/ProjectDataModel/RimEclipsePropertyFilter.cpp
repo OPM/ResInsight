@@ -86,6 +86,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilter::~RimEclipsePropertyFilter()
 {
+    delete resultDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------

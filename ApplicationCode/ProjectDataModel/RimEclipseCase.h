@@ -71,9 +71,9 @@ public:
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;
 
-    RimReservoirCellResultsStorage*                results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
-    RimEclipseView*                           createAndAddReservoirView();
+    RimEclipseView*                             createAndAddReservoirView();
 
     void                                        removeResult(const QString& resultName);
 
@@ -82,10 +82,14 @@ public:
 
 
     RimCaseCollection*                          parentCaseCollection();
-    RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
                                                      
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings();
+    virtual QString                             timeStepName(int frameIdx);
+
+    virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
+    virtual cvf::BoundingBox                    allCellsBoundingBox() const;
+    virtual cvf::Vec3d                          displayModelOffset() const;
 
     // Overridden methods from PdmObject
 public:
@@ -99,13 +103,13 @@ protected:
     void                                        computeCachedData();
     void                                        setReservoirData(RigCaseData* eclipseCase);
 
-
 private:
     cvf::ref<RigCaseData>                       m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+    QString                                     m_timeStepFormatString;
 
     // Obsolete fields
 protected:

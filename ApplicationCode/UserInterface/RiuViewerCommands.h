@@ -18,18 +18,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <QObject>
-
-class RiuViewer;
-class RimView;
-class RimEclipseView;
-class RimGeoMechView;
-
-class QMouseEvent;
 
 #include "cvfStructGrid.h"
 #include "cafPdmPointer.h"
+
+#include <QObject>
 #include <QPointer>
+
+class RimCrossSection;
+class RimEclipseView;
+class RimGeoMechView;
+class RimView;
+class RiuViewer;
+class RivCrossSectionSourceInfo;
+class RicViewerEventInterface;
+
+class QMouseEvent;
 
 namespace cvf {
     class HitItemCollection;
@@ -47,7 +51,9 @@ public:
     void setOwnerView(RimView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
-    void            handlePickAction(int winPosX, int winPosY);
+    void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
+
+    void            findCellAndGridIndex(const RivCrossSectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
 private slots:
     void            slotRangeFilterI();
@@ -56,20 +62,25 @@ private slots:
     void            slotHideFault();
     void            slotAddEclipsePropertyFilter();
     void            slotAddGeoMechPropertyFilter();
+    void            slotHideIntersection();
 
 private:
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
     void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
-    void            updateSelectionFromPickedPart(cvf::Part* part);
+
+    bool            handleOverlayItemPicking(int winPosX, int winPosY);
 
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
 
     caf::PdmPointer<RimView> m_reservoirView;
+    caf::PdmPointer<RimCrossSection> m_currentCrossSection;
 
     QPointer<RiuViewer> m_viewer;
+
+    std::vector<RicViewerEventInterface*> m_viewerEventHandlers;
 };
 
 

@@ -9,6 +9,8 @@ ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivColorTableArray.h
 ${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.h
+${CEE_CURRENT_LIST_DIR}RivCrossSectionGeometryGenerator.h
+${CEE_CURRENT_LIST_DIR}RivCrossSectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivGridPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivTernarySaturationOverlayItem.h
@@ -32,8 +34,9 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.h
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.h
 ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.h
-
-
+${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.h
+${CEE_CURRENT_LIST_DIR}RivWellPipeSourceInfo.h
+${CEE_CURRENT_LIST_DIR}RivCrossSectionSourceInfo.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -41,6 +44,8 @@ ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivColorTableArray.cpp
 ${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivCrossSectionGeometryGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivCrossSectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivGridPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernarySaturationOverlayItem.cpp
@@ -62,7 +67,9 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.cpp
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.cpp
-
+${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivWellPipeSourceInfo.cpp
+${CEE_CURRENT_LIST_DIR}RivCrossSectionSourceInfo.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

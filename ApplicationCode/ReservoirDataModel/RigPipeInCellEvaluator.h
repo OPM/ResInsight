@@ -27,10 +27,10 @@
 class RigPipeInCellEvaluator: public cvf::Object
 {
 public: 
-    RigPipeInCellEvaluator(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
-                           const cvf::UIntArray* gridCellToWellIndexMap) 
-                           : m_isWellPipeVisibleForWellIndex(isWellPipeVisibleForWellIndex), 
-                             m_gridCellToWellIndexMap(gridCellToWellIndexMap)
+    RigPipeInCellEvaluator(const std::vector<cvf::ubyte>& isWellPipeVisibleForResultWellIndex, 
+                           const cvf::UIntArray* gridCellToResultWellIndexMap) 
+                           : m_isWellPipeVisibleForWellIndex(isWellPipeVisibleForResultWellIndex), 
+                             m_gridCellToWellIndexMap(gridCellToResultWellIndexMap)
     {
     }
 

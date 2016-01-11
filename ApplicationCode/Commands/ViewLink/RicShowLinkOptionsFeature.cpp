@@ -27,7 +27,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
-#include "cafPdmUiTreeView.h"
 
 #include <QAction>
 
@@ -62,7 +61,7 @@ void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
 
     RimViewController* viewController = activeView->viewController();
 
-    RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(viewController);
+    RiuMainWindow::instance()->selectAsCurrentItem(viewController);
 }
 
 //--------------------------------------------------------------------------------------------------

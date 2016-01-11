@@ -65,7 +65,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(RimEclipsePropertyFi
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+    RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
 
 }
 
@@ -81,7 +81,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropert
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
 
     propertyFilterCollection->updateConnectedEditors();
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(propertyFilter);
+    RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
 }
 
 //--------------------------------------------------------------------------------------------------

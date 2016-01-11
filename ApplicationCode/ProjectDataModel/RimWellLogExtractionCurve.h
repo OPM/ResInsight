@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimWellLogPlotCurve.h"
+#include "RimWellLogCurve.h"
 
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
@@ -27,14 +27,14 @@
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimWellPath;
 class RimView;
+class RimWellPath;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellLogExtractionCurve : public RimWellLogPlotCurve
+class RimWellLogExtractionCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -62,6 +62,11 @@ protected:
 
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
+private:
+    void setLogScaleFromSelectedResult();
+    void clampTimestep();
+
+private:
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
@@ -74,5 +79,4 @@ protected:
     caf::PdmField<bool>                             m_addTimestepToCurveName;
     caf::PdmField<bool>                             m_addDateToCurveName;
 };
-
 

@@ -508,7 +508,7 @@ void PdmUiTableViewModel::recreateTableItemEditors()
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTableViewModel::pdmObjectForRow(int row) const
 {
-    if (m_pdmList && row < m_pdmList->size())
+    if (m_pdmList && row < static_cast<int>(m_pdmList->size()))
     {
         return m_pdmList->at(row);
     }

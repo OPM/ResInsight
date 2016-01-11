@@ -37,8 +37,8 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogPlotCurve.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogCurve.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimEclipseView.h"
@@ -46,8 +46,8 @@
 #include "RimGeoMechView.h"
 #include "RimGeoMechCellColors.h"
 
-#include "RiuWellLogPlotCurve.h"
-#include "RiuWellLogTrackPlot.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -99,7 +99,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 {
-
+    delete m_geomResultDefinition;
+    delete m_eclipseResultDefinition;
 }
 
 
@@ -139,16 +140,31 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::clampTimestep()
+{
+    if (m_case)
+    {
+        if (m_timeStep > m_case->timeStepStrings().size() - 1)
+        {
+            m_timeStep = m_case->timeStepStrings().size() - 1;
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimWellLogPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+    RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_case)
     {
+        clampTimestep();
+
         this->updatePlotData();
     }    
     else if (changedField == &m_wellPath)
@@ -177,7 +193,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::updatePlotData()
 {
-    RimWellLogPlotCurve::updatePlotConfiguration();
+    RimWellLogCurve::updatePlotConfiguration();
 
     if (isCurveVisible())
     {
@@ -199,6 +215,8 @@ void RimWellLogExtractionCurve::updatePlotData()
         std::vector<double> measuredDepthValues;
         std::vector<double> tvDepthValues;
 
+        RimDefines::DepthUnitType depthUnit = RimDefines::UNIT_METER;
+
         if (eclExtractor.notNull())
         {
             RimWellLogPlot* wellLogPlot;
@@ -211,18 +229,25 @@ void RimWellLogExtractionCurve::updatePlotData()
                 tvDepthValues = eclExtractor->trueVerticalDepth();
             }
 
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
             m_eclipseResultDefinition->loadResult();
 
             cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
-                eclipseCase->reservoirData(), 0,
-                porosityModel,
+                eclipseCase->reservoirData(),
+                0,
                 m_timeStep,
-                m_eclipseResultDefinition->resultVariable());
+                m_eclipseResultDefinition);
 
             if (resAcc.notNull())
             {
                 eclExtractor->curveData(resAcc.p(), &values);
+            }
+
+            RigCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
+            if (eclipseUnitsType == RigCaseData::UNITS_FIELD)
+            {
+                // See https://github.com/OPM/ResInsight/issues/538
+                
+                depthUnit = RimDefines::UNIT_FEET;
             }
         }
         else if (geomExtractor.notNull()) // geomExtractor
@@ -247,16 +272,29 @@ void RimWellLogExtractionCurve::updatePlotData()
         {
             if (!tvDepthValues.size())
             {
-                m_curveData->setValuesAndMD(values, measuredDepthValues, true);
+                m_curveData->setValuesAndMD(values, measuredDepthValues, depthUnit, true);
             }
             else
             {
-                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues);
+                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues, depthUnit);
             }
         }
 
-        m_qwtPlotCurve->setCurveData(m_curveData.p());
+        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+
+        RimWellLogPlot* wellLogPlot;
+        firstAnchestorOrThisOfType(wellLogPlot);
+        if (wellLogPlot)
+        {
+            displayUnit = wellLogPlot->depthUnit();
+        }
+
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
+
         zoomAllOwnerTrackAndPlot();
+
+        setLogScaleFromSelectedResult();
 
         if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
     }
@@ -268,6 +306,9 @@ void RimWellLogExtractionCurve::updatePlotData()
 QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
    QList<caf::PdmOptionItemInfo> optionList;
+
+   optionList = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+   if (optionList.size() > 0) return optionList;
 
     if (fieldNeedingOptions == &m_wellPath)
     {
@@ -358,6 +399,9 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     appearanceGroup->add(&m_curveColor);
+    appearanceGroup->add(&m_curveThickness);
+    appearanceGroup->add(&m_pointSymbol);
+    appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_autoName);
     if (m_autoName)
@@ -378,7 +422,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::initAfterRead()
 {
-    RimWellLogPlotCurve::initAfterRead();
+    RimWellLogCurve::initAfterRead();
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -395,6 +439,26 @@ void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiT
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
+{
+    QString resVar = m_eclipseResultDefinition->resultVariable();
+
+    if (resVar.toUpper().contains("PERM"))
+    {
+        RimWellLogTrack* track = NULL;
+        this->firstAnchestorOrThisOfType(track);
+        if (track)
+        {
+            if (track->curveCount() == 1)
+            {
+                track->setLogarithmicScale(true);
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -352,7 +352,7 @@ RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGrid* ma
 
     size_t cellIdx =  masterEclGrid->cellIndexFromIJK(ei, ej, ek);
 
-    bool isCollapsedCell =  masterEclGrid->cells()[cellIdx].isCollapsedCell();
+    bool isCollapsedCell =  masterEclGrid->globalCellArray()[cellIdx].isCollapsedCell();
 
     cvf::Vec3d geoMechConvertedEclCell[8];
     RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell(masterEclGrid, cellIdx, geoMechConvertedEclCell);
@@ -444,6 +444,7 @@ RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dep
     cvf::Vec3d elmCenter = RigCaseToCaseCellMapperTools::calculateCellCenter(elmCorners);
 
     bool foundExactMatch = false;
+     cvf::Vec3d rotatedElm[8];
 
     for (size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx)
     {
@@ -458,10 +459,19 @@ RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dep
             globCellIdxToBestMatch = cellIdx;
             sqDistToClosestCellCenter = sqDist;
         }
+       
+        rotatedElm[0] = elmCorners[0];
+        rotatedElm[1] = elmCorners[1];
+        rotatedElm[2] = elmCorners[2];
+        rotatedElm[3] = elmCorners[3];
+        rotatedElm[4] = elmCorners[4];
+        rotatedElm[5] = elmCorners[5];
+        rotatedElm[6] = elmCorners[6];
+        rotatedElm[7] = elmCorners[7];
 
-        RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners);
+        RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell(geoMechConvertedEclCell, isEclFaceNormalsOutwards, rotatedElm);
 
-        foundExactMatch = RigCaseToCaseCellMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, elmCorners,
+        foundExactMatch = RigCaseToCaseCellMapperTools::isEclFemCellsMatching(geoMechConvertedEclCell, rotatedElm,
                                                                           xyTolerance, zTolerance);
 
         if (foundExactMatch)
@@ -475,7 +485,7 @@ RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dep
     if (globCellIdxToBestMatch != cvf::UNDEFINED_SIZE_T)
     {
         masterEclGrid->ijkFromCellIndex(globCellIdxToBestMatch, ei, ej, ek);
-        isCollapsedCell =  masterEclGrid->cells()[globCellIdxToBestMatch].isCollapsedCell();
+        isCollapsedCell =  masterEclGrid->globalCellArray()[globCellIdxToBestMatch].isCollapsedCell();
     }
     else
     {

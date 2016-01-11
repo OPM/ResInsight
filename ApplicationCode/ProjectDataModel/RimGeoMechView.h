@@ -60,12 +60,16 @@ public:
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
+    virtual RimCase*                                    ownerCase();
 
     virtual void                                        loadDataAndUpdate();
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
 
-    RimGeoMechPropertyFilterCollection*                 propertyFilterCollection();
+    virtual const RimPropertyFilterCollection*          propertyFilterCollection() const;
+
+    RimGeoMechPropertyFilterCollection*                 geoMechPropertyFilterCollection();
+    const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
     void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
     bool                                                isTimeStepDependentDataVisible();
@@ -74,9 +78,12 @@ public:
     virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType);
     void                                                updateIconStateForFilterCollections();
 
+    virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-
+    
+    virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
 
 private:
     virtual void                                        createDisplayModel();
@@ -96,9 +103,8 @@ private:
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                        initAfterRead();
 
-    virtual RimCase*                                    ownerCase();
-
     virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+
 
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;

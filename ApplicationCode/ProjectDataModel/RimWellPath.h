@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "RigWellPath.h"
+#include "RimWellPathCollection.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -29,11 +32,9 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
-#include "RigWellPath.h"
 
 class RimProject;
 class RivWellPathPartMgr;
-class RimWellPathCollection;
 class RimWellLogFile;
 
 //==================================================================================================
@@ -48,8 +49,6 @@ public:
     RimWellPath();
     virtual ~RimWellPath();
 
-    void                                setProject(RimProject* project) { m_project = project; }
-    void                                setCollection(RimWellPathCollection* collection) { m_wellPathCollection = collection; }
     void                                setLogFileInfo(RimWellLogFile* logFileInfo);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
@@ -73,7 +72,7 @@ public:
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
     RivWellPathPartMgr*                 partMgr();
 
-    bool                                readWellPathFile(QString * errorMessage);
+    bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
     void                                updateFilePathsFromProjectPath();
 
 
@@ -82,7 +81,7 @@ private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel) { m_wellPath = wellPathModel; }
     void                                readJsonWellPathFile();
-    void                                readAsciiWellPathFile();
+    void                                readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader);
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
@@ -103,6 +102,4 @@ private:
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
-    caf::PdmPointer<RimWellPathCollection> m_wellPathCollection;
-    RimProject*                         m_project;    
 };

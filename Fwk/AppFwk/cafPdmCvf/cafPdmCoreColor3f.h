@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,16 +34,15 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
 
 #include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmXmlColor3f.h"
 
 #include <QColor>
-
 
 namespace caf 
 {
@@ -75,7 +74,6 @@ public:
     {
         return variantValue == variantValue2;
     }
-
 };
 
 

@@ -75,27 +75,28 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
     if (objectGroup.objects.size() == 0) return;
 
     std::vector<caf::PdmPointer<RimGeoMechView> > geomViews;
-    objectGroup.createCopyByType(&geomViews, PdmDefaultObjectFactory::instance());
+    objectGroup.objectsByType(&geomViews);
 
-    if (geomViews.size() != 0)
+    // Add cases to case group
+    for (size_t i = 0; i < geomViews.size(); i++)
     {
-        // Add cases to case group
-        for (size_t i = 0; i < geomViews.size(); i++)
-        {
-            RimGeoMechView* rimReservoirView = geomViews[i];
-            QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
-            rimReservoirView->name = nameOfCopy;
-            geomCase->geoMechViews().push_back(rimReservoirView);
+        RimGeoMechView* rimReservoirView = dynamic_cast<RimGeoMechView*>(geomViews[i]->xmlCapability()->copyByXmlSerialization(PdmDefaultObjectFactory::instance()));
+        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
+        rimReservoirView->name = nameOfCopy;
+        geomCase->geoMechViews().push_back(rimReservoirView);
 
-            rimReservoirView->initAfterReadRecursively();
-            rimReservoirView->setGeoMechCase(geomCase);
+        rimReservoirView->setGeoMechCase(geomCase);
 
-            caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
+        // Resolve references after reservoir view has been inserted into Rim structures
+        // Intersections referencing a well path requires this
+        rimReservoirView->initAfterReadRecursively();
+        rimReservoirView->resolveReferencesRecursively();
 
-            rimReservoirView->loadDataAndUpdate();
+        caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
-            geomCase->updateConnectedEditors();
-        }
+        rimReservoirView->loadDataAndUpdate();
+
+        geomCase->updateConnectedEditors();
     }
 }
 

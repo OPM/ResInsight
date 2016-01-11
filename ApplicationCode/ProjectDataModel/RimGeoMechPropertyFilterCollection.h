@@ -23,6 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "RimPropertyFilterCollection.h"
 
 class RimGeoMechPropertyFilter;
 class RimGeoMechView;
@@ -31,7 +32,7 @@ class RimGeoMechView;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechPropertyFilterCollection : public caf::PdmObject
+class RimGeoMechPropertyFilterCollection : public RimPropertyFilterCollection
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -41,7 +42,6 @@ public:
     RimGeoMechView*       reservoirView();
 
     // Fields:
-    caf::PdmField<bool> isActive;
     caf::PdmChildArrayField<RimGeoMechPropertyFilter*> propertyFilters;
 
     // Methods
@@ -49,13 +49,9 @@ public:
     bool                    hasActiveDynamicFilters() const; 
 
     void                    loadAndInitializePropertyFilters();
-    void                    updateDisplayModelNotifyManagedViews();
     void                    updateIconState();
 
 protected:
     // Overridden methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
-    virtual caf::PdmFieldHandle*    objectToggleField();
     virtual void                    initAfterRead();
 };

@@ -122,7 +122,7 @@ bool RifReaderMockModel::dynamicResult(const QString& result, RifReaderInterface
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderMockModel::RifReaderMockModel()
+RifReaderMockModel::RifReaderMockModel() : m_reservoir(NULL)
 {
     /*
     m_cellResults.push_back("Dummy results");

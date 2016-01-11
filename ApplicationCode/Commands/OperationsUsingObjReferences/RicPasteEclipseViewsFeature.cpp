@@ -81,30 +81,31 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
     if (objectGroup.objects.size() == 0) return;
 
     std::vector<caf::PdmPointer<RimEclipseView> > eclipseViews;
-    objectGroup.createCopyByType(&eclipseViews, PdmDefaultObjectFactory::instance());
+    objectGroup.objectsByType(&eclipseViews);
 
-    if (eclipseViews.size() != 0)
+    // Add cases to case group
+    for (size_t i = 0; i < eclipseViews.size(); i++)
     {
-        // Add cases to case group
-        for (size_t i = 0; i < eclipseViews.size(); i++)
-        {
-            RimEclipseView* rimReservoirView = eclipseViews[i];
-            QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
-            rimReservoirView->name = nameOfCopy;
-            eclipseCase->reservoirViews().push_back(rimReservoirView);
+        RimEclipseView* rimReservoirView = dynamic_cast<RimEclipseView*>(eclipseViews[i]->xmlCapability()->copyByXmlSerialization(PdmDefaultObjectFactory::instance()));
+        CVF_ASSERT(rimReservoirView);
 
-            // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
-            rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
+        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
+        rimReservoirView->name = nameOfCopy;
+        eclipseCase->reservoirViews().push_back(rimReservoirView);
 
-            rimReservoirView->initAfterReadRecursively();
-            rimReservoirView->setEclipseCase(eclipseCase);
+        rimReservoirView->setEclipseCase(eclipseCase);
 
-            caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
+        // Resolve references after reservoir view has been inserted into Rim structures
+        // Intersections referencing a well path/ simulation well requires this
+        // TODO: initAfterReadRecursively can probably be removed
+        rimReservoirView->initAfterReadRecursively();
+        rimReservoirView->resolveReferencesRecursively();
 
-            rimReservoirView->loadDataAndUpdate();
+        rimReservoirView->loadDataAndUpdate();
 
-            eclipseCase->updateConnectedEditors();
-        }
+        caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
+
+        eclipseCase->updateConnectedEditors();
     }
 }
 

@@ -72,6 +72,7 @@ public:
     ~RiaApplication();
     static RiaApplication* instance();
 
+    int                     parseArgumentsAndRunUnitTestsIfRequested();
     bool                    parseArguments();
 
     void                    executeRegressionTests(const QString& regressionTestPath);
@@ -159,8 +160,8 @@ public:
 
     bool                isRunningRegressionTests() const;
 
-    void                launchUnitTests();
-    void                launchUnitTestsWithConsole();
+    int                 launchUnitTests();
+    int                 launchUnitTestsWithConsole();
 
 private:
     enum ProjectLoadAction

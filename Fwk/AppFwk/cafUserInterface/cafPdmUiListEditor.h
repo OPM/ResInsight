@@ -54,6 +54,17 @@ namespace caf
 //==================================================================================================
 class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 {
+public:
+    PdmUiListEditorAttribute()
+        : m_baseColor(Qt::white)
+    {
+        QPalette myPalette;
+
+        m_baseColor = myPalette.color(QPalette::Active, QPalette::Base);
+    }
+
+public:
+    QColor m_baseColor;
 };
 
 
@@ -78,6 +89,10 @@ protected:
 protected slots:
     void                slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
     void                slotListItemEdited(const QModelIndex&, const QModelIndex&);
+
+private:
+    QString             contentAsString() const;
+    void                pasteFromString(const QString& content);
 
 private:
     QPointer<QListView>         m_listView;

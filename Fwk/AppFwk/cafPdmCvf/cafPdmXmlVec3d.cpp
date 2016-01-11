@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -36,36 +36,25 @@
 
 #include "cafPdmXmlVec3d.h"
 
-
 #include <QTextStream>
 
-void operator >> (QTextStream& str, cvf::Vec3d& value)
+QTextStream& operator >> (QTextStream& str, cvf::Vec3d& value)
 {
-    bool streamStatusOk = true;
+    QString text;
 
-    cvf::Vec3d tmp;
-    for (int r = 0; r < 3; ++r)
-    {
-        str >> tmp[r];
+    double x, y, z;
+    str >> x;
+    str >> y;
+    str >> z;
 
-        if (str.status() != QTextStream::Ok)
-        {
-            streamStatusOk = false;
-        }
-    }
-
-    if (streamStatusOk)
-    {
-        value = tmp;
-    }
+    value.set(x, y, z);
+    return str;
 }
 
-void operator << (QTextStream& str, const cvf::Vec3d& value)
+QTextStream& operator << (QTextStream& str, const cvf::Vec3d& value)
 {
-    for (int r = 0; r < 3; ++r)
-    {
-        str << value[r];
-        if (r < 2) str << " ";
-    }
+    str << value.x() << " " << value.y() << " " << value.z();
+
+    return str;
 }
 

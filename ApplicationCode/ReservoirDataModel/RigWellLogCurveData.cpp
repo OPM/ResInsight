@@ -19,6 +19,8 @@
 
 #include "RigWellLogCurveData.h"
 
+#include "RigCurveDataTools.h"
+
 #include "cvfMath.h"
 #include "cvfAssert.h"
 
@@ -30,6 +32,7 @@
 RigWellLogCurveData::RigWellLogCurveData()
 {
     m_isExtractionCurve = false;
+    m_depthUnit = RimDefines::UNIT_METER;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,6 +47,7 @@ RigWellLogCurveData::~RigWellLogCurveData()
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues, 
                                          const std::vector<double>& measuredDepths,
+                                         RimDefines::DepthUnitType depthUnit,
                                          bool isExtractionCurve)
 {
     CVF_ASSERT(xValues.size() == measuredDepths.size());
@@ -51,6 +55,7 @@ void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues,
     m_xValues = xValues;
     m_measuredDepths = measuredDepths;
     m_tvDepths.clear();
+    m_depthUnit = depthUnit;
 
     // Disable depth value filtering is intended to be used for 
     // extraction curve data
@@ -64,13 +69,15 @@ void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues,
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues, 
                                            const std::vector<double>& measuredDepths, 
-                                           const std::vector<double>& tvDepths)
+                                           const std::vector<double>& tvDepths,
+                                           RimDefines::DepthUnitType depthUnit)
 {
     CVF_ASSERT(xValues.size() == measuredDepths.size());
 
     m_xValues = xValues;
     m_measuredDepths = measuredDepths;
     m_tvDepths = tvDepths;
+    m_depthUnit = depthUnit;
 
     // Always use value filtering when TVD is present
     m_isExtractionCurve = true;
@@ -101,7 +108,7 @@ const std::vector<double>& RigWellLogCurveData::measuredDepths() const
 std::vector<double> RigWellLogCurveData::xPlotValues() const
 {
     std::vector<double> filteredValues;
-    getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
+    RigCurveDataTools::getValuesByIntervals(m_xValues, m_intervalsOfContinousValidValues, &filteredValues);
 
     return filteredValues;
 }
@@ -109,16 +116,32 @@ std::vector<double> RigWellLogCurveData::xPlotValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::depthPlotValues() const
+std::vector<double> RigWellLogCurveData::depthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const
 {
     std::vector<double> filteredValues;
     if (m_tvDepths.size())
     {
-        getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        if (destinationDepthUnit == m_depthUnit)
+        {
+            RigCurveDataTools::getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        }
+        else
+        {
+            std::vector<double> convertedValues = convertDepthValues(destinationDepthUnit, m_tvDepths);
+            RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
+        }
     }
     else
     {
-        getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        if (destinationDepthUnit == m_depthUnit)
+        {
+            RigCurveDataTools::getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+        }
+        else
+        {
+            std::vector<double> convertedValues = convertDepthValues(destinationDepthUnit, m_measuredDepths);
+            RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
+        }
     }
 
     return filteredValues;
@@ -130,7 +153,7 @@ std::vector<double> RigWellLogCurveData::depthPlotValues() const
 std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopIndices() const
 {
     std::vector< std::pair<size_t, size_t> > lineStartStopIndices;
-    computePolyLineStartStopIndices(m_intervalsOfContinousValidValues, &lineStartStopIndices);
+    RigCurveDataTools::computePolyLineStartStopIndices(m_intervalsOfContinousValidValues, &lineStartStopIndices);
 
     return lineStartStopIndices;
 }
@@ -142,7 +165,7 @@ std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopI
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
     std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-    calculateIntervalsOfValidValues(m_xValues, &intervalsOfValidValues);
+    RigCurveDataTools::calculateIntervalsOfValidValues(m_xValues, &intervalsOfValidValues);
 
     m_intervalsOfContinousValidValues.clear();
 
@@ -165,42 +188,6 @@ void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
                 m_intervalsOfContinousValidValues.push_back(depthValuesIntervals[dvintIdx]);
             }
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals)
-{
-    CVF_ASSERT(intervals);
-
-    int startIdx = -1;
-    size_t vIdx = 0;
-
-    size_t valueCount = values.size();
-    while (vIdx < valueCount)
-    {
-        double value = values[vIdx];
-        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
-        {
-            if (startIdx >= 0)
-            {
-                intervals->push_back(std::make_pair(startIdx, vIdx - 1));
-                startIdx = -1;
-            }
-        }
-        else if (startIdx < 0)
-        {
-            startIdx = (int)vIdx;
-        }
-
-        vIdx++;
-    }
-
-    if (startIdx >= 0 && startIdx < ((int)valueCount))
-    {
-        intervals->push_back(std::make_pair(startIdx, valueCount - 1));
     }
 }
 
@@ -242,46 +229,6 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace(const std::vector<double>& d
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::getValuesByIntervals(const std::vector<double>& values, 
-                                               const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                               std::vector<double>* filteredValues)
-{
-    CVF_ASSERT(filteredValues);
-
-    for (size_t intIdx = 0; intIdx < intervals.size(); intIdx++)
-    {
-        for (size_t vIdx = intervals[intIdx].first; vIdx <= intervals[intIdx].second; vIdx++)
-        {
-            filteredValues->push_back(values[vIdx]);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::computePolyLineStartStopIndices(const std::vector< std::pair<size_t, size_t> >& intervals, 
-                                                          std::vector< std::pair<size_t, size_t> >* fltrIntervals)
-{
-    CVF_ASSERT(fltrIntervals);
-
-    const size_t intervalCount = intervals.size();
-    if (intervalCount < 1) return;
-
-    size_t index = 0;
-    for (size_t intIdx = 0; intIdx < intervalCount; intIdx++)
-    {
-        size_t intervalSize = intervals[intIdx].second - intervals[intIdx].first + 1;
-        fltrIntervals->push_back(std::make_pair(index, index + intervalSize - 1));
-
-        index += intervalSize;
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -316,4 +263,59 @@ bool RigWellLogCurveData::calculateMDRange(double* minimumDepth, double* maximum
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::DepthUnitType RigWellLogCurveData::depthUnit() const
+{
+    return m_depthUnit;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::convertFromMeterToFeet(const std::vector<double>& valuesInMeter)
+{
+    std::vector<double> valuesInFeet(valuesInMeter.size());
+
+    for (size_t i = 0; i < valuesInMeter.size(); i++)
+    {
+        valuesInFeet[i] = valuesInMeter[i] * RimDefines::feetPerMeter();
+    }
+
+    return valuesInFeet;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::convertFromFeetToMeter(const std::vector<double>& valuesInFeet)
+{
+    std::vector<double> valuesInMeter(valuesInFeet.size());
+
+    for (size_t i = 0; i < valuesInFeet.size(); i++)
+    {
+        valuesInMeter[i] = valuesInFeet[i] / RimDefines::feetPerMeter();
+    }
+
+    return valuesInMeter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::convertDepthValues(RimDefines::DepthUnitType destinationDepthUnit, const std::vector<double>& values) const
+{
+    CVF_ASSERT(destinationDepthUnit != m_depthUnit);
+
+    if (destinationDepthUnit == RimDefines::UNIT_METER)
+    {
+        return convertFromFeetToMeter(values);
+    }
+    else
+    {
+        return convertFromMeterToFeet(values);
+    }
 }

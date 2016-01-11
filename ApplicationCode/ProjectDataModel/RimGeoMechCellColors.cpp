@@ -43,6 +43,7 @@ RimGeoMechCellColors::RimGeoMechCellColors(void)
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCellColors::~RimGeoMechCellColors(void)
 {
+    delete legendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------

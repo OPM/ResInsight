@@ -253,4 +253,23 @@ private:
 };
 
 
+//==================================================================================================
+//
+// TextEffectGenerator
+//
+//==================================================================================================
+class TextEffectGenerator : public EffectGenerator
+{
+public:
+    TextEffectGenerator();
+
+protected:
+    virtual bool                    isEqual(const EffectGenerator* other) const;
+    virtual EffectGenerator*        copy() const;
+
+    virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
+    virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
+};
+
+
 }

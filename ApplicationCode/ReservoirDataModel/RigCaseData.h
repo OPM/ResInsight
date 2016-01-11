@@ -56,7 +56,7 @@ public:
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
 
-    RigCaseCellResultsData*                        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RigCaseCellResultsData*                     results(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigCaseCellResultsData*               results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
     RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);
@@ -66,8 +66,8 @@ public:
     void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
     const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
 
-    cvf::UByteArray*                            wellCellsInGrid(size_t gridIndex);
-    cvf::UIntArray*                             gridCellToWellIndex(size_t gridIndex);
+    const cvf::UByteArray*                      wellCellsInGrid(size_t gridIndex);
+    const cvf::UIntArray*                       gridCellToResultWellIndex(size_t gridIndex);
 
     RigCell&                                    cellFromWellResultCell(const RigWellResultPoint& wellResultCell);
     bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultPoint& sourceWellCellResult, const RigWellResultPoint& otherWellCellResult) const;
@@ -92,7 +92,7 @@ private:
 
     cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
-    cvf::Collection<cvf::UIntArray>             m_gridCellToWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
+    cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
     UnitsType                                   m_unitsType;
 };

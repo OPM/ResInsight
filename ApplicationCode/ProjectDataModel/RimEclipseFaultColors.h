@@ -48,8 +48,6 @@ public:
 
     void                    updateFieldVisibility();
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
-
 protected:
     virtual void                    initAfterRead();
     virtual caf::PdmFieldHandle*    objectToggleField();

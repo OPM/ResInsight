@@ -19,29 +19,16 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cafNavigationPolicy.h"
-#include "cvfManipulatorTrackball.h"
-#include "cvfRay.h"
+#include "cafTrackBallBasedNavigation.h"
 
-
-class RiuCadNavigation : public caf::NavigationPolicy
+class RiuCadNavigation : public caf::TrackBallBasedNavigation
 {
+public:
+    RiuCadNavigation();
+    virtual ~RiuCadNavigation();
 protected:
-    // General navigation policy reimplememtation
-    virtual void        init();
-    virtual bool        handleInputEvent(QInputEvent* inputEvent);
-    virtual void        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
-    virtual cvf::Vec3d  pointOfInterest(); 
-    virtual void        setPointOfInterest(cvf::Vec3d poi);
+    virtual void   init();
+    virtual bool   handleInputEvent(QInputEvent* inputEvent);
 
-
-    // Cad navigation specific
-    void            initializeRotationCenter();
-
-    cvf::ref<cvf::ManipulatorTrackball> m_trackball;
-    bool            m_isRotCenterInitialized; 
-    bool            m_isRotating;
-    cvf::Vec3d      m_pointOfInterest;
-    bool            m_navigationUpdated;
+    bool           m_navigationUpdated;
 };

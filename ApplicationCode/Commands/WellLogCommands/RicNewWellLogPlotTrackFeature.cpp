@@ -20,7 +20,7 @@
 #include "RicNewWellLogPlotTrackFeature.h"
 
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotTrack.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
 
@@ -49,7 +49,7 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
     RimWellLogPlot* wellLogPlot = selectedWellLogPlot();
     if (wellLogPlot)
     {
-         RimWellLogPlotTrack* plotTrack = new RimWellLogPlotTrack;
+         RimWellLogTrack* plotTrack = new RimWellLogTrack;
          wellLogPlot->addTrack(plotTrack);
          plotTrack->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
 

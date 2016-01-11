@@ -21,6 +21,7 @@
 #include "RimEclipseWellCollection.h"
 
 #include "cvfCollection.h"
+#include "cvfVector3.h"
 
 namespace cvf
 {
@@ -45,6 +46,8 @@ public:
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     void updatePipeResultColor(size_t frameIndex);
+
+    const std::vector< std::vector <cvf::Vec3d> >*  centerLineOfWellBranches(int wellIdx);
 
 private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;

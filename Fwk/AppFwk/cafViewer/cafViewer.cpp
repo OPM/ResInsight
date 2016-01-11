@@ -37,37 +37,36 @@
 
 #include "cafViewer.h"
 
+#include "cafCadNavigation.h"
+#include "cafFrameAnimationControl.h"
+#include "cafNavigationPolicy.h"
+
 #include "cvfCamera.h"
-#include "cvfRendering.h"
-#include "cvfRenderSequence.h"
-#include "cvfOpenGLResourceManager.h"
-#include "cvfRenderQueueSorter.h"
-#include "cvfScene.h"
-#include "cvfModel.h"
-#include "cvfTextureImage.h"
-#include "cvfOverlayImage.h"
-
-#include "cvfqtOpenGLContext.h"
-
-#include "cvfRay.h"
-#include "cvfPart.h"
+#include "cvfDebugTimer.h"
 #include "cvfDrawable.h"
 #include "cvfDrawableGeo.h"
-#include "cvfTransform.h"
-#include "cvfRayIntersectSpec.h"
 #include "cvfHitItemCollection.h"
+#include "cvfManipulatorTrackball.h"
+#include "cvfModel.h"
+#include "cvfOpenGLResourceManager.h"
+#include "cvfOverlayImage.h"
+#include "cvfPart.h"
+#include "cvfRay.h"
+#include "cvfRayIntersectSpec.h"
+#include "cvfRenderQueueSorter.h"
+#include "cvfRenderSequence.h"
+#include "cvfRendering.h"
+#include "cvfScene.h"
+#include "cvfTextureImage.h"
+#include "cvfTransform.h"
 
-#include "cvfDebugTimer.h"
+#include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
-#include "cafNavigationPolicy.h"
-#include "cafCadNavigation.h"
-#include "cafFrameAnimationControl.h"
-
-#include <QInputEvent>
-#include <QHBoxLayout>
 #include <QDebug>
+#include <QHBoxLayout>
+#include <QInputEvent>
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -80,10 +79,11 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_navigationPolicy(NULL),
     m_minNearPlaneDistance(0.05),
     m_maxFarPlaneDistance(cvf::UNDEFINED_DOUBLE),
+    m_cameraFieldOfViewYDeg(40.0),
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
     m_navigationPolicyEnabled(true),
-    m_isOverlyPaintingEnabled(true)
+    m_isOverlayPaintingEnabled(true)
 {
     m_layoutWidget = parentWidget();
 
@@ -135,7 +135,7 @@ caf::Viewer::~Viewer()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method is supposed to setup the contents of the main rendering
+/// 
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setupMainRendering()
 {
@@ -152,9 +152,7 @@ void caf::Viewer::setupMainRendering()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method is supposed to assemble the rendering sequence (cvf::RenderSequence) based on
-/// the Viewers renderings. THe ViewerBase has only one rendering. The m_mainRendering
-/// Reimplement to build more advanced rendering sequences
+/// 
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setupRenderingSequence()
 {
@@ -162,7 +160,6 @@ void caf::Viewer::setupRenderingSequence()
 
     updateCamera(width(), height());
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -203,6 +200,8 @@ cvf::Camera* caf::Viewer::mainCamera()
 //--------------------------------------------------------------------------------------------------
 void  caf::Viewer::setMainScene(cvf::Scene* scene)
 {
+    appendAllStaticModelsToFrame(scene);
+
     m_mainScene = scene;
     m_mainRendering->setScene(scene);
 }
@@ -234,15 +233,11 @@ void caf::Viewer::updateCamera(int width, int height)
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
-        m_mainCamera->setProjectionAsPerspective(40, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
     }
     else
     {
-        cvf::BoundingBox bb = m_renderingSequence->boundingBox();
-        if (bb.isValid())
-        {
-            m_mainCamera->setProjectionAsOrtho(bb.extent().length(), m_mainCamera->nearPlane(), m_mainCamera->farPlane());
-        }
+        m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), m_mainCamera->nearPlane(), m_mainCamera->farPlane());
     }
 }
 
@@ -267,32 +262,36 @@ bool caf::Viewer::canRender() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::optimizeClippingPlanes()
 {
+    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    if (!bb.isValid()) return;
+
+    cvf::Vec3d eye, vrp, up;
+    m_mainCamera->toLookAt(&eye, &vrp, &up);
+
+    cvf::Vec3d viewdir = (vrp - eye).getNormalized();
+
+    double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
+
+    double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
+    farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
+
+    double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
+    if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
+    if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+    {
+        double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
+        nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+    }
+
+    if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
+
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
-        cvf::BoundingBox bb = m_renderingSequence->boundingBox();
-        if (!bb.isValid()) return;
-
-        cvf::Vec3d eye, vrp, up;
-        m_mainCamera->toLookAt(&eye, &vrp, &up);
-
-        cvf::Vec3d viewdir = (vrp - eye).getNormalized();
-
-        double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
-
-        double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius();
-        farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
-
-        double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
-        if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
-        if ( m_navigationPolicy.notNull())
-        {
-            double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
-            nearPlaneDist = CVF_MIN( nearPlaneDist, pointOfInterestDist*0.2);
-        }
-
-        if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
-
-        m_mainCamera->setProjectionAsPerspective(m_mainCamera->fieldOfViewYDeg(), nearPlaneDist, farPlaneDist);
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
+    }
+    else
+    {
+        m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), nearPlaneDist, farPlaneDist);
     }
 }
 
@@ -422,7 +421,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
     // If Qt overlay painting is enabled, paint to an QImage, and set it to the cvf::OverlayImage
 
-    if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
+    if (m_isOverlayPaintingEnabled || m_showPerfInfoHud)
     {
         // Set up image to draw to, and painter 
         if (m_overlayPaintingQImage.size() != this->size())
@@ -435,7 +434,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
         // Call virtual method to allow subclasses to paint on the OpenGlCanvas
 
-        if (m_isOverlyPaintingEnabled)
+        if (m_isOverlayPaintingEnabled)
         {
             this->paintOverlayItems(&overlyPainter); 
         }
@@ -515,7 +514,7 @@ void caf::Viewer::setMaxFarPlaneDistance(double dist)
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection)
 {
-    if (m_navigationPolicy.notNull())
+    if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
     {
         m_navigationPolicy->setView(alongDirection, upDirection); 
 
@@ -528,14 +527,7 @@ void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& up
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::zoomAll()
 {
-    cvf::BoundingBox bb;
-
-    cvf::Scene* scene = m_renderingSequence->firstRendering()->scene();
-    if (scene)
-    {
-        bb = scene->boundingBox();
-    }
-
+    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
     if (!bb.isValid())
     {
       return;
@@ -554,6 +546,8 @@ void caf::Viewer::zoomAll()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::addFrame(cvf::Scene* scene)
 {
+    appendAllStaticModelsToFrame(scene);
+
     m_frameScenes.push_back(scene);
     m_animationControl->setNumFrames(static_cast<int>(m_frameScenes.size()));
 }
@@ -596,17 +590,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 {
     if (m_frameScenes.size() == 0) return;
 
-    int clampedFrameIndex = frameIndex;
-
-    if (static_cast<size_t>(frameIndex) >= m_frameScenes.size())
-    {
-        clampedFrameIndex = static_cast<int>(m_frameScenes.size()) - 1;
-    }
-
-    if (clampedFrameIndex < 0)
-    {
-        clampedFrameIndex = 0;
-    }
+    int clampedFrameIndex = clampFrameIndex(frameIndex);
 
     if (m_frameScenes.at(clampedFrameIndex) == NULL) return;
 
@@ -761,17 +745,32 @@ QSize caf::Viewer::sizeHint() const
     return QSize(500, 400);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::enableForcedImmediateMode(bool enable)
 {
-    m_mainRendering->renderEngine()->enableForcedImmediateMode(enable);
+    cvf::uint rIdx = m_renderingSequence->renderingCount();
+    for (rIdx = 0; rIdx < m_renderingSequence->renderingCount(); rIdx++)
+    {
+        cvf::Rendering* rendering = m_renderingSequence->rendering(rIdx);
+        if (rendering && rendering->scene())
+        {
+            rendering->renderEngine()->enableForcedImmediateMode(enable);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int caf::Viewer::currentFrameIndex()
+int caf::Viewer::currentFrameIndex() const
 {
-    if (m_animationControl) return m_animationControl->currentFrame();
+    if (m_animationControl)
+    {
+        int clampedFrameIndex = clampFrameIndex(m_animationControl->currentFrame());
+        return clampedFrameIndex;
+    }
     else return 0;
 }
 
@@ -780,7 +779,7 @@ int caf::Viewer::currentFrameIndex()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::isOverlyPaintingEnabled() const
 {
-    return m_isOverlyPaintingEnabled;
+    return m_isOverlayPaintingEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -788,7 +787,7 @@ bool caf::Viewer::isOverlyPaintingEnabled() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::enableOverlyPainting(bool val)
 {
-    m_isOverlyPaintingEnabled = val;
+    m_isOverlayPaintingEnabled = val;
     updateOverlayImagePresence();
 }
 
@@ -797,7 +796,7 @@ void caf::Viewer::enableOverlyPainting(bool val)
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::updateOverlayImagePresence()
 {
-    if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
+    if (m_isOverlayPaintingEnabled || m_showPerfInfoHud)
     {
          m_mainRendering->addOverlayItem(m_overlayImage.p());
     }
@@ -813,5 +812,258 @@ void caf::Viewer::updateOverlayImagePresence()
 void caf::Viewer::navigationPolicyUpdate()
 {
     update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::addStaticModelOnce(cvf::Model* model)
+{
+    if (m_staticModels.contains(model)) return;
+
+    m_staticModels.push_back(model);
+
+    appendModelToAllFrames(model);
+
+    updateCachedValuesInScene();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::removeStaticModel(cvf::Model* model)
+{
+    removeModelFromAllFrames(model);
+    
+    m_staticModels.erase(model);
+
+    updateCachedValuesInScene();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::removeAllStaticModels()
+{
+    for (size_t i = 0; i < m_staticModels.size(); i++)
+    {
+        removeModelFromAllFrames(m_staticModels.at(i));
+    }
+
+    m_staticModels.clear();
+
+    updateCachedValuesInScene();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::removeModelFromAllFrames(cvf::Model* model)
+{
+    for (size_t i = 0; i < m_frameScenes.size(); i++)
+    {
+        cvf::Scene* scene = m_frameScenes.at(i);
+
+        scene->removeModel(model);
+    }
+
+    if (m_mainScene.notNull())
+    {
+        m_mainScene->removeModel(model);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::appendModelToAllFrames(cvf::Model* model)
+{
+    for (size_t i = 0; i < m_frameScenes.size(); i++)
+    {
+        cvf::Scene* scene = m_frameScenes.at(i);
+
+        scene->addModel(model);
+    }
+
+    if (m_mainScene.notNull())
+    {
+        m_mainScene->addModel(model);
+    }
+}   
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::appendAllStaticModelsToFrame(cvf::Scene* scene)
+{
+    for (size_t i = 0; i < m_staticModels.size(); i++)
+    {
+        scene->addModel(m_staticModels.at(i));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::OverlayItem* caf::Viewer::overlayItem(int winPosX, int winPosY)
+{
+    if (m_mainRendering.isNull()) return NULL;
+
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    return m_mainRendering->overlayItemFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::enableParallelProjection(bool enableOrtho)
+{
+    if (enableOrtho && m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
+    {
+        cvf::Vec3d pointOfInterest;
+
+        if (m_navigationPolicy.isNull() || !m_navigationPolicyEnabled)
+        {
+            using namespace cvf;
+
+            Vec3d eye, vrp, up;
+            m_mainCamera->toLookAt(&eye, &vrp, &up);
+
+            Vec3d eyeToFocus = pointOfInterest - eye;
+            Vec3d camDir = vrp - eye;
+            camDir.normalize();
+
+            double distToFocusPlane =  0.5*(m_mainCamera->farPlane() - m_mainCamera->nearPlane());
+            pointOfInterest = camDir *distToFocusPlane;
+        }
+        else
+        {
+            pointOfInterest = m_navigationPolicy->pointOfInterest();
+        }
+        m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
+
+        this->update();
+    }
+    else if (!enableOrtho && m_mainCamera->projection() == cvf::Camera::ORTHO)
+    {
+        // We currently expect all the navigation policies to do walk-based navigation and not fiddle with the field of view
+        // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
+        // We assume the camera is in a sensible position.
+
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        this->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+double calculateOrthoHeight(double perspectiveViewAngleYDeg, double focusPlaneDist)
+{
+   return 2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) ) * focusPlaneDist);
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+double calculateDistToPlaneOfInterest(double perspectiveViewAngleYDeg, double orthoHeight)
+{
+   return orthoHeight / (2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) )));
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+double distToPlaneOfInterest(const cvf::Camera* camera, const cvf::Vec3d& pointOfInterest)
+{
+    using namespace cvf;
+    CVF_ASSERT(camera);
+
+    Vec3d eye, vrp, up;
+    camera->toLookAt(&eye, &vrp, &up);
+
+    Vec3d camDir = vrp - eye;
+    camDir.normalize();
+
+    Vec3d eyeToFocus = pointOfInterest - eye;
+    double distToFocusPlane = eyeToFocus*camDir;
+
+    return distToFocusPlane;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update the ortho projection view height from a walk based camera manipulation.
+/// Using pointOfInterest, the perspective Y-field Of View along with the camera position
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& pointOfInterest)
+{
+    using namespace cvf;
+    cvf::Camera* camera = m_mainCamera.p();
+
+    if (!camera || camera->projection() != Camera::ORTHO) return;
+
+
+    double distToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
+
+    double orthoHeight = calculateOrthoHeight(m_cameraFieldOfViewYDeg, distToFocusPlane);
+
+    camera->setProjectionAsOrtho(orthoHeight, camera->nearPlane(), camera->farPlane());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update the camera eye position from point of interest, keeping the ortho height fixed and in sync 
+/// with distToPlaneOfInterest  from a walk based camera manipulation in ortho projection.
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const cvf::Vec3d& pointOfInterest)
+{
+    using namespace cvf;
+    cvf::Camera* camera = m_mainCamera.p();
+
+    if (!camera || camera->projection() != Camera::ORTHO) return;
+
+    
+    double orthoHeight = camera->frontPlaneFrustumHeight();
+    //Trace::show(String::number(orthoHeight));
+
+    double neededDistToFocusPlane = calculateDistToPlaneOfInterest(m_cameraFieldOfViewYDeg, orthoHeight);
+
+    Vec3d eye, vrp, up;
+    camera->toLookAt(&eye, &vrp, &up);
+    Vec3d camDir = vrp - eye;
+    camDir.normalize();
+
+    double existingDistToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
+
+    Vec3d newEye = eye + (existingDistToFocusPlane - neededDistToFocusPlane) * camDir;
+
+    //Trace::show(String::number(newEye.x()) + ", " + String::number(newEye.y()) + ", " +String::number(newEye.z()));
+    camera->setFromLookAt(newEye, newEye + 10.0*camDir, up);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int caf::Viewer::clampFrameIndex(int frameIndex) const
+{
+    size_t clampedFrameIndex = static_cast<size_t>(frameIndex);
+
+    if (clampedFrameIndex >= frameCount())
+    {
+        clampedFrameIndex = frameCount() - 1;
+    }
+    else if (clampedFrameIndex < 0)
+    {
+        clampedFrameIndex = 0;
+    }
+
+    return static_cast<int>(clampedFrameIndex);
 }
 
