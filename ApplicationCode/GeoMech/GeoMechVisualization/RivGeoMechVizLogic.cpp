@@ -114,7 +114,7 @@ void RivGeoMechVizLogic::scheduleGeometryRegen(RivCellSetEnum geometryType)
     this->scheduleRegenOfDirectlyDependentGeometry(geometryType);
 
     int frameCount = 0;
-    if (m_geomechView->geoMechCase()->geoMechData())
+    if (m_geomechView->geoMechCase() && m_geomechView->geoMechCase()->geoMechData())
     {
         frameCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->frameCount();
     }

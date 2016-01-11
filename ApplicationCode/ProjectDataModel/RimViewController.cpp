@@ -785,7 +785,7 @@ bool RimViewController::isRangeFilterMappingApliccable()
 
     if (eclipseView && geomView)
     {
-        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase()->geoMechData())
+        if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase() && geomView->geoMechCase()->geoMechData())
         {
             RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
             RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
