@@ -23,6 +23,9 @@
 
 RiaImageCompareReporter::RiaImageCompareReporter(void)
 {
+    m_showOriginal = true;
+    m_showGenerated = true;
+    m_showInteractiveDiff = false;
 }
 
 
@@ -68,6 +71,12 @@ void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
     html += "<html>\n";
     html += "<head>\n";
     html += "<title>Regression-Test Report</title>\n";
+
+    if (m_showInteractiveDiff)
+    {
+        html += cssString();
+    }
+
     html += "</head>\n";
     html += "\n";
     html += "<body>\n";
@@ -93,8 +102,21 @@ void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
             html += "  </tr>\n";
 
             html += "  <tr>\n";
-            html += "    <td>  <img src=\"" + baseImageFolder  + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" + baseImageFolder  + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
-            html += "    <td>  <img src=\"" + genImageFolder   + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" + genImageFolder   + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
+            if (m_showOriginal)
+            {
+                html += "    <td>  <img src=\"" + baseImageFolder  + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" + baseImageFolder  + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
+            }
+
+            if (m_showGenerated)
+            {
+                html += "    <td>  <img src=\"" + genImageFolder   + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" + genImageFolder   + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
+            }
+
+            if (m_showInteractiveDiff)
+            {
+                html += "    <td> <div class = \"image-slider\"> <div> <img src=\"" + baseImageFolder + "/" + baseImageNames[fIdx] + "\" > </div> <img src = \"" + genImageFolder + "/" + baseImageNames[fIdx] + "\" > </div> </td>\n";
+            }
+
             html += "    <td>  <img src=\"" + diffImageFolder  + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" + diffImageFolder  + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
             html += "  </tr>\n";
 
@@ -108,6 +130,16 @@ void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
     }
 
     output << html;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaImageCompareReporter::showInteractiveOnly()
+{
+    m_showOriginal = false;
+    m_showGenerated = false;
+    m_showInteractiveDiff = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,4 +164,52 @@ std::vector<std::string> RiaImageCompareReporter::getPngFilesInDirectory(const s
     }
 
     return fileNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RiaImageCompareReporter::cssString() const
+{
+    std::string html;
+
+    html += "<style media=\"screen\" type=\"text/css\">";
+
+    html += "";
+    html += ".image-slider {";
+	    html += "position:relative;";
+	    html += "display: inline-block;";
+	    html += "line-height: 0;";
+    html += "}";
+
+    html += ".image-slider > div {";
+	    html += "position: absolute;";
+	    html += "top: 0; bottom: 0; left: 0;";
+	    html += "width: 25px;";
+	    html += "max-width: 100%;";
+	    html += "overflow: hidden;";
+	    html += "resize: horizontal;";
+    html += "}";
+
+    html += ".image-slider > div:before {";
+	    html += "content: '';";
+	    html += "position: absolute;";
+	    html += "right: 0; bottom: 0;";
+	    html += "width: 23px; height: 23px;";
+	    html += "padding: 5px;";
+	    html += "background: linear-gradient(-45deg, gray 50%, transparent 0);";
+	    html += "background-clip: content-box;";
+	    html += "cursor: ew-resize;";
+	    html += "-webkit-filter: drop-shadow(0 0 6px black);";
+	    html += "filter: drop-shadow(0 0 6px black);";
+    html += "}";
+
+    html += ".image-slider img {";
+	    html += "user-select: none;";
+	    html += "max-width: 1000px;";
+    html += "}";
+
+    html += "</style>";
+
+    return html;
 }

@@ -1757,6 +1757,19 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
     RiaImageCompareReporter imageCompareReporter;
 
+    // Minor workaround
+    // Use registry to define if interactive diff images should be created
+    // Defined by user in RiaRegressionTest
+    {
+        QSettings settings;
+
+        bool useInteractiveDiff = settings.value("showInteractiveDiffImages").toBool();
+        if (useInteractiveDiff)
+        {
+            imageCompareReporter.showInteractiveOnly();
+        }
+    }
+
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
