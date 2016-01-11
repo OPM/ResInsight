@@ -17,9 +17,7 @@ Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octav
 Ensembles/ert : [https://github.com/Ensembles/ert](https://github.com/Ensembles/ert)
 
 ### Supported Platforms
-ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL5, RHEL6 and Windows 7.
-
-There has been attempts to make ResInsight build and run on OSX as well, but the tweaks needed (submitted by Roland Kaufmann) is not yet incorporated. 
+ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL6 and Windows 7.
 
 ### Documentation
 
