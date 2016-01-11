@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: ResInsight 1.5
+title: ResInsight 1.6
 permalink: /docs/home/
 published: true
 ---

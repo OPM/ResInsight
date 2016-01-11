@@ -39,27 +39,39 @@ Tracks and Curves can be organized using drag and drop functionality in the **Pr
 
 All the **Tracks** in the same plot always display the same depth range, and share the *True Veritcal Depth (TVD)* or *Measured Depth (MD)* setting. In the property panel of the plot, the exact depth range can be adjusted along with the depth type setting (TVD/MD).
 
+#### Depth unit
+The unit for depth can be set using **Depth unit**, and currently supported units are *Meter* and *Feet*. The first curve added to a plot will set the plot unit based on the curve unit. Additional curves added to a plot will be converted to the plot unit if needed.
+
 #### Depth zoom and pan
 
 The visible depth range can be panned using the mouse wheel while the mouse pointer hovers over the plot.
-Pressing and holding Ctrl while using the mouse wheel will allow you to zoom in or out depth-wise, towards the mouse position.
+Pressing and holding **CTRL** while using the mouse wheel will allow you to zoom in or out depth-wise, towards the mouse position.
 
 ### Track
 Tracks can be created by right clicking a **Well Log Plot** and select **New Track**
 
-A track controls the x-axis range of the display, and can be edited from the property panel of the **Track**.
-
 ![]({{ site.baseurl }}/images/TrackProperties.png)
+
+A track controls the x-axis range of the display, and can be edited from the property panel of the **Track**. 
+Logarithmic display is controlled using the **Logarithmic Scale** option.
+
+
 
 ### Curves
 Curves can be created by right clicking a **Track** in the **Project Tree**, or by the commands mentioned above.
 There are two types of curves: *Well Log Extraction Curves* and *Well Log LAS Curves*. 
 
+Curve visual appearance is controlled in the **Appearance** section:
+
+- **Color** - Controls the color of the curve
+- **Thickness** - Number of pixels used to draw the curve
+- **Point style** - Defines the style used to draw the result points of the curve, select *None* to disable drawing of points
+- **Line style** - Defines the the style used to draw the curve, select  *None* to disable line drawing
+
 #### Well Log Extraction Curves
 
 Ectraction curves acts as an artifical well log curve. Instead of probing the real well, a simulation model is probed instead.
 
-They are calculated by intersecting a well trajectory with the cells in a particular grid model. At each intersection point the measured depth along the trajectory is deduced and the corresponding result value is read.
 
 The property panel for a geomechanical model is shown below:
 
@@ -72,6 +84,13 @@ Placing keyboard focus in the <b>Time Step</b> drop-downbox will allow you to us
 </div>
 
 The disply name of a curve is normally generated automatically. The options grouped below **Auto Name** can be used to tailor the length and content of the curve name.
+
+##### Curve extraction calculation
+Ectraction curves are calculated by finding the intersections between a well trajectory and the cell-faces in a particular grid model. Usually there are two intersections at nearly the same spot; the one leaving the previous cell, and the one entering the next one. At each intersection point the measured depth along the trajectory is interpolated from the trajectory data. The result value is retreived from the corresponding cell in different ways depending on the nature of the underlying result. 
+
+For Eclipse results the cell face value is used directly. This is normally the same as the corresponding cell value, but if a **Directional combined results** is used, (See [ Derived Results ]({{ site.baseurl }}/docs/derivedresults) ) it will be that particular face's value.
+
+Abaqus results are interpolated across the intersected cell-face from the result values associated with the nodes of that face. This is also the case for integration point results, as they are directly associated with their corresponding element node in ResInsight. 
 
 #### Well Log LAS Curves
 

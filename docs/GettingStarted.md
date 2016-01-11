@@ -19,7 +19,10 @@ windows can be managed from the **Windows** menu or directly using the local men
 - **Project Tree** - contains all application objects in a tree structure.
 - **Property Editor** - displays all properties for the selected object in the **Project Tree**
 - **Process Monitor** - displays output from Octave when executing Octave scripts
-- **Result Info** - displays info for the object being hit in the 3D scene when clicking with left mouse button
+- **Result Info** - displays info for the selected object in the 3D scene
+- **Result Plot** - displays curves based on result values for the selected cells in the 3D scene
+
+Result Info and Result Plot is described in detail in [ Result Inspection ]({{ site.baseurl }}/docs/resultinspection)
 
 <div class="note">
 <h5>Add additional docking windows</h5>

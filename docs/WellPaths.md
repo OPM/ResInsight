@@ -17,12 +17,15 @@ The command **File -> Import -> Import Well Paths From File** will read the well
 The supported ASCII format is quite flexible but the main requirements are: 
 
 1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
-2. A line starting with none-number-characters are ignored, unless :
+2. Lines starting with "--" or "#" is considered to be comment lines
+3. A line starting with none-number-characters are used as a well name after the following rules:
 	1. If the line contains a pair of :  ', `, ´, ’ or ‘ the text between the quotation marks is used as a well name.
-	2. If the line contains the case insensitive string "name " the rest of the line is used as a well name. 
+	2. If the line contains the case insensitive string "name" with an optional ":" after, the rest of the line is used as a well name. 
+	3. If there are no quotes or "name"'s, the complete line is used as a well name.
+	4. If there are several consecutive name-like lines, only the last one will be used 
 3. If a well name is found, a new well is created and the following data points ends up in it.
 
-### Example 1:
+#### Example 1:
 
 	WELLNAME: WELL1
     4507.0	5638.5	0.0	0.0
@@ -35,20 +38,32 @@ The supported ASCII format is quite flexible but the main requirements are:
     5297.4	4938.5	3632.4	1998.387
 	-999
 
-### Example 2:
+#### Example 2:
     X Y TVD MD
     Name Well_1
   	5507.0	4638.5	0.0	0.0
     5507	4638.5	3628.6	1628.6
     5297.4	4938.5	3632.4	1998.387
-
+    
+    -- A Comment new well
+    This is not its name
     Name Well_2
-  	5507.0	4638.5	0.0	0.0
+    5507.0	4638.5	0.0	0.0
     5507	4638.5	3628.6	1628.6
+    # a comment inside the data
     5297.4	4938.5	3632.4	1998.387
+    
+    3Q AHB-J
+    5507.0	4638.5	0.0	0.0
+    5507	4638.5	3628.6	1628.6
 
-
+    
+### Trajectory files are referenced
 The trajectory data is not copied into the ResInsight project as such. The project file only stores the file path, and the next time you open the project, ResInsight will try to read the well data from the file again.  
+
+<div class="note info">
+If the well trajectory file is changed and you would like a running ResInsight to update accordingly, you will need to delete all the well trajectories that emerge from that file, and import it again.
+</div>
 
 ## Importing from SSI-Hub (Internal Statoil web-service)
 

@@ -15,6 +15,14 @@ Views of Eclipse models and Geomechanical models has a lot in common, but Eclips
 
 ## Common view features
 
+### View properties
+
+![]({{ site.baseurl }}/images/ViewProperties.png)
+
+Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibilty controls of inactive and invalid cells.
+
+Visibility of the grid box with labels displaying the coordinates for the reservoir can also be controlled using **Show Grid Box**. 
+
 ### Cell Result &nbsp;![]({{ site.baseurl }}/images/CellResult.png)
 
 The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![]({{ site.baseurl }}/images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
@@ -42,6 +50,24 @@ The **Histogram** shows a histogram of the complete time series of the currently
 - P10 and P90 ( red lines )
 
 ![]({{ site.baseurl }}/images/HistogramExample.png)
+
+**Statistics Time Range** controls if a single time step or all time steps are included when statistics is computed.
+**Statistics Cell Range** controls if visible cells or all active cells is included when statistics is computed.
+
+<div class="note">
+The <b>Text Box</b> settings can be activated by clicking on the text info window in the 3D view.
+</div>
+
+### Grids &nbsp;![]({{ site.baseurl }}/images/draw_style_faults_24x24.png)
+Toggling **Grids** off will hide the grid cell geometry. This option is used to display geometry for faults and intersections. This feature is also available as a toolbutton called *Hide grid cells*.
+
+### Intersections &nbsp;![]({{ site.baseurl }}/images/CrossSections16x16.png)
+Intersections are used to cut the geometry and show result values mapped onto this geometry.
+Please refer to [Intersections]({{ site.baseurl }}/docs/intersections) for details.
+
+## Activate items by clicking
+Selected overlay items in the 3D view can activate a corresponding item in the **Property Editor**. This is implemented for Info box and result color legends. Please note that this feature is activated by clicking inside the texture/colored part of the legend. 
+
 
 ## Eclipse-only features
 

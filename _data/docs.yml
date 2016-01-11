@@ -14,9 +14,11 @@
   - reservoirviews
   - modelnavigation
   - linkedviews
+  - resultinspection
   - gridimportexport
   - simulationwells
   - faults
+  - intersections
   - filters
   - wellpaths
   - welllogsandplots
