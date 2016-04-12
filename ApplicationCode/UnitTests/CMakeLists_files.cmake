@@ -12,6 +12,7 @@ ${CEE_CURRENT_LIST_DIR}cvfGeometryTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}Ert-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput-Test.cpp
+${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigActiveCellInfo-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoir-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath-Test.cpp
