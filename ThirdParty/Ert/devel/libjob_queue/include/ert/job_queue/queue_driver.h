@@ -68,25 +68,6 @@ extern "C" {
 
 #define JOB_QUEUE_MAX_STATE 12
 
-
-
-
-#define JOB_STATUS_ENUM_DEFS  \
-{.value =    1 , .name = "JOB_QUEUE_NOT_ACTIVE" }, \
-{.value =    4 , .name = "JOB_QUEUE_WAITING" },    \
-{.value =    8 , .name = "JOB_QUEUE_SUBMITTED" },  \
-{.value =   16 , .name = "JOB_QUEUE_PENDING" },    \
-{.value =   32 , .name = "JOB_QUEUE_RUNNING" },    \
-{.value =   64 , .name = "JOB_QUEUE_DONE" },       \
-{.value =  128 , .name = "JOB_QUEUE_EXIT" },       \
-{.value = 4096 , .name = "JOB_QUEUE_USER_KILLED" },\
-{.value = 8192 , .name = "JOB_QUEUE_USER_EXIT" },\
-{.value = 16384 , .name = "JOB_QUEUE_SUCCESS" },\
-{.value = 32768 , .name = "JOB_QUEUE_RUNNING_CALLBACK" },\
-{.value = 65536 , .name = "JOB_QUEUE_FAILED" }
-#define JOB_STATUS_ENUM_SIZE JOB_QUEUE_MAX_STATE
-
-
   /*
     All jobs which are in the status set defined by
     JOB_QUEUE_CAN_RESTART can be restarted based on external
@@ -143,7 +124,6 @@ extern "C" {
   void queue_driver_free(queue_driver_type * driver);
   void queue_driver_free__(void * driver);
   const char * queue_driver_type_enum_iget(int index, int * value);
-  const char * queue_driver_status_enum_iget(int index, int * value);
 
   typedef enum {SUBMIT_OK           = 0 ,
                 SUBMIT_JOB_FAIL     = 1 , /* Typically no more attempts. */

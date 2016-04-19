@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2013  Statoil ASA, Norway.
 
-   The file 'util_win64.c' is part of ERT - Ensemble based Reservoir Tool.
+   The file 'util_lfs.c' is part of ERT - Ensemble based Reservoir Tool.
 
    ERT is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@
 */
 
 offset_type util_ftell(FILE * stream) {
-#ifdef WINDOWS_LFS
+#ifdef ERT_WINDOWS_LFS
   return _ftelli64(stream);
 #else
   #ifdef HAVE_FSEEKO
@@ -67,23 +67,12 @@ offset_type util_ftell(FILE * stream) {
 
 
 
-/*
-  The return value of fseeko() and fseek() is different. The first
-  returns current offset on success, whereas the latter returns 0 on
-  success.
-*/
 int util_fseek(FILE * stream, offset_type offset, int whence) {
-#ifdef WINDOWS_LFS
+#ifdef ERT_WINDOWS_LFS
   return _fseeki64(stream , offset , whence);
 #else
   #ifdef HAVE_FSEEKO
-  {
-    offset_type offset = fseeko( stream , offset , whence );
-    if (offset != -1)
-      return 0;
-    else
-      return -1;
-  }
+  return fseeko( stream , offset , whence );
   #else
   return fseek( stream , offset , whence );
   #endif
@@ -93,7 +82,7 @@ int util_fseek(FILE * stream, offset_type offset, int whence) {
 
 
 void util_rewind(FILE * stream) {
-#ifdef WINDOWS_LFS
+#ifdef ERT_WINDOWS_LFS
   _fseeki64(stream , 0L , SEEK_SET);
 #else
   rewind( stream );
@@ -105,7 +94,7 @@ void util_rewind(FILE * stream) {
 
 
 int util_stat(const char * filename , stat_type * stat_info) {
-#ifdef WINDOWS_LFS
+#ifdef ERT_WINDOWS_LFS
   return _stat64(filename , stat_info);
 #else
   return stat(filename , stat_info);
@@ -114,7 +103,7 @@ int util_stat(const char * filename , stat_type * stat_info) {
 
 
 int util_fstat(int fileno, stat_type * stat_info) {
-#ifdef WINDOWS_LFS
+#ifdef ERT_WINDOWS_LFS
   return _fstat64(fileno , stat_info);
 #else
   return fstat(fileno , stat_info);

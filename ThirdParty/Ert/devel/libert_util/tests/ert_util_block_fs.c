@@ -25,6 +25,8 @@
 #include <ert/util/test_util.h>
 #include <ert/util/test_work_area.h>
 
+void test_assert_util_abort(const char * function_name , void call_func (void *) , void * arg);
+
 
 void violating_fwrite( void * arg ) {
   block_fs_type * bfs = block_fs_safe_cast( arg );

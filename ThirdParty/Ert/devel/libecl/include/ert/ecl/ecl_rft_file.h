@@ -34,7 +34,6 @@ typedef struct ecl_rft_file_struct ecl_rft_file_type;
 char                 * ecl_rft_file_alloc_case_filename(const char * case_input );
 const char           * ecl_rft_file_get_filename( const ecl_rft_file_type * rft_file );
 ecl_rft_file_type    * ecl_rft_file_alloc_case(const char * case_input );
-bool                   ecl_rft_file_case_has_rft(const char * case_input );
 bool                   ecl_rft_file_case_has_rft( const char * case_input );
 ecl_rft_file_type    * ecl_rft_file_alloc(const char * );
 void                   ecl_rft_file_free(ecl_rft_file_type * );

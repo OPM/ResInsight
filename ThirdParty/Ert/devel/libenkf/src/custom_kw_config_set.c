@@ -103,7 +103,7 @@ void custom_kw_config_set_fwrite(custom_kw_config_set_type * set, const char * f
                 stringlist_fwrite(formatted_keys, stream);
             }
 
-            free(keys);
+            stringlist_free(keys);
             fclose(stream);
         } else {
             util_abort("%s: failed to open: %s for writing \n", __func__, filename);

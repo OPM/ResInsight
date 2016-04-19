@@ -1,4 +1,0 @@
-Run this command to compile:
-
-./autogen.sh && ./configure CC=gcc4 CFLAGS=" -m64 -rdynamic -O2" && make -j4
-

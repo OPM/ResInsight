@@ -549,7 +549,7 @@ local_config_type * local_config_alloc( ) {
   local_config->updatestep_storage  = hash_alloc();
   local_config->ministep_storage    = hash_alloc();
   local_config->dataset_storage     = hash_alloc();
-  local_config->obsdata_storage      = hash_alloc();
+  local_config->obsdata_storage     = hash_alloc();
   local_config->config_files = stringlist_alloc_new();
 
   local_config_clear( local_config );
@@ -561,6 +561,7 @@ void local_config_free(local_config_type * local_config) {
   hash_free( local_config->updatestep_storage );
   hash_free( local_config->ministep_storage);
   hash_free( local_config->dataset_storage);
+  hash_free( local_config->obsdata_storage);
   stringlist_free( local_config->config_files );
   free( local_config );
 }
@@ -577,17 +578,31 @@ local_ministep_type * local_config_alloc_ministep( local_config_type * local_con
   return ministep;
 }
 
-local_obsdata_type * local_config_alloc_obsset( local_config_type * local_config , const char * obsset_name ) {
-  local_obsdata_type * obsset = local_obsdata_alloc( obsset_name );
-  hash_insert_hash_owned_ref( local_config->obsdata_storage , obsset_name , obsset , local_obsdata_free__);
-  return obsset;
+local_obsdata_type * local_config_alloc_obsdata( local_config_type * local_config , const char * obsdata_name ) {
+  if (local_config_has_obsdata(local_config, obsdata_name))
+    util_abort("%s: tried to add existing obsdata node key:%s \n",__func__ , obsdata_name);
+
+  local_obsdata_type * obsdata = local_obsdata_alloc( obsdata_name );
+  hash_insert_hash_owned_ref( local_config->obsdata_storage , obsdata_name , obsdata , local_obsdata_free__);
+  return obsdata;
+}
+
+bool local_config_has_obsdata( const local_config_type * local_config , const char * key) {
+  return hash_has_key( local_config->obsdata_storage , key );
 }
 
 
 local_dataset_type * local_config_alloc_dataset( local_config_type * local_config , const char * key ) {
+  if (local_config_has_dataset(local_config, key))
+    util_abort("%s: tried to add existing dataset node key:%s \n",__func__ , key);
+
   local_dataset_type * dataset = local_dataset_alloc( key );
   hash_insert_hash_owned_ref( local_config->dataset_storage , key , dataset , local_dataset_free__);
   return dataset;
+}
+
+bool local_config_has_dataset( const local_config_type * local_config , const char * key) {
+  return hash_has_key( local_config->dataset_storage , key );
 }
 
 
@@ -941,7 +956,7 @@ static void local_config_CREATE_MINISTEP( local_config_type * config , local_con
 
 static void local_config_CREATE_OBSSET( local_config_type * config , local_context_type * context , FILE * stream , bool binary)  {
   char * obs_name = read_alloc_string( stream , binary );
-  local_config_alloc_obsset( config , obs_name);
+  local_config_alloc_obsdata( config , obs_name);
   free( obs_name );
 }
 
@@ -998,14 +1013,14 @@ static void local_config_ATTACH_DATASET( local_config_type * config , local_cont
 
 static void local_config_ATTACH_OBSSET( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
   char * mini_name = read_alloc_string( stream , binary );
-  char * obsset_name = read_alloc_string( stream , binary );
+  char * obsdata_name = read_alloc_string( stream , binary );
   {
     local_ministep_type * ministep = local_config_get_ministep( config , mini_name );
-    local_obsdata_type * obsdata = hash_get( config->obsdata_storage , obsset_name );
+    local_obsdata_type * obsdata = hash_get( config->obsdata_storage , obsdata_name );
     local_ministep_add_obsdata(ministep, obsdata);
   }
   free( mini_name );
-  free( obsset_name );
+  free( obsdata_name );
 }
 
 static void local_config_ADD_DATA( local_config_type * config , local_context_type * context , FILE * stream , bool binary) {
@@ -1024,7 +1039,7 @@ static void local_config_ADD_OBS( local_config_type * config , local_context_typ
   char * obs_key  = read_alloc_string( stream , binary );
   {
     local_obsdata_type * obsdata = local_config_get_obsdata( config , obs_name );
-    local_obsdata_node_type * obsdata_node = local_obsdata_node_alloc( obs_key );
+    local_obsdata_node_type * obsdata_node = local_obsdata_node_alloc( obs_key , false );
 
     /*
       The local_obsdata_node should hold it's own active time-step

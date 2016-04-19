@@ -41,6 +41,8 @@ class ErtTest(BaseCClass):
         return self.__ert
 
     def free(self):
+        ert = self.getErt()
+        ert.umount()
         ErtTest.cNamespace().free(self)
 
     def installWorkflowJob(self, job_name, job_path):

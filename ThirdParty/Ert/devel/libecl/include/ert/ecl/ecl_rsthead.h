@@ -30,6 +30,9 @@ extern "C" {
 
 
   typedef struct {
+    // The report step is from the SEQNUM keyword for unified files,
+    // and inferred from the filename for non unified files.
+    int    report_step;
     int    day;
     int    year;
     int    month;
@@ -77,6 +80,7 @@ extern "C" {
 
 
   void                ecl_rsthead_free( ecl_rsthead_type * rsthead );
+  ecl_rsthead_type  * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_type * intehead_kw , const ecl_kw_type * doubhead_kw , const ecl_kw_type * logihead_kw );
   ecl_rsthead_type  * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occurence);
   ecl_rsthead_type  * ecl_rsthead_alloc( const ecl_file_type * rst_file );
   ecl_rsthead_type  * ecl_rsthead_alloc_empty();
@@ -85,6 +89,8 @@ extern "C" {
   void                ecl_rsthead_fprintf_struct( const ecl_rsthead_type * header , FILE * stream);
   bool                ecl_rsthead_equal( const ecl_rsthead_type * header1 , const ecl_rsthead_type * header2);
   double              ecl_rsthead_get_sim_days( const ecl_rsthead_type * header );
+  int                 ecl_rsthead_get_report_step( const ecl_rsthead_type * header );
+  time_t              ecl_rsthead_get_sim_time( const ecl_rsthead_type * header );
 
 #ifdef __cplusplus
 }

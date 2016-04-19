@@ -16,13 +16,14 @@
 #  for more details.
 
 import os.path 
+import os
 
 try:
     from unittest2 import skipIf
 except ImportError:
     from unittest import skipIf
 
-from ert.test import ExtendedTestCase , TestAreaContext
+from ert.test import ExtendedTestCase , TestAreaContext, TempAreaContext
 
 
 class WorkAreaTest(ExtendedTestCase):
@@ -44,3 +45,45 @@ class WorkAreaTest(ExtendedTestCase):
             self.assertTrue( os.path.isfile( full_path ))
             self.assertTrue( os.path.isabs( full_path ))
             
+
+    def test_temp_area(self):
+        with TestAreaContext("TestArea") as test_area:
+            cwd = os.getcwd()
+            with open("file.txt" , "w") as f:
+                f.write("File")
+                
+            with TempAreaContext("TempArea") as temp_area:
+                self.assertEqual( cwd, os.getcwd())
+                self.assertEqual( cwd, temp_area.get_cwd())
+                temp_area.copy_file( "file.txt" )
+
+                self.assertTrue( os.path.isfile( os.path.join( temp_area.getPath( ) , "file.txt")))
+
+                os.mkdir("tmp")
+                os.chdir("tmp")
+
+            self.assertEqual( os.getcwd() , os.path.join( cwd , "tmp"))
+
+            
+    def test_IOError(self):
+        with TestAreaContext("TestArea") as test_area:
+            with self.assertRaises(IOError):
+                test_area.copy_file( "Does/not/exist" )
+
+            with self.assertRaises(IOError):
+                test_area.install_file( "Does/not/exist" )
+
+            with self.assertRaises(IOError):
+                test_area.copy_directory( "Does/not/exist" )
+
+            with self.assertRaises(IOError):
+                test_area.copy_parent_directory( "Does/not/exist" )
+
+            os.makedirs("path1/path2")
+            with open("path1/file.txt" , "w") as f:
+                f.write("File ...")
+
+            with self.assertRaises(IOError):
+                test_area.copy_directory( "path1/file.txt" )
+                
+

@@ -31,7 +31,18 @@ class JobStatusType(BaseCEnum):
     JOB_QUEUE_RUNNING_CALLBACK = None
     JOB_QUEUE_FAILED = None
 
-JobStatusType.populateEnum(JOB_QUEUE_LIB, "queue_driver_status_enum_iget")
+JobStatusType.addEnum("JOB_QUEUE_NOT_ACTIVE", 1)
+JobStatusType.addEnum("JOB_QUEUE_WAITING", 4)
+JobStatusType.addEnum("JOB_QUEUE_SUBMITTED", 8)
+JobStatusType.addEnum("JOB_QUEUE_PENDING", 16)
+JobStatusType.addEnum("JOB_QUEUE_RUNNING", 32)
+JobStatusType.addEnum("JOB_QUEUE_DONE", 64)
+JobStatusType.addEnum("JOB_QUEUE_EXIT", 128)
+JobStatusType.addEnum("JOB_QUEUE_USER_KILLED", 4096)
+JobStatusType.addEnum("JOB_QUEUE_USER_EXIT", 8192)
+JobStatusType.addEnum("JOB_QUEUE_SUCCESS", 16384)
+JobStatusType.addEnum("JOB_QUEUE_RUNNING_CALLBACK", 32768)
+JobStatusType.addEnum("JOB_QUEUE_FAILED", 65536)
 JobStatusType.registerEnum(JOB_QUEUE_LIB, "job_status_type_enum")
 
 

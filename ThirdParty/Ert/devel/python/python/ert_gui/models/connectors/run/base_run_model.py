@@ -17,8 +17,13 @@ class BaseRunModel(ErtConnector, RunModelMixin):
         self.__job_start_time  = 0
         self.__job_stop_time = 0
         self.__indeterminate = False
-        self.__failed = False
         self.__fail_message = ""
+        self.reset( )
+
+
+
+    def reset(self):
+        self.__failed = False
 
 
     def startSimulations(self):

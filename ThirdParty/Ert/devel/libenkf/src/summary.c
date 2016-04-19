@@ -35,6 +35,7 @@
 #include <ert/enkf/summary.h>
 #include <ert/enkf/summary_config.h>
 #include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/forward_load_context.h>
 
 /*****************************************************************/
 
@@ -247,9 +248,11 @@ void summary_user_get_vector(const summary_type * summary , const char * index_k
    e.g. a well which has not yet opened.  
 */
 
-bool summary_forward_load(summary_type * summary , const char * ecl_file_name , const ecl_sum_type * ecl_sum, const ecl_file_type * ecl_file , int report_step) {
+bool summary_forward_load(summary_type * summary , const char * ecl_file_name , const forward_load_context_type * load_context) {
   bool loadOK = false;
   double load_value;
+  int report_step                    = forward_load_context_get_load_step( load_context );
+  const ecl_sum_type * ecl_sum = forward_load_context_get_ecl_sum( load_context );
   if (ecl_sum != NULL) {
     const char * var_key               = summary_config_get_var(summary->config);
     load_fail_type load_fail_action    = summary_config_get_load_fail_mode(summary->config );
@@ -314,10 +317,14 @@ bool summary_forward_load(summary_type * summary , const char * ecl_file_name , 
 
 
 
-bool summary_forward_load_vector(summary_type * summary , const char * ecl_file_name , const ecl_sum_type * ecl_sum, const ecl_file_type * ecl_file , const int_vector_type * time_index) {
+bool summary_forward_load_vector(summary_type * summary , 
+				 const char * ecl_file_name , 
+				 const forward_load_context_type * load_context , 
+				 const int_vector_type * time_index) {
   bool loadOK = false;
 
   if (summary->vector_storage) {
+    const ecl_sum_type * ecl_sum = forward_load_context_get_ecl_sum( load_context );
     if (ecl_sum != NULL) {
       double_vector_type * storage_vector = SELECT_VECTOR( summary , FORECAST );
       const char * var_key                = summary_config_get_var(summary->config);

@@ -27,21 +27,28 @@
 #include <ert/util/bool_vector.h>
 
 
-#define ECL_SUM_VECTOR_TYPE_ID 8756667078
+#define ECL_SUM_VECTOR_TYPE_ID 8768778
 
 struct ecl_sum_vector_struct {
+  UTIL_TYPE_ID_DECLARATION;
   int_vector_type * node_index_list;
   bool_vector_type * is_rate_list;
   const ecl_sum_type * ecl_sum;
 };
+
 
 void ecl_sum_vector_free( ecl_sum_vector_type * ecl_sum_vector ){
     int_vector_free(ecl_sum_vector->node_index_list);
     bool_vector_free(ecl_sum_vector->is_rate_list);
 }
 
+
+UTIL_IS_INSTANCE_FUNCTION( ecl_sum_vector , ECL_SUM_VECTOR_TYPE_ID )
+
+
 ecl_sum_vector_type * ecl_sum_vector_alloc(const ecl_sum_type * ecl_sum){
     ecl_sum_vector_type * ecl_sum_vector = util_malloc( sizeof * ecl_sum_vector );
+    UTIL_TYPE_ID_INIT( ecl_sum_vector , ECL_SUM_VECTOR_TYPE_ID);
     ecl_sum_vector->ecl_sum  = ecl_sum;
     ecl_sum_vector->node_index_list = int_vector_alloc(0,0);
     ecl_sum_vector->is_rate_list  = bool_vector_alloc(0,false);

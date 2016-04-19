@@ -2,7 +2,7 @@ set( source_files config_parser.c config_content.c config_error.c config_schema_
 set( header_files config_parser.h config_content.h config_error.h config_schema_item.h config_content_item.h config_content_node.h config_root_path.h config_path_elm.h conf.h conf_data.h)
 
 add_library( config ${LIBRARY_TYPE} ${source_files} )
-set_target_properties( config PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+set_target_properties( config PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )
 
 target_link_libraries( config ert_util )
 if (USE_RUNPATH)

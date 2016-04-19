@@ -3,6 +3,10 @@ from ert.cwrap import CWrapper, BaseCClass
 from ert.enkf import ENKF_LIB, EnkfFs, EnkfStateType, StateMap, TimeMap, RealizationStateEnum
 from ert.util import StringList
 
+import re
+
+def naturalSortKey(s, _nsre=re.compile('([0-9]+)')):
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(_nsre, s)]
 
 class FileSystemRotator(object):
     def __init__(self, capacity):
@@ -173,8 +177,9 @@ class EnkfFsManager(BaseCClass):
 
 
     def getCaseList(self):
-        """ @rtype: StringList """
-        return EnkfFsManager.cNamespace().alloc_caselist(self)
+        """ @rtype: list[str] """
+        caselist = [case for case in EnkfFsManager.cNamespace().alloc_caselist(self)]
+        return sorted(caselist, key=naturalSortKey)
 
 
     def customInitializeCurrentFromExistingCase(self, source_case, source_report_step, source_state, member_mask,
@@ -198,8 +203,14 @@ class EnkfFsManager(BaseCClass):
                                                                  target_fs)
 
 
-    def initializeFromScratch(self, parameter_list, iens1, iens2, force_init=True):
-        EnkfFsManager.cNamespace().initialize_from_scratch(self, parameter_list, iens1, iens2, force_init)
+    def initializeCaseFromScratch(self, case , parameter_list, from_iens, to_iens, force_init=True):
+        EnkfFsManager.cNamespace().initialize_from_scratch(self, case , parameter_list, from_iens, to_iens, force_init)
+
+        
+    def initializeFromScratch(self, parameter_list, from_iens, to_iens, force_init=True):
+        case = self.getCurrentFileSystem( )
+        self.initializeCaseFromScratch( case , parameter_list , from_iens , to_iens , force_init )
+
 
 
     def isCaseMounted(self, case_name, mount_root=None):
@@ -226,6 +237,9 @@ class EnkfFsManager(BaseCClass):
         assert isinstance(case, str)
         return EnkfFsManager.cNamespace().alloc_readonly_time_map(self, case)
 
+    def isCaseHidden(self, case_name):
+        return case_name.startswith(".")
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("enkf_fs_manager", EnkfFsManager)
@@ -236,7 +250,7 @@ EnkfFsManager.cNamespace().fs_exists = cwrapper.prototype("bool enkf_main_fs_exi
 EnkfFsManager.cNamespace().alloc_caselist = cwrapper.prototype("stringlist_obj enkf_main_alloc_caselist(enkf_fs_manager)")
 EnkfFsManager.cNamespace().set_case_table = cwrapper.prototype("void enkf_main_set_case_table(enkf_fs_manager, char*)")
 
-EnkfFsManager.cNamespace().initialize_from_scratch = cwrapper.prototype("void enkf_main_initialize_from_scratch(enkf_fs_manager, stringlist, int, int, bool)")
+EnkfFsManager.cNamespace().initialize_from_scratch = cwrapper.prototype("void enkf_main_initialize_from_scratch(enkf_fs_manager, enkf_fs , stringlist, int, int, bool)")
 EnkfFsManager.cNamespace().is_initialized = cwrapper.prototype("bool enkf_main_is_initialized(enkf_fs_manager, bool_vector)")
 EnkfFsManager.cNamespace().is_case_initialized = cwrapper.prototype("bool enkf_main_case_is_initialized(enkf_fs_manager, char*, bool_vector)")
 EnkfFsManager.cNamespace().initialize_current_case_from_existing = cwrapper.prototype("void enkf_main_init_current_case_from_existing(enkf_fs_manager, enkf_fs, int, enkf_state_type_enum)")

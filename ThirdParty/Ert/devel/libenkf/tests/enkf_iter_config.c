@@ -77,7 +77,7 @@ int main(int argc , char ** argv) {
   config_content_type * content;
   analysis_iter_config_add_config_items( config );
 
-  content = config_parse( config , config_file , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_ERROR , true);
+  content = config_parse( config , config_file , NULL , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_ERROR , true);
   test_assert_true( config_content_is_valid( content) );
 
   test_assert_true( config_content_has_item( content , ITER_CASE_KEY ));

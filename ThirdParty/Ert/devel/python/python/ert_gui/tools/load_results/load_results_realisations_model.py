@@ -46,7 +46,7 @@ class LoadResultsRealizationsModel(BasicModelMixin):
 
     def getActiveRealizationsMask(self):
         mask = BoolVector(False, self.__realization_count)
-        mask.updateActiveMask(self.getValue(), mask)
+        mask.updateActiveMask(self.getValue())
         # mask = BoolVector.active_mask(self.getValue())
 
         if mask is None:

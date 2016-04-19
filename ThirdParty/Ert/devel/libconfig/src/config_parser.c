@@ -192,10 +192,12 @@ static config_content_node_type * config_content_item_set_arg__(subst_list_type 
       int iarg;
       for (iarg = 0; iarg < argc; iarg++) {
         int    env_offset = 0;
-        char * env_var;
-        do {
-          env_var = util_isscanf_alloc_envvar(  stringlist_iget(token_list , iarg + 1) , env_offset );
-          if (env_var != NULL) {
+        while (true) {
+          char * env_var = util_isscanf_alloc_envvar(  stringlist_iget(token_list , iarg + 1) , env_offset );
+          if (env_var == NULL)
+            break;
+
+          {
             const char * env_value = getenv( &env_var[1] );
             if (env_value != NULL) {
               char * new_value = util_string_replace_alloc( stringlist_iget( token_list , iarg + 1 ) , env_var , env_value );
@@ -205,7 +207,9 @@ static config_content_node_type * config_content_item_set_arg__(subst_list_type 
               fprintf(stderr,"** Warning: environment variable: %s is not defined \n", env_var);
             }
           }
-        } while (env_var != NULL);
+
+          free( env_var );
+        }
       }
     }
 
@@ -637,10 +641,24 @@ config_content_type * config_parse(config_parser_type * config ,
                                    const char * comment_string ,
                                    const char * include_kw ,
                                    const char * define_kw ,
+                                   const hash_type * pre_defined_kw_map,
                                    config_schema_unrecognized_enum unrecognized_behaviour,
                                    bool validate) {
 
   config_content_type * content = config_content_alloc( );
+
+  if(pre_defined_kw_map != NULL) {
+    hash_iter_type * keys = hash_iter_alloc(pre_defined_kw_map);
+
+    while(!hash_iter_is_complete(keys)) {
+      const char * key = hash_iter_get_next_key(keys);
+      const char * value = hash_get(pre_defined_kw_map, key);
+      config_content_add_define( content , key , value );
+    }
+
+    hash_iter_free(keys);
+  }
+//
 
   if (util_file_readable( filename )) {
     path_stack_type * path_stack = path_stack_alloc();

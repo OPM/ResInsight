@@ -24,9 +24,12 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "ert/util/build_config.h"
+
 #include <ert/util/thread_pool.h>
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
+
 
 /**
    This file implements a small thread_pool object based on

@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <time.h>
 
+#include <ert/util/ert_api_config.h>
 #include <ert/util/ssize_t.h>
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
@@ -806,7 +807,7 @@ void buffer_store(const buffer_type * buffer , const char * filename) {
 
 #include "buffer_string.c"
 
-#ifdef WITH_ZLIB
+#ifdef ERT_HAVE_ZLIB
 #include "buffer_zlib.c"
 #endif
 

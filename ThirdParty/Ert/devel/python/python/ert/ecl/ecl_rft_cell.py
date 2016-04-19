@@ -15,11 +15,11 @@
 #  for more details. 
 
 import warnings
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
-from ert.ecl import ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPrototype
 
 
-class RFTCell(CClass):
+class RFTCell(BaseCClass):
     """The RFTCell is a base class for the cells which are part of an RFT/PLT.
     
     The RFTCell class contains the elements which are common to both
@@ -32,6 +32,15 @@ class RFTCell(CClass):
     use the methods get_i(), get_j() and get_k() which return offset 0
     coordinate values.
     """
+    TYPE_NAME = "rft_cell"
+    _free         = EclPrototype("void ecl_rft_cell_free( rft_cell )")
+    _get_pressure = EclPrototype("double ecl_rft_cell_get_pressure( rft_cell )")
+    _get_depth    = EclPrototype("double ecl_rft_cell_get_depth( rft_cell )")
+    _get_i        = EclPrototype("int ecl_rft_cell_get_i( rft_cell )")
+    _get_j        = EclPrototype("int ecl_rft_cell_get_j( rft_cell )")
+    _get_k        = EclPrototype("int ecl_rft_cell_get_k( rft_cell )")
+
+
 
 
     def warn(self , old , new):
@@ -44,6 +53,9 @@ starting at 1; hence you must adapt the calling code when you change
 from %s -> %s() 
 """ % (old , new , new , old , old , new)
         warnings.warn( msg , DeprecationWarning )
+
+    def free(self):
+        self._free( )
 
     @property
     def i(self):
@@ -66,86 +78,88 @@ from %s -> %s()
         return (self.get_i() + 1 , self.get_j() + 1 , self.get_k() + 1)
     
     def get_i(self):
-        return cfunc.get_i( self )
+        return self._get_i( )
 
     def get_j(self):
-        return cfunc.get_j( self )
+        return self._get_j(  )
 
     def get_k(self):
-        return cfunc.get_k( self )
+        return self._get_k(  )
 
     def get_ijk(self):
-        return (cfunc.get_i( self ) , cfunc.get_j( self ) , cfunc.get_k( self ))
+        return (self.get_i(  ) , self.get_j(  ) , self.get_k( ))
 
     @property
     def pressure(self):
-        return cfunc.get_pressure( self )
+        return self._get_pressure( )
 
     @property
     def depth(self):
-        return cfunc.get_depth( self )
+        return self._get_depth( )
 
 
 #################################################################
 
 
 class EclRFTCell(RFTCell):
-    
-    @classmethod
-    def new(cls , i , j , k , depth , pressure , swat , sgas ):
-        cell = EclRFTCell()
-        c_ptr = cfunc.alloc_RFT( i,j,k,depth,pressure,swat,sgas)
-        cell.init_cobj( c_ptr , cfunc.free )
-        return cell
+    TYPE_NAME  = "ecl_rft_cell"
+    _alloc_RFT = EclPrototype("void* ecl_rft_cell_alloc_RFT( int, int , int , double , double , double , double)", bind = False)
+    _get_swat  = EclPrototype("double ecl_rft_cell_get_swat( ecl_rft_cell )")
+    _get_soil  = EclPrototype("double ecl_rft_cell_get_soil( ecl_rft_cell )")
+    _get_sgas  = EclPrototype("double ecl_rft_cell_get_sgas( ecl_rft_cell )")
 
-    @classmethod
-    def asPythonReference(cls, c_ptr , parent):
-        cell = EclRFTCell()
-        cell.init_cref( c_ptr , parent )
-        return cell
+    def __init__(self , i , j , k , depth , pressure , swat , sgas):
+        c_ptr = self._alloc_RFT( i , j , k , depth , pressure , swat , sgas )
+        super(RFTCell , self).__init__( c_ptr )
 
     @property
     def swat(self):
-        return cfunc.get_swat( self )
+        return self._get_swat( )
 
     @property
     def sgas(self):
-        return cfunc.get_sgas( self )
+        return self._get_sgas(  )
 
     @property
     def soil(self):
-        return 1 - (cfunc.get_sgas( self ) + cfunc.get_swat( self ))
+        return 1 - (self._get_sgas( ) + self._get_swat( ))
     
     
 #################################################################
 
 
 class EclPLTCell(RFTCell):
+    TYPE_NAME = "ecl_plt_cell"
+    _alloc_PLT = EclPrototype("void* ecl_rft_cell_alloc_PLT( int, int , int , double , double , double, double , double, double , double , double , double , double , double )" , bind = False)
+    _get_orat = EclPrototype("double ecl_rft_cell_get_orat( ecl_plt_cell )")
+    _get_grat = EclPrototype("double ecl_rft_cell_get_grat( ecl_plt_cell )")
+    _get_wrat = EclPrototype("double ecl_rft_cell_get_wrat( ecl_plt_cell )")
 
-    @classmethod
-    def new(self , i , j , k , depth , pressure , orat , grat , wrat , conn_start ,conn_end, flowrate , oil_flowrate , gas_flowrate , water_flowrate ):
-        cell = EclPLTCell()
-        c_ptr = cfunc.alloc_PLT( i,j,k,depth,pressure,orat , grat , wrat , conn_start , conn_end, flowrate , oil_flowrate , gas_flowrate , water_flowrate)
-        cell.init_cobj( c_ptr , cfunc.free )
-        return cell
+    _get_flowrate = EclPrototype("double ecl_rft_cell_get_flowrate( ecl_plt_cell )")
+    _get_oil_flowrate = EclPrototype("double ecl_rft_cell_get_oil_flowrate( ecl_plt_cell )")
+    _get_gas_flowrate = EclPrototype("double ecl_rft_cell_get_gas_flowrate( ecl_plt_cell )")
+    _get_water_flowrate = EclPrototype("double ecl_rft_cell_get_water_flowrate( ecl_plt_cell )")
 
-    @classmethod
-    def asPythonReference(cls, c_ptr , parent):
-        cell = EclPLTCell()
-        cell.init_cref( c_ptr , parent )
-        return cell
+    _get_conn_start = EclPrototype("double ecl_rft_cell_get_connection_start( ecl_plt_cell )")
+    _get_conn_end   = EclPrototype("double ecl_rft_cell_get_connection_end( ecl_plt_cell )")
+
+    
+    def __init__(self , i , j , k , depth , pressure , orat , grat , wrat , conn_start ,conn_end, flowrate , oil_flowrate , gas_flowrate , water_flowrate ):
+        c_ptr = self._alloc_PLT( i , j , k , depth , pressure , orat , grat , wrat , conn_start ,conn_end, flowrate , oil_flowrate , gas_flowrate , water_flowrate )
+        super( RFTCell , self).__init__( c_ptr )
+
 
     @property
     def orat(self):
-        return cfunc.get_orat( self )
+        return self._get_orat( )
 
     @property
     def grat(self):
-        return cfunc.get_grat( self )
+        return self._get_grat(  )
 
     @property
     def wrat(self):
-        return cfunc.get_wrat( self )
+        return self._get_wrat( )
 
     @property
     def conn_start(self):
@@ -157,7 +171,7 @@ class EclPLTCell(RFTCell):
         path. In the case of non MSW wells this will just return a
         fixed default value.
         """
-        return cfunc.get_conn_start( self )
+        return self._get_conn_start( )
 
     @property
     def conn_end(self):
@@ -169,59 +183,21 @@ class EclPLTCell(RFTCell):
         path. In the case of non MSW wells this will just return a
         fixed default value.
         """
-        return cfunc.get_conn_end( self )
+        return self._get_conn_end( )
 
     @property
     def flowrate(self):
-        return cfunc.get_flowrate( self )
+        return self._get_flowrate(  )
 
     @property
     def oil_flowrate(self):
-        return cfunc.get_oil_flowrate( self )
+        return self._get_oil_flowrate(  )
 
     @property
     def gas_flowrate(self):
-        return cfunc.get_gas_flowrate( self )
+        return self._get_gas_flowrate( )
 
     @property
     def water_flowrate(self):
-        return cfunc.get_water_flowrate( self )
-
-
-#################################################################
-
-
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType( "rft_cell"     , RFTCell)
-cwrapper.registerType( "ecl_rft_cell" , EclRFTCell )
-cwrapper.registerType( "ecl_plt_cell" , EclPLTCell )
-
-cfunc = CWrapperNameSpace("ecl_rft_cell")
-
-cfunc.alloc_RFT    = cwrapper.prototype("c_void_p ecl_rft_cell_alloc_RFT( int, int , int , double , double , double , double)")
-cfunc.alloc_PLT    = cwrapper.prototype("c_void_p ecl_rft_cell_alloc_PLT( int, int , int , double , double , double, double , double, double , double , double , double , double , double )")
-cfunc.free         = cwrapper.prototype("void ecl_rft_cell_free( rft_cell )")
-
-cfunc.get_pressure = cwrapper.prototype("double ecl_rft_cell_get_pressure( rft_cell )")
-cfunc.get_depth    = cwrapper.prototype("double ecl_rft_cell_get_depth( rft_cell )")
-cfunc.get_i        = cwrapper.prototype("int ecl_rft_cell_get_i( rft_cell )")
-cfunc.get_j        = cwrapper.prototype("int ecl_rft_cell_get_j( rft_cell )")
-cfunc.get_k        = cwrapper.prototype("int ecl_rft_cell_get_k( rft_cell )")
-
-cfunc.get_swat = cwrapper.prototype("double ecl_rft_cell_get_swat( ecl_rft_cell )")
-cfunc.get_soil = cwrapper.prototype("double ecl_rft_cell_get_soil( ecl_rft_cell )")
-cfunc.get_sgas = cwrapper.prototype("double ecl_rft_cell_get_sgas( ecl_rft_cell )")
-
-cfunc.get_orat = cwrapper.prototype("double ecl_rft_cell_get_orat( ecl_plt_cell )")
-cfunc.get_grat = cwrapper.prototype("double ecl_rft_cell_get_grat( ecl_plt_cell )")
-cfunc.get_wrat = cwrapper.prototype("double ecl_rft_cell_get_wrat( ecl_plt_cell )")
-
-cfunc.get_conn_start = cwrapper.prototype("double ecl_rft_cell_get_connection_start( ecl_plt_cell )")
-cfunc.get_conn_end   = cwrapper.prototype("double ecl_rft_cell_get_connection_end( ecl_plt_cell )")
-
-cfunc.get_flowrate       = cwrapper.prototype("double ecl_rft_cell_get_flowrate( ecl_plt_cell )")
-cfunc.get_oil_flowrate   = cwrapper.prototype("double ecl_rft_cell_get_oil_flowrate( ecl_plt_cell )")
-cfunc.get_gas_flowrate   = cwrapper.prototype("double ecl_rft_cell_get_gas_flowrate( ecl_plt_cell )")
-cfunc.get_water_flowrate = cwrapper.prototype("double ecl_rft_cell_get_water_flowrate( ecl_plt_cell )")
-
+        return self._get_water_flowrate( )
 

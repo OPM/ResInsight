@@ -25,6 +25,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <ert/util/ert_api_config.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/int_vector.h>
 #include <ert/util/buffer.h>
@@ -105,7 +106,7 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   void              stringlist_reverse( stringlist_type * s );
   void              stringlist_python_sort( stringlist_type * s , int cmp_flag);
   
-#ifdef HAVE_GLOB
+#ifdef ERT_HAVE_GLOB
   int               stringlist_select_matching(stringlist_type * names , const char * pattern);
 #endif
   int               stringlist_select_matching_files(stringlist_type * names , const char * path , const char * file_pattern);

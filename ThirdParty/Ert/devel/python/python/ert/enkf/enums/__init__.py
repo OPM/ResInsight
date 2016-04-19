@@ -11,6 +11,7 @@ from .enkf_truncation_type import EnkfTruncationType
 from .enkf_fs_type_enum import EnKFFSType
 from .gen_data_file_type_enum import GenDataFileType
 from .active_mode_enum import ActiveMode
+from .hook_runtime_enum import HookRuntime
 
 __all__ = ["EnkfFieldFileFormatEnum",
            "LoadFailTypeEnum",
@@ -24,4 +25,5 @@ __all__ = ["EnkfFieldFileFormatEnum",
            "EnkfTruncationType",
            "EnKFFSType",
            "GenDataFileType",
-           "ActiveMode"]
+           "ActiveMode",
+           "HookRuntime"]

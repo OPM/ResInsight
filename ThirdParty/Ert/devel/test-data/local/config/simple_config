@@ -208,19 +208,7 @@ PLOT_PATH       plots
 
 IMAGE_VIEWER  /tmp/noplot.sh
 
-REPORT_SEARCH_PATH /private/joaho/ERT/Statoil/etc/ERT/reports
-
-REPORT_WELL_LIST   OP_1 OP_2 OP_3 
-REPORT_WELL_LIST   OP_4 OP_5 
-
-REPORT_LIST  well_opt_report.tex
-
-REPORT_PATH  Reports
-
-
 -----------------------------------------------------------------
-
-
 
 WORKFLOW_JOB_DIRECTORY  WorkflowJobs
 LOAD_WORKFLOW           Workflows/PLOT_AND_EXIT

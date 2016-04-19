@@ -109,7 +109,9 @@ void * submit_job__( void * arg ) {
   job_type * job = job_safe_cast( arg_pack_iget_ptr( arg_pack , 0 ) );
   job_queue_type * queue = arg_pack_iget_ptr( arg_pack , 1 );
   job->queue_index = job_queue_add_job( queue  , job->cmd , callback , NULL , NULL , job , 1 , job->run_path , job->run_path , job->argc , (const char **) job->argv );
-  usleep( job->submit_usleep );
+
+  if (job->queue_index >= 0)
+    usleep( job->submit_usleep );
   return NULL;
 }
 
@@ -136,8 +138,12 @@ void check_jobs( int num_jobs , job_type ** jobs ) {
 
 
 void * global_status( void * arg ) {
-  job_queue_type * job_queue = job_queue_safe_cast( arg );
+  arg_pack_type * arg_pack = arg_pack_safe_cast( arg );
+  job_queue_type * job_queue = job_queue_safe_cast( arg_pack_iget_ptr( arg_pack , 0 ));
+  bool user_exit = arg_pack_iget_bool( arg_pack , 1 );
+  bool exit_called = false;
   int counter = 0;
+  int signature = -1;
   while (true) {
     util_usleep(100000);
 
@@ -152,7 +158,29 @@ void * global_status( void * arg ) {
              job_queue_get_num_complete(job_queue));
 
     counter++;
+
+    if (user_exit && (job_queue_get_num_complete( job_queue ) >= job_queue_get_active_size(job_queue)/2)) {
+
+      if (job_queue_accept_jobs( job_queue )) {
+        exit_called = true;
+        job_queue_user_exit( job_queue );
+      }
+    }
+
+    if (exit_called) {
+      int w = job_queue_get_num_waiting(job_queue);
+      int r = job_queue_get_num_running(job_queue);
+      int c = job_queue_get_num_callback( job_queue );
+      int f = job_queue_get_num_complete(job_queue);
+      int new = (w + r*256 + c *256*256 + f *256*256*256);
+
+      if (new == signature)
+        break;
+      else
+        signature = new;
+    }
   }
+  arg_pack_free( arg_pack );
   return NULL;
 }
 
@@ -162,6 +190,7 @@ void * status_job__( void * arg ) {
   arg_pack_type * arg_pack = arg_pack_safe_cast( arg );
   job_type * job = job_safe_cast( arg_pack_iget_ptr( arg_pack , 0 ) );
   job_queue_type * queue = arg_pack_iget_ptr( arg_pack , 1 );
+  bool user_exit = arg_pack_iget_bool( arg_pack , 2 );
   char * run_file = util_alloc_filename( job->run_path , "RUNNING" , NULL);
 
   while (true) {
@@ -169,31 +198,51 @@ void * status_job__( void * arg ) {
       job_status_type status;
       if (util_is_file(run_file)) {
         status = job_queue_iget_job_status(queue, job->queue_index);
-        if (util_is_file(run_file))
-          test_assert_true( (status == JOB_QUEUE_RUNNING) || (status == JOB_QUEUE_SUBMITTED) );
+        if (util_is_file(run_file)) {
+          bool status_true = (status == JOB_QUEUE_RUNNING) || (status == JOB_QUEUE_SUBMITTED || (status == JOB_QUEUE_RUNNING_CALLBACK) || (status == JOB_QUEUE_DONE));
+          if (!status_true) {
+            if (user_exit)
+              status_true = (status == JOB_QUEUE_USER_EXIT) || (status == JOB_QUEUE_USER_KILLED || (status == JOB_QUEUE_RUNNING_CALLBACK));
+          }
+          if (!status_true)
+            fprintf(stderr," Invalid status:%d for job:%d \n",status , job->queue_index );
+          test_assert_true( status_true );
+        }
       }
       status = job_queue_iget_job_status(queue, job->queue_index);
-      if (status == JOB_QUEUE_SUCCESS)
+      if ((status == JOB_QUEUE_SUCCESS) || (status == JOB_QUEUE_USER_KILLED))
+        break;
+    } else {
+      if (!job_queue_accept_jobs(queue))
         break;
     }
+
     usleep( usleep_time );
   }
 
+  arg_pack_free( arg_pack );
   free( run_file );
   return NULL;
 }
 
 
 
-void status_jobs( job_queue_type * queue , int num_jobs , job_type ** jobs , thread_pool_type * tp) {
+void status_jobs( job_queue_type * queue , int num_jobs , bool user_exit , job_type ** jobs , thread_pool_type * tp) {
   for (int i=0; i < num_jobs; i++) {
     job_type * job = jobs[i];
     arg_pack_type * arg = arg_pack_alloc();
     arg_pack_append_ptr( arg , job );
     arg_pack_append_ptr( arg , queue );
+    arg_pack_append_bool( arg , user_exit );
     thread_pool_add_job(tp , status_job__ , arg );
   }
-  thread_pool_add_job( tp , global_status , queue );
+  {
+    arg_pack_type * arg_pack = arg_pack_alloc( );
+
+    arg_pack_append_ptr( arg_pack , queue );
+    arg_pack_append_bool( arg_pack , user_exit );
+    thread_pool_add_job( tp , global_status , arg_pack );
+  }
 }
 
 
@@ -216,11 +265,12 @@ int main(int argc , char ** argv) {
   const int queue_timeout =  180;
   const int submit_timeout = 180;
   const int status_timeout = 180;
-  const int number_of_jobs = 250;
+  const int number_of_jobs = 50;
   const int submit_threads = number_of_jobs / 10 ;
   const int status_threads = number_of_jobs + 1;
   const char * job = util_alloc_abs_path(argv[1]);
   rng_type * rng = rng_alloc( MZRAN , INIT_CLOCK );
+  bool user_exit;
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
   job_type **jobs = alloc_jobs( rng , number_of_jobs , job);
 
@@ -228,6 +278,8 @@ int main(int argc , char ** argv) {
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_manager_type * queue_manager = job_queue_manager_alloc( queue );
 
+  util_install_signals();
+  util_sscanf_bool(argv[2] , &user_exit);
   job_queue_set_driver(queue, driver);
   job_queue_manager_start_queue(queue_manager, 0, false , true);
 
@@ -236,14 +288,12 @@ int main(int argc , char ** argv) {
     thread_pool_type * submit_pool = thread_pool_alloc( submit_threads , true );
 
     submit_jobs( queue , number_of_jobs , jobs , submit_pool );
-    status_jobs( queue , number_of_jobs , jobs , status_pool );
+    status_jobs( queue , number_of_jobs , user_exit , jobs , status_pool );
 
     if (!thread_pool_try_join( submit_pool , submit_timeout ))
       util_exit("Joining submit pool failed \n");
     thread_pool_free( submit_pool );
-
     job_queue_submit_complete(queue);
-
     if (!thread_pool_try_join( status_pool , status_timeout))
       util_exit("Joining status pool failed \n");
     thread_pool_free( status_pool );
@@ -254,8 +304,10 @@ int main(int argc , char ** argv) {
 
   job_queue_manager_free(queue_manager);
   job_queue_free(queue);
+  if (!user_exit)
+    check_jobs( number_of_jobs , jobs );
+
   queue_driver_free(driver);
-  check_jobs( number_of_jobs , jobs );
   test_work_area_free(work_area);
   rng_free( rng );
 }

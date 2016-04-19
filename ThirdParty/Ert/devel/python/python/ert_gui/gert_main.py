@@ -201,6 +201,13 @@ def main(argv):
     help_center.setHelpMessageLink("welcome_to_ert")
 
     strict = True
+        
+    verbose = False
+    verbose_var = os.getenv("ERT_VERBOSE", "False")
+    lower_verbose_var = verbose_var.lower() 
+    if lower_verbose_var == "true": 
+        verbose = True
+
 
     if not os.path.exists(config_file):
         print("Trying to start new config")
@@ -211,12 +218,11 @@ def main(argv):
             sys.exit(1)
         else:
             config_file = new_configuration_dialog.getConfigurationPath()
-            first_case_name = new_configuration_dialog.getCaseName()
             dbase_type = new_configuration_dialog.getDBaseType()
             num_realizations = new_configuration_dialog.getNumberOfRealizations()
             storage_path = new_configuration_dialog.getStoragePath()
 
-            EnKFMain.createNewConfig(config_file, storage_path, first_case_name, dbase_type, num_realizations)
+            EnKFMain.createNewConfig(config_file, storage_path, dbase_type, num_realizations)
             strict = False
 
 
@@ -235,7 +241,7 @@ def main(argv):
     now = time.time()
 
 
-    ert = Ert(EnKFMain(config_file, strict=strict))
+    ert = Ert(EnKFMain(config_file, strict=strict, verbose=verbose))
     ErtConnector.setErt(ert.ert())
 
     window = GertMainWindow()

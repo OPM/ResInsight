@@ -26,7 +26,7 @@ class ErtSplash(QSplashScreen):
         self.ert_title = "Ensemble based Reservoir Tool"
         self.version = "Version string"
         self.timestamp = "Timestamp string"
-        self.copyright = u"Copyright \u00A9 2014 Statoil ASA, Norway"
+        self.copyright = u"Copyright \u00A9 2016 Statoil ASA, Norway"
 
 
     def drawContents(self, painter):

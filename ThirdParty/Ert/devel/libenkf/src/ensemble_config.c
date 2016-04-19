@@ -262,32 +262,6 @@ void ensemble_config_add_node( ensemble_config_type * ensemble_config , enkf_con
 
 
 
-enkf_config_node_type *  ensemble_config_add_STATIC_node(ensemble_config_type * ensemble_config ,
-                                                         const char    * key) {
-
-  if (ensemble_config_has_key(ensemble_config , key))
-    util_abort("%s: a configuration object:%s has already been added - aborting \n",__func__ , key);
-  {
-    enkf_config_node_type * node = enkf_config_node_alloc(STATIC_STATE , STATIC , false , key , NULL , NULL , NULL , NULL);
-    hash_insert_hash_owned_ref(ensemble_config->config_nodes , key , node , enkf_config_node_free__);
-    return node;
-  }
-}
-
-
-
-/**
-   this is called by the enkf_state function while loading results,
-   that code is run in parallell by many threads.
-*/
-void ensemble_config_ensure_static_key(ensemble_config_type * ensemble_config , const char * kw ) {
-  pthread_mutex_lock( &ensemble_config->mutex );
-  {
-    if (!ensemble_config_has_key(ensemble_config , kw))
-      ensemble_config_add_STATIC_node(ensemble_config , kw );
-  }
-  pthread_mutex_unlock( &ensemble_config->mutex );
-}
 
 
 void ensemble_config_add_obs_key(ensemble_config_type * ensemble_config , const char * key, const char * obs_key) {
@@ -849,6 +823,14 @@ enkf_config_node_type * ensemble_config_add_custom_kw(ensemble_config_type * con
   ensemble_config_add_node(config, config_node);
   return config_node;
 }
+
+enkf_config_node_type * ensemble_config_add_defined_custom_kw(ensemble_config_type * config, const char * key, const hash_type * definition) {
+  enkf_config_node_type * config_node = enkf_config_node_new_defined_custom_kw(key, definition);
+  ensemble_config_add_node(config, config_node);
+  return config_node;
+}
+
+
 
 void ensemble_config_update_custom_kw_config(ensemble_config_type * config, custom_kw_config_set_type * config_set) {
     stringlist_type * keys = custom_kw_config_set_get_keys_alloc(config_set);

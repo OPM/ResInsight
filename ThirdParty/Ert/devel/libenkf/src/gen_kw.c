@@ -27,14 +27,14 @@
 #include <ert/util/rng.h>
 #include <ert/util/subst_list.h>
 
+#include <ert/ecl/fortio.h>
+
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/enkf_util.h>
 #include <ert/enkf/enkf_macros.h>
 #include <ert/enkf/gen_kw_common.h>
 #include <ert/enkf/gen_kw_config.h>
 #include <ert/enkf/gen_kw.h>
-#include <ert/ecl/fortio.h>
-
 
 GET_DATA_SIZE_HEADER(gen_kw);
 
@@ -262,13 +262,17 @@ void gen_kw_write_export_file(const gen_kw_type * gen_kw, FILE * filestream) {
     const char * parameter    = gen_kw_config_iget_name(gen_kw->config , ikw);
     int width                 = 60 - (strlen(key) + strlen(parameter) + 1);
     double transformed_value  = gen_kw_config_transform( gen_kw->config , ikw , gen_kw->data[ikw] );
-    const char * print_string = util_alloc_sprintf("%s:%s %g\n", key, parameter, width, transformed_value);
-    fprintf(filestream, "%s", print_string);
+    {
+      char * print_string       = util_alloc_sprintf("%s:%s %g\n", key, parameter, width, transformed_value);
+      fprintf(filestream, "%s", print_string);
+      free( print_string );
+    }
 
     if (gen_kw_config_should_use_log_scale(gen_kw->config, ikw)) {
       double log_transformed_value = log10(transformed_value);
-      const char * print_log_string = util_alloc_sprintf("LOG10_%s:%s %g\n", key, parameter, width, log_transformed_value);
+      char * print_log_string = util_alloc_sprintf("LOG10_%s:%s %g\n", key, parameter, width, log_transformed_value);
       fprintf(filestream, "%s", print_log_string);
+      free( print_log_string );
     }
   }
 }

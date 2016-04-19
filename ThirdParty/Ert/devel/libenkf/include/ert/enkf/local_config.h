@@ -141,8 +141,10 @@ void                          local_config_add_config_file( local_config_type * 
 void                          local_config_fprintf( const local_config_type * local_config , const char * config_file);
 void                          local_config_summary_fprintf( const local_config_type * local_config , const char * config_file);
 void                          local_config_fprintf_config( const local_config_type * local_config , FILE * stream);
-local_obsdata_type          * local_config_alloc_obsset( local_config_type * local_config , const char * obsset_name );
+local_obsdata_type          * local_config_alloc_obsdata( local_config_type * local_config , const char * obsdata_name );
+bool                          local_config_has_obsdata( const local_config_type * local_config , const char * obsdata_name);
 local_dataset_type          * local_config_alloc_dataset( local_config_type * local_config , const char * key );
+bool                          local_config_has_dataset( const local_config_type * local_config , const char * key);
 #ifdef __cplusplus
 }
 #endif

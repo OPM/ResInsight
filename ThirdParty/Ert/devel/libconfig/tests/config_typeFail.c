@@ -49,7 +49,7 @@ int main(int argc , char ** argv) {
   }
 
   {
-    config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , false , true );
+    config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , NULL , false , true );
 
     if (config_content_is_valid( content )) {
       error("Parse error\n");

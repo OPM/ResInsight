@@ -1,186 +1,236 @@
-from math import ceil, sqrt, floor
-import itertools
-from matplotlib.patches import Rectangle
+import ert_gui.plottery.plots as plots
 
 import matplotlib.pyplot as plt
-from pandas import DataFrame
-import pylab
-import numpy
-from scipy.stats import gaussian_kde
+
+from ert_gui.plottery.plot_config_factory import PlotConfigFactory
+from ert_gui.shell import assertConfigLoaded
+from ert_gui.plottery import PlotConfig, PlotContext
+from ert_gui.shell.libshell import matchItems, extractFullArgument, autoCompleteListWithSeparator
 
 
 class ShellPlot(object):
-
-
-
-    def __init__(self, name):
-        super(ShellPlot, self).__init__()
-        clist = plt.rcParams['axes.color_cycle']
-        clist = ["#386CB0", "#7FC97F", "#FDC086", "#F0027F", "#BF5B17"]
-        self.__color_cycle = itertools.cycle(clist)
-
-        self.figure = plt.figure()
-        self.figure.autofmt_xdate()
-        plt.title(name)
-
-        self.__legend_items = []
-        self.__legend_labels = []
-
-
-    def nextColor(self):
-        return self.__color_cycle.next()
-
-
-    def plotObservations(self, data, value_column, color='k'):
-        data = data.dropna()
-        plt.errorbar(x=data.index.values, y=data[value_column], yerr=data["STD_%s" % value_column],
-                         fmt='none', ecolor=color, alpha=0.8)
-
-
-    def plot(self, data, value_column, color=None, legend_label=''):
-        if color is None:
-            color = self.nextColor()
-
-        data = data.reset_index()
-        data = data.pivot(index="Date", columns="Realization", values=value_column)
-
-        plt.ylabel("Value")
-        plt.xlabel("Date")
-        plt.xticks(rotation=30)
-        lines = plt.plot_date(x=data.index.values, y=data, color=color, alpha=0.8, marker=None, linestyle="-")
-
-        if len(lines) > 0:
-            self.__legend_items.append(lines[0])
-            self.__legend_labels.append(legend_label)
-
-
-    def plotGenData(self, data, color=None, legend_label=''):
-        if color is None:
-            color = self.nextColor()
-
-        plt.ylabel("Value")
-        plt.xlabel("Index")
-        plt.xticks(rotation=30)
-        lines = plt.plot(data.index.values, data, color=color, alpha=0.8, marker=None, linestyle="-")
-
-        if len(lines) > 0:
-            self.__legend_items.append(lines[0])
-            self.__legend_labels.append(legend_label)
-
-
-    def showLegend(self):
-        plt.legend(self.__legend_items, self.__legend_labels)
-
-
-    def plotArea(self, data, value_column, color=None, legend_label=''):
-        if color is None:
-            color = self.nextColor()
-
-        data = data.reset_index()
-        data = data.pivot(index="Date", columns="Realization", values=value_column)
-
-        df = DataFrame()
-
-        df["Minimum"] = data.min(axis=1)
-        df["Maximum"] = data.max(axis=1)
-
-        plt.fill_between(df.index.values, df["Minimum"].values, df["Maximum"].values, alpha=0.5, color=color)
-        plt.ylabel("Value")
-        plt.xlabel("Date")
-        plt.xticks(rotation=30)
-
-        r = Rectangle((0, 0), 1, 1, color=color) # creates rectangle patch for legend use.
-
-        self.__legend_items.append(r)
-        self.__legend_labels.append(legend_label)
-
-
-    def plotQuantiles(self, data, value_column, color=None, legend_label=''):
-        if color is None:
-            color = self.nextColor()
-
-        data = data.reset_index()
-        data = data.pivot(index="Date", columns="Realization", values=value_column)
-
-        df = DataFrame()
-
-        df["Minimum"] = data.min(axis=1)
-        df["Maximum"] = data.max(axis=1)
-        df["Mean"] = data.mean(axis=1)
-        df["p10"] = data.quantile(0.1, axis=1)
-        df["p33"] = data.quantile(0.33, axis=1)
-        df["p50"] = data.quantile(0.50, axis=1)
-        df["p67"] = data.quantile(0.67, axis=1)
-        df["p90"] = data.quantile(0.90, axis=1)
-
-        plt.plot(df.index.values, df["Minimum"].values, alpha=1, linestyle="--", color=color)
-        plt.plot(df.index.values, df["Maximum"].values, alpha=1, linestyle="--", color=color)
-        plt.plot(df.index.values, df["p50"].values, alpha=1, linestyle="--", color=color)
-        plt.fill_between(df.index.values, df["p10"].values, df["p90"].values, alpha=0.3, color=color)
-        plt.fill_between(df.index.values, df["p33"].values, df["p67"].values, alpha=0.5, color=color)
-
-        plt.ylabel("Value")
-        plt.xlabel("Date")
-        plt.xticks(rotation=30)
-
-        r = Rectangle((0, 0), 1, 1, color=color) # creates rectangle patch for legend use.
-
-        self.__legend_items.append(r)
-        self.__legend_labels.append(legend_label)
-
-
-    def histogram(self, data, name, log_on_x=False, color=None):
-        if color is None:
-            color = self.nextColor()
-
-        bins = int(ceil(sqrt(len(data.index))))
-
-        if log_on_x:
-            bins = ShellPlot._histogramLogBins(data, bins)
-
-        plt.hist(data[name].values, alpha=0.8, bins=bins, color=color)
-        plt.ylabel("Count")
-
-        if log_on_x:
-            plt.xticks(bins, ["$10^{%s}$" % (int(value) if value.is_integer() else "%.1f" % value) for value in bins]) #LaTeX formatting
-
-    def density(self, data, name, legend_label='', color=None):
-        if color is None:
-            color = self.nextColor()
-
-        values = data[name].values
-        sample_range = values.max() - values.min()
-        indexes = numpy.linspace(values.min() - 0.5 * sample_range, values.max() + 0.5 * sample_range, 1000)
-        gkde = gaussian_kde(values)
-        evaluated_gkde = gkde.evaluate(indexes)
-
-        plt.ylabel("Density")
-        lines = plt.plot(indexes, evaluated_gkde, linewidth=2, color=color)
-
-        if len(lines) > 0:
-            self.__legend_items.append(lines[0])
-            self.__legend_labels.append(legend_label)
-
-
-    @staticmethod
-    def _histogramLogBins(data, bin_count):
+    @classmethod
+    def _createPlotContext(cls, shell_context, data_gatherer, key):
         """
-        @type data: pandas.DataFrame
-        @rtype: int
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
         """
-        data = data[data.columns[0]]
+        figure = plt.figure()
+        figure.set_tight_layout(True)
+        cases = shell_context["plot_settings"].getCurrentPlotCases()
 
-        min_value = int(floor(float(data.min())))
-        max_value = int(ceil(float(data.max())))
+        plot_config = PlotConfig(key)
+        #plot settings should keep of track of single attributes and only apply the changed ones...
+        plot_config.copyConfigFrom(shell_context["plot_settings"].plotConfig())
 
-        log_bin_count = max_value - min_value
+        if plot_config.isUnnamed():
+            plot_config.setTitle(key)
 
-        if log_bin_count < bin_count:
-            next_bin_count = log_bin_count * 2
+        #Apply data type specific changes for statistics...
+        PlotConfigFactory.updatePlotConfigForKey(shell_context.ert(), key, plot_config)
 
-            if bin_count - log_bin_count > next_bin_count - bin_count:
-                log_bin_count = next_bin_count
-            else:
-                log_bin_count = bin_count
+        plot_context = PlotContext(shell_context.ert(), figure, plot_config, cases, key, data_gatherer)
+        return plot_context
 
-        return numpy.linspace(min_value, max_value, log_bin_count)
+    @classmethod
+    def plotEnsemble(cls, shell_context, data_gatherer, key):
+        """
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
+        """
+        plot_context = cls._createPlotContext(shell_context, data_gatherer, key)
+        plots.plotEnsemble(plot_context)
+
+    @classmethod
+    def plotQuantiles(cls, shell_context, data_gatherer, key):
+        """
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
+        """
+        plot_context = cls._createPlotContext(shell_context, data_gatherer, key)
+        plots.plotStatistics(plot_context)
+
+    @classmethod
+    def plotHistogram(cls, shell_context, data_gatherer, key):
+        """
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
+        """
+        plot_context = cls._createPlotContext(shell_context, data_gatherer, key)
+        plots.plotHistogram(plot_context)
+
+    @classmethod
+    def plotDistribution(cls, shell_context, data_gatherer, key):
+        """
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
+        """
+        plot_context = cls._createPlotContext(shell_context, data_gatherer, key)
+        plots.plotDistribution(plot_context)
+
+    @classmethod
+    def plotGaussianKDE(cls, shell_context, data_gatherer, key):
+        """
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
+        """
+        plot_context = cls._createPlotContext(shell_context, data_gatherer, key)
+        plots.plotGaussianKDE(plot_context)
+
+    @classmethod
+    def plotCrossCaseStatistics(cls, shell_context, data_gatherer, key):
+        """
+        :type shell_context: ShellContext
+        :param data_gatherer: PlotDataGatherer
+        :param key: str
+        """
+        plot_context = cls._createPlotContext(shell_context, data_gatherer, key)
+        plots.plotCrossCaseStatistics(plot_context)
+
+    @classmethod
+    def _checkForRequiredMethods(cls, instance):
+        if not hasattr(instance, "fetchSupportedKeys"):
+            raise NotImplementedError("Class must implement: fetchSupportedKeys()")
+
+        if not hasattr(instance, "plotDataGatherer"):
+            raise NotImplementedError("Class must implement: plotDataGatherer()")
+
+    @classmethod
+    def _createDoFunction(cls, plot_function, name):
+        def do_function(self, line):
+            keys = matchItems(line, self.fetchSupportedKeys())
+
+            if len(keys) == 0:
+                self.lastCommandFailed("Must have at least one %s key" % name)
+                return False
+
+            for key in keys:
+                pdg = self.plotDataGatherer()
+                plot_function(self.shellContext(), pdg, key)
+
+        return assertConfigLoaded(do_function)
+
+    @classmethod
+    def _createCompleteFunction(cls):
+        def complete_function(self, text, line, begidx, endidx):
+            key = extractFullArgument(line, endidx)
+            return autoCompleteListWithSeparator(key, self.fetchSupportedKeys())
+
+        complete_function = assertConfigLoaded(complete_function)
+        return complete_function
+
+    @classmethod
+    def addHistogramPlotSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.libshell.ShellCollection
+        """
+        cls._checkForRequiredMethods(instance)
+
+        instance.addShellFunction(name="histogram",
+                                  function=cls._createDoFunction(ShellPlot.plotHistogram, name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Plot a histogram for the specified %s key(s)." % name)
+
+    @classmethod
+    def addGaussianKDEPlotSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.ShellFunction
+        """
+        cls._checkForRequiredMethods(instance)
+
+        instance.addShellFunction(name="density",
+                                  function=cls._createDoFunction(ShellPlot.plotGaussianKDE, name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Plot a GaussianKDE plot for the specified %s key(s)." % name)
+
+    @classmethod
+    def addEnsemblePlotSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.ShellFunction
+        """
+        cls._checkForRequiredMethods(instance)
+
+        instance.addShellFunction(name="plot",
+                                  function=cls._createDoFunction(ShellPlot.plotEnsemble, name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Plot an ensemble plot for the specified %s key(s)." % name)
+
+    @classmethod
+    def addQuantilesPlotSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.ShellFunction
+        """
+        cls._checkForRequiredMethods(instance)
+
+        instance.addShellFunction(name="plot_quantile",
+                                  function=cls._createDoFunction(ShellPlot.plotQuantiles, name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Plot a different statistics for the specified %s key(s)." % name)
+
+    @classmethod
+    def addDistributionPlotSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.ShellFunction
+        """
+        cls._checkForRequiredMethods(instance)
+        instance.addShellFunction(name="distribution",
+                                  function=cls._createDoFunction(ShellPlot.plotDistribution, name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Plot the distribution plot for the specified %s key(s)." % name)
+
+    @classmethod
+    def addCrossCaseStatisticsPlotSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.ShellFunction
+        """
+        cls._checkForRequiredMethods(instance)
+        instance.addShellFunction(name="cross_case_statistics",
+                                  function=cls._createDoFunction(ShellPlot.plotCrossCaseStatistics, name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Plot the cross case statistics plot for the specified %s key(s)." % name)
+
+    @classmethod
+    def _createDoPrintFunction(cls, name):
+        def do_function(self, line):
+            keys = matchItems(line, self.fetchSupportedKeys())
+
+            if len(keys) == 0:
+                self.lastCommandFailed("Must have at least one %s key" % name)
+                return False
+
+            case_name = self.shellContext().ert().getEnkfFsManager().getCurrentFileSystem().getCaseName()
+
+            for key in keys:
+                pdg = self.plotDataGatherer()
+                if pdg.canGatherDataForKey(key):
+                    data = pdg.gatherData(self.shellContext().ert(), case_name, key)
+                    print(data)
+                else:
+                    self.lastCommandFailed("Unable to print data for key: %s" % key)
+
+        return assertConfigLoaded(do_function)
+
+    @classmethod
+    def addPrintSupport(cls, instance, name):
+        """
+        :type instance: ert_gui.shell.ShellFunction
+        """
+        cls._checkForRequiredMethods(instance)
+
+        instance.addShellFunction(name="print",
+                                  function=cls._createDoPrintFunction(name),
+                                  completer=cls._createCompleteFunction(),
+                                  help_arguments="<key_1> [key_2..key_n]",
+                                  help_message="Print the values for the specified %s key(s)." % name)

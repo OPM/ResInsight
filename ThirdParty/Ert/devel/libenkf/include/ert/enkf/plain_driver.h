@@ -28,5 +28,6 @@ typedef struct plain_driver_struct plain_driver_type;
 
 void                 plain_driver_create_fs( FILE * stream , fs_driver_enum driver_type , const char * node_fmt , const char * vector_fmt);
 void               * plain_driver_open(FILE * fstab_stream , const char * path);
+void                 plain_driver_fskip(FILE * fstab_stream );
 
 #endif

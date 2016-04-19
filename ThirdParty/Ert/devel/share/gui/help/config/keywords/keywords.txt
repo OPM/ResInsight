@@ -90,11 +90,5 @@ export_ranking	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_
 init_misfit_table	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#INIT_MISFIT_TABLE
 qc_workflow	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#QC_WORKFLOW
 qc_path	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#QC_PATH
-report_context	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#REPORT_CONTEXT
-report_list	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#REPORT_LIST
-report_path	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#REPORT_PATH
-report_search_path	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#REPORT_SEARCH_PATH
-report_well_list	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#REPORT_WELL_LIST
-report_group_list	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#REPORT_GROUP_LIST
 setenv	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#SETENV
 update_path	http://ert.nr.no/ert/index.php/Creating_a_configuration_file_for_ERT#UPDATE_PATH

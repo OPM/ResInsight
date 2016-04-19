@@ -46,7 +46,7 @@ enkf_config_node_type * parse_alloc_GEN_PARAM( const char * config_string , bool
   }
 
   {
-    config_content_type * content = config_parse( config , "config.txt" , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true);
+    config_content_type * content = config_parse( config , "config.txt" , "--" , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true);
 
     test_assert_bool_equal( parse_valid , config_content_is_valid( content ));
     if (parse_valid) {
@@ -134,7 +134,7 @@ enkf_config_node_type * parse_alloc_GEN_DATA_result( const char * config_string 
     fclose( stream );
   }
   {
-    config_content_type * content = config_parse( config , "config.txt" , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true);
+    config_content_type * content = config_parse( config , "config.txt" , "--" , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true);
     test_assert_bool_equal( parse_valid ,config_content_is_valid( content ) );
     if (parse_valid) {
       const config_content_item_type * config_item = config_content_get_item( content , GEN_DATA_KEY );

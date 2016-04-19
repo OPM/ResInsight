@@ -38,12 +38,63 @@ implementation from the libecl library.
 import re
 import types
 import datetime
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
-from ert.ecl import EclKW, ECL_LIB
+import ctypes
+import warnings
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPrototype, EclKW, EclFileEnum
 from ert.util import CTime
 
 
-class EclFile(CClass):
+class EclFile(BaseCClass):
+    TYPE_NAME = "ecl_file"
+    _open                        = EclPrototype("void*       ecl_file_open( char* , int )" , bind = False)
+    _new                         = EclPrototype("void*       ecl_file_alloc_empty(  )" , bind = False)
+    _get_file_type               = EclPrototype("ecl_file_enum ecl_util_get_file_type( char* , bool* , int*)" , bind = False)
+    _writable                    = EclPrototype("bool        ecl_file_writable( ecl_file )")
+    _save_kw                     = EclPrototype("void        ecl_file_save_kw( ecl_file , ecl_kw )")
+    _select_block                = EclPrototype("bool        ecl_file_select_block( ecl_file , char* , int )")
+    _restart_block_time          = EclPrototype("bool        ecl_file_select_rstblock_sim_time( ecl_file , time_t )")
+    _restart_block_step          = EclPrototype("bool        ecl_file_select_rstblock_report_step( ecl_file , int )")
+    _restart_block_iselect       = EclPrototype("bool        ecl_file_iselect_rstblock( ecl_file , int )")
+    _select_global               = EclPrototype("void        ecl_file_select_global( ecl_file )")
+    _iget_kw                     = EclPrototype("ecl_kw_ref    ecl_file_iget_kw( ecl_file , int)")
+    _iget_named_kw               = EclPrototype("ecl_kw_ref    ecl_file_iget_named_kw( ecl_file , char* , int)")
+    _close                       = EclPrototype("void        ecl_file_close( ecl_file )")
+    _get_size                    = EclPrototype("int         ecl_file_get_size( ecl_file )")
+    _get_unique_size             = EclPrototype("int         ecl_file_get_num_distinct_kw( ecl_file )")
+    _get_num_named_kw            = EclPrototype("int         ecl_file_get_num_named_kw( ecl_file , char* )")
+    _iget_restart_time           = EclPrototype("time_t      ecl_file_iget_restart_sim_date( ecl_file , int )")
+    _iget_restart_days           = EclPrototype("double      ecl_file_iget_restart_sim_days( ecl_file , int )")
+    _get_restart_index           = EclPrototype("int         ecl_file_get_restart_index( ecl_file , time_t)")
+    _get_src_file                = EclPrototype("char*       ecl_file_get_src_file( ecl_file )")
+    _replace_kw                  = EclPrototype("void        ecl_file_replace_kw( ecl_file , ecl_kw , ecl_kw , bool)")
+    _fwrite                      = EclPrototype("void        ecl_file_fwrite_fortio( ecl_file , fortio , int)")
+    _has_instance                = EclPrototype("bool        ecl_file_has_kw_ptr(ecl_file , ecl_kw)")
+    _has_report_step             = EclPrototype("bool        ecl_file_has_report_step( ecl_file , int)")
+    _has_sim_time                = EclPrototype("bool        ecl_file_has_sim_time( ecl_file , time_t )")
+
+
+    
+    @staticmethod
+    def getFileType(filename):
+        fmt_file    = ctypes.c_bool()
+        report_step = ctypes.c_int()
+
+        file_type = EclFile._get_file_type( filename , ctypes.byref( fmt_file ) , ctypes.byref(report_step)) 
+        if file_type in [EclFileEnum.ECL_RESTART_FILE , EclFileEnum.ECL_SUMMARY_FILE]:
+            report_step = report_step.value
+        else:
+            report_step = None
+
+        if file_type in [EclFileEnum.ECL_OTHER_FILE , EclFileEnum.ECL_DATA_FILE]:
+            fmt_file = None
+        else:
+            fmt_file = fmt_file.value
+
+
+        return (file_type , report_step , fmt_file )
+
+    
 
     @classmethod
     def restart_block( cls , filename , dtime = None , report_step = None):
@@ -66,9 +117,9 @@ class EclFile(CClass):
         obj = EclFile( filename )
         
         if dtime:
-            OK = cfunc.restart_block_time( obj , CTime( dtime ))
+            OK = obj._restart_block_time( CTime( dtime ))
         elif not report_step is None:
-            OK = cfunc.restart_block_step( obj , report_step )
+            OK = obj._restart_block_step( report_step )
         else:
             raise TypeError("restart_block() requires either dtime or report_step argument - none given.")
         
@@ -140,7 +191,7 @@ class EclFile(CClass):
             # OK - we did not have seqnum; that might be because this
             # a non-unified restart file; or because this is not a
             # restart file at all.
-            fname = self.name
+            fname = self.getFilename( )
             matchObj = re.search("\.[XF](\d{4})$" , fname)
             if matchObj:
                 report_steps.append( int(matchObj.group(1)) )
@@ -164,7 +215,7 @@ class EclFile(CClass):
         
 
     def __str__(self):
-        return "EclFile: %s" % self.name
+        return "EclFile: %s" % self.getFilename( )
 
         
     def __init__( self , filename , flags = 0):
@@ -191,10 +242,11 @@ class EclFile(CClass):
         constituting the file, like e.g. SWAT from a restart file or
         FIPNUM from an INIT file.
         """
-        c_ptr = cfunc.open( filename , flags )
-        self.init_cobj( c_ptr , cfunc.close )
+        c_ptr = self._open( filename , flags )
         if c_ptr is None:
             raise IOError("Failed to open file file:%s" % filename)
+        else:
+            super(EclFile , self).__init__(c_ptr)
         
 
 
@@ -221,20 +273,20 @@ class EclFile(CClass):
              keyword you got from this EclFile instance, otherwise the
              function will fail.
         """
-        if cfunc.writable( self ):
-            cfunc.save_kw( self , kw )
+        if self._writable( ):
+            self._save_kw(  kw )
         else:
-            raise IOError("save_kw: the file:%s has been opened read only." % self.name)
+            raise IOError("save_kw: the file:%s has been opened read only." % self.getFilename( ))
         
 
     def __len__(self):
-        return self.size
+        return self._get_size( )
     
 
     def close(self):
-        if not self.c_ptr is None:
-            cfunc.close( self )
-        self.c_ptr = None
+        if self:
+            self._close( )
+            self._invalidateCPointer( )
 
 
     def free(self):
@@ -242,13 +294,13 @@ class EclFile(CClass):
         
 
     def select_block( self, kw , kw_index):
-        OK = cfunc.select_block( self , kw , kw_index )
+        OK = self._select_block( kw , kw_index )
         if not OK:
             raise ValueError("Could not find block %s:%d" % (kw , kw_index))
         
 
     def select_global( self ):
-        cfunc.select_global( self )
+        self._select_global(  )
 
 
     def select_restart_section( self, index = None , report_step = None , sim_time = None):
@@ -276,11 +328,11 @@ class EclFile(CClass):
 
         OK = False
         if not report_step is None:
-            OK = cfunc.restart_block_step( self , report_step )
+            OK = self._restart_block_step( report_step )
         elif not sim_time is None:
-            OK = cfunc.restart_block_time( self , CTime( sim_time ) )
+            OK = self._restart_block_time(  CTime( sim_time ) )
         elif not index is None:
-            OK = cfunc.restart_block_iselect( self, index )
+            OK = self._restart_block_iselect( index )
         else:
             raise TypeError("select_restart_section() requires either dtime or report_step argument - none given")
 
@@ -299,7 +351,7 @@ class EclFile(CClass):
         is a non-unified restart file (or not a restart file at all),
         the method will do nothing and return False.
         """
-        if self.has_kw("SEQNUM"):
+        if "SEQNUM" in self:
             self.select_restart_section( index = self.num_report_steps() - 1)
             return True
         else:
@@ -335,11 +387,12 @@ class EclFile(CClass):
         """
 
         if isinstance( index , types.IntType):
-            if index < 0 or index >= cfunc.get_size( self ):
+            if index < 0 or index >= len(self):
                 raise IndexError
             else:
-                kw_c_ptr = cfunc.iget_kw( self , index )
-                return EclKW.wrap( kw_c_ptr , parent = self , data_owner = False)
+                kw = self._iget_kw( index )
+                return kw
+            
         if isinstance( index , slice ):
             indices = index.indices( len(self) )
             kw_list = []
@@ -445,13 +498,11 @@ class EclFile(CClass):
              using the EclSum class.
         """
         if index < self.num_named_kw( kw_name ):
-            kw_c_ptr = cfunc.iget_named_kw( self , kw_name , index )
-            ecl_kw = EclKW.wrap( kw_c_ptr , parent = self , data_owner = False)
-        
+            kw = self._iget_named_kw( kw_name , index )
             if copy:
-                return EclKW.copy( ecl_kw )
+                return EclKW.copy( kw )
             else:
-                return ecl_kw
+                return kw
         else:
             raise KeyError("Asked for occurence:%d of keyword:%s - max:%d" % (index  , kw_name , self.num_named_kw( kw_name )))
 
@@ -477,7 +528,7 @@ class EclFile(CClass):
         the function will raise IndexError(); if the file does not
         have the keyword at all - KeyError will be raised.
         """
-        index = cfunc.get_restart_index( self , CTime( dtime ) )
+        index = self._get_restart_index( CTime( dtime ) )
         if index >= 0:
             if self.num_named_kw(kw_name) > index:
                 kw = self.iget_named_kw( kw_name , index )
@@ -526,7 +577,7 @@ class EclFile(CClass):
         # The ecl_file instance will take responsability for freeing
         # this ecl_kw instance.
         new_kw.data_owner = False
-        cfunc.replace_kw( self , old_kw , new_kw , False )
+        self._replace_kw( old_kw , new_kw , False )
 
 
 
@@ -535,14 +586,14 @@ class EclFile(CClass):
         """
         The number of keywords in the current EclFile object.
         """
-        return cfunc.get_size( self )
+        return len(self)
 
     @property
     def unique_size( self ):
         """
         The number of unique keyword (names) in the current EclFile object.
         """
-        return cfunc.get_unique_size( self )
+        return self._get_unique_size( )
 
 
     def keys(self):
@@ -550,7 +601,7 @@ class EclFile(CClass):
         Will return a list of unique kw names - like keys() on a dict.
         """
         header_dict = {}
-        for index in range(self.size):
+        for index in range(len(self)):
             kw = self[index]
             header_dict[ kw.name ] = True
         return header_dict.keys()
@@ -621,7 +672,7 @@ class EclFile(CClass):
         """
         The number of keywords with name == @kw in the current EclFile object.
         """
-        return cfunc.get_num_named_kw( self , kw )
+        return self._get_num_named_kw( kw )
 
     def has_kw( self , kw , num = 0):
         """
@@ -636,6 +687,12 @@ class EclFile(CClass):
         else:
             return False
 
+    def __contains__(self , kw):
+        """
+        Check if the current file contains keyword @kw.
+        """
+        return self.has_kw( kw )
+
     def has_report_step( self , report_step ):
         """
         Checks if the current EclFile has report step @report_step.
@@ -645,7 +702,7 @@ class EclFile(CClass):
         actual report_step before loading the file, you should use the
         classmethod contains_report_step() instead.
         """
-        return cfunc.has_report_step( self , report_step )
+        return self._has_report_step( report_step )
 
     def num_report_steps( self ):
         """
@@ -671,7 +728,7 @@ class EclFile(CClass):
         keyword(s), but is still not a restart file. The @dtime
         argument should be a normal python datetime instance.
         """
-        return cfunc.has_sim_time( self , CTime(dtime) )    
+        return self._has_sim_time( CTime(dtime) )    
 
     
     def iget_restart_sim_time( self , index ):
@@ -679,7 +736,7 @@ class EclFile(CClass):
         Will locate restart block nr @index and return the true time
         as a datetime instance.
         """
-        ct = CTime(cfunc.iget_restart_time( self , index ))
+        ct = CTime(self._iget_restart_time( index ))
         return ct.datetime()
 
 
@@ -689,15 +746,21 @@ class EclFile(CClass):
         (in METRIC at least ...) since the simulation started.
         
         """
-        return cfunc.iget_restart_days( self , index ) 
+        return self._iget_restart_days( index ) 
+
+
+    def getFilename(self):
+        """
+        Name of the file currently loaded.
+        """
+        return self._get_src_file( )
     
 
     @property
     def name(self):
-        """
-        Name of the file currently loaded.
-        """
-        return cfunc.get_src_file( self )
+        warnings.warn("The name property is deprecated - use getFilename( )" , DeprecationWarning)
+        return self.getFilename()
+
     
     def fwrite( self , fortio ):
         """
@@ -715,7 +778,7 @@ class EclFile(CClass):
            fortio.close()
            
         """
-        cfunc.fwrite( self , fortio , 0 )
+        self._fwrite(  fortio , 0 )
 
 
 class EclFileContextManager(object):
@@ -734,45 +797,5 @@ class EclFileContextManager(object):
 def openEclFile( file_name , flags = 0):
     return EclFileContextManager( EclFile( file_name , flags ))
     
-        
-
-
-
-# 2. Creating a wrapper object around the libecl library, 
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType( "ecl_file" , EclFile )
-
-
-# 3. Installing the c-functions used to manipulate ecl_file instances.
-#    These functions are used when implementing the EclFile class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("ecl_file")
-
-cfunc.open                        = cwrapper.prototype("c_void_p    ecl_file_open( char* , int )")
-cfunc.writable                    = cwrapper.prototype("bool        ecl_file_writable( ecl_file )")
-cfunc.new                         = cwrapper.prototype("c_void_p    ecl_file_alloc_empty(  )")
-cfunc.save_kw                     = cwrapper.prototype("void        ecl_file_save_kw( ecl_file , ecl_kw )")
-
-cfunc.select_block                = cwrapper.prototype("bool        ecl_file_select_block( ecl_file , char* , int )")
-cfunc.restart_block_time          = cwrapper.prototype("bool        ecl_file_select_rstblock_sim_time( ecl_file , time_t )")
-cfunc.restart_block_step          = cwrapper.prototype("bool        ecl_file_select_rstblock_report_step( ecl_file , int )")
-cfunc.restart_block_iselect       = cwrapper.prototype("bool        ecl_file_iselect_rstblock( ecl_file , int )")
-cfunc.select_global               = cwrapper.prototype("void        ecl_file_select_global( ecl_file )")
-
-cfunc.iget_kw                     = cwrapper.prototype("c_void_p    ecl_file_iget_kw( ecl_file , int)")
-cfunc.iget_named_kw               = cwrapper.prototype("c_void_p    ecl_file_iget_named_kw( ecl_file , char* , int)")
-cfunc.close                       = cwrapper.prototype("void        ecl_file_close( ecl_file )")
-cfunc.get_size                    = cwrapper.prototype("int         ecl_file_get_size( ecl_file )")
-cfunc.get_unique_size             = cwrapper.prototype("int         ecl_file_get_num_distinct_kw( ecl_file )")
-cfunc.get_num_named_kw            = cwrapper.prototype("int         ecl_file_get_num_named_kw( ecl_file , char* )")
-cfunc.iget_restart_time           = cwrapper.prototype("time_t      ecl_file_iget_restart_sim_date( ecl_file , int )")
-cfunc.iget_restart_days           = cwrapper.prototype("double      ecl_file_iget_restart_sim_days( ecl_file , int )")
-cfunc.get_restart_index           = cwrapper.prototype("int         ecl_file_get_restart_index( ecl_file , time_t)")
-cfunc.get_src_file                = cwrapper.prototype("char*       ecl_file_get_src_file( ecl_file )")
-cfunc.replace_kw                  = cwrapper.prototype("void        ecl_file_replace_kw( ecl_file , ecl_kw , ecl_kw , bool)")
-cfunc.fwrite                      = cwrapper.prototype("void        ecl_file_fwrite_fortio( ecl_file , fortio , int)")
-cfunc.has_instance                = cwrapper.prototype("bool        ecl_file_has_kw_ptr(ecl_file , ecl_kw)")
-cfunc.has_report_step             = cwrapper.prototype("bool        ecl_file_has_report_step( ecl_file , int)")
-cfunc.has_sim_time                = cwrapper.prototype("bool        ecl_file_has_sim_time( ecl_file , time_t )")
 
 

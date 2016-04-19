@@ -16,10 +16,12 @@
    for more details.
 */
 
+#include "ert/util/build_config.h"
 #include <ert/util/thread_pool.h>
 
-#ifdef WITH_PTHREAD
+#ifdef HAVE_PTHREAD
 #include "thread_pool_posix.c"
 #else
+Error - should not be be here.
 #endif
 

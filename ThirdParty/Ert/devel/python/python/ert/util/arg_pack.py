@@ -14,50 +14,44 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-from ert.util import UTIL_LIB
-from ert.cwrap import CWrapper, BaseCClass
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
 
 
 class ArgPack(BaseCClass):
+    TYPE_NAME = "arg_pack"
 
-    def __init__(self , *args):
-        c_ptr = ArgPack.cNamespace().alloc()
+    _alloc = UtilPrototype("void* arg_pack_alloc()" , bind = False)
+    _append_int = UtilPrototype("void arg_pack_append_int(arg_pack, int)")
+    _append_double = UtilPrototype("void arg_pack_append_double(arg_pack, double)")
+    _append_ptr = UtilPrototype("void arg_pack_append_ptr(arg_pack, void*)")
+
+    _size = UtilPrototype("int arg_pack_size(arg_pack)")
+    _free = UtilPrototype("void arg_pack_free(arg_pack)")
+
+    def __init__(self, *args):
+        c_ptr = self._alloc()
         super(ArgPack, self).__init__(c_ptr)
         self.child_list = []
         for arg in args:
-            self.append( arg )
+            self.append(arg)
 
             
-        
-    def append(self , data):
-        if isinstance(data , int):
-            ArgPack.cNamespace().append_int( self , data )
-        elif isinstance(data , float):
-            ArgPack.cNamespace().append_double( self , data )
-        elif isinstance(data , BaseCClass):
-            ArgPack.cNamespace().append_ptr( self , BaseCClass.from_param( data ) )
-            self.child_list.append( data )
+    def append(self, data):
+        if isinstance(data, int):
+            self._append_int(data)
+        elif isinstance(data, float):
+            self._append_double(data)
+        elif isinstance(data, BaseCClass):
+            self._append_ptr(BaseCClass.from_param(data))
+            self.child_list.append(data)
         else:
             raise TypeError("Can only add int/double/basecclass")
 
-        
-    def __len__(self):
-        return ArgPack.cNamespace().size(self)
 
-    
+    def __len__(self):
+        return self._size()
+
 
     def free(self):
-        ArgPack.cNamespace().free(self)
-
-
-
-CWrapper.registerObjectType("arg_pack", ArgPack)
-
-cwrapper = CWrapper(UTIL_LIB)
-
-ArgPack.cNamespace().alloc          = cwrapper.prototype("c_void_p arg_pack_alloc( )")
-ArgPack.cNamespace().free           = cwrapper.prototype("void arg_pack_free(arg_pack )")
-ArgPack.cNamespace().size           = cwrapper.prototype("int arg_pack_size(arg_pack )")
-ArgPack.cNamespace().append_int     = cwrapper.prototype("void arg_pack_append_int(arg_pack , int)")
-ArgPack.cNamespace().append_double  = cwrapper.prototype("void arg_pack_append_double(arg_pack ,double)")
-ArgPack.cNamespace().append_ptr     = cwrapper.prototype("void arg_pack_append_ptr(arg_pack , c_void_p)")
+        self._free( )

@@ -53,7 +53,7 @@ void parse_test(config_parser_type * config ,
   config_rel_path = util_alloc_rel_path(  NULL , config_abs_path);
 
   {
-    config_content_type * content = config_parse( config , config_file , "--" , "INCLUDE" , NULL , CONFIG_UNRECOGNIZED_IGNORE , true );
+    config_content_type * content = config_parse( config , config_file , "--" , "INCLUDE" , NULL , NULL , CONFIG_UNRECOGNIZED_IGNORE , true );
     if (config_content_is_valid( content )) {
 
       char * relpath0 = util_alloc_filename( config_rel_path , path0, NULL);

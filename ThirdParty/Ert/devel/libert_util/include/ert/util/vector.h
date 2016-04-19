@@ -63,7 +63,6 @@ extern "C" {
   void          vector_free__( void * arg );
   void          vector_append_buffer(vector_type * , const void * , int);
   void          vector_push_buffer(vector_type * , const void * , int);
-  int           vector_get_size(const vector_type * );
   void        * vector_safe_iget(const vector_type * vector, int index);
   const void  * vector_safe_iget_const(const vector_type * vector, int index);
   const void  * vector_iget_const(const vector_type * , int );

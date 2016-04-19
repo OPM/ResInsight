@@ -132,10 +132,9 @@ void forward_initialize_node(enkf_main_type * enkf_main, const char * init_file,
     int iens                = 0;
     enkf_state_type * state = enkf_main_iget_state( enkf_main , iens );
     enkf_fs_type * fs       = enkf_main_get_fs(enkf_main);
-    int error               = 0;
     run_arg_type  * run_arg = run_arg_alloc_ENSEMBLE_EXPERIMENT( fs , 0 ,0 , "simulations/run0");
 
-    enkf_state_forward_init( state , run_arg , &error );
+    enkf_state_forward_init( state , run_arg);
   }
 }
 

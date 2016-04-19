@@ -2287,6 +2287,10 @@ static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_fil
   int num_nnchead_kw = ecl_file_get_num_named_kw( ecl_file , NNCHEAD_KW );
   int i;
 
+  if(num_nnchead_kw > 0 && main_grid->eclipse_version == 2015){
+      return; //Eclipse 2015 has an error with nnc.
+  }
+
   for (i = 0; i < num_nnchead_kw; i++) {
     ecl_file_push_block(ecl_file);               /* <---------------------------------------------------------------- */
     ecl_file_select_block(ecl_file , NNCHEAD_KW , i);
@@ -4319,9 +4323,19 @@ double ecl_grid_get_cell_thickness3( const ecl_grid_type * grid , int i , int j 
 
 
 double ecl_grid_get_cell_dx1( const ecl_grid_type * grid , int global_index ) {
-  fprintf(stderr , "** WARNING: The ecl_grid_get_cell_dx1() function is only a stub returning -1.\n");
-  fprintf(stderr , "            If you need a correct value for cell dx you must rebuild a new ert version.\n");
-  return -1;
+  const ecl_cell_type * cell = ecl_grid_get_cell( grid , global_index);
+  double dx = 0;
+  double dy = 0;
+  int c;
+
+  for (c = 1; c < 8; c += 2) {
+    dx += cell->corner_list[c].x - cell->corner_list[c - 1].x;
+    dy += cell->corner_list[c].y - cell->corner_list[c - 1].y;
+  }
+  dx *= 0.25;
+  dy *= 0.25;
+
+  return sqrt( dx * dx + dy * dy );
 }
 
 
@@ -4332,15 +4346,17 @@ double ecl_grid_get_cell_dx3( const ecl_grid_type * grid , int i , int j , int k
 
 
 double ecl_grid_get_cell_dy1( const ecl_grid_type * grid , int global_index ) {
-  fprintf(stderr , "** WARNING: The ecl_grid_get_cell_dy1() function is only a stub returning -1.\n");
-  fprintf(stderr , "            If you need a correct value for cell dy you must update rebuild a new ert version.\n");
-  return -1;
+  double V = ecl_grid_get_cell_volume1(grid , global_index);
+  double dz = ecl_grid_get_cell_thickness1( grid , global_index);
+  double dx = ecl_grid_get_cell_dx1( grid , global_index);
+
+  return V / (dx * dz);
 }
 
 
 double ecl_grid_get_cell_dy3( const ecl_grid_type * grid , int i , int j , int k) {
   const int global_index = ecl_grid_get_global_index3(grid , i,j,k);
-  return ecl_grid_get_cell_dy1( grid , global_index );
+  return ecl_grid_get_cell_dx1( grid , global_index );
 }
 
 
@@ -4392,6 +4408,25 @@ bool ecl_grid_cell_invalid3(const ecl_grid_type * ecl_grid , int i , int j , int
 double ecl_grid_cell_invalid1A(const ecl_grid_type * grid , int active_index) {
   const int global_index = ecl_grid_get_global_index1A(grid , active_index);
   return ecl_grid_cell_invalid1( grid , global_index );
+}
+
+
+bool ecl_grid_cell_valid1(const ecl_grid_type * ecl_grid , int global_index) {
+  ecl_cell_type * cell = ecl_grid_get_cell( ecl_grid , global_index);
+  if (GET_CELL_FLAG(cell , CELL_FLAG_TAINTED))
+    return false;
+  else
+    return (GET_CELL_FLAG(cell , CELL_FLAG_VALID));
+}
+
+bool ecl_grid_cell_valid3(const ecl_grid_type * ecl_grid , int i , int j , int k) {
+  int global_index = ecl_grid_get_global_index3( ecl_grid , i , j , k);
+  return ecl_grid_cell_valid1( ecl_grid , global_index );
+}
+
+double ecl_grid_cell_valid1A(const ecl_grid_type * grid , int active_index) {
+  const int global_index = ecl_grid_get_global_index1A(grid , active_index);
+  return ecl_grid_cell_valid1( grid , global_index );
 }
 
 
@@ -4631,6 +4666,13 @@ double ecl_grid_get_cell_volume1( const ecl_grid_type * ecl_grid, int global_ind
   ecl_grid_get_ijk1( ecl_grid , global_index, &i , &j , &k);
   return ecl_cell_get_volume( cell );
 }
+
+
+double ecl_grid_get_cell_volume1A( const ecl_grid_type * ecl_grid, int active_index ) {
+  int global_index = ecl_grid_get_global_index1A( ecl_grid , active_index );
+  return ecl_grid_get_cell_volume1( ecl_grid , global_index );
+}
+
 
 
 double ecl_grid_get_cell_volume1_tskille( const ecl_grid_type * ecl_grid, int global_index ) {
@@ -5978,3 +6020,38 @@ int ecl_grid_get_num_nnc( const ecl_grid_type * grid ) {
 }
 
 
+static ecl_kw_type * ecl_grid_alloc_volume_kw_active( const ecl_grid_type * grid) {
+  ecl_kw_type * volume_kw = ecl_kw_alloc("VOLUME" , ecl_grid_get_active_size(grid) , ECL_DOUBLE_TYPE);
+  {
+    double * volume_data = ecl_kw_get_ptr( volume_kw );
+    int active_index;
+    for (active_index = 0; active_index < ecl_grid_get_active_size(grid); active_index++) {
+      double cell_volume = ecl_grid_get_cell_volume1A(grid , active_index);
+      volume_data[ active_index] = cell_volume;
+    }
+  }
+  return volume_kw;
+}
+
+
+static ecl_kw_type * ecl_grid_alloc_volume_kw_global( const ecl_grid_type * grid) {
+  ecl_kw_type * volume_kw = ecl_kw_alloc("VOLUME" , ecl_grid_get_global_size(grid) , ECL_DOUBLE_TYPE);
+  {
+    double * volume_data = ecl_kw_get_ptr( volume_kw );
+    int global_index;
+    for (global_index = 0; global_index < ecl_grid_get_global_size(grid); global_index++) {
+      double cell_volume = ecl_grid_get_cell_volume1(grid , global_index);
+      volume_data[ global_index] = cell_volume;
+    }
+  }
+  return volume_kw;
+}
+
+
+
+ecl_kw_type * ecl_grid_alloc_volume_kw( const ecl_grid_type * grid , bool active_size) {
+  if (active_size)
+    return ecl_grid_alloc_volume_kw_active( grid );
+  else
+    return ecl_grid_alloc_volume_kw_global( grid );
+}

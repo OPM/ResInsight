@@ -1,10 +1,12 @@
 set(PYTHON_SOURCES
     __init__.py
+    ccsp.py
+    distribution.py
     ensemble.py
     gaussian_kde.py
     histogram.py
+    history.py
     observations.py
-    overview.py
     plot_tools.py
     refcase.py
     statistics.py

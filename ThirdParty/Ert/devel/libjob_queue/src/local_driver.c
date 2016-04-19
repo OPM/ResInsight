@@ -1,7 +1,7 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'local_driver.c' is part of ERT - Ensemble based Reservoir Tool. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'local_driver.c' is part of ERT - Ensemble based Reservoir Tool.
     
    ERT is free software: you can redistribute it and/or modify 
    it under the terms of the GNU General Public License as published by 
@@ -29,9 +29,6 @@
 
 #include <ert/job_queue/queue_driver.h>
 #include <ert/job_queue/local_driver.h>
-
-
-
 
 
 struct local_job_struct {
@@ -83,13 +80,7 @@ job_status_type local_driver_get_job_status(void * __driver, void * __job) {
     return JOB_QUEUE_NOT_ACTIVE;
   else {
     local_job_type * job = local_job_safe_cast( __job );
-    {
-      if (job->active == false) {
-        util_abort("%s: internal error - should not query status on inactive jobs \n" , __func__);
-        return JOB_QUEUE_NOT_ACTIVE; /* Dummy */
-      } else 
-        return job->status;
-    }
+    return job->status;
   }
 }
 
@@ -113,23 +104,28 @@ void local_driver_kill_job( void * __driver , void * __job) {
 
 
 void * submit_job_thread__(void * __arg) {
-  arg_pack_type * arg_pack = arg_pack_safe_cast(__arg);
-  const char * executable  = arg_pack_iget_const_ptr(arg_pack , 0);
+  arg_pack_type *arg_pack = arg_pack_safe_cast(__arg);
+  const char *executable = arg_pack_iget_const_ptr(arg_pack, 0);
   /*
     The arg_pack contains a run_path field as the second argument,
     it has therefor been left here as a comment:
-    
-    const char * run_path    = arg_pack_iget_const_ptr(arg_pack , 1);   
+
+    const char * run_path    = arg_pack_iget_const_ptr(arg_pack , 1);
   */
-  int          argc        = arg_pack_iget_int(arg_pack , 2);
-  char ** argv             = arg_pack_iget_ptr(arg_pack , 3);
-  local_job_type * job     = arg_pack_iget_ptr(arg_pack , 4);
-  arg_pack_free(arg_pack); 
-  
-  job->child_process = util_fork_exec(executable , argc , (const char **) argv , false , NULL , NULL /* run_path */ , NULL , NULL , NULL); 
-  util_free_stringlist( argv , argc );
-  waitpid(job->child_process , NULL , 0);
+  int argc = arg_pack_iget_int(arg_pack, 2);
+  char **argv = arg_pack_iget_ptr(arg_pack, 3);
+  local_job_type *job = arg_pack_iget_ptr(arg_pack, 4);
+
+  {
+    int wait_status;
+    job->child_process = util_spawn(executable, argc, (const char**) argv, NULL, NULL);
+    util_free_stringlist(argv, argc);
+    arg_pack_free(arg_pack);
+    waitpid(job->child_process, &wait_status, 0);
+  }
+
   job->status = JOB_QUEUE_DONE;
+  job->active = false;
   pthread_exit(NULL);
   return NULL;
 }

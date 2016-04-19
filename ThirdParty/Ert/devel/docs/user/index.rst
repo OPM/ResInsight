@@ -8,6 +8,7 @@ Contents:
 
    tutorial/index
    keywords/index
+   magic_strings/index
    workflows/index
    observations/index
    distributions/index

@@ -33,7 +33,7 @@ include_directories( ${libgeometry_src_path} )
 
 
 add_library( ecl_well ${LIBRARY_TYPE} ${source_files} )
-set_target_properties( ecl_well PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+set_target_properties( ecl_well PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )
 target_link_libraries( ecl_well ecl )
 if (USE_RUNPATH)
    add_runpath( ecl_well )

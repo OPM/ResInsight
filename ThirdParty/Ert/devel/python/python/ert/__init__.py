@@ -72,23 +72,24 @@ except ImportError:
 
 required_version_hex = 0x02060000
 
-
-# 1. Start by initialing the ert_lib_path variable to None
 ert_lib_path = None
+ert_so_version = ""
 
 
-# 2. Try to load the __ert_lib_path module; this module has been
+
+# 1. Try to load the __ert_lib_info module; this module has been
 #    configured by cmake during the build configuration process. The
 #    module should contain the variable lib_path pointing to the
 #    directory with shared object files.
 try:
-    import __ert_lib_path
-    ert_lib_path = __ert_lib_path.lib_path
+    import __ert_lib_info
+    ert_lib_path = __ert_lib_info.lib_path
+    ert_so_version = __ert_lib_info.so_version
 except ImportError:
     pass
 
 
-# 3. Using the environment variable ERT_LIBRARY_PATH it is possible to
+# 2. Using the environment variable ERT_LIBRARY_PATH it is possible to
 #    override the default algorithms. If the ERT_LIBRARY_PATH is set
 #    to a non existing directory a warning will go to stderr and the
 #    setting will be ignored.
@@ -108,9 +109,11 @@ if ert_lib_path:
         
 
 
-# Set the module variable ert_lib_path of the ert.cwrap.clib module;
-# this is where the actual loading will be performed.
-cwrap.clib.ert_lib_path = ert_lib_path
+# Set the module variables ert_lib_path and so_version of the
+# ert.cwrap.clib module; this is where the actual loading will be
+# performed.
+cwrap.clib.ert_lib_path   = ert_lib_path
+cwrap.clib.ert_so_version = ert_so_version
 
 if sys.hexversion < required_version_hex:
     raise Exception("ERT Python requires at least version 2.6 of Python")
@@ -118,3 +121,6 @@ if sys.hexversion < required_version_hex:
 
 
 from ert.util import Version
+from ert.util import updateAbortSignals
+
+updateAbortSignals( )

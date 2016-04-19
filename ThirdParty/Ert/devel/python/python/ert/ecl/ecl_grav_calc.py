@@ -13,22 +13,15 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from ert.cwrap import CWrapper, CWrapperNameSpace
-from ert.ecl import ECL_LIB
+
+from ert.ecl import EclPrototype
+_phase_deltag = EclPrototype("double ecl_grav_phase_deltag( double, double ,double , ecl_grid , ecl_file , ecl_kw , ecl_kw , ecl_kw , ecl_kw , ecl_kw , ecl_kw")
+
 
 
 def phase_deltag( xyz, grid, init, sat1, rho1, porv1, sat2, rho2, porv2):
-    # Observe that the function cfunc.phase_deltag() is called
-    # directly with c_ptr pointer values, and that the function is
-    # prototyped with c_void_p arguments instead of ecl_grid and
-    # ecl_kw. For some strange reason some of the underlying C pointer
-    # values were molested when reaching the C function. This is
-    # avoided by using the pointer value directly. This seems to be a
-    # Python/ctypes bug in the current 2.4 implementation; the call
-    # sequencence should modified to use the from_param() method like
-    # the rest of the bindings.
 
-    return cfunc.phase_deltag(xyz[0], xyz[1], xyz[2],
+    return _phase_deltag(xyz[0], xyz[1], xyz[2],
                               grid.c_ptr, init.c_ptr,
                               sat1.c_ptr, rho1.c_ptr, porv1.c_ptr,
                               sat2.c_ptr, rho2.c_ptr, porv2.c_ptr)
@@ -88,7 +81,4 @@ def deltag( xyz, grid, init_file, restart_file1, restart_file2):
     return deltag
 
 
-cwrapper = CWrapper(ECL_LIB)
-cfunc = CWrapperNameSpace("ecl_grav")
-cfunc.phase_deltag = cwrapper.prototype("double ecl_grav_phase_deltag( double, double ,double , c_void_p , c_void_p , c_void_p , c_void_p , c_void_p , c_void_p , c_void_p , c_void_p)")
 

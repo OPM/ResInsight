@@ -404,17 +404,22 @@ bool ecl_kw_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2) {
 }
 
 
-#define CMP(ctype,ABS)                                           \
-static bool CMP_ ## ctype( ctype v1, ctype v2 , ctype epsilon) { \
+#define CMP(ctype,ABS)                                               \
+static bool CMP_ ## ctype( ctype v1, ctype v2 , ctype abs_epsilon , ctype rel_epsilon) { \
   if ((ABS(v1) + ABS(v2)) == 0)                                  \
      return true;                                                \
   else {                                                         \
-      ctype d = ABS(v1 - v2) / (ABS(v1) + ABS(v2));              \
-      if (d < epsilon)                                           \
-        return true;                                             \
-   else                                                          \
-        return false;                                            \
+      ctype diff = ABS(v1 - v2);                                 \
+      if (diff < abs_epsilon)                                    \
+         return true;                                            \
+      else {                                                     \
+        ctype sum =  ABS(v1) + ABS(v2);                          \
+        ctype d = diff / sum;                                    \
+        if (d < rel_epsilon)                                     \
+           return true;                                          \
+        }                                                        \
     }                                                            \
+    return false;                                                \
 }
 CMP(float,fabsf)
 CMP(double,fabs)
@@ -422,14 +427,14 @@ CMP(double,fabs)
 
 
 #define ECL_KW_NUMERIC_CMP(ctype)                                                                                           \
-  static bool ecl_kw_numeric_equal_ ## ctype( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , ctype rel_diff) { \
+  static bool ecl_kw_numeric_equal_ ## ctype( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , ctype abs_diff , ctype rel_diff) { \
   int index;                                                                                                                \
   bool equal = true;                                                                                                        \
   {                                                                                                                         \
      const ctype * data1 = (const ctype *) ecl_kw1->data;                                                                   \
      const ctype * data2 = (const ctype *) ecl_kw2->data;                                                                   \
      for (index = 0; index < ecl_kw1->size; index++) {                                                                      \
-        equal = CMP_ ## ctype( data1[index] , data2[index] , rel_diff);                                                     \
+       equal = CMP_ ## ctype( data1[index] , data2[index] , abs_diff , rel_diff);                                           \
         if (!equal)                                                                                                         \
            break;                                                                                                           \
      }                                                                                                                      \
@@ -448,7 +453,7 @@ ECL_KW_NUMERIC_CMP( double )
    @rel_diff. Does not consider consider the kw header.
 */
 
-bool ecl_kw_numeric_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2 , double rel_diff) {
+bool ecl_kw_numeric_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2 , double abs_diff , double rel_diff) {
   bool equal = true;
   if ( ecl_kw1->ecl_type != ecl_kw2->ecl_type)
     equal = false;
@@ -458,9 +463,9 @@ bool ecl_kw_numeric_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2
 
   if (equal) {
     if (ecl_kw1->ecl_type == ECL_FLOAT_TYPE)
-      equal = ecl_kw_numeric_equal_float( ecl_kw1 , ecl_kw2 , rel_diff );
+      equal = ecl_kw_numeric_equal_float( ecl_kw1 , ecl_kw2 , abs_diff , rel_diff );
     else if (ecl_kw1->ecl_type == ECL_DOUBLE_TYPE)
-      equal = ecl_kw_numeric_equal_double( ecl_kw1 , ecl_kw2 , rel_diff );
+      equal = ecl_kw_numeric_equal_double( ecl_kw1 , ecl_kw2 , abs_diff , rel_diff );
     else
       equal = ecl_kw_data_equal( ecl_kw1 , ecl_kw2->data );
   }
@@ -1127,6 +1132,9 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
           index++;
         }
       }
+
+      /* Skip the trailing newline */
+      fortio_fseek( fortio , 1 , SEEK_CUR);
       return true;
     } else {
       bool read_ok = true;
@@ -2222,6 +2230,41 @@ void ecl_kw_inplace_sub_indexed( ecl_kw_type * target_kw , const int_vector_type
     break;
   default:
     util_abort("%s: inplace sub not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+  }
+}
+
+
+/*****************************************************************/
+
+#define ECL_KW_TYPED_INPLACE_ABS( ctype , abs_func)     \
+void ecl_kw_inplace_abs_ ## ctype( ecl_kw_type * kw ) { \
+  ctype * data = ecl_kw_get_data_ref( kw );             \
+  int i;                                                \
+  for (i=0; i < kw->size; i++)                          \
+    data[i] = abs_func(data[i]);                        \
+}
+
+ECL_KW_TYPED_INPLACE_ABS( int , abs )
+ECL_KW_TYPED_INPLACE_ABS( double , fabs )
+ECL_KW_TYPED_INPLACE_ABS( float , fabsf )
+#undef ECL_KW_TYPED_INPLACE_ABS
+
+
+
+void ecl_kw_inplace_abs( ecl_kw_type * kw ) {
+  ecl_type_enum type = ecl_kw_get_type(kw);
+  switch (type) {
+  case(ECL_FLOAT_TYPE):
+    ecl_kw_inplace_abs_float( kw );
+    break;
+  case(ECL_DOUBLE_TYPE):
+    ecl_kw_inplace_abs_double( kw );
+    break;
+  case(ECL_INT_TYPE):
+    ecl_kw_inplace_abs_int( kw );
+    break;
+  default:
+    util_abort("%s: inplace abs not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
   }
 }
 

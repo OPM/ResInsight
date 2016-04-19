@@ -285,7 +285,6 @@ static void site_config_add_jobs(site_config_type * site_config, const config_co
   if (config_content_has_item(config, INSTALL_JOB_DIRECTORY_KEY)) {
     const config_content_item_type * content_item = config_content_get_item(config, INSTALL_JOB_DIRECTORY_KEY);
     int num_dirs = config_content_item_get_size(content_item);
-    printf("num_dirs = %d \n",num_dirs);
     for (int dir_nr = 0; dir_nr < num_dirs; dir_nr++) {
       config_content_node_type * node = config_content_item_iget_node(content_item, dir_nr);
       const char * directory = config_content_node_iget_as_abspath(node, 0);
@@ -809,13 +808,14 @@ bool site_config_init(site_config_type * site_config, const config_content_type 
       const stringlist_type * tokens = config_content_iget_stringlist_ref(config, QUEUE_OPTION_KEY, i);
       const char * driver_name = stringlist_iget(tokens, 0);
       const char * option_key = stringlist_iget(tokens, 1);
-      const char * option_value = stringlist_alloc_joined_substring(tokens, 2, stringlist_get_size(tokens), " ");
+      char * option_value = stringlist_alloc_joined_substring(tokens, 2, stringlist_get_size(tokens), " ");
       /*
          If it is desirable to keep the exact number of spaces in the
          option_value it should be quoted with "" in the configuration
          file.
        */
       site_config_set_queue_option(site_config, driver_name, option_key, option_value);
+      free( option_value );
     }
   }
   return true;
@@ -1117,10 +1117,6 @@ void site_config_add_config_items(config_parser_type * config, bool site_mode) {
   item = config_add_schema_item(config, INSTALL_JOB_DIRECTORY_KEY, false);
   config_schema_item_set_argc_minmax(item, 1, 1);
   config_schema_item_iset_type(item, 0, CONFIG_PATH);
-
-  /* Items related to the reports. */
-  item = config_add_schema_item(config, REPORT_SEARCH_PATH_KEY, false);
-  config_schema_item_set_argc_minmax(item, 1, CONFIG_DEFAULT_ARG_MAX);
 
   item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false  );
   config_schema_item_set_argc_minmax( item , 2 , 2);

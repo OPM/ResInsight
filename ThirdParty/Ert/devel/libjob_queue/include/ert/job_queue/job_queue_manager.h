@@ -35,6 +35,7 @@ typedef struct job_queue_manager_struct job_queue_manager_type;
   void job_queue_manager_wait( job_queue_manager_type * manager);
   int  job_queue_manager_get_num_running( const job_queue_manager_type * manager);
   int  job_queue_manager_get_num_success( const job_queue_manager_type * manager);
+  int job_queue_manager_get_num_waiting( const job_queue_manager_type * manager);
   int job_queue_manager_get_num_failed( const job_queue_manager_type * manager);
   bool job_queue_manager_is_running( const job_queue_manager_type * manager);
 
@@ -43,6 +44,8 @@ typedef struct job_queue_manager_struct job_queue_manager_type;
   bool job_queue_manager_job_waiting( const job_queue_manager_type * manager , int job_index);
   bool job_queue_manager_job_running( const job_queue_manager_type * manager , int job_index);
   bool job_queue_manager_job_failed( const job_queue_manager_type * manager , int job_index);
+
+  job_status_type job_queue_manager_iget_job_status(const job_queue_manager_type * manager, int job_index);
 
   UTIL_IS_INSTANCE_HEADER( job_queue_manager );
 

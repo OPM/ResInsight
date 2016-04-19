@@ -630,7 +630,9 @@ static void job_queue_user_exit__( job_queue_type * queue ) {
   int queue_index;
   for (queue_index = 0; queue_index < job_list_get_size( queue->job_list ); queue_index++) {
     job_queue_node_type * node = job_list_iget_job( queue->job_list , queue_index );
-    job_queue_node_status_transition(node,queue->status,JOB_QUEUE_USER_EXIT);
+
+    if (JOB_QUEUE_CAN_KILL & job_queue_node_get_status(node))
+      job_queue_node_status_transition(node,queue->status,JOB_QUEUE_USER_EXIT);
   }
 }
 
@@ -816,6 +818,14 @@ void job_queue_check_open(job_queue_type* queue) {
     util_abort("%s: queue not open and not ready for use; method job_queue_reset must be called before using the queue - aborting\n", __func__ );
 }
 
+bool job_queue_accept_jobs(const job_queue_type * queue) {
+  if (queue->user_exit)
+    return false;
+
+  return queue->open;
+}
+
+
 /**
    If the total number of jobs is not known in advance the job_queue_run_jobs
    function can be called with @num_total_run == 0. In that case it is paramount
@@ -844,7 +854,12 @@ void job_queue_run_jobs(job_queue_type * queue , int num_total_run, bool verbose
     //Check if queue is open. Fails hard if not open
     job_queue_check_open(queue);
 
-    const int NUM_WORKER_THREADS = 16;
+    /*
+      The number of threads in the thread pool running callbacks. Memory consumption can
+      potentially be quite high while running the DONE callback - should therefor not use
+      too many threads.
+    */
+    const int NUM_WORKER_THREADS = 4;
     queue->running = true;
     queue->work_pool = thread_pool_alloc( NUM_WORKER_THREADS , true );
     {
@@ -987,7 +1002,6 @@ void job_queue_run_jobs(job_queue_type * queue , int num_total_run, bool verbose
           job_list_reader_wait( queue->job_list , queue->usleep_time , 8 * queue->usleep_time);
         }
       } while ( cont );
-      queue->running = false;
     }
     if (verbose)
       printf("\n");
@@ -1003,6 +1017,7 @@ void job_queue_run_jobs(job_queue_type * queue , int num_total_run, bool verbose
     available for queries after this method has finished
   */
   queue->open = false;
+  queue->running = false;
   pthread_mutex_unlock( &queue->run_mutex );
 }
 
@@ -1096,9 +1111,8 @@ int job_queue_add_job(job_queue_type * queue ,
                       int argc ,
                       const char ** argv) {
 
-  //Fail hard if queue is not open
-  job_queue_check_open(queue);
-  if (!queue->user_exit) {/* We do not accept new jobs if a user-shutdown has been iniated. */
+
+  if (job_queue_accept_jobs(queue)) {
     int queue_index;
     job_queue_node_type * node = job_queue_node_alloc( job_name ,
                                                        run_path ,

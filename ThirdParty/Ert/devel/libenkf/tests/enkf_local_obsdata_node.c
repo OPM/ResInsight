@@ -50,47 +50,42 @@ void test_content( local_obsdata_node_type * node ) {
     local_obsdata_node_add_tstep( node , 10 );
     local_obsdata_node_add_tstep( node , 10 );  // Second add - ignored
 
-    {
-      const int_vector_type * tstep = local_obsdata_node_get_tstep_list( node );
-      test_assert_int_equal( 2 , int_vector_size( tstep ));
-      test_assert_int_equal( 10 , int_vector_iget( tstep , 0 ));
-      test_assert_int_equal( 20 , int_vector_iget( tstep , 1 ));
-      test_assert_true( local_obsdata_node_has_tstep( node , 10 ));
-      test_assert_true( local_obsdata_node_has_tstep( node , 20 ));
-      test_assert_false( local_obsdata_node_has_tstep( node , 15 ));
+    test_assert_false( local_obsdata_node_tstep_active(node, 5));
+    test_assert_true( local_obsdata_node_tstep_active(node, 10));
+    test_assert_true( local_obsdata_node_tstep_active(node, 20));
+    test_assert_true( local_obsdata_node_has_tstep( node , 10 ));
+    test_assert_true( local_obsdata_node_has_tstep( node , 20 ));
+    test_assert_false( local_obsdata_node_has_tstep( node , 15 ));
 
 
-      local_obsdata_node_add_range( node , 5 , 7 );
-      test_assert_true( local_obsdata_node_has_tstep( node , 5 ));
-      test_assert_true( local_obsdata_node_has_tstep( node , 7 ));
-      test_assert_int_equal( int_vector_iget( tstep , 2 ) , 7 );
-    }
+    local_obsdata_node_add_range( node , 5 , 7 );
+    test_assert_true( local_obsdata_node_tstep_active(node, 5));
+    test_assert_true( local_obsdata_node_tstep_active(node, 7));
   }
 
 }
 
-
-void get_tstep_list(void * arg) {
-  local_obsdata_node_type * node = local_obsdata_node_safe_cast( arg );
-  local_obsdata_node_get_tstep_list(node);
-}
-
-
-
-void test_abort() {
-  local_obsdata_node_type * node = local_obsdata_node_alloc( "KEY" );
+void test_all_active() {
+  local_obsdata_node_type * node = local_obsdata_node_alloc( "KEY" , true);
 
   test_assert_true( local_obsdata_node_all_timestep_active( node ));
-  test_assert_util_abort("local_obsdata_node_get_tstep_list", get_tstep_list, node);
+  test_assert_true( local_obsdata_node_tstep_active( node ,  0 ));
+  test_assert_true( local_obsdata_node_tstep_active( node , 10 ));
+  test_assert_true( local_obsdata_node_tstep_active( node , 20 ));
+
   local_obsdata_node_free( node );
 }
+
+
+
+
 
 
 int main(int argc , char ** argv) {
   const char * obs_key = "1234";
 
   {
-    local_obsdata_node_type * node = local_obsdata_node_alloc( obs_key );
+    local_obsdata_node_type * node = local_obsdata_node_alloc( obs_key , true);
 
     test_assert_true( local_obsdata_node_is_instance( node ));
     test_assert_string_equal( obs_key , local_obsdata_node_get_key( node ));
@@ -99,12 +94,10 @@ int main(int argc , char ** argv) {
   }
 
   {
-    void * node = local_obsdata_node_alloc( obs_key );
+    void * node = local_obsdata_node_alloc( obs_key ,true );
     local_obsdata_node_free__( node );
   }
-
-  test_abort();
-
+  test_all_active();
   exit(0);
 }
 

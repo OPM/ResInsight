@@ -16,28 +16,69 @@ An alterative way to 'program' the local config commands is by writing a Python 
 Not all the commands available from the local config programming are supported for Python scripting. 
 
 
-**Local config ERT script example:**
+**Local config python script example:**
 
 ::
 
-  from ert.enkf import ErtScript
-  from ert.enkf import LocalConfig
-  
-  class LocalConfigJob(ErtScript):
-  
-  
-      def run(self):
-  
-          ert = self.ert()
-          local_config = ert.getLocalConfig()
-          
-          # Add your local config commands here
-          dataset_multflt = local_config.createDataset("DATASET_MULTFLT")  
-          ...
+ from ert.enkf import ErtScript
+ from ert.enkf import LocalConfig, LocalObsdata, LocalObsdataNode, LocalMinistep, LocalUpdateStep, LocalDataset, ActiveList
+ from ert.ecl import EclGrid, EclRegion, Ecl3DKW, EclFile, EclInitFile, EclKW, EclTypeEnum
 
-          # Write to file for debugging
-          local_config.writeLocalConfigFile("tmp/debug_local_config.txt")
-  
+ class LocalConfigJob(ErtScript):
+ 
+ 
+     def run(self):
+     
+         # This example can be used with the REEK data set from the ERT tutorial
+ 
+         # Get the ert object
+         ert = self.ert()
+ 
+         # Get local config object
+         local_config = ert.getLocalConfig()
+ 
+         # Reset internal local config structure. From now you need to specify what to localize
+         local_config.clear()
+ 
+         # There is only one update step
+         updatestep = local_config.getUpdatestep()
+ 
+         # A ministep
+         ministep   = local_config.createMinistep("MINISTEP" )
+ 
+         # Add some dataset you want to localize here.
+         dataset_multflt = local_config.createDataset("DATASET_MULTFLT")
+ 
+         # Add some field and localize inside a box
+         data_poro = local_config.createDataset("DATA_PORO")
+         ecl_grid = local_config.getGrid()
+         ecl_region = EclRegion(ecl_grid, False)
+         ecl_region.select_box((0,0,0),(3,3,3))
+         data_poro.addField("PORO", ecl_region)
+ 
+ 
+         # Add some index from MULTFLT to the dataset
+         dataset_multflt.addNode("MULTFLT")
+         active_list = dataset_multflt.getActiveList("MULTFLT")
+         active_list.addActiveIndex(0)
+ 
+         # Add existing observations from WOPR:OP_1. Alternatively, use getObservations and filter the observations you want to use for this ministep.
+         obsdata_wopr = local_config.createObsdata("WOPR:OP_1_10")
+         for i in range(1,10):
+             obsdata_wopr.addNode("OBS"+str(i))
+ 
+         # Attach the created dataset and obsset to the ministep
+         ministep.attachDataset(dataset_multflt)
+         ministep.attachObsset(obsdata_wopr)
+ 
+         # Then attach the ministep to the update step
+         updatestep.attachMinistep(ministep)
+ 
+         # Write a .csv file for debugging. The generated file can be imported into Excel for a better tabulation of the setup
+         local_config.writeSummaryFile("tmp/summary_local_config.csv")
+        
+
+
 
 
 List of keywords  
@@ -45,8 +86,8 @@ List of keywords
 ===========================================================================================  ===========================================================   ==============================================================================================================================================
 Keyword name                                                                                 ERT script function                                           Purpose
 ===========================================================================================  ===========================================================   ==============================================================================================================================================
+:ref:`CREATE_UPDATESTEP                <create_updatestep>`                                  getUpdatestep                                                 Creates/gets default updatestep
 :ref:`CREATE_MINISTEP                  <create_ministep>`                                    createMinistep                                                Creates ministep
-:ref:`CREATE_UPDATESTEP                <create_updatestep>`                                  createUpdatestep                                              Creates updatestep
 :ref:`CREATE_DATASET                   <create_dataset>`                                     createDataset                                                 Creates dataset
 :ref:`COPY_DATASET                     <copy_dataset>`                                       copyDataset                                                   Deep copy of dataset
 :ref:`CREATE_OBSSET                    <create_obsset>`                                      createObsdata                                                 Creates observation set
@@ -56,14 +97,13 @@ Keyword name                                                                    
 :ref:`ATTACH_OBSSET                    <attach_obsset>`                                      attachObsset                                                  Attaches observation set to mini step
 :ref:`ADD_DATA                         <add_data>`                                           addNode                                                       Adds data node to dataset
 :ref:`DEL_DATA                         <del_data>`                                           del                                                           Deletes observation node from dataset
-:ref:`ADD_OBS                          <add_obs>`                                            addNodeAndRange                                               Adds observation node to observation set
+:ref:`ADD_OBS                          <add_obs>`                                            addNode, addNodeAndRange                                      Adds observation node to observation set for all times or in a given time range
 :ref:`DEL_OBS                          <del_obs>`                                            del                                                           Deletes observation node from observation set
 :ref:`DATASET_DEL_ALL_DATA             <dataset_del_all_data>`                               clear                                                         Delete all the data keys from a dataset
 :ref:`ACTIVE_LIST_ADD_DATA_INDEX       <active_list_add_data_index>`                         addActiveIndex                                                Adds data index to the list of active indices
 :ref:`ACTIVE_LIST_ADD_OBS_INDEX        <active_list_add_obs_index>`                          addActiveIndex                                                Adds observation index to the list of active indices  
 :ref:`ACTIVE_LIST_ADD_MANY_DATA_INDEX  <active_list_add_many_data_index>`                    addActiveIndex                                                Adds several data indices to the list of active indices
 :ref:`ACTIVE_LIST_ADD_MANY_OBS_INDEX   <active_list_add_many_obs_index>`                     addActiveIndex                                                Adds several observation indinces to the list of active indices
-:ref:`INSTALL_DEFAULT_UPDATESTEP       <install_default_updatestep>`                                                                                       Installs default update step
 :ref:`ADD_FIELD                        <add_field>`                                          addField                                                      Adds field node to dataset
 :ref:`LOAD_FILE                        <load_file>`                                          EclGrid, EclInitFile,                                         Loads eclipse file in restart format
 :ref:`CREATE_ECLREGION                 <create_eclregion>`                                   EclRegion                                                     Creates a new region for use when defining active regions for fields
@@ -82,6 +122,8 @@ Keyword name                                                                    
 :ref:`SURFACE_REGION_SELECT_IN_POLYGON <surface_region_select_in_polygon>`                                                                                 Creates region to select or deselect parts of a surface
 :ref:`SURFACE_REGION_SELECT_LINE       <surface_region_select_line>`                                                                                       Selects or deselects parts of a surface in half space define by a line
 :ref:`ADD_DATA_SURFACE                 <add_data_surface>`                                                                                                 Adds surface node to dataset with elements in a surface region
+|                                                                                            getObservations                                               Get the observations currently imported. Use to filter the observations to localize.
+|                                                                                            getGrid                                                       Get the underlying grid. Use to define active cells in a field.
 ===========================================================================================  ===========================================================   ==============================================================================================================================================
 
 .. ###########################################################################################################
@@ -89,23 +131,23 @@ Keyword name                                                                    
 .. _create_updatestep:
 .. topic:: CREATE_UPDATESTEP 
 
-  | This function will create a new updatestep with the name 'NAME_OF_UPDATESTEP'. Observe that you must add (at least) one ministep to the updatestep, otherwise it will not be able to do anything.
-  
+  | This function will create a updatestep with the name 'NAME_OF_UPDATESTEP'. 
+  | Observe that you must add (at least) one ministep to the updatestep, otherwise it will not be able to do anything.
+  | Currently supports only one update step. It is kept here due to historical reasons when it was possible to have several update steps.
   
   *Example:*
 
   ::
 
-    -- Update step in time interval 0->1
-    CREATE_UPDATESTEP UPDATESTEP_0_1
+    -- Updatestep     
+    CREATE_UPDATESTEP DEFAULT
 
    
   *Example:*
 
   ::
   
-    update_step_0_1 = local_config.createUpdatestep("UPDATESTEP_0_1")
-
+    updatestep = local_config.getUpdatestep()
 
 .. ###########################################################################################################
 
@@ -119,14 +161,14 @@ Keyword name                                                                    
 
   ::
 
-    -- Mini step 0 in update step 0->1
-    CREATE_MINISTEP MINISTEP_0_1_0
+    -- Ministep in updatestep 
+    CREATE_MINISTEP MINISTEP
 
   *Example:*
 
   ::
   
-    ministep_0_1_0 = local_config.createMinistep("MINISTEP_0_1_0")
+    ministep = local_config.createMinistep("MINISTEP")
 
 
 
@@ -213,14 +255,14 @@ Keyword name                                                                    
 
   ::
 
-    -- Attach MINISTEP_0_1_0 to UPDATESTEP_0_1
-    ATTACH_MINISTEP UPDATESTEP_0_1 MINISTEP_0_1_0
+    -- Attach MINISTEP to UPDATESTEP
+    ATTACH_MINISTEP UPDATESTEP MINISTEP
 
   *Example:*
 
   ::
 
-    update_step_0_1.attachMinistep(ministep_0_1_0)       
+    update_step.attachMinistep(ministep)       
 
 
 .. ###########################################################################################################
@@ -234,14 +276,14 @@ Keyword name                                                                    
 
   ::
 
-    -- Attach DATASET_MULTFLT to MINISTEP_0_1_0
-    ATTACH_MINISTEP MINISTEP_0_1_0 DATASET_MULTFLT
+    -- Attach DATASET_MULTFLT to MINISTEP
+    ATTACH_MINISTEP MINISTEP DATASET_MULTFLT
 
   *Example:*
 
   ::
 
-    ministep_0_1_0.attachDataset(dataset_multflt)       
+    ministep.attachDataset(dataset_multflt)       
 
 
 .. ###########################################################################################################
@@ -255,14 +297,14 @@ Keyword name                                                                    
 
   ::
 
-    -- Attach OBS_WELL to MINISTEP_0_1_0
-    ATTACH_MINISTEP MINISTEP_0_1_0 OBS_WELL
+    -- Attach OBS_WELL to MINISTEP
+    ATTACH_MINISTEP MINISTEP OBS_WELL
 
   *Example:*
 
   ::
 
-    ministep_0_1_0.attachObsset(obsset_obs_well)       
+    ministep.attachObsset(obsset_obs_well)       
 
 
 .. ###########################################################################################################
@@ -329,6 +371,9 @@ Keyword name                                                                    
   
     -- The obsset has a time range
     obsset_obs_well.addNodeAndRange("WOPR:OBS_WELL", 0, 1)
+    
+    -- All times are active
+    obsset_obs_well.addNode("WOPR:OBS_WELL")
 
 
 .. ###########################################################################################################
@@ -449,23 +494,6 @@ Keyword name                                                                    
     -- Add index 0, 1 and 2 from data WOPR:OBS_WELL to obsset OBS_WELL 
     ACTIVE_LIST_ADD_MANY_OBS_INDEX OBS_WELL WOPR:OBS_WELL 0 1 2
 
-.. ###########################################################################################################
-
-
-.. _install_default_updatestep:
-.. topic:: INSTALL_DEFAULT_UPDATESTEP 
-
-  | This function will install 'NAME_OF_UPDATESTEP' as the default updatestep which applies to all report steps where you have not explicitly set another updatestep with the INSTALL_UPDATESTEP function.
-  
-  
-  
-  *Example:*
-
-  ::
-
-    -- Install default update step 
-    INSTALL_DEFAULT_UPDATESTEP ALL_ACTIVE
-    
     
     
 .. ###########################################################################################################

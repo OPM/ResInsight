@@ -455,7 +455,11 @@ static void field_config_set_init_transform( field_config_type * config , const 
   const char * init_transform_name = NULL;
   if (field_trans_table_has_key( config->trans_table , __init_transform_name))
     init_transform_name = __init_transform_name;
-
+  else if (__init_transform_name != NULL) {
+    fprintf(stderr , "Sorry: the field transformation function:%s is not recognized \n\n",__init_transform_name);
+    field_trans_table_fprintf(config->trans_table , stderr);
+    util_exit("Exiting ... \n");
+  }
 
   config->init_transform_name = util_realloc_string_copy( config->init_transform_name , init_transform_name );
   if (init_transform_name != NULL)
@@ -469,7 +473,11 @@ static void field_config_set_output_transform( field_config_type * config , cons
   const char * output_transform_name = NULL;
   if (field_trans_table_has_key( config->trans_table , __output_transform_name))
     output_transform_name = __output_transform_name;
-
+  else if (__output_transform_name) {
+    fprintf(stderr , "Sorry: the field transformation function:%s is not recognized \n\n",__output_transform_name);
+    field_trans_table_fprintf(config->trans_table , stderr);
+    util_exit("Exiting ... \n");
+  }
 
   config->output_transform_name = util_realloc_string_copy( config->output_transform_name , output_transform_name );
   if (output_transform_name != NULL)
@@ -483,6 +491,11 @@ static void field_config_set_input_transform( field_config_type * config , const
   const char * input_transform_name = NULL;
   if (field_trans_table_has_key( config->trans_table , __input_transform_name))
     input_transform_name = __input_transform_name;
+  else if (__input_transform_name != NULL) {
+    fprintf(stderr , "Sorry: the field transformation function:%s is not recognized \n\n",__input_transform_name);
+    field_trans_table_fprintf(config->trans_table , stderr);
+    util_exit("Exiting ... \n");
+  }
 
 
   config->input_transform_name = util_realloc_string_copy( config->input_transform_name , input_transform_name );

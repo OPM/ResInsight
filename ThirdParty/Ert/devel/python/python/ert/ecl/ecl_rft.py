@@ -19,117 +19,11 @@ Module for loading ECLIPSE RFT files.
 
 import types
 import warnings
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
-from ert.ecl import EclRFTCell, EclPLTCell, ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclRFTCell, EclPLTCell, EclPrototype
 from ert.util import CTime
 
-
-class EclRFTFile(CClass):
-    """
-    The EclRFTFile class is used to load an ECLIPSE RFT file.
-
-    The EclRFTFile serves as a container which can load and hold the
-    content of an ECLIPSE RFT file. The RFT files will in general
-    contain data for several wells and several times in one large
-    container. The EclRFTClass class contains methods get the the RFT
-    results for a specific time and/or well. 
-
-    The EclRFTFile class can in general contain a mix of RFT and PLT
-    measurements. The class does not really differentiate between
-    these.
-    """
-    
-    def __new__( cls , case ):
-        c_ptr = cfunc_file.load( case )
-        if c_ptr:
-            obj = object.__new__( cls )
-            obj.init_cobj( c_ptr , cfunc_file.free )
-            return obj
-        else:
-            return None
-        
-
-    def __len__(self):
-        return cfunc_file.get_size( self , None , CTime(-1))
-
-
-    def __getitem__(self, index):
-        if isinstance(index, int):
-            if 0 <= index < len(self):
-                return EclRFT( cfunc_file.iget(self, index), self)
-            else:
-                raise IndexError("Index '%d' must be in range: [0, %d]" % (index, len(self) - 1))
-        else:
-            raise TypeError("Index must be integer type")
-
-    
-    def size(self, well=None, date=None):
-        """
-        The number of elements in EclRFTFile container. 
-
-        By default the size() method will return the total number of
-        RFTs/PLTs in the container, but by specifying the optional
-        arguments date and/or well the function will only count the
-        number of well measurements matching that time or well
-        name. The well argument can contain wildcards.
-
-           rftFile = ecl.EclRFTFile( "ECLIPSE.RFT" )
-           print "Total number of RFTs : %d" % rftFile.size( )
-           print "RFTs matching OP*    : %d" % rftFile.size( well = "OP*" )
-           print "RFTs at 01/01/2010   : %d" % rftFile.size( date = datetime.date( 2010 , 1 , 1 ))
-
-        """
-        if date:
-            cdate = CTime( date )
-        else:
-            cdate = CTime( -1 )
-
-        return cfunc_file.get_size( self , well , cdate)
-
-
-    @property
-    def num_wells( self ):
-        """
-        Returns the total number of distinct wells in the RFT file.
-        """
-        return cfunc_file.get_num_wells( self )
-
-    @property
-    def headers(self):
-        """
-        Returns a list of two tuples (well_name , date) for the whole file.
-        """
-        header_list = []
-        for i in (range(cfunc_file.get_size( self , None , CTime(-1)))):
-            rft = self.iget( i )
-            header_list.append( (rft.well , rft.date) )
-        return header_list
-
-
-    def iget(self , index):
-        """
-        Will lookup RFT @index - equivalent to [@index].
-        """
-        return self.__getitem__( index )
-
-
-    def get(self , well_name , date ):
-        """
-        Will look up the RFT object corresponding to @well and @date.
-
-        Returns None if no matching RFT can be found.
-        """
-        c_ptr = cfunc_file.get_rft( self , well_name , CTime( date )) 
-        if c_ptr:
-            return EclRFT( c_ptr , self)
-        else:
-            return None
-
-
-    
-
-
-class EclRFT(CClass):
+class EclRFT(BaseCClass):
     """The EclRFT class contains the information for *one* RFT.
 
     The ECLIPSE RFT file can contain three different types of RFT like
@@ -148,38 +42,68 @@ class EclRFT(CClass):
     In addition to the measurements specific for RFT and PLT each cell
     has coordinates, pressure and depth.
     """
-    def __init__(self , c_ptr , parent):
-        self.init_cref( c_ptr , parent )
+    TYPE_NAME = "ecl_rft"
+    _alloc            = EclPrototype("void* ecl_rft_node_alloc_new( char* , char* , time_t , double)" , bind = False)
+    _free             = EclPrototype("void  ecl_rft_node_free( ecl_rft )")
+    _get_type         = EclPrototype("int    ecl_rft_node_get_type( ecl_rft )")
+    _get_well         = EclPrototype("char*  ecl_rft_node_get_well_name( ecl_rft )")
+    _get_date         = EclPrototype("time_t ecl_rft_node_get_date( ecl_rft )")
+    _get_size         = EclPrototype("int ecl_rft_node_get_size( ecl_rft )")
+    _iget_cell        = EclPrototype("void* ecl_rft_node_iget_cell( ecl_rft )")
+    _iget_cell_sorted = EclPrototype("void* ecl_rft_node_iget_cell_sorted( ecl_rft )")
+    _sort_cells       = EclPrototype("void* ecl_rft_node_inplace_sort_cells( ecl_rft )")
+    _iget_depth       = EclPrototype("double ecl_rft_node_iget_depth( ecl_rft )")
+    _iget_pressure    = EclPrototype("double ecl_rft_node_iget_pressure(ecl_rft)")
+    _iget_ijk         = EclPrototype("void ecl_rft_node_iget_ijk( ecl_rft , int , int*, int*, int*)") 
+    _iget_swat        = EclPrototype("double ecl_rft_node_iget_swat(ecl_rft)")
+    _iget_sgas        = EclPrototype("double ecl_rft_node_iget_sgas(ecl_rft)")
+    _iget_orat        = EclPrototype("double ecl_rft_node_iget_orat(ecl_rft)")
+    _iget_wrat        = EclPrototype("double ecl_rft_node_iget_wrat(ecl_rft)")
+    _iget_grat        = EclPrototype("double ecl_rft_node_iget_grat(ecl_rft)")
+    _lookup_ijk       = EclPrototype("void* ecl_rft_node_lookup_ijk( ecl_rft , int , int , int)")
+    _is_RFT           = EclPrototype("bool   ecl_rft_node_is_RFT( ecl_rft )")
+    _is_PLT           = EclPrototype("bool   ecl_rft_node_is_PLT( ecl_rft )")
+    _is_SEGMENT       = EclPrototype("bool   ecl_rft_node_is_SEGMENT( ecl_rft )")
+    _is_MSW           = EclPrototype("bool   ecl_rft_node_is_MSW( ecl_rft )")
 
+
+    def __init__(self , name , type_string , date , days):
+        c_ptr = self._alloc( name , type_string , CTime( date ) , days )
+        super(EclRFT , self).__init__( c_ptr )
+
+
+    def free(self):
+        self._free( )
+    
     def __len__(self):
         """
         The number of completed cells in this RFT.
         """
-        return cfunc_rft.get_size( self )
+        return self._get_size( )
 
     def is_RFT(self):
         """
         Is instance an RFT; in that case all the cells will be EclRFTCell instances.
         """
-        return cfunc_rft.is_RFT( self )
+        return self._is_RFT( )
 
     def is_PLT(self):
         """
         Is instance a PLT; in that case all the cells will be EclPLTCell instances.
         """
-        return cfunc_rft.is_PLT( self )
+        return self._is_PLT( )
 
     def is_SEGMENT(self):
         """
         Is this a SEGMENT - not implemented.
         """
-        return cfunc_rft.is_SEGMENT( self )
+        return self._is_SEGMENT( )
 
     def is_MSW(self):
         """
         Is this well a MSW well. Observe that the test ONLY applies to PLTs.
         """
-        return cfunc_rft.is_MSW( self )
+        return self._is_MSW( )
 
 
     @property
@@ -191,37 +115,50 @@ class EclRFT(CClass):
         """
         Deprecated - use query methods: is_RFT(), is_PLT() and is_SEGMENT() instead.
         """
-        warnings.warn("The property type is deprecated, use the query methods is_RFT(), is_PLT() and is_SEGMENT() instead.")
-        return cfunc_rft.get_type( self )
+        warnings.warn("The property type is deprecated, use the query methods is_RFT(), is_PLT() and is_SEGMENT() instead." , DeprecationWarning)
+        return self._get_type( )
 
-    @property
-    def well(self):
+
+    def getWellName(self):
         """
         The name of the well we are considering.
         """
-        return cfunc_rft.get_well( self )
-
+        return self._get_well( )
+    
     @property
-    def date(self):
+    def well(self):
+        warnings.warn("The property well is deprecated, use the getWellName() method instead." , DeprecationWarning)
+        return self.getWellName( )
+        
+
+    def getDate(self):
         """
-        The date when this RFT/PLT/... was recorded.
+        The date when this RFT/PLT/... was recorded. 
         """
-        ct = CTime(cfunc_rft.get_date( self ))
+        ct = CTime(self._get_date( ))
         return ct.date()
 
+    
+    @property
+    def date(self):
+        warnings.warn("The property date is deprecated, use the getDate() instead." , DeprecationWarning)
+        return self.getDate()
+    
+        
     @property
     def size(self):
         """
         The number of completed cells.
         """
-        return self.__len__()
+        warnings.warn("The property size is deprecated, use the built in len( ) function instead." , DeprecationWarning)
+        return len(self)
 
 
     def __cell_ref( self , cell_ptr ):
         if self.is_RFT():
-            return EclRFTCell.asPythonReference( cell_ptr , self )
+            return EclRFTCell.createCReference( cell_ptr , self )
         elif self.is_PLT():
-            return EclPLTCell.asPythonReference( cell_ptr , self )
+            return EclPLTCell.createCReference( cell_ptr , self )
         else:
             raise NotImplementedError("Only RFT and PLT cells are implemented")
 
@@ -247,12 +184,12 @@ class EclRFT(CClass):
         type of this particular RFT object. 
         """
         self.assert_cell_index( index )
-        cell_ptr = cfunc_rft.iget_cell( self , index )
+        cell_ptr = self._iget_cell( index )
         return self.__cell_ref( cell_ptr )
         
 
     def iget( self , index ):
-        return self.__getitem__( index )
+        return self[index]
 
         
     def iget_sorted( self , index ):
@@ -262,7 +199,7 @@ class EclRFT(CClass):
         See method sort() for further documentation.
         """
         self.assert_cell_index( index )
-        cell_ptr = cfunc_rft.iget_cell_sorted( self , index )
+        cell_ptr = self._iget_cell_sorted( index )
         return self.__cell_ref( cell_ptr )
         
 
@@ -292,7 +229,7 @@ class EclRFT(CClass):
         Currently only MSW/PLTs are sorted, based on the CONLENST
         keyword; for other wells the sort() method does nothing.  
         """
-        cfunc_rft.sort_cells( self )
+        self._sort_cells( )
 
 
     # ijk are zero offset
@@ -304,7 +241,7 @@ class EclRFT(CClass):
         returned. The (i,j,k) input values should be zero offset,
         i.e. you must subtract 1 from the (i,j,k) values given in the ECLIPSE input.
         """
-        cell_ptr = cfunc_rft.lookup_ijk( self , ijk[0] , ijk[1] , ijk[2])
+        cell_ptr = self._lookup_ijk( ijk[0] , ijk[1] , ijk[2])
         if cell_ptr:
             return self.__cell_ref( cell_ptr )
         else:
@@ -313,41 +250,133 @@ class EclRFT(CClass):
 
 
 
+class EclRFTFile(BaseCClass):
+    TYPE_NAME = "ecl_rft_file"
+    _load          = EclPrototype("void* ecl_rft_file_alloc_case( char* )", bind = False)
+    _iget          = EclPrototype("ecl_rft_ref ecl_rft_file_iget_node( ecl_rft_file , int )")
+    _get_rft       = EclPrototype("ecl_rft_ref ecl_rft_file_get_well_time_rft( ecl_rft_file , char* , time_t)")
+    _has_rft       = EclPrototype("bool ecl_rft_file_case_has_rft( char* )", bind = False)
+    _free          = EclPrototype("void ecl_rft_file_free( ecl_rft_file )")
+    _get_size      = EclPrototype("int ecl_rft_file_get_size__( ecl_rft_file , char* , time_t)")
+    _get_num_wells = EclPrototype("int  ecl_rft_file_get_num_wells( ecl_rft_file )")
 
-# 2. Creating a wrapper object around the libecl library, 
-#    registering the type map : ecl_kw <-> EclKW
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType( "ecl_rft_file" , EclRFTFile )
-cwrapper.registerType( "ecl_rft"      , EclRFT )
 
-cfunc_file = CWrapperNameSpace("ecl_rft_file")
-cfunc_rft  = CWrapperNameSpace("ecl_rft")
+    """
+    The EclRFTFile class is used to load an ECLIPSE RFT file.
 
-cfunc_file.load                     = cwrapper.prototype("c_void_p ecl_rft_file_alloc_case( char* )")
-cfunc_file.has_rft                  = cwrapper.prototype("bool ecl_rft_file_case_has_rft( char* )")
-cfunc_file.free                     = cwrapper.prototype("void ecl_rft_file_free( ecl_rft_file )")
-cfunc_file.get_size                 = cwrapper.prototype("int ecl_rft_file_get_size__( ecl_rft_file , char* , time_t)")
-cfunc_file.iget                     = cwrapper.prototype("c_void_p ecl_rft_file_iget_node( ecl_rft_file , int )")
-cfunc_file.get_num_wells            = cwrapper.prototype("int  ecl_rft_file_get_num_wells( ecl_rft_file )")
-cfunc_file.get_rft                  = cwrapper.prototype("c_void_p ecl_rft_file_get_well_time_rft( ecl_rft_file , char* , time_t)")
+    The EclRFTFile serves as a container which can load and hold the
+    content of an ECLIPSE RFT file. The RFT files will in general
+    contain data for several wells and several times in one large
+    container. The EclRFTClass class contains methods get the the RFT
+    results for a specific time and/or well. 
 
-cfunc_rft.get_type                  = cwrapper.prototype("int    ecl_rft_node_get_type( ecl_rft )")
-cfunc_rft.get_well                  = cwrapper.prototype("char*  ecl_rft_node_get_well_name( ecl_rft )")
-cfunc_rft.get_date                  = cwrapper.prototype("time_t ecl_rft_node_get_date( ecl_rft )")
-cfunc_rft.get_size                  = cwrapper.prototype("int ecl_rft_node_get_size( ecl_rft )")
-cfunc_rft.iget_cell                 = cwrapper.prototype("c_void_p ecl_rft_node_iget_cell( ecl_rft )")
-cfunc_rft.iget_cell_sorted          = cwrapper.prototype("c_void_p ecl_rft_node_iget_cell_sorted( ecl_rft )")
-cfunc_rft.sort_cells                = cwrapper.prototype("c_void_p ecl_rft_node_inplace_sort_cells( ecl_rft )")
-cfunc_rft.iget_depth                = cwrapper.prototype("double ecl_rft_node_iget_depth( ecl_rft )")
-cfunc_rft.iget_pressure             = cwrapper.prototype("double ecl_rft_node_iget_pressure(ecl_rft)")
-cfunc_rft.iget_ijk                  = cwrapper.prototype("void ecl_rft_node_iget_ijk( ecl_rft , int , int*, int*, int*)") 
-cfunc_rft.iget_swat                 = cwrapper.prototype("double ecl_rft_node_iget_swat(ecl_rft)")
-cfunc_rft.iget_sgas                 = cwrapper.prototype("double ecl_rft_node_iget_sgas(ecl_rft)")
-cfunc_rft.iget_orat                 = cwrapper.prototype("double ecl_rft_node_iget_orat(ecl_rft)")
-cfunc_rft.iget_wrat                 = cwrapper.prototype("double ecl_rft_node_iget_wrat(ecl_rft)")
-cfunc_rft.iget_grat                 = cwrapper.prototype("double ecl_rft_node_iget_grat(ecl_rft)")
-cfunc_rft.lookup_ijk                = cwrapper.prototype("c_void_p ecl_rft_node_lookup_ijk( ecl_rft , int , int , int)")
-cfunc_rft.is_RFT                    = cwrapper.prototype("bool   ecl_rft_node_is_RFT( ecl_rft )")
-cfunc_rft.is_PLT                    = cwrapper.prototype("bool   ecl_rft_node_is_PLT( ecl_rft )")
-cfunc_rft.is_SEGMENT                = cwrapper.prototype("bool   ecl_rft_node_is_SEGMENT( ecl_rft )")
-cfunc_rft.is_MSW                    = cwrapper.prototype("bool   ecl_rft_node_is_MSW( ecl_rft )")
+    The EclRFTFile class can in general contain a mix of RFT and PLT
+    measurements. The class does not really differentiate between
+    these.
+    """
+
+    def __init__(self , case):
+        c_ptr = self._load( case )
+        super(EclRFTFile , self).__init__(c_ptr)
+
+
+    def __len__(self):
+        return self._get_size(  None , CTime(-1))
+
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            if 0 <= index < len(self):
+                rft = self._iget(index)
+                rft.setParent( self )
+                return rft
+            else:
+                raise IndexError("Index '%d' must be in range: [0, %d]" % (index, len(self) - 1))
+        else:
+            raise TypeError("Index must be integer type")
+
+    
+    def size(self, well=None, date=None):
+        """
+        The number of elements in EclRFTFile container. 
+
+        By default the size() method will return the total number of
+        RFTs/PLTs in the container, but by specifying the optional
+        arguments date and/or well the function will only count the
+        number of well measurements matching that time or well
+        name. The well argument can contain wildcards.
+
+           rftFile = ecl.EclRFTFile( "ECLIPSE.RFT" )
+           print "Total number of RFTs : %d" % rftFile.size( )
+           print "RFTs matching OP*    : %d" % rftFile.size( well = "OP*" )
+           print "RFTs at 01/01/2010   : %d" % rftFile.size( date = datetime.date( 2010 , 1 , 1 ))
+
+        """
+        if date:
+            cdate = CTime( date )
+        else:
+            cdate = CTime( -1 )
+
+        return self._get_size( well , cdate)
+
+
+    def getNumWells(self):
+        """
+        Returns the total number of distinct wells in the RFT file.
+        """
+        return self._get_num_wells( )
+        
+    @property
+    def num_wells( self ):
+        warnings.warn("The property num_wells is deprecated, use the getNumWells() instead." , DeprecationWarning)
+        return self.getNumWells()
+
+    
+    def getHeaders(self):
+        """
+        Returns a list of two tuples (well_name , date) for the whole file.
+        """
+        header_list = []
+        for i in (range(self._get_size( None , CTime(-1)))):
+            rft = self.iget( i )
+            header_list.append( (rft.well , rft.date) )
+        return header_list
+
+    @property
+    def headers(self):
+        warnings.warn("The property headers is deprecated, use the getHeaders() instead." , DeprecationWarning)
+        return self.getHeaders()
+    
+
+    def iget(self , index):
+        """
+        Will lookup RFT @index - equivalent to [@index].
+        """
+        return self[index]
+
+
+    def get(self , well_name , date ):
+        """
+        Will look up the RFT object corresponding to @well and @date.
+
+        Raise Exception if not found.
+        """
+        if self.size( well = well_name , date = date) == 0:
+            raise KeyError("No RFT for well:%s at %s" % (well_name , date))
+
+        rft = self._get_rft( well_name , CTime( date )) 
+        rft.setParent( self )
+        return rft
+
+    def free(self):
+        self._free( )
+    
+
+
+
+
+
+
+
+
+

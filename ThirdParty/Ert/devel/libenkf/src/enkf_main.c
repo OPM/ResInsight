@@ -73,7 +73,6 @@
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/enkf_config_node.h>
 #include <ert/enkf/ecl_config.h>
-#include <ert/enkf/enkf_sched.h>
 #include <ert/enkf/obs_data.h>
 #include <ert/enkf/meas_data.h>
 #include <ert/enkf/enkf_state.h>
@@ -84,7 +83,7 @@
 #include <ert/enkf/plot_config.h>
 #include <ert/enkf/ensemble_config.h>
 #include <ert/enkf/model_config.h>
-#include <ert/enkf/qc_module.h>
+#include <ert/enkf/hook_manager.h>
 #include <ert/enkf/site_config.h>
 #include <ert/enkf/active_config.h>
 #include <ert/enkf/enkf_analysis.h>
@@ -96,7 +95,6 @@
 #include <ert/enkf/ert_template.h>
 #include <ert/enkf/rng_config.h>
 #include <ert/enkf/enkf_plot_data.h>
-#include <ert/enkf/ert_report_list.h>
 #include <ert/enkf/ranking_table.h>
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/config_keys.h>
@@ -144,8 +142,9 @@
 struct enkf_main_struct {
   UTIL_TYPE_ID_DECLARATION;
   enkf_fs_type         * dbase;              /* The internalized information. */
+
   ensemble_config_type * ensemble_config;    /* The config objects for the various enkf nodes.*/
-  qc_module_type       * qc_module;
+  hook_manager_type    * hook_manager;
   model_config_type    * model_config;
   ecl_config_type      * ecl_config;
   site_config_type     * site_config;
@@ -155,7 +154,6 @@ struct enkf_main_struct {
   plot_config_type     * plot_config;        /* Information about plotting. */
   rng_config_type      * rng_config;
   rng_type             * rng;
-  ert_report_list_type * report_list;
   ert_workflow_list_type * workflow_list;
   ranking_table_type   * ranking_table;
 
@@ -183,8 +181,9 @@ struct enkf_main_struct {
 
 void enkf_main_init_internalization( enkf_main_type *  , run_mode_type  );
 void enkf_main_update_local_updates( enkf_main_type * enkf_main);
-
-
+static void enkf_main_close_fs( enkf_main_type * enkf_main );
+static void enkf_main_init_fs( enkf_main_type * enkf_main );
+static void enkf_main_user_select_initial_fs(enkf_main_type * enkf_main );
 
 /*****************************************************************/
 
@@ -321,12 +320,9 @@ bool enkf_main_have_obs( const enkf_main_type * enkf_main ) {
 }
 
 
-bool enkf_main_has_QC_workflow( const enkf_main_type * enkf_main ) {
-  return qc_module_has_workflow( enkf_main->qc_module );
-}
 
-qc_module_type * enkf_main_get_qc_module( const enkf_main_type * enkf_main ) {
-  return enkf_main->qc_module;
+hook_manager_type * enkf_main_get_hook_manager( const enkf_main_type * enkf_main ) {
+  return enkf_main->hook_manager;
 }
 
 
@@ -403,9 +399,7 @@ void enkf_main_free(enkf_main_type * enkf_main){
 
   ranking_table_free( enkf_main->ranking_table );
   enkf_main_free_ensemble( enkf_main );
-  if (enkf_main->dbase != NULL)
-    enkf_fs_decref( enkf_main->dbase );
-
+  enkf_main_close_fs( enkf_main );
   ert_log_close();
 
   analysis_config_free(enkf_main->analysis_config);
@@ -413,13 +407,12 @@ void enkf_main_free(enkf_main_type * enkf_main){
   model_config_free( enkf_main->model_config);
 
 
-  qc_module_free( enkf_main->qc_module );
+  hook_manager_free( enkf_main->hook_manager );
   site_config_free( enkf_main->site_config);
   ensemble_config_free( enkf_main->ensemble_config );
 
   local_config_free( enkf_main->local_config );
 
-  ert_report_list_free( enkf_main->report_list );
   ert_workflow_list_free( enkf_main->workflow_list );
 
 
@@ -447,70 +440,6 @@ void enkf_main_exit(enkf_main_type * enkf_main) {
 
 
 
-static void enkf_main_load_sub_ensemble(enkf_main_type * enkf_main , int mask , int report_step , state_enum state, int iens1 , int iens2) {
-  int iens;
-  for (iens = iens1; iens < iens2; iens++)
-    enkf_state_fread(enkf_main->ensemble[iens] , enkf_main_get_fs( enkf_main ) , mask , report_step , state );
-}
-
-
-static void * enkf_main_load_sub_ensemble__(void * __arg) {
-  arg_pack_type * arg_pack   = arg_pack_safe_cast(__arg);
-  enkf_main_type * enkf_main = arg_pack_iget_ptr(arg_pack , 0);
-  int mask                   = arg_pack_iget_int(arg_pack , 1);
-  int report_step            = arg_pack_iget_int(arg_pack , 2);
-  state_enum state           = arg_pack_iget_int(arg_pack , 3);
-  int iens1                  = arg_pack_iget_int(arg_pack , 4);
-  int iens2                  = arg_pack_iget_int(arg_pack , 5);
-
-  enkf_main_load_sub_ensemble(enkf_main , mask , report_step , state , iens1 , iens2);
-  return NULL;
-}
-
-
-
-void enkf_main_load_ensemble(enkf_main_type * enkf_main , int mask , int report_step , state_enum state) {
-  const   int cpu_threads = 4;
-  int     sub_ens_size    = enkf_main_get_ensemble_size(enkf_main) / cpu_threads;
-  int     icpu;
-  thread_pool_type * tp          = thread_pool_alloc( cpu_threads , true );
-  arg_pack_type ** arg_pack_list = util_calloc( cpu_threads , sizeof * arg_pack_list );
-
-  for (icpu = 0; icpu < cpu_threads; icpu++) {
-    arg_pack_type * arg = arg_pack_alloc();
-    arg_pack_append_ptr(arg , enkf_main);
-    arg_pack_append_int(arg , mask);
-    arg_pack_append_int(arg , report_step);
-    arg_pack_append_int(arg , state);
-
-    {
-      int iens1 =  icpu * sub_ens_size;
-      int iens2 = iens1 + sub_ens_size;
-
-      if (icpu == (cpu_threads - 1))
-        iens2 = enkf_main_get_ensemble_size(enkf_main);
-
-      arg_pack_append_int(arg ,  iens1);
-      arg_pack_append_int(arg ,  iens2);
-    }
-    arg_pack_list[icpu] = arg;
-    arg_pack_lock( arg );
-    thread_pool_add_job( tp , enkf_main_load_sub_ensemble__ , arg);
-  }
-  thread_pool_join( tp );
-  thread_pool_free( tp );
-
-  for (icpu = 0; icpu < cpu_threads; icpu++)
-    arg_pack_free( arg_pack_list[icpu] );
-  free(arg_pack_list);
-}
-
-
-
-
-
-
-
 /**
    This function returns a (enkf_node_type ** ) pointer, which points
    to all the instances with the same keyword, i.e.
@@ -533,8 +462,7 @@ void enkf_main_load_ensemble(enkf_main_type * enkf_main , int mask , int report_
 
 */
 
-enkf_node_type ** enkf_main_get_node_ensemble(const enkf_main_type * enkf_main , const char * key , int report_step , state_enum load_state) {
-  enkf_fs_type * fs               = enkf_main_get_fs( enkf_main );
+enkf_node_type ** enkf_main_get_node_ensemble(const enkf_main_type * enkf_main , enkf_fs_type * src_fs, const char * key , int report_step , state_enum load_state) {
   const int ens_size              = enkf_main_get_ensemble_size( enkf_main );
   enkf_node_type ** node_ensemble = util_calloc(ens_size , sizeof * node_ensemble );
   node_id_type node_id = {.report_step = report_step ,
@@ -546,7 +474,7 @@ enkf_node_type ** enkf_main_get_node_ensemble(const enkf_main_type * enkf_main ,
   for (iens = 0; iens < ens_size; iens++) {
     node_ensemble[iens] = enkf_state_get_node(enkf_main->ensemble[iens] , key);
     node_id.iens = iens;
-    enkf_node_load( node_ensemble[iens] , fs , node_id);
+    enkf_node_load( node_ensemble[iens] , src_fs , node_id);
   }
   return node_ensemble;
 }
@@ -601,9 +529,9 @@ void enkf_main_node_std( const enkf_node_type ** ensemble , int ens_size , const
 }
 
 
-void enkf_main_inflate_node(enkf_main_type * enkf_main , enkf_fs_type * target_fs , int report_step , const char * key , const enkf_node_type * min_std) {
+void enkf_main_inflate_node(enkf_main_type * enkf_main , enkf_fs_type * src_fs , enkf_fs_type * target_fs , int report_step , const char * key , const enkf_node_type * min_std) {
   int ens_size                              = enkf_main_get_ensemble_size(enkf_main);
-  enkf_node_type ** ensemble                = enkf_main_get_node_ensemble( enkf_main , key , report_step , ANALYZED );
+  enkf_node_type ** ensemble                = enkf_main_get_node_ensemble( enkf_main , src_fs , key , report_step , ANALYZED );
   enkf_node_type * mean                     = enkf_node_copyc( ensemble[0] );
   enkf_node_type * std                      = enkf_node_copyc( ensemble[0] );
   int iens;
@@ -650,32 +578,28 @@ void enkf_main_inflate_node(enkf_main_type * enkf_main , enkf_fs_type * target_f
     direkte.
 */
 
-void enkf_main_inflate(enkf_main_type * enkf_main , enkf_fs_type * target_fs , int report_step , hash_type * use_count) {
+void enkf_main_inflate(enkf_main_type * enkf_main , enkf_fs_type * src_fs , enkf_fs_type * target_fs , int report_step , hash_type * use_count) {
   stringlist_type * keys = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER + DYNAMIC_STATE);
-  msg_type * msg = msg_alloc("Inflating:" , false);
 
-  msg_show( msg );
   for (int ikey = 0; ikey < stringlist_get_size( keys ); ikey++) {
     const char * key = stringlist_iget( keys  , ikey );
     if (hash_get_counter(use_count , key) > 0) {
       const enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , key );
       const enkf_node_type * min_std            = enkf_config_node_get_min_std( config_node );
 
-      if (min_std != NULL) {
-        msg_update( msg , key );
-        enkf_main_inflate_node(enkf_main , target_fs , report_step , key , min_std );
-      }
+      if (min_std != NULL)
+        enkf_main_inflate_node(enkf_main , src_fs , target_fs , report_step , key , min_std );
+
     }
   }
   stringlist_free( keys );
-  msg_free( msg , true );
 }
 
 
 
 
-static int __get_active_size(enkf_main_type * enkf_main , const char * key, int report_step , const active_list_type * active_list) {
-  const enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , key );
+static int __get_active_size(const ensemble_config_type * ensemble_config , enkf_fs_type * fs , const char * key, int report_step , const active_list_type * active_list) {
+  const enkf_config_node_type * config_node = ensemble_config_get_node( ensemble_config , key );
   /**
      This is very awkward; the problem is that for the GEN_DATA
      type the config object does not really own the size. Instead
@@ -687,12 +611,13 @@ static int __get_active_size(enkf_main_type * enkf_main , const char * key, int 
   */
   {
     if (enkf_config_node_get_impl_type( config_node ) == GEN_DATA) {
-      enkf_node_type * node = enkf_state_get_node( enkf_main->ensemble[0] , key);
+      enkf_node_type * node = enkf_node_alloc( config_node );
       node_id_type node_id = {.report_step = report_step ,
                               .iens        = 0,
                               .state       = FORECAST };
 
-      enkf_node_load( node , enkf_main->dbase , node_id );
+      enkf_node_load( node , fs  , node_id );
+      enkf_node_free( node );
     }
   }
 
@@ -807,7 +732,7 @@ static void enkf_main_serialize_node( const char * node_key ,
    A matrix.
 */
 
-static int enkf_main_serialize_dataset( enkf_main_type * enkf_main,
+static int enkf_main_serialize_dataset( const ensemble_config_type * ens_config ,
                                         const local_dataset_type * dataset ,
                                         int report_step,
                                         hash_type * use_count ,
@@ -824,7 +749,7 @@ static int enkf_main_serialize_dataset( enkf_main_type * enkf_main,
 
   for (int ikw=0; ikw < num_kw; ikw++) {
     const char             * key         = stringlist_iget(update_keys , ikw);
-    enkf_config_node_type * config_node  = ensemble_config_get_node( enkf_main->ensemble_config , key );
+    enkf_config_node_type * config_node  = ensemble_config_get_node( ens_config , key );
     if ((serialize_info[0].run_mode == SMOOTHER_UPDATE) && (enkf_config_node_get_var_type( config_node ) != PARAMETER)) {
       /* We have tried to serialize a dynamic node when we are
          smoother update mode; that does not make sense and we just
@@ -833,8 +758,9 @@ static int enkf_main_serialize_dataset( enkf_main_type * enkf_main,
       continue;
     } else {
       const active_list_type * active_list      = local_dataset_get_node_active_list( dataset , key );
+      enkf_fs_type * src_fs = serialize_info->src_fs;
 
-      active_size[ikw] = __get_active_size( enkf_main , key , report_step , active_list );
+      active_size[ikw] = __get_active_size( ens_config , src_fs , key , report_step , active_list );
       row_offset[ikw]  = current_row;
       {
         int matrix_rows = matrix_get_rows( A );
@@ -1007,89 +933,7 @@ void enkf_main_get_PC( const matrix_type * S,
 
 
 
-void enkf_main_init_PC( const enkf_main_type * enkf_main ,
-                        const local_obsdata_type * obsdata ,
-                        double truncation_or_ncomp ,
-                        matrix_type * PC ,
-                        matrix_type * PC_obs ,
-                        double_vector_type * singular_values) {
 
-  state_enum   state                     = FORECAST;
-  enkf_fs_type * fs                      = enkf_main_get_fs( enkf_main );
-  state_map_type * state_map             = enkf_fs_get_state_map( fs );
-  const int total_ens_size               = enkf_main_get_ensemble_size(enkf_main);
-  bool_vector_type * ens_mask            = bool_vector_alloc(total_ens_size , false );
-  obs_data_type  *  obs_data             = obs_data_alloc(1.0);
-  int_vector_type * ens_active_list;
-  meas_data_type *  meas_data;
-
-  state_map_select_matching( state_map , ens_mask , STATE_HAS_DATA );
-  ens_active_list = bool_vector_alloc_active_list( ens_mask );
-  if (int_vector_size( ens_active_list )) {
-    meas_data = meas_data_alloc( ens_mask );
-
-    enkf_obs_get_obs_and_measure_data( enkf_main_get_obs( enkf_main ),
-                                       enkf_main_get_fs( enkf_main ),
-                                       obsdata ,
-                                       state ,
-                                       ens_active_list ,
-                                       meas_data ,
-                                       obs_data );
-
-    if (0)
-      {
-        const analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
-        double std_cutoff = analysis_config_get_std_cutoff( analysis_config );
-        double alpha      = analysis_config_get_alpha( analysis_config );
-
-        enkf_analysis_deactivate_outliers( obs_data , meas_data  , std_cutoff , alpha, enkf_main->verbose);
-      }
-
-    {
-      matrix_type * S      = meas_data_allocS( meas_data );
-      matrix_type * dObs   = obs_data_allocdObs( obs_data );
-      double truncation    = -1;
-      int ncomp            = -1;
-
-      if (truncation_or_ncomp < 1)
-        truncation = truncation_or_ncomp;
-      else
-        ncomp = (int) truncation_or_ncomp;
-
-      obs_data_scale( obs_data , S , NULL , NULL , NULL , dObs );
-      enkf_linalg_get_PC( S , dObs , truncation , ncomp , PC , PC_obs , singular_values);
-
-      matrix_free( S );
-      matrix_free( dObs );
-    }
-
-    bool_vector_free( ens_mask );
-    int_vector_free( ens_active_list );
-    obs_data_free( obs_data );
-    meas_data_free( meas_data );
-  } else
-    fprintf(stderr," ** Warning: no realisations with data - no plot created \n");
-}
-
-
-pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_main ,
-                                                    local_obsdata_type * obs_data,
-                                                    double truncation_or_ncomp) {
-  pca_plot_data_type * pca_plot_data;
-  {
-    matrix_type * PC = matrix_alloc(1,1);
-    matrix_type * PC_obs = matrix_alloc(1,1);
-    double_vector_type * singular_values = double_vector_alloc(0,0);
-
-    enkf_main_init_PC(  enkf_main , obs_data , truncation_or_ncomp , PC , PC_obs , singular_values );
-    pca_plot_data = pca_plot_data_alloc( local_obsdata_get_name( obs_data ) , PC , PC_obs , singular_values);
-
-    double_vector_free( singular_values );
-    matrix_free( PC );
-    matrix_free( PC_obs );
-  }
-  return pca_plot_data;
-}
 
 
 static void assert_matrix_size(const matrix_type * m , const char * name , int rows , int columns) {
@@ -1202,7 +1046,7 @@ static void enkf_main_analysis_update( enkf_main_type * enkf_main ,
         int * active_size = util_calloc( local_dataset_get_size( dataset ) , sizeof * active_size );
         int * row_offset  = util_calloc( local_dataset_get_size( dataset ) , sizeof * row_offset  );
 
-        enkf_main_serialize_dataset( enkf_main , dataset , step2 ,  use_count , active_size , row_offset , tp , serialize_info);
+        enkf_main_serialize_dataset( enkf_main->ensemble_config , dataset , step2 ,  use_count , active_size , row_offset , tp , serialize_info);
 
         if (analysis_module_check_option( module , ANALYSIS_UPDATE_A)){
           if (analysis_module_check_option( module , ANALYSIS_ITERABLE)){
@@ -1253,17 +1097,17 @@ static void enkf_main_analysis_update( enkf_main_type * enkf_main ,
 **/
 
 
-bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_list, enkf_fs_type * target_fs , int target_step , run_mode_type run_mode) {
+bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_list, enkf_fs_type * source_fs , enkf_fs_type * target_fs , int target_step , run_mode_type run_mode) {
   /*
      If merge_observations is true all observations in the time
      interval [step1+1,step2] will be used, otherwise only the last
      observation at step2 will be used.
   */
-  enkf_fs_type * source_fs = enkf_main_get_fs(enkf_main);
   state_map_type * source_state_map = enkf_fs_get_state_map( source_fs );
   const analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
   const int active_ens_size = state_map_count_matching( source_state_map , STATE_HAS_DATA );
 
+  printf("src fs:%s \n", enkf_fs_get_case_name(source_fs));
   if (analysis_config_have_enough_realisations(analysis_config , active_ens_size)) {
     double alpha       = analysis_config_get_alpha( enkf_main->analysis_config );
     double std_cutoff  = analysis_config_get_std_cutoff( enkf_main->analysis_config );
@@ -1298,23 +1142,26 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
 
 
 
-      /* Copy all the parameter nodes. */
+      /* Copy all the parameter nodes from source case to target case;
+         nodes which are updated will be fetched from the new target
+         case, and nodes which are not updated will be manually copied
+         over there.
+      */
+
       if (target_fs != source_fs) {
 	stringlist_type * param_keys = ensemble_config_alloc_keylist_from_var_type(enkf_main->ensemble_config, PARAMETER );
 	for (int i=0; i < stringlist_get_size( param_keys ); i++) {
 	  const char * key = stringlist_iget( param_keys , i );
-	  if (local_updatestep_has_data_key(updatestep, key)) {
-	    enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , key );
-	    enkf_node_type * data_node = enkf_node_alloc( config_node );
-	    for (int j=0; j < int_vector_size( ens_active_list ); j++) {
-	      node_id_type node_id = {.iens = int_vector_iget( ens_active_list , j ),
-				      .state = FORECAST ,
-				      .report_step = 0 };
-	      enkf_node_load( data_node , source_fs , node_id );
-	      enkf_node_store( data_node , target_fs , false , node_id );
-	    }
-	    enkf_node_free( data_node );
-	  }
+          enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , key );
+          enkf_node_type * data_node = enkf_node_alloc( config_node );
+          for (int j=0; j < int_vector_size(ens_active_list); j++) {
+            node_id_type node_id = {.iens = int_vector_iget( ens_active_list , j ),
+                                    .state = FORECAST ,
+                                    .report_step = 0 };
+            enkf_node_load( data_node , source_fs , node_id );
+            enkf_node_store( data_node , target_fs , false , node_id );
+          }
+          enkf_node_free( data_node );
 	}
 	stringlist_free( param_keys );
       }
@@ -1385,12 +1232,7 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
                                      meas_forecast ,
                                      obs_data );
         else if (target_fs != source_fs) {
-          ert_log_add_fmt_message( 1 , stderr , "No active observations. Parameters copied directly: %s -> %s" , enkf_fs_get_case_name( enkf_main_get_fs( enkf_main )) , enkf_fs_get_case_name( target_fs));
-          enkf_main_init_case_from_existing( enkf_main ,
-                                             enkf_main_get_fs( enkf_main ) ,
-                                             0 ,
-                                             ANALYZED ,
-                                             target_fs );
+          ert_log_add_fmt_message( 1 , stderr , "No active observations for MINISTEP: %s." , local_ministep_get_name(ministep));
         }
       }
       fclose( log_stream );
@@ -1399,7 +1241,7 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
       meas_data_free( meas_forecast );
       meas_data_free( meas_analyzed );
 
-      enkf_main_inflate( enkf_main , target_fs , current_step , use_count);
+      enkf_main_inflate( enkf_main , source_fs , target_fs , current_step , use_count);
       hash_free( use_count );
 
       if (target_state_map != source_state_map) {
@@ -1407,28 +1249,6 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
         state_map_set_from_mask( target_state_map , ens_mask , STATE_INITIALIZED );
         enkf_fs_fsync( target_fs );
       }
-
-      /* Copy all the nodes which have been updates */
-      if (target_fs != source_fs) {
-        stringlist_type * param_keys = ensemble_config_alloc_keylist_from_var_type(enkf_main->ensemble_config, PARAMETER );
-        for (int i=0; i < stringlist_get_size( param_keys ); i++) {
-          const char * key = stringlist_iget( param_keys , i );
-          if (!local_updatestep_has_data_key(updatestep, key)) {
-            enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , key );
-            enkf_node_type * data_node = enkf_node_alloc( config_node );
-            for (int j=0; j < int_vector_size( ens_active_list ); j++) {
-              node_id_type node_id = {.iens = int_vector_iget( ens_active_list , j ),
-                                      .state = FORECAST ,
-                                      .report_step = 0 };
-              enkf_node_load( data_node , source_fs , node_id );
-              enkf_node_store( data_node , target_fs , false , node_id );
-            }
-            enkf_node_free( data_node );
-          }
-        }
-        stringlist_free( param_keys );
-      }
-
     }
     bool_vector_free( ens_mask );
     int_vector_free( ens_active_list );
@@ -1443,20 +1263,15 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
 }
 
 
-void enkf_main_assimilation_update(enkf_main_type * enkf_main , const int_vector_type * step_list) {
-  enkf_main_UPDATE( enkf_main , step_list , enkf_main_get_fs( enkf_main ) , int_vector_get_last( step_list ) , ENKF_ASSIMILATION );
+static bool enkf_main_smoother_update__(enkf_main_type * enkf_main , const int_vector_type * step_list , enkf_fs_type * source_fs, enkf_fs_type * target_fs) {
+  return enkf_main_UPDATE( enkf_main , step_list , source_fs , target_fs , 0 , SMOOTHER_UPDATE );
 }
 
 
-static bool enkf_main_smoother_update__(enkf_main_type * enkf_main , const int_vector_type * step_list , enkf_fs_type * target_fs) {
-  return enkf_main_UPDATE( enkf_main , step_list , target_fs , 0 , SMOOTHER_UPDATE );
-}
-
-
-bool enkf_main_smoother_update(enkf_main_type * enkf_main , enkf_fs_type * target_fs) {
+bool enkf_main_smoother_update(enkf_main_type * enkf_main , enkf_fs_type * source_fs, enkf_fs_type * target_fs) {
   int stride = 1;
   int step2;
-  time_map_type * time_map = enkf_fs_get_time_map( enkf_main_get_fs( enkf_main ));
+  time_map_type * time_map = enkf_fs_get_time_map( source_fs );
   int_vector_type * step_list;
   bool update_done;
 
@@ -1465,7 +1280,7 @@ bool enkf_main_smoother_update(enkf_main_type * enkf_main , enkf_fs_type * targe
     step2 = model_config_get_last_history_restart( enkf_main->model_config );
 
   step_list = enkf_main_update_alloc_step_list( enkf_main , 0 , step2 , stride);
-  update_done = enkf_main_smoother_update__( enkf_main , step_list , target_fs );
+  update_done = enkf_main_smoother_update__( enkf_main , step_list , source_fs, target_fs );
   int_vector_free( step_list );
 
   return update_done;
@@ -1537,10 +1352,6 @@ static void enkf_main_monitor_job_queue ( const enkf_main_type * enkf_main) {
   }
 }
 
-void enkf_main_run_post_workflow( enkf_main_type * enkf_main ) {
-  qc_module_run_workflow( enkf_main->qc_module , enkf_main );
-}
-
 
 
 void enkf_main_isubmit_job( enkf_main_type * enkf_main , run_arg_type * run_arg ) {
@@ -1553,7 +1364,7 @@ void enkf_main_isubmit_job( enkf_main_type * enkf_main , run_arg_type * run_arg 
   const char * run_path                     = run_arg_get_runpath( run_arg );
 
   {
-    runpath_list_type * runpath_list = qc_module_get_runpath_list( enkf_main->qc_module );
+    runpath_list_type * runpath_list = hook_manager_get_runpath_list( enkf_main->hook_manager );
     runpath_list_add( runpath_list ,
                       run_arg_get_iens( run_arg ),
                       run_arg_get_iter( run_arg ),
@@ -1607,12 +1418,10 @@ void * enkf_main_isubmit_job__( void * arg ) {
 
 
 
-void enkf_main_submit_jobs__( enkf_main_type * enkf_main ,
-                              const ert_run_context_type * run_context ,
-                              thread_pool_type * submit_threads,
-                              arg_pack_type ** arg_pack_list) {
-  runpath_list_type * runpath_list = qc_module_get_runpath_list( enkf_main->qc_module );
-  runpath_list_clear( runpath_list );
+static void enkf_main_submit_jobs__( enkf_main_type * enkf_main ,
+                                     const ert_run_context_type * run_context ,
+                                     thread_pool_type * submit_threads,
+                                     arg_pack_type ** arg_pack_list) {
   {
     int iens;
     const bool_vector_type * iactive = ert_run_context_get_iactive( run_context );
@@ -1630,7 +1439,6 @@ void enkf_main_submit_jobs__( enkf_main_type * enkf_main ,
       }
     }
   }
-  runpath_list_fprintf( runpath_list );
 }
 
 
@@ -1640,10 +1448,12 @@ void enkf_main_submit_jobs( enkf_main_type * enkf_main ,
   int ens_size = enkf_main_get_ensemble_size( enkf_main );
   arg_pack_type ** arg_pack_list = util_malloc( ens_size * sizeof * arg_pack_list );
   thread_pool_type * submit_threads = thread_pool_alloc( 4 , true );
+  runpath_list_type * runpath_list = hook_manager_get_runpath_list( enkf_main->hook_manager );
   int iens;
   for (iens = 0; iens < ens_size; iens++)
     arg_pack_list[iens] = arg_pack_alloc( );
 
+  runpath_list_clear( runpath_list );
   enkf_main_submit_jobs__(enkf_main , run_context , submit_threads , arg_pack_list);
 
   /*
@@ -1654,6 +1464,7 @@ void enkf_main_submit_jobs( enkf_main_type * enkf_main ,
 
   thread_pool_join(submit_threads);
   thread_pool_free(submit_threads);
+  runpath_list_fprintf( runpath_list );
 
   for (iens = 0; iens < ens_size; iens++)
     arg_pack_free( arg_pack_list[iens] );
@@ -1670,16 +1481,6 @@ void enkf_main_submit_jobs( enkf_main_type * enkf_main ,
 
 static bool enkf_main_run_step(enkf_main_type * enkf_main       ,
                                const ert_run_context_type * run_context) {
-//                               run_mode_type    run_mode        ,
-//                               bool_vector_type * iactive ,
-//                               int load_start                   ,      /* For internalizing results, and the first step in the update when merging. */
-//                               int init_step_parameter          ,
-//                               state_enum init_state_parameter  ,
-//                               state_enum init_state_dynamic    ,
-//                               int iter                         ,
-//                               int step1                        ,
-//                               int step2) {
-
 
   if (ert_run_context_get_step1(run_context))
     ecl_config_assert_restart( enkf_main_get_ecl_config( enkf_main ) );
@@ -1689,42 +1490,10 @@ static bool enkf_main_run_step(enkf_main_type * enkf_main       ,
     bool     verbose_queue    = enkf_main->verbose;
     const int active_ens_size = util_int_min( bool_vector_size( ert_run_context_get_iactive( run_context )) , enkf_main_get_ensemble_size( enkf_main ));
 
-    //enkf_fs_type * fs         = enkf_main_get_fs( enkf_main );
-    //enkf_fs_type * target_fs = fs; //  ERRORE
-    //path_fmt_type * runpath_fmt = model_config_get_runpath_fmt( enkf_main->model_config );
-
-    //
-    //ert_run_context_type * run_context;
-    //int   job_size;
-    //int   iens;
-    //
-    //switch (run_mode) {
-    //case(INIT_ONLY):
-    //  run_context = ert_run_context_alloc_INIT_ONLY( fs , iactive , runpath_fmt , enkf_main->subst_list , iter );
-    //  break;
-    //case(ENSEMBLE_EXPERIMENT):
-    //  run_context = ert_run_context_alloc_ENSEMBLE_EXPERIMENT( fs , iactive , runpath_fmt , enkf_main->subst_list , iter );
-    //  break;
-    //case(SMOOTHER_UPDATE):
-    //  run_context = ert_run_context_alloc_SMOOTHER_RUN( fs , fs , iactive , runpath_fmt , enkf_main->subst_list , iter);
-    //  break;
-    //case(ENKF_ASSIMILATION):
-    //  run_context = ert_run_context_alloc_ENKF_ASSIMILATION( fs , iactive , runpath_fmt , enkf_main->subst_list , init_state_parameter , init_state_dynamic , step1 , step2 , iter);
-    //  break;
-    //default:
-    //  util_abort("%s: what the fuck? \n",__func__);
-    //}
-
     state_map_deselect_matching( enkf_fs_get_state_map( ert_run_context_get_init_fs( run_context )) ,
                                  ert_run_context_get_iactive( run_context ), STATE_LOAD_FAILURE | STATE_PARENT_FAILURE);
 
     ert_log_add_fmt_message( 1 , NULL , "===================================================================", false);
-    if (ert_run_context_get_mode( run_context ) == ENKF_ASSIMILATION) {
-      int step1 = ert_run_context_get_step1(run_context);
-      int step2 = ert_run_context_get_step2(run_context);
-      printf("Starting forward step: %d -> %d\n", step1 , step2 );
-      ert_log_add_fmt_message( 1 , NULL , "Forward model: %d -> %d ",step1,step2);
-    }
 
     job_size = bool_vector_count_equal( ert_run_context_get_iactive(run_context) , true );
     {
@@ -1768,6 +1537,10 @@ static bool enkf_main_run_step(enkf_main_type * enkf_main       ,
 
           switch (run_status) {
           case JOB_RUN_FAILURE:
+            enkf_main_report_run_failure( enkf_main , run_arg );
+            bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
+            break;
+          case JOB_NOT_STARTED:
             enkf_main_report_run_failure( enkf_main , run_arg );
             bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
             break;
@@ -1847,15 +1620,14 @@ void * enkf_main_get_enkf_config_node_type(const ensemble_config_type * ensemble
 
 
 void enkf_main_init_run( enkf_main_type * enkf_main, const ert_run_context_type * run_context) {
-  {
-    const ext_joblist_type * joblist = site_config_get_installed_jobs( enkf_main->site_config);
-    model_config_set_enkf_sched( enkf_main->model_config , joblist , ert_run_context_get_mode( run_context ));
-  }
-
   enkf_main_init_internalization(enkf_main , ert_run_context_get_mode( run_context ));
   {
     stringlist_type * param_list = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
-    enkf_main_initialize_from_scratch_with_bool_vector(enkf_main , param_list , ert_run_context_get_iactive( run_context ) , ert_run_context_get_init_mode( run_context ));
+    enkf_main_initialize_from_scratch_with_bool_vector(enkf_main , 
+						       ert_run_context_get_init_fs( run_context ),
+						       param_list , 
+						       ert_run_context_get_iactive( run_context ) , 
+						       ert_run_context_get_init_mode( run_context ));
     stringlist_free( param_list );
   }
 }
@@ -1885,128 +1657,15 @@ void enkf_main_run_exp(enkf_main_type * enkf_main ,
                                                              iter );
 
   enkf_main_init_run( enkf_main , run_context );
-  if (enkf_main_run_step(enkf_main , run_context))
-    enkf_main_run_post_workflow(enkf_main);
+  if (enkf_main_run_step(enkf_main , run_context)) {
+    hook_manager_type * hook_manager = enkf_main_get_hook_manager(enkf_main);
+    hook_manager_run_workflows(hook_manager, POST_SIMULATION, enkf_main);
+  }
 
   ert_run_context_free( run_context );
 }
 
 
-
-void enkf_main_run_assimilation(enkf_main_type * enkf_main            ,
-                                bool_vector_type * iactive      ,
-                                int              init_step_parameters ,
-                                int              start_report         ,
-                                state_enum       start_state) {
-
-  analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
-  if (!analysis_config_get_module_option( analysis_config , ANALYSIS_ITERABLE)) {
-    init_mode_type init_mode = INIT_CONDITIONAL;
-    bool rerun       = analysis_config_get_rerun( enkf_main->analysis_config );
-    int  rerun_start = analysis_config_get_rerun_start( enkf_main->analysis_config );
-    {
-      bool analyzed_start = false;
-      bool prev_enkf_on;
-      const enkf_sched_type * enkf_sched = model_config_get_enkf_sched(enkf_main->model_config);
-      const int num_nodes                = enkf_sched_get_num_nodes(enkf_sched);
-      const int start_inode              = enkf_sched_get_node_index(enkf_sched , start_report);
-      int inode;
-      ert_run_context_type * run_context;
-
-
-      if (start_state == ANALYZED)
-        analyzed_start = true;
-      else if (start_state == FORECAST)
-        analyzed_start = false;
-      else
-        util_abort("%s: internal error - start_state must be analyzed | forecast \n",__func__);
-
-      prev_enkf_on = analyzed_start;
-      for (inode = start_inode; inode < num_nodes; inode++) {
-        const enkf_sched_node_type * node = enkf_sched_iget_node(enkf_sched , inode);
-        int iter = 0;
-        state_enum init_state_parameter;
-        state_enum init_state_dynamic;
-        int      init_step_parameter;
-        int      load_start;
-        int      report_step1;
-        int      report_step2;
-        bool     enkf_on;
-
-
-        enkf_sched_node_get_data(node , &report_step1 , &report_step2 , &enkf_on );
-        if (inode == start_inode)
-          report_step1 = start_report;  /* If we are restarting from somewhere. */
-
-        if (rerun) {
-          /* rerun ... */
-          load_start           = report_step1;    /* +1 below. Observe that report_step is set to rerun_start below. */
-          init_step_parameter  = report_step1;
-          init_state_dynamic   = FORECAST;
-          init_state_parameter = ANALYZED;
-          report_step1         = rerun_start;
-        } else {
-          if (prev_enkf_on)
-            init_state_dynamic = ANALYZED;
-          else
-            init_state_dynamic = FORECAST;
-          /*
-            This is not a rerun - and then parameters and dynamic
-            data should be initialized from the same report step.
-          */
-          init_step_parameter  = report_step1;
-          init_state_parameter = init_state_dynamic;
-          load_start = report_step1;
-        }
-
-        run_context = enkf_main_alloc_ert_run_context_ENKF_ASSIMILATION( enkf_main,
-                                                                         enkf_main_get_fs( enkf_main ) ,
-                                                                         iactive ,
-                                                                         init_mode ,
-                                                                         init_state_parameter,
-                                                                         init_state_dynamic ,
-                                                                         report_step1 ,  // init_step parameter
-                                                                         report_step2 ,
-                                                                         iter );
-
-        enkf_main_init_run( enkf_main , run_context );
-        enkf_main_run_step(enkf_main , run_context);
-        {
-          enkf_fs_type * result_fs = ert_run_context_get_result_fs( run_context );
-          state_map_type * state_map = enkf_fs_get_state_map(result_fs);
-          const analysis_config_type * analysis_config = enkf_main_get_analysis_config(enkf_main);
-          int active_ens_size = state_map_count_matching(state_map , STATE_HAS_DATA);
-
-          if (analysis_config_have_enough_realisations(analysis_config , active_ens_size)) {
-            if (enkf_on) {
-              bool merge_observations = analysis_config_get_merge_observations( enkf_main->analysis_config );
-              int_vector_type * step_list;
-              int stride;
-
-              if (merge_observations)
-                stride = 1;
-              else
-                stride = 0;
-
-              step_list = enkf_main_update_alloc_step_list( enkf_main , ert_run_context_get_load_start(run_context) , report_step2 , stride );
-
-              enkf_main_assimilation_update(enkf_main , step_list);
-              int_vector_free( step_list );
-              enkf_fs_fsync( enkf_main->dbase );
-            }
-          } else {
-            fprintf(stderr,"** ERROR ** There are %d active realisations left, which is less than the minimum specified (%d) - stopping assimilation.\n" ,
-                    active_ens_size ,
-                    analysis_config_get_min_realisations(analysis_config));
-            break;
-          }
-          prev_enkf_on = enkf_on;
-        }
-      }
-    }
-  } else
-    fprintf(stderr,"** ERROR: EnKF assimilation can not be combined with an iterable analysis module.\n");
-}
 
 
 bool enkf_main_run_simple_step(enkf_main_type * enkf_main , bool_vector_type * iactive , init_mode_type init_mode, int iter) {
@@ -2025,20 +1684,25 @@ bool enkf_main_run_simple_step(enkf_main_type * enkf_main , bool_vector_type * i
 
 
 
-void enkf_main_run_smoother(enkf_main_type * enkf_main , const char * target_fs_name , bool_vector_type * iactive , int iter , bool rerun) {
+void enkf_main_run_smoother(enkf_main_type * enkf_main , enkf_fs_type * source_fs, const char * target_fs_name , bool_vector_type * iactive , int iter , bool rerun) {
   analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
   if (!analysis_config_get_module_option( analysis_config , ANALYSIS_ITERABLE)) {
-    if (enkf_main_run_simple_step( enkf_main , iactive , INIT_CONDITIONAL, iter))
-      enkf_main_run_post_workflow(enkf_main);
+    if (enkf_main_run_simple_step( enkf_main , iactive , INIT_CONDITIONAL, iter)) {
+      hook_manager_type * hook_manager = enkf_main_get_hook_manager(enkf_main);
+      hook_manager_run_workflows(hook_manager, POST_SIMULATION, enkf_main);
+    }
+
     {
       enkf_fs_type * target_fs = enkf_main_mount_alt_fs( enkf_main , target_fs_name , true );
-      bool update_done = enkf_main_smoother_update( enkf_main , target_fs );
+      bool update_done = enkf_main_smoother_update( enkf_main , source_fs , target_fs );
 
       if (rerun) {
         if (update_done) {
           enkf_main_set_fs( enkf_main , target_fs , target_fs_name);
-          if (enkf_main_run_simple_step(enkf_main , iactive , INIT_NONE, iter + 1))
-            enkf_main_run_post_workflow(enkf_main);
+          if (enkf_main_run_simple_step(enkf_main , iactive , INIT_NONE, iter + 1)) {
+            hook_manager_type * hook_manager = enkf_main_get_hook_manager(enkf_main);
+            hook_manager_run_workflows(hook_manager, POST_SIMULATION, enkf_main);
+          }
         } else
           fprintf(stderr,"** Warning: the analysis update failed - no rerun started.\n");
       }
@@ -2057,9 +1721,10 @@ static bool enkf_main_run_simulation_and_postworkflow(enkf_main_type * enkf_main
 
   bool total_ok = enkf_main_run_step(enkf_main , run_context);
 
-  if (total_ok || (bool_vector_count_equal(ert_run_context_get_iactive( run_context ), true) >= min_realizations))
-    enkf_main_run_post_workflow(enkf_main);
-  else {
+  if (total_ok || (bool_vector_count_equal(ert_run_context_get_iactive( run_context ), true) >= min_realizations)) {
+    hook_manager_type * hook_manager = enkf_main_get_hook_manager(enkf_main);
+    hook_manager_run_workflows(hook_manager, POST_SIMULATION, enkf_main);
+  }  else {
     fprintf(stderr,"Simulation in iteration %d failed, stopping Iterated Ensemble Smoother\n", ert_run_context_get_iter( run_context ));
     ret = false;
   }
@@ -2068,7 +1733,7 @@ static bool enkf_main_run_simulation_and_postworkflow(enkf_main_type * enkf_main
 }
 
 
-static bool enkf_main_run_analysis(enkf_main_type * enkf_main, const char * target_fs_name, int iteration_number) {
+static bool enkf_main_run_analysis(enkf_main_type * enkf_main, enkf_fs_type * source_fs ,const char * target_fs_name, int iteration_number) {
   bool updateOK                          = false;
   analysis_config_type * analysis_config = enkf_main_get_analysis_config(enkf_main);
   analysis_module_type * analysis_module = analysis_config_get_active_module(analysis_config);
@@ -2077,11 +1742,11 @@ static bool enkf_main_run_analysis(enkf_main_type * enkf_main, const char * targ
   if (target_fs_name == NULL){
     fprintf(stderr,"Sorry: the updated ensemble will overwrite the current case in the iterated ensemble smoother.");
     printf("Running analysis on case %s, target case is %s\n", enkf_main_get_current_fs(enkf_main), enkf_main_get_current_fs(enkf_main));
-    updateOK = enkf_main_smoother_update(enkf_main, enkf_main_get_fs(enkf_main));
+    updateOK = enkf_main_smoother_update(enkf_main, source_fs, enkf_main_get_fs(enkf_main));
   } else {
     enkf_fs_type * target_fs = enkf_main_mount_alt_fs(enkf_main , target_fs_name , true );
     printf("Running analysis on case %s, target case is %s\n", enkf_main_get_current_fs(enkf_main), enkf_fs_get_case_name(target_fs));
-    updateOK = enkf_main_smoother_update(enkf_main, target_fs);
+    updateOK = enkf_main_smoother_update(enkf_main, source_fs , target_fs);
     enkf_fs_decref( target_fs );
   }
 
@@ -2128,6 +1793,7 @@ void enkf_main_run_iterated_ES(enkf_main_type * enkf_main, int num_iterations_to
     { // Iteration 1 - num_iterations [iteration 1, num iterations]
       int num_retries_per_iteration = analysis_iter_config_get_num_retries_per_iteration(iter_config);
       int num_tries     = 0;
+      enkf_fs_type * source_fs = enkf_main_get_fs( enkf_main );
       current_iteration = 1;
 
       while ((current_iteration <= num_iterations_to_run) && (num_tries < num_retries_per_iteration)) {
@@ -2135,7 +1801,7 @@ void enkf_main_run_iterated_ES(enkf_main_type * enkf_main, int num_iterations_to
 
         const char * target_fs_name = analysis_iter_config_iget_case( iter_config , current_iteration );
 
-        if (enkf_main_run_analysis(enkf_main, target_fs_name, current_iteration)) {
+        if (enkf_main_run_analysis(enkf_main, source_fs, target_fs_name, current_iteration)) {
           enkf_main_select_fs(enkf_main, target_fs_name);
           if (!enkf_main_run_simulation_and_postworkflow(enkf_main, run_context ))
             break;
@@ -2172,28 +1838,6 @@ ert_run_context_type * enkf_main_alloc_ert_run_context_INIT_ONLY(const enkf_main
   return ert_run_context_alloc_INIT_ONLY( fs , iactive , model_config_get_runpath_fmt( enkf_main->model_config ) , enkf_main->subst_list , init_mode , iter );
 }
 
-ert_run_context_type * enkf_main_alloc_ert_run_context_ENKF_ASSIMILATION( const enkf_main_type * enkf_main ,
-                                                                      enkf_fs_type * fs ,
-                                                                      const bool_vector_type * iactive ,
-                                                                      init_mode_type init_mode ,
-                                                                      state_enum init_state_parameter ,
-                                                                      state_enum init_state_dynamic   ,
-                                                                      int step1                       ,
-                                                                      int step2                       ,
-                                                                      int iter) {
-
-  return ert_run_context_alloc_ENKF_ASSIMILATION( enkf_main_get_fs( enkf_main ) ,
-                                                  iactive ,
-                                                  model_config_get_runpath_fmt( enkf_main->model_config ) ,
-                                                  enkf_main->subst_list ,
-                                                  init_mode ,
-                                                  init_state_parameter,
-                                                  init_state_dynamic ,
-                                                  step1 ,  // init_step parameter
-                                                  step2 ,
-                                                  iter );
-
-}
 
 
 
@@ -2213,7 +1857,7 @@ void enkf_main_create_all_active_config( const enkf_main_type * enkf_main) {
   {
     local_updatestep_type * default_step = local_config_get_updatestep(local_config);
     local_ministep_type * ministep = local_config_alloc_ministep( local_config , "ALL_ACTIVE");
-    local_obsdata_type * obsdata = local_config_alloc_obsset(local_config, "ALL_OBS");
+    local_obsdata_type * obsdata = local_config_alloc_obsdata(local_config, "ALL_OBS");
     local_dataset_type * all_active_dataset = local_config_alloc_dataset(local_config, "ALL_DATA");
 
     local_updatestep_add_ministep( default_step , ministep );
@@ -2223,7 +1867,7 @@ void enkf_main_create_all_active_config( const enkf_main_type * enkf_main) {
       hash_iter_type * obs_iter = enkf_obs_alloc_iter( enkf_main->obs );
       while ( !hash_iter_is_complete(obs_iter) ) {
         const char * obs_key = hash_iter_get_next_key( obs_iter );
-        local_obsdata_node_type * obsdata_node = local_obsdata_node_alloc( obs_key );
+        local_obsdata_node_type * obsdata_node = local_obsdata_node_alloc( obs_key , true );
         local_obsdata_add_node(obsdata, obsdata_node );
       }
       local_ministep_add_obsdata(ministep, obsdata);
@@ -2323,9 +1967,6 @@ static void enkf_main_init_user_config( const enkf_main_type * enkf_main , confi
   item = config_add_schema_item( config , JOBNAME_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 1 );
 
-  item = config_add_schema_item(config , SELECT_CASE_KEY , false  );
-  config_schema_item_set_argc_minmax(item , 1 , 1 );
-
   item = config_add_schema_item(config , DBASE_TYPE_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1, 1 );
   config_schema_item_set_common_selection_set(item , 2 , (const char *[2]) {"PLAIN" , "BLOCK_FS"});
@@ -2335,9 +1976,6 @@ static void enkf_main_init_user_config( const enkf_main_type * enkf_main , confi
 
   item = config_add_schema_item(config , DATA_KW_KEY , false  );
   config_schema_item_set_argc_minmax(item , 2 , 2);
-
-  item = config_add_schema_item(config , KEEP_RUNPATH_KEY , false  );
-  config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
 
   config_add_key_value(config , PRE_CLEAR_RUNPATH_KEY , false , CONFIG_BOOL);
 
@@ -2364,10 +2002,6 @@ static void enkf_main_init_user_config( const enkf_main_type * enkf_main , confi
   config_schema_item_set_argc_minmax(item , 1 , 1 );
   config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
 
-  item = config_add_schema_item(config , ENKF_SCHED_FILE_KEY , false  );
-  config_schema_item_set_argc_minmax(item , 1 , 1 );
-  config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
-
   {
     stringlist_type * refcase_dep = stringlist_alloc_argv_ref( (const char *[1]) { REFCASE_KEY } , 1);
 
@@ -2380,8 +2014,7 @@ static void enkf_main_init_user_config( const enkf_main_type * enkf_main , confi
     stringlist_free(refcase_dep);
   }
 
-  ert_report_list_add_config_items( config);
-  qc_module_add_config_items( config );
+  hook_manager_add_config_items( config );
 }
 
 
@@ -2411,22 +2044,11 @@ bool enkf_main_get_verbose( const enkf_main_type * enkf_main ) {
 */
 
 
-void enkf_main_parse_keep_runpath(enkf_main_type * enkf_main , const char * keep_runpath_string , const char * delete_runpath_string , int ens_size ) {
+void enkf_main_parse_keep_runpath(enkf_main_type * enkf_main , const char * delete_runpath_string , int ens_size ) {
 
   int i;
   for (i = 0; i < ens_size; i++)
     int_vector_iset( enkf_main->keep_runpath , i , DEFAULT_KEEP);
-
-
-  {
-    int_vector_type * active_list = string_util_alloc_active_list(keep_runpath_string);
-
-    for (i = 0; i < int_vector_size( active_list ); i++)
-      int_vector_iset( enkf_main->keep_runpath , int_vector_iget( active_list , i ) , EXPLICIT_KEEP);
-
-    int_vector_free( active_list );
-  }
-
 
   {
     int_vector_type * active_list = string_util_alloc_active_list(delete_runpath_string);
@@ -2474,11 +2096,9 @@ static void enkf_main_add_subst_kw( enkf_main_type * enkf_main , const char * ke
 }
 
 
-static void enkf_main_init_qc( enkf_main_type * enkf_main , config_content_type * config ) {
-  qc_module_init( enkf_main->qc_module , config );
-  enkf_main_add_subst_kw( enkf_main , "QC_PATH" , qc_module_get_path( enkf_main->qc_module ) , "QC Root path" , true);
+static void enkf_main_init_hook_manager( enkf_main_type * enkf_main , config_content_type * config ) {
+  hook_manager_init( enkf_main->hook_manager , config );
 }
-
 
 static void enkf_main_init_subst_list( enkf_main_type * enkf_main ) {
   /* Here we add the functions which should be available for string substitution operations. */
@@ -2522,8 +2142,7 @@ static void enkf_main_init_subst_list( enkf_main_type * enkf_main ) {
 enkf_main_type * enkf_main_alloc_empty( ) {
   enkf_main_type * enkf_main = util_malloc(sizeof * enkf_main);
   UTIL_TYPE_ID_INIT(enkf_main , ENKF_MAIN_ID);
-   ert_log_open_empty();
-  enkf_main->dbase              = NULL;
+  ert_log_open_empty();
   enkf_main->ensemble           = NULL;
   enkf_main->user_config_file   = NULL;
   enkf_main->site_config_file   = NULL;
@@ -2547,12 +2166,12 @@ enkf_main_type * enkf_main_alloc_empty( ) {
   enkf_main->subst_list         = subst_list_alloc( enkf_main->subst_func_pool );
   enkf_main->templates          = ert_templates_alloc( enkf_main->subst_list );
   enkf_main->workflow_list      = ert_workflow_list_alloc( enkf_main->subst_list );
-  enkf_main->qc_module          = qc_module_alloc( enkf_main->workflow_list , DEFAULT_QC_PATH );
+  enkf_main->hook_manager       = hook_manager_alloc( enkf_main->workflow_list );
   enkf_main->analysis_config    = analysis_config_alloc( enkf_main->rng );
-  enkf_main->report_list        = ert_report_list_alloc( DEFAULT_REPORT_PATH , plot_config_get_path( enkf_main->plot_config ) );
 
   enkf_main_init_subst_list( enkf_main );
   enkf_main_set_verbose( enkf_main , true );
+  enkf_main_init_fs( enkf_main );
   return enkf_main;
 }
 
@@ -2591,12 +2210,17 @@ static void enkf_main_install_common_data_kw( enkf_main_type * enkf_main ) {
   enkf_main_add_subst_kw( enkf_main , "CONFIG_PATH"  , cwd , "The current working directory we are running from - the location of the config file." , true);
   enkf_main_add_subst_kw( enkf_main , "DATE"         , date_string , "The current date." , true);
   enkf_main_add_subst_kw( enkf_main , "NUM_CPU"      , num_cpu_string , "The number of CPU used for one forward model." , true );
-  enkf_main_add_subst_kw( enkf_main , "RUNPATH_FILE" , qc_module_get_runpath_list_file( enkf_main->qc_module ) , "The name of a file with a list of run directories." , true);
+  enkf_main_add_subst_kw( enkf_main , "RUNPATH_FILE" , hook_manager_get_runpath_list_file( enkf_main->hook_manager ) , "The name of a file with a list of run directories." , true);
 
   free( cwd );
   free( date_string );
 }
 
+
+
+runpath_list_type * enkf_main_get_runpath_list( const enkf_main_type * enkf_main ) {
+  return hook_manager_get_runpath_list( enkf_main->hook_manager );
+}
 
 
 /**
@@ -2641,7 +2265,6 @@ void enkf_main_resize_ensemble( enkf_main_type * enkf_main , int new_ens_size ) 
       /* Observe that due to the initialization of the rng - this function is currently NOT thread safe. */
       enkf_main->ensemble[iens] = enkf_state_alloc(iens,
                                                    enkf_main->rng ,
-                                                   enkf_main->dbase ,
                                                    model_config_iget_casename( enkf_main->model_config , iens ) ,
                                                    enkf_main->pre_clear_runpath                                 ,
                                                    int_vector_safe_iget( enkf_main->keep_runpath , iens)        ,
@@ -2659,6 +2282,12 @@ void enkf_main_resize_ensemble( enkf_main_type * enkf_main , int new_ens_size ) 
 }
 
 
+void enkf_main_add_node(enkf_main_type * enkf_main, enkf_config_node_type * enkf_config_node) {
+    for (int iens = 0; iens < enkf_main_get_ensemble_size(enkf_main); iens++) {
+
+      enkf_state_add_node(enkf_main->ensemble[iens], enkf_config_node_get_key(enkf_config_node), enkf_config_node);
+    }
+}
 
 
 
@@ -2670,18 +2299,6 @@ void enkf_main_update_node( enkf_main_type * enkf_main , const char * key ) {
 
 
 
-/*
- When the case has changed it is essential to invalidate the meta
- information in the enkf_nodes, otherwise the nodes might reuse old
- data (from a previous case).
-*/
-
-static void enkf_main_invalidate_cache( enkf_main_type * enkf_main ) {
-  int ens_size = enkf_main_get_ensemble_size( enkf_main );
-  int iens;
-  for (iens = 0; iens < ens_size; iens++)
-    enkf_state_invalidate_cache( enkf_main->ensemble[iens] );
-}
 
 
 
@@ -2689,19 +2306,6 @@ static void enkf_main_invalidate_cache( enkf_main_type * enkf_main ) {
 
 
 
-void enkf_main_gen_data_special( enkf_main_type * enkf_main ) {
-  stringlist_type * gen_data_keys = ensemble_config_alloc_keylist_from_impl_type( enkf_main->ensemble_config , GEN_DATA);
-  for (int i=0; i < stringlist_get_size( gen_data_keys ); i++) {
-    enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , stringlist_iget( gen_data_keys , i));
-    gen_data_config_type * gen_data_config = enkf_config_node_get_ref( config_node );
-
-    if (gen_data_config_is_dynamic( gen_data_config )) {
-      gen_data_config_set_write_fs( gen_data_config, enkf_main->dbase);
-      gen_data_config_set_ens_size( gen_data_config , enkf_main->ens_size );
-    }
-  }
-  stringlist_free( gen_data_keys );
-}
 
 
 
@@ -2812,6 +2416,35 @@ void enkf_main_update_local_updates( enkf_main_type * enkf_main) {
   }
 }
 
+static char * __enkf_main_alloc_user_config_file(const enkf_main_type * enkf_main, bool base_only) {
+    char * base_name;
+    char * extension;
+    util_alloc_file_components(enkf_main_get_user_config_file(enkf_main), NULL, &base_name, &extension);
+
+    char * config_file;
+    if (base_only) {
+        config_file = util_alloc_filename(NULL, base_name, NULL);;
+    } else {
+        config_file = util_alloc_filename(NULL, base_name, extension);
+    }
+
+    free(base_name);
+    free(extension);
+    return config_file;
+}
+
+static hash_type *__enkf_main_alloc_predefined_kw_map(const enkf_main_type *enkf_main) {
+    char * config_file_base       = __enkf_main_alloc_user_config_file(enkf_main, true);
+    char * config_file            = __enkf_main_alloc_user_config_file(enkf_main, false);
+    hash_type * pre_defined_kw_map = hash_alloc();
+
+    hash_insert_string(pre_defined_kw_map, "<CONFIG_FILE>", config_file);
+    hash_insert_string(pre_defined_kw_map, "<CONFIG_FILE_BASE>", config_file_base);
+
+    free( config_file ) ;
+    free( config_file_base );
+    return pre_defined_kw_map;
+}
 
 
 /**
@@ -2828,11 +2461,10 @@ static void enkf_main_bootstrap_site(enkf_main_type * enkf_main , const char * s
     config_parser_type * config = config_alloc();
     site_config_add_config_items( config , true );
     {
-      config_content_type * content = config_parse(config , site_config_file  , "--" , INCLUDE_KEY , DEFINE_KEY , CONFIG_UNRECOGNIZED_WARN , false);
+      config_content_type * content = config_parse(config , site_config_file  , "--" , INCLUDE_KEY , DEFINE_KEY , NULL, CONFIG_UNRECOGNIZED_WARN , false);
       if (config_content_is_valid( content )) {
         site_config_init( enkf_main->site_config , content );
         analysis_config_load_all_external_modules_from_config(enkf_main->analysis_config, content);
-        ert_report_list_site_init( enkf_main->report_list , content );
         ert_workflow_list_init( enkf_main->workflow_list , content );
       } else {
         config_error_type * errors = config_content_get_errors( content );
@@ -2940,12 +2572,20 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
     enkf_main_bootstrap_site( enkf_main , site_config);
 
     if (model_config) {
+      enkf_main_set_site_config_file( enkf_main , site_config );
+      enkf_main_set_user_config_file( enkf_main , model_config );
+
       config = config_alloc();
       enkf_main_init_user_config( enkf_main , config );
       site_config_add_config_items( config , false );
       site_config_init_user_mode( enkf_main->site_config );
 
-      content = config_parse(config , model_config , "--" , INCLUDE_KEY , DEFINE_KEY , CONFIG_UNRECOGNIZED_WARN , true);
+      {
+        hash_type *pre_defined_kw_map = __enkf_main_alloc_predefined_kw_map(enkf_main);
+        content = config_parse(config , model_config , "--" , INCLUDE_KEY , DEFINE_KEY , pre_defined_kw_map, CONFIG_UNRECOGNIZED_WARN , true);
+        hash_free(pre_defined_kw_map);
+      }
+
       if (!config_content_is_valid( content )) {
 	config_error_type * errors = config_content_get_errors( content );
 	config_error_fprintf( errors , true , stderr );
@@ -2961,8 +2601,7 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
       */
 
 
-      enkf_main_set_site_config_file( enkf_main , site_config );
-      enkf_main_set_user_config_file( enkf_main , model_config );
+
 
       {
 	char * log_file;
@@ -3004,7 +2643,7 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
 			 ecl_config_get_sched_file(enkf_main->ecl_config) ,
 			 ecl_config_get_refcase( enkf_main->ecl_config ));
 
-      enkf_main_init_qc( enkf_main , content );
+      enkf_main_init_hook_manager( enkf_main , content );
       enkf_main_init_data_kw( enkf_main , content );
       enkf_main_update_num_cpu( enkf_main );
       {
@@ -3029,36 +2668,21 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
 
       /*****************************************************************/
       /**
-	 To keep or not to keep the runpath directories? The problem is
-	 that the default behavior is different depending on the run_mode:
-
-	 enkf_mode: In this case the default behaviour is to delete the
-	 runpath directories. You can explicitly say that you want to
-	 keep runpath directories with the KEEP_RUNPATH
-	 directive.
-
-	 experiments: In this case the default is to keep the runpath
-	 directories around, but you can explicitly say that you
-	 want to remove the directories by using the DELETE_RUNPATH
-	 option.
-
-	 The final decision is performed in enkf_state().
+         By default the simulation directories are left intact when
+         the simulations re complete, but using the keyword
+         DELETE_RUNPATH you can request (some of) the directories to
+         be wiped after the simulations are complete.
       */
       {
 	{
-	  char * keep_runpath_string   = NULL;
 	  char * delete_runpath_string = NULL;
 	  int    ens_size              = config_content_get_value_as_int(content , NUM_REALIZATIONS_KEY);
-
-	  if (config_content_has_item(content , KEEP_RUNPATH_KEY))
-	    keep_runpath_string = config_content_alloc_joined_string(content , KEEP_RUNPATH_KEY , "");
 
 	  if (config_content_has_item(content , DELETE_RUNPATH_KEY))
 	    delete_runpath_string = config_content_alloc_joined_string(content , DELETE_RUNPATH_KEY , "");
 
-	  enkf_main_parse_keep_runpath( enkf_main , keep_runpath_string , delete_runpath_string , ens_size );
+	  enkf_main_parse_keep_runpath( enkf_main , delete_runpath_string , ens_size );
 
-	  util_safe_free( keep_runpath_string   );
 	  util_safe_free( delete_runpath_string );
 	}
 
@@ -3074,19 +2698,6 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
 	/* Installing templates */
 	ert_templates_init( enkf_main->templates , content );
 
-	/*****************************************************************/
-	ert_report_list_init( enkf_main->report_list , content , ecl_config_get_refcase( enkf_main->ecl_config ));
-
-
-	/*****************************************************************/
-	{
-	  const char * select_case = NULL;
-	  if (config_content_has_item( content , SELECT_CASE_KEY))
-	    select_case = config_content_get_value( content , SELECT_CASE_KEY );
-
-	  enkf_main_user_select_fs( enkf_main , select_case );
-	}
-
 
 	{
 	  const char * rft_config_file = NULL;
@@ -3098,13 +2709,7 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
 
 
 	/*****************************************************************/
-	{
-	  const char * select_case = NULL;
-	  if (config_content_has_item( content , SELECT_CASE_KEY))
-	    select_case = config_content_get_value( content , SELECT_CASE_KEY );
-
-	  enkf_main_user_select_fs( enkf_main , select_case );
-	}
+        enkf_main_user_select_initial_fs( enkf_main );
 
 	/* Adding ensemble members */
 	enkf_main_resize_ensemble( enkf_main  , config_content_iget_as_int(content , NUM_REALIZATIONS_KEY , 0 , 0) );
@@ -3138,7 +2743,6 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
       config_free(config);
     }
     enkf_main_init_jobname( enkf_main );
-    enkf_main_gen_data_special( enkf_main );
     free( model_config );
   }
   return enkf_main;
@@ -3156,15 +2760,12 @@ enkf_main_type * enkf_main_bootstrap(const char * _model_config, bool strict , b
    set to generate a valid configuration.
 */
 
-void enkf_main_create_new_config( const char * config_file , const char * storage_path , const char * case_name , const char * dbase_type , int num_realizations) {
+void enkf_main_create_new_config( const char * config_file , const char * storage_path , const char * dbase_type , int num_realizations) {
 
   FILE * stream = util_mkdir_fopen( config_file , "w" );
 
   fprintf(stream , CONFIG_KEY_FORMAT      , ENSPATH_KEY);
   fprintf(stream , CONFIG_ENDVALUE_FORMAT , storage_path );
-
-  fprintf(stream , CONFIG_KEY_FORMAT      , SELECT_CASE_KEY);
-  fprintf(stream , CONFIG_ENDVALUE_FORMAT , case_name);
 
   fprintf(stream , CONFIG_KEY_FORMAT      , DBASE_TYPE_KEY);
   fprintf(stream , CONFIG_ENDVALUE_FORMAT , dbase_type);
@@ -3280,17 +2881,6 @@ void enkf_main_init_internalization( enkf_main_type * enkf_main , run_mode_type 
   /* Internalizing the initial state. */
   model_config_set_internalize_state( enkf_main->model_config , 0);
 
-  /* We internalize all the endpoints in the enkf_sched. */
-  if (run_mode == ENKF_ASSIMILATION) {
-    int inode;
-    enkf_sched_type * enkf_sched = model_config_get_enkf_sched(enkf_main->model_config);
-    for (inode = 0; inode < enkf_sched_get_num_nodes( enkf_sched ); inode++) {
-      const enkf_sched_node_type * node = enkf_sched_iget_node(enkf_sched , inode);
-      int report_step2            = enkf_sched_node_get_last_step( node );
-      model_config_set_internalize_state( enkf_main->model_config , report_step2);
-    }
-  }
-
 
   /* Make sure we internalize at all observation times.*/
   {
@@ -3379,11 +2969,6 @@ ert_templates_type * enkf_main_get_templates( enkf_main_type * enkf_main ) {
 
 
 
-ert_report_list_type * enkf_main_get_report_list( const enkf_main_type * enkf_main ) {
-  return enkf_main->report_list;
-}
-
-
 /*****************************************************************/
 
 
@@ -3392,22 +2977,7 @@ void enkf_main_fprintf_runpath_config( const enkf_main_type * enkf_main , FILE *
   fprintf(stream , CONFIG_ENDVALUE_FORMAT , CONFIG_BOOL_STRING( enkf_state_get_pre_clear_runpath( enkf_main->ensemble[0] )));
 
   {
-    bool keep_comma = false;
     bool del_comma  = false;
-
-
-    for (int iens = 0; iens < enkf_main->ens_size; iens++) {
-      keep_runpath_type keep_runpath = enkf_main_iget_keep_runpath( enkf_main , iens );
-      if (keep_runpath == EXPLICIT_KEEP) {
-        if (!keep_comma) {
-          fprintf(stream , CONFIG_KEY_FORMAT , KEEP_RUNPATH_KEY );
-          fprintf(stream , "%d" , iens);
-          keep_comma = true;
-        } else
-          fprintf(stream , ",%d" , iens);
-      }
-    }
-    fprintf(stream , "\n");
 
 
     for (int iens = 0; iens < enkf_main->ens_size; iens++) {
@@ -3520,11 +3090,14 @@ void enkf_main_run_workflows( enkf_main_type * enkf_main , const stringlist_type
 void enkf_main_load_from_forward_model_from_gui(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, enkf_fs_type * fs){
   const int ens_size         = enkf_main_get_ensemble_size( enkf_main );
   stringlist_type ** realizations_msg_list = util_calloc( ens_size , sizeof * realizations_msg_list );
-  int iens = 0;
-  for (; iens < ens_size; ++iens) {
+  for (int iens = 0; iens < ens_size; ++iens)
     realizations_msg_list[iens] = stringlist_alloc_new();
-  }
+
   enkf_main_load_from_forward_model_with_fs(enkf_main, iter , iactive, realizations_msg_list, fs);
+
+  for (int iens = 0; iens < ens_size; ++iens)
+    stringlist_free( realizations_msg_list[iens] );
+
   free(realizations_msg_list);
 }
 
@@ -3552,13 +3125,11 @@ void enkf_main_load_from_forward_model_with_fs(enkf_main_type * enkf_main, int i
 
     if (bool_vector_iget(iactive, iens)) {
       enkf_state_type * enkf_state = enkf_main_iget_state( enkf_main , iens );
-      arg_pack_append_ptr( arg_pack , enkf_state);                                         /* 0: */
-      arg_pack_append_ptr( arg_pack , ert_run_context_iens_get_arg( run_context , iens )); /* 1: */
-      arg_pack_append_bool( arg_pack , true );                                             /* 2: Interactive */
-      arg_pack_append_ptr(arg_pack, realizations_msg_list[iens]);                          /* 3: List of interactive mode messages. */
-      arg_pack_append_bool( arg_pack, true );                                              /* 4: Manual load */
-      arg_pack_append_ptr(arg_pack, &result[iens]);                                        /* 5: Result */
-
+      arg_pack_append_ptr( arg_pack , enkf_state);                                         /* 0: enkf_state*/
+      arg_pack_append_ptr( arg_pack , ert_run_context_iens_get_arg( run_context , iens )); /* 1: run_arg */
+      arg_pack_append_ptr(arg_pack, realizations_msg_list[iens]);                          /* 2: List of interactive mode messages. */
+      arg_pack_append_bool( arg_pack, true );                                              /* 3: Manual load */
+      arg_pack_append_ptr(arg_pack, &result[iens]);                                        /* 4: Result */
       thread_pool_add_job( tp , enkf_state_load_from_forward_model_mt , arg_pack);
     }
   }

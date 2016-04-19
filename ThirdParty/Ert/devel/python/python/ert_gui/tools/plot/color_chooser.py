@@ -6,16 +6,14 @@ class ColorBox(QFrame):
     colorChanged = pyqtSignal(QColor)
 
     """A widget that shows a colored box"""
-    def __init__(self, color):
+    def __init__(self, color, size=15):
         QFrame.__init__(self)
         self.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        self.setMaximumSize(QSize(15, 15))
-        self.setMinimumSize(QSize(15, 15))
+        self.setMaximumSize(QSize(size, size))
+        self.setMinimumSize(QSize(size, size))
 
-        self.tile_size = 7
-        self.tile_colors = [QColor(255, 255, 255), QColor(200, 200, 255)]
-
-        self.color = color
+        self._tile_colors = [QColor(255, 255, 255), QColor(200, 200, 255)]
+        self._color = color
 
     def paintEvent(self, paint_event):
         """Paints the box"""
@@ -26,62 +24,31 @@ class ColorBox(QFrame):
         painter.save()
         painter.translate(rect.x(), rect.y())
 
-        color_index = 0
         for y in range(tile_count):
-
-            if y % 2 == 1:
-                color_index = 1
-            else:
-                color_index = 0
-
             for x in range(tile_count):
+                color_index = (y * tile_count + x) % 2
                 tile_rect = QRect(x * tile_size, y * tile_size, tile_size, tile_size)
-                painter.fillRect(tile_rect, self.tile_colors[color_index])
-
-                color_index += 1
-                if color_index >= len(self.tile_colors):
-                    color_index = 0
+                painter.fillRect(tile_rect, self._tile_colors[color_index])
 
         painter.restore()
-        painter.fillRect(rect, self.color)
+        painter.fillRect(rect, self._color)
 
         QFrame.paintEvent(self, paint_event)
 
     def mouseReleaseEvent(self, QMouseEvent):
-        color = QColorDialog.getColor(self.color, self, "Select color", QColorDialog.ShowAlphaChannel)
+        color = QColorDialog.getColor(self._color, self, "Select color", QColorDialog.ShowAlphaChannel)
 
         if color.isValid():
-            self.color = color
+            self._color = color
             self.update()
-            self.colorChanged.emit(self.color)
+            self.colorChanged.emit(self._color)
 
+    @property
+    def color(self):
+        """ @rtype: QColor """
+        return self._color
 
-class ColorChooser(QWidget):
-    colorChanged = pyqtSignal(QColor)
-
-    """Combines a ColorBox with a label"""
-    def __init__(self, label, color):
-        QWidget.__init__(self)
-
-        self.setMinimumWidth(140)
-        self.setMaximumHeight(25)
-
-        layout = QHBoxLayout()
-        layout.setMargin(0)
-        layout.setSpacing(2)
-
-        self.color_box = ColorBox(color)
-        self.color_box.setToolTip("Click to change color.")
-        self.color_box.colorChanged.connect(self.colorChanged)
-
-        layout.addWidget(self.color_box)
-        self.color_label = QLabel(label)
-        layout.addWidget(self.color_label)
-        layout.addStretch()
-
-        self.setLayout(layout)
-        self.label = label
-
-    def setColor(self, color):
-        self.color_box.color = color
-        self.color_box.update()
+    @color.setter
+    def color(self, color):
+        self._color = QColor(color)
+        self.update()

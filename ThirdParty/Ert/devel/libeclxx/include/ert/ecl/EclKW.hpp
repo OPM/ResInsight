@@ -29,8 +29,9 @@
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_util.h>
-#include <ert/ecl/FortIO.hpp>
 
+#include <ert/util/ert_unique_ptr.hpp>
+#include <ert/ecl/FortIO.hpp>
 
 
 namespace ERT {
@@ -51,12 +52,12 @@ namespace ERT {
             return *( static_cast<T *>( ecl_kw_iget_ptr( m_kw.get() , index) ));
         }
 
-        
+
         void fwrite(FortIO& fortio) const {
-            ecl_kw_fwrite( m_kw.get() , fortio.getPointer() );
+            ecl_kw_fwrite( m_kw.get() , fortio.get() );
         }
 
-        
+
         void assignVector(const std::vector<T>& data) {
             if (data.size() == size())
                 ecl_kw_set_memcpy_data( m_kw.get() , data.data() );
@@ -67,21 +68,17 @@ namespace ERT {
         ecl_kw_type * getPointer() const {
 	    return m_kw.get();
 	}
-        
+
     private:
         EclKW(ecl_kw_type * c_ptr) {
-            reset(c_ptr);
-        }
-        
-        void reset(ecl_kw_type * c_ptr) {
-            m_kw.reset( c_ptr , ecl_kw_free);
+            m_kw.reset( c_ptr );
         }
 
-        
+
         static EclKW checkedLoad(FortIO& fortio, ecl_type_enum expectedType) {
-            ecl_kw_type * c_ptr = ecl_kw_fread_alloc( fortio.getPointer() );
+            ecl_kw_type * c_ptr = ecl_kw_fread_alloc( fortio.get() );
             if (c_ptr) {
-                if (ecl_kw_get_type( c_ptr ) == expectedType) 
+                if (ecl_kw_get_type( c_ptr ) == expectedType)
                     return EclKW( c_ptr );
                 else
                     throw std::invalid_argument("Type error");
@@ -89,8 +86,8 @@ namespace ERT {
                 throw std::invalid_argument("fread kw failed - EOF?");
         }
 
-        
-        std::shared_ptr<ecl_kw_type> m_kw;
+
+        ert_unique_ptr<ecl_kw_type , ecl_kw_free> m_kw;
     };
 }
 

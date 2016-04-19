@@ -43,4 +43,8 @@ class SynthesizerTest(ExtendedTestCase):
             self.assertAlmostEqual(values[2], values[9])  # fgpr = gpr:op1
             self.assertAlmostEqual(values[4], values[10]) # fwpr = wpr:op1
 
+            self.assertAlmostEqual(sim.foip(), sim.ooip - sim.fopt())
+            self.assertAlmostEqual(sim.fgip(), sim.goip - sim.fgpt())
+            self.assertAlmostEqual(sim.fwip(), sim.woip - sim.fwpt())
+
             self.assertAlmostEqualList(values, expected_values[report_step])

@@ -27,6 +27,7 @@ extern "C" {
 #include <ert/util/util.h>
 #include <ert/util/bool_vector.h>
 
+#include <ert/enkf/forward_load_context.h>
 #include <ert/enkf/enkf_fs_type.h>
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/enkf_macros.h>
@@ -53,7 +54,6 @@ typedef enum { GEN_DATA_UNDEFINED = 0,
   gen_data_config_type       * gen_data_config_alloc_GEN_PARAM( const char * key , gen_data_file_format_type output_format , gen_data_file_format_type input_format);
   gen_data_config_type       * gen_data_config_alloc_GEN_DATA_result( const char * key , gen_data_file_format_type input_format);
   gen_data_config_type       * gen_data_config_alloc_GEN_DATA_state( const char * key , gen_data_file_format_type output_format , gen_data_file_format_type input_format);
-  void                         gen_data_config_set_write_fs( gen_data_config_type * config, enkf_fs_type * write_fs);
   void                         gen_data_config_set_ens_size( gen_data_config_type * config , int ens_size );
   gen_data_file_format_type    gen_data_config_get_input_format ( const gen_data_config_type * );
   gen_data_file_format_type    gen_data_config_get_output_format ( const gen_data_config_type * );
@@ -63,7 +63,7 @@ typedef enum { GEN_DATA_UNDEFINED = 0,
   int                          gen_data_config_get_initial_size( const gen_data_config_type * config );
   void                         gen_data_config_assert_size(gen_data_config_type *  , int , int);
   const bool_vector_type     * gen_data_config_get_active_mask( const gen_data_config_type * config );
-  void                         gen_data_config_update_active(gen_data_config_type * config , int report_step , const bool_vector_type * data_mask);
+  void                         gen_data_config_update_active(gen_data_config_type * config , const forward_load_context_type * load_context , const bool_vector_type * data_mask);
   const bool     *             gen_data_config_get_iactive(const gen_data_config_type * );
   void                         gen_data_config_ecl_write(const gen_data_config_type *  , const char * , char * );
   void                         gen_data_config_get_template_data( const gen_data_config_type * , char ** , int * , int * , int *);

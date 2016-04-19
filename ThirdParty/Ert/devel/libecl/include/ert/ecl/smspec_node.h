@@ -22,9 +22,6 @@
 
 #include <stdbool.h>
 
-#include <ert/ecl/ecl_smspec.h>
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,6 +29,13 @@ extern "C" {
 #define DUMMY_WELL ":+:+:+:+"
 #define IS_DUMMY_WELL(well) (strcmp((well) , DUMMY_WELL) == 0)
 #define SMSPEC_PARAMS_INDEX_INVALID -77
+
+
+#define SMSPEC_TIME_KEYWORD "TIME"
+#define SMSPEC_TIME_NUMS_VALUE     -32676
+
+#define SMSPEC_YEARS_KEYWORD "YEARS"
+#define SMSPEC_YEARS_NUMS_VALUE     -32676
 
 
 typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
@@ -99,6 +103,7 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
                                             float default_value);
 
   smspec_node_type *  smspec_node_alloc_new(int params_index, float default_value);
+  smspec_node_type *  smspec_node_alloc_copy( const smspec_node_type* );
 
   void                smspec_node_free( smspec_node_type * index );
   void                smspec_node_free__(void * arg);

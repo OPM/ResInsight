@@ -229,7 +229,7 @@ int workflow_job_get_max_arg( const workflow_job_type * workflow_job ) {
 }
 
 config_item_types workflow_job_iget_argtype( const workflow_job_type * workflow_job, int index) {
-    return int_vector_iget( workflow_job->arg_types , index );
+  return int_vector_safe_iget( workflow_job->arg_types , index );
 }
 
 
@@ -300,7 +300,7 @@ static void workflow_job_validate( workflow_job_type * workflow_job ) {
 
 workflow_job_type * workflow_job_config_alloc( const char * name , config_parser_type * config , const char * config_file) {
   workflow_job_type * workflow_job = NULL;
-  config_content_type * content = config_parse( config , config_file , "--", NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
+  config_content_type * content = config_parse( config , config_file , "--", NULL , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
   if (config_content_is_valid( content )) {
     bool internal = DEFAULT_INTERNAL;
     if (config_content_has_item( content , INTERNAL_KEY))
@@ -383,15 +383,7 @@ static void * workflow_job_run_internal( const workflow_job_type * job, void * s
 static void * workflow_job_run_external( const workflow_job_type * job, bool verbose , const stringlist_type * arg) {
   char ** argv = stringlist_alloc_char_copy( arg );
 
-  util_fork_exec( job->executable ,
-                  stringlist_get_size( arg ),
-                  (const char **) argv ,
-                  true ,
-                  NULL ,
-                  NULL ,
-                  NULL ,
-                  NULL ,
-                  NULL );
+  util_spawn_blocking(job->executable, stringlist_get_size(arg), (const char **) argv, NULL, NULL);
 
   if (argv != NULL) {
     int i;

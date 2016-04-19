@@ -14,7 +14,7 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, TimeMap, StateMap, SummaryKeySet
+from ert.enkf import ENKF_LIB, TimeMap, StateMap, SummaryKeySet, CustomKWConfigSet
 from ert.enkf.enums import EnKFFSType
 
 
@@ -117,6 +117,10 @@ class EnkfFs(BaseCClass):
         state_map = self.getStateMap()
         return state_map.realizationList(state)
 
+    def getCustomKWConfigSet(self):
+        """ @rtype: CustomKWConfigSet """
+        return EnkfFs.cNamespace().config_kw_config_set(self)
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("enkf_fs", EnkfFs)
@@ -137,3 +141,4 @@ EnkfFs.cNamespace().is_read_only = cwrapper.prototype("bool enkf_fs_is_read_only
 EnkfFs.cNamespace().get_writecount = cwrapper.prototype("int enkf_fs_get_write_count(enkf_fs)")
 EnkfFs.cNamespace().fsync = cwrapper.prototype("void enkf_fs_fsync(enkf_fs)")
 EnkfFs.cNamespace().summary_key_set = cwrapper.prototype("summary_key_set_ref enkf_fs_get_summary_key_set(enkf_fs)")
+EnkfFs.cNamespace().config_kw_config_set = cwrapper.prototype("custom_kw_config_set_ref enkf_fs_get_custom_kw_config_set(enkf_fs)")

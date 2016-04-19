@@ -23,44 +23,39 @@ import datetime
 # index as the first argument and the key/key_index as second
 # argument. In the python code this order has been reversed.
 
-from ert.cwrap import BaseCClass, CWrapper
-from ert.ecl import ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPrototype
 
 
 
 class EclSumKeyWordVector(BaseCClass):
+    TYPE_NAME       = "ecl_sum_vector"
+    _alloc          = EclPrototype("void* ecl_sum_vector_alloc(ecl_sum )" , bind = False)
+    _free           = EclPrototype("void ecl_sum_vector_free(ecl_sum_vector )")
+    _add            = EclPrototype("bool ecl_sum_vector_add_key( ecl_sum_vector ,  char* )")
+    _add_multiple   = EclPrototype("void ecl_sum_vector_add_keys( ecl_sum_vector ,  char* )")
+    _get_size       = EclPrototype("int ecl_sum_vector_get_size( ecl_sum_vector )")
 
+    
 
     def __init__(self, ecl_sum):
-        c_pointer = EclSumKeyWordVector.cNamespace().alloc(ecl_sum)
-        if c_pointer is None:
-            raise AssertionError("Failed to create summary keyword vector")
-        else:
-            super(EclSumKeyWordVector, self).__init__(c_pointer)
-
+        c_pointer = self._alloc(ecl_sum)
+        super(EclSumKeyWordVector, self).__init__(c_pointer)
+        
     def __len__(self):
-        return EclSumKeyWordVector.cNamespace().get_size(self)
+        return self._get_size( )
 
     def free(self):
-        EclSumKeyWordVector.cNamespace().free(self)
+        self._free( )
 
     def addKeyword(self, keyword):
-        success = EclSumKeyWordVector.cNamespace().add(self, keyword)
+        success = self._add(keyword)
         if not success:
             raise KeyError("Failed to add keyword to vector")
 
     def addKeywords(self, keyword_pattern):
-        EclSumKeyWordVector.cNamespace().add_multiple(self, keyword_pattern)
+        self._add_multiple(keyword_pattern)
 
 
 
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType( "ecl_sum_vector" , EclSumKeyWordVector )
-cwrapper.registerType( "ecl_sum_vector_obj" , EclSumKeyWordVector.createPythonObject )
-cwrapper.registerType( "ecl_sum_vector_ref" , EclSumKeyWordVector.createCReference )
 
-EclSumKeyWordVector.cNamespace().alloc                  = cwrapper.prototype("c_void_p ecl_sum_vector_alloc(ecl_sum )")
-EclSumKeyWordVector.cNamespace().free                   = cwrapper.prototype("void ecl_sum_vector_free(ecl_sum_vector )")
-EclSumKeyWordVector.cNamespace().add                    = cwrapper.prototype("bool ecl_sum_vector_add_key( ecl_sum_vector ,  char* )")
-EclSumKeyWordVector.cNamespace().add_multiple           = cwrapper.prototype("void ecl_sum_vector_add_keys( ecl_sum_vector ,  char* )")
-EclSumKeyWordVector.cNamespace().get_size               = cwrapper.prototype("int ecl_sum_vector_get_size( ecl_sum_vector )")

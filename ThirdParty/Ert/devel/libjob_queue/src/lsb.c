@@ -60,14 +60,16 @@ struct lsb_struct {
   lsb_sysmsg_ftype       * sys_msg;
 
   stringlist_type        * error_list;
-  void                   * lib_handle;
+  void                   * lib_bat;
+  void                   * lib_nsl;
+  void                   * lib_lsf;
   bool                     ready;
 };
 
 
 
 static void * lsb_dlsym( lsb_type * lsb , const char * function_name ) {
-  void * function = dlsym( lsb->lib_handle , function_name );
+  void * function = dlsym( lsb->lib_bat , function_name );
   if (!function) {
     lsb->ready = false;
     stringlist_append_owned_ref( lsb->error_list , util_alloc_sprintf( "Failed to locate symbol:%s  dlerror:%s" , function_name , dlerror()));
@@ -108,11 +110,11 @@ lsb_type * lsb_alloc() {
   lsb->ready = true;
   lsb->error_list = stringlist_alloc_new();
 
-  lsb_dlopen(lsb , "libnsl.so" );
-  lsb_dlopen(lsb , "liblsf.so" );
-  lsb->lib_handle = lsb_dlopen(lsb , "libbat.so");
+  lsb->lib_nsl = lsb_dlopen(lsb , "libnsl.so" );
+  lsb->lib_lsf = lsb_dlopen(lsb , "liblsf.so" );
+  lsb->lib_bat = lsb_dlopen(lsb , "libbat.so");
   
-  if (lsb->lib_handle) {
+  if (lsb->lib_bat) {
     lsb->submit    = (lsb_submit_ftype *) lsb_dlsym( lsb , "lsb_submit");
     lsb->open_job  = (lsb_openjobinfo_ftype *) lsb_dlsym( lsb , "lsb_openjobinfo");
     lsb->read_job  = (lsb_readjobinfo_ftype *) lsb_dlsym( lsb , "lsb_readjobinfo");
@@ -129,8 +131,16 @@ lsb_type * lsb_alloc() {
 
 void lsb_free( lsb_type * lsb) {
   stringlist_free( lsb->error_list );
-  if (lsb->lib_handle)
-    dlclose( lsb->lib_handle );
+
+  if (lsb->lib_nsl)
+    dlclose( lsb->lib_nsl );
+
+  if (lsb->lib_lsf)
+    dlclose( lsb->lib_lsf );
+
+  if (lsb->lib_bat)
+    dlclose( lsb->lib_bat );
+
   free( lsb );
 }
 

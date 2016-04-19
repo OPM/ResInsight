@@ -1,3 +1,4 @@
+import ctypes
 from ert.cwrap import CWrapper, BaseCClass, clib, CWrapError
 from ert.test  import ExtendedTestCase
 
@@ -66,10 +67,25 @@ class CWrapTest(ExtendedTestCase):
             func = cwrapper.prototype("void stringlist_missing_function( )")
     
 
-    def test_invalid_function(self):
+    def test_invalid_prototype(self):
         with self.assertRaises(CWrapError):
             stringlist_alloc = cwrapper.prototype("c_void_p stringlist_alloc_new( ")
-    
+
+
+    def test_method_type(self):
+        wrapper =  CWrapper(test_lib)
+        def stringObj(c_ptr):
+            char_ptr = ctypes.c_char_p( c_ptr )
+            python_string = char_ptr.value
+            test_lib.free(c_ptr)
+            return python_string
+
+        wrapper.registerType("string_obj", stringObj)
+
+        dateStamp  = wrapper.prototype("string_obj util_alloc_date_stamp()")
+        date_stamp = dateStamp()
+        self.assertIsInstance(date_stamp, str)
+
 
 
 

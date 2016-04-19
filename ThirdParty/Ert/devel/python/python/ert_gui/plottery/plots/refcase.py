@@ -18,13 +18,9 @@ def _plotRefcase(axes, plot_config, data):
     @type data: DataFrame
     """
 
-    line_color = plot_config.refcaseColor()
-    line_alpha = plot_config.refcaseAlpha()
-    line_marker = plot_config.refcaseMarker()
-    line_style = plot_config.refcaseStyle()
-    line_width = plot_config.refcaseWidth()
+    style = plot_config.refcaseStyle()
 
-    lines = axes.plot_date(x=data.index.values, y=data, color=line_color, alpha=line_alpha, marker=line_marker, linestyle=line_style, linewidth=line_width)
+    lines = axes.plot_date(x=data.index.values, y=data, color=style.color, alpha=style.alpha, marker=style.marker, linestyle=style.line_style, linewidth=style.width, markersize=style.size)
 
-    if len(lines) > 0:
+    if len(lines) > 0 and style.isVisible():
         plot_config.addLegendItem("Refcase", lines[0])

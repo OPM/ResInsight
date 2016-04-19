@@ -63,7 +63,6 @@ Keyword name                                                        	Required by
 :ref:`ENKF_PEN_PRESS <enkf_pen_press>`                              	NO                    			FALSE                 		Should we want to use a penalised PRESS statistic in model selection? 
 :ref:`ENKF_RERUN <enkf_rerun>`                                      	NO                    			FALSE                 		Should the simulations be restarted from time zero after each update. 
 :ref:`ENKF_SCALING <enkf_scaling>`                                  	NO                    			TRUE           		       	Do we want to normalize the data ensemble to have unit variance? 
-:ref:`ENKF_SCHED_FILE <enkf_sched_file>`                            	NO                                          				Allows fine-grained control of the time steps in the simulation. 
 :ref:`ENKF_TRUNCATION <enfk_truncation>`                            	NO                    			0.99        	          	Cutoff used on singular value spectrum. 
 :ref:`ENSPATH <enspath>`                                            	NO                    			storage     	          	Folder used for storage of simulation results. 
 :ref:`EQUIL_INIT_FILE <equil_init_file>`                            	NO                                          				Use INIT_SECTION instead 
@@ -76,6 +75,7 @@ Keyword name                                                        	Required by
 :ref:`GEN_PARAM <gen_param>`                                        	NO                                          				Add a general parameter. 
 :ref:`GRID <grid>`                                                  	YES                                         				Provide an ECLIPSE grid for the reservoir model. 
 :ref:`HISTORY_SOURCE <history_source>`                              	NO                    			REFCASE_HISTORY     	  	Source used for historical values.
+:ref:`HOOK_WORKFLOW <hook_workflow>` 					NO 									Install a workflow to be run automatically.
 :ref:`HOST_TYPE <host_type>`                                        	NO                                          
 :ref:`IGNORE_SCHEDULE <ignore_schedule>`                            	NO                                          
 :ref:`IMAGE_TYPE <image_type>`                                      	NO                    			png                   		The type of the images created when plotting.
@@ -87,7 +87,6 @@ Keyword name                                                        	Required by
 :ref:`ITER_RETRY_COUNT <iter_retry_count>`                          	NO                    			4         	            	Number of retries for a iteration - iterated ensemble smoother 
 :ref:`JOBNAME <jobname>`                                            	NO                                          				Name used for simulation files. An alternative to ECLBASE. 
 :ref:`JOB_SCRIPT <job_script>`                                      	NO                                          				Python script managing the forward model. 
-:ref:`KEEP_RUNPATH <keep_runpath>`                                  	NO                                          				Specify realizations that simulations should be kept for. 
 :ref:`LOAD_SEED <load_seed>`                                        	NO                                          				Load random seed from given file.
 :ref:`LOAD_WORKFLOW <load_workflow>` 				    	NO                             						Load a workflow into ERT. 
 :ref:`LOAD_WORKFLOW_JOB <load_workflow_job>`  			    	NO 									Load a workflow job into ERT. 
@@ -118,19 +117,10 @@ Keyword name                                                        	Required by
 :ref:`PLOT_WIDTH <plot_width>` 						NO 					1024 				Pixel width of the plots. 
 :ref:`PRE_CLEAR_RUNPATH <pre_clear_runpath>` 				NO 					FALSE 				Should the runpath be cleared before initializing? 
 :ref:`QC_PATH <qc_path>` 						NO 					QC 				... 
-:ref:`QC_WORKFLOW <qc_workflow>` 					NO 									Name of existing workflow to do QC work. 
 :ref:`QUEUE_SYSTEM <queue_system>` 					NO 									System used for running simulation jobs. 
 :ref:`REFCASE <refcase>` 						NO (see HISTORY_SOURCE and SUMMARY) 					Reference case used for observations and plotting. 
 :ref:`REFCASE_LIST <refcase_list>` 					NO 									Full path to Eclipse .DATA files containing completed runs (which you can add to plots) 
-:ref:`REPORT_CONTEXT <report_context>` 					NO 									Values for variables used in report templates. 
-:ref:`REPORT_GROUP_LIST <report_group_list>` 				NO 									Specify list of groups used in report templates. 
-:ref:`REPORT_LARGE <report_large>` 					NO 					FALSE 	
-:ref:`REPORT_LIST <report_list>` 					NO 									List of templates used for creating reports. 
-:ref:`REPORT_PATH <report_path>` 					NO 					Reports 			Directory where final reports are stored. 
-:ref:`REPORT_SEARCH_PATH <report_search_path>` 				NO 									Search path for report templates. 
-:ref:`REPORT_TIMEOUT <report_timeout>` 					NO 					120 				Timeout for running LaTeX. 
-:ref:`REPORT_WELL_LIST <report_well_list>` 				NO 									Specify list of wells used in report templates. 
-:ref:`RERUN_PATH  <rerun_path>` 					NO 									... 
+:ref:`RERUN_PATH  <rerun_path>` 					NO 									...
 :ref:`RERUN_START  <rerun_start>` 					NO 					0 				... 
 :ref:`RFT_CONFIG  <rft_config>` 					NO 									Config file specifying wellnames and dates for rft-measurments. Used for plotting. The format has to be name day month year (ex. Q-2FI 02 08 1973), with a new entry on a new line. 
 :ref:`RFTPATH <rftpath>`  						NO 					rft 				Path to where the rft well observations are stored 
@@ -141,7 +131,6 @@ Keyword name                                                        	Required by
 :ref:`STD_SCALE_CORRELATED_OBS <std_scale_correlated_obs>`              NO                                      FALSE                           Try to estimate the correlations in the data to inflate the observation std.     
 :ref:`SCHEDULE_FILE <schedule_file>`  					YES 									Provide an ECLIPSE schedule file for the problem. 
 :ref:`SCHEDULE_PREDICTION_FILE <schedule_prediction_file>`  		NO 									Schedule prediction file. 
-:ref:`SELECT_CASE <select_case>`  					NO 									The current case / default 	You can tell ert to select a particular case on bootup. 
 :ref:`SETENV <setenv>`  						NO 									You can modify the UNIX environment with SETENV calls. 
 :ref:`SINGLE_NODE_UPDATE <single_node_update>`  			NO 					FALSE 				... 
 :ref:`STD_CUTOFF <std_cutoff>`  					NO 					1e-6 				... 
@@ -296,7 +285,13 @@ These keywords are optional. However, they serve many useful purposes, and it is
 .. _delete_runpath:
 .. topic:: DELETE_RUNPATH
 
-	When the enkf application is running it creates directories for the ECLIPSE simulations, one for each realization. When the simulations are done, the enkf will load the results into it's internal database. If you are using the enkf application as a convenient way to start many simulations, e.g. using the screening experiment option, the default behavior is to not delete these simulation directories. This behavior can be overridden with the DELETE_RUNPATH keyword, which causes enkf to delete the specified simulation directories. When running the EnKF algorithm, the behavior is the opposite. The keyword KEEP_RUNPATH can then be used to override the default behavoir.
+	When the ert application is running it creates directories for
+	the forward model simulations, one for each realization. When
+	the simulations are done, ert will load the results into the
+	internal database. By default the realization folders will be
+	left intact after ert has loaded the results, but using the
+	keyword DELETE_RUNPATH you can request to have (some of) the
+	directories deleted after results have been loaded.
 
 	*Example A:*
 
@@ -314,46 +309,6 @@ These keywords are optional. However, they serve many useful purposes, and it is
 
 	The DELETE_RUNPATH keyword is optional.
 
-.. _enfk_sched_file:
-.. topic:: ENKF_SCHED_FILE
-
-	When the enkf application runs the EnKF algorithm, it will use
-	ECLIPSE to simulate one report step at a time, and do an
-	update after each step. However, in some cases it will be
-	beneficial to turn off the EnKF update for some report steps
-	or to skip some steps completely. The keyword ENKF_SCHED_FILE
-	can point to a file with a more advanced schedule for when to
-	perform the updates. The format of the file pointed to by
-	ENKF_SCHED_FILE should be plain text, with one entry per
-	line. Each line should have the following form:
-
-	::
-
-		REPORT_STEP1   REPORT_STEP2   ON|OFF    STRIDE  
-		...
-
-	Here REPORT_STEP1 and REPORT_STEP2 are the first and last
-	report steps respectively and ON|OFF determines whether the
-	EnKF analysis should be ON or OFF, the STRIDE argument is
-	optional. If the analysis is ON the stride will default to
-	REPORT_STEP2 minus REPORT_STEP1, thus if you want to perform
-	analysis at each report step set stride equal to 1. Observe
-	that whatever value of stride is used, the integration will
-	always start on REPORT_STEP1 and end on REPORT_STEP2. Example:
-
-	::
-
-		0     100   OFF        
-		100   125   ON     5
-		125   200   ON     1
-
-	In this example, the enkf application will do the following:
-
-	#. Simulate directly from report step 0 to report step 100. No EnKF update will be performed.
-	#. From report step 100 to report step 125 it will simulate five report steps at a time, doing EnKF update at report steps 105, 110, 115, 120 and 125.
-	#. From report step 125 to report step 200 it will simulate one report step at a time, doing EnKF update for every timestep.
-
-	The ENKF_SCHED_FILE keyword is optional.
 
 .. _end_date:
 .. topic:: END_DATE
@@ -398,16 +353,6 @@ These keywords are optional. However, they serve many useful purposes, and it is
 
 	The ENSPATH keyword is optional.
 
-.. _select_case:
-.. topic:: SELECT_CASE
-
-	By default ert will remember the selected case from the
-	previous run, or select the case "default" if this is the
-	first time you start a project. By using the SELECT_CASE
-	keyword you can tell ert to start up with a particular
-	case. If the requested case does not exist ert will ignore the
-	SELECT_CASE command, the case will not be created
-	automagically.
 
 .. _history_source:
 .. topic:: HISTORY_SOURCE
@@ -480,20 +425,6 @@ These keywords are optional. However, they serve many useful purposes, and it is
 	The configuration file used to specify an external job is easy to use and very flexible. It is documented in Customizing the simulation workflow in enkf.
 
 	The INSTALL_JOB keyword is optional.
-
-.. _keep_runpath:
-.. topic:: KEEP_RUNPATH
-
-	When the enkf application is running it creates directories for the ECLIPSE simulations, one for each realization. If you are using the enkf application to run the EnKF algorithm, the default behavior is to delete these directories after the simulation results have been internalized. This behavior can be overridden with the KEEP_RUNPATH keyword, which causes enkf to keep the specified simulation directories. When running the enkf application as a convenient way to start many simulations, e.g. using the screening experiment option, the behavior is the opposite, and can be overridden with the DELETE_RUNPATH keyword.
-
-	*Example:*
-
-	::
-	
-		-- Keep simulation directories 0 to 15 and 18 and 20
-		KEEP_RUNPATH 0-15, 18, 20
-
-	The KEEP_RUNPATH keyword is optional.
 
 .. _obs_config:
 .. topic:: OBS_CONFIG
@@ -1995,173 +1926,33 @@ The name and location of this file is available as the magical string <RUNPATH_F
 
 
 
-QC keywords
------------
-.. _qc_keywords:
+.. _hook_workflow:
+.. topic:: HOOK_WORKFLOW
 
-The QC system is mainly based on workflows.
-
-.. _qc_workflow:
-.. topic:: QC_WORKFLOW
-
-	Name of an existing workflow to do QC work. Will be invoked automatically when a ensemble simulation has been completed, can alternatively be invoked from the QC menu.
-
-
-.. _qc_path:
-.. topic:: QC_PATH 
-
-	No information on this keyword yet
-
-
-Creating reports
-----------------
-.. _creating_reports:
-
-ERT has a limited capability to create pdf reports based on a LaTeX template and the plots you have created. The process for creating reports works like this:
-
-#. You select a report template using the REPORT_LIST keyword.
-#. ERT will insantiate a LaTeX report file by using your template, and performing some substitutions. The LaTeX report will be stored in a temporary directory /tmp/latex-XXXXXX.
-#. pdflatex is used to compile the latex file into a pdf file
-
-**Format of the template file**
-
-The template file should mostly be ordinary LaTeX, but when instantiating ERT will search and replace some strings. The most important are:
-
-**$PLOT_CASE**
-	This will be replaced with the name of the current case, and that is used to locate the active figures. 
-**$WELL_LIST**
-	This will be expanded to a list of well names, REPORT_WELL_LIST below. 
-**$GROUP_LIST**
-	This will be expanded to a list of group names, REPORT_GROUP_LIST below. 
-**$CONFIG_FILE**
-	The full path of the config file currently in use. 
-**$USER**
-	The username of the current user. 
-
-**Template loops**
-
-The template can have a very simple for loop construction. The syntax of the for loop is as follows:
+With the keyword :code:`HOOK_WORKFLOW` you can configure workflow
+'hooks'; meaning workflows which will be run automatically at certain
+points during ERTs execution. Currently there are two points in ERTs
+flow of execution where you can hook in a workflow, either just before
+the simulations start, :code:`PRE_SIMULATION` - or after all the
+simulations have completed :code:`POST_SIMULATION`. The
+:code:`POST_SIMULATION` hook is typically used to trigger QC
+workflows:
 
 ::
 
-	{% for x in [a,b,c,d] %}
-	%% Do something with x
-	{% endfor %}
+   HOOK_WORKFLOW initWFLOW  PRE_SIMULATION
+   HOOK_WORKFLOW QC_WFLOW1  POST_SIMULATION
+   HOOK_WORKFLOW QC_WFLOW2  POST_SIMULATION
 
-The whole concept is based on regular expressions and is quite picky on the format. Observe the following:
+In this example the the workflow :code:`initWFLOW` will run after all
+the simulation directiories have been created, just before the forward
+model is submitted to the queue. When all the simulations are complete
+the two workflows :code:`QC_WFLOW1` and :code:`QC_WFLOW2` will be
+run. Observe that the workflows being 'hooked in' with the
+:code:`HOOK_WORKFLOW` must be loaded with the :code:`LOAD_WORKFLOW`
+keyword.
 
-#. CaSe MAttErs - i.e. {% For ... %} with a capital 'F' will not work.
-#. The loop variable must start with $ or a letter, followed by an arbitrary number of letters and numbers. I.e. $well, x and ab21 are all valid variable names, whereas 5b, __internal and #var are examples of invalid variable names.
-#. The behaviour of the matching in the body depends on whether the variable starts with '$' or not:
-	#. If the variable starts with '$' embedded substrings will be matched - i.e. WWCT$well will be expanded to e.g. WWCTOP-1.
-	#. If the variable starts with an alphabet character substrings will not be replaced - i.e. the well in wellname will not be touched.
-#. All the spaces (underlined here) in {% for x in [a,b,c,d] %} and {% endfor %} must be present; you can have more spaces if you like.
-#. A missing {% endfor %} will be detected with a warning; all other errors will go undected, producing something different from what you wanted, it will probably not even compile.
-
-
-**Problems**
-
-When LaTeX compiling you will get a prompt like this on the screen:
-
-::
-
-	Creating report Reports/<Case>/<Name.pdf>  [Work-path:/tmp/latex-XXXXXX] ......
-
-This means that ERT has created the directory /tmp/latex-XXXXXX and populated that with the file which is compiled. If there are LaTeX problems of some kind you must go to this directory to check out what is wrong, and then fix the source template. When the compilation is finished ERT will print:
-
-::
-
-	Creating report Reports/<Case>/<Name.pdf>  [Work-path:/tmp/latex-XXXXXX] ...... OK??
-
-As indicated by the OK?? it is quite difficult for ERT to assert that the compilation has been successfull, so the pdf file must be opened with e.g. acroread to be certain.
-
-
-.. _report_context:
-.. topic:: REPORT_CONTEXT
-
-	With the report context word you can define key,value pairs which will be used in a search-and-replace operation in the template. 
-
-	*Example:*
-
-	::
-
-		REPORT_CONTEXT $FIELD Snorre
-		REPORT_CONTEXT $MODEL "DG-X sensitivity studies"
-
-	Here every occurence of $FIELD will be replaced with 'Snorre' and every occurence of $MODEL will be replaced with 'DG-X sensitivity studies'. Observe that the config parser expects that the REPORT_CONTEXT keyword gets two space separated arguments, so quoting with "" is necessary when the value consists of several words. The use of a '$' prefix on the keys above is just a suggestion, and not a rule.
-
-
-.. _report_list:
-.. topic:: REPORT_LIST
-
-	This should be a list of LaTeX templates which you want to use for creating reports. The arguments in this list should either be the path to an existing file, or alternatively the name of a file which can be found in REPORT_SEARCH_PATH. The search order will be to first look directly in the filesystem, and then subsequently go through the paths listed in REPORT_SEARCH_PATH
-
-	The filename can optionally be followed by a :Name, in that case the created report will be renamed Name.pdf irrespective of the name of the template file.
-
-	*Example:*
-
-	::
-
-		REPORT_SEARCH_PATH  /common/report/path
-		REPORT_LIST         templates/report.tex   /some/absolute/path/report.tex:Report2   well_report.tex:snorre_wells.tex
-
-	In the example we specify templates for three different reports:
-
-	#. In the relative path templates/report.tex
-	#. In the absolute path /some/absolute/path/report.tex
-	#. Assuming there is no file well_report.tex in your current directory ERT will look in the paths specified by REPORT_SEARCH_PATH.
-
-	Observe the two latter reports will be renamed Report2.pdf and snorre_wells.pdf respectively.
-
-
-.. _report_path:
-.. topic:: REPORT_PATH
-
-	The REPORT_PATH keyword is used to tell ERT where you want to store the finished pdf reports. A subdirectory with the current case name will be appended to this path:
-
-	::
-
-		REPORT_LIST  templates/well_report.tex  templates/field_report.tex
-		REPORT_PATH  Reports
-
-	Assuming the selected case is called prior you will get the reports Reports/prior/well_report.pdf and Reports/prior/field_report.tex.
-
-
-.. _report_search_path:
-.. topic:: REPORT_SEARCH_PATH
-
-	It is possible to install LaTeX templates for reports in a common location, the REPORT_LIST keyword will then search for the templates in these locations. You can use the REPORT_SEARCH_PATH keyword in your config file, but the most relevant use is in the global site configuration file.
-
-	::
-
-		REPORT_SEARCH_PATH  /common/path/well_reports   /common/path/group_reports
-		REPORT_SEARCH_PATH  /common/path/field_reports
-
-
-.. _report_well_list:
-.. topic:: REPORT_WELL_LIST
-
-	By using the {% for x in [] %} construction in the templates it is possible to have report templates which loop over a list of wells. Unfortunately it is not very interesting to loop over all wells, because ECLIPSE has a limited amount of meta information about the wells, which means that injectors and producers will be treated equally. By using the REPORT_WELL_LIST keyword you can specify which wells you wish to include in the report, these well names will then be assembled into a list which will go into the $WELL_LIST keyword in the report template.
-
-	::
-
-		REPORT_WELL_LIST   C*  E1-H       -- Must have supplied a REFCASE for the '*' to work properly
-		REPORT_WELL_LIST   OP*
-
-	These well names are then assembled into a list and replace the symbol $WELL_LIST when creating the report. For this to work the report template should contain a section like:
-
-	::
-
-		{% for $well in $WELL_LIST %}
-		% Do something with $well
-		{% endfor %}
-
-
-.. _report_group_list:
-.. topic:: REPORT_GROUP_LIST
-
-	This is just like the REPORT_WELL_LIST keyword, but for groups. 
-
+NB: Currently the :code:`PRE_SIMULATION` workflow is never called.
 
 Manipulating the Unix environment
 ---------------------------------

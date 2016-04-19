@@ -59,26 +59,26 @@
 
 struct ecl_config_struct
 {
-  ecl_io_config_type * io_config; /* This struct contains information of whether the eclipse files should be formatted|unified|endian_fliped */
-  path_fmt_type * eclbase; /* A path_fmt instance with one %d specifer which will be used for eclbase - members will allocate private eclbase; i.e. updates will not be reflected. */
-  sched_file_type * sched_file; /* Will only contain the history - if predictions are active the member_config objects will have a private sched_file instance. */
-  hash_type * fixed_length_kw; /* Set of user-added SCHEDULE keywords with fixed length. */
-  bool include_all_static_kw; /* If true all static keywords are stored.*/
-  set_type * static_kw_set; /* Minimum set of static keywords which must be included to make valid restart files. */
+  ecl_io_config_type * io_config;       /* This struct contains information of whether the eclipse files should be formatted|unified|endian_fliped */
+  path_fmt_type * eclbase;              /* A path_fmt instance with one %d specifer which will be used for eclbase - members will allocate private eclbase; i.e. updates will not be reflected. */
+  sched_file_type * sched_file;         /* Will only contain the history - if predictions are active the member_config objects will have a private sched_file instance. */
+  hash_type * fixed_length_kw;          /* Set of user-added SCHEDULE keywords with fixed length. */
+  bool include_all_static_kw;           /* If true all static keywords are stored.*/
+  set_type * static_kw_set;             /* Minimum set of static keywords which must be included to make valid restart files. */
   stringlist_type * user_static_kw;
-  char * data_file; /* Eclipse data file. */
-  time_t start_date; /* The start date of the ECLIPSE simulation - parsed from the data_file. */
-  time_t end_date; /* An optional date value which can be used to check if the ECLIPSE simulation has been 'long enough'. */
+  char * data_file;                     /* Eclipse data file. */
+  time_t start_date;                    /* The start date of the ECLIPSE simulation - parsed from the data_file. */
+  time_t end_date;                      /* An optional date value which can be used to check if the ECLIPSE simulation has been 'long enough'. */
   ecl_refcase_list_type * refcase_list;
-  ecl_grid_type * grid; /* The grid which is active for this model. */
-  char * schedule_prediction_file; /* Name of schedule prediction file - observe that this is internally handled as a gen_kw node. */
-  char * schedule_target_file; /* File name to write schedule info to */
-  char * input_init_section; /* File name for ECLIPSE (EQUIL) initialisation - can be NULL if the user has not supplied INIT_SECTION. */
-  char * init_section; /* Equal to the full path of input_init_section IFF input_init_section points to an existing file - otherwise equal to input_init_section. */
+  ecl_grid_type * grid;                 /* The grid which is active for this model. */
+  char * schedule_prediction_file;      /* Name of schedule prediction file - observe that this is internally handled as a gen_kw node. */
+  char * schedule_target_file;          /* File name to write schedule info to */
+  char * input_init_section;            /* File name for ECLIPSE (EQUIL) initialisation - can be NULL if the user has not supplied INIT_SECTION. */
+  char * init_section;                  /* Equal to the full path of input_init_section IFF input_init_section points to an existing file - otherwise equal to input_init_section. */
   int last_history_restart;
-  bool can_restart; /* Have we found the <INIT> tag in the data file? */
-  int num_cpu; /* We should parse the ECLIPSE data file and determine how many cpus this eclipse file needs. */
-  ert_ecl_unit_enum unit_system; /* Either metric, field or lab */
+  bool can_restart;                     /* Have we found the <INIT> tag in the data file? */
+  int num_cpu;                          /* We should parse the ECLIPSE data file and determine how many cpus this eclipse file needs. */
+  ert_ecl_unit_enum unit_system;        /* Either metric, field or lab */
 };
 
 /*****************************************************************/
@@ -624,25 +624,6 @@ void ecl_config_init(ecl_config_type * ecl_config, const config_content_type * c
     }
   }
 
-  /* Deprecated */
-  if (config_content_has_item(config, PLOT_REFCASE_LIST_KEY))
-  {
-    const char * case_list_file = config_content_get_value(config, PLOT_REFCASE_LIST_KEY);
-    FILE * stream = util_fopen(case_list_file, "r");
-    bool at_eof;
-    do
-    {
-      char * case_name = util_fscanf_alloc_line(stream, &at_eof);
-      if (case_name)
-      {
-        ecl_refcase_list_add_case(ecl_config->refcase_list, case_name);
-        free(case_name);
-      }
-    } while (!at_eof);
-
-    fclose(stream);
-  }
-
   if (config_content_has_item(config, INIT_SECTION_KEY))
     ecl_config_set_init_section(ecl_config, config_content_get_value(config, INIT_SECTION_KEY));
   else if (ecl_config->can_restart)
@@ -907,14 +888,6 @@ void ecl_config_add_config_items(config_parser_type * config)
 
   item = config_add_schema_item(config, REFCASE_LIST_KEY, false);
   config_schema_item_set_default_type(item, CONFIG_PATH);
-
-  item = config_add_key_value(config, PLOT_REFCASE_LIST_KEY, false, CONFIG_STRING);
-  {
-    char * message = util_alloc_sprintf("Warning: the key:%s is depreceated - use %s instead", PLOT_REFCASE_LIST_KEY,
-        REFCASE_LIST_KEY);
-    config_install_message(config, PLOT_REFCASE_LIST_KEY, message);
-    free(message);
-  }
 
   item = config_add_schema_item(config, GRID_KEY, false);
   config_schema_item_set_argc_minmax(item, 1, 1);

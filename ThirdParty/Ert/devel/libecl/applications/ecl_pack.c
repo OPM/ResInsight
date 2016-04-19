@@ -92,7 +92,7 @@ int main(int argc, char ** argv) {
           prev_report_step = report_step;
           msg_update(msg , stringlist_iget( filelist , i));
           {
-            ecl_file_type * src_file = ecl_file_open( stringlist_iget( filelist , i) );
+            ecl_file_type * src_file = ecl_file_open( stringlist_iget( filelist , i) , 0 );
             if (target_type == ECL_UNIFIED_RESTART_FILE) {
               /* Must insert the SEQNUM keyword first. */
               ecl_kw_iset_int(seqnum_kw , 0 , report_step);

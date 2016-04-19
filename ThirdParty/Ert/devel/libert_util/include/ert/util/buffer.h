@@ -28,8 +28,10 @@ extern "C" {
 #include <string.h>
 #include <time.h>
 
+#include <ert/util/ert_api_config.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/ssize_t.h>
+
 
 
   typedef struct     buffer_struct buffer_type;
@@ -92,7 +94,7 @@ extern "C" {
   buffer_type      * buffer_fread_alloc(const char * filename);
   void               buffer_fread_realloc(buffer_type * buffer , const char * filename);
 
-#ifdef WITH_ZLIB
+#ifdef ERT_HAVE_ZLIB
   size_t             buffer_fwrite_compressed(buffer_type * buffer, const void * ptr , size_t byte_size);
   size_t             buffer_fread_compressed(buffer_type * buffer , size_t compressed_size , void * target_ptr , size_t target_size);
 #endif

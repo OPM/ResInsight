@@ -22,6 +22,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <ert/util/type_macros.h>
+
 #include <ert/ecl/ecl_sum.h>
 
 typedef struct ecl_sum_vector_struct ecl_sum_vector_type;
@@ -35,6 +38,9 @@ typedef struct ecl_sum_vector_struct ecl_sum_vector_type;
   bool ecl_sum_vector_iget_is_rate(const ecl_sum_vector_type * ecl_sum_vector, int index);
   int ecl_sum_vector_iget_param_index(const ecl_sum_vector_type * ecl_sum_vector, int index);
   int ecl_sum_vector_get_size(const ecl_sum_vector_type * ecl_sum_vector);
+
+  UTIL_IS_INSTANCE_HEADER( ecl_sum_vector);
+
 
 #ifdef __cplusplus
 }

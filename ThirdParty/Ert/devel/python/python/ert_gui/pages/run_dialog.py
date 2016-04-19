@@ -110,6 +110,8 @@ class RunDialog(QDialog):
 
 
     def startSimulation(self):
+        self.__run_model.reset( )
+
         simulation_thread = Thread(name="ert_gui_simulation_thread")
         simulation_thread.setDaemon(True)
         simulation_thread.run = self.__run_model.startSimulations

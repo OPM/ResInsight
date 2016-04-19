@@ -1129,14 +1129,4 @@ bool ecl_file_save_kw( const ecl_file_type * ecl_file , const ecl_kw_type * ecl_
   }
 }
 
-/* Small function to support Python based enum introspection. */
-
-#ifdef HAVE_FORK
-
-const char * ecl_util_file_flags_enum_iget( int index , int * value) {
-  return util_enum_iget( index , ECL_FILE_FLAGS_ENUM_SIZE , (const util_enum_element_type []) { ECL_FILE_FLAGS_ENUM_DEFS }, value);
-}
-
-#endif
-
 

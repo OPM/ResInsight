@@ -1,6 +1,0 @@
-INTERNAL    True
-FUNCTION    enkf_main_analysis_update_JOB
-MIN_ARG     0
-ARG_TYPE    0  STRING
-ARG_TYPE    1  INT
-

@@ -30,7 +30,6 @@
 #include <ert/enkf/site_config.h>
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/enkf_types.h>
-#include <ert/enkf/enkf_sched.h>
 #include <enkf_tui_main.h>
 
 #define WORKFLOW_OPTION "-wf"
@@ -155,6 +154,7 @@ int main (int argc , char ** argv) {
     {
       char * abs_config = util_alloc_realpath( model_config_file );
       printf("model config  : %s \n\n", abs_config);
+      free(abs_config);
     }
     enkf_welcome( model_config_file );
     {

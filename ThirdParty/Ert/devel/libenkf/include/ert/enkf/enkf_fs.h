@@ -78,8 +78,6 @@ extern "C" {
 
   bool              enkf_fs_has_vector(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int iens , state_enum state);
   bool              enkf_fs_has_node(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int report_step , int iens , state_enum state);
-  void              enkf_fs_fwrite_restart_kw_list(enkf_fs_type * , int , int , const stringlist_type *);
-  void              enkf_fs_fread_restart_kw_list(enkf_fs_type * , int , int , stringlist_type *);
 
   void              enkf_fs_debug_fprintf( const enkf_fs_type * fs);
 

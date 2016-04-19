@@ -1,49 +1,75 @@
-from ert_gui.shell import ShellFunction, assertConfigLoaded, extractFullArgument, autoCompleteListWithSeparator, matchItems
+from ert_gui.shell import assertConfigLoaded, ErtShellCollection
+from ert_gui.shell.libshell import extractFullArgument, autoCompleteListWithSeparator, matchItems, splitArguments
 
 
-class AnalysisModule(ShellFunction):
-    def __init__(self, shell_context):
-        super(AnalysisModule, self).__init__("analysis_module", shell_context)
+class AnalysisModule(ErtShellCollection):
+    def __init__(self, parent):
+        super(AnalysisModule, self).__init__("analysis_module", parent)
 
-        self.addHelpFunction("current", None, "Shows the current analysis module.")
-        self.addHelpFunction("list", None, "Shows a list of the available analysis modules.")
-        self.addHelpFunction("options", None, "Shows a list of the available options for the current analysis module.")
-        self.addHelpFunction("select", "<analysis_module>", "Select an analysis module.")
-        self.addHelpFunction("set", "<variable_name> <value>", "Set a variable value.")
+        self.addShellProperty(name="active_module",
+                              getter=AnalysisModule.getAnalysisModule,
+                              setter=AnalysisModule.setAnalysisModule,
+                              validator=AnalysisModule.validateAnalysisModule,
+                              completer=AnalysisModule.completeAnalysisModule,
+                              help_arguments="[analysis_module]",
+                              help_message="Show or set the current analysis module.",
+                              pretty_attribute="Active Module")
+
+        self.addShellFunction(name="list",
+                              function=AnalysisModule.list,
+                              help_message="Shows a list of the available analysis modules.")
+
+        self.addShellFunction(name="variables",
+                              function=AnalysisModule.variables,
+                              help_message="Shows a list of the available options for the current analysis module.")
+
+        self.addShellFunction(name="set",
+                              function=AnalysisModule.set,
+                              completer=AnalysisModule.completeSet,
+                              help_arguments="<variable_name> <value>",
+                              help_message="Set a variable value.")
 
 
     @assertConfigLoaded
-    def do_current(self, args):
-        analysis_module = self.ert().analysisConfig().activeModuleName()
-        print("Analysis Module set to: %s" % analysis_module)
+    def getAnalysisModule(self):
+        return self.ert().analysisConfig().activeModuleName()
+
 
     @assertConfigLoaded
-    def do_list(self, args):
-        items = self.getAnalysisModules()
-        self.columnize(items)
+    def setAnalysisModule(self, analysis_module_name):
+        self.ert().analysisConfig().selectModule(analysis_module_name)
 
+
+    @assertConfigLoaded
+    def validateAnalysisModule(self, line):
+        keys = matchItems(line, self.getAnalysisModules())
+
+        if len(keys) == 0 or len(keys) > 1:
+            raise ValueError("Must enter a single valid Analysis Module")
+
+        return list(keys)[0]
+
+
+    def completeAnalysisModule(self, text, line, begidx, endidx):
+        key = extractFullArgument(line, endidx)
+        return autoCompleteListWithSeparator(key, self.getAnalysisModules())
+
+
+    @assertConfigLoaded
     def getAnalysisModules(self):
         analysis_modules = self.ert().analysisConfig().getModuleList()
         items = [analysis_module for analysis_module in analysis_modules]
         return items
 
-    @assertConfigLoaded
-    def do_select(self, line):
-        keys = matchItems(line, self.getAnalysisModules())
-
-        if len(keys) == 0 or len(keys) > 1:
-            self.lastCommandFailed("Must enter a single valid Analysis Module")
-
-        analysis_module_name = list(keys)[0]
-        self.ert().analysisConfig().selectModule(analysis_module_name)
 
     @assertConfigLoaded
-    def complete_select(self, text, line, begidx, endidx):
-        key = extractFullArgument(line, endidx)
-        return autoCompleteListWithSeparator(key, self.getAnalysisModules())
+    def list(self, args):
+        items = self.getAnalysisModules()
+        self.columnize(items)
+
 
     @assertConfigLoaded
-    def do_variables(self, args):
+    def variables(self, args):
         active_module = self.ert().analysisConfig().getActiveModule()
         variables = active_module.getVariableNames()
 
@@ -58,8 +84,8 @@ class AnalysisModule(ShellFunction):
 
 
     @assertConfigLoaded
-    def do_set(self, line):
-        arguments = self.splitArguments(line)
+    def set(self, line):
+        arguments = splitArguments(line)
 
         if len(arguments) > 1:
             active_module = self.ert().analysisConfig().getActiveModule()
@@ -82,8 +108,8 @@ class AnalysisModule(ShellFunction):
 
 
     @assertConfigLoaded
-    def complete_set(self, text, line, begidx, endidx):
-        arguments = self.splitArguments(line)
+    def completeSet(self, text, line, begidx, endidx):
+        arguments = splitArguments(line)
 
         if len(arguments) > 2 or len(arguments) == 2 and not text:
             return []

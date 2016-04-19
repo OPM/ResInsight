@@ -12,7 +12,23 @@ from .source_enumerator import SourceEnumerator
 from ert.util import installAbortSignals
 from ert.util import Version
 
+class _AssertNotRaisesContext(object):
 
+    def __init__(self, test_class):
+        super(_AssertNotRaisesContext, self).__init__()
+        self._test_class = test_class
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        if exc_type is not None:
+            try:
+                exc_name = exc_type.__name__
+            except AttributeError:
+                exc_name = str(exc_type)
+            self._test_class.fail("Exception: %s raised\n%s" % (exc_name, traceback.print_exception(exc_type, exc_value, tb)))
+        return True
 
 
 """
@@ -180,11 +196,14 @@ class ExtendedTestCase(TestCase):
 
         return root
 
-    def assertNotRaises(self, func):
-        try:
+    def assertNotRaises(self, func=None):
+
+        context = _AssertNotRaisesContext(self)
+        if func is None:
+            return context
+
+        with context:
             func()
-        except:
-            self.fail()
 
     @staticmethod
     def slowTestShouldNotRun():

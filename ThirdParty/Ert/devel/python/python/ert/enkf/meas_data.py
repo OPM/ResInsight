@@ -49,11 +49,13 @@ class MeasData(BaseCClass):
 
     def createS(self):
         """ @rtype: Matrix """
-        if self.activeObsSize() > 0:
-            return MeasData.cNamespace().allocS(self)
-        else:
-            raise ValueError("No active observations - can not create S")
+        S = MeasData.cNamespace().allocS(self)
+        if S is None:
+            raise ValueError("Failed to create S active size : [%d,%d]" % (self.getActiveEnsSize() , self.activeObsSize( )))
+        return S
+    
 
+    
     def deactivateZeroStdSamples(self, obs_data):
         assert isinstance(obs_data, ObsData)
         self.cNamespace().deactivate_outliers(obs_data, self)

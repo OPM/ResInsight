@@ -4,23 +4,28 @@ import readline
 import os
 
 from ert.enkf import EnKFMain
+from ert_gui.shell import PlotSettings
+
 from ert_gui.shell.analysis_module import AnalysisModule
 from ert_gui.shell.custom_kw_keys import CustomKWKeys
 from ert_gui.shell.debug import Debug
 from ert_gui.shell.cases import Cases
+from ert_gui.shell.export import Export
 from ert_gui.shell.gen_data_keys import GenDataKeys
 from ert_gui.shell.gen_kw_keys import GenKWKeys
 from ert_gui.shell.results import Results
 from ert_gui.shell.plugins import Plugins
 from ert_gui.shell.simulations import Simulations
 from ert_gui.shell.smoother import Smoother
+from ert_gui.shell.storage import Storage
 from ert_gui.shell.summary_keys import SummaryKeys
 from ert_gui.shell.workflows import Workflows
 from ert_gui.shell.observations import Observations
-from ert_gui.shell import extractFullArgument, getPossibleFilenameCompletions, PlotSettings, ShellContext
+from ert_gui.shell.server import Server
+from ert_gui.shell.libshell import extractFullArgument, getPossibleFilenameCompletions
+from ert_gui.shell import ErtShellContext
 
 import matplotlib
-
 
 class ErtShell(Cmd):
     prompt = "--> "
@@ -47,7 +52,9 @@ class ErtShell(Cmd):
     def __init__(self, forget_history=False):
         Cmd.__init__(self)
 
-        shell_context = ShellContext(self)
+        self.__children = []
+
+        shell_context = ErtShellContext(self)
         self.__shell_context = shell_context
 
         if not forget_history:
@@ -56,35 +63,37 @@ class ErtShell(Cmd):
         else:
             self.__history_file = None
 
-        matplotlib.rcParams["backend"] = "Qt4Agg"
         matplotlib.rcParams["interactive"] = True
         matplotlib.rcParams["mathtext.default"] = "regular"
         matplotlib.rcParams["verbose.level"] = "helpful"
         matplotlib.rcParams["verbose.fileo"] = "sys.stderr"
-
 
         try:
             matplotlib.style.use("ggplot") # available from version 1.4
         except AttributeError:
             pass
 
-        Debug(shell_context)
-        PlotSettings(shell_context)
-        Workflows(shell_context)
-        Cases(shell_context)
-        Plugins(shell_context)
-        SummaryKeys(shell_context)
-        GenDataKeys(shell_context)
-        GenKWKeys(shell_context)
-        Results(shell_context)
-        Simulations(shell_context)
-        CustomKWKeys(shell_context)
-        AnalysisModule(shell_context)
-        Smoother(shell_context)
-        Observations(shell_context)
+        Debug(self)
+        PlotSettings(self)
+        Cases(self)
+        Workflows(self)
+        Plugins(self)
+        SummaryKeys(self)
+        GenDataKeys(self)
+        GenKWKeys(self)
+        Results(self)
+        Simulations(self)
+        CustomKWKeys(self)
+        AnalysisModule(self)
+        Smoother(self)
+        Observations(self)
+        Export(self)
+        Storage(self)
+        Server(self)
 
         self.__last_command_failed = False
 
+        atexit.register(self._cleanup)
 
     def __init_history(self):
         try:
@@ -100,6 +109,19 @@ class ErtShell(Cmd):
                 os.makedirs(os.path.dirname(self.__history_file))
 
             readline.write_history_file(self.__history_file)
+
+    def _cleanup(self):
+        print("Performing cleanup...")
+
+        for child in self.__children:
+            child.cleanup()
+
+        if self.shellContext().ert() is not None:
+            self.shellContext().setErt(None)
+
+
+    def addChild(self, child):
+        self.__children.append(child)
 
     def emptyline(self):
         pass
@@ -127,8 +149,6 @@ class ErtShell(Cmd):
         print("Show the current directory.")
 
     def do_exit(self, line):
-        if self.shellContext().ert() is not None:
-            self.shellContext().ert().free()
         return True
 
     def help_exit(self):
@@ -160,6 +180,10 @@ class ErtShell(Cmd):
     def lastCommandFailed(self, message):
         print("Error: %s" % message)
         self.__last_command_failed = True
+
+    def get_names(self):
+        return dir(self)
+
 
 
 

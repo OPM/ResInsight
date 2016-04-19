@@ -1,6 +1,6 @@
 INTERNAL    True
 FUNCTION    enkf_main_smoother_JOB
-MIN_ARG     0
+MIN_ARG     1
 MAX_ARG     2
 ARG_TYPE    0  STRING
 ARG_TYPE    1  BOOL

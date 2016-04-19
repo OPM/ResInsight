@@ -1,3 +1,5 @@
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+
 set(source_files
     rng.c
     lookup_table.c
@@ -10,7 +12,6 @@ set(source_files
     node_data.c
     node_ctype.c
     util.c
-    thread_pool.c
     msg.c
     arg_pack.c
     path_fmt.c
@@ -47,7 +48,6 @@ set(header_files
     node_data.h
     node_ctype.h
     util.h
-    thread_pool.h
     msg.h
     arg_pack.h
     path_fmt.h
@@ -110,25 +110,12 @@ if (CMAKE_COMPILER_IS_GNUCC)
    set_property(SOURCE hash.c PROPERTY COMPILE_FLAGS "-Wno-error")
 endif()
 
-
-if (WITH_LATEX)
-   if (HAVE_FORK)
-      add_definitions( -DWITH_LATEX )
-      add_definitions( -DLATEX_CMD=\"${LATEX_PATH}\")
-
-      list( APPEND source_files latex.c )
-      list( APPEND header_files latex.h )
-   else()
-      message( STATUS "Disabling latex support due to missing fork() call")
-   endif()
-endif()
-
-if (WITH_LAPACK)
+if (ERT_HAVE_LAPACK)
    list( APPEND source_files matrix_lapack.c matrix_blas.c matrix_stat.c regression.c lars.c stepwise.c)
    list( APPEND header_files matrix_lapack.h matrix_blas.h matrix_stat.h regression.h lars.h stepwise.h)
 endif()
 
-if (UNISTD_HEADER)
+if (ERT_HAVE_UNISTD)
    list( APPEND source_files path_stack.c )
    list( APPEND header_files path_stack.h )
 endif()
@@ -147,19 +134,24 @@ if (PING_PATH)
    add_definitions( -DPING_CMD=\"${PING_PATH}\")
 endif()
 
+if (ERT_HAVE_THREAD_POOL)
+   list( APPEND header_files thread_pool.h )
+   list( APPEND source_files thread_pool.c )
+endif()
+
+
 # The block_fs filesystem is so heavily dependant on pthreads that it is not 
 # built if de not have pthreads.
-if (ERT_BUILD_BLOCK_FS)
-  list( APPEND source_files block_fs.c )
-  list( APPEND header_files block_fs.h )
 
-  list( APPEND header_files thread_pool_posix.h )
+if (HAVE_PTHREAD)
+   list( APPEND source_files block_fs.c )
+   list( APPEND header_files block_fs.h )
 endif()
 
 # The test_work_area depends on that opendir() is available.
-if (HAVE_GETUID AND HAVE_OPENDIR)
+if (ERT_HAVE_GETUID AND ERT_HAVE_OPENDIR)
   list( APPEND source_files test_work_area.c)
-  list( APPEND header_files test_work_area.h )
+  list( APPEND header_files test_work_area.h)
 endif()
 
 if (ERT_BUILD_CXX)
@@ -170,41 +162,15 @@ add_library( ert_util   ${LIBRARY_TYPE}  ${source_files} )
 if (BUILD_TESTS)
    add_library( test_util  ${LIBRARY_TYPE}  ${test_source} )
    target_link_libraries( test_util ert_util )
+   set_target_properties( test_util PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )
 endif()
 
-set_target_properties( ert_util PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+message(STATUS "Linking with: ${ERT_EXTERNAL_UTIL_LIBS}")
+set_target_properties( ert_util PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )
 if (USE_RUNPATH)
    add_runpath( ert_util )
 endif()   
-
-
-if (WITH_PTHREAD)
-  target_link_libraries( ert_util ${PTHREAD_LIBRARY} )
-  include_directories( ${PTHREAD_HEADER} )
-endif()   
-
-if (WITH_ZLIB)
-  target_link_libraries( ert_util ${ZLIB_LIBRARY} )
-  include_directories( ${ZLIB_HEADER} )
-endif()   
-
-if ( ERT_WINDOWS )
-  target_link_libraries( ert_util ${SHWLAPI_LIBRARY} )
-endif()
-
-if (WITH_LAPACK)
-   target_link_libraries( ert_util ${LAPACK_LIBRARY} )
-   if (NEED_BLAS)
-     target_link_libraries( ert_util ${BLAS_LIBRARY} )
-   endif()
-endif()
-
-if (NEED_LIBM)
-   target_link_libraries( ert_util m )
-endif()
-if (NEED_LIBDL)
-   target_link_libraries( ert_util dl )
-endif()
+target_link_libraries( ert_util ${ERT_EXTERNAL_UTIL_LIBS} )
 
 #-----------------------------------------------------------------
 if (INSTALL_ERT)

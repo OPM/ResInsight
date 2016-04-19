@@ -22,7 +22,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
-
+#include "ert/util/build_config.h"
 #include <ert/util/util.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/node_ctype.h>

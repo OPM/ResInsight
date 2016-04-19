@@ -653,13 +653,20 @@ bool obs_vector_load_from_HISTORY_OBSERVATION(obs_vector_type * obs_vector ,
 
 void obs_vector_scale_std(obs_vector_type * obs_vector, const local_obsdata_node_type * local_node , double std_multiplier) {
   const active_list_type * active_list = local_obsdata_node_get_active_list( local_node );
-  const int_vector_type * tstep_list = local_obsdata_node_get_tstep_list( local_node );
-  for (int i=0; i < int_vector_size( tstep_list ); i++) {
-    int tstep = int_vector_iget( tstep_list , i );
-    void * observation = obs_vector_iget_node(obs_vector, tstep);
-    if (observation)
-      obs_vector->update_std_scale(observation, std_multiplier , active_list);
+  int tstep = -1;
+
+  while (true) {
+    tstep = obs_vector_get_next_active_step( obs_vector , tstep );
+    if (tstep < 0)
+      break;
+
+    if (local_obsdata_node_tstep_active(local_node, tstep)) {
+      void * observation = obs_vector_iget_node(obs_vector, tstep);
+      if (observation)
+        obs_vector->update_std_scale(observation, std_multiplier , active_list);
+    }
   }
+
 }
 
 
@@ -1106,7 +1113,7 @@ const char * obs_vector_get_obs_key( const obs_vector_type * obs_vector) {
 
 
 local_obsdata_node_type * obs_vector_alloc_local_node(const obs_vector_type * obs_vector) {
-  local_obsdata_node_type * obs_node = local_obsdata_node_alloc( obs_vector->obs_key );
+  local_obsdata_node_type * obs_node = local_obsdata_node_alloc( obs_vector->obs_key , false );
   local_obsdata_node_reset_tstep_list(obs_node, obs_vector->step_list );
   return  obs_node;
 }

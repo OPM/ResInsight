@@ -57,7 +57,7 @@ void test_init(const char * config_file) {
   config_content_type * content;
 
   site_config_add_config_items( config , true );
-  content = config_parse(config , config_file , "--" , INCLUDE_KEY , DEFINE_KEY , CONFIG_UNRECOGNIZED_WARN , true);
+  content = config_parse(config , config_file , "--" , INCLUDE_KEY , DEFINE_KEY , NULL , CONFIG_UNRECOGNIZED_WARN , true);
   if (!config_content_is_valid(content)) {
     config_error_type * errors = config_content_get_errors( content );
     config_error_fprintf( errors , true , stderr );

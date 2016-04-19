@@ -36,7 +36,7 @@ class CustomKWCollector(object):
         """
         fs = ert.getEnkfFsManager().getFileSystem(case_name)
 
-        realizations = fs.realizationList(RealizationStateEnum.STATE_HAS_DATA)
+        realizations = fs.realizationList(RealizationStateEnum.STATE_HAS_DATA | RealizationStateEnum.STATE_INITIALIZED)
 
         custom_kw_keys = CustomKWCollector.getAllCustomKWKeys(ert)
 

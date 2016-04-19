@@ -37,6 +37,7 @@
 #define PLT_DATA_TYPE_ID     87166667
 
 
+
 struct ecl_rft_cell_struct {
   UTIL_TYPE_ID_DECLARATION;
   int i,j,k;

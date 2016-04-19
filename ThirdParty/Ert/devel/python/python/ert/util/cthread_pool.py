@@ -15,69 +15,71 @@
 #  for more details. 
 
 import ctypes
-from ert.util import UTIL_LIB
-from ert.cwrap import CWrapper, BaseCClass
+
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
+
 
 class CThreadPool(BaseCClass):
-    def __init__(self , pool_size , start = True):
-        c_ptr = CThreadPool.cNamespace().alloc( pool_size , start )
+    TYPE_NAME = "thread_pool"
+
+    _alloc   = UtilPrototype("void* thread_pool_alloc(int, bool)", bind = False)
+    _free    = UtilPrototype("void thread_pool_free(thread_pool)")
+    _add_job = UtilPrototype("void thread_pool_add_job(thread_pool, void*, void*)")
+    _join    = UtilPrototype("void thread_pool_join(thread_pool)")
+
+    def __init__(self, pool_size, start=True):
+        c_ptr = self._alloc(pool_size, start)
         super(CThreadPool, self).__init__(c_ptr)
         self.arg_list = []
-        
-    def addTask(self , cfunc , arg):
-        """ 
+
+    def addTaskFunction(self, name, lib, c_function_name):
+        function = CThreadPool.lookupCFunction(lib, c_function_name)
+
+        def wrappedFunction(arg):
+            return self.addTask(function, arg)
+
+        setattr(self, name, wrappedFunction)
+
+    def addTask(self, cfunc, arg):
+        """
         The function should come from CThreadPool.lookupCFunction().
         """
         if isinstance(arg, BaseCClass):
-            arg_ptr = BaseCClass.from_param( arg )
+            arg_ptr = BaseCClass.from_param(arg)
         else:
             arg_ptr = arg
 
-        self.arg_list.append( arg )
-        CThreadPool.cNamespace().add_job( self , cfunc , arg_ptr )
-
+        self.arg_list.append(arg)
+        self._add_job(cfunc, arg_ptr)
 
     def join(self):
-        CThreadPool.cNamespace().join( self )
+        self._join()
 
-        
     def free(self):
-        self.join( )
-        CThreadPool.cNamespace().free( self )
-        
+        self.join()
+        self._free()
 
     @staticmethod
-    def lookupCFunction(lib , name):
-        if isinstance(lib , ctypes.CDLL):
-            func = getattr(lib , name)
+    def lookupCFunction(lib, name):
+        if isinstance(lib, ctypes.CDLL):
+            func = getattr(lib, name)
             return func
         else:
-            raise TypeError("The lib argument must of type ctypes.CDLL")
+            raise TypeError("The lib argument must be of type ctypes.CDLL")
 
-        
 
 class CThreadPoolContextManager(object):
-
-    def __init__(self , tp):
+    def __init__(self, tp):
         self.__tp = tp
-    
+
     def __enter__(self):
         return self.__tp
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__tp.join()
-        return False          
+        return False
 
 
-def startCThreadPool( size ):
-    return CThreadPoolContextManager( CThreadPool( size , start = True ))
-
-
-        
-CWrapper.registerObjectType("thread_pool", CThreadPool)
-
-cwrapper = CWrapper(UTIL_LIB)
-CThreadPool.cNamespace().alloc = cwrapper.prototype("c_void_p thread_pool_alloc( int , bool )")
-CThreadPool.cNamespace().free = cwrapper.prototype("void thread_pool_free( thread_pool )")
-CThreadPool.cNamespace().add_job = cwrapper.prototype("void thread_pool_add_job( thread_pool , c_void_p , c_void_p)")
-CThreadPool.cNamespace().join  = cwrapper.prototype("void thread_pool_join( thread_pool )")    
+def startCThreadPool(size):
+    return CThreadPoolContextManager(CThreadPool(size, start=True))

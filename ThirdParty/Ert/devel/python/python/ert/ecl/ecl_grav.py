@@ -21,11 +21,11 @@ results and calculate the change in gravitational strength between the
 different surveys. The implementation is a thin wrapper around the
 ecl_grav.c implementation in the libecl library.
 """
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
-from ert.ecl import EclPhaseEnum, ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPhaseEnum, EclPrototype
 
 
-class EclGrav(CClass):
+class EclGrav(BaseCClass):
     """
     Holding ECLIPSE results for calculating gravity changes.
     
@@ -41,6 +41,19 @@ class EclGrav(CClass):
       2. Add surveys with the add_survey_XXXX() methods.
       3. Evalute the gravitational response with the eval() method.
     """
+    TYPE_NAME = "ecl_grav"
+    _grav_alloc = EclPrototype("void* ecl_grav_alloc( ecl_grid , ecl_file )" , bind = False)
+    _free = EclPrototype("void ecl_grav_free( ecl_grav )")
+    _add_survey_RPORV = EclPrototype("void*  ecl_grav_add_survey_RPORV( ecl_grav , char* , ecl_file )")
+    _add_survey_PORMOD = EclPrototype("void*  ecl_grav_add_survey_PORMOD( ecl_grav , char* , ecl_file )")
+    _add_survey_FIP = EclPrototype("void*  ecl_grav_add_survey_FIP( ecl_grav , char* , ecl_file )")
+    _add_survey_RFIP = EclPrototype("void*  ecl_grav_add_survey_RFIP( ecl_grav , char* , ecl_file )")
+    _new_std_density = EclPrototype("void ecl_grav_new_std_density( ecl_grav , int , double)")
+    _add_std_density = EclPrototype("void ecl_grav_add_std_density( ecl_grav , int , int , double)")
+    _eval = EclPrototype("double ecl_grav_eval( ecl_grav , char* , char* , ecl_region , double , double , double, int)")
+
+
+    
 
     def __init__( self, grid, init_file ):
         """
@@ -50,7 +63,10 @@ class EclGrav(CClass):
         of EclGrid and EclFile respectively.
         """
         self.init_file = init_file   # Inhibit premature garbage collection of init_file
-        self.init_cobj(cfunc.grav_alloc(grid, init_file), cfunc.free)
+
+        c_ptr = self._grav_alloc( grid , init_file )
+        super(EclGrav , self).__init__( c_ptr )
+        
 
 
     def add_survey_RPORV( self, survey_name, restart_file ):
@@ -77,7 +93,7 @@ class EclGrav(CClass):
         add_survey_PORMOD() and add_survey_FIP() are alternatives
         which are based on other keywords.
         """
-        cfunc.add_survey_RPORV(self, survey_name, restart_file)
+        self._add_survey_RPORV(survey_name, restart_file)
 
     def add_survey_PORMOD( self, survey_name, restart_file ):
         """
@@ -87,7 +103,7 @@ class EclGrav(CClass):
         the PORV_MOD keyword from the restart file; see
         add_survey_RPORV() for further details.
         """
-        cfunc.add_survey_PORMOD(self, survey_name, restart_file)
+        self._add_survey_PORMOD(survey_name, restart_file)
 
     def add_survey_FIP( self, survey_name, restart_file ):
         """
@@ -102,7 +118,7 @@ class EclGrav(CClass):
         the new_std_density() (and possibly also add_std_density())
         method before calling the add_survey_FIP() method.
         """
-        cfunc.add_survey_FIP(self, survey_name, restart_file)
+        self._add_survey_FIP(survey_name, restart_file)
 
     def add_survey_RFIP( self, survey_name, restart_file ):
         """
@@ -113,7 +129,7 @@ class EclGrav(CClass):
         calculated based on the RFIPxxx keyword along with the
         per-cell mass density of the respective phases.
         """
-        cfunc.add_survey_RFIP(self, survey_name, restart_file)
+        self._add_survey_RFIP( survey_name, restart_file)
 
 
     def eval(self, base_survey, monitor_survey, pos, region=None,
@@ -144,7 +160,7 @@ class EclGrav(CClass):
         sum of the relevant integer constants 'ECL_OIL_PHASE',
         'ECL_GAS_PHASE' and 'ECL_WATER_PHASE'.
         """
-        return cfunc.eval(self, base_survey, monitor_survey, region, pos[0], pos[1], pos[2], phase_mask)
+        return self._eval(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], phase_mask)
 
 
     def new_std_density( self, phase_enum, default_density):
@@ -165,7 +181,7 @@ class EclGrav(CClass):
         used before you use the add_survey_FIP() method to add a
         survey based on the FIP keyword.
         """
-        cfunc.new_std_density(self, phase_enum, default_density)
+        self._new_std_density( phase_enum, default_density)
 
     def add_std_density( self, phase_enum, pvtnum, density):
         """
@@ -185,29 +201,5 @@ class EclGrav(CClass):
         used before you use the add_survey_FIP() method to add a
         survey based on the FIP keyword.
         """
-        cfunc.add_std_density(self, phase_enum, pvtnum, density)
-
-
-# 2. Creating a wrapper object around the libecl library, 
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType("ecl_grav", EclGrav)
-
-
-# 3. Installing the c-functions used to manipulate ecl_grav instances.
-#    These functions are used when implementing the EclGrav class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("ecl_grav")
-
-cfunc.grav_alloc = cwrapper.prototype("c_void_p ecl_grav_alloc( ecl_grid , ecl_file )")
-cfunc.free = cwrapper.prototype("void ecl_grav_free( ecl_grav )")
-
-# Return value ignored in the add_survey_xxx() functions:
-cfunc.add_survey_RPORV = cwrapper.prototype("c_void_p  ecl_grav_add_survey_RPORV( ecl_grav , char* , ecl_file )")
-cfunc.add_survey_PORMOD = cwrapper.prototype("c_void_p  ecl_grav_add_survey_PORMOD( ecl_grav , char* , ecl_file )")
-cfunc.add_survey_FIP = cwrapper.prototype("c_void_p  ecl_grav_add_survey_FIP( ecl_grav , char* , ecl_file )")
-cfunc.add_survey_RFIP = cwrapper.prototype("c_void_p  ecl_grav_add_survey_RFIP( ecl_grav , char* , ecl_file )")
-
-cfunc.new_std_density = cwrapper.prototype("void ecl_grav_new_std_density( ecl_grav , int , double)")
-cfunc.add_std_density = cwrapper.prototype("void ecl_grav_add_std_density( ecl_grav , int , int , double)")
-cfunc.eval = cwrapper.prototype("double ecl_grav_eval( ecl_grav , char* , char* , ecl_region , double , double , double, int)")
+        self._add_std_density(phase_enum, pvtnum, density)
 

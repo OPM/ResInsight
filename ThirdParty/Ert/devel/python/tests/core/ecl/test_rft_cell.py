@@ -39,7 +39,7 @@ class RFTCellTest(ExtendedTestCase):
         pressure = 65
         swat = 0.56
         sgas = 0.10
-        cell = EclRFTCell.new(i, j, k, depth, pressure, swat, sgas)
+        cell = EclRFTCell(i, j, k, depth, pressure, swat, sgas)
 
         self.assertEqual(i, cell.get_i())
         self.assertEqual(j, cell.get_j())
@@ -68,8 +68,8 @@ class RFTCellTest(ExtendedTestCase):
         gas_flowrate = 132
         water_flowrate = 13344
 
-        cell = EclPLTCell.new(i, j, k, depth, pressure, orat, grat, wrat, conn_start, conn_end, flowrate,
-                                  oil_flowrate, gas_flowrate, water_flowrate)
+        cell = EclPLTCell(i, j, k, depth, pressure, orat, grat, wrat, conn_start, conn_end, flowrate,
+                          oil_flowrate, gas_flowrate, water_flowrate)
 
 
         self.assertEqual(i, cell.get_i())

@@ -13,12 +13,17 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from ert.config import CONFIG_LIB
-from ert.cwrap import BaseCClass, CWrapper
+from ert.config import ConfigPrototype
+from ert.cwrap import BaseCClass
 
 
 
 class ConfigError(BaseCClass):
+    TYPE_NAME = "config_error"
+    _free  = ConfigPrototype("void config_error_free(config_error)")
+    _count = ConfigPrototype("int config_error_count(config_error)")
+    _iget  = ConfigPrototype("char* config_error_iget(config_error, int)")
+
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
@@ -31,22 +36,12 @@ class ConfigError(BaseCClass):
         if index >= size:
             raise IndexError("Index out of range: %d < %d" % (index, size))
 
-        return ConfigError.cNamespace().iget(self, index)
+        return self._iget(index)
 
     def __len__(self):
         """ @rtype: int """
-        return ConfigError.cNamespace().count(self)
+        return self._count()
 
     def free(self):
-        ConfigError.cNamespace().free(self)
-
-##################################################################
-
-cwrapper = CWrapper(CONFIG_LIB)
-cwrapper.registerObjectType("config_error", ConfigError)
-
-ConfigError.cNamespace().free = cwrapper.prototype("void config_error_free(config_error)")
-ConfigError.cNamespace().count = cwrapper.prototype("int config_error_count(config_error)")
-ConfigError.cNamespace().iget = cwrapper.prototype("char* config_error_iget(config_error, int)")
-
+        self._free()
 

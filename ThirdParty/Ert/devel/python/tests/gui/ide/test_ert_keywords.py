@@ -177,18 +177,6 @@ class ErtKeywordTest(ExtendedTestCase):
         self.keywordTest("QC_WORKFLOW", [StringArgument], "keywords/qc_workflow", "Quality Check")
         self.keywordTest("QC_PATH", [PathArgument], "keywords/qc_path", "Quality Check")
 
-    def test_report_keywords(self):
-        self.keywordTest("REPORT_CONTEXT", [StringArgument, StringArgument], "keywords/report_context", "Report")
-        self.keywordTest("REPORT_LIST", [StringArgument], "keywords/report_list", "Report")
-        self.keywordTest("REPORT_PATH", [PathArgument], "keywords/report_path", "Report")
-        self.keywordTest("REPORT_SEARCH_PATH", [StringArgument], "keywords/report_search_path", "Report")
-        self.keywordTest("REPORT_WELL_LIST", [StringArgument, StringArgument], "keywords/report_well_list", "Report")
-        self.keywordTest("REPORT_GROUP_LIST", [StringArgument, StringArgument], "keywords/report_group_list", "Report")
-        self.keywordTest("REPORT_TIMEOUT", [IntegerArgument], "keywords/report_timeout", "Report")
-        self.keywordTest("REPORT_LARGE", [BoolArgument], "keywords/report_large", "Report")
-
-
-
     def test_unix_environment_keywords(self):
         self.keywordTest("SETENV", [StringArgument, StringArgument], "keywords/setenv", "Unix")
         self.keywordTest("UMASK", [IntegerArgument], "keywords/umask", "Unix")

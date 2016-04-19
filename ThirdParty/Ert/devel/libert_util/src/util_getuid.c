@@ -81,7 +81,7 @@ void static util_clear_directory__( const char *path , bool strict_uid , bool un
       struct dirent *dentry;
       
       while ( (dentry = readdir(dirH)) != NULL) {
-        struct stat buffer;
+        stat_type buffer;
         mode_t mode;
         const char * entry_name = dentry->d_name;
         if ((strcmp(entry_name , ".") != 0) && (strcmp(entry_name , "..") != 0)) {

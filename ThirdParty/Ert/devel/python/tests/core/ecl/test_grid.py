@@ -188,3 +188,16 @@ class GridTest(ExtendedTestCase):
         kw1 = EclKW.create("KW" , 1001 , EclTypeEnum.ECL_INT_TYPE )
         with self.assertRaises(ValueError):
             cp = grid.compressedKWCopy( kw1 )
+
+
+    def test_dxdydz(self):
+        nx = 10
+        ny = 10
+        nz = 10
+        grid = EclGrid.createRectangular( (nx,ny,nz) , (2,3,4) )
+
+        (dx,dy,dz) = grid.getCellDims( active_index = 0 )
+        self.assertEqual( dx , 2 )
+        self.assertEqual( dy , 3 )
+        self.assertEqual( dz , 4 )
+        

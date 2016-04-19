@@ -22,11 +22,11 @@ results and calculate the change in seafloor subsidence between the
 different surveys. The implementation is a thin wrapper around the
 ecl_subsidence.c implementation in the libecl library.
 """
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
-from ert.ecl import ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPrototype
 
 
-class EclSubsidence(CClass):
+class EclSubsidence(BaseCClass):
     """
     Holding ECLIPSE results for calculating subsidence changes.
     
@@ -42,6 +42,12 @@ class EclSubsidence(CClass):
       2. Add surveys with the add_survey_XXXX() methods.
       3. Evalute the subsidence response with the eval() method.
     """
+    TYPE_NAME = "ecl_subsidence"
+    _alloc               = EclPrototype("void* ecl_subsidence_alloc( ecl_grid , ecl_file )" , bind = False)
+    _free                = EclPrototype("void ecl_subsidence_free( ecl_subsidence )")
+    _add_survey_PRESSURE = EclPrototype("void*  ecl_subsidence_add_survey_PRESSURE( ecl_subsidence , char* , ecl_file )")
+    _eval                = EclPrototype("double ecl_subsidence_eval( ecl_subsidence , char* , char* , ecl_region , double , double , double, double, double)")
+
 
     def __init__( self, grid, init_file ):
         """
@@ -51,8 +57,10 @@ class EclSubsidence(CClass):
         of EclGrid and EclFile respectively.
         """
         self.init_file = init_file   # Inhibit premature garbage collection of init_file
-        self.init_cobj(cfunc.subsidence_alloc(grid, init_file), cfunc.free)
+        c_ptr = self._alloc( grid , init_file )
+        super( EclSubsidence , self ).__init__( c_ptr )
 
+        
 
     def add_survey_PRESSURE( self, survey_name, restart_file ):
         """
@@ -76,7 +84,7 @@ class EclSubsidence(CClass):
         The pore volume is calculated from the initial pore volume and
         the PRESSURE keyword from the restart file.
         """
-        cfunc.add_survey_PRESSURE(self, survey_name, restart_file)
+        self._add_survey_PRESSURE( survey_name, restart_file)
 
 
     def eval(self, base_survey, monitor_survey, pos, compressibility, poisson_ratio, region=None):
@@ -103,21 +111,6 @@ class EclSubsidence(CClass):
 
         The argument @compressibility is the total reservoir compressibility.
         """
-        return cfunc.eval(self, base_survey, monitor_survey, region, pos[0], pos[1], pos[2], compressibility,
+        return self._eval(self, base_survey, monitor_survey, region, pos[0], pos[1], pos[2], compressibility,
                           poisson_ratio)
 
-# 2. Creating a wrapper object around the libecl library, 
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType("ecl_subsidence", EclSubsidence)
-
-# 3. Installing the c-functions used to manipulate ecl_subsidence instances.
-#    These functions are used when implementing the EclSubsidence class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("ecl_subsidence")
-
-cfunc.subsidence_alloc = cwrapper.prototype("c_void_p ecl_subsidence_alloc( ecl_grid , ecl_file )")
-cfunc.free = cwrapper.prototype("void ecl_subsidence_free( ecl_subsidence )")
-
-# Return value ignored in the add_survey_xxx() functions:
-cfunc.add_survey_PRESSURE = cwrapper.prototype("c_void_p  ecl_subsidence_add_survey_PRESSURE( ecl_subsidence , char* , ecl_file )")
-cfunc.eval = cwrapper.prototype("double ecl_subsidence_eval( ecl_subsidence , char* , char* , ecl_region , double , double , double, double, double)")

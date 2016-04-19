@@ -24,9 +24,14 @@
 extern "C" {
 #endif
 
-/* Included here to get the HAVE_UTIL_ABORT symbol.*/
+#include <stdlib.h>
+#include <stdbool.h>
+#include <ert/util/ert_api_config.h>
 
-#include <ert/util/util.h>
+#if defined(__APPLE__)
+#include <wchar.h>
+#include <time.h>
+#endif
 
 
   void  test_error_exit( const char * fmt , ...);
@@ -113,12 +118,8 @@ extern "C" {
 #define test_assert_mem_not_equal( p1 , p2 , byte_size ) test_assert_mem_not_equal__( (p1) , (p2) , (byte_size), __FILE__ , __LINE__)
   void test_assert_mem_not_equal__( const void * p1 , const void * p2 , size_t byte_size , const char * file , int line);
 
-
-#ifdef HAVE_UTIL_ABORT
-#include <setjmp.h>
-  void test_util_addr2line();
-  void test_assert_util_abort(const char * function_name , void (void *) , void * arg);
-#endif
+#define test_assert_file_content( input_file , expected) test_assert_file_content__( input_file , expected , __FILE__ , __LINE__)
+  void test_assert_file_content__( const char * input_file , const char * expected, const char * src_file , int line);
 
   void test_install_SIGNALS(void);
 

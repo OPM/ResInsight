@@ -1131,7 +1131,7 @@ double ecl_sum_data_interp_get(const ecl_sum_data_type * data , int time_index1 
 }
 
 
-void ecl_sum_data_write_csv_file(const ecl_sum_data_type * data , time_t sim_time, const ecl_sum_vector_type * keylist, FILE *fp){
+void ecl_sum_data_fwrite_interp_csv_line(const ecl_sum_data_type * data , time_t sim_time, const ecl_sum_vector_type * keylist, FILE *fp){
     int num_keywords = ecl_sum_vector_get_size(keylist);
     double weight1 , weight2;
     int    time_index1 , time_index2;

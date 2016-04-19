@@ -50,6 +50,7 @@ typedef struct config_content_struct config_content_type;
   int config_content_iget_as_int( const config_content_type * content , const char * key , int occurence , int index);
   bool   config_content_iget_as_bool( const config_content_type * content , const char * key , int occurence , int index);
   double config_content_iget_as_double( const config_content_type * content , const char * key , int occurence , int index);
+  const char * config_content_iget_as_path( const config_content_type * content , const char * key , int occurence , int index);
   const char * config_content_safe_iget(const config_content_type * content , const char *kw, int occurence , int index);
   int config_content_get_occurences(const config_content_type * content, const char * kw);
 

@@ -74,7 +74,8 @@ class WorkflowJobTest(ExtendedTestCase):
             job = alloc_from_file("DUMP", config, "dump_job")
 
             self.assertFalse(job.isInternal())
-
+            argTypes = job.argumentTypes()
+            self.assertEqual( argTypes , [str , str] )
             self.assertIsNone(job.run(None, ["test", "text"]))
 
             with open("test", "r") as f:

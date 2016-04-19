@@ -33,7 +33,7 @@ int main(int argc , char ** argv) {
   config_schema_item_set_argc_minmax( item , 1 , 1);
 
   {
-    config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , false , true );
+    config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , NULL , false , true );
     test_assert_true(config_content_is_instance( content ));
     test_assert_true(config_content_is_valid( content ));
     test_assert_int_equal( config_content_get_occurences( content , "APPEND" ) , 3);
@@ -47,7 +47,7 @@ int main(int argc , char ** argv) {
   }
 
   {
-    config_content_type * content = config_parse( config , "DoesNotExist" , "--" , NULL , NULL , false , true);
+    config_content_type * content = config_parse( config , "DoesNotExist" , "--" , NULL , NULL , NULL , false , true);
     test_assert_false( config_content_is_valid( content ));
     config_content_free( content );
   }

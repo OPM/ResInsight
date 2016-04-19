@@ -14,23 +14,24 @@ add_executable( test_thread_pool test_thread_pool.c )
 target_link_libraries( test_thread_pool ert_util test_util )
 add_test( test_thread_pool valgrind --error-exitcode=1 --tool=memcheck ${EXECUTABLE_OUTPUT_PATH}/test_thread_pool )
 
-
-add_executable( ert_util_type_vector_test ert_util_type_vector_test.c )
-target_link_libraries( ert_util_type_vector_test ert_util test_util )
-add_test( ert_util_type_vector_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_type_vector_test )
-
 add_executable( ert_util_matrix ert_util_matrix.c )
 target_link_libraries( ert_util_matrix ert_util test_util )
 add_test( ert_util_matrix ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix )
+
+if (ERT_HAVE_LAPACK)
+   add_executable( ert_util_matrix_lapack ert_util_matrix_lapack.c )
+   target_link_libraries( ert_util_matrix_lapack ert_util test_util )
+   add_test( ert_util_matrix_lapack ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix_lapack )
+
+   add_executable( ert_util_matrix_stat ert_util_matrix_stat.c )
+   target_link_libraries( ert_util_matrix_stat ert_util test_util )
+   add_test( ert_util_matrix_stat ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix_stat )
+endif()
 
 add_executable( ert_util_subst_list ert_util_subst_list.c )
 target_link_libraries( ert_util_subst_list ert_util test_util )
 add_test( ert_util_subst_list ${EXECUTABLE_OUTPUT_PATH}/ert_util_subst_list )
 
-
-add_executable( ert_util_matrix_stat ert_util_matrix_stat.c )
-target_link_libraries( ert_util_matrix_stat ert_util test_util )
-add_test( ert_util_matrix_stat ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix_stat )
 
 add_executable( ert_util_buffer ert_util_buffer.c )
 target_link_libraries( ert_util_buffer ert_util test_util )
@@ -39,10 +40,6 @@ add_test( ert_util_buffer ${EXECUTABLE_OUTPUT_PATH}/ert_util_buffer )
 add_executable( ert_util_statistics ert_util_statistics.c )
 target_link_libraries( ert_util_statistics ert_util test_util )
 add_test( ert_util_statistics ${EXECUTABLE_OUTPUT_PATH}/ert_util_statistics )
-
-add_executable( ert_util_struct_vector ert_util_struct_vector.c )
-target_link_libraries( ert_util_struct_vector ert_util test_util )
-add_test( ert_util_struct_vector ${EXECUTABLE_OUTPUT_PATH}/ert_util_struct_vector )
 
 add_executable( ert_util_copy_file ert_util_copy_file.c )
 target_link_libraries( ert_util_copy_file ert_util test_util )
@@ -139,10 +136,6 @@ add_executable( ert_util_type_vector_functions ert_util_type_vector_functions.c 
 target_link_libraries( ert_util_type_vector_functions ert_util test_util )
 add_test( ert_util_type_vector_functions ${EXECUTABLE_OUTPUT_PATH}/ert_util_type_vector_functions)
 
-add_executable( ert_util_addr2line ert_util_addr2line.c )
-target_link_libraries( ert_util_addr2line ert_util test_util )
-add_test( ert_util_addr2line ${EXECUTABLE_OUTPUT_PATH}/ert_util_addr2line)
-
 
 add_executable( ert_util_ui_return ert_util_ui_return.c )
 target_link_libraries( ert_util_ui_return ert_util test_util )
@@ -170,26 +163,38 @@ add_test( NAME ert_util_work_area
           COMMAND ${EXECUTABLE_OUTPUT_PATH}/ert_util_work_area data2/file1 ${CMAKE_CURRENT_SOURCE_DIR}/data2/file2 data2
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-
-
-if (WITH_LATEX)
-   add_executable( ert_util_latex_test ert_util_latex_test.c )
-   target_link_libraries(ert_util_latex_test ert_util test_util )
-   add_test( ert_util_latex_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_latex_test ${CMAKE_CURRENT_SOURCE_DIR}/data/latex_OK.tex  latex_OK.tex)
-endif()
-
-
 add_executable( ert_util_arg_pack ert_util_arg_pack.c)
 set_target_properties( ert_util_arg_pack PROPERTIES COMPILE_FLAGS "-Werror")
 target_link_libraries( ert_util_arg_pack ert_util test_util )
 add_test( ert_util_arg_pack ${EXECUTABLE_OUTPUT_PATH}/ert_util_arg_pack)
 
-add_executable( ert_util_abort_gnu_tests ert_util_abort_gnu_tests.c)
-target_link_libraries( ert_util_abort_gnu_tests ert_util test_util)
-add_test( ert_util_abort_gnu_tests ${EXECUTABLE_OUTPUT_PATH}/ert_util_abort_gnu_tests)
+if (HAVE_BACKTRACE)
+   add_executable( ert_util_abort_gnu_tests ert_util_abort_gnu_tests.c)
+   target_link_libraries( ert_util_abort_gnu_tests ert_util test_util)
+   add_test( ert_util_abort_gnu_tests ${EXECUTABLE_OUTPUT_PATH}/ert_util_abort_gnu_tests)
 
-if (ERT_BUILD_BLOCK_FS)
+   add_executable( ert_util_addr2line ert_util_addr2line.c )
+   target_link_libraries( ert_util_addr2line ert_util test_util )
+   add_test( ert_util_addr2line ${EXECUTABLE_OUTPUT_PATH}/ert_util_addr2line)
+endif()
+
+if (HAVE_UTIL_ABORT_INTERCEPT)
    add_executable( ert_util_block_fs ert_util_block_fs.c)
    target_link_libraries( ert_util_block_fs ert_util test_util)
    add_test( ert_util_block_fs ${EXECUTABLE_OUTPUT_PATH}/ert_util_block_fs)
-endif()   
+
+   add_executable( ert_util_struct_vector ert_util_struct_vector.c )
+   target_link_libraries( ert_util_struct_vector ert_util test_util )
+   add_test( ert_util_struct_vector ${EXECUTABLE_OUTPUT_PATH}/ert_util_struct_vector )
+
+   add_executable( ert_util_type_vector_test ert_util_type_vector_test.c )
+   target_link_libraries( ert_util_type_vector_test ert_util test_util )
+   add_test( ert_util_type_vector_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_type_vector_test )
+endif()
+
+if (ERT_HAVE_SPAWN)
+   add_executable( ert_util_spawn ert_util_spawn.c )
+   target_link_libraries( ert_util_spawn ert_util test_util )
+   add_test( ert_util_spawn ${EXECUTABLE_OUTPUT_PATH}/ert_util_spawn)
+endif()
+

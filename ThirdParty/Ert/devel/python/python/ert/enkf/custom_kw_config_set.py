@@ -1,6 +1,6 @@
 from ert.cwrap import CWrapper, BaseCClass
 from ert.enkf import ENKF_LIB
-from ert.enkf.data.custom_kw_config import CustomKWConfig
+from ert.enkf.config.custom_kw_config import CustomKWConfig
 
 
 class CustomKWConfigSet(BaseCClass):

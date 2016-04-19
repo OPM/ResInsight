@@ -177,29 +177,7 @@ static void enkf_tui_fs_copy_ensemble__(
     enkf_fs_type * src_fs    = enkf_main_mount_alt_fs( enkf_main , source_case , false );
     enkf_fs_type * target_fs = enkf_main_mount_alt_fs( enkf_main , target_case , true );
     
-    stringlist_type * nodes;
-    
-    if(only_parameters)
-      nodes = ensemble_config_alloc_keylist_from_var_type(config, PARAMETER);
-    else {
-      /* Must explicitly load the static nodes. */
-      stringlist_type * restart_kw_list = stringlist_alloc_new();
-      int i;
-
-      enkf_fs_fread_restart_kw_list(src_fs , report_step_from , 0 , restart_kw_list);  
-      for (i = 0; i < stringlist_get_size( restart_kw_list ); i++) {
-        const char * kw = stringlist_iget( restart_kw_list , i);
-        if (!ensemble_config_has_key(config , kw)) 
-          ensemble_config_add_STATIC_node(config , kw );
-      }
-      for (i=0; i < ens_size; i++) 
-        enkf_fs_fwrite_restart_kw_list(target_fs , report_step_to , i , restart_kw_list);
-      
-      stringlist_free( restart_kw_list );
-      nodes = ensemble_config_alloc_keylist(config);
-    }
-
-    /***/
+    stringlist_type * nodes = ensemble_config_alloc_keylist_from_var_type(config, PARAMETER);
     
     {
       int num_nodes = stringlist_get_size(nodes);

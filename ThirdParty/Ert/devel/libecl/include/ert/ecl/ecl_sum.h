@@ -52,7 +52,6 @@ extern "C" {
     char * value_dash;
   } ecl_sum_fmt_type;
 
-  void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt );
 
   /*****************************************************************/
 
@@ -205,6 +204,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   char                * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keyword , const char * wgname);
   bool                  ecl_sum_report_step_equal( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
   bool                  ecl_sum_report_step_compatible( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
+  void                  ecl_sum_export_csv(const ecl_sum_type * ecl_sum , const char * filename  , const stringlist_type * var_list , const char * date_format , const char * sep);
 
 UTIL_IS_INSTANCE_HEADER( ecl_sum );
 

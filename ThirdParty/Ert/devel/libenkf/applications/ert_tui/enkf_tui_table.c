@@ -37,7 +37,6 @@
 
 #include <enkf_tui_util.h>
 #include <enkf_tui_help.h>
-#include <enkf_tui_plot.h>
 #include <enkf_tui_fs.h>
 
 
@@ -46,7 +45,7 @@
 
 static void enkf_tui_table__(enkf_main_type * enkf_main , bool gen_kw_table , bool ens_plot) {
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
-  enkf_fs_type               * fs              = enkf_main_get_fs(enkf_main);
+  enkf_fs_type               * fs              = enkf_main_tui_get_fs(enkf_main);
   const int ens_size    = enkf_main_get_ensemble_size( enkf_main );
   const int last_report = enkf_main_get_history_length( enkf_main );
   int iens1, iens2, step1 , step2;

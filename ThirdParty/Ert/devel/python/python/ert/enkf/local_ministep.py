@@ -26,7 +26,7 @@ class LocalMinistep(BaseCClass):
         
     def attachObsset(self, obs_set):
         assert isinstance(obs_set, LocalObsdata)
-        LocalMinistep.cNamespace().attach_obsset(self,obs_set)
+        LocalMinistep.cNamespace().attach_obsdata(self,obs_set)
 
     
     def attachDataset(self, dataset):
@@ -53,7 +53,7 @@ LocalMinistep.cNamespace().get_local_obs_data  = cwrapper.prototype("local_obsda
 LocalMinistep.cNamespace().get_local_data      = cwrapper.prototype("local_dataset_ref local_ministep_get_dataset(local_ministep , char*)")
 LocalMinistep.cNamespace().has_local_data      = cwrapper.prototype("bool              local_ministep_has_dataset(local_ministep , char*)")
 LocalMinistep.cNamespace().free                = cwrapper.prototype("void local_ministep_free(local_ministep)")
-LocalMinistep.cNamespace().attach_obsset       = cwrapper.prototype("void local_ministep_add_obsdata(local_ministep,local_obsdata)")
+LocalMinistep.cNamespace().attach_obsdata      = cwrapper.prototype("void local_ministep_add_obsdata(local_ministep,local_obsdata)")
 LocalMinistep.cNamespace().attach_dataset      = cwrapper.prototype("void local_ministep_add_dataset(local_ministep,local_dataset)")
 LocalMinistep.cNamespace().name                = cwrapper.prototype("char* local_ministep_get_name(local_ministep)")
 LocalMinistep.cNamespace().data_size           = cwrapper.prototype("int local_ministep_get_num_dataset(local_ministep)")

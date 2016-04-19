@@ -1,0 +1,3 @@
+add_executable(ert_util_unique_ptr ert_util_unique_ptr.cpp )
+target_link_libraries(ert_util_unique_ptr test_util util)
+add_test(ert_util_unique_ptr ${EXECUTABLE_OUTPUT_PATH}/ert_util_unique_ptr)

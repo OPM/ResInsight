@@ -37,7 +37,7 @@ static void enkf_tui_ranking_make_misfit_ensemble( void * arg) {
   arg_pack_type * arg_pack                     = arg_pack_safe_cast( arg );
   enkf_main_type  * enkf_main                  = arg_pack_iget_ptr( arg_pack , 0 );
 
-  enkf_fs_type               * fs              = enkf_main_get_fs(enkf_main);
+  enkf_fs_type               * fs              = enkf_main_tui_get_fs(enkf_main);
   enkf_obs_type              * enkf_obs        = enkf_main_get_obs( enkf_main );
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   const int history_length                     = enkf_main_get_history_length( enkf_main );
@@ -56,7 +56,7 @@ static void enkf_tui_ranking_make_misfit_ensemble( void * arg) {
 static void enkf_tui_ranking_create_obs( void * arg ) {
   enkf_main_type    * enkf_main       = enkf_main_safe_cast( arg );  
   enkf_obs_type     * enkf_obs        = enkf_main_get_obs( enkf_main );
-  enkf_fs_type      * fs              = enkf_main_get_fs( enkf_main );
+  enkf_fs_type      * fs              = enkf_main_tui_get_fs( enkf_main );
   misfit_ensemble_type * misfit_ensemble    = enkf_fs_get_misfit_ensemble( fs );
   
   if (!misfit_ensemble_initialized( misfit_ensemble )) {
@@ -111,7 +111,7 @@ static void enkf_tui_ranking_create_obs( void * arg ) {
 static void enkf_tui_ranking_create_data__( void * arg , bool sort_increasing) {
   enkf_main_type     * enkf_main         = enkf_main_safe_cast( arg );  
   ranking_table_type * ranking_table     = enkf_main_get_ranking_table( enkf_main );
-  enkf_fs_type * fs                      = enkf_main_get_fs( enkf_main );
+  enkf_fs_type * fs                      = enkf_main_tui_get_fs( enkf_main );
   ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config( enkf_main );
   time_map_type * time_map               = enkf_fs_get_time_map( fs );
   const int    prompt_len   = 60;
@@ -208,7 +208,7 @@ void enkf_tui_ranking_menu(void * arg) {
     menu_add_item(menu , "New data based ranking (Sort: decreasing)" , "dD" , enkf_tui_ranking_create_data_decreasing , enkf_main , NULL);
     menu_add_item(menu , "Show ranking" , "sS" , enkf_tui_ranking_display , enkf_main , NULL);
     {
-      enkf_fs_type * fs = enkf_main_get_fs( enkf_main );
+      enkf_fs_type * fs = enkf_main_tui_get_fs( enkf_main );
       misfit_ensemble_type * misfit_ensemble = enkf_fs_get_misfit_ensemble( fs );
       if (!misfit_ensemble_initialized( misfit_ensemble ))
         menu_item_disable( obs_item );

@@ -9,8 +9,8 @@ from .data_type_keys_widget import DataTypeKeysWidget
 from .plot_case_model import PlotCaseModel
 from .plot_case_selection_widget import CaseSelectionWidget
 
-from .color_chooser import ColorChooser
-from .customize_plot_widget import CustomizePlotWidget
+from .color_chooser import ColorBox
+from .style_chooser import StyleChooser
 
 from .plot_window import PlotWindow
 from .plot_tool import PlotTool

@@ -13,18 +13,22 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
+import os.path
+
 from ert.cwrap import BaseCClass, CWrapper
 from ert.job_queue import JOB_QUEUE_LIB
 
 
 class ExtJob(BaseCClass):
-    def __init__(self, name, root_path, private, config_file = None):
-        if config_file is None:
-            c_ptr = ExtJob.cNamespace().alloc(name, root_path, private)
+    def __init__(self, config_file, private, name = None , license_root_path = None , search_PATH = True):
+        if os.path.isfile( config_file ):
+            if name is None:
+                name = os.path.basename( config_file )
+
+            c_ptr = ExtJob.cNamespace().fscanf_alloc(name, license_root_path, private, config_file , search_PATH)
             super(ExtJob, self).__init__(c_ptr)
         else:
-            c_ptr = ExtJob.cNamespace().fscanf_alloc(name, root_path, private, config_file)
-            super(ExtJob, self).__init__(c_ptr)
+            raise IOError("No such file:%s" % config_file)
 
 
     def get_private_args_as_string(self):
@@ -102,19 +106,21 @@ class ExtJob(BaseCClass):
     def free(self):
         ExtJob.cNamespace().free(self)
 
+    def name(self):
+        return ExtJob.cNamespace().get_name(self)
+        
 ##################################################################
 
 cwrapper = CWrapper(JOB_QUEUE_LIB)
-cwrapper.registerType("ext_job", ExtJob)
-cwrapper.registerType("ext_job_obj", ExtJob.createPythonObject)
-cwrapper.registerType("ext_job_ref", ExtJob.createCReference)
+cwrapper.registerObjectType("ext_job", ExtJob)
 
 
 ExtJob.cNamespace().alloc                      = cwrapper.prototype("c_void_p ext_job_alloc(char*, char*, int)")
-ExtJob.cNamespace().fscanf_alloc               = cwrapper.prototype("c_void_p ext_job_fscanf_alloc(char*, char*, int, char*)")
+ExtJob.cNamespace().fscanf_alloc               = cwrapper.prototype("c_void_p ext_job_fscanf_alloc(char*, char*, bool, char* , bool)")
 
 ExtJob.cNamespace().free                       = cwrapper.prototype("void ext_job_free( ext_job )")
 ExtJob.cNamespace().get_help_text              = cwrapper.prototype("char* ext_job_get_help_text(ext_job)")
+ExtJob.cNamespace().get_name                   = cwrapper.prototype("char* ext_job_get_name(ext_job)")
 ExtJob.cNamespace().get_private_args_as_string = cwrapper.prototype("char* ext_job_get_private_args_as_string(ext_job)")
 ExtJob.cNamespace().set_private_args_as_string = cwrapper.prototype("void ext_job_set_private_args_from_string(ext_job, char*)")
 ExtJob.cNamespace().is_private                 = cwrapper.prototype("int ext_job_is_private(ext_job)")

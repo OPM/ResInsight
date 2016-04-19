@@ -1,3 +1,7 @@
+
+
+
+
 from ert.analysis.enums.analysis_module_options_enum import AnalysisModuleOptionsEnum
 from ert_gui.models import ErtConnector
 from ert_gui.models.mixins import ChoiceModelMixin

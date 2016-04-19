@@ -110,7 +110,7 @@ bool summary_key_set_has_summary_key(summary_key_set_type * set, const char * su
     return has_key;
 }
 
-stringlist_type * summary_key_set_get_keys(summary_key_set_type * set) {
+stringlist_type * summary_key_set_alloc_keys(summary_key_set_type * set) {
     stringlist_type * keys;
 
     pthread_rwlock_rdlock( &set->rw_lock );
@@ -134,7 +134,7 @@ void summary_key_set_fwrite(summary_key_set_type * set, const char * filename) {
         if (stream) {
             stringlist_type * keys = hash_alloc_stringlist(set->key_set);
             stringlist_fwrite(keys, stream);
-            free(keys);
+            stringlist_free(keys);
             fclose( stream );
         } else {
             util_abort("%s: failed to open: %s for writing \n", __func__, filename);
@@ -155,7 +155,7 @@ bool summary_key_set_fread(summary_key_set_type * set, const char * filename) {
                 stringlist_type * key_set = stringlist_fread_alloc(stream);
 
                 for (int i = 0; i < stringlist_get_size(key_set); i++) {
-                    hash_insert_int(set->key_set, stringlist_iget_copy(key_set, i), 1);
+                    hash_insert_int(set->key_set, stringlist_iget(key_set, i), 1);
                 }
                 stringlist_free(key_set);
                 fclose( stream );

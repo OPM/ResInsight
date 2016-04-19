@@ -39,7 +39,6 @@ extern "C" {
 
 #include <ert/ecl/ecl_sum.h>
 
-#include <ert/enkf/enkf_sched.h>
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/fs_types.h>
 #include <ert/enkf/time_map.h>
@@ -48,7 +47,6 @@ extern "C" {
 
   const char *           model_config_get_jobname_fmt( const model_config_type * model_config );
   void                   model_config_set_jobname_fmt( model_config_type * model_config , const char * jobname_fmt);
-  void                   model_config_set_select_case( model_config_type * model_config , const char * select_case);
   const char *           model_config_get_case_table_file( const model_config_type * model_config );
   void                   model_config_set_case_table( model_config_type * model_config , int ens_size , const char * case_table_file );
   void                   model_config_set_enspath( model_config_type * model_config , const char * enspath);
@@ -71,12 +69,10 @@ extern "C" {
   void                   model_config_free(model_config_type *);
   bool                   model_config_runpath_requires_iter( const model_config_type * model_config );
   path_fmt_type        * model_config_get_runpath_fmt(const model_config_type * );
-  enkf_sched_type      * model_config_get_enkf_sched(const model_config_type * );
   history_type         * model_config_get_history(const model_config_type * );
   forward_model_type   * model_config_get_forward_model( const model_config_type * );
   bool                   model_config_internalize_state( const model_config_type *, int );
   bool                   model_config_load_state( const model_config_type *, int );
-  void                   model_config_set_enkf_sched(model_config_type *  , const ext_joblist_type * , run_mode_type );
   const char           * model_config_iget_casename( const model_config_type * model_config , int index);
   //void                   model_config_set_max_resample( model_config_type * model_config , int max_resample );
   //int                    model_config_get_max_resample(const model_config_type * model_config );
@@ -89,7 +85,7 @@ extern "C" {
   void                   model_config_set_refcase( model_config_type * model_config , const ecl_sum_type * refcase );
   void                   model_config_fprintf_config( const model_config_type * model_config , int ens_size ,FILE * stream );
   model_config_type    * model_config_alloc();
-  bool                   model_config_select_history( model_config_type * model_config , history_source_type source_type, const sched_file_type * sched_file , const ecl_sum_type * refcase);
+  bool                   model_config_select_history( model_config_type * model_config , history_source_type source_type, const sched_file_type * schede_file , const ecl_sum_type * refcase);
   void                   model_config_set_runpath(model_config_type * model_config , const char * fmt);
   void                   model_config_set_gen_kw_export_file( model_config_type * model_config, const char * file_name);
   const char           * model_config_get_gen_kw_export_file( const model_config_type * model_config);

@@ -35,23 +35,17 @@
 #include <fcntl.h>
 #include <limits.h>
 
-#ifdef HAVE_FORK
-#ifdef WITH_PTHREAD
-#ifdef HAVE_EXECINFO
-#ifdef HAVE_GETPWUID
-#ifdef HAVE_DLADDR
-#define HAVE_UTIL_ABORT
-#endif
-#endif
-#endif
-#endif
-#endif
+#include <ert/util/ert_api_config.h>
+#include "ert/util/build_config.h"
 
-#ifdef HAVE_UTIL_ABORT
+
+#ifdef HAVE_BACKTRACE
 #define __USE_GNU       // Must be defined to get access to the dladdr() function; Man page says the symbol should be: _GNU_SOURCE but that does not seem to work?
 #define _GNU_SOURCE     // Must be defined _before_ #include <errno.h> to get the symbol 'program_invocation_name'.
 #include <dlfcn.h>
 #endif
+
+
 #include <errno.h>
 
 #include <stdint.h>
@@ -61,7 +55,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 
-#ifdef HAVE_OPENDIR
+#ifdef ERT_HAVE_OPENDIR
 #include <dirent.h>
 #endif
 
@@ -72,7 +66,7 @@
 #include <Shlwapi.h>
 #endif
 
-#ifdef HAVE_FORK
+#ifdef ERT_HAVE_SPAWN
 #include <unistd.h>
 #include <sys/wait.h>
 #endif
@@ -81,7 +75,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef WITH_PTHREAD
+#ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif
 
@@ -94,6 +88,11 @@
 #include <sys/types.h>
 #else
 #include <io.h>
+#endif
+
+
+#ifdef HAVE_WINDOWS_GETCWD
+#include <direct.h>
 #endif
 
 
@@ -752,8 +751,10 @@ void util_yield() {
 #if defined(WITH_PTHREAD) && (defined(HAVE_YIELD_NP) || defined(HAVE_YIELD))
   #ifdef HAVE_YIELD_NP
     pthread_yield_np();
-  #elif HAVE_YIELD
+  #else
+    #ifdef HAVE_YIELD
     pthread_yield();
+    #endif
   #endif
 #else
   util_usleep(1000);
@@ -777,6 +778,16 @@ char * util_blocking_alloc_stdin_line(unsigned long usec) {
   return line;
 }
 
+static char * util_getcwd(char * buffer , int size) {
+#ifdef HAVE_POSIX_GETCWD
+  return getcwd( buffer , size );
+#endif
+
+#ifdef HAVE_WINDOWS_GETCWD
+  return _getcwd( buffer , size );
+#endif
+}
+
 
 char * util_alloc_cwd(void) {
   char * result_ptr;
@@ -784,7 +795,7 @@ char * util_alloc_cwd(void) {
   int buffer_size = 128;
   do {
     cwd = util_calloc(buffer_size , sizeof * cwd );
-    result_ptr = getcwd(cwd , buffer_size - 1);
+    result_ptr = util_getcwd(cwd , buffer_size - 1);
     if (result_ptr == NULL) {
       if (errno == ERANGE) {
         buffer_size *= 2;
@@ -858,7 +869,7 @@ static char * util_alloc_cwd_abs_path( const char * path ) {
 
 char * util_alloc_realpath__(const char * input_path) {
   char * abs_path  = util_alloc_cwd_abs_path( input_path );
-  char * real_path = util_malloc( strlen(abs_path) + 1 );
+  char * real_path = util_malloc( strlen(abs_path) + 2 );
   real_path[0] = '\0';
 
   {
@@ -900,10 +911,34 @@ char * util_alloc_realpath__(const char * input_path) {
       /* Build up the new string. */
       {
         int i;
+        bool first = true;
+
         for (i=0; i < path_len; i++) {
           if (mask[i]) {
-            strcat( real_path , UTIL_PATH_SEP_STRING );
-            strcat( real_path , path_list[i]);
+            const char * path_elm = path_list[i];
+            if (first) {
+
+#ifdef ERT_WINDOWS
+              // Windows:
+              //   1) If the path starts with X: - just do nothing
+              //   2) Else add \\ - for a UNC path.
+              if (path_elm[1] != ':') {
+                strcat(real_path, UTIL_PATH_SEP_STRING);
+                strcat(real_path, UTIL_PATH_SEP_STRING);
+              }
+#else
+              // Posix: just start with a leading '/'
+              strcat(real_path, UTIL_PATH_SEP_STRING);
+#endif
+              strcat( real_path , path_elm);
+            } else {
+
+              strcat(real_path, UTIL_PATH_SEP_STRING);
+              strcat( real_path , path_elm);
+
+            }
+
+            first = false;
           }
         }
       }
@@ -944,7 +979,7 @@ char * util_alloc_realpath(const char * input_path) {
   /* We do not have the realpath() implementation. Must first check if
      the entry exists; and if not we abort. If the entry indeed exists
      we call the util_alloc_cwd_abs_path() function: */
-#ifdef HAVE_SYMLINK
+#ifdef ERT_HAVE_SYMLINK
   ERROR - What the fuck; have symlinks and not realpath()?!
 #endif
   if (!util_entry_exists( input_path ))
@@ -2245,15 +2280,17 @@ static bool util_copy_file__(const char * src_file , const char * target_file, s
       fclose(src_stream);
       fclose(target_stream);
 
-#ifdef HAVE_CHMOD_AND_MODE_T
+#ifdef HAVE_CHMOD
+#ifdef HAVE_MODE_T
       {
-        struct stat stat_buffer;
+        stat_type stat_buffer;
         mode_t src_mode;
 
         stat( src_file , &stat_buffer );
         src_mode = stat_buffer.st_mode;
         chmod( target_file , src_mode );
       }
+#endif
 #endif
 
       return result;
@@ -2539,7 +2576,7 @@ bool util_is_file(const char * path) {
    Will return false if the path does not exist.
 */
 
-#ifdef HAVE_FORK
+#ifdef ERT_HAVE_SPAWN
 bool util_is_executable(const char * path) {
   if (util_file_exists(path)) {
     stat_type stat_buffer;
@@ -4601,6 +4638,9 @@ void * util_realloc_copy(void * org_ptr , const void * src , size_t byte_size ) 
   }
 }
 
+void util_free(void * ptr) {
+  free( ptr );
+}
 
 
 
@@ -4739,7 +4779,9 @@ char * util_alloc_sprintf_va(const char * fmt , va_list ap) {
   char *s = NULL;
   int length;
   va_list tmp_va;
+
   UTIL_VA_COPY(tmp_va , ap);
+
   length = vsnprintf(NULL , 0 , fmt , tmp_va);
   s = util_calloc(length + 1 , sizeof * s );
   vsprintf(s , fmt , ap);
@@ -4864,6 +4906,36 @@ void util_install_signals(void) {
   signal(SIGFPE  , util_abort_signal);    /* Floating point exception */
 }
 
+/*
+   Will install the util_abort signal handler for all signals which
+   have not been modified from the default state.
+*/
+
+static void update_signal( int signal_nr ) {
+  /* Redefining sighandler_t in case it isn't defined (Windows).
+     This is harmless on other platforms. */
+  typedef void (*sighandler_t)(int);
+
+  sighandler_t current_handler = signal(signal_nr , SIG_DFL);
+  if (current_handler == SIG_DFL)
+    signal( signal_nr , util_abort_signal );
+  else
+    signal( signal_nr , current_handler );
+}
+
+
+
+void util_update_signals(void) {
+#ifdef HAVE_SIGBUS
+  update_signal(SIGBUS );
+#endif
+
+  update_signal(SIGSEGV );
+  update_signal(SIGTERM );
+  update_signal(SIGABRT );
+  update_signal(SIGILL  );
+  update_signal(SIGFPE  );
+}
 
 
 void util_exit(const char * fmt , ...) {
@@ -5044,7 +5116,7 @@ int util_fnmatch( const char * pattern , const char * string ) {
 
 /*****************************************************************/
 /* Conditional compilation; this last section includes several
-   functions which are included if certain features like e.g. fork()
+   functions which are included if certain features like e.g. posix_spawn()
    are present. */
 
 // Observe that there is some really ugly #ifdef HAVE_REALPATH in the
@@ -5060,26 +5132,26 @@ void util_localtime( time_t * t , struct tm * ts ) {
 #endif
 }
 
-#ifdef HAVE_FORK
-#include "util_fork.c"
+#ifdef ERT_HAVE_SPAWN
+#include "util_spawn.c"
 #endif
 
-#ifdef WITH_ZLIB
+#ifdef ERT_HAVE_ZLIB
 #include "util_zlib.c"
 #endif
 
-#ifdef HAVE_GETUID
+#ifdef ERT_HAVE_GETUID
 #include "util_getuid.c"
 #endif
 
-#ifdef HAVE_LOCKF
+#ifdef ERT_HAVE_LOCKF
 #include "util_lockf.c"
 #endif
 
 
 #include "util_env.c"
 
-#ifdef HAVE_SYMLINK
+#ifdef ERT_HAVE_SYMLINK
 #include "util_symlink.c"
 #else
 bool util_is_link(const char * path) {
@@ -5093,15 +5165,14 @@ char * util_alloc_link_target(const char * link) {
 
 
 
-#ifdef HAVE_UTIL_ABORT
-#include "util_abort_test.c"
+#ifdef HAVE_BACKTRACE
 #include "util_abort_gnu.c"
 #else
 #include "util_abort_simple.c"
 #endif
 
 
-#ifdef HAVE_OPENDIR
+#ifdef ERT_HAVE_OPENDIR
 #include "util_opendir.c"
 #endif
 

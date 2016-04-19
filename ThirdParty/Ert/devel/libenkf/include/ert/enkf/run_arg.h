@@ -28,9 +28,8 @@ extern "C" {
 
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/run_arg_type.h>
 
-
-typedef struct run_arg_struct run_arg_type;
 
 
 UTIL_SAFE_CAST_HEADER( run_arg );
@@ -40,15 +39,6 @@ UTIL_IS_INSTANCE_HEADER( run_arg );
   run_arg_type * run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs_type * fs , int iens , int iter , const char * runpath);
   run_arg_type * run_arg_alloc_INIT_ONLY(enkf_fs_type * init_fs , int iens , int iter , const char * runpath);
   run_arg_type * run_arg_alloc_SMOOTHER_RUN(enkf_fs_type * simulate_fs , enkf_fs_type * update_target_fs , int iens , int iter , const char * runpath);
-  run_arg_type * run_arg_alloc_ENKF_ASSIMILATION(enkf_fs_type * fs ,
-                                                 int iens ,
-                                                 state_enum init_state_parameter ,
-                                                 state_enum init_state_dynamic   ,
-                                                 int step1                       ,
-                                                 int step2                       ,
-                                                 const char * runpath);
-
-
 
   state_enum     run_arg_get_dynamic_init_state( const run_arg_type * run_arg );
   state_enum     run_arg_get_parameter_init_state( const run_arg_type * run_arg );

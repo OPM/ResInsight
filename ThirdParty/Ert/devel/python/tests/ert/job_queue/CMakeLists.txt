@@ -2,6 +2,7 @@ set(TEST_SOURCES
     __init__.py
     test_ert_plugin.py
     test_ert_script.py
+    test_ext_job.py
     test_function_ert_script.py
     test_job_queue.py
     test_workflow.py
@@ -21,3 +22,4 @@ addPythonTest(ert.job_queue.ert_plugin tests.ert.job_queue.test_ert_plugin.ErtPl
 addPythonTest(ert.job_queue.ert_script tests.ert.job_queue.test_ert_script.ErtScriptTest)
 addPythonTest(ert.job_queue.function_ert_script tests.ert.job_queue.test_function_ert_script.FunctionErtScriptTest)
 addPythonTest(ert.job_queue.workflow_runner tests.ert.job_queue.test_workflow_runner.WorkflowRunnerTest)
+addPythonTest(ert.job_queue.ext_job tests.ert.job_queue.test_ext_job.ExtJobTest)

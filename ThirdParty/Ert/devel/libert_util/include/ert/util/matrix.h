@@ -22,9 +22,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include <ert/util/ert_api_config.h>
 #include <ert/util/rng.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/bool_vector.h>
+
 #ifdef HAVE_THREAD_POOL
 #include <ert/util/thread_pool.h>
 #endif
@@ -145,7 +147,7 @@ typedef struct matrix_struct matrix_type;
   double        matrix_det3( const matrix_type * A);
   double        matrix_det4( const matrix_type * A);
 
-  #ifdef HAVE_ISFINITE
+  #ifdef ERT_HAVE_ISFINITE
   bool          matrix_is_finite(const matrix_type * matrix);
   void          matrix_assert_finite( const matrix_type * matrix );
   #endif

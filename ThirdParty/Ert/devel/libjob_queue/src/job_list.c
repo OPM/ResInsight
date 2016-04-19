@@ -77,7 +77,6 @@ int job_list_get_size( const job_list_type * job_list ) {
 /*
   This takes ownership to the job node instance.
 */
-#define QUEUE_DEBUG 1
 void job_list_add_job( job_list_type * job_list , job_queue_node_type * job_node ) {
   if (job_list->alloc_size == job_list->active_size) {
 

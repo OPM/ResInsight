@@ -155,6 +155,7 @@ void forward_model_parse_init(forward_model_type * forward_model , const char * 
         char  * arg_string          = util_alloc_substring_copy((p1 + 1) , 0 , arg_length - 1);
         ext_job_set_private_args_from_string( current_job , arg_string );
         p1 += (1 + arg_length);
+        free( arg_string );
       }
     }
     /*****************************************************************/
@@ -175,10 +176,10 @@ void forward_model_parse_init(forward_model_type * forward_model , const char * 
        or after the ')' if the job has arguments.
     */
 
-    if (*p1 == '\0') { /* we have parsed the whole string. */
-      free(job_name);
+    free(job_name);
+    if (*p1 == '\0')  /* we have parsed the whole string. */
       break;
-    }
+    
   }
 }
 

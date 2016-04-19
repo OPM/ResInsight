@@ -1,12 +1,15 @@
-from datetime import datetime, date
 import time
+from datetime import datetime, date
+
 from pytz import timezone
+
 from ert.util import CTime
 
 
 def timezoneOffsetInSeconds(dt):
     local_timezone = timezone(CTime.timezone())
     return int(local_timezone.utcoffset(dt).total_seconds())
+
 
 try:
     from unittest2 import TestCase
@@ -15,8 +18,6 @@ except ImportError:
 
 
 class CTimeTest(TestCase):
-
-
     def test_creation(self):
         delta = timezoneOffsetInSeconds(datetime(1970, 1, 1))
         t0 = CTime(-delta)
@@ -33,7 +34,6 @@ class CTimeTest(TestCase):
         with self.assertRaises(NotImplementedError):
             CTime("string")
 
-
     def test_c_time(self):
         delta = timezoneOffsetInSeconds(datetime(1970, 1, 1))
         c_time = CTime(-delta)
@@ -48,7 +48,6 @@ class CTimeTest(TestCase):
 
         self.assertTrue(date_time_after > date_time)
 
-
     def test_math(self):
         c1 = CTime(date(2000, 1, 1))
         c2 = CTime(date(2000, 1, 1))
@@ -62,7 +61,6 @@ class CTimeTest(TestCase):
         self.assertTrue(isinstance(c1 + c2, CTime))
 
         self.assertEqual((c1 + c2) * 0.5, date(2000, 1, 1))
-
 
     def test_comparison(self):
         t0 = CTime(0)
@@ -94,15 +92,13 @@ class CTimeTest(TestCase):
         with self.assertRaises(TypeError):
             t0 >= 0.5
 
-        t3 = CTime(date(2050 , 1 , 1 ))
-        t4 = CTime(date(2060 , 1 , 1 ))
-        self.assertTrue( t1 < t3 )
-        self.assertTrue( t3 < t4 )
+        t3 = CTime(date(2050, 1, 1))
+        t4 = CTime(date(2060, 1, 1))
+        self.assertTrue(t1 < t3)
+        self.assertTrue(t3 < t4)
 
         t5 = CTime(t4)
-        self.assertTrue( t4 == t5 )
-
-
+        self.assertTrue(t4 == t5)
 
     def test_range(self):
         d1 = date(2000, 1, 1)
@@ -136,8 +132,6 @@ class CTimeTest(TestCase):
         self.assertTrue(d0 <= c2 <= dt2)
         self.assertTrue(c0 <= c2 <= d2)
         self.assertTrue(dt0 <= c2 <= c2)
-
-
 
     def test_conversion(self):
         t = CTime(0)

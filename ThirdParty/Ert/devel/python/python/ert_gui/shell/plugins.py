@@ -1,19 +1,39 @@
 import inspect
+import time
 from ert.job_queue import ErtScript, CancelPluginException
-from ert_gui.shell import ShellFunction, assertConfigLoaded, autoCompleteList
+from ert_gui.shell import assertConfigLoaded, ErtShellCollection
+from ert_gui.shell.libshell import splitArguments, autoCompleteList
 
 
-class Plugins(ShellFunction):
-    def __init__(self, shell_context):
-        super(Plugins, self).__init__("plugins", shell_context)
+class Plugins(ErtShellCollection):
+    def __init__(self, parent):
+        super(Plugins, self).__init__("plugins", parent)
 
-        self.addHelpFunction("list", None, "Shows a list of all available plugins.")
-        self.addHelpFunction("run", "<plugin_name> [args]", "Run a named plugin with either arguments or default input GUI.")
-        self.addHelpFunction("arguments", "<plugin_name>", "Shows a list of expected arguments for a specified plugin.")
-        self.addHelpFunction("help", "<plugin_name>", "Shows help for the specified plugin if available.")
+        self.addShellFunction(name="list",
+                              function=Plugins.list,
+                              help_message="Shows a list of all available plugins.")
+
+        self.addShellFunction(name="help",
+                              function=Plugins.help,
+                              completer=Plugins.completeHelp,
+                              help_arguments="<plugin_name>",
+                              help_message="Shows help for the specified plugin if available.")
+
+        self.addShellFunction(name="run",
+                              function=Plugins.run,
+                              completer=Plugins.completeRun,
+                              help_arguments="<plugin_name> [args]",
+                              help_message="Run a named plugin with either arguments or default input GUI.")
+
+        self.addShellFunction(name="arguments",
+                              function=Plugins.arguments,
+                              completer=Plugins.completeArguments,
+                              help_arguments="<plugin_name>",
+                              help_message="Shows a list of expected arguments for a specified plugin.")
+
 
     @assertConfigLoaded
-    def do_list(self, line):
+    def list(self, line):
         plugins = self.getPluginNames()
         if len(plugins) > 0:
             self.columnize(plugins)
@@ -22,8 +42,8 @@ class Plugins(ShellFunction):
 
 
     @assertConfigLoaded
-    def do_run(self, line):
-        arguments = self.splitArguments(line)
+    def run(self, line):
+        arguments = splitArguments(line)
 
         if len(arguments) < 1:
             print("Error: This keyword requires a name of a plugin to run.")
@@ -38,9 +58,14 @@ class Plugins(ShellFunction):
                         arguments = arguments[1:]
                     else:
                         arguments = script.getArguments(None)
+
+                    now = time.time()
                     result = plugin_job.run(self.ert(), arguments)
 
                     self.shellContext()["debug"].setLastPluginResult(result)
+
+                    diff = time.time() - now
+                    print("Plugin running time: %d seconds" % int(diff))
 
                     print(result)
                 except CancelPluginException:
@@ -50,8 +75,8 @@ class Plugins(ShellFunction):
 
 
     @assertConfigLoaded
-    def complete_run(self, text, line, begidx, endidx):
-        arguments = self.splitArguments(line)
+    def completeRun(self, text, line, begidx, endidx):
+        arguments = splitArguments(line)
 
         if len(arguments) > 2 or len(arguments) == 2 and not text:
             return []
@@ -59,7 +84,7 @@ class Plugins(ShellFunction):
 
 
     @assertConfigLoaded
-    def do_arguments(self, plugin_name):
+    def arguments(self, plugin_name):
         plugin_job = self.getWorkflowJob(plugin_name)
 
         if plugin_job is not None:
@@ -84,8 +109,8 @@ class Plugins(ShellFunction):
             self.lastCommandFailed("Unknown plugin: '%s'" % plugin_name)
 
     @assertConfigLoaded
-    def complete_arguments(self, text, line, begidx, endidx):
-        arguments = self.splitArguments(line)
+    def completeArguments(self, text, line, begidx, endidx):
+        arguments = splitArguments(line)
 
         if len(arguments) > 2 or len(arguments) == 2 and not text:
             return []
@@ -93,8 +118,8 @@ class Plugins(ShellFunction):
 
 
     @assertConfigLoaded
-    def do_help(self, line):
-        arguments = self.splitArguments(line)
+    def help(self, line):
+        arguments = splitArguments(line)
 
         if len(arguments) < 1:
             self.lastCommandFailed("This keyword requires a name of a plugin to run.")
@@ -111,8 +136,8 @@ class Plugins(ShellFunction):
 
 
     @assertConfigLoaded
-    def complete_help(self, text, line, begidx, endidx):
-        arguments = self.splitArguments(line)
+    def completeHelp(self, text, line, begidx, endidx):
+        arguments = splitArguments(line)
 
         if len(arguments) > 2 or len(arguments) == 2 and not text:
             return []

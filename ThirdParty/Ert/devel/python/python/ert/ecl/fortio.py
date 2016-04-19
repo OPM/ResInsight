@@ -39,54 +39,102 @@ more extensive wrapping of the fortio implementation would be easy.
 import ctypes
 import os
 import sys
-from ert.cwrap import BaseCClass, CWrapper
-from ert.ecl import ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPrototype
 
 
 class FortIO(BaseCClass):
+    TYPE_NAME = "fortio"
+
     READ_MODE = 1
     WRITE_MODE = 2
     READ_AND_WRITE_MODE = 3
     APPEND_MODE = 4
 
-    def __init__(self, file_name, mode=READ_MODE, fmt_file=False, endian_flip_header=True):
+    _open_reader    = EclPrototype("void* fortio_open_reader(char*, bool, bool)" , bind = False)
+    _open_writer    = EclPrototype("void* fortio_open_writer(char*, bool, bool)" , bind = False)
+    _open_readwrite = EclPrototype("void* fortio_open_readwrite(char*, bool, bool)" , bind = False)
+    _open_append    = EclPrototype("void* fortio_open_append(char*, bool, bool)" , bind = False)
+    _guess_fortran  = EclPrototype("bool fortio_looks_like_fortran_file(char* , bool)" , bind = False)
+    
+    _write_record   = EclPrototype("void fortio_fwrite_record(fortio, char*, int)")
+    _get_position   = EclPrototype("long fortio_ftell(fortio)")
+    _seek           = EclPrototype("void fortio_fseek(fortio, int)")
+    _close          = EclPrototype("bool fortio_fclose(fortio)")
 
+
+
+    def __init__(self, file_name, mode=READ_MODE, fmt_file=False, endian_flip_header=True):
+        """Will open a new FortIO handle to @file_name - default for reading.
+
+        The newly created FortIO handle will open the underlying FILE*
+        for reading, but if you pass the flag mode=FortIO.WRITE_MODE
+        the file will be opened for writing.
+
+        Observe that the flag @endian_flip_header will only affect the
+        interpretation of the block size markers in the file, endian
+        flipping of the actual data blocks must be handled at a higher
+        level.
+
+        When you are finished working with the FortIO instance you can
+        manually close it with the close() method, alternatively that
+        will happen automagically when it goes out of scope. 
+
+        Small example script opening a restart file, and then writing
+        all the pressure keywords to another file:
+
+           import sys
+           from ert.ecl import FortIO,ElcFile
+
+           rst_file = EclFile(sys.argv[1])
+           fortio = FortIO( "PRESSURE" , mode=FortIO.WRITE_MODE)
+
+           for kw in rst_file:
+               if kw.name() == "PRESSURE":
+                  kw.write( fortio )
+  
+           fortio.close()     
+
+        See the documentation of openFortIO() for an alternative
+        method based on a context manager and the with statement.
+
+        """
         if mode == FortIO.READ_MODE or mode == FortIO.APPEND_MODE or mode == FortIO.READ_AND_WRITE_MODE:
             if not os.path.exists(file_name):
                 raise IOError("File '%s' does not exist!" % file_name)
 
         if mode == FortIO.READ_MODE:
-            c_pointer = FortIO.cNamespace().open_reader(file_name, fmt_file, endian_flip_header)
+            c_pointer = self._open_reader(file_name, fmt_file, endian_flip_header)
         elif mode == FortIO.WRITE_MODE:
-            c_pointer = FortIO.cNamespace().open_writer(file_name, fmt_file, endian_flip_header)
+            c_pointer = self._open_writer(file_name, fmt_file, endian_flip_header)
         elif mode == FortIO.READ_AND_WRITE_MODE:
-            c_pointer = FortIO.cNamespace().open_readwrite(file_name, fmt_file, endian_flip_header)
+            c_pointer = self._open_readwrite(file_name, fmt_file, endian_flip_header)
         elif mode == FortIO.APPEND_MODE:
-            c_pointer = FortIO.cNamespace().open_append(file_name, fmt_file, endian_flip_header)
+            c_pointer = self._open_append(file_name, fmt_file, endian_flip_header)
         else:
             raise UserWarning("Unknown mode: %d" % mode)
 
         self.__mode = mode
 
         super(FortIO, self).__init__(c_pointer)
-        self.__open = True
+
+        
 
     def close(self):
-        if self.__open:
-            FortIO.cNamespace().close(self)
-            self.__open = False
-
+        if self:
+            self._close( )
+            self._invalidateCPointer( )
 
 
     def getPosition(self):
         """ @rtype: long """
-        return FortIO.cNamespace().get_position(self)
+        return self._get_position( )
 
     def seek(self, position):
         # SEEK_SET = 0
         # SEEK_CUR = 1
         # SEEK_END = 2
-        FortIO.cNamespace().seek(self, position, 0)
+        self._seek(position, 0)
 
     @classmethod
     def isFortranFile(cls , filename , endian_flip = True):
@@ -98,7 +146,7 @@ class FortIO(BaseCClass):
         file written in fortran style. ASCII files will return false,
         even if they are structured as ECLIPSE keywords.
         """
-        return FortIO.cNamespace().guess_fortran( filename , endian_flip )
+        return cls._guess_fortran( filename , endian_flip )
         
 
     def free(self):
@@ -119,25 +167,25 @@ class FortIOContextManager(object):
 
 
 def openFortIO( file_name , mode = FortIO.READ_MODE , fmt_file = False , endian_flip_header = True):
+    """Will create FortIO based context manager for use with with.
+
+    The with: statement and context managers is a good alternative in
+    the situation where you need to ensure resource cleanup.
+
+       import sys
+       from ert.ecl import FortIO,ElcFile
+
+       rst_file = EclFile(sys.argv[1])
+       with openFortIO( "PRESSURE" , mode = FortIO.WRITE_MODE) as fortio:
+          for kw in rst_file:
+              if kw.name() == "PRESSURE":
+                 kw.write( fortio )
+
+    """
     return FortIOContextManager( FortIO( file_name , mode = mode , fmt_file = fmt_file , endian_flip_header = endian_flip_header ))
 
 
 
 
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerObjectType("fortio", FortIO)
-
-FortIO.cNamespace().open_reader = cwrapper.prototype("c_void_p fortio_open_reader(char*, bool, bool)")
-FortIO.cNamespace().open_writer = cwrapper.prototype("c_void_p fortio_open_writer(char*, bool, bool)")
-FortIO.cNamespace().open_readwrite = cwrapper.prototype("c_void_p fortio_open_readwrite(char*, bool, bool)")
-FortIO.cNamespace().open_append = cwrapper.prototype("c_void_p fortio_open_append(char*, bool, bool)")
-
-FortIO.cNamespace().write_record = cwrapper.prototype("void fortio_fwrite_record(fortio, char*, int)")
-
-FortIO.cNamespace().get_position = cwrapper.prototype("long fortio_ftell(fortio)")
-FortIO.cNamespace().seek = cwrapper.prototype("void fortio_fseek(fortio, int)")
-
-FortIO.cNamespace().close = cwrapper.prototype("bool fortio_fclose(fortio)")
-FortIO.cNamespace().guess_fortran = cwrapper.prototype("bool fortio_looks_like_fortran_file(char* , bool)")
 
 

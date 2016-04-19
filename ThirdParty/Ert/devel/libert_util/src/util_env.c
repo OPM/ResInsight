@@ -19,11 +19,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "ert/util/build_config.h"
+
 #include <ert/util/util.h>
 #include <ert/util/util_env.h>
 #include <ert/util/buffer.h>
 
-#ifdef POSIX_SETENV
+#ifdef HAVE_POSIX_SETENV
 #define PATHVAR_SPLIT ":"
 
 void util_unsetenv( const char * variable ) {
@@ -34,6 +36,7 @@ void util_setenv( const char * variable , const char * value) {
   int overwrite = 1;
   setenv( variable , value , overwrite );
 }
+
 #else
 
 #define PATHVAR_SPLIT ";"

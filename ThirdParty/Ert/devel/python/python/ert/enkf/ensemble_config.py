@@ -16,9 +16,8 @@
 from ert.cwrap import BaseCClass, CWrapper
 from ert.util import StringList
 from ert.enkf import ENKF_LIB, SummaryKeyMatcher
-from ert.enkf.data import EnkfConfigNode
+from ert.enkf.config import EnkfConfigNode, CustomKWConfig
 from ert.enkf.enums import EnkfVarType, ErtImplType
-
 
 
 class EnsembleConfig(BaseCClass):
@@ -87,6 +86,15 @@ class EnsembleConfig(BaseCClass):
     def free(self):
         EnsembleConfig.cNamespace().free(self)
 
+    def addDefinedCustomKW(self, group_name, definition):
+        """ @rtype: EnkfConfigNode """
+        if not group_name in self:
+            type_hash = CustomKWConfig.convertDefinition(definition)
+            EnsembleConfig.cNamespace().add_defined_custom_kw(self, group_name, type_hash)
+
+        return self[group_name]
+
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("ens_config", EnsembleConfig)
@@ -104,3 +112,5 @@ EnsembleConfig.cNamespace().alloc_keylist_from_var_type = cwrapper.prototype("st
 EnsembleConfig.cNamespace().alloc_keylist_from_impl_type = cwrapper.prototype("stringlist_obj ensemble_config_alloc_keylist_from_impl_type(ens_config, ert_impl_type_enum)")
 EnsembleConfig.cNamespace().add_node = cwrapper.prototype("void ensemble_config_add_node( ens_config , enkf_config_node )")
 EnsembleConfig.cNamespace().summary_key_matcher = cwrapper.prototype("summary_key_matcher_ref ensemble_config_get_summary_key_matcher(ens_config)")
+
+EnsembleConfig.cNamespace().add_defined_custom_kw = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_defined_custom_kw(ens_config, char*, integer_hash)")

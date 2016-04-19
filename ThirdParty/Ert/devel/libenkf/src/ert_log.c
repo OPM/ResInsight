@@ -63,6 +63,7 @@ void ert_log_close(){
     if (log_is_open( logh ))
       log_add_message( logh , false , NULL , "Exiting ert application normally - all is fine(?)" , false);
     log_close( logh );
+    logh = NULL;
 }
 
 bool ert_log_is_open(){

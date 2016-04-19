@@ -49,6 +49,6 @@ SummaryKeySet.cNamespace().free  = cwrapper.prototype("void summary_key_set_free
 SummaryKeySet.cNamespace().size  = cwrapper.prototype("int summary_key_set_get_size(summary_key_set)")
 SummaryKeySet.cNamespace().add_key  = cwrapper.prototype("bool summary_key_set_add_summary_key(summary_key_set, char*)")
 SummaryKeySet.cNamespace().has_key  = cwrapper.prototype("bool summary_key_set_has_summary_key(summary_key_set, char*)")
-SummaryKeySet.cNamespace().keys  = cwrapper.prototype("stringlist_obj summary_key_set_get_keys(summary_key_set)")
+SummaryKeySet.cNamespace().keys  = cwrapper.prototype("stringlist_obj summary_key_set_alloc_keys(summary_key_set)")
 SummaryKeySet.cNamespace().is_read_only  = cwrapper.prototype("bool summary_key_set_is_read_only(summary_key_set)")
 SummaryKeySet.cNamespace().fwrite  = cwrapper.prototype("void summary_key_set_fwrite(summary_key_set, char*)")

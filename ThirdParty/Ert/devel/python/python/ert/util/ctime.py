@@ -18,12 +18,16 @@
 import ctypes
 import datetime
 import time
-from ert.cwrap import CWrapper, BaseCValue
-from ert.util import UTIL_LIB
+
+from ert.cwrap import BaseCValue
+from ert.util import UtilPrototype
 
 
 class CTime(BaseCValue):
+    TYPE_NAME = "time_t"
     DATA_TYPE = ctypes.c_long
+    _timezone = UtilPrototype("char* util_get_timezone()" , bind = False)
+    _mktime = UtilPrototype("long util_make_datetime(int, int, int, int, int, int)" , bind = False)
 
     def __init__(self, value):
         if isinstance(value, int):
@@ -38,7 +42,6 @@ class CTime(BaseCValue):
             raise NotImplementedError("Can not convert class %s to CTime" % value.__class__)
 
         super(CTime, self).__init__(value)
-
 
     def ctime(self):
         """ @rtype: int """
@@ -92,7 +95,7 @@ class CTime(BaseCValue):
             return False
         else:
             raise TypeError("CTime does not support type: %s" % other.__class__)
-            
+
     def __imul__(self, other):
         value = int(self.value() * other)
         self.setValue(value)
@@ -101,7 +104,7 @@ class CTime(BaseCValue):
     def __hash__(self):
         return hash(self.value())
 
-    def __iadd__(self , other):
+    def __iadd__(self, other):
         if isinstance(other, CTime):
             self.setValue(self.value() + other.value())
             return self
@@ -110,20 +113,19 @@ class CTime(BaseCValue):
             return self
 
     def __add__(self, other):
-        copy = CTime( self )
+        copy = CTime(self)
         copy += other
         return copy
 
     def __radd__(self, other):
         return self + other
 
-
-    def __mul__(self , other):
-        copy = CTime( self )
+    def __mul__(self, other):
+        copy = CTime(self)
         copy *= other
         return copy
 
-    def __rmul__(self , other):
+    def __rmul__(self, other):
         return self * other
 
     def timetuple(self):
@@ -132,7 +134,6 @@ class CTime(BaseCValue):
 
     def __repr__(self):
         return "time_t value: %d [%s]" % (self.value(), str(self))
-
 
     @property
     def stripped(self):
@@ -145,11 +146,3 @@ class CTime(BaseCValue):
          @rtype: str
         """
         return CTime._timezone()
-
-
-cwrapper = CWrapper(UTIL_LIB)
-cwrapper.registerType("time_t", CTime)
-
-CTime._timezone = cwrapper.prototype("char* util_get_timezone()")
-CTime._mktime = cwrapper.prototype("long util_make_datetime(int, int, int, int, int, int)")
-

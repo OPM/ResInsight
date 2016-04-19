@@ -1,0 +1,3 @@
+lib_path = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
+so_version = "${ERT_BINARY_POSTFIX}"
+

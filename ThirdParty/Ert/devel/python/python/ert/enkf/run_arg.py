@@ -16,37 +16,31 @@
 
 
 from ert.cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, TimeMap, StateMap
-from ert.enkf.enums import EnkfRunType, EnkfStateType
-
+from ert.enkf import ENKF_LIB
 
 
 class RunArg(BaseCClass):
-    def __init__(self , c_ptr , parent = None , is_reference = False ):
-        super(RunArg , self).__init__( c_ptr , parent = parent , is_reference = is_reference )
-        
-    
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly")
+
     @classmethod
-    def ENSEMBLE_EXPERIMENT(cls , fs , iens , runpath , iter = 0):
-        c_ptr = RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT(fs , iens , iter , runpath)
-        return RunArg( c_ptr )
+    def createEnsembleExperimentRunArg(cls, fs, iens, runpath, iter=0):
+        return RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT(fs, iens, iter, runpath)
 
     def free(self):
         RunArg.cNamespace().free(self)
 
     def getQueueIndex(self):
-        return RunArg.cNamespace().get_queue_index( self )
+        return RunArg.cNamespace().get_queue_index(self)
 
     def isSubmitted(self):
-        return RunArg.cNamespace().is_submitted( self )
-
+        return RunArg.cNamespace().is_submitted(self)
 
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("run_arg", RunArg)
 
-
-RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT = cwrapper.prototype("c_void_p run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs , int, int, char*)")
-RunArg.cNamespace().free  = cwrapper.prototype("void run_arg_free(run_arg)")
-RunArg.cNamespace().get_queue_index  = cwrapper.prototype("int run_arg_get_queue_index(run_arg)")
-RunArg.cNamespace().is_submitted  = cwrapper.prototype("bool run_arg_is_submitted(run_arg)")
+RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT = cwrapper.prototype("run_arg_obj run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs , int, int, char*)")
+RunArg.cNamespace().free = cwrapper.prototype("void run_arg_free(run_arg)")
+RunArg.cNamespace().get_queue_index = cwrapper.prototype("int run_arg_get_queue_index(run_arg)")
+RunArg.cNamespace().is_submitted = cwrapper.prototype("bool run_arg_is_submitted(run_arg)")

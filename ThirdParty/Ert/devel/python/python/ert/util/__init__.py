@@ -48,8 +48,16 @@ import ert.cwrap.clib as clib
 # clib.load("libz" , "libz.so.1")
 # clib.load("libblas" , "libblas.so" , "libblas.so.3")
 # clib.load("liblapack" , "liblapack.so")
+from ert.cwrap.metacwrap import Prototype
 
-UTIL_LIB = clib.ert_load("libert_util")
+
+class UtilPrototype(Prototype):
+    lib = clib.ert_load("libert_util")
+
+    def __init__(self, prototype, bind=True):
+        super(UtilPrototype, self).__init__(UtilPrototype.lib, prototype, bind=bind)
+
+
 
 from .version import Version
 
@@ -73,11 +81,12 @@ from .hash import Hash, StringHash, DoubleHash, IntegerHash
 from .substitution_list import SubstitutionList
 from .ui_return import UIReturn
 from .thread_pool import ThreadPool
-from .cthread_pool import CThreadPool , startCThreadPool
-from .install_abort_signals import installAbortSignals
+from .cthread_pool import CThreadPool, startCThreadPool
+from .install_abort_signals import installAbortSignals, updateAbortSignals
 from .profiler import Profiler
 from .arg_pack import ArgPack
+from .path_format import PathFormat
 
-# Check if latex functionality exists in libert_util
-if hasattr(UTIL_LIB, "latex_alloc"):
-    from .latex import LaTeX
+# This is only imported for the prototype side-effect; no symbols from
+# this module are actually used.
+import cstring

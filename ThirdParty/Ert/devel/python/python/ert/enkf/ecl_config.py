@@ -74,8 +74,7 @@ class EclConfig(BaseCClass):
         return self.getGrid( )
     
     def getGrid(self):
-        c_ptr = EclConfig.cNamespace().get_grid(self)
-        return EclGrid.create_ref( c_ptr )
+        return EclConfig.cNamespace().get_grid(self)
 
     #-----------------------------------------------------------------
 
@@ -167,7 +166,7 @@ EclConfig.cNamespace().validate_data_file = cwrapper.prototype("ui_return_obj ec
 EclConfig.cNamespace().get_gridfile = cwrapper.prototype("char* ecl_config_get_gridfile(ecl_config)")
 EclConfig.cNamespace().set_gridfile = cwrapper.prototype("void ecl_config_set_grid(ecl_config, char*)")
 EclConfig.cNamespace().validate_gridfile = cwrapper.prototype("ui_return_obj ecl_config_validate_grid(ecl_config, char*)")
-EclConfig.cNamespace().get_grid = cwrapper.prototype("c_void_p ecl_config_get_grid(ecl_config)")  #todo: fix return type!!!
+EclConfig.cNamespace().get_grid = cwrapper.prototype("ecl_grid_ref ecl_config_get_grid(ecl_config)")  #todo: fix return type!!!
 
 EclConfig.cNamespace().get_schedule_file = cwrapper.prototype("char* ecl_config_get_schedule_file(ecl_config)")
 EclConfig.cNamespace().set_schedule_file = cwrapper.prototype("void ecl_config_set_schedule_file(ecl_config, char*)")

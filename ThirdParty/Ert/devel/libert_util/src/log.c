@@ -26,9 +26,13 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#include "ert/util/build_config.h"
+
 #ifdef HAVE_FSYNC
 #include <unistd.h>
 #endif
+
 #ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif

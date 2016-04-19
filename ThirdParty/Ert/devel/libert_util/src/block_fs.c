@@ -985,7 +985,7 @@ static void block_fs_build_index( block_fs_type * block_fs , long_vector_type * 
 
 
 static bool block_fs_load_index( block_fs_type * block_fs ) {
-  struct stat data_stat;
+  stat_type data_stat;
   if (fstat( block_fs->data_fd , &data_stat) == 0) {
     FILE * stream = fopen( block_fs->index_file , "r");
     if (stream != NULL) {

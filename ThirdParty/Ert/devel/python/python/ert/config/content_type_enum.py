@@ -15,9 +15,9 @@
 #  for more details.
 
 from ert.cwrap import BaseCEnum
-from ert.config import CONFIG_LIB
 
 class ContentTypeEnum(BaseCEnum):
+    TYPE_NAME = "config_content_type_enum"
     CONFIG_STRING        = None
     CONFIG_INT           = None
     CONFIG_FLOAT         = None
@@ -39,8 +39,3 @@ ContentTypeEnum.addEnum("CONFIG_CONFIG", 64)
 ContentTypeEnum.addEnum("CONFIG_BYTESIZE", 128)
 ContentTypeEnum.addEnum("CONFIG_EXECUTABLE", 256)
 ContentTypeEnum.addEnum("CONFIG_INVALID", 512)
-
-ContentTypeEnum.registerEnum(CONFIG_LIB, "config_content_type_enum")
-
-
-

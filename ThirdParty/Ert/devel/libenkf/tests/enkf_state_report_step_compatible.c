@@ -38,9 +38,8 @@ bool check_ecl_sum_compatible(const enkf_main_type * enkf_main)
   state_map_type * state_map = enkf_fs_get_state_map(fs);
   state_map_iset(state_map, 0, STATE_INITIALIZED);
   
-  int error = 0; 
+  int error = enkf_state_load_from_forward_model( state , run_arg , msg_list );
 
-  enkf_state_load_from_forward_model( state , run_arg , &error , false , msg_list );
   
   stringlist_free( msg_list );
   return (REPORT_STEP_INCOMPATIBLE & error) ? false : true; 

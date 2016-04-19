@@ -19,17 +19,35 @@ import os.path
 from unittest import skipIf
 
 from ert.ecl import EclFile, FortIO, EclKW , openFortIO , openEclFile
-from ert.ecl import EclFileFlagEnum, EclTypeEnum
+from ert.ecl import EclFileFlagEnum, EclTypeEnum, EclFileEnum
 
 from ert.test import ExtendedTestCase , TestAreaContext
 
+
+    
 
 class EclFileTest(ExtendedTestCase):
     def setUp(self):
         self.test_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST")
         self.test_fmt_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.FUNRST")
 
-    
+    def assertFileType(self , filename , expected):
+        file_type , step , fmt_file = EclFile.getFileType(filename)
+        self.assertEqual( file_type , expected[0] )
+        self.assertEqual( fmt_file , expected[1] )
+        self.assertEqual( step , expected[2] )
+
+        
+        
+    def test_file_type(self):
+        self.assertFileType( "ECLIPSE.UNRST" , (EclFileEnum.ECL_UNIFIED_RESTART_FILE , False , None))
+        self.assertFileType( "ECLIPSE.X0030" , (EclFileEnum.ECL_RESTART_FILE , False , 30 ))
+        self.assertFileType( "ECLIPSE.DATA" , (EclFileEnum.ECL_DATA_FILE , None , None ))
+        self.assertFileType( "ECLIPSE.FINIT" , (EclFileEnum.ECL_INIT_FILE , True , None ))
+        self.assertFileType( "ECLIPSE.A0010" , (EclFileEnum.ECL_SUMMARY_FILE , True , 10 ))
+        self.assertFileType( "ECLIPSE.EGRID" , (EclFileEnum.ECL_EGRID_FILE , False  , None ))
+
+        
     def test_restart_days(self):
         rst_file = EclFile( self.test_file )
         self.assertAlmostEqual(  0.0 , rst_file.iget_restart_sim_days(0) )

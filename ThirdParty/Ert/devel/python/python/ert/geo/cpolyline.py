@@ -20,26 +20,42 @@ import ctypes
 import os.path
 
 from ert.cwrap import BaseCClass, CWrapper
-from ert.geo import ERT_GEOMETRY_LIB
+from ert.geo import GeoPrototype
 from .geometry_tools import GeometryTools
 
 
 class CPolyline(BaseCClass):
+    TYPE_NAME = "geo_polygon"
+    
+    _alloc_new          = GeoPrototype("void*           geo_polygon_alloc( char* )" , bind = False)
+    _fread_alloc_irap   = GeoPrototype("geo_polygon_obj geo_polygon_fload_alloc_irap( char* )" , bind = False)
+    _add_point          = GeoPrototype("void     geo_polygon_add_point( geo_polygon , double , double )")
+    _add_point_front    = GeoPrototype("void     geo_polygon_add_point_front( geo_polygon , double , double )")
+    _free               = GeoPrototype("void     geo_polygon_free( geo_polygon )")
+    _size               = GeoPrototype("int      geo_polygon_get_size( geo_polygon )")
+    _iget_xy            = GeoPrototype("void     geo_polygon_iget_xy( geo_polygon , int , double* , double* )")
+    _segment_intersects = GeoPrototype("bool     geo_polygon_segment_intersects( geo_polygon , double , double, double , double)")
+    _get_name           = GeoPrototype("char*    geo_polygon_get_name( geo_polygon  )")
+    _set_name           = GeoPrototype("void     geo_polygon_set_name( geo_polygon , char*  )")
+    _segment_length     = GeoPrototype("double   geo_polygon_get_length( geo_polygon)")
+    _equal              = GeoPrototype("bool     geo_polygon_equal( geo_polygon , geo_polygon )")
+
+
     def __init__(self, name = None , init_points = []):
-        c_ptr = CPolyline.cNamespace().alloc_new( name )
+        c_ptr = self._alloc_new( name )
         super(CPolyline , self).__init__( c_ptr )
         for (xc, yc) in init_points:
             self.addPoint(xc, yc)
 
 
-    @staticmethod 
-    def createFromXYZFile(filename , name = None):
+    @classmethod
+    def createFromXYZFile(cls , filename , name = None):
         if not os.path.isfile(filename):
             raise IOError("No such file:%s" % filename)
             
-        polyline = CPolyline.cNamespace().fread_alloc_irap( filename )
+        polyline = cls._fread_alloc_irap( filename )
         if not name is None:
-            CPolyline.cNamespace().set_name( polyline , name )
+            polyline._set_name( name )
         return polyline
 
     def __str__(self):
@@ -59,7 +75,7 @@ class CPolyline(BaseCClass):
 
 
     def __len__(self):
-        return CPolyline.cNamespace().size( self )
+        return self._size()
 
 
     def __getitem__(self , index):
@@ -72,7 +88,7 @@ class CPolyline(BaseCClass):
         if 0 <= index < len(self):
             x = ctypes.c_double()
             y = ctypes.c_double()
-            CPolyline.cNamespace().iget_xy( self , index , ctypes.byref(x) , ctypes.byref(y) )
+            self._iget_xy( index , ctypes.byref(x) , ctypes.byref(y) )
             
             return (x.value , y.value)
         else:
@@ -80,7 +96,7 @@ class CPolyline(BaseCClass):
 
 
     def segmentIntersects(self, p1 , p2):
-        return CPolyline.cNamespace().segment_intersects(self , p1[0] , p1[1] , p2[0] , p2[1])
+        return self._segment_intersects(p1[0] , p1[1] , p2[0] , p2[1])
             
         
     def intersects(self , polyline):
@@ -118,14 +134,14 @@ class CPolyline(BaseCClass):
         if super(CPolyline , self).__eq__( other ):
             return True
         else:
-            return CPolyline.cNamespace().equal( self, other )
+            return self._equal( other )
 
 
     def segmentLength(self):
         if len(self) == 0:
             raise ValueError("Can not measure length of zero point polyline")
 
-        return CPolyline.cNamespace().segment_length(self)
+        return self._segment_length( )
 
     def extendToBBox(self , bbox , start = True):
         if start:
@@ -153,17 +169,17 @@ class CPolyline(BaseCClass):
             
     def addPoint( self, xc, yc , front = False):
         if front:
-            CPolyline.cNamespace().add_point_front(self, xc, yc)
+            self._add_point_front(xc, yc)
         else:
-            CPolyline.cNamespace().add_point(self, xc, yc)
+            self._add_point(xc, yc)
 
 
     def getName(self):
-        return CPolyline.cNamespace().get_name( self )
+        return self._get_name( )
 
 
     def free(self):
-        self.cNamespace().free(self)
+        self._free( )
 
 
     def unzip(self):
@@ -198,20 +214,4 @@ class CPolyline(BaseCClass):
 
 
 
-#################################################################
 
-cwrapper = CWrapper(ERT_GEOMETRY_LIB)
-cwrapper.registerObjectType("geo_polygon", CPolyline)
-
-CPolyline.cNamespace().alloc_new          = cwrapper.prototype("c_void_p        geo_polygon_alloc( char* )")
-CPolyline.cNamespace().fread_alloc_irap   = cwrapper.prototype("geo_polygon_obj geo_polygon_fload_alloc_irap( char* )")
-CPolyline.cNamespace().add_point          = cwrapper.prototype("void     geo_polygon_add_point( geo_polygon , double , double )")
-CPolyline.cNamespace().add_point_front    = cwrapper.prototype("void     geo_polygon_add_point_front( geo_polygon , double , double )")
-CPolyline.cNamespace().free               = cwrapper.prototype("void     geo_polygon_free( geo_polygon )")
-CPolyline.cNamespace().size               = cwrapper.prototype("int      geo_polygon_get_size( geo_polygon )")
-CPolyline.cNamespace().iget_xy            = cwrapper.prototype("void     geo_polygon_iget_xy( geo_polygon , int , double* , double* )")
-CPolyline.cNamespace().segment_intersects = cwrapper.prototype("bool     geo_polygon_segment_intersects( geo_polygon , double , double, double , double)")
-CPolyline.cNamespace().get_name           = cwrapper.prototype("char*    geo_polygon_get_name( geo_polygon  )")
-CPolyline.cNamespace().set_name           = cwrapper.prototype("void     geo_polygon_set_name( geo_polygon , char*  )")
-CPolyline.cNamespace().segment_length     = cwrapper.prototype("double   geo_polygon_get_length( geo_polygon)")
-CPolyline.cNamespace().equal              = cwrapper.prototype("bool     geo_polygon_equal( geo_polygon , geo_polygon )")

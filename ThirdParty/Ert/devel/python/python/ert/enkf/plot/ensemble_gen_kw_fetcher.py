@@ -13,10 +13,10 @@
 #
 # See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 # for more details.
-from ert.enkf.data.gen_kw_config import GenKwConfig
-from ert.enkf.plot_data import EnsemblePlotGenKW
+from ert.enkf.config.gen_kw_config import GenKwConfig
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType
 from ert.enkf.plot import DataFetcher
+from ert.enkf.plot_data import EnsemblePlotGenKW
 
 
 class EnsembleGenKWFetcher(DataFetcher):

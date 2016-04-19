@@ -23,6 +23,8 @@
 #include <ert/util/test_util.h>
 #include <ert/util/stringlist.h>
 #include <ert/util/util.h>
+#include <ert/util/util_abort.h>
+
 
 
 void test_lookup(bool valid_address, bool change_cwd) {
@@ -78,10 +80,9 @@ int main( int argc , char ** argv) {
     char * path;
     char * name;
     char * dot_name;
-    pid_t child_pid;
     /* 
        This bisaaarre hoopsing is to be able to emulate the situation
-       where addr2line can not find the executable; this behavour is
+       where addr2line can not find the executable; this behaviour is
        invoked when change_cwd is set to true in the test_lookup()
        call. 
     */
@@ -89,7 +90,7 @@ int main( int argc , char ** argv) {
     
     util_chdir(path);
     dot_name = util_alloc_sprintf("./%s" , name);
-    child_pid = util_fork_exec( dot_name , 0 , NULL , true , NULL , NULL , NULL , NULL , NULL);
+    util_spawn_blocking(dot_name, 0, NULL, NULL, NULL);
     exit(0);
   } else {
     printf("Testing internal lookup ....\n");

@@ -16,22 +16,23 @@
    for more details. 
 */
 
-#ifdef HAVE_CHDIR
+#ifdef HAVE_POSIX_CHDIR
 #include <unistd.h>
-#endif
-
-/*
-#ifdef HAVE_WINDOWS_CHDIR
-#include <direct.h>
-#endif
-*/
 
 int util_chdir(const char * path) {
-#ifdef HAVE_CHDIR
   return chdir( path );
-#else
-#ifdef HAVE_WINDOWS_CHDIR
-  return _chdir( path );
-#endif
-#endif
 }
+
+#endif
+
+
+#ifdef HAVE_WINDOWS_CHDIR
+#include <direct.h>
+
+int util_chdir(const char * path) {
+  return _chdir( path );
+}
+
+#endif
+
+

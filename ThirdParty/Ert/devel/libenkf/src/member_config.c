@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'member_config.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'member_config.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -26,7 +26,6 @@
 
 #include <ert/enkf/ecl_config.h>
 #include <ert/enkf/member_config.h>
-#include <ert/enkf/enkf_fs.h>
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/ensemble_config.h>
 
@@ -36,17 +35,16 @@
    member. It is initialized at object boot time, and (typically) not
    changed during the simulation. [In principle it could change during
    the simulation, but the current API does not support that.]
-*/ 
+*/
 
 
 struct member_config_struct {
   int                     iens;                /* The ensemble member number of this member. */
-  char                  * casename;            /* The name of this case - will mosttly be NULL. */
+  char                  * casename;            /* The name of this case - will mostly be NULL. */
   keep_runpath_type       keep_runpath;        /* Should the run-path directory be left around (for this member)*/
-  bool                    pre_clear_runpath;   /* Should the runpath directory be cleared before starting? */ 
+  bool                    pre_clear_runpath;   /* Should the runpath directory be cleared before starting? */
   char                  * jobname;             /* The jobname used for this job when submitting to the queue system. */
   char                  * eclbase;             /* The ECLBASE string used for simulations of this member. */
-  enkf_fs_type          * fs_cache;            /* UGly */ 
 };
 
 
@@ -56,7 +54,7 @@ struct member_config_struct {
   pre_clear_runpath and keep_runpath when running normal EnKF. If both
   are set to true the former will win.
 */
-  
+
 
 
 /******************************************************************/
@@ -92,7 +90,7 @@ const char * member_config_update_eclbase(member_config_type * member_config , c
       }
     }
   }
-  
+
   return member_config->eclbase;
 }
 
@@ -101,7 +99,7 @@ int member_config_get_iens( const member_config_type * member_config ) {
   return member_config->iens;
 }
 
-                                   
+
 
 void member_config_free(member_config_type * member_config) {
   util_safe_free(member_config->eclbase);
@@ -157,15 +155,14 @@ const char * member_config_get_casename( const member_config_type * member_confi
 }
 
 
-member_config_type * member_config_alloc(int iens , 
-                                         const char                 * casename , 
-                                         bool                         pre_clear_runpath , 
-                                         keep_runpath_type            keep_runpath , 
-                                         const ecl_config_type      * ecl_config , 
-                                         const ensemble_config_type * ensemble_config,
-                                         enkf_fs_type * fs) {
+member_config_type * member_config_alloc(int iens ,
+                                         const char                 * casename ,
+                                         bool                         pre_clear_runpath ,
+                                         keep_runpath_type            keep_runpath ,
+                                         const ecl_config_type      * ecl_config ,
+                                         const ensemble_config_type * ensemble_config) {
 
-                                                
+
   member_config_type * member_config = util_malloc( sizeof * member_config );
   member_config->casename            = util_alloc_string_copy( casename );
   member_config->iens                = iens; /* Can only be changed in the allocater. */

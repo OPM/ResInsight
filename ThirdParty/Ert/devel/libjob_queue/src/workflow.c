@@ -144,7 +144,7 @@ bool workflow_try_compile( workflow_type * script , const subst_list_type * cont
       script->compiled = false;
       workflow_clear( script );
       {
-        config_content_type * content = config_parse( config_compiler , src_file , WORKFLOW_COMMENT_STRING , WORKFLOW_INCLUDE , NULL , CONFIG_UNRECOGNIZED_ERROR , true );
+        config_content_type * content = config_parse( config_compiler , src_file , WORKFLOW_COMMENT_STRING , WORKFLOW_INCLUDE , NULL , NULL , CONFIG_UNRECOGNIZED_ERROR , true );
 
         if (config_content_is_valid( content )) {
           int cmd_line;

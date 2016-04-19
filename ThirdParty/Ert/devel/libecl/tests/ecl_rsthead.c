@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'ecl_rst_header.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'ecl_rst_header.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -30,13 +30,13 @@
 void test_file( const char * filename , int occurence , bool exists , const ecl_rsthead_type * true_header) {
   ecl_file_type * rst_file = ecl_file_open( filename , 0);
   ecl_rsthead_type * rst_head = ecl_rsthead_ialloc( rst_file , occurence);
-  
+
   if (exists) {
     test_assert_not_NULL( rst_head );
-    
+
     if (occurence == 0) {
       ecl_rsthead_type * rst_head0 = ecl_rsthead_alloc( rst_file );
-      
+
       test_assert_true( ecl_rsthead_equal( rst_head , rst_head0 ));
       ecl_rsthead_free( rst_head0 );
     }
@@ -45,12 +45,13 @@ void test_file( const char * filename , int occurence , bool exists , const ecl_
     ecl_rsthead_free( rst_head );
   } else
     test_assert_NULL( rst_head );
-  
+
 }
 
 
 int main(int argc , char ** argv) {
-  ecl_rsthead_type true1 = {.day = 1,
+  ecl_rsthead_type true1 = {.report_step = 1,
+                            .day = 1,
                             .year = 2000,
                             .month = 1,
                             .sim_time = (time_t) 946681200,
@@ -72,8 +73,9 @@ int main(int argc , char ** argv) {
                             .nilbrz = -1,
                             .dualp  = 0,
                             .sim_days  = 0};
-  
-  ecl_rsthead_type true2 = {.day = 22,
+
+  ecl_rsthead_type true2 = {.report_step = 5,
+                            .day = 22,
                             .year = 1990,
                             .month = 1,
                             .sim_time = (time_t) 632962800,
@@ -95,14 +97,14 @@ int main(int argc , char ** argv) {
                             .nilbrz = -1,
                             .dualp  = 1,
                             .sim_days  = 21};
-  
+
   const char * unified_file = argv[1];
   const char * Xfile        = argv[2];
 
-  
+
   test_file( unified_file , 0 , true , &true1 );
   test_file( unified_file , 100 , false , NULL );
   test_file( Xfile , 0 , true , &true2 );
-  
+
   exit(0);
 }

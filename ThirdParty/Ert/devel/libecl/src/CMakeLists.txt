@@ -91,7 +91,7 @@ if (ERT_USE_OPENMP)
 endif()
 
 add_library( ecl ${LIBRARY_TYPE} ${source_files} )
-set_target_properties( ecl PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+set_target_properties( ecl PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR})
 if (USE_RUNPATH)
    add_runpath( ecl )
 endif()

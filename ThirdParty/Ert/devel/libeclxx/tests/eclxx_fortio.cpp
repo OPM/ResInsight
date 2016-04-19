@@ -28,6 +28,49 @@
 #include <ert/ecl/FortIO.hpp>
 
 
+void test_open() {
+    test_work_area_type * work_area = test_work_area_alloc("fortio");
+
+    ERT::FortIO fortio;
+    fortio.open( "new_file" , std::fstream::out );
+
+    {
+        std::vector<int> data;
+        for (size_t i=0; i < 1000; i++)
+            data.push_back(i);
+
+        fortio_fwrite_record( fortio.get() , reinterpret_cast<char *>(data.data()) , 1000 * 4 );
+    }
+    fortio.close();
+
+    fortio.open( "new_file" , std::fstream::app );
+    {
+        std::vector<int> data;
+        for (size_t i=0; i < 1000; i++)
+            data.push_back(i);
+
+        fortio_fwrite_record( fortio.get() , reinterpret_cast<char *>(data.data()) , 1000 * 4 );
+    }
+    fortio.close();
+
+    fortio.open( "new_file" , std::fstream::in );
+    {
+        std::vector<int> data;
+        for (size_t i=0; i < 1000; i++)
+            data.push_back(99);
+
+        test_assert_true( fortio_fread_buffer( fortio.get() , reinterpret_cast<char *>(data.data()) , 1000 * 4 ) );
+        for (size_t i =0; i < 1000; i++)
+            test_assert_size_t_equal(data[i], i);
+
+        test_assert_true( fortio_fread_buffer( fortio.get() , reinterpret_cast<char *>(data.data()) , 1000 * 4 ) );
+        for (size_t i =0; i < 1000; i++)
+            test_assert_size_t_equal(data[i], i);
+    }
+    fortio.close();
+    test_work_area_free( work_area );
+}
+
 
 void test_fortio() {
     test_work_area_type * work_area = test_work_area_alloc("fortio");
@@ -38,7 +81,7 @@ void test_fortio() {
         for (size_t i=0; i < 1000; i++)
             data.push_back(i);
 
-        fortio_fwrite_record( fortio.getPointer() , reinterpret_cast<char *>(data.data()) , 1000 * 4 );
+        fortio_fwrite_record( fortio.get() , reinterpret_cast<char *>(data.data()) , 1000 * 4 );
     }
     fortio.close();
 
@@ -48,7 +91,7 @@ void test_fortio() {
         for (size_t i=0; i < 1000; i++)
             data.push_back(99);
 
-        test_assert_true( fortio_fread_buffer( fortio.getPointer() , reinterpret_cast<char *>(data.data()) , 1000 * 4 ) );
+        test_assert_true( fortio_fread_buffer( fortio.get() , reinterpret_cast<char *>(data.data()) , 1000 * 4 ) );
         for (size_t i =0; i < 1000; i++)
             test_assert_size_t_equal(data[i], i);
 
@@ -91,6 +134,7 @@ void test_fortio_kw() {
 
 
 int main(int argc , char ** argv) {
+    test_open();
     test_fortio();
     test_fortio_kw();
 }

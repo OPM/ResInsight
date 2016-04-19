@@ -19,7 +19,9 @@
 #include <string.h>
 #include <signal.h>
 
-#ifdef HAVE_GETOPT
+#include <ert/util/ert_api_config.h>
+
+#ifdef ERT_HAVE_GETOPT
 #include <getopt.h>
 #endif
 
@@ -60,7 +62,7 @@ void print_help_and_exit()  {
   printf("   LBPR:LGR3:10,10,10 - The block pressure in cell 10,10,10 - in LGR3\n");
   printf("\n");
 
-#ifdef HAVE_GETOPT
+#ifdef ERT_HAVE_GETOPT
   printf("The option --list can be used to list all available keys.\n");
   printf("\n");
   printf("Options:\n");
@@ -126,13 +128,9 @@ static void build_key_list( const ecl_sum_type * ecl_sum , stringlist_type * key
        missing keys.
     */
 
-    if (util_string_has_wildcard( argv[iarg] )) {
-      stringlist_type * tmp_keys = stringlist_alloc_new( );
-      ecl_sum_select_matching_general_var_list( ecl_sum , argv[iarg] , tmp_keys);
-      stringlist_sort( tmp_keys , (string_cmp_ftype *) util_strcmp_int );
-      stringlist_append_stringlist_copy( key_list , tmp_keys );
-      stringlist_free( tmp_keys );
-    } else
+    if (util_string_has_wildcard( argv[iarg] ))
+      ecl_sum_select_matching_general_var_list( ecl_sum , argv[iarg] , key_list);
+    else
       stringlist_append_copy( key_list , argv[iarg] );
   }
 }
@@ -147,7 +145,7 @@ int main(int argc , char ** argv) {
     bool           print_header    = true;
     int            arg_offset      = 1;
 
-#ifdef HAVE_GETOPT
+#ifdef ERT_HAVE_GETOPT
     if (argc == 1)
       print_help_and_exit();
     else {

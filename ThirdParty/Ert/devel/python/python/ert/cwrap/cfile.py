@@ -13,23 +13,29 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
-"""
-Utility function to map Python filehandle <-> FILE *
-"""
 
-import ctypes  
-from   cwrap   import *
-from   cclass  import CClass
 
-class CFILE(CClass):
-    def __init__( self , py_file ):
+import ctypes
+
+from ert.cwrap import BaseCClass, Prototype
+
+
+class CFILE(BaseCClass):
+    """
+    Utility class to map a Python file handle <-> FILE* in C
+    """
+    TYPE_NAME = "FILE"
+
+    _as_file = Prototype(ctypes.pythonapi, "void* PyFile_AsFile(py_object)")
+
+    def __init__(self, py_file):
         """
-        Takes a python filehandle and looks up the underlying FILE * 
+        Takes a python file handle and looks up the underlying FILE *
         
         The purpose of the CFILE class is to be able to use python
-        filehandles when calling C functions which expect a FILE
+        file handles when calling C functions which expect a FILE
         pointer. A CFILE instance should be created based on the
-        Python filehandle, and that should be passed to the function
+        Python file handle, and that should be passed to the function
         expecting a FILE pointer.
 
         The implementation is based on the ctypes object
@@ -40,9 +46,8 @@ class CFILE(CClass):
             
           Python wrapper:
              lib = clib.load( "lib.so" )
-             fprintf_hello = cwrap.prototype("void fprintf_hello( FILE , char* )")
-             cwrap.registerType("FILE" , CFILE)
-             
+             fprintf_hello = Prototype(lib, "void fprintf_hello( FILE , char* )")
+
           Python use:
              py_fileH = open("file.txt" , "w")
              fprintf_hello( CFILE( py_fileH ) , "Message ...")
@@ -53,19 +58,14 @@ class CFILE(CClass):
 
         Examples: ert.ecl.ecl_kw.EclKW.fprintf_grdecl()
         """
-        self.c_ptr   = cfunc.as_file( py_file ) 
-        self.py_file = py_file
+        c_ptr = self._as_file(py_file)
+        try:
+            super(CFILE, self).__init__(c_ptr)
+        except ValueError as e:
+            raise TypeError("Sorry - the supplied argument is not a valid Python file handle!")
 
-        if self.c_ptr is None:
-            raise TypeError("Sorry - the supplied argument is not a valid Python filehandle")
+        self.py_file = py_file
 
 
     def __del__(self):
         pass
-
-
-
-cwrapper = CWrapper( ctypes.pythonapi ) 
-cwrapper.registerType( "FILE" , CFILE )
-cfunc         = CWrapperNameSpace("FILE")
-cfunc.as_file = cwrapper.prototype("c_void_p PyFile_AsFile( py_object )")

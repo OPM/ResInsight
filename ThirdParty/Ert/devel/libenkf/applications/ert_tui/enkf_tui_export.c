@@ -67,7 +67,7 @@ void enkf_tui_export_field(const enkf_main_type * enkf_main , field_file_format_
   }
   
   {
-    enkf_fs_type   * fs   = enkf_main_get_fs(enkf_main);
+    enkf_fs_type   * fs   = enkf_main_tui_get_fs(enkf_main);
     enkf_node_type * node = enkf_node_alloc(config_node);
 
     for (iens = iens1; iens <= iens2; iens++) {
@@ -151,7 +151,7 @@ void enkf_tui_export_gen_data(void * arg) {
     
     {
       msg_type * msg = msg_alloc("Writing file: " , false);
-      enkf_fs_type   * fs   = enkf_main_get_fs(enkf_main);
+      enkf_fs_type   * fs   = enkf_main_tui_get_fs(enkf_main);
       enkf_node_type * node = enkf_node_alloc(config_node);
       gen_data_file_format_type export_type = gen_data_guess_export_type( enkf_node_value_ptr(node) );
       int iens;
@@ -253,7 +253,7 @@ void enkf_tui_export_profile(void * enkf_main) {
         double * profile      = util_calloc(total_cells , sizeof * profile );
         int iens , report_step;
         enkf_node_type * node = enkf_node_alloc( config_node );
-        enkf_fs_type   * fs   = enkf_main_get_fs(enkf_main);
+        enkf_fs_type   * fs   = enkf_main_tui_get_fs(enkf_main);
         
         for (report_step = 0; report_step <= last_report; report_step++) {
           if (report_active[report_step]) {
@@ -313,7 +313,7 @@ void enkf_tui_export_cell(void * enkf_main) {
       double * cell_data    = util_calloc(ens_size , sizeof * cell_data);
       int iens , report_step; /* Observe that iens and report_step loops below should be inclusive.*/
       enkf_node_type * node = enkf_node_alloc( config_node );
-      enkf_fs_type   * fs   = enkf_main_get_fs(enkf_main);
+      enkf_fs_type   * fs   = enkf_main_tui_get_fs(enkf_main);
       path_fmt_type * file_fmt = path_fmt_scanf_alloc("Give filename to store historgrams (with %d for report step) =>" , 0 , NULL , false);
           
       
@@ -376,7 +376,7 @@ void enkf_tui_export_time(void * enkf_main) {
       double * x, *y;
       int iens; /* Observe that iens and report_step loops below should be inclusive.*/
       enkf_node_type * node = enkf_node_alloc( config_node );
-      enkf_fs_type   * fs   = enkf_main_get_fs(enkf_main);
+      enkf_fs_type   * fs   = enkf_main_tui_get_fs(enkf_main);
       path_fmt_type * file_fmt = path_fmt_scanf_alloc("Give filename to store line (with %d for report iens) =>" , 0 , NULL , false);
       
       
@@ -434,7 +434,7 @@ void enkf_tui_export_fieldP(void * arg) {
   util_printf_prompt("Filename to store file: " , PROMPT_LEN , '=' , "=> ");
   export_file = util_alloc_stdin_line();
   {
-    enkf_fs_type   * fs        = enkf_main_get_fs(enkf_main);
+    enkf_fs_type   * fs        = enkf_main_tui_get_fs(enkf_main);
     enkf_node_type ** ensemble = enkf_node_load_alloc_ensemble( config_node , fs , report_step , iens1 , iens2 , analysis_state );
     enkf_node_type *  sum      = enkf_node_alloc( config_node );
     int active_ens_size        = 0;
@@ -559,7 +559,7 @@ void enkf_tui_export_scalar2csv(void * arg) {
     }
     {
       /* Seriously manual creation of csv file. */
-      enkf_fs_type * fs     = enkf_main_get_fs(enkf_main);
+      enkf_fs_type * fs     = enkf_main_tui_get_fs(enkf_main);
       enkf_node_type * node = enkf_node_alloc( config_node );
       FILE * stream         = util_fopen( csv_file , "w");
       msg_type * msg        = msg_alloc("Exporting report_step/member: " , false);
@@ -658,7 +658,11 @@ void enkf_tui_export_stat(void * arg) {
       }
       
       {
-        enkf_node_type ** ensemble                = enkf_main_get_node_ensemble( enkf_main , enkf_config_node_get_key( config_node ) , report_step , analysis_state );
+        enkf_node_type ** ensemble                = enkf_main_get_node_ensemble( enkf_main , 
+										 enkf_main_tui_get_fs( enkf_main ) , 
+										 enkf_config_node_get_key( config_node ) , 
+										 report_step , 
+										 analysis_state );
         enkf_node_type * mean                     = enkf_node_copyc( ensemble[0] );
         enkf_node_type * std                      = enkf_node_copyc( ensemble[0] );
         

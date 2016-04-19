@@ -22,8 +22,7 @@
 #include <ert/util/test_work_area.h>
 #include <ert/util/test_util.h>
 #include <ert/job_queue/torque_driver.h>
-
-#include "ert/util/util.h"
+#include <ert/util/util.h>
 
 void test_option(torque_driver_type * driver, const char * option, const char * value) {
   test_assert_true(torque_driver_set_option(driver, option, value));

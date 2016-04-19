@@ -15,45 +15,56 @@
 #  for more details. 
 
 
-from ert.util import UTIL_LIB
-from ert.cwrap import BaseCClass, CWrapper, CWrapperNameSpace
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
 
 
 class LookupTable(BaseCClass):
+    _alloc =          UtilPrototype("void* lookup_table_alloc_empty()" , bind = False)
+    _max =            UtilPrototype("double lookup_table_get_max_value( lookup_table )")
+    _min =            UtilPrototype("double lookup_table_get_min_value( lookup_table )")
+    _arg_max =        UtilPrototype("double lookup_table_get_max_arg( lookup_table )")
+    _arg_min =        UtilPrototype("double lookup_table_get_min_arg( lookup_table )")
+    _append =         UtilPrototype("void lookup_table_append( lookup_table , double , double )")
+    _size =           UtilPrototype("int lookup_table_get_size( lookup_table )")
+    _interp =         UtilPrototype("double lookup_table_interp( lookup_table , double)")
+    _free =           UtilPrototype("void lookup_table_free( lookup_table )")
+    _set_low_limit =  UtilPrototype("void lookup_table_set_low_limit( lookup_table , double)")
+    _set_high_limit = UtilPrototype("void lookup_table_set_high_limit( lookup_table , double)")
+    _has_low_limit =  UtilPrototype("bool lookup_table_has_low_limit( lookup_table)")
+    _has_high_limit = UtilPrototype("bool lookup_table_has_high_limit( lookup_table)")
 
-    def __init__(self , lower_limit = None , upper_limit = None):
-        super(LookupTable, self).__init__(LookupTable.cNamespace().alloc())
+    def __init__(self, lower_limit=None, upper_limit=None):
+        super(LookupTable, self).__init__(self._alloc())
 
         if not lower_limit is None:
-            self.setLowerLimit( lower_limit )
+            self.setLowerLimit(lower_limit)
 
         if not upper_limit is None:
-            self.setUpperLimit( upper_limit )
-
-
+            self.setUpperLimit(upper_limit)
 
     def getMaxValue(self):
-        self.assertSize( 1 )
-        return LookupTable.cNamespace().max(self)
+        self.assertSize(1)
+        return self._max()
 
     def getMinValue(self):
-        self.assertSize( 1 )
-        return LookupTable.cNamespace().min(self)
+        self.assertSize(1)
+        return self._min()
 
     def getMinArg(self):
-        self.assertSize( 1 )
-        return LookupTable.cNamespace().arg_min(self)
+        self.assertSize(1)
+        return self._arg_min()
 
     def getMaxArg(self):
-        self.assertSize( 1 )
-        return LookupTable.cNamespace().arg_max(self)
+        self.assertSize(1)
+        return self._arg_max()
 
-    def assertSize(self , N):
+    def assertSize(self, N):
         if len(self) < N:
             raise ValueError("Lookup table is too small")
 
     def __len__(self):
-        return LookupTable.cNamespace().size(self)
+        return self._size()
 
     @property
     def size(self):
@@ -76,55 +87,36 @@ class LookupTable(BaseCClass):
     def arg_min(self):
         return self.getMinArg()
 
-    def setLowerLimit(self , value):
-        LookupTable.cNamespace().set_low_limit(self, value)
+    def setLowerLimit(self, value):
+        self._set_low_limit(value)
 
     def hasLowerLimit(self):
-        return LookupTable.cNamespace().has_low_limit(self)
+        return self._has_low_limit()
 
-    def setUpperLimit(self , value):
-        LookupTable.cNamespace().set_high_limit(self, value)
+    def setUpperLimit(self, value):
+        self._set_high_limit(value)
 
     def hasUpperLimit(self):
-        return LookupTable.cNamespace().has_high_limit(self)
+        return self._has_high_limit()
 
     def interp(self, x):
-        self.assertSize( 2 )
+        self.assertSize(2)
         if x < self.getMinArg():
             if not self.hasLowerLimit():
-                raise ValueError("Interpolate argument:%g is outside valid interval: [%g,%g]" % (x,self.getMinArg() , self.getMaxArg()))
+                raise ValueError("Interpolate argument:%g is outside valid interval: [%g,%g]" % (x, self.getMinArg(), self.getMaxArg()))
         elif x > self.getMaxArg():
             if not self.hasUpperLimit():
-                raise ValueError("Interpolate argument:%g is outside valid interval: [%g,%g]" % (x,self.getMinArg() , self.getMaxArg()))
-                
-        return LookupTable.cNamespace().interp(self, x)
+                raise ValueError("Interpolate argument:%g is outside valid interval: [%g,%g]" % (x, self.getMinArg(), self.getMaxArg()))
 
-            
-            
+        return self._interp(x)
+
     def append(self, x, y):
-        LookupTable.cNamespace().append(self, x, y)
+        self._append( x, y)
 
-
+    #todo: necessary???
     def __del__(self):
-        LookupTable.cNamespace().free(self)
+        self._free()
 
     def free(self):
-        LookupTable.cNamespace().free(self)
+        self._free( )
 
-
-cwrapper = CWrapper(UTIL_LIB)
-CWrapper.registerObjectType("lookup_table", LookupTable)
-
-LookupTable.cNamespace().alloc = cwrapper.prototype("c_void_p lookup_table_alloc_empty()")
-LookupTable.cNamespace().max = cwrapper.prototype("double lookup_table_get_max_value( lookup_table )")
-LookupTable.cNamespace().min = cwrapper.prototype("double lookup_table_get_min_value( lookup_table )")
-LookupTable.cNamespace().arg_max = cwrapper.prototype("double lookup_table_get_max_arg( lookup_table )")
-LookupTable.cNamespace().arg_min = cwrapper.prototype("double lookup_table_get_min_arg( lookup_table )")
-LookupTable.cNamespace().append = cwrapper.prototype("void lookup_table_append( lookup_table , double , double )")
-LookupTable.cNamespace().size = cwrapper.prototype("int lookup_table_get_size( lookup_table )")
-LookupTable.cNamespace().interp = cwrapper.prototype("double lookup_table_interp( lookup_table , double)")
-LookupTable.cNamespace().free = cwrapper.prototype("void lookup_table_free( lookup_table )")
-LookupTable.cNamespace().set_low_limit = cwrapper.prototype("void lookup_table_set_low_limit( lookup_table , double)")
-LookupTable.cNamespace().set_high_limit = cwrapper.prototype("void lookup_table_set_high_limit( lookup_table , double)")
-LookupTable.cNamespace().has_low_limit = cwrapper.prototype("bool lookup_table_has_low_limit( lookup_table)")
-LookupTable.cNamespace().has_high_limit = cwrapper.prototype("bool lookup_table_has_high_limit( lookup_table)")

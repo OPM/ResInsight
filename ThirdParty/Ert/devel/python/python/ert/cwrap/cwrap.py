@@ -23,11 +23,17 @@ correct restype and argtypes attributes of the function objects.
 import ctypes
 import re
 import sys
-from ert.cwrap import BaseCClass, BaseCValue
+from ert.cwrap import BaseCClass, BaseCValue, REGISTERED_TYPES
 import inspect
 
 
 prototype_pattern = "(?P<return>[a-zA-Z][a-zA-Z0-9_*]*) +(?P<function>[a-zA-Z]\w*) *[(](?P<arguments>[a-zA-Z0-9_*, ]*)[)]"
+
+def isBoundMethod(func, bound_to_class=None):
+    if bound_to_class is None:
+        return hasattr(func, "__self__")
+    else:
+        return hasattr(func, "__self__") and issubclass(func.__self__, bound_to_class)
 
 
 class CWrapError(Exception):
@@ -100,6 +106,8 @@ class CWrapper:
 
         if type_name in CWrapper.registered_types:
             return CWrapper.registered_types[type_name]
+        elif type_name in REGISTERED_TYPES:
+            return REGISTERED_TYPES[type_name].type_class_or_function
         else:
             return getattr(ctypes, type_name)
 
@@ -147,7 +155,7 @@ class CWrapper:
             try:
                 func = getattr(self.__lib, function_name)
             except AttributeError:
-                raise CWrapError("Can not find function:%s in library:%s" % (function_name , self.__lib))
+                raise CWrapError("Can not find function: %s in library: %s" % (function_name , self.__lib))
                 
             return_type = self.__parseType(restype)
 
@@ -158,23 +166,19 @@ class CWrapper:
 
             func.restype = return_type
 
-            if hasattr(return_type, "__call__"):
-                #The return type is a callable check if it is bound and the instance is a BaseCClass
-                if hasattr(return_type, "__self__") and issubclass(return_type.__self__, BaseCClass):
-                    func.restype = ctypes.c_void_p
-
-                    def returnFunction(result, func, arguments):
-                        return return_type(result)
-
-                    func.errcheck = returnFunction
-
-                elif issubclass(return_type, BaseCValue):
-                    func.restype = return_type.type()
-
-                    def returnFunction(result, func, arguments):
-                        return return_type(result)
-
-                    func.errcheck = returnFunction
+            if inspect.isclass(return_type):
+                if issubclass(return_type, BaseCValue):
+                    self.setReturnBehavior(func, return_type)
+                else:
+                    pass # Use default behavior for BaseCEnum and ctypes classes
+            elif callable(return_type):
+                if isBoundMethod(return_type, BaseCClass) or not isBoundMethod(return_type):
+                    self.setReturnBehavior(func, return_type)
+                else:
+                    pass #Methods bound to anything else than BaseCClass
+            else:
+                if return_type is not None:
+                    raise CWrapError("Unknown return type: %s" % return_type)
 
             if len(arguments) == 1 and arguments[0].strip() == "":
                 func.argtypes = []
@@ -186,6 +190,17 @@ class CWrapper:
 
             return func
 
+    @staticmethod
+    def setReturnBehavior(func, return_type):
+        if inspect.isclass(return_type) and issubclass(return_type, BaseCValue):
+            func.restype = return_type.type()
+        else:
+            func.restype = ctypes.c_void_p
+
+        def returnFunction(result, func, arguments):
+            return return_type(result)
+
+        func.errcheck = returnFunction
 
     def printTypes(self):
         for ctype in self.registered_types.keys():

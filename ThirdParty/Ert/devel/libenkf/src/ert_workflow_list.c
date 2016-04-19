@@ -256,7 +256,7 @@ bool  ert_workflow_list_has_workflow(ert_workflow_list_type * workflow_list , co
 
 
 bool ert_workflow_list_run_workflow__(ert_workflow_list_type * workflow_list, workflow_type * workflow, bool verbose , void * self) {
-    bool runOK = workflow_run( workflow, self , verbose , workflow_list->context);
+  bool runOK = workflow_run( workflow, self , verbose , workflow_list->context);
   if (runOK)
     workflow_list->last_error = NULL;
   else

@@ -1,6 +1,7 @@
 from ctypes import c_void_p
-from ert.util import Hash, StringHash, DoubleHash, IntegerHash
+
 from ert.test import ExtendedTestCase
+from ert.util import Hash, StringHash, DoubleHash, IntegerHash
 
 
 class HashTest(ExtendedTestCase):
@@ -19,8 +20,6 @@ class HashTest(ExtendedTestCase):
         with self.assertRaises(KeyError):
             hopp = hash["hopp"]
 
-
-
         self.assertTrue("hipp" in hash)
 
         self.assertEqual(list(hash.keys()), ["hipp"])
@@ -38,7 +37,6 @@ class HashTest(ExtendedTestCase):
 
         self.assertEqual(hash["two"], 2)
 
-
     def test_double_hash(self):
         hash = DoubleHash()
 
@@ -50,8 +48,6 @@ class HashTest(ExtendedTestCase):
 
         self.assertEqual(hash["two"], 2)
         self.assertEqual(hash["three"], 3.0)
-
-
 
     def test_c_void_p_hash(self):
         hash = Hash()
@@ -70,6 +66,3 @@ class HashTest(ExtendedTestCase):
 
         for key in hash:
             self.assertTrue(key in hash)
-
-
-

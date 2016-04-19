@@ -24,7 +24,6 @@ set(TEST_SOURCES
     test_meas_data.py
     test_obs_block.py
     test_obs_data.py
-    test_run_arg.py
     test_runpath_list.py
     test_state_map.py
     test_summary_key_matcher.py
@@ -34,10 +33,14 @@ set(TEST_SOURCES
     test_update.py
     test_ensemble_config.py
     test_deprecation.py
+    test_field_export.py
+    test_hook_workflow.py
+    test_forward_load_context.py
 )
 
 add_python_package("python.tests.ert.enkf" ${PYTHON_INSTALL_PREFIX}/tests/ert/enkf "${TEST_SOURCES}" False)
 
+addPythonTest(ert.enkf.forward_load_context tests.ert.enkf.test_forward_load_context.ForwardLoadContextTest)
 addPythonTest(ert.enkf.enkf tests.ert.enkf.test_enkf.EnKFTest LABELS StatoilData)
 addPythonTest(ert.enkf.enkf_obs tests.ert.enkf.test_enkf_obs.EnKFObsTest LABELS StatoilData)
 addPythonTest(ert.enkf.deprecation tests.ert.enkf.test_deprecation.DeprecationTest)
@@ -63,7 +66,6 @@ addPythonTest(ert.enkf.summary_key_matcher tests.ert.enkf.test_summary_key_match
 addPythonTest(ert.enkf.time_map tests.ert.enkf.test_time_map.TimeMapTest)
 addPythonTest(ert.enkf.ecl_config tests.ert.enkf.test_ecl_config.EclConfigTest LABELS StatoilData)
 addPythonTest(ert.enkf.ert_test_context tests.ert.enkf.test_ert_context.ErtTestContextTest LABELS StatoilData)
-addPythonTest(ert.enkf.run_arg tests.ert.enkf.test_run_arg.RunArg)
 addPythonTest(ert.enkf.runpath_list tests.ert.enkf.test_runpath_list.RunpathListTest)
 addPythonTest(ert.enkf.update tests.ert.enkf.test_update.UpdateTest LABELS StatoilData)
 addPythonTest(ert.enkf.labscale tests.ert.enkf.test_labscale.LabScaleTest LABELS StatoilData)
@@ -71,6 +73,8 @@ addPythonTest(ert.enkf.active_list tests.ert.enkf.test_active_list.ActiveListTes
 addPythonTest(ert.enkf.local_obsdata_node tests.ert.enkf.test_local_obsdata_node.LocalObsdataNodeTest)
 addPythonTest(ert.enkf.local_config tests.ert.enkf.test_local_config.LocalConfigTest)
 addPythonTest(ert.enkf.ensemble_config tests.ert.enkf.test_ensemble_config.EnsembleConfigTest)
+addPythonTest(ert.enkf.field_export tests.ert.enkf.test_field_export.FieldExportTest LABELS StatoilData)
+addPythonTest(ert.enkf.hook_workflow tests.ert.enkf.test_hook_workflow.HookWorkFlowTest)
 
 add_subdirectory(data)
 add_subdirectory(export)

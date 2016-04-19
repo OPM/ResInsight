@@ -114,95 +114,26 @@ void fs_driver_assert_magic( FILE * stream ) {
     util_abort("%s: WTF - fstab magic marker incorrect \n",__func__);
 }
 
-/**
-   There has been a major fuckup from version 104 -> 105. The real
-   upgrade from 104 was the change in fs layout, and the use of vector
-   storage. This also involved going from one central enkf_mount_info
-   file to one ert_fstab file for each case. That upgrade is performed
-   by the separate upgrade_fs104.c application.
-
-   The big fuckup was that the new ert_fstab file recycled the old 104
-   version number. The upgrade from 104 (second) time to the new 105
-   is quite small, and performed inline here:
-
- */
-
-
-static void upgrade104B(FILE * stream , const char * mount_point) {
-  int ens_size = 250;
-  int iens = 0;
-  char * target_file = util_alloc_sprintf( "%s/files/time-map" , mount_point);
-
-  /** 
-      Copying the mem/files/sim_time file for _one_ of the
-      realizations to the new common file files/time-map.
-  */
-  while (true) {
-    char * src_file = util_alloc_sprintf( "%s/mem%03d/files/sim_time" , mount_point , iens);
-    if (util_file_exists( src_file )) {
-      {
-        FILE * c_stream = util_mkdir_fopen( target_file , "w");
-        fclose( c_stream );
-      }
-      util_copy_file( src_file , target_file );
-      free( src_file );
-      break;
-    } 
-    free( src_file );
-    iens++;
-
-    if (iens == ens_size) {
-      fprintf(stderr,"Hmmmm - can not find any sim_time files in %s \n", mount_point);
-      exit(1);
-    }
-  }
-
-  for (iens = 0; iens < ens_size; iens++) {
-    char * src_file = util_alloc_sprintf( "%s/mem%03d/files/sim_time" , mount_point , iens);
-    
-    /*
-      if (util_file_exists( src_file ))
-      remove( src_file );
-    */
-    
-    free( src_file );
-  }
-  free( target_file );
-
-  fclose( stream );
-  {
-    char * fstab_file = util_alloc_filename( mount_point , "ert_fstab" , NULL);
-    FILE * stream2 = util_fopen( fstab_file , "r+");
-    util_fskip_long( stream2 );
-    util_fwrite_int ( CURRENT_FS_VERSION , stream2 );
-    fclose( stream2 );
-    
-    fprintf(stderr,"**-----------------------------------------------------------------\n");
-    fprintf(stderr,"** Sorry had to repair/upgrade ERT filesystem; exiting now.\n");
-    fprintf(stderr,"** Please restart and everything should work ok. Observe\n");
-    fprintf(stderr,"** that if you were changing case you must change case\n");
-    fprintf(stderr,"** again when restarting, and that this repair must be \n");
-    fprintf(stderr,"** repeated for other cases in the ENSPATH folder.\n");
-    fprintf(stderr,"**-----------------------------------------------------------------\n");
-    
-    exit(1);
-  }
-}
-
 
 
 
 void fs_driver_assert_version( FILE * stream , const char * mount_point) {
   int file_version = util_fread_int( stream );
 
-  if (file_version  > CURRENT_FS_VERSION)
-    util_exit("%s: The file system you are trying to access is created with a newer version of ert - sorry.\n",__func__);
-  else if (file_version < CURRENT_FS_VERSION) {
-    if ((file_version == 104) && (CURRENT_FS_VERSION == 105))
-      upgrade104B( stream , mount_point );
+  if (file_version < MIN_SUPPORTED_FS_VERSION )
+    util_exit("%s: The file system you are trying to access is created with a very old version of ert - sorry.\n",__func__);
+
+  if (file_version > CURRENT_FS_VERSION)
+    util_exit("%s: The file system you are trying to access has been created with a newer version of ert - sorry.\n",__func__);
+
+  if (file_version < CURRENT_FS_VERSION) {
+    if ((file_version == 105) && (CURRENT_FS_VERSION == 106))
+      fprintf(stderr,"%s: The file system you are accessing has been written with an older version of ert - STATIC information ignored. \n",__func__);
     else
-      util_exit("%s: The file system you are trying to access is created with a old version of ert - upgrade it?\n",__func__);
+      util_exit("%s: The file system you are trying to access has been created with an old version of ert - sorry.\n",__func__);
   }
+
+  
 }
 
 

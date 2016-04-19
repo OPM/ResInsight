@@ -830,7 +830,7 @@ int main( int argc , char ** argv ) {
       const char    * config_arg  = argv[1];
 
       config_init( config );
-      content = config_parse( config , config_arg , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN, true );
+      content = config_parse( config , config_arg , "--" , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_WARN, true );
 
       if (config_content_is_valid( content )) {
         char * config_path;

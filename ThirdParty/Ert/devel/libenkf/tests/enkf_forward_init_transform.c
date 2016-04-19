@@ -53,7 +53,7 @@ bool check_original_exported_data_equal(const enkf_node_type * field_node) {
   FILE * exported_stream = util_fopen( "tmp/PORO.grdecl" , "r");
   ecl_kw_type * kw_exported = ecl_kw_fscanf_alloc_grdecl_dynamic( exported_stream , "PORO" , ECL_DOUBLE_TYPE );
 
-  bool ret = ecl_kw_numeric_equal(kw_original, kw_exported, 1e-5);
+  bool ret = ecl_kw_numeric_equal(kw_original, kw_exported, 1e-5 , 1e-5);
 
   util_fclose(original_stream); 
   util_fclose(exported_stream); 
@@ -98,9 +98,9 @@ int main(int argc , char ** argv) {
 
   {
     bool_vector_type * iactive = bool_vector_alloc( enkf_main_get_ensemble_size(enkf_main) , true);
-    int error = 0;
+    int error;
     stringlist_type * msg_list = stringlist_alloc_new();  
-    enkf_state_load_from_forward_model( state , run_arg ,  &error , false , msg_list );
+    error = enkf_state_load_from_forward_model( state , run_arg ,  msg_list );
     stringlist_free( msg_list );
     bool_vector_free( iactive );
     test_assert_int_equal(error, 0); 

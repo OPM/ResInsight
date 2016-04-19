@@ -31,12 +31,10 @@ class EnKFObsTest(ExtendedTestCase):
             std0 = obs1.getStandardDeviation( )
 
             local_obsdata = LocalObsdata("obs" , obs)
-            node1 = LocalObsdataNode( "WWCT:OP_1" )
-            node1.addRange( 50 , 50 )
-            node2 = LocalObsdataNode( "WWCT:OP_1_50" )
-            node2.addRange( 50 , 50 )
-            local_obsdata.addNode( node1 )
-            local_obsdata.addNode( node2 )
+            node1 = local_obsdata.addNode( "WWCT:OP_1" )
+            node2 = local_obsdata.addNode( "WWCT:OP_1_50" )
+            node1.addTimeStep( 50 )
+            node2.addTimeStep( 50 )
 
             mask = BoolVector( default_value = True )
             mask[2] = True
@@ -111,9 +109,8 @@ class EnKFObsTest(ExtendedTestCase):
             self.assertFalse(v2.hasData(mask, current_fs))
             
             local_node = v1.createLocalObs( )
-            self.assertEqual( len(local_node.getStepList()) , len(v1.getStepList()))
-            for t1,t2 in zip( local_node.getStepList() , v1.getStepList()):
-                self.assertEqual( t1 , t2 )
+            for t in v1.getStepList():
+                self.assertTrue( local_node.tstepActive( t ))
                 
             
 
@@ -149,8 +146,9 @@ class EnKFObsTest(ExtendedTestCase):
 
                 tstep_list1 = obs_vector.getStepList()
                 local_node = obs_data[ obs_vector.getObservationKey() ]
+                for t in tstep_list1:
+                    self.assertTrue( local_node.tstepActive( t ))
 
-                self.assertTrue( tstep_list1 , local_node.getStepList())
                 active_list = local_node.getActiveList()
                 self.assertEqual( active_list.getMode() , ActiveMode.ALL_ACTIVE )
                     
@@ -193,6 +191,14 @@ class EnKFObsTest(ExtendedTestCase):
     def test_ert_obs_reload(self):
         with ErtTestContext("obs_test_reload", self.config_file) as test_context:
             ert = test_context.getErt()
+            local_config = ert.getLocalConfig( )
+            update_step = local_config.getUpdatestep( )
+            mini_step = update_step[0]
+            local_obs = mini_step.getLocalObsData( )
+            self.assertTrue( "WGOR:OP_5" in local_obs )
+            self.assertTrue( "RPR2_1" in local_obs )
+
+
             ens_config = ert.ensembleConfig( )
             wwct_op1 = ens_config["WWCT:OP_1"]
             wopr_op5 = ens_config["WOPR:OP_5"]
@@ -211,6 +217,16 @@ class EnKFObsTest(ExtendedTestCase):
             self.assertEqual( len(obs) , 2 )
             self.assertEqual( wwct_op1.getObservationKeys() , [] )
             self.assertEqual( wopr_op5.getObservationKeys() , ["WOPR:OP_5"] )
+
+            local_config = ert.getLocalConfig( )
+            update_step = local_config.getUpdatestep( )
+            mini_step = update_step[0]
+            local_obs = mini_step.getLocalObsData( )
+            self.assertTrue( "WOPR:OP_5" in local_obs )
+            self.assertTrue( "RFT2" in local_obs )
+            self.assertFalse( "WGOR:OP_5" in local_obs )
+            self.assertFalse( "RPR2_1" in local_obs )
+
             
             ert.loadObservations("observations" , clear = False)
             self.assertEqual( len(obs) , 34 )

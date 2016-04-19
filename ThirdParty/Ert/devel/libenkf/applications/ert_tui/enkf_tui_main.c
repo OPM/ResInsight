@@ -25,7 +25,6 @@
 #include <ert/util/menu.h>
 #include <enkf_tui_run.h>
 #include <enkf_tui_export.h>
-#include <enkf_tui_plot.h>
 #include <enkf_tui_table.h>
 #include <enkf_tui_fs.h>
 #include <enkf_tui_ranking.h>
@@ -35,7 +34,6 @@
 #include <enkf_tui_simple.h>
 #include <enkf_tui_workflow.h>
 #include <ert/enkf/enkf_main.h>
-#include <ert/enkf/enkf_sched.h>
 
 
 /**
@@ -59,8 +57,6 @@ void enkf_tui_main_menu(void * arg) {
 
   menu_add_item(menu , "Manage cases"                          , "cC" , enkf_tui_fs_menu        , enkf_main , NULL);
   menu_add_item(menu , "Run, restart or analyse experiment"    , "rR" , enkf_tui_run_menu       , enkf_main , NULL);
-  menu_add_item(menu , "Quality check"                         , "uU" , enkf_tui_QC_menu        , enkf_main , NULL);
-  menu_add_item(menu , "Plot results"                          , "pP" , enkf_tui_plot_menu      , enkf_main , NULL);
   menu_add_item(menu , "Rank results"                          , "aA" , enkf_tui_ranking_menu   , enkf_main , NULL);
   menu_add_item(menu , "Export data to other formats"          , "eE" , enkf_tui_export_menu    , enkf_main , NULL);
   menu_add_item(menu , "Table of results"                      , "tT" , enkf_tui_table_menu     , enkf_main , NULL);

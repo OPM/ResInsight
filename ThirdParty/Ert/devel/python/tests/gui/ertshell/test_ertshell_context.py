@@ -1,6 +1,6 @@
 import os
 from ert.test import ExtendedTestCase
-from .ert_shell_test_context import ErtShellTestContext, ShellCapturing
+from tests.gui.ertshell.ert_shell_test_context import ErtShellTestContext, ShellCapturing
 
 
 class ErtShellContextTest(ExtendedTestCase):
@@ -9,11 +9,8 @@ class ErtShellContextTest(ExtendedTestCase):
         test_config = self.createTestPath("local/custom_kw/mini_config")
 
         with ErtShellTestContext("python/ertshell/ert_shell_context", config_file=test_config, load_config=False) as shell:
-
             self.assertIsNone(shell.shellContext().ert())
-
             self.assertTrue(shell.invokeCommand("load_config mini_config"))
-
             self.assertIsNotNone(shell.shellContext().ert())
 
 

@@ -22,8 +22,7 @@ def _plotObservations(axes, plot_config, data, value_column):
     @type value_column: Str
     """
 
-    error_color = plot_config.observationsColor()
-    error_alpha = plot_config.observationsAlpha()
+    style = plot_config.observationsStyle()
 
     errorbars = axes.errorbar(x=data.index.values, y=data[value_column], yerr=data["STD_%s" % value_column],
-                 fmt=' ', ecolor=error_color, alpha=error_alpha)
+                 fmt=' ', ecolor=style.color, alpha=style.alpha)

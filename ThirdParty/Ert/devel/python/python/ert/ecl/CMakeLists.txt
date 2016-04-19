@@ -25,6 +25,8 @@ set(PYTHON_SOURCES
     ecl_sum_vector.py
     ecl_util.py
     fortio.py
+    ecl_sum_keyword_vector.py
+    ecl_cmp.py
 )
 
 if (BUILD_ERT)

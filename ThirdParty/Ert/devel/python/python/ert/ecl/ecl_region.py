@@ -27,9 +27,9 @@ queried for the corresponding list of indices.
 """
 import ctypes
 import warnings
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.cwrap import BaseCClass
 from ert.ecl.faults import Layer
-from ert.ecl import EclKW, EclTypeEnum, ECL_LIB
+from ert.ecl import EclKW, EclTypeEnum, EclPrototype
 from ert.geo import CPolyline
 from ert.util import IntVector
 
@@ -72,10 +72,99 @@ def select_method(select):
 
     return select_wrapper
 
-class EclRegion(CClass):
+class EclRegion(BaseCClass):
+    TYPE_NAME = "ecl_region"
+    _alloc                      = EclPrototype("void* ecl_region_alloc( ecl_grid , bool )", bind = False)
+    _alloc_copy                 = EclPrototype("ecl_region_obj ecl_region_alloc_copy( ecl_region )")
+
+    _set_kw_int                 = EclPrototype("void ecl_region_set_kw_int( ecl_region , ecl_kw , int, bool) ")
+    _set_kw_float               = EclPrototype("void ecl_region_set_kw_float( ecl_region , ecl_kw , float, bool ) ")
+    _set_kw_double              = EclPrototype("void ecl_region_set_kw_double( ecl_region , ecl_kw , double , bool) ")
+    _shift_kw_int               = EclPrototype("void ecl_region_shift_kw_int( ecl_region , ecl_kw , int, bool) ")
+    _shift_kw_float             = EclPrototype("void ecl_region_shift_kw_float( ecl_region , ecl_kw , float, bool ) ")
+    _shift_kw_double            = EclPrototype("void ecl_region_shift_kw_double( ecl_region , ecl_kw , double , bool) ")
+    _scale_kw_int               = EclPrototype("void ecl_region_scale_kw_int( ecl_region , ecl_kw , int, bool) ")
+    _scale_kw_float             = EclPrototype("void ecl_region_scale_kw_float( ecl_region , ecl_kw , float, bool ) ")
+    _scale_kw_double            = EclPrototype("void ecl_region_scale_kw_double( ecl_region , ecl_kw , double , bool) ")
+
+    _free                       = EclPrototype("void ecl_region_free( ecl_region )")     
+    _reset                      = EclPrototype("void ecl_region_reset( ecl_region )")
+    _select_all                 = EclPrototype("void ecl_region_select_all( ecl_region )")
+    _deselect_all               = EclPrototype("void ecl_region_deselect_all( ecl_region )")
+    _select_equal               = EclPrototype("void ecl_region_select_equal( ecl_region , ecl_kw , int )")
+    _deselect_equal             = EclPrototype("void ecl_region_deselect_equal( ecl_region , ecl_kw , int)")
+    _select_less                = EclPrototype("void ecl_region_select_smaller( ecl_region , ecl_kw , float )")
+    _deselect_less              = EclPrototype("void ecl_region_deselect_smaller( ecl_region , ecl_kw , float )")
+    _select_more                = EclPrototype("void ecl_region_select_larger( ecl_region , ecl_kw , float )")
+    _deselect_more              = EclPrototype("void ecl_region_deselect_larger( ecl_region , ecl_kw , float )")
+    _select_in_interval         = EclPrototype("void ecl_region_select_in_interval( ecl_region, ecl_kw , float , float )")
+    _deselect_in_interval       = EclPrototype("void ecl_region_deselect_in_interval( ecl_region, ecl_kw, float , float )")
+    _invert_selection           = EclPrototype("void ecl_region_invert_selection( ecl_region )")
+
+    _select_box                 = EclPrototype("void ecl_region_select_from_ijkbox(ecl_region , int , int , int , int , int , int)")     
+    _deselect_box               = EclPrototype("void ecl_region_deselect_from_ijkbox(ecl_region , int , int , int , int , int , int)")     
+    _imul_kw                    = EclPrototype("void  ecl_region_kw_imul( ecl_region , ecl_kw , ecl_kw , bool)")
+    _idiv_kw                    = EclPrototype("void  ecl_region_kw_idiv( ecl_region , ecl_kw , ecl_kw , bool)")
+    _iadd_kw                    = EclPrototype("void  ecl_region_kw_iadd( ecl_region , ecl_kw , ecl_kw , bool)")
+    _isub_kw                    = EclPrototype("void  ecl_region_kw_isub( ecl_region , ecl_kw , ecl_kw , bool)")
+    _copy_kw                    = EclPrototype("void  ecl_region_kw_copy( ecl_region , ecl_kw , ecl_kw , bool)")
+    _intersect                  = EclPrototype("void ecl_region_intersection( ecl_region , ecl_region )")
+    _combine                    = EclPrototype("void ecl_region_union( ecl_region , ecl_region )")
+    _subtract                   = EclPrototype("void ecl_region_subtract( ecl_region , ecl_region )")
+    _xor                        = EclPrototype("void ecl_region_xor( ecl_region , ecl_region )")
+    _get_kw_index_list          = EclPrototype("int_vector_ref ecl_region_get_kw_index_list( ecl_region , ecl_kw , bool )")
+    _get_active_list            = EclPrototype("int_vector_ref ecl_region_get_active_list( ecl_region )")
+    _get_global_list            = EclPrototype("int_vector_ref ecl_region_get_global_list( ecl_region )")
+    _get_active_global          = EclPrototype("int_vector_ref ecl_region_get_global_active_list( ecl_region )")
+    _select_cmp_less            = EclPrototype("void ecl_region_cmp_select_less( ecl_region , ecl_kw , ecl_kw)")
+    _select_cmp_more            = EclPrototype("void ecl_region_cmp_select_more( ecl_region , ecl_kw , ecl_kw)")
+    _deselect_cmp_less          = EclPrototype("void ecl_region_cmp_deselect_less( ecl_region , ecl_kw , ecl_kw)")
+    _deselect_cmp_more          = EclPrototype("void ecl_region_cmp_deselect_more( ecl_region , ecl_kw , ecl_kw)")
+    _select_islice              = EclPrototype("void ecl_region_select_i1i2( ecl_region , int , int )")
+    _deselect_islice            = EclPrototype("void ecl_region_deselect_i1i2( ecl_region , int , int )")
+    _select_jslice              = EclPrototype("void ecl_region_select_j1j2( ecl_region , int , int )")
+    _deselect_jslice            = EclPrototype("void ecl_region_deselect_j1j2( ecl_region , int , int )")
+    _select_kslice              = EclPrototype("void ecl_region_select_k1k2( ecl_region , int , int )")
+    _deselect_kslice            = EclPrototype("void ecl_region_deselect_k1k2( ecl_region , int , int )")
+    _select_deep_cells          = EclPrototype("void ecl_region_select_deep_cells( ecl_region , double )")
+    _deselect_deep_cells        = EclPrototype("void ecl_region_select_deep_cells( ecl_region , double )")
+    _select_shallow_cells       = EclPrototype("void ecl_region_select_shallow_cells( ecl_region , double )")
+    _deselect_shallow_cells     = EclPrototype("void ecl_region_select_shallow_cells( ecl_region , double )")
+    _select_small               = EclPrototype("void ecl_region_select_small_cells( ecl_region , double )")
+    _deselect_small             = EclPrototype("void ecl_region_deselect_small_cells( ecl_region , double )")
+    _select_large               = EclPrototype("void ecl_region_select_large_cells( ecl_region , double )")
+    _deselect_large             = EclPrototype("void ecl_region_deselect_large_cells( ecl_region , double )")
+    _select_thin                = EclPrototype("void ecl_region_select_thin_cells( ecl_region , double )")
+    _deselect_thin              = EclPrototype("void ecl_region_deselect_thin_cells( ecl_region , double )")
+    _select_thick               = EclPrototype("void ecl_region_select_thick_cells( ecl_region , double )")
+    _deselect_thick             = EclPrototype("void ecl_region_deselect_thick_cells( ecl_region , double )")
+    _select_active              = EclPrototype("void ecl_region_select_active_cells( ecl_region )")
+    _select_inactive            = EclPrototype("void ecl_region_select_inactive_cells( ecl_region )")
+    _deselect_active            = EclPrototype("void ecl_region_deselect_active_cells( ecl_region )")
+    _deselect_inactive          = EclPrototype("void ecl_region_deselect_inactive_cells( ecl_region )")
+    _select_above_plane         = EclPrototype("void ecl_region_select_above_plane( ecl_region  , double* , double* )")
+    _select_below_plane         = EclPrototype("void ecl_region_select_below_plane( ecl_region  , double* , double* )")
+    _deselect_above_plane       = EclPrototype("void ecl_region_deselect_above_plane( ecl_region, double* , double* )")
+    _deselect_below_plane       = EclPrototype("void ecl_region_deselect_below_plane( ecl_region, double* , double* )")
+    _select_inside_polygon      = EclPrototype("void ecl_region_select_inside_polygon( ecl_region , geo_polygon)")
+    _select_outside_polygon     = EclPrototype("void ecl_region_select_outside_polygon( ecl_region , geo_polygon)")
+    _deselect_inside_polygon    = EclPrototype("void ecl_region_deselect_inside_polygon( ecl_region , geo_polygon)")
+    _deselect_outside_polygon   = EclPrototype("void ecl_region_deselect_outside_polygon( ecl_region , geo_polygon)")
+    _set_name                   = EclPrototype("void ecl_region_set_name( ecl_region , char*)")
+    _get_name                   = EclPrototype("char* ecl_region_get_name( ecl_region )")
+    _contains_ijk               = EclPrototype("void ecl_region_contains_ijk( ecl_region , int , int , int)")
+    _contains_global            = EclPrototype("void ecl_region_contains_global( ecl_region, int )")
+    _contains_active            = EclPrototype("void ecl_region_contains_active( ecl_region , int )")
+    _equal                      = EclPrototype("bool ecl_region_equal( ecl_region , ecl_region )")
+    _select_true                = EclPrototype("void ecl_region_select_true( ecl_region , ecl_kw)")
+    _select_false               = EclPrototype("void ecl_region_select_false( ecl_region , ecl_kw)")
+    _deselect_true              = EclPrototype("void ecl_region_deselect_true( ecl_region , ecl_kw)")
+    _deselect_false             = EclPrototype("void ecl_region_deselect_false( ecl_region , ecl_kw)")
+    _select_from_layer          = EclPrototype("void ecl_region_select_from_layer( ecl_region , layer , int , int)")
+    _deselect_from_layer        = EclPrototype("void ecl_region_deselect_from_layer( ecl_region , layer , int , int)")
+
     
-    
-    def __init__(self , grid , preselect , c_ptr = None):
+    def __init__(self , grid , preselect):
         """
         Create a new region selector for cells in @grid.
 
@@ -88,20 +177,23 @@ class EclRegion(CClass):
 
         self.grid = grid
         self.active_index = False
-        if not c_ptr:
-            c_ptr = cfunc.alloc( grid , preselect )
-        self.init_cobj( c_ptr , cfunc.free )
+        c_ptr = self._alloc( grid , preselect )
+        super(EclRegion , self).__init__( c_ptr )
+
+
+    def free(self):
+        self._free( )
 
 
     def __eq__(self , other):
-        return cfunc.equal(self , other)
+        return self._equal(other)
  
             
     def __deep_copy__(self , memo):
         """
         Creates a deep copy of the current region.
         """
-        return EclRegion( self.grid , False , c_ptr = cfunc.alloc_copy( self ))
+        return self._alloc_copy( )
 
 
     def __zero__(self):
@@ -125,7 +217,7 @@ class EclRegion(CClass):
         will eventually call this method.
         """
         if isinstance(other , EclRegion):
-            cfunc.intersect( self, other)
+            self._intersect(  other)
         else:
             raise TypeError("Ecl region can only intersect with other EclRegion instances")
             
@@ -139,7 +231,7 @@ class EclRegion(CClass):
         Bound to reg -= reg2
         """
         if isinstance( other , EclRegion ):
-            cfunc.subtract( self , other)
+            self._subtract(   other)
         else:
             raise TypeError("Ecl region can only subtract with other EclRegion instances")
 
@@ -159,7 +251,7 @@ class EclRegion(CClass):
         to update reg1 with the selections from reg2.
         """
         if isinstance( other , EclRegion):
-            cfunc.combine( self, other)
+            self._combine(  other)
         else:
             raise TypeError("Ecl region can only be combined with other EclRegion instances")
             
@@ -247,7 +339,7 @@ class EclRegion(CClass):
         everything will be selected after calling reset(), otherwise
         no cells will be selected after calling reset().
         """
-        cfunc.reset( self )
+        self._reset(  )
 
     ##################################################################
 
@@ -274,7 +366,7 @@ class EclRegion(CClass):
            region.select_more( swat_kw , 0.85 )
 
         """
-        cfunc.select_more( self , ecl_kw , limit )
+        self._select_more( ecl_kw , limit )
 
         
 
@@ -284,7 +376,7 @@ class EclRegion(CClass):
 
         See select_more() for further documentation.
         """
-        cfunc.deselect_more( self , ecl_kw , limit )
+        self._deselect_more( ecl_kw , limit )
 
     @select_method
     def select_less( self , ecl_kw , limit , intersect = False):
@@ -293,7 +385,7 @@ class EclRegion(CClass):
         
         See select_more() for further documentation.
         """
-        cfunc.select_less( self , ecl_kw , limit )
+        self._select_less( ecl_kw , limit )
 
     def deselect_less( self , ecl_kw , limit):
         """
@@ -301,7 +393,7 @@ class EclRegion(CClass):
         
         See select_more() for further documentation.
         """
-        cfunc.deselect_less( self , ecl_kw , limit )
+        self._deselect_less( ecl_kw , limit )
 
     @select_method
     def select_equal( self , ecl_kw , value , intersect = False):
@@ -322,7 +414,7 @@ class EclRegion(CClass):
            region.select_equal( pvtnum_kw , 4 )
 
         """
-        cfunc.select_equal( self , ecl_kw , value )
+        self._select_equal( ecl_kw , value )
 
 
     def deselect_equal( self , ecl_kw , value ):
@@ -331,7 +423,7 @@ class EclRegion(CClass):
 
         See select_equal() for further documentation.
         """
-        cfunc.deselect_equal( self , ecl_kw , value )
+        self._deselect_equal( ecl_kw , value )
 
     @select_method
     def select_in_range( self , ecl_kw , lower_limit , upper_limit , select = False):
@@ -354,7 +446,7 @@ class EclRegion(CClass):
            region.select_in_range( poro_kw , 0.15, 0.20 )
           
         """
-        cfunc.select_in_interval( self , ecl_kw , lower_limit , upper_limit)
+        self._select_in_interval( ecl_kw , lower_limit , upper_limit)
 
     def deselect_in_range( self , ecl_kw , lower_limit , upper_limit):
         """
@@ -362,7 +454,7 @@ class EclRegion(CClass):
 
         See select_in_range() for further documentation.
         """
-        cfunc.deselect_in_interval( self , ecl_kw , lower_limit , upper_limit)
+        self._deselect_in_interval( ecl_kw , lower_limit , upper_limit)
 
 
     @select_method
@@ -385,7 +477,7 @@ class EclRegion(CClass):
            region.select_cmp_less( pressure2 , pressure1)
 
         """
-        cfunc.select_cmp_less( self , kw1 , kw2 )
+        self._select_cmp_less( kw1 , kw2 )
 
     def deselect_cmp_less( self , kw1 , kw2):
         """
@@ -393,7 +485,7 @@ class EclRegion(CClass):
 
         See select_cmp_less() for further documentation.
         """
-        cfunc.deselect_cmp_less( self , kw1 , kw2 )
+        self._deselect_cmp_less( kw1 , kw2 )
 
     @select_method
     def select_cmp_more( self , kw1 , kw2 , intersect = False):
@@ -402,7 +494,7 @@ class EclRegion(CClass):
         
         See select_cmp_less() for further documentation.
         """
-        cfunc.select_cmp_more( self , kw1 , kw2 )
+        self._select_cmp_more( kw1 , kw2 )
 
     def deselect_cmp_more( self , kw1 , kw2):
         """
@@ -410,47 +502,47 @@ class EclRegion(CClass):
         
         See select_cmp_less() for further documentation.
         """
-        cfunc.deselect_cmp_more( self , kw1 , kw2 )
+        self._deselect_cmp_more( kw1 , kw2 )
 
     @select_method
     def select_active( self , intersect = False):
         """
         Will select all the active grid cells.
         """
-        cfunc.select_active( self )
+        self._select_active(  )
 
     def deselect_active( self ):
         """
         Will deselect all the active grid cells.
         """
-        cfunc.deselect_active( self )
+        self._deselect_active(  )
 
     @select_method
     def select_inactive( self , intersect = False):
         """
         Will select all the inactive grid cells.
         """
-        cfunc.select_inactive( self )
+        self._select_inactive(  )
 
 
     def deselect_inactive( self ):
         """
         Will deselect all the inactive grid cells.
         """
-        cfunc.deselect_inactive( self )
+        self._deselect_inactive( )
 
 
     def select_all( self ):
         """
         Will select all the cells.
         """
-        cfunc.select_all( self )
+        self._select_all( )
 
     def deselect_all( self ):
         """
         Will deselect all the cells.
         """
-        cfunc.deselect_all( self )
+        self._deselect_all( )
 
     def clear( self ):
         """
@@ -459,82 +551,82 @@ class EclRegion(CClass):
         self.deselect_all()
 
     @select_method 
-    def select_deep( self, depth , intersect = False):
+    def select_deep( self , depth , intersect = False):
         """
         Will select all cells below @depth.
         """
-        cfunc.select_deep_cells(self , depth)
+        self._select_deep_cells(depth)
 
     def deselect_deep( self, depth):
         """
         Will deselect all cells below @depth.
         """
-        cfunc.deselect_deep_cells(self , depth)
+        self._deselect_deep_cells(depth)
 
     @select_method 
     def select_shallow( self, depth , intersect = False):
         """
         Will select all cells above @depth.
         """
-        cfunc.select_shallow_cells(self , depth)
+        self._select_shallow_cells(depth)
 
     def deselect_shallow( self, depth):
         """
         Will deselect all cells above @depth.
         """
-        cfunc.deselect_shallow_cells(self , depth)
+        self._deselect_shallow_cells(depth)
 
     @select_method
     def select_small( self , size_limit , intersect = False):
         """
         Will select all cells smaller than @size_limit.
         """
-        cfunc.select_small( self , size_limit )
+        self._select_small( size_limit )
 
     def deselect_small( self , size_limit ):
         """
         Will deselect all cells smaller than @size_limit.
         """
-        cfunc.deselect_small( self , size_limit )
+        self._deselect_small( size_limit )
 
     @select_method
     def select_large( self , size_limit , intersect = False):
         """
         Will select all cells larger than @size_limit.
         """
-        cfunc.select_large( self , size_limit )
+        self._select_large( size_limit )
 
     def deselect_large( self , size_limit ):
         """
         Will deselect all cells larger than @size_limit.
         """
-        cfunc.deselect_large( self , size_limit )
+        self._deselect_large( size_limit )
 
     @select_method
     def select_thin( self , size_limit , intersect = False):
         """
         Will select all cells thinner than @size_limit.
         """
-        cfunc.select_thin( self , size_limit )
+        self._select_thin( size_limit )
 
     def deselect_thin( self , size_limit ):
         """
         Will deselect all cells thinner than @size_limit.
         """
-        cfunc.deselect_thin( self , size_limit )
+        self._deselect_thin( size_limit )
 
     @select_method
     def select_thick( self , size_limit , intersect = False):
         """
         Will select all cells thicker than @size_limit.
         """
-        cfunc.select_thick( self , size_limit )
+        self._select_thick( size_limit )
 
     def deselect_thick( self , size_limit ):
         """
         Will deselect all cells thicker than @size_limit.
         """
-        cfunc.deselect_thick( self , size_limit )
+        self._deselect_thick( size_limit )
 
     @select_method
     def select_box( self , ijk1 , ijk2 , intersect = False):
@@ -550,7 +642,7 @@ class EclRegion(CClass):
 
         will select the box defined by [8,10] x [12,16] x [4,8].
         """
-        cfunc.select_box( self , ijk1[0] , ijk2[0] , ijk1[1] , ijk2[1] , ijk1[2] , ijk2[2])
+        self._select_box( ijk1[0] , ijk2[0] , ijk1[1] , ijk2[1] , ijk1[2] , ijk2[2])
 
     def deselect_box( self , ijk1 , ijk2 ):
         """
@@ -558,52 +650,52 @@ class EclRegion(CClass):
         
         See select_box() for further documentation.
         """
-        cfunc.deselect_box( self , ijk1[0] , ijk2[0] , ijk1[1] , ijk2[1] , ijk1[2] , ijk2[2])
+        self._deselect_box( ijk1[0] , ijk2[0] , ijk1[1] , ijk2[1] , ijk1[2] , ijk2[2])
 
     @select_method
     def select_islice( self , i1 , i2, intersect = False):
         """
         Will select all cells with i in [@i1, @i2]. @i1 and @i2 are zero offset.
         """
-        cfunc.select_islice( self , i1,i2)
+        self._select_islice( i1,i2)
 
     def deselect_islice( self , i1 , i2):
         """
         Will deselect all cells with i in [@i1, @i2]. @i1 and @i2 are zero offset.
         """
-        cfunc.deselect_islice( self , i1,i2)
+        self._deselect_islice( i1,i2)
 
     @select_method
     def select_jslice( self , j1 , j2 , intersect = False):
         """
         Will select all cells with j in [@j1, @j2]. @i1 and @i2 are zero offset.
         """
-        cfunc.select_jslice( self , j1,j2)
+        self._select_jslice( j1,j2)
 
     def deselect_jslice( self , j1 , j2):
         """
         Will deselect all cells with j in [@j1, @j2]. @i1 and @i2 are zero offset.
         """
-        cfunc.deselect_jslice( self , j1,j2)
+        self._deselect_jslice( j1,j2)
 
     @select_method
     def select_kslice( self , k1 , k2 , intersect = False):
         """
         Will select all cells with k in [@k1, @k2]. @i1 and @i2 are zero offset. 
         """
-        cfunc.select_kslice( self , k1,k2)
+        self._select_kslice( k1,k2)
 
     def deselect_kslice( self , k1 , k2):
         """
         Will deselect all cells with k in [@k1, @k2]. @i1 and @i2 are zero offset.
         """
-        cfunc.deselect_kslice( self , k1,k2)
+        self._deselect_kslice( k1,k2)
 
     def invert( self ):
         """
         Will invert the current selection.
         """
-        cfunc.invert_selection( self )
+        self._invert_selection(  )
 
     def __init_plane_select( self , n , p ):
         n_vec = ctypes.cast( (ctypes.c_double * 3)() , ctypes.POINTER( ctypes.c_double ))
@@ -626,7 +718,7 @@ class EclRegion(CClass):
         a negative disatnce to the plane.
         """
         (n_vec , p_vec) = self.__init_plane_select( n , p )
-        cfunc.select_above_plane( self , n_vec , p_vec )
+        self._select_above_plane( n_vec , p_vec )
 
     @select_method
     def select_below_plane( self , n , p , interscet = False):
@@ -636,7 +728,7 @@ class EclRegion(CClass):
         See method 'select_above_plane' for further documentation.
         """
         (n_vec , p_vec) = self.__init_plane_select( n , p )
-        cfunc.select_below_plane( self , n_vec , p_vec )
+        self._select_below_plane( n_vec , p_vec )
 
     def deselect_above_plane( self , n , p):
         """
@@ -645,7 +737,7 @@ class EclRegion(CClass):
         See method 'select_above_plane' for further documentation.
         """
         (n_vec , p_vec) = self.__init_plane_select( n , p )
-        cfunc.deselect_above_plane( self , n_vec , p_vec )
+        self._deselect_above_plane( n_vec , p_vec )
 
     def deselect_below_plane( self , n , p):
         """
@@ -654,7 +746,7 @@ class EclRegion(CClass):
         See method 'select_above_plane' for further documentation.
         """
         (n_vec , p_vec) = self.__init_plane_select( n , p )
-        cfunc.deselect_below_plane( self , n_vec , p_vec )
+        self._deselect_below_plane( n_vec , p_vec )
 
     @select_method
     def select_inside_polygon( self , points , intersect = False):
@@ -676,7 +768,7 @@ class EclRegion(CClass):
         implies that the selection polygon will effectively be
         translated if the pillars are not vertical.
         """
-        cfunc.select_inside_polygon( self , CPolyline( init_points = points ))
+        self._select_inside_polygon( CPolyline( init_points = points ))
 
     @select_method
     def select_outside_polygon( self , points , intersect = False):
@@ -685,7 +777,7 @@ class EclRegion(CClass):
 
         See select_inside_polygon for more docuemntation.
         """
-        cfunc.select_outside_polygon( self , CPolyline( init_points = points ))
+        self._select_outside_polygon( CPolyline( init_points = points ))
 
     def deselect_inside_polygon( self , points ):
         """
@@ -693,7 +785,7 @@ class EclRegion(CClass):
 
         See select_inside_polygon for more docuemntation.
         """
-        cfunc.deselect_inside_polygon( self , CPolyline( init_points = points ))
+        self._deselect_inside_polygon( CPolyline( init_points = points ))
 
     def deselect_outside_polygon( self , points ):
         """
@@ -701,7 +793,7 @@ class EclRegion(CClass):
 
         See select_inside_polygon for more docuemntation.
         """
-        cfunc.deselect_outside_polygon( self , CPolyline( init_points = points ))
+        self._deselect_outside_polygon( CPolyline( init_points = points ))
 
         
     @select_method
@@ -709,7 +801,7 @@ class EclRegion(CClass):
         """
         Assume that input ecl_kw is a boolean mask.
         """
-        cfunc.select_true( self , ecl_kw )
+        self._select_true( ecl_kw )
 
 
     @select_method
@@ -717,7 +809,7 @@ class EclRegion(CClass):
         """
         Assume that input ecl_kw is a boolean mask.
         """
-        cfunc.select_false( self , ecl_kw )
+        self._select_false( ecl_kw )
 
         
     @select_method
@@ -740,7 +832,7 @@ class EclRegion(CClass):
         if grid.getNY() != layer.getNY():
             raise ValueError("NY dimension mismatch. Grid:%d  layer:%d" % (grid.getNY() , layer.getNY()))
         
-        cfunc.select_from_layer( self , layer , k , value )
+        self._select_from_layer( layer , k , value )
 
     
 
@@ -751,10 +843,10 @@ class EclRegion(CClass):
         """
         Helper function to apply a function with one scalar arg on target_kw.
         """
-        type = target_kw.type
+        type = target_kw.getEclType( )
         if func_dict.has_key( type ):
             func = func_dict[ type ]
-            func( self , target_kw, scalar , force_active )
+            func( target_kw, scalar , force_active )
         else:
             raise Exception("scalar_apply_kw() only supported for INT/FLOAT/DOUBLE")
         
@@ -771,7 +863,7 @@ class EclRegion(CClass):
         """
         if isinstance(delta_kw , EclKW):
             if target_kw.assert_binary( delta_kw ):
-                cfunc.iadd_kw( self , target_kw , delta_kw , force_active )
+                self._iadd_kw( target_kw , delta_kw , force_active )
             else:
                 raise TypeError("Type mismatch")
         else:
@@ -782,14 +874,14 @@ class EclRegion(CClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , shift , {EclTypeEnum.ECL_INT_TYPE    : cfunc.shift_kw_int,
-                                                EclTypeEnum.ECL_FLOAT_TYPE  : cfunc.shift_kw_float ,
-                                                EclTypeEnum.ECL_DOUBLE_TYPE : cfunc.shift_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , shift , {EclTypeEnum.ECL_INT_TYPE    : self._shift_kw_int,
+                                                EclTypeEnum.ECL_FLOAT_TYPE  : self._shift_kw_float ,
+                                                EclTypeEnum.ECL_DOUBLE_TYPE : self._shift_kw_double} , force_active)
 
     def isub_kw( self , target_kw , delta_kw , force_active = False):
         if isinstance(delta_kw , EclKW):
             if target_kw.assert_binary( delta_kw ):
-                cfunc.isub_kw( self , target_kw , delta_kw , force_active )
+                self._isub_kw( target_kw , delta_kw , force_active )
             else:
                 raise TypeError("Type mismatch")
         else:
@@ -800,14 +892,14 @@ class EclRegion(CClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , scale , {EclTypeEnum.ECL_INT_TYPE    : cfunc.scale_kw_int,
-                                                EclTypeEnum.ECL_FLOAT_TYPE  : cfunc.scale_kw_float ,
-                                                EclTypeEnum.ECL_DOUBLE_TYPE : cfunc.scale_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , scale , {EclTypeEnum.ECL_INT_TYPE    : self._scale_kw_int,
+                                                EclTypeEnum.ECL_FLOAT_TYPE  : self._scale_kw_float ,
+                                                EclTypeEnum.ECL_DOUBLE_TYPE : self._scale_kw_double} , force_active)
 
-    def imul_kw( self , target_kw , other , force_active = False):
+    def imul_kw(self, target_kw , other , force_active = False):
         if isinstance(other , EclKW):
             if target_kw.assert_binary( other):
-                cfunc.imul_kw( self , target_kw , other )
+                self._imul_kw( target_kw , other )
             else:
                 raise TypeError("Type mismatch")
         else:
@@ -817,7 +909,7 @@ class EclRegion(CClass):
     def idiv_kw( self , target_kw , other , force_active = False):
         if isinstance(other , EclKW):
             if target_kw.assert_binary( other):
-                cfunc.idiv_kw( self , target_kw , other )
+                self._idiv_kw( target_kw , other )
             else:
                 raise TypeError("Type mismatch")
         else:
@@ -829,7 +921,7 @@ class EclRegion(CClass):
         See usage documentation on iadd_kw().
         """
         if target_kw.assert_binary( src_kw ):
-            cfunc.copy_kw( self , target_kw , src_kw , force_active )
+            self._copy_kw( target_kw , src_kw , force_active )
         else:
             raise TypeError("Type mismatch")
         
@@ -837,16 +929,16 @@ class EclRegion(CClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , value , {EclTypeEnum.ECL_INT_TYPE    : cfunc.set_kw_int,
-                                                EclTypeEnum.ECL_FLOAT_TYPE  : cfunc.set_kw_float ,
-                                                EclTypeEnum.ECL_DOUBLE_TYPE : cfunc.set_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , value , {EclTypeEnum.ECL_INT_TYPE    : self._set_kw_int,
+                                                EclTypeEnum.ECL_FLOAT_TYPE  : self._set_kw_float ,
+                                                EclTypeEnum.ECL_DOUBLE_TYPE : self._set_kw_double} , force_active)
 
     
 
 
     #################################################################
 
-    def ecl_region_instance( self ):
+    def ecl_region_instance(  ):
         """
         Helper function (attribute) to support run-time typechecking.
         """
@@ -857,7 +949,7 @@ class EclRegion(CClass):
         """
         IntVector instance with active indices in the region.
         """
-        active_list = cfunc.get_active_list(self)
+        active_list = self._get_active_list()
         active_list.setParent(self)
         return active_list
 
@@ -866,14 +958,14 @@ class EclRegion(CClass):
         """
         IntVector instance with global indices in the region.
         """
-        global_list = cfunc.get_global_list(self)
+        global_list = self._get_global_list()
         global_list.setParent(self)
         return global_list
 
         
     def getIJKList(self):
         """
-        WIll return a Python list of (i,j,k) tuples for the region.
+        WIll return a Python list of (ij,k) tuples for the region.
         """
         global_list = self.getGlobalList()
         ijk_list = []
@@ -917,153 +1009,46 @@ class EclRegion(CClass):
         """
         Will check if the cell given by i,j,k is part of the region.
         """
-        return cfunc.contains_ijk( self , i , j , k )
+        return self._contains_ijk( i , j , k )
 
 
     def contains_global( self , global_index):
         """
         Will check if the cell given by @global_index is part of the region.
         """
-        return cfunc.contains_global( self , global_index )
+        return self._contains_global( global_index )
 
 
     def contains_active( self , active_index):
         """
         Will check if the cell given by @active_index is part of the region.
         """
-        return cfunc.contains_active( self , active_index )
+        return self._contains_active( active_index )
 
     
     def kw_index_list(self , ecl_kw , force_active):
-        c_ptr = cfunc.get_kw_index_list( self , ecl_kw , force_active)
+        c_ptr = self._get_kw_index_list( ecl_kw , force_active)
         index_list = IntVector.createCReference( c_ptr, self )
         return index_list
 
+    def getName(self):
+        return self._get_name( )
+
+
+    def setName(self , name):
+        self._set_name( name )
+
 
     def set_name( self , name ):
-        cfunc.set_name( self , name )
+        warnings.warn("The name property / set_name method is deprecated - use method \'setName()\' instead." , DeprecationWarning)
+        self.setName( name )
+
 
     def get_name( self ):
-        return cfunc.get_name( self )
+        warnings.warn("The name property / get_name method is deprecated - use method \'getName()\' instead." , DeprecationWarning)
+        return self.getName( )
+
         
     name = property( get_name , set_name )
 
 
-# 2. Creating a wrapper object around the libecl library.
-cwrapper = CWrapper(ECL_LIB)
-cwrapper.registerType( "ecl_region" , EclRegion )
-
-# 3. Installing the c-functions used to manipulate.
-cfunc = CWrapperNameSpace("ecl_region")
-
-cfunc.alloc                      = cwrapper.prototype("c_void_p ecl_region_alloc( ecl_grid , bool )")
-cfunc.free                       = cwrapper.prototype("void ecl_region_free( ecl_region )")     
-cfunc.reset                      = cwrapper.prototype("void ecl_region_reset( ecl_region )")
-
-cfunc.select_all                 = cwrapper.prototype("void ecl_region_select_all( ecl_region )")
-cfunc.deselect_all               = cwrapper.prototype("void ecl_region_deselect_all( ecl_region )")
-
-cfunc.select_equal               = cwrapper.prototype("void ecl_region_select_equal( ecl_region , ecl_kw , int )")
-cfunc.deselect_equal             = cwrapper.prototype("void ecl_region_deselect_equal( ecl_region , ecl_kw , int)")
-
-cfunc.select_less                = cwrapper.prototype("void ecl_region_select_smaller( ecl_region , ecl_kw , float )")
-cfunc.deselect_less              = cwrapper.prototype("void ecl_region_deselect_smaller( ecl_region , ecl_kw , float )")
-
-cfunc.select_more                = cwrapper.prototype("void ecl_region_select_larger( ecl_region , ecl_kw , float )")
-cfunc.deselect_more              = cwrapper.prototype("void ecl_region_deselect_larger( ecl_region , ecl_kw , float )")
-
-cfunc.select_in_interval         = cwrapper.prototype("void ecl_region_select_in_interval( ecl_region, ecl_kw , float , float )")
-cfunc.deselect_in_interval       = cwrapper.prototype("void ecl_region_deselect_in_interval( ecl_region, ecl_kw, float , float )")
-
-cfunc.invert_selection           = cwrapper.prototype("void ecl_region_invert_selection( ecl_region )")
-
-cfunc.set_kw_int                 = cwrapper.prototype("void ecl_region_set_kw_int( ecl_region , ecl_kw , int, bool) ")
-cfunc.set_kw_float               = cwrapper.prototype("void ecl_region_set_kw_float( ecl_region , ecl_kw , float, bool ) ")
-cfunc.set_kw_double              = cwrapper.prototype("void ecl_region_set_kw_double( ecl_region , ecl_kw , double , bool) ")
-
-cfunc.shift_kw_int                 = cwrapper.prototype("void ecl_region_shift_kw_int( ecl_region , ecl_kw , int, bool) ")
-cfunc.shift_kw_float               = cwrapper.prototype("void ecl_region_shift_kw_float( ecl_region , ecl_kw , float, bool ) ")
-cfunc.shift_kw_double              = cwrapper.prototype("void ecl_region_shift_kw_double( ecl_region , ecl_kw , double , bool) ")
-
-cfunc.scale_kw_int                 = cwrapper.prototype("void ecl_region_scale_kw_int( ecl_region , ecl_kw , int, bool) ")
-cfunc.scale_kw_float               = cwrapper.prototype("void ecl_region_scale_kw_float( ecl_region , ecl_kw , float, bool ) ")
-cfunc.scale_kw_double              = cwrapper.prototype("void ecl_region_scale_kw_double( ecl_region , ecl_kw , double , bool) ")
-
-cfunc.select_box                 = cwrapper.prototype("void ecl_region_select_from_ijkbox(ecl_region , int , int , int , int , int , int)")     
-cfunc.deselect_box               = cwrapper.prototype("void ecl_region_deselect_from_ijkbox(ecl_region , int , int , int , int , int , int)")     
-
-cfunc.imul_kw                    = cwrapper.prototype("void  ecl_region_kw_imul( ecl_region , ecl_kw , ecl_kw , bool)")
-cfunc.idiv_kw                    = cwrapper.prototype("void  ecl_region_kw_idiv( ecl_region , ecl_kw , ecl_kw , bool)")
-cfunc.iadd_kw                    = cwrapper.prototype("void  ecl_region_kw_iadd( ecl_region , ecl_kw , ecl_kw , bool)")
-cfunc.isub_kw                    = cwrapper.prototype("void  ecl_region_kw_isub( ecl_region , ecl_kw , ecl_kw , bool)")
-cfunc.copy_kw                    = cwrapper.prototype("void  ecl_region_kw_copy( ecl_region , ecl_kw , ecl_kw , bool)")
-
-cfunc.alloc_copy                 = cwrapper.prototype("c_void_p ecl_region_alloc_copy( ecl_region )")
-cfunc.intersect                  = cwrapper.prototype("void ecl_region_intersection( ecl_region , ecl_region )")
-cfunc.combine                    = cwrapper.prototype("void ecl_region_union( ecl_region , ecl_region )")
-cfunc.subtract                   = cwrapper.prototype("void ecl_region_subtract( ecl_region , ecl_region )")
-cfunc.xor                        = cwrapper.prototype("void ecl_region_xor( ecl_region , ecl_region )")
-
-cfunc.get_kw_index_list          = cwrapper.prototype("c_void_p ecl_region_get_kw_index_list( ecl_region , ecl_kw , bool )")
-cfunc.get_active_list            = cwrapper.prototype("int_vector_ref ecl_region_get_active_list( ecl_region )")
-cfunc.get_global_list            = cwrapper.prototype("int_vector_ref ecl_region_get_global_list( ecl_region )")
-cfunc.get_active_global          = cwrapper.prototype("c_void_p ecl_region_get_global_active_list( ecl_region )")
-
-cfunc.select_cmp_less            = cwrapper.prototype("void ecl_region_cmp_select_less( ecl_region , ecl_kw , ecl_kw)")
-cfunc.select_cmp_more            = cwrapper.prototype("void ecl_region_cmp_select_more( ecl_region , ecl_kw , ecl_kw)")
-cfunc.deselect_cmp_less          = cwrapper.prototype("void ecl_region_cmp_deselect_less( ecl_region , ecl_kw , ecl_kw)")
-cfunc.deselect_cmp_more          = cwrapper.prototype("void ecl_region_cmp_deselect_more( ecl_region , ecl_kw , ecl_kw)")
-
-cfunc.select_islice              = cwrapper.prototype("void ecl_region_select_i1i2( ecl_region , int , int )")
-cfunc.deselect_islice            = cwrapper.prototype("void ecl_region_deselect_i1i2( ecl_region , int , int )")
-cfunc.select_jslice              = cwrapper.prototype("void ecl_region_select_j1j2( ecl_region , int , int )")
-cfunc.deselect_jslice            = cwrapper.prototype("void ecl_region_deselect_j1j2( ecl_region , int , int )")
-cfunc.select_kslice              = cwrapper.prototype("void ecl_region_select_k1k2( ecl_region , int , int )")
-cfunc.deselect_kslice            = cwrapper.prototype("void ecl_region_deselect_k1k2( ecl_region , int , int )")
-
-cfunc.select_deep_cells          = cwrapper.prototype("void ecl_region_select_deep_cells( ecl_region , double )")
-cfunc.deselect_deep_cells        = cwrapper.prototype("void ecl_region_select_deep_cells( ecl_region , double )")
-cfunc.select_shallow_cells       = cwrapper.prototype("void ecl_region_select_shallow_cells( ecl_region , double )")
-cfunc.deselect_shallow_cells     = cwrapper.prototype("void ecl_region_select_shallow_cells( ecl_region , double )")
-
-cfunc.select_small               = cwrapper.prototype("void ecl_region_select_small_cells( ecl_region , double )")
-cfunc.deselect_small             = cwrapper.prototype("void ecl_region_deselect_small_cells( ecl_region , double )")
-cfunc.select_large               = cwrapper.prototype("void ecl_region_select_large_cells( ecl_region , double )")
-cfunc.deselect_large             = cwrapper.prototype("void ecl_region_deselect_large_cells( ecl_region , double )")
-
-cfunc.select_thin                = cwrapper.prototype("void ecl_region_select_thin_cells( ecl_region , double )")
-cfunc.deselect_thin              = cwrapper.prototype("void ecl_region_deselect_thin_cells( ecl_region , double )")
-cfunc.select_thick               = cwrapper.prototype("void ecl_region_select_thick_cells( ecl_region , double )")
-cfunc.deselect_thick             = cwrapper.prototype("void ecl_region_deselect_thick_cells( ecl_region , double )")
-
-cfunc.select_active              = cwrapper.prototype("void ecl_region_select_active_cells( ecl_region )")
-cfunc.select_inactive            = cwrapper.prototype("void ecl_region_select_inactive_cells( ecl_region )")
-cfunc.deselect_active            = cwrapper.prototype("void ecl_region_deselect_active_cells( ecl_region )")
-cfunc.deselect_inactive          = cwrapper.prototype("void ecl_region_deselect_inactive_cells( ecl_region )")
-
-cfunc.select_above_plane        = cwrapper.prototype("void ecl_region_select_above_plane( ecl_region  , double* , double* )")
-cfunc.select_below_plane        = cwrapper.prototype("void ecl_region_select_below_plane( ecl_region  , double* , double* )")
-cfunc.deselect_above_plane      = cwrapper.prototype("void ecl_region_deselect_above_plane( ecl_region, double* , double* )")
-cfunc.deselect_below_plane      = cwrapper.prototype("void ecl_region_deselect_below_plane( ecl_region, double* , double* )")
-
-cfunc.select_inside_polygon     = cwrapper.prototype("void ecl_region_select_inside_polygon( ecl_region , geo_polygon)")
-cfunc.select_outside_polygon    = cwrapper.prototype("void ecl_region_select_outside_polygon( ecl_region , geo_polygon)")
-cfunc.deselect_inside_polygon   = cwrapper.prototype("void ecl_region_deselect_inside_polygon( ecl_region , geo_polygon)")
-cfunc.deselect_outside_polygon  = cwrapper.prototype("void ecl_region_deselect_outside_polygon( ecl_region , geo_polygon)")
-
-cfunc.set_name                  = cwrapper.prototype("void  ecl_region_set_name( ecl_region , char*)")
-cfunc.get_name                  = cwrapper.prototype("char* ecl_region_get_name( ecl_region )")
-
-cfunc.contains_ijk              = cwrapper.prototype("void ecl_region_contains_ijk( ecl_region , int , int , int)")
-cfunc.contains_global           = cwrapper.prototype("void ecl_region_contains_global( ecl_region, int )")
-cfunc.contains_active           = cwrapper.prototype("void ecl_region_contains_active( ecl_region , int )")
-
-cfunc.equal = cwrapper.prototype("bool ecl_region_equal( ecl_region , ecl_region )")
-
-cfunc.select_true                  = cwrapper.prototype("void ecl_region_select_true( ecl_region , ecl_kw)")
-cfunc.select_false                 = cwrapper.prototype("void ecl_region_select_false( ecl_region , ecl_kw)")
-cfunc.deselect_true                = cwrapper.prototype("void ecl_region_deselect_true( ecl_region , ecl_kw)")
-cfunc.deselect_false               = cwrapper.prototype("void ecl_region_deselect_false( ecl_region , ecl_kw)")
-
-cfunc.select_from_layer            = cwrapper.prototype("void ecl_region_select_from_layer( ecl_region , layer , int , int)")
-cfunc.deselect_from_layer          = cwrapper.prototype("void ecl_region_deselect_from_layer( ecl_region , layer , int , int)")

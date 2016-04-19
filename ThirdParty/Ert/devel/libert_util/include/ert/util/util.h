@@ -26,16 +26,12 @@
 #include <sys/types.h>
 #include <time.h>
 
-#ifdef COMPILER_GCC
-#include <setjmp.h>
-#endif
 
-#ifdef HAVE_GETPWUID
-#include <pwd.h>
-#endif
+#include <ert/util/ert_api_config.h>
 
 
-#ifdef HAVE_GETUID
+
+#ifdef ERT_HAVE_GETUID
 #include <sys/stat.h>
 #endif
 
@@ -61,11 +57,12 @@ extern"C" {
   transparently on both Windows and Linux. See source file
   libert_util/src/util_lfs.c for more details.
 
-  The symbol WINDOWS_LFS should be defined during compilation
-  if you want support of large files on windows.
+  During the configure step CMAKE should check the size of (void *)
+  and set the ERT_WINDOWS_LFS variable to true if a 64 bit platform is
+  detected.
 */
 
-#ifdef WINDOWS_LFS
+#ifdef ERT_WINDOWS_LFS
 typedef struct _stat64 stat_type;
 typedef __int64 offset_type;
 #else
@@ -180,27 +177,22 @@ typedef enum {left_pad   = 0,
   int          util_roundf( float x );
   int          util_round( double x );
 
-  offset_type        util_ftell(FILE * stream);
+  offset_type  util_ftell(FILE * stream);
   int          util_fseek(FILE * stream, offset_type offset, int whence);
   void         util_rewind(FILE * stream);
   int          util_stat(const char * filename , stat_type * stat_info);
   int          util_fstat(int fileno, stat_type * stat_info);
 
-#ifdef HAVE_VA_COPY
-#define UTIL_VA_COPY(target,src) va_copy(target,src)
-#else
-#define UTIL_VA_COPY(target,src) target = src
-#endif
 
 
-#ifdef HAVE_OPENDIR
+#ifdef ERT_HAVE_OPENDIR
   void         util_copy_directory_content(const char * src_path , const char * target_path);
   void         util_copy_directory(const char *  , const char *);
   void         util_walk_directory(const char * root_path , walk_file_callback_ftype * file_callback , void * file_callback_arg , walk_dir_callback_ftype * dir_callback , void * dir_callback_arg);
 #endif
 
 
-#ifdef HAVE_GETUID
+#ifdef ERT_HAVE_GETUID
   uid_t        util_get_entry_uid( const char * file );
   bool         util_addmode_if_owner( const char * filename , mode_t add_mode );
   bool         util_delmode_if_owner( const char * filename , mode_t del_mode);
@@ -297,14 +289,12 @@ typedef enum {left_pad   = 0,
 
   char *  util_alloc_dump_filename();
   void    util_exit(const char * fmt , ...);
-  void    util_abort__(const char * file , const char * function , int line , const char * fmt , ...);
-
-  void    util_abort_signal(int );
   void    util_install_signals(void);
-  void    util_abort_append_version_info(const char * );
-  void    util_abort_free_version_info();
-  void    util_abort_set_executable( const char * argv0 );
+  void    util_update_signals(void);
+
+
   void *  util_realloc(void *  , size_t  );
+  void    util_free(void * ptr);
   void *  util_malloc(size_t );
   void *  util_calloc( size_t elements , size_t element_size );
   void *  util_realloc_copy(void * org_ptr , const void * src , size_t byte_size );
@@ -472,27 +462,27 @@ typedef struct {
 const char * util_enum_iget( int index , int size , const util_enum_element_type * enum_defs , int * value);
 
 
-#ifdef COMPILER_GCC
-
-jmp_buf * util_abort_test_jump_buffer();
-void      util_abort_test_set_intercept_function(const char * function);
-
-#define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , ##__VA_ARGS__)
-#endif
-
-#ifdef __clang__
-#define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , ##__VA_ARGS__)
-#endif
-
-#ifdef COMPILER_MSVC
+#ifdef _MSC_VER
 #define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , __VA_ARGS__)
+#elif __GNUC__
+/* Also clang defines the __GNUC__ symbol */
+#define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , ##__VA_ARGS__)
 #endif
+
 
 
 /*****************************************************************/
 /* Conditional section below here */
 
-#ifdef WITH_ZLIB
+void    util_abort__(const char * file , const char * function , int line , const char * fmt , ...);
+void    util_abort_signal(int );
+void    util_abort_append_version_info(const char * );
+void    util_abort_free_version_info();
+void    util_abort_set_executable( const char * argv0 );
+
+
+
+#ifdef ERT_HAVE_ZLIB
   void     util_compress_buffer(const void * , int , void * , unsigned long * );
   int      util_fread_sizeof_compressed(FILE * stream);
   void     util_fread_compressed(void * , FILE * );
@@ -500,38 +490,29 @@ void      util_abort_test_set_intercept_function(const char * function);
   void     util_fwrite_compressed(const void * , int , FILE * );
 #endif
 
-#ifdef HAVE_SYMLINK
+#ifdef ERT_HAVE_SYMLINK
   void         util_make_slink(const char *, const char * );
   char       * util_alloc_link_target(const char * link);
-#ifdef HAVE_READLINKAT
+#ifdef ERT_HAVE_READLINKAT
   char     *   util_alloc_atlink_target(const char * path , const char * link);
 #endif
 #endif
 
 
-#ifdef HAVE_FORK
-  pid_t    util_fork_exec(const char *  , int , const char ** , bool , const char * , const char *  , const char * , const char *  , const char * );
-  uid_t  * util_alloc_file_users( const char * filename , int * __num_users);
-  char   * util_alloc_filename_from_stream( FILE * input_stream );
-  bool     util_ping( const char * hostname);
+#ifdef ERT_HAVE_SPAWN
+  pid_t      util_spawn(const char *executable, int argc, const char **argv, const char *stdout_file, const char *stderr_file);
+  int        util_spawn_blocking(const char *executable, int argc, const char **argv, const char *stdout_file, const char *stderr_file);
+#ifdef ERT_HAVE_PING
+  bool       util_ping( const char * hostname);
+#endif
 #endif
 
 
-#ifdef HAVE_LOCKF
+#ifdef ERT_HAVE_LOCKF
   FILE       * util_fopen_lockf(const char * , const char * );
-  bool     util_try_lockf(const char *  , mode_t  , int * );
+  bool         util_try_lockf(const char *  , mode_t  , int * );
 #endif
 
-#ifdef HAVE_FORK
-#ifdef WITH_PTHREAD
-#ifdef HAVE_EXECINFO
-
-  bool util_addr2line_lookup(const void * bt_addr , char ** func_name , char ** file_line, int * line_nr);
-
-#define HAVE_UTIL_ABORT
-#endif
-#endif
-#endif
 
 
 

@@ -9,7 +9,7 @@ class CaseList(ErtConnector, ListModelMixin):
     def getList(self):
         fs = self.ert().getEnkfFsManager().getCurrentFileSystem()
         case_list = self.ert().getEnkfFsManager().getCaseList()
-        return sorted(case_list)
+        return [case for case in case_list if not self.ert().getEnkfFsManager().isCaseHidden(case)]
 
     def addItem(self, value):
         # Creates a new filesystem. Value should be a case that does not exist

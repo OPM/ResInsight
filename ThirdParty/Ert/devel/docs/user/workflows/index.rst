@@ -195,35 +195,27 @@ Jobs related to running simulations - including updates
 
 **RUN_SMOOTHER**
 
-The RUN_SMOOTHER job will run a simulation and perform an update. The updated parameters are default stored as the new initial parameters of the current case. Optionally the job can take 1 or 2 parameters. The case to store the updated parameters in can be specified as the first argument. A second argument can be specified to run a simulation with the updated parameters.
+The RUN_SMOOTHER job will run a simulation and perform an update. The
+job has one required argument - the name of a case where the updated
+parameters are stored. Optionally the job can take a second boolean
+argument, if the second argument is set to true the job will rerun
+based on the updated parameters.
 
-
-Run a simulation and an update. The updated parameters are stored as the new initial parameters of the current case:
-
-::
-
-	RUN_SMOOTHER
-
-
-Run a simulation and an update. Store the updated parameters in the specified case. This case is created if it does not exist:
+Run a simulation and an update. Store the updated parameters in the
+specified case. This case is created if it does not exist:
 
 ::
 
 	RUN_SMOOTHER new_case
 
 
-Run a simulation and an update. Store the updated parameters in the specified case, then run a simulation on this case:
+Run a simulation and an update. Store the updated parameters in the
+specified case, then run a simulation on this case:
 
 ::
 
 	RUN_SMOOTHER new_case true
 
-
-Run a simulation and an update. Store the updated parameters in the current case, then run a simulation again. Specify "*" to use the current case:
-
-::
-
-	RUN_SMOOTHER * true
 
 
 **RUN_SMOOTHER_WITH_ITER**

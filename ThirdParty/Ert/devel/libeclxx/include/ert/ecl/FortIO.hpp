@@ -27,6 +27,7 @@
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_endian_flip.h>
 
+#include <ert/util/ert_unique_ptr.hpp>
 
 
 
@@ -34,13 +35,14 @@ namespace ERT {
     class FortIO
     {
     public:
+        FortIO();
         FortIO(const std::string& filename , std::ios_base::openmode mode , bool fmt_file = false , bool endian_flip_header = ECL_ENDIAN_FLIP);
-        fortio_type * getPointer() const;
-        void close();
-        void reset() const;
+        void open(const std::string& filename , std::ios_base::openmode mode , bool fmt_file = false , bool endian_flip_header = ECL_ENDIAN_FLIP);
 
+        fortio_type * get() const;
+        void close();
     private:
-        std::shared_ptr<fortio_type> m_fortio;
+        ert_unique_ptr<fortio_type , fortio_fclose> m_fortio;
     };
 }
 

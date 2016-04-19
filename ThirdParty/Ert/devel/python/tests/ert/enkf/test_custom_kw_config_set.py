@@ -1,6 +1,6 @@
 import os
 from ert.enkf import CustomKWConfigSet
-from ert.enkf.data import CustomKWConfig
+from ert.enkf.config import CustomKWConfig
 from ert.enkf.enkf_fs import EnkfFs
 from ert.enkf.enkf_main import EnKFMain
 from ert.test import ExtendedTestCase

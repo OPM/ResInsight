@@ -23,7 +23,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "ert/util/build_config.h"
+
 #include <ert/util/test_util.h>
+#include <ert/util/test_util_abort.h>
 
 #include <ert/enkf/ensemble_config.h>
 

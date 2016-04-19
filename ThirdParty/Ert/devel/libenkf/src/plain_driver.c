@@ -264,3 +264,10 @@ void * plain_driver_open(FILE * fstab_stream , const char * mount_point) {
 }
 
 
+
+void plain_driver_fskip(FILE * fstab_stream ) {
+  char * node_fmt = util_fread_alloc_string( fstab_stream );
+  char * vector_fmt = util_fread_alloc_string( fstab_stream );
+  free(node_fmt);
+  free(vector_fmt);
+}

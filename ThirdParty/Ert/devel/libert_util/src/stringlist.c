@@ -20,7 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef HAVE_GLOB
+#include <ert/util/ert_api_config.h>
+#ifdef ERT_HAVE_GLOB
 #include <glob.h>
 #else
 #include <Windows.h>
@@ -722,7 +723,7 @@ void stringlist_reverse( stringlist_type * s ) {
   function starts.
 */
 
-#ifdef HAVE_GLOB
+#ifdef ERT_HAVE_GLOB
 int stringlist_select_matching(stringlist_type * names , const char * pattern) {
   int match_count = 0;
   stringlist_clear( names );
@@ -744,7 +745,7 @@ int stringlist_select_matching(stringlist_type * names , const char * pattern) {
 
 
 int stringlist_select_matching_files(stringlist_type * names , const char * path , const char * file_pattern) {
-#ifdef HAVE_GLOB
+#ifdef ERT_HAVE_GLOB
   char * pattern  = util_alloc_filename( path , file_pattern , NULL );
   int match_count = stringlist_select_matching( names , pattern );
   free( pattern );

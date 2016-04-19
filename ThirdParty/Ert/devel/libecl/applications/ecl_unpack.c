@@ -17,13 +17,15 @@
 */
 
 #include <stdbool.h>
-#include <util.h>
-#include <ecl_file.h>
-#include <ecl_util.h>
-#include <ecl_kw.h>
-#include <msg.h>
-#include <ecl_endian_flip.h>
-#include <ecl_kw_magic.h>
+
+#include <ert/util/util.h>
+#include <ert/util/msg.h>
+
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_kw_magic.h>
 
 void unpack_file(const char * filename) {
   ecl_file_enum target_type = ECL_OTHER_FILE;
@@ -41,7 +43,7 @@ void unpack_file(const char * filename) {
     printf("** Warning: when unpacking unified summary files it as ambigous - starting with 0001  -> \n");
   }
   {
-    ecl_file_type * src_file = ecl_file_open( filename );
+    ecl_file_type * src_file = ecl_file_open( filename , 0 );
     int    size;
     int    offset;
     int    report_step = 0;

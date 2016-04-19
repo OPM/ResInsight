@@ -58,20 +58,7 @@ class LegacyEclTest(TestCase):
         except ImportError:
             pass
 
-                
-    def test_enums(self):
-        self.assertEqual(ecl.ECL_FLOAT_TYPE, EclTypeEnum.ECL_FLOAT_TYPE)
-        self.assertEqual(ecl.ECL_CHAR_TYPE, EclTypeEnum.ECL_CHAR_TYPE)
-        self.assertEqual(ecl.ECL_DOUBLE_TYPE, EclTypeEnum.ECL_DOUBLE_TYPE)
-        self.assertEqual(ecl.ECL_BOOL_TYPE, EclTypeEnum.ECL_BOOL_TYPE)
-        self.assertEqual(ecl.ECL_CHAR_TYPE, EclTypeEnum.ECL_CHAR_TYPE)
-
-        self.assertEqual(ecl.ECL_FILE_WRITABLE, EclFileFlagEnum.ECL_FILE_WRITABLE)
-
-        self.assertEqual(ecl.ECL_OIL_PHASE, EclPhaseEnum.ECL_OIL_PHASE)
-        self.assertEqual(ecl.ECL_GAS_PHASE, EclPhaseEnum.ECL_GAS_PHASE)
-        self.assertEqual(ecl.ECL_WATER_PHASE, EclPhaseEnum.ECL_WATER_PHASE)
-
+        
     def test_ecl_defaults(self):
         # Should be either non-null, or throw an NotImplementedError.
         try:

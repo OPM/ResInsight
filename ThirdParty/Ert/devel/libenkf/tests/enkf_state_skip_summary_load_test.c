@@ -41,11 +41,11 @@ bool check_ecl_sum_loaded(const enkf_main_type * enkf_main)
   state_map_type * state_map = enkf_fs_get_state_map(fs);
   state_map_iset(state_map, 0, STATE_INITIALIZED);
   
-  int error = 0; 
+  int error = enkf_state_load_from_forward_model( state1 , run_arg1 ,  msg_list );
 
-  enkf_state_load_from_forward_model( state1 , run_arg1 , &error , false , msg_list );
+  
   state_map_iset(state_map, 1, STATE_INITIALIZED);
-  enkf_state_load_from_forward_model( state2 , run_arg2 , &error , false , msg_list );
+  error = enkf_state_load_from_forward_model( state2 , run_arg2 , msg_list );
   
   stringlist_free( msg_list );
   return (0 == error); 

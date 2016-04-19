@@ -38,28 +38,9 @@ extern "C" {
 #include <ert/enkf/active_list.h>
 #include <ert/enkf/meas_data.h>
 #include <ert/enkf/enkf_fs_type.h>
+#include <ert/enkf/forward_load_context.h>
 
 
-#define CONFIG_STD_FIELDS \
-int __type_id;            \
-int data_size;
-
-
-
-/*****************************************************************/
-
-#define IS_INSTANCE(prefix,ID) \
-bool prefix ## _is_instance__(const void * __arg) {                        \
-  prefix ## _type * arg = (prefix ## _type *) __arg;               \
-  if (arg->__type_id != ID)                                        \
-     return false;                                                 \
-  else                                                             \
-     return true;                                                  \
-}
-
-#define IS_INSTANCE_HEADER(prefix)  bool prefix ## _is_instance__(const void * );
-
-/******************************************************************/
 
 
 
@@ -139,22 +120,22 @@ void prefix ## _ecl_write__(const void * void_arg , const char * path , const ch
 /*****************************************************************/
 
 #define VOID_FORWARD_LOAD(prefix) \
-bool prefix ## _forward_load__(void * void_arg , const char * ecl_file  , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file, int report_step) { \
+bool prefix ## _forward_load__(void * void_arg , const char * ecl_file  , const forward_load_context_type * load_context) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                         \
-   return prefix ## _forward_load(arg , ecl_file , ecl_sum , restart_file , report_step);      \
+   return prefix ## _forward_load(arg , ecl_file , load_context);      \
 }
 
-#define VOID_FORWARD_LOAD_HEADER(prefix) bool prefix ## _forward_load__(void * , const char * , const ecl_sum_type *, const ecl_file_type * , int);
+#define VOID_FORWARD_LOAD_HEADER(prefix) bool prefix ## _forward_load__(void * , const char * , const forward_load_context_type * load_context);
 
   /*****************************************************************/
 
 #define VOID_FORWARD_LOAD_VECTOR(prefix) \
-  bool prefix ## _forward_load_vector__(void * void_arg , const char * ecl_file  , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file, const int_vector_type * time_index) { \
+  bool prefix ## _forward_load_vector__(void * void_arg , const char * ecl_file  , const forward_load_context_type * load_context, const int_vector_type * time_index) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                         \
-   return prefix ## _forward_load_vector(arg , ecl_file , ecl_sum , restart_file , time_index); \
+     return prefix ## _forward_load_vector(arg , ecl_file ,load_context , time_index); \
 }
 
-#define VOID_FORWARD_LOAD_VECTOR_HEADER(prefix) bool prefix ## _forward_load_vector__(void * , const char * , const ecl_sum_type *, const ecl_file_type * , const int_vector_type * );
+#define VOID_FORWARD_LOAD_VECTOR_HEADER(prefix) bool prefix ## _forward_load_vector__(void * , const char * , const forward_load_context_type * load_context, const int_vector_type * time_index);
 
 
 /*****************************************************************/

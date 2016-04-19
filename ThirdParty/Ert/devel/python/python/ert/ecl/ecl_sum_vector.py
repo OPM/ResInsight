@@ -2,7 +2,7 @@ import warnings
 from ert.ecl.ecl_sum_node import EclSumNode
 
 
-class EclSumVector:
+class EclSumVector(object):
     def __init__(self, parent, key, report_only = False):
         """
         A summary vector with a vector of values and time.
@@ -235,8 +235,8 @@ class EclSumVector:
         called from a vector instance with report_only = True.
         """
         if not self.report_only:
-            key_index = self.parent.cNamespace().get_general_var_index(self.parent, self.key)
-            time_index = self.parent.cNamespace().get_first_gt(self.parent, key_index, limit)
+            key_index = self.parent._get_general_var_index(self.key)
+            time_index = self.parent._get_first_gt(key_index, limit)
             return time_index
         else:
             raise Exception("Sorry - first_gt_index() can not be called for vectors with report_only=True")
@@ -266,8 +266,8 @@ class EclSumVector:
         See first_gt_index() for further details.
         """
         if not self.report_only:
-            key_index = self.parent.cNamespace().get_general_var_index(self.parent, self.key)
-            time_index = self.parent.cNamespace().get_first_lt(self.parent, key_index, limit)
+            key_index = self.parent._get_general_var_index(self.key)
+            time_index = self.parent._get_first_lt(key_index, limit)
             return time_index
         else:
             raise Exception("Sorry - first_lt_index() can not be called for vectors with report_only=True")

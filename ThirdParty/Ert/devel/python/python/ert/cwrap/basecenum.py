@@ -1,8 +1,9 @@
 import ctypes
-from ert.cwrap import CWrapper
+from ert.cwrap import MetaCWrap, CWrapper
 
 
 class BaseCEnum(object):
+    __metaclass__ = MetaCWrap
     enum_namespace = {}
 
     def __init__(self, *args, **kwargs):

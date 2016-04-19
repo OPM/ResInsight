@@ -82,10 +82,17 @@ class HelpedWidget(QWidget):
     def isValid(self):
         return self.validation_message is None
 
+    def includeLabel(self):
+        label_widget = QLabel(self.label)
+        self.widget_layout.insertWidget(0, label_widget)
+
 
     def enterEvent(self, event):
         QWidget.enterEvent(self, event)
-        HelpCenter.getHelpCenter("ERT").setHelpMessageLink(self.help_link)
+        try:
+            HelpCenter.getHelpCenter("ERT").setHelpMessageLink(self.help_link)
+        except AttributeError:
+            pass
 
         # if HelpedWidget.__error_popup is None:
         #     HelpedWidget.__error_popup = ErrorPopup()
@@ -116,7 +123,10 @@ class HelpedWidget(QWidget):
 
         def enterEvent(event):
             original_enter_event(event)
-            HelpCenter.getHelpCenter("ERT").setHelpMessageLink(link)
+            try:
+                HelpCenter.getHelpCenter("ERT").setHelpMessageLink(link)
+            except AttributeError:
+                pass
 
         widget.enterEvent = enterEvent
 

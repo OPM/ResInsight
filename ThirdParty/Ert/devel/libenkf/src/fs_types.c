@@ -43,9 +43,6 @@ const char * fs_types_get_driver_name(fs_driver_enum driver_type) {
   case(DRIVER_PARAMETER):
     return "PARAMETER";
     break;
-  case(DRIVER_STATIC):
-    return "STATIC";
-    break;
   case(DRIVER_DYNAMIC_FORECAST):
     return "FORECAST";
     break;
@@ -59,4 +56,19 @@ const char * fs_types_get_driver_name(fs_driver_enum driver_type) {
     util_abort("%s: driver_id:%d not recognized. \n",__func__ , driver_type );
     return NULL;
   }
+}
+
+
+/*
+  The driver type DRIVER_STATIC has been removed completely as of
+  December 2015, but there will still be many mount map files with
+  this enum value around on disk. This function is a minor convenience
+  to handle that.
+*/
+
+bool fs_types_valid( fs_driver_enum driver_type) {
+  if (driver_type == DRIVER_STATIC)
+    return false;
+  else
+    return true;
 }

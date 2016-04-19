@@ -15,7 +15,7 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
-from ert.enkf.data import EnkfConfigNode
+from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enums import EnkfObservationImplementationType
 from ert.enkf.observations import BlockObservation, SummaryObservation, GenObservation
 

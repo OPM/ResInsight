@@ -112,6 +112,12 @@ bool job_queue_manager_is_running( const job_queue_manager_type * manager) {
   return job_queue_is_running( manager->job_queue );
 }
 
+
+int job_queue_manager_get_num_waiting( const job_queue_manager_type * manager) {
+    return job_queue_get_num_waiting( manager->job_queue );
+}
+
+
 int job_queue_manager_get_num_running( const job_queue_manager_type * manager) {
   return job_queue_get_num_running( manager->job_queue );
 }
@@ -169,3 +175,8 @@ bool job_queue_manager_job_success( const job_queue_manager_type * manager , int
   else
     return false;
 }
+
+job_status_type job_queue_manager_iget_job_status(const job_queue_manager_type * manager,  int job_index) {
+    return job_queue_iget_job_status(manager->job_queue, job_index);
+}
+

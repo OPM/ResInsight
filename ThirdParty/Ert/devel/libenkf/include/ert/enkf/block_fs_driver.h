@@ -40,6 +40,7 @@ extern "C" {
                                                     int num_fs , 
                                                     const char * ens_path_fmt, 
                                                     const char * filename );
+  void                   block_fs_driver_fskip(FILE * fstab_stream);
 
 #ifdef __cplusplus
 }

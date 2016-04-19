@@ -54,6 +54,7 @@ extern "C" {
                                         int argc ,
                                         const char ** argv );
 
+  bool                job_queue_accept_jobs(const job_queue_type * queue);
   void                job_queue_reset(job_queue_type * queue);
   void                job_queue_run_jobs(job_queue_type * queue, int num_total_run, bool verbose);
   void                job_queue_run_jobs_threaded(job_queue_type * queue , int num_total_run, bool verbose);

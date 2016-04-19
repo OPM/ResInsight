@@ -1,4 +1,4 @@
-from ert.enkf.enums import EnkfInitModeEnum, EnkfStateType
+from ert.enkf.enums import EnkfInitModeEnum, EnkfStateType, HookRuntime
 from ert_gui.models.connectors.run import NumberOfIterationsModel, ActiveRealizationsModel, IteratedAnalysisModuleModel, BaseRunModel
 from ert_gui.models.connectors.run.target_case_format_model import TargetCaseFormatModel
 from ert_gui.models.mixins import ErtRunError
@@ -35,9 +35,9 @@ class IteratedEnsembleSmoother(BaseRunModel):
             #ignore and continue
 
         self.setPhaseName("Post processing...", indeterminate=True)
-        self.ert().getEnkfSimulationRunner().runPostWorkflow()
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.POST_SIMULATION )
 
-
+        
     def createTargetCaseFileSystem(self, phase):
         target_case_format = TargetCaseFormatModel().getValue()
         target_fs = self.ert().getEnkfFsManager().getFileSystem(target_case_format % phase)
@@ -46,7 +46,8 @@ class IteratedEnsembleSmoother(BaseRunModel):
 
     def analyzeStep(self, target_fs):
         self.setPhaseName("Analyzing...", indeterminate=True)
-        success = self.ert().getEnkfSimulationRunner().smootherUpdate(target_fs)
+        source_fs = self.ert().getEnkfFsManager().getCurrentFileSystem()
+        success = self.ert().getEnkfSimulationRunner().smootherUpdate(source_fs , target_fs)
 
         if not success:
             raise ErtRunError("Analysis of simulation failed!")

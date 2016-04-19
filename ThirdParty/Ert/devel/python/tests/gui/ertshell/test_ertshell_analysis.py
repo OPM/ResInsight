@@ -1,5 +1,5 @@
 from ert.test.extended_testcase import ExtendedTestCase
-from .ert_shell_test_context import ErtShellTestContext
+from tests.gui.ertshell.ert_shell_test_context import ErtShellTestContext
 
 
 class ErtShellAnalysisModuleTest(ExtendedTestCase):
@@ -9,13 +9,13 @@ class ErtShellAnalysisModuleTest(ExtendedTestCase):
 
         with ErtShellTestContext("python/ertshell/analysis_module", test_config) as shell:
 
-            self.assertTrue(shell.invokeCommand("analysis_module current"))
+            self.assertTrue(shell.invokeCommand("analysis_module active_module"))
             self.assertTrue(shell.invokeCommand("analysis_module list"))
 
             modules = shell.shellContext().ert().analysisConfig().getModuleList()
 
             for analysis_module in modules:
-                self.assertTrue(shell.invokeCommand("analysis_module select %s" % analysis_module))
+                self.assertTrue(shell.invokeCommand("analysis_module active_module %s" % analysis_module))
                 active_module_name = shell.shellContext().ert().analysisConfig().activeModuleName()
                 self.assertEqual(analysis_module, active_module_name)
 

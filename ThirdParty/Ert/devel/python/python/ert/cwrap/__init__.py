@@ -39,6 +39,9 @@ the process of interacting with a C library:
      FILE pointer.
 """
 
+from .prototype import REGISTERED_TYPES, Prototype, PrototypeError
+from .metacwrap import MetaCWrap
+
 from .cnamespace import CNamespace
 from .basecclass import BaseCClass
 from .basecvalue import BaseCValue

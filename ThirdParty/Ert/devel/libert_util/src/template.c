@@ -20,7 +20,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#ifdef HAVE_REGEXP
+#include <ert/util/ert_api_config.h>
+
+#ifdef ERT_HAVE_REGEXP
 #include <sys/types.h>
 #include <regex.h>
 #include <ctype.h>
@@ -50,13 +52,13 @@ struct template_struct {
   bool              internalize_template;    /* Should the template be loadad and internalized at template_alloc(). */
   subst_list_type * arg_list;                /* Key-value mapping established at alloc time. */
   char            * arg_string;              /* A string representation of the arguments - ONLY used for a _get_ function. */ 
-  #ifdef HAVE_REGEXP
+  #ifdef ERT_HAVE_REGEXP
   regex_t start_regexp;
   regex_t end_regexp;
   #endif
 };
 
-#ifdef HAVE_REGEXP
+#ifdef ERT_HAVE_REGEXP
 #include "template_loop.c"
 #endif
 
@@ -124,7 +126,7 @@ template_type * template_alloc( const char * template_file , bool internalize_te
   template->arg_string           = NULL;
   template_set_template_file( template , template_file );
 
-#ifdef HAVE_REGEXP
+#ifdef ERT_HAVE_REGEXP
   template_init_loop_regexp( template );
 #endif
   return template;
@@ -142,7 +144,7 @@ void template_free( template_type * template ) {
   util_safe_free( template->template_buffer );
   util_safe_free( template->arg_string );
 
-#ifdef HAVE_REGEXP
+#ifdef ERT_HAVE_REGEXP
   regfree( &template->start_regexp );
   regfree( &template->end_regexp );
 #endif
@@ -199,7 +201,7 @@ void template_instantiate( const template_type * template , const char * __targe
     if (arg_list != NULL) subst_list_update_string( arg_list , &char_buffer );
 
     
-#ifdef HAVE_REGEXP
+#ifdef ERT_HAVE_REGEXP
     {
       buffer_type * buffer = buffer_alloc_private_wrapper( char_buffer , strlen( char_buffer ) + 1);
       template_eval_loops( template , buffer );

@@ -9,8 +9,6 @@ from ert.util import BoolVector
 test_lib  = clib.ert_load("libenkf")
 cwrapper =  CWrapper(test_lib)
 
-get_active_mask = cwrapper.prototype("bool_vector_ref gen_data_config_get_active_mask( gen_data_config )")
-update_active_mask = cwrapper.prototype("void gen_data_config_update_active( gen_data_config, int, bool_vector)")
 
 class GenDataTest(ExtendedTestCase):
     def setUp(self):

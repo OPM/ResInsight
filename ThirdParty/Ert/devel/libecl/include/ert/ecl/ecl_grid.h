@@ -144,6 +144,10 @@ extern "C" {
   bool            ecl_grid_cell_invalid3(const ecl_grid_type * ecl_grid , int i , int j , int k);
   double          ecl_grid_cell_invalid1A(const ecl_grid_type * grid , int active_index);
 
+  bool            ecl_grid_cell_valid1(const ecl_grid_type * ecl_grid , int global_index);
+  bool            ecl_grid_cell_valid3(const ecl_grid_type * ecl_grid , int i , int j , int k);
+  double          ecl_grid_cell_valid1A(const ecl_grid_type * grid , int active_index);
+
   void            ecl_grid_dump(const ecl_grid_type * grid , FILE * stream);
   void            ecl_grid_dump_ascii(ecl_grid_type * grid , bool active_only , FILE * stream);
   void ecl_grid_dump_ascii_cell1(ecl_grid_type * grid , int global_index , FILE * stream, const double * offset);

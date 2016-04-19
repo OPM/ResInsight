@@ -41,7 +41,7 @@ int main(int argc , char ** argv) {
       config_content_type * content;
 
       ecl_config_add_config_items( config );
-      content = config_parse( config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
+      content = config_parse( config , config_file , "--" , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
 
       test_assert_true( config_content_is_valid( content ));
       ecl_config_init( ecl_config , content );

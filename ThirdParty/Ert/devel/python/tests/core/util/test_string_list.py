@@ -124,3 +124,32 @@ class StringListTest(TestCase):
 
         self.assertEqual( "S1" , s.front() )
         self.assertEqual( "S3" , s.back() )
+
+
+    def test_iadd(self):
+        s1 = StringList( initial = ["A","B","C"])
+        with self.assertRaises(TypeError):
+             s3 = s1 + 10
+        
+
+        s2 = StringList( initial = ["A","B","C"])
+        s3 = s1 + s2
+        self.assertEqual( s3 , ["A","B","C","A","B","C"])
+
+        s1 += s2
+        self.assertEqual( s1 , ["A","B","C","A","B","C"])
+        with self.assertRaises(TypeError):
+             s3 += "b"
+        
+
+    def test_ior(self):
+        s1 = StringList( initial = ["A","B","C"])
+        s2 = StringList( initial = ["A","B","C"])
+
+        s3 = s1 | s2
+        self.assertEqual( s3 , ["A","B","C"])
+        s1 |= s2
+        self.assertEqual( s1 , ["A","B","C"])
+
+        with self.assertRaises(TypeError):
+            s1 |= 26

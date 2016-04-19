@@ -24,10 +24,10 @@ class GenDataObservationCollectorTest(ExtendedTestCase):
             obs_key = GenDataObservationCollector.getObservationKeyForDataKey(ert, "PERLINk", 1)
             self.assertIsNone(obs_key)
 
-            data = GenDataObservationCollector.loadGenDataObservations(ert, "default", ["GEN_PERLIN_1", "GEN_PERLIN_3"])
+            data = GenDataObservationCollector.loadGenDataObservations(ert, "default", "GEN_PERLIN_1")
 
             self.assertFloatEqual(data["GEN_PERLIN_1"][0], -0.616789)
             self.assertFloatEqual(data["STD_GEN_PERLIN_1"][0], 0.2)
 
             with self.assertRaises(KeyError):
-                data["GEN_PERLIN_2"]
+                GenDataObservationCollector.loadGenDataObservations(ert, "default", "GEN_PERLIN_4")

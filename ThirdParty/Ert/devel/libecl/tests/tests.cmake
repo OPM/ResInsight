@@ -127,11 +127,6 @@ target_link_libraries( ecl_grid_reset_actnum ecl test_util )
 add_test( ecl_grid_reset_actnum ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_reset_actnum )
 
 add_executable( ecl_grid_export ecl_grid_export.c )
-add_executable( ecl_grid_corner ecl_grid_corner.c )
-target_link_libraries( ecl_grid_corner ecl test_util )
-add_test( ecl_grid_corner ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_corner )
-
-
 target_link_libraries( ecl_grid_export ecl test_util )
 add_test( ecl_grid_export ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID )
 
@@ -179,10 +174,6 @@ add_test(ecl_nnc_vector ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_vector )
 add_executable( ecl_point ecl_point.c )
 target_link_libraries( ecl_point ecl test_util )
 add_test(ecl_point ${EXECUTABLE_OUTPUT_PATH}/ecl_point )
-
-add_executable( ecl_layer ecl_layer.c )
-target_link_libraries( ecl_layer ecl test_util )
-add_test(ecl_layer ${EXECUTABLE_OUTPUT_PATH}/ecl_layer )
 
 
 add_executable( ecl_layer_statoil ecl_layer_statoil.c )
@@ -233,9 +224,20 @@ add_test( ecl_sum_report_step_compatible4 ${EXECUTABLE_OUTPUT_PATH}/ecl_sum_repo
 add_test( ecl_sum_report_step_compatible5 ${EXECUTABLE_OUTPUT_PATH}/ecl_sum_report_step_compatible ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/modGurbat/enkf/ECLIPSE TRUE)
 add_test( ecl_sum_report_step_compatible6 ${EXECUTABLE_OUTPUT_PATH}/ecl_sum_report_step_equal ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Snorre/SNORRE ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Snorre2/SNORRE2 FALSE)
 
-add_executable( ecl_fortio ecl_fortio.c )
-target_link_libraries( ecl_fortio  ecl test_util )
-add_test( ecl_fortio ${EXECUTABLE_OUTPUT_PATH}/ecl_fortio ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST )
+if (HAVE_UTIL_ABORT_INTERCEPT)
+   add_executable( ecl_fortio ecl_fortio.c )
+   target_link_libraries( ecl_fortio  ecl test_util )
+   add_test( ecl_fortio ${EXECUTABLE_OUTPUT_PATH}/ecl_fortio ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST )
+   set_property( TEST ecl_fortio PROPERTY LABELS StatoilData)
+
+   add_executable( ecl_grid_corner ecl_grid_corner.c )
+   target_link_libraries( ecl_grid_corner ecl test_util )
+   add_test( ecl_grid_corner ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_corner )
+
+   add_executable( ecl_layer ecl_layer.c )
+   target_link_libraries( ecl_layer ecl test_util )
+   add_test(ecl_layer ${EXECUTABLE_OUTPUT_PATH}/ecl_layer )
+endif()
 
 add_executable( ecl_file ecl_file.c )
 target_link_libraries( ecl_file  ecl test_util )
@@ -328,7 +330,6 @@ set_property( TEST ecl_sum_report_step_compatible6 PROPERTY LABELS StatoilData )
 
 
 
-set_property( TEST ecl_fortio PROPERTY LABELS StatoilData)
 set_property( TEST ecl_grid_dims1 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_dims2 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_dims3 PROPERTY LABELS StatoilData )

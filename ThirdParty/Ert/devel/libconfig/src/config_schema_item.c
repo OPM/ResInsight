@@ -87,7 +87,7 @@ struct validate_struct {
 #define CONFIG_SCHEMA_ITEM_ID 6751
 struct config_schema_item_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char                        * kw;                      /* The kw which identifies this item· */
+  char                        * kw;                      /* The kw which identifies this item */
 
 
   bool                          required_set;
@@ -526,12 +526,3 @@ stringlist_type * config_schema_item_get_required_children_value(const config_sc
 /*****************************************************************/
 /* Small functions to support enum introspection. */
 
-
-const char * config_schema_item_type_enum_iget( int index, int * value) {
-  return util_enum_iget( index , CONFIG_ITEM_TYPE_ENUM_SIZE , (const util_enum_element_type []) { CONFIG_ITEM_TYPE_ENUM_DEFS }, value);
-}
-
-
-const char * config_schema_item_unrecognized_enum_iget( int index, int * value) {
-  return util_enum_iget( index , CONFIG_SCHEMA_UNRECOGNIZED_ENUM_SIZE , (const util_enum_element_type []) { CONFIG_SCHEMA_UNRECOGNIZED_ENUM_DEFS }, value);
-}

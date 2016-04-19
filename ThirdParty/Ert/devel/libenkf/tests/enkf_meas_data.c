@@ -20,7 +20,10 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "ert/util/build_config.h"
+
 #include <ert/util/test_util.h>
+#include <ert/util/test_util_abort.h>
 #include <ert/util/int_vector.h>
 #include <ert/util/type_vector_functions.h>
 

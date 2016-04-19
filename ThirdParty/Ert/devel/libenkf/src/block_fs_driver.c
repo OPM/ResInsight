@@ -74,12 +74,10 @@ struct block_fs_driver_struct {
 /*****************************************************************/
 
 bfs_config_type * bfs_config_alloc( fs_driver_enum driver_type , bool read_only, bool bfs_lock) {
-  const int STATIC_blocksize       = 64;
   const int PARAMETER_blocksize    = 64;
   const int DYNAMIC_blocksize      = 64;
   const int DEFAULT_blocksize      = 64;
 
-  const bool STATIC_preload        = false;
   const bool PARAMETER_preload     = false;
   const bool DYNAMIC_preload       = true;
   const bool DEFAULT_preload       = false;
@@ -101,11 +99,6 @@ bfs_config_type * bfs_config_alloc( fs_driver_enum driver_type , bool read_only,
       config->block_size = PARAMETER_blocksize;
       config->preload = PARAMETER_preload;
       break;
-    case( DRIVER_STATIC ):
-      config->block_size = STATIC_blocksize;
-      config->preload = STATIC_preload;
-      break;
-    case(DRIVER_DYNAMIC_FORECAST):
     case(DRIVER_DYNAMIC_ANALYZED):
       config->block_size = DYNAMIC_blocksize;
       config->preload = DYNAMIC_preload;
@@ -508,3 +501,11 @@ void * block_fs_driver_open(FILE * fstab_stream , const char * mount_point , fs_
   return driver;
 }
 
+
+void block_fs_driver_fskip(FILE * fstab_stream) {
+  util_fskip_int( fstab_stream );
+  {
+    char * tmp_fmt = util_fread_alloc_string( fstab_stream );
+    free( tmp_fmt );
+  }
+}

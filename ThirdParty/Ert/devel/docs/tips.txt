@@ -216,7 +216,7 @@ Concrete tips:
         ....
      
      this can then be easily captured to a temporary file by setting
-     the stdout redirection of the util_fork_exec() function, and then
+     the stdout redirection of the util_spawn() function, and then
      subsequently the 100% normal way of creating a gen_obs instance
      can be used. Input arguments / input files / e.t.c. to the
      OBS_SCRIPT should be given in the SCRIPT_ARG option - fully

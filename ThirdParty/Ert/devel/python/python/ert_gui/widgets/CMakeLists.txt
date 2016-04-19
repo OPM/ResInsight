@@ -5,9 +5,11 @@ set(PYTHON_SOURCES
     button.py
     check_list.py
     checkbox.py
+    clearable_line_edit.py
     closable_dialog.py
     cogwheel.py
     combo_choice.py
+    custom_date_edit.py
     custom_dialog.py
     double_box.py
     double_spinner.py

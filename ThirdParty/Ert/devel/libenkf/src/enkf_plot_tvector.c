@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'enkf_plot_tvector.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'enkf_plot_tvector.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <ert/util/util.h>
 #include <ert/util/double_vector.h>
@@ -42,7 +42,7 @@ struct enkf_plot_tvector_struct {
 
 UTIL_SAFE_CAST_FUNCTION( enkf_plot_tvector , ENKF_PLOT_TVECTOR_ID )
 UTIL_IS_INSTANCE_FUNCTION( enkf_plot_tvector , ENKF_PLOT_TVECTOR_ID )
-     
+
 
 
 void enkf_plot_tvector_reset( enkf_plot_tvector_type * plot_tvector ) {
@@ -67,7 +67,7 @@ enkf_plot_tvector_type * enkf_plot_tvector_alloc( const enkf_config_node_type * 
     plot_tvector->summary_mode = true;
   else
     plot_tvector->summary_mode = false;
-  
+
   return plot_tvector;
 }
 
@@ -82,7 +82,7 @@ void enkf_plot_tvector_free( enkf_plot_tvector_type * plot_tvector ) {
 
 bool enkf_plot_tvector_all_active( const enkf_plot_tvector_type * plot_tvector ) {
   bool all_active = true;
-  for (int i=0; i < bool_vector_size( plot_tvector->mask ); i++) 
+  for (int i=0; i < bool_vector_size( plot_tvector->mask ); i++)
     all_active = all_active && bool_vector_iget(plot_tvector->mask , i );
 
   return all_active;
@@ -99,13 +99,13 @@ void enkf_plot_tvector_iset( enkf_plot_tvector_type * plot_tvector , int index ,
   bool active_value = true;
 
   /* This is to handle holes in the summary vector storage. */
-  if (plot_tvector->summary_mode && !summary_active_value( value )) 
+  if (plot_tvector->summary_mode && !summary_active_value( value ))
     active_value = false;
-    
+
   if (active_value) {
     double_vector_iset( plot_tvector->data , index , value );
     bool_vector_iset( plot_tvector->mask , index , true );
-  } else 
+  } else
     bool_vector_iset( plot_tvector->mask , index , false );
 
 }
@@ -129,16 +129,16 @@ bool enkf_plot_tvector_iget_active( const enkf_plot_tvector_type * plot_tvector 
 
 
 
-void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector , 
-                             enkf_fs_type * fs , 
-                             const char * index_key , 
+void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
+                             enkf_fs_type * fs ,
+                             const char * index_key ,
                              state_enum state) {
 
   time_map_type * time_map = enkf_fs_get_time_map( fs );
   int step1 = 0;
   int step2 = time_map_get_last_step( time_map );
   enkf_node_type * work_node  = enkf_node_alloc( plot_tvector->config_node );
-                             
+
   if (enkf_node_vector_storage( work_node )) {
     bool has_data = enkf_node_user_get_vector(work_node , fs , index_key , plot_tvector->iens , state , plot_tvector->work);
 
@@ -152,17 +152,17 @@ void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
   } else {
     int step;
     node_id_type node_id = {.iens        = plot_tvector->iens,
-                            .state       = state, 
+                            .state       = state,
                             .report_step = 0 };
-    
+
     for (step = step1 ; step <= step2; step++) {
       double value;
       node_id.report_step = step;
 
       if (enkf_node_user_get(work_node , fs , index_key , node_id , &value)) {
-        enkf_plot_tvector_iset( plot_tvector , 
-                                step , 
-                                time_map_iget( time_map , step ) , 
+        enkf_plot_tvector_iset( plot_tvector ,
+                                step ,
+                                time_map_iget( time_map , step ) ,
                                 value );
       }
     }

@@ -54,4 +54,5 @@ int main(int argc, char ** argv) {
     fprintf(stream , "OK ... \n");
     fclose( stream );
   }
+  return 0;
 }

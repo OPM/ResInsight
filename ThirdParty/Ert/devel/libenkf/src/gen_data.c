@@ -41,6 +41,8 @@
 #include <ert/enkf/gen_data_common.h>
 #include <ert/enkf/gen_common.h>
 #include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/forward_load_context.h>
+
 
 /**
    The file implements a general data type which can be used to update
@@ -210,12 +212,11 @@ void gen_data_deserialize(gen_data_type * gen_data , node_id_type node_id , cons
   data has been loaded from file.
 */
 
-static void gen_data_set_data__(gen_data_type * gen_data , int size, int report_step , ecl_type_enum load_type , const void * data) {
-  gen_data_assert_size(gen_data , size, report_step);
-
+static void gen_data_set_data__(gen_data_type * gen_data , int size, const forward_load_context_type * load_context, ecl_type_enum load_type , const void * data) {
+  gen_data_assert_size(gen_data , size, forward_load_context_get_load_step( load_context ));
   if (gen_data_config_is_dynamic( gen_data->config ))
-    gen_data_config_update_active( gen_data->config ,  report_step , gen_data->active_mask);
-
+    gen_data_config_update_active( gen_data->config ,  load_context , gen_data->active_mask);
+  
   gen_data_realloc_data(gen_data);
 
   if (size > 0) {
@@ -295,22 +296,22 @@ static bool gen_data_fload_active__(gen_data_type * gen_data, const char * filen
   - might have to check this in calling scope.
 */
 
-bool gen_data_fload_with_report_step( gen_data_type * gen_data , const char * filename , int report_step) {
+bool gen_data_fload_with_report_step( gen_data_type * gen_data , const char * filename , const forward_load_context_type * load_context) {
   bool   file_exists  = util_file_exists(filename);
   void * buffer   = NULL;
-  int    size     = 0;
   ecl_type_enum load_type;
 
   if ( file_exists ) {
     ecl_type_enum internal_type            = gen_data_config_get_internal_type(gen_data->config);
     gen_data_file_format_type input_format = gen_data_config_get_input_format( gen_data->config );
+    int    size     = 0;
     buffer = gen_common_fload_alloc( filename , input_format , internal_type , &load_type , &size);
     if (size > 0) {
       gen_data_fload_active__(gen_data, filename, size);
     } else {
       bool_vector_reset( gen_data->active_mask );
     }
-    gen_data_set_data__(gen_data , size , report_step , load_type , buffer );
+    gen_data_set_data__(gen_data , size , load_context , load_type , buffer );
     util_safe_free(buffer);
   }
   return file_exists;
@@ -319,14 +320,9 @@ bool gen_data_fload_with_report_step( gen_data_type * gen_data , const char * fi
 
 
 
-bool gen_data_fload( gen_data_type * gen_data , const char * filename) {
-  return gen_data_fload_with_report_step( gen_data , filename , 0);
-}
 
-
-
-bool gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file , int report_step) {
-  return gen_data_fload_with_report_step( gen_data , ecl_file , report_step );
+bool gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , const forward_load_context_type * load_context) {
+  return gen_data_fload_with_report_step( gen_data , ecl_file , load_context);
 }
 
 
@@ -351,9 +347,14 @@ bool gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , co
 bool gen_data_initialize(gen_data_type * gen_data , int iens , const char * init_file , rng_type * rng) {
   bool ret = false;
   if (init_file) {
-    if (!gen_data_fload_with_report_step(gen_data , init_file , 0))
+    forward_load_context_type * load_context = forward_load_context_alloc( NULL , false , NULL , NULL , NULL );
+
+    forward_load_context_select_step(load_context, 0);
+    if (!gen_data_fload_with_report_step(gen_data , init_file , load_context))
       util_abort("%s: could not find file:%s \n",__func__ , init_file);
     ret = true;
+
+    forward_load_context_free( load_context );
   }
   return ret;
 }
@@ -725,4 +726,3 @@ VOID_IMUL(gen_data)
 VOID_IADD(gen_data)
 VOID_IADDSQR(gen_data)
 VOID_ISQRT(gen_data)
-VOID_FLOAD(gen_data)

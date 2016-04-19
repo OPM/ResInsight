@@ -21,6 +21,7 @@
 #include <ert/util/int_vector.h>
 #include <ert/util/double_vector.h>
 #include <ert/util/test_util.h>
+#include <ert/util/test_util_abort.h>
 
 void assert_equal( bool equal ) {
   if (!equal)

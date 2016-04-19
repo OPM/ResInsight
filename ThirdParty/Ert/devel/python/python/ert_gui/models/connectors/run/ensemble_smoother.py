@@ -1,6 +1,7 @@
 from ert.enkf.enums import EnkfInitModeEnum
 from ert_gui.models.connectors.run import ActiveRealizationsModel, TargetCaseModel, AnalysisModuleModel, BaseRunModel
 from ert_gui.models.mixins import ErtRunError
+from ert.enkf.enums import HookRuntime
 
 
 class EnsembleSmoother(BaseRunModel):
@@ -35,15 +36,17 @@ class EnsembleSmoother(BaseRunModel):
                 raise ErtRunError("Simulation failed! All realizations failed!")
             #else ignore and continue
 
-        self.setPhaseName("Post processing...", indeterminate=True)
-        self.ert().getEnkfSimulationRunner().runPostWorkflow()
 
+        
+        self.setPhaseName("Post processing...", indeterminate=True)
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.POST_SIMULATION )
+        
         self.setPhaseName("Analyzing...", indeterminate=True)
 
         target_case_name = TargetCaseModel().getValue()
         target_fs = self.ert().getEnkfFsManager().getFileSystem(target_case_name)
-
-        success = self.ert().getEnkfSimulationRunner().smootherUpdate(target_fs)
+        source_fs = self.ert().getEnkfFsManager().getCurrentFileSystem()
+        success = self.ert().getEnkfSimulationRunner().smootherUpdate(source_fs , target_fs)
 
         if not success:
             raise ErtRunError("Analysis of simulation failed!")
@@ -57,7 +60,7 @@ class EnsembleSmoother(BaseRunModel):
             raise ErtRunError("Simulation failed!")
 
         self.setPhaseName("Post processing...", indeterminate=True)
-        self.ert().getEnkfSimulationRunner().runPostWorkflow()
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.POST_SIMULATION )
 
         self.setPhase(2, "Simulations completed.")
 

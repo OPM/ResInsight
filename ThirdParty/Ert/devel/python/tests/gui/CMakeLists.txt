@@ -11,5 +11,6 @@ addPythonTest(gui.observable tests.gui.test_observable.ObservableTest)
 
 add_subdirectory(ertshell)
 add_subdirectory(ide)
+add_subdirectory(plottery)
 
 

@@ -32,7 +32,6 @@
 
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/enkf_fs.h>
-#include <ert/enkf/enkf_sched.h>
 #include <ert/enkf/ensemble_config.h>
 #include <ert/enkf/enkf_analysis.h>
 #include <ert/enkf/ecl_config.h>

@@ -20,7 +20,7 @@ from ert.cwrap import BaseCClass, CWrapper, CFILE
 from ert.util import DoubleVector
 
 from ert.enkf import ENKF_LIB
-from ert.enkf.data import GenKwConfig
+from ert.enkf.config import GenKwConfig
 
 
 class GenKw(BaseCClass):

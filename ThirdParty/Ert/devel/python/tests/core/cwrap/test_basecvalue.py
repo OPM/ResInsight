@@ -1,24 +1,25 @@
 from ctypes import c_ubyte, c_double
-from ert.cwrap import BaseCValue, clib, CWrapper
+from ert.cwrap import BaseCValue, clib, Prototype
 from ert.test import ExtendedTestCase
 
+class TestPrototype(Prototype):
+    lib = clib.ert_load("libert_util")
+
+    def __init__(self, prototype):
+        super(TestPrototype, self).__init__(self.lib, prototype)
 
 class UnsignedByteValue(BaseCValue):
     DATA_TYPE = c_ubyte
 
 
 class MaxDouble(BaseCValue):
+    TYPE_NAME = "pow_double"
     DATA_TYPE = c_double
 
 
 class BaseCValueTest(ExtendedTestCase):
     def setUp(self):
-        ert = clib.ert_load("libert_util")
-
-        self.ert_wrapper = CWrapper(ert)
-
-        self.ert_wrapper.registerType("pow_double", MaxDouble)
-        self.double_max = self.ert_wrapper.prototype("pow_double util_double_max(double, double)")
+        self.double_max = TestPrototype("pow_double util_double_max(double, double)")
 
 
     def test_illegal_type(self):

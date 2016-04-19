@@ -69,6 +69,20 @@ struct ecl_rft_node_struct {
 
 
 
+/*
+  The implementation of cell types based on _either_ RFT data or PLT
+  data is based on a misunderstanding and is currently WRONG. One
+  section in an RFT file can contain RFT data, PLT data and SEGMENT
+  data. The @data_type string should therefor not be interpreted as a
+  type string, but rather as a "bit mask":
+
+
+    "R"  => Section contains only RFT data.
+    "P"  => Section contains only PLT data.
+    "RP" => Section contains *BOTH* RFT data and PLT data.
+*/
+
+
 /**
    Will return NULL if the data_type_string is equal to "SEGMENT" -
    that is not (yet) supported.
@@ -137,6 +151,18 @@ void ecl_rft_node_append_cell( ecl_rft_node_type * rft_node , ecl_rft_cell_type 
 }
 
 
+static ecl_kw_type * ecl_rft_node_get_pressure_kw( ecl_rft_node_type * rft_node , const ecl_file_type * rft ) {
+  if (rft_node->data_type == RFT)
+    return ecl_file_iget_named_kw( rft , PRESSURE_KW , 0);
+  else {
+    ecl_kw_type * conpres_kw = ecl_file_iget_named_kw( rft , CONPRES_KW , 0);
+    if (ecl_kw_element_sum_float( conpres_kw ) > 0.0 )
+      return conpres_kw;
+    else
+      return ecl_file_iget_named_kw( rft , PRESSURE_KW , 0);
+  }
+}
+
 
 static void ecl_rft_node_init_RFT_cells( ecl_rft_node_type * rft_node , const ecl_file_type * rft) {
   const ecl_kw_type * conipos     = ecl_file_iget_named_kw( rft , CONIPOS_KW , 0);
@@ -145,7 +171,7 @@ static void ecl_rft_node_init_RFT_cells( ecl_rft_node_type * rft_node , const ec
   const ecl_kw_type * depth_kw    = ecl_file_iget_named_kw( rft , DEPTH_KW , 0);
   const ecl_kw_type * swat_kw     = ecl_file_iget_named_kw( rft , SWAT_KW , 0);
   const ecl_kw_type * sgas_kw     = ecl_file_iget_named_kw( rft , SGAS_KW , 0);
-  const ecl_kw_type * pressure_kw = ecl_file_iget_named_kw( rft , PRESSURE_KW , 0);
+  const ecl_kw_type * pressure_kw = ecl_rft_node_get_pressure_kw( rft_node , rft );
 
   const float * SW     = ecl_kw_get_float_ptr( swat_kw );
   const float * SG     = ecl_kw_get_float_ptr( sgas_kw );
@@ -183,7 +209,7 @@ static void ecl_rft_node_init_PLT_cells( ecl_rft_node_type * rft_node , const ec
   const float * WR               = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONWRAT_KW , 0));
   const float * GR               = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONGRAT_KW , 0));
   const float * OR               = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONORAT_KW , 0));
-  const float * P                = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONPRES_KW , 0));
+  const float * P                = ecl_kw_get_float_ptr( ecl_rft_node_get_pressure_kw( rft_node , rft ));
   const float * depth            = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONDEPTH_KW , 0));
   const float * flowrate         = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONVTUB_KW , 0));
   const float * oil_flowrate     = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONOTUB_KW , 0));

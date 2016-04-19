@@ -78,20 +78,28 @@ static void runpath_node_free__( void * arg ) {
   runpath_node_free( node );
 }
 
+
+/*
+  The comparison is first based on iteration number and then on iens.
+*/
+
 static int runpath_node_cmp( const void * arg1 , const void * arg2) {
   const runpath_node_type * node1 = runpath_node_safe_cast_const( arg1 );
   const runpath_node_type * node2 = runpath_node_safe_cast_const( arg2 );
   {
-    if (node1->iens > node2->iens)
-      return 1;
-    else if (node1->iens < node2->iens)
-      return -1;
-    else if (node1->iter > node2->iter)
+    if (node1->iter > node2->iter)
       return 1;
     else if (node1->iter < node2->iter)
-      return 1;
-    else
-      return 0;
+      return -1;
+    else {
+      /* Iteration number is the same */
+      if (node1->iens > node2->iens)
+        return 1;
+      else if (node1->iens < node2->iens)
+        return -1;
+      else
+        return 0;
+    }
   }
 }
 
@@ -124,15 +132,6 @@ void runpath_list_free( runpath_list_type * list ) {
 
 int runpath_list_size( const runpath_list_type * list ) {
   return vector_get_size( list->list );
-}
-
-
-void runpath_list_sort( runpath_list_type * list ) {
-  pthread_rwlock_wrlock( &list->lock );
-  {
-    vector_sort( list->list , runpath_node_cmp );
-  }
-  pthread_rwlock_unlock( &list->lock );
 }
 
 
@@ -216,6 +215,7 @@ void runpath_list_fprintf(runpath_list_type * list ) {
     FILE * stream = util_fopen( list->export_file , "w");
     const char * line_fmt = runpath_list_get_line_fmt( list );
     int index;
+    vector_sort( list->list , runpath_node_cmp );
     for (index =0; index < vector_get_size( list->list ); index++) {
       const runpath_node_type * node = runpath_list_iget_node__( list , index );
       runpath_node_fprintf( node , line_fmt , stream );

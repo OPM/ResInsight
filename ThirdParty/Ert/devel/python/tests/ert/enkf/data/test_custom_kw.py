@@ -1,5 +1,6 @@
 import os
-from ert.enkf.data import CustomKW, CustomKWConfig
+from ert.enkf.config import CustomKWConfig
+from ert.enkf.data import CustomKW
 from ert.enkf.enkf_simulation_runner import EnkfSimulationRunner
 from ert.enkf.export import custom_kw_collector
 from ert.enkf.export.custom_kw_collector import CustomKWCollector
@@ -33,6 +34,7 @@ class CustomKWTest(ExtendedTestCase):
             custom_kw = CustomKW(custom_kw_config)
 
             custom_kw.fload("result_file")
+
             self.assertEqual(len(custom_kw_config), 4)
 
             for key in data:
@@ -94,3 +96,28 @@ class CustomKWTest(ExtendedTestCase):
 
             self.assertEqual(len(config.getKeys()), 4)
             self.assertItemsEqual(config.getKeys(), ["PERLIN_1", "PERLIN_2", "PERLIN_3", "STATE"])
+
+
+    def test_custom_kw_set_values(self):
+        definition = {
+            "STRING": str,
+            "FLOAT": float,
+            "INT": float
+        }
+
+        ckwc = CustomKWConfig("Test", None, definition=definition)
+
+        ckw = CustomKW(ckwc)
+        with self.assertRaises(KeyError):
+            ckw["ANOTHER_STRING"] = "another string"
+
+        ckw["STRING"] = "string"
+        ckw["FLOAT"] = 3.1415
+        ckw["INT"] = 1
+
+        self.assertEqual(ckw["STRING"], "string")
+        self.assertEqual(ckw["FLOAT"], 3.1415)
+        self.assertEqual(ckw["INT"], 1)
+
+
+

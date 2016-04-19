@@ -1,8 +1,7 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-include_directories( ${PLPLOT_HEADER} )
 
-set( src_list main.c enkf_tui_main.c  enkf_tui_fs.c  enkf_tui_ranking.c  enkf_tui_misc.c  enkf_tui_table.c  enkf_tui_plot.c enkf_tui_plot_rft.c enkf_tui_plot_util.c
-              enkf_tui_run.c enkf_tui_util.c  enkf_tui_init.c  enkf_tui_export.c  enkf_tui_analysis.c enkf_tui_QC.c enkf_tui_help.c enkf_tui_simple.c ert_tui_jobs.c enkf_tui_workflow.c)
+set( src_list main.c enkf_tui_main.c  enkf_tui_fs.c  enkf_tui_ranking.c  enkf_tui_misc.c  enkf_tui_table.c  
+              enkf_tui_run.c enkf_tui_util.c  enkf_tui_init.c  enkf_tui_export.c  enkf_tui_analysis.c enkf_tui_help.c enkf_tui_simple.c enkf_tui_workflow.c)
 
 execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE BUILD_TIME )
 string(STRIP ${BUILD_TIME} BUILD_TIME)
@@ -20,7 +19,7 @@ endif()
 set_source_files_properties( main.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME_STAMP=\"${BUILD_TIME}\";GIT_COMMIT=\"${GIT_COMMIT}\"")
 
 add_executable( ert ${src_list} )
-target_link_libraries( ert enkf sched rms ecl config plot job_queue analysis ert_util )
+target_link_libraries( ert enkf sched rms ecl config job_queue analysis ert_util )
 if (USE_RUNPATH)
    add_runpath( ert )
 endif()

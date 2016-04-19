@@ -41,7 +41,6 @@
 
 #include <ert/job_queue/forward_model.h>
 
-#include <ert/enkf/enkf_sched.h>
 #include <ert/enkf/model_config.h>
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/fs_types.h>
@@ -60,7 +59,6 @@
    goes in ecl_config is not entirely clear; ECLIPSE is unfortunately
    not (yet ??) exactly 'any' reservoir simulator in this context.
 
-   Read the documentation about restart numbering in enkf_sched.c
 */
 
 
@@ -86,11 +84,8 @@ struct model_config_struct {
   char                 * current_path_key;
   hash_type            * runpath_map;
   char                 * jobname_fmt;               /* Format string with one '%d' for the jobname - can be NULL in which case the eclbase name will be used. */
-  enkf_sched_type      * enkf_sched;                /* The enkf_sched object controlling when the enkf is ON|OFF, strides in report steps and special forward model - allocated on demand - right before use. */
-  char                 * enkf_sched_file;           /* THe name of file containg enkf schedule information - can be NULL to get default behaviour. */
   char                 * enspath;
   char                 * rftpath;
-  char                 * select_case;
   fs_driver_impl         dbase_type;
   bool                   has_prediction;
   int                    max_internal_submit;        /* How many times to retry if the load fails. */
@@ -216,37 +211,6 @@ const char * model_config_get_gen_kw_export_file( const model_config_type * mode
 }
 
 
- /**
-    This function is not called at bootstrap time, but rather as part
-    of an initialization just before the run. Can be called maaaanye
-    times for one application invokation.
-
-    Observe that the 'total' length is set as as the return value from
-    this function.
- */
-
-
- void model_config_set_enkf_sched(model_config_type * model_config , const ext_joblist_type * joblist , run_mode_type run_mode ) {
-   if (model_config->enkf_sched != NULL)
-     enkf_sched_free( model_config->enkf_sched );
-
-   if (run_mode == ENKF_ASSIMILATION)
-     model_config->enkf_sched  = enkf_sched_fscanf_alloc(model_config->enkf_sched_file                   ,
-                                                         model_config_get_last_history_restart(model_config) ,
-                                                         run_mode);
-
- }
-
-
- void model_config_set_enkf_sched_file(model_config_type * model_config , const char * enkf_sched_file) {
-   model_config->enkf_sched_file = util_realloc_string_copy( model_config->enkf_sched_file , enkf_sched_file);
- }
-
- char * model_config_get_enkf_sched_file(const model_config_type * model_config ) {
-   return model_config->enkf_sched_file;
- }
-
-
 
  void model_config_set_enspath( model_config_type * model_config , const char * enspath) {
    model_config->enspath = util_realloc_string_copy( model_config->enspath , enspath );
@@ -347,10 +311,7 @@ model_config_type * model_config_alloc() {
   model_config->dbase_type                = INVALID_DRIVER_ID;
   model_config->current_runpath           = NULL;
   model_config->current_path_key          = NULL;
-  model_config->enkf_sched                = NULL;
-  model_config->enkf_sched_file           = NULL;
   model_config->case_table_file           = NULL;
-  model_config->select_case               = NULL;
   model_config->history                   = NULL;
   model_config->jobname_fmt               = NULL;
   model_config->forward_model             = NULL;
@@ -428,9 +389,6 @@ void model_config_init(model_config_type * model_config ,
     forward_model_parse_init( model_config->forward_model , config_string );
     free(config_string);
   }
-
-  if (config_content_has_item( config , ENKF_SCHED_FILE_KEY))
-    model_config_set_enkf_sched_file(model_config , config_content_get_value(config , ENKF_SCHED_FILE_KEY ));
 
   if (config_content_has_item( config, RUNPATH_KEY)) {
     model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , config_content_get_value(config , RUNPATH_KEY) );
@@ -525,15 +483,12 @@ const char * model_config_iget_casename( const model_config_type * model_config 
 
 
 void model_config_free(model_config_type * model_config) {
-  if (model_config->enkf_sched != NULL)
-    enkf_sched_free( model_config->enkf_sched );
   free( model_config->enspath );
   free( model_config->rftpath );
   util_safe_free( model_config->jobname_fmt );
-  util_safe_free( model_config->enkf_sched_file );
-  util_safe_free( model_config->select_case );
   util_safe_free( model_config->case_table_file );
   util_safe_free( model_config->current_path_key);
+  util_safe_free( model_config->gen_kw_export_file_name);
 
   if (model_config->history)
     history_free(model_config->history);
@@ -555,14 +510,6 @@ void model_config_free(model_config_type * model_config) {
 }
 
 
-void model_config_set_select_case( model_config_type * model_config , const char * select_case) {
-  model_config->select_case = util_realloc_string_copy( model_config->select_case , select_case );
-}
-
-
-enkf_sched_type * model_config_get_enkf_sched(const model_config_type * config) {
-  return config->enkf_sched;
-}
 
 bool model_config_has_history(const model_config_type * config) {
   if (config->history != NULL)
@@ -666,21 +613,11 @@ void model_config_fprintf_config( const model_config_type * model_config , int e
   fprintf( stream , CONFIG_KEY_FORMAT      , RUNPATH_KEY );
   fprintf( stream , CONFIG_ENDVALUE_FORMAT , path_fmt_get_fmt( model_config->current_runpath ));
 
-  if (model_config->enkf_sched_file != NULL) {
-    fprintf( stream , CONFIG_KEY_FORMAT      , ENKF_SCHED_FILE_KEY );
-    fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->enkf_sched_file );
-  }
-
   fprintf( stream , CONFIG_KEY_FORMAT      , ENSPATH_KEY );
   fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->enspath );
 
   fprintf( stream , CONFIG_KEY_FORMAT      , RFTPATH_KEY );
   fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->rftpath );
-
-  if (model_config->select_case != NULL) {
-    fprintf( stream , CONFIG_KEY_FORMAT      , SELECT_CASE_KEY );
-    fprintf( stream , CONFIG_ENDVALUE_FORMAT , model_config->select_case );
-  }
 
   fprintf( stream , CONFIG_KEY_FORMAT      , MAX_RESAMPLE_KEY );
   {

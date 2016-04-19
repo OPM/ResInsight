@@ -1,25 +1,25 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'field_trans.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'field_trans.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 /*
   This file implements a number of functions used for init and output
   transformations of fields. The prototype for these functions is very
-  simple: "one float in - one float out". 
+  simple: "one float in - one float out".
 
   It is mainly implemented in this file, so that it will be easy to
   adde new transformation functions without diving into the the full
@@ -59,7 +59,7 @@ static field_func_node_type * field_func_node_alloc(const char * key , const cha
   node->key         = util_alloc_string_copy( key );
   node->description = util_alloc_string_copy( description );
   node->func        = func;
-  
+
   return node;
 }
 
@@ -92,7 +92,7 @@ static void field_func_node_fprintf(const field_func_node_type * node , FILE * s
 
 void field_trans_table_add(field_trans_table_type * table , const char * _key , const char * description , field_func_type * func) {
   char * key;
-  
+
   if (table->case_sensitive)
     key = util_alloc_string_copy( _key );
   else
@@ -108,8 +108,9 @@ void field_trans_table_add(field_trans_table_type * table , const char * _key , 
 
 void field_trans_table_fprintf(const field_trans_table_type * table , FILE * stream) {
   hash_iter_type * iter = hash_iter_alloc(table->function_table);
-  const char * key = hash_iter_get_next_key(iter); 
+  const char * key = hash_iter_get_next_key(iter);
   fprintf(stream,"==========================================================================================\n");
+  fprintf(stream,"Available transformations: \n");
   while (key != NULL) {
     field_func_node_type * func_node = hash_get(table->function_table , key);
     field_func_node_fprintf(func_node , stream);
@@ -152,7 +153,7 @@ field_func_type * field_trans_table_lookup(field_trans_table_type * table , cons
 
 
 /**
-   Will return false if _key == NULL 
+   Will return false if _key == NULL
 */
 bool field_trans_table_has_key(field_trans_table_type * table , const char * _key) {
   bool has_key = false;
@@ -163,11 +164,11 @@ bool field_trans_table_has_key(field_trans_table_type * table , const char * _ke
       key = util_alloc_string_copy(_key);
     else
       key = util_alloc_strupr_copy(_key);
-    
+
     has_key = hash_has_key( table->function_table , key);
     free(key);
   }
-  
+
   return has_key;
 }
 
@@ -186,7 +187,7 @@ void field_trans_table_free(field_trans_table_type * table ) {
 /*                                                               */
 /*  1. Write the function - as a float in - float out.           */
 /*  2. Register the function in field_trans_table_alloc().       */
-/*                                                               */ 
+/*                                                               */
 /*****************************************************************/
 
 /*****************************************************************/
@@ -269,7 +270,7 @@ field_trans_table_type * field_trans_table_alloc() {
   field_trans_table_add( table , "EXP"         , "This function will calculate y = exp(x) " , expf);
   field_trans_table_add( table , "LN0"         , "This function will calculate y = ln(x + 0.000001)" , field_trans_ln0);
   field_trans_table_add( table , "EXP0"        , "This function will calculate y = exp(x) - 0.000001" , field_trans_exp0);
-  
+
   //-----------------------------------------------------------------
   // Rubakumar specials:
   field_trans_table_add( table , "NORMALIZE_PERMX"    , "..." , normalize_permx);

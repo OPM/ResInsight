@@ -26,16 +26,28 @@
 
 namespace ERT {
 
-    FortIO::FortIO(const std::string& filename , std::ios_base::openmode mode , bool fmt_file , bool endian_flip_header) {
+    FortIO::FortIO( ) {  }
+
+
+    FortIO::FortIO(const std::string& filename , std::ios_base::openmode mode , bool fmt_file , bool endian_flip_header)
+    {
+        open( filename , mode , fmt_file , endian_flip_header );
+    }
+
+
+    void FortIO::open(const std::string& filename , std::ios_base::openmode mode , bool fmt_file , bool endian_flip_header) {
         if (mode == std::ios_base::in) {
             if (util_file_exists( filename.c_str() )) {
                 fortio_type * c_ptr = fortio_open_reader( filename.c_str() , fmt_file , endian_flip_header);
-                m_fortio.reset( c_ptr , fortio_fclose );
+                m_fortio.reset( c_ptr );
             } else
                 throw std::invalid_argument("File " + filename + " does not exist");
+        } else if (mode == std::ios_base::app) {
+            fortio_type * c_ptr = fortio_open_append( filename.c_str() , fmt_file , endian_flip_header);
+            m_fortio.reset( c_ptr );
         } else {
             fortio_type * c_ptr = fortio_open_writer( filename.c_str() , fmt_file , endian_flip_header);
-            m_fortio.reset( c_ptr , fortio_fclose );
+            m_fortio.reset( c_ptr );
         }
     }
 
@@ -48,7 +60,7 @@ namespace ERT {
 
 
 
-    fortio_type * FortIO::getPointer() const {
+    fortio_type * FortIO::get() const {
         return m_fortio.get();
     }
 

@@ -1,7 +1,7 @@
 from ert.enkf import ErtScript
 
 """
-This job is useful if you are running a workflow that requires the qc_module runpath_list
+This job is useful if you are running a workflow that requires the hook_manager runpath_list
 to be populated but your are not running any simulations.
 """
 
@@ -16,9 +16,9 @@ class UpdateRunpathListJob(ErtScript):
         model_config = ert.getModelConfig()
         basename_fmt = ecl_config.getEclBase()
         runpath_fmt = model_config.getRunpathAsString()
-        qc_module = ert.getPostSimulationHook()
+        hook_manager = ert.getHookManager()
 
-        runpath_list = qc_module.getRunpathList()
+        runpath_list = hook_manager.getRunpathList()
 
         runpath_list.clear()
 

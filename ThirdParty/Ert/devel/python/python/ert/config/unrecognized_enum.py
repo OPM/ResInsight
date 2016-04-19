@@ -15,10 +15,13 @@
 #  for more details.
 
 from ert.cwrap import BaseCEnum
-from ert.config import CONFIG_LIB
 
 class UnrecognizedEnum(BaseCEnum):
-    pass
+    TYPE_NAME = "config_unrecognized_enum"
+    CONFIG_UNRECOGNIZED_IGNORE = None
+    CONFIG_UNRECOGNIZED_WARN = None
+    CONFIG_UNRECOGNIZED_ERROR = None
 
-UnrecognizedEnum.populateEnum(CONFIG_LIB, "config_schema_item_unrecognized_enum_iget")
-UnrecognizedEnum.registerEnum(CONFIG_LIB, "config_unrecognized_enum")
+UnrecognizedEnum.addEnum("CONFIG_UNRECOGNIZED_IGNORE", 0)
+UnrecognizedEnum.addEnum("CONFIG_UNRECOGNIZED_WARN", 1)
+UnrecognizedEnum.addEnum("CONFIG_UNRECOGNIZED_ERROR", 2)

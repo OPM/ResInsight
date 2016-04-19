@@ -17,14 +17,21 @@
 Simple package for working with 2D geometry.
 
 """
+from ert.cwrap.metacwrap import Prototype
 from ert.cwrap import clib
-
 import ert.util
 
-ERT_GEOMETRY_LIB = clib.ert_load("libert_geometry")
+class GeoPrototype(Prototype):
+    lib = clib.ert_load("libert_geometry")
 
+    def __init__(self, prototype, bind=True):
+        super(GeoPrototype, self).__init__(GeoPrototype.lib, prototype, bind=bind)
+
+
+        
 from .cpolyline import CPolyline
 from .cpolyline_collection import CPolylineCollection
 from .polyline import Polyline
 from .xyz_io import XYZIo
 from .geometry_tools import GeometryTools
+from .surface import Surface

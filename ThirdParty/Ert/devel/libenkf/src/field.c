@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'field.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'field.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <math.h>
@@ -39,6 +39,7 @@
 #include <ert/enkf/field_config.h>
 #include <ert/enkf/enkf_serialize.h>
 #include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/forward_load_context.h>
 
 
 GET_DATA_SIZE_HEADER(field);
@@ -60,11 +61,11 @@ GET_DATA_SIZE_HEADER(field);
 */
 
 struct field_struct {
-  int    __type_id;                              
+  int    __type_id;
   const  field_config_type * config;              /* The field config object - containing information of active cells++ */
   bool   private_config;
   char  *data;                                    /* The actual storage for the field - suitabley casted to int/float/double on use*/
-             
+
   bool   shared_data;                             /* If the data is shared - i.e. managed (xalloc & free) from another scope. */
   int    shared_byte_size;                        /* The size of the shared buffer (if it is shared). */
   char  *export_data;                             /* IFF an output transform should be applied this pointer will hold the transformed data. */
@@ -197,7 +198,7 @@ void field_export3D(const field_type * field ,
   }
 }
 #undef EXPORT_MACRO
-  
+
 
 /*****************************************************************/
 #define IMPORT_MACRO                                                                                                                      \
@@ -253,7 +254,7 @@ static void field_import3D(field_type * field ,
                            ecl_type_enum src_type) {
   const field_config_type * config = field->config;
   ecl_type_enum ecl_type = field_config_get_ecl_type(config);
-  
+
   switch(ecl_type) {
   case(ECL_DOUBLE_TYPE):
     {
@@ -316,7 +317,7 @@ static void field_import3D(field_type * field ,
 #define CLEAR_MACRO(d,s) { int k; for (k=0; k < (s); k++) (d)[k] = 0; }
 void field_clear(field_type * field) {
   const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
-  const int data_size          = field_config_get_data_size(field->config );   
+  const int data_size          = field_config_get_data_size(field->config );
 
   switch (ecl_type) {
   case(ECL_DOUBLE_TYPE):
@@ -357,9 +358,9 @@ static field_type * __field_alloc(const field_config_type * field_config , void 
     field->data             = shared_data;
     field->shared_data      = true;
     field->shared_byte_size = shared_byte_size;
-    if (shared_byte_size < field_config_get_byte_size(field->config)) 
+    if (shared_byte_size < field_config_get_byte_size(field->config))
       util_abort("%s: the shared buffer is to small to hold the input field - aborting \n",__func__);
-    
+
   }
   field->export_data = NULL;  /* This NULL is checked for in the revert_output_transform() */
   field->__type_id   = FIELD;
@@ -424,7 +425,7 @@ static void * __field_alloc_3D_data(const field_type * field ,
     else
       fill = 0;
     field_export3D(field , data , rms_index_order , target_type , &fill, init_file);
-  } else 
+  } else
     util_abort("%s: trying to export type != int/float/double - aborting \n",__func__);
   return data;
 }
@@ -453,7 +454,7 @@ static void * __field_alloc_3D_data(const field_type * field ,
        ECLIPSE restart format. The function field_ecl_write3D_fortio()
        writes all the cells - with zero filling for inactive
        cells. This is suitable for IMPORT of e.g. PORO.
-       
+
        The function field_ecl_write1D_fortio() will write only the
        active cells in an ECLIPSE restart file. This is suitable for
        e.g. the pressure.
@@ -462,22 +463,22 @@ static void * __field_alloc_3D_data(const field_type * field ,
        information and automatically select the right way to export to
        eclipse format.
 
-   o Export in RMS ROFF format. 
+   o Export in RMS ROFF format.
 */
 
-  
 
-/** 
+
+/**
     This function exports *one* field instance to the rms_file
     instance. It is the responsibility of the field_ROFF_export()
-    function to initialize and close down the rms_file instance. 
+    function to initialize and close down the rms_file instance.
 */
 
 static void field_ROFF_export__(const field_type * field , rms_file_type * rms_file, const char * init_file) {
   const int data_size             = field_config_get_volume(field->config);
   const ecl_type_enum target_type = field_config_get_ecl_type(field->config); /* Could/should in principle be input */
   const ecl_type_enum ecl_type    = field_config_get_ecl_type(field->config);
-  
+
   void *data  = __field_alloc_3D_data(field , data_size , true , ecl_type , target_type, init_file);
   rms_tagkey_type * data_key = rms_tagkey_alloc_complete("data" , data_size , rms_util_convert_ecl_type(target_type) , data , true);
   rms_tag_fwrite_parameter(field_config_get_ecl_kw_name(field->config) , data_key , rms_file_get_FILE(rms_file));
@@ -508,7 +509,7 @@ static void field_complete_ROFF_export(const field_type * field , rms_file_type 
 
 
 
-/** 
+/**
     This function exports the data of a field as a parameter to an RMS
     roff file. The export process is divided in three parts:
 
@@ -522,7 +523,7 @@ static void field_complete_ROFF_export(const field_type * field , rms_file_type 
     calls to 2 (i.e. field_ROFF_export__()) - that is currently not
     implemented.
 */
-    
+
 void field_ROFF_export(const field_type * field , const char * export_filename, const char * init_file) {
   rms_file_type * rms_file = field_init_ROFF_export(field , export_filename);
   field_ROFF_export__(field , rms_file, init_file);             /* Should now be possible to several calls to field_ROFF_export__() */
@@ -542,8 +543,8 @@ bool field_write_to_buffer(const field_type * field , buffer_type * buffer , int
 
 void field_ecl_write1D_fortio(const field_type * field , fortio_type * fortio) {
   const int data_size = field_config_get_data_size(field->config );
-  const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config); 
-  
+  const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
+
   ecl_kw_fwrite_param_fortio(fortio , field_config_get_ecl_kw_name(field->config), ecl_type , data_size , field->data);
 }
 
@@ -599,9 +600,9 @@ ecl_kw_type * field_alloc_ecl_kw_wrapper(const field_type * field) {
 static void field_apply(field_type * field , field_func_type * func) {
   field_config_assert_unary(field->config , __func__);
   {
-    const int data_size          = field_config_get_data_size( field->config );   
+    const int data_size          = field_config_get_data_size( field->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
-    
+
     if (ecl_type == ECL_FLOAT_TYPE) {
       float * data = (float *) field->data;
       for (int i=0; i < data_size; i++)
@@ -610,16 +611,16 @@ static void field_apply(field_type * field , field_func_type * func) {
       double * data = (double *) field->data;
       for (int i=0; i < data_size; i++)
         data[i] = func(data[i]);
-    } 
+    }
   }
 }
 
 
 static bool field_check_finite( const field_type * field) {
-  const int data_size          = field_config_get_data_size( field->config );   
+  const int data_size          = field_config_get_data_size( field->config );
   const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
   bool  ok = true;
-  
+
   if (ecl_type == ECL_FLOAT_TYPE) {
     float * data = (float *) field->data;
     for (int i=0; i < data_size; i++)
@@ -630,7 +631,7 @@ static bool field_check_finite( const field_type * field) {
     for (int i=0; i < data_size; i++)
       if (!isfinite( data[i] ))
         ok = false;
-  } 
+  }
   return ok;
 }
 
@@ -638,7 +639,7 @@ static bool field_check_finite( const field_type * field) {
 
 void  field_inplace_output_transform(field_type * field ) {
   field_func_type * output_transform = field_config_get_output_transform(field->config);
-  if (output_transform != NULL) 
+  if (output_transform != NULL)
     field_apply(field , output_transform);
 }
 
@@ -653,7 +654,7 @@ for (int i=0; i < s; i++) {                    \
     if (d[i] > max)                            \
       d[i] = max;                              \
 }
-    
+
 
 static void field_apply_truncation(field_type * field) {
   truncation_type   truncation = field_config_get_truncation_mode( field->config );
@@ -661,7 +662,7 @@ static void field_apply_truncation(field_type * field) {
     double min_value = field_config_get_truncation_min( field->config );
     double max_value = field_config_get_truncation_max( field->config );
 
-    const int data_size          = field_config_get_data_size(field->config );   
+    const int data_size          = field_config_get_data_size(field->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
     if (ecl_type == ECL_FLOAT_TYPE) {
       float * data = (float *) field->data;
@@ -669,13 +670,13 @@ static void field_apply_truncation(field_type * field) {
     } else if (ecl_type == ECL_DOUBLE_TYPE) {
       double * data = (double *) field->data;
       TRUNCATE_MACRO(data_size , data , truncation , min_value , max_value);
-    } else 
+    } else
       util_abort("%s: Field type not supported for truncation \n",__func__);
   }
 }
-  
 
-/** 
+
+/**
     Does both the explicit output transform *AND* the truncation.
 */
 
@@ -686,10 +687,10 @@ static void field_output_transform(field_type * field) {
     field->export_data = util_alloc_copy(field->data , field_config_get_byte_size(field->config) );
     field->__data = field->data;  /* Storing a pointer to the original data. */
     field->data   = field->export_data;
-    
+
     if (output_transform != NULL)
       field_inplace_output_transform(field);
-    
+
     field_apply_truncation(field);
   }
 }
@@ -716,7 +717,7 @@ static void field_revert_output_transform(field_type * field) {
   Observe that the output transform is hooked in here, that means
   that if you call e.g. the ROFF export function directly, the output
   transform will *NOT* be applied.
-*/  
+*/
 
 void field_export(const field_type * __field,
                   const char * file ,
@@ -728,29 +729,29 @@ void field_export(const field_type * __field,
 
   if (output_transform) field_output_transform(field);
   {
-  
+
     /*  Writes the field to in ecl_kw format to a new file.  */
     if ((file_type == ECL_KW_FILE_ALL_CELLS) || (file_type == ECL_KW_FILE_ACTIVE_CELLS)) {
       fortio_type * fortio;
       bool fmt_file = false;                /* For formats which support both formatted and unformatted output this is hardwired to unformatted. */
-      
+
       fortio = fortio_open_writer(file , fmt_file , ECL_ENDIAN_FLIP);
 
       if (file_type == ECL_KW_FILE_ALL_CELLS)
         field_ecl_write3D_fortio(field , fortio, init_file);
       else
         field_ecl_write1D_fortio(field , fortio);
-      
+
       fortio_fclose(fortio);
     } else if (file_type == ECL_GRDECL_FILE) {
       /* Writes the field to a new grdecl file. */
       FILE * stream = util_mkdir_fopen(file , "w");
       field_ecl_grdecl_export(field , stream, init_file);
       fclose(stream);
-    } else if (file_type == RMS_ROFF_FILE) 
+    } else if (file_type == RMS_ROFF_FILE)
       /* Roff export */
       field_ROFF_export(field , file, init_file);
-    else if (file_type == ECL_FILE) 
+    else if (file_type == ECL_FILE)
       /* This entry point is used by the ecl_write() function to write to an ALREADY OPENED eclipse restart file. */
       field_ecl_write1D_fortio( field , restart_fortio);
     else
@@ -787,11 +788,11 @@ void field_ecl_write(const field_type * field , const char * run_path , const ch
 
 
 bool field_initialize(field_type *field , int iens , const char * init_file , rng_type * rng) {
-  bool ret = false; 
+  bool ret = false;
   if (init_file) {
     if (field_fload(field , init_file )) {
       field_func_type * init_transform   = field_config_get_init_transform(field->config);
-      /* 
+      /*
          Doing the input transform - observe that this is done inplace on
          the data, not as the output transform which is done on a copy of
          prior to export.
@@ -801,12 +802,12 @@ bool field_initialize(field_type *field , int iens , const char * init_file , rn
         if (!field_check_finite( field ))
           util_exit("Sorry: after applying the init transform field:%s contains nan/inf or similar malformed values.\n" , field_config_get_key( field->config ));
       }
-      ret = true;  
+      ret = true;
     }
   }
 
-  return ret;  
-} 
+  return ret;
+}
 
 
 void field_free(field_type *field) {
@@ -823,7 +824,7 @@ void field_serialize(const field_type * field , node_id_type node_id , const act
   const field_config_type *config      = field->config;
   const int                data_size   = field_config_get_data_size(config );
   ecl_type_enum ecl_type               = field_config_get_ecl_type(config);
-  
+
   enkf_matrix_serialize( field->data , data_size , ecl_type , active_list , A , row_offset , column);
 }
 
@@ -832,7 +833,7 @@ void field_deserialize(field_type * field , node_id_type node_id , const active_
   const field_config_type *config      = field->config;
   const int                data_size   = field_config_get_data_size(config );
   ecl_type_enum ecl_type               = field_config_get_ecl_type(config);
-  
+
   enkf_matrix_deserialize( field->data , data_size , ecl_type , active_list , A , row_offset , column);
 }
 
@@ -869,15 +870,15 @@ double field_iget_double(const field_type * field , int index) {
   int sizeof_ctype       = field_config_get_sizeof_ctype(field->config);
   char buffer[8]; /* Enough to hold one double */
   memcpy(buffer , &field->data[index * sizeof_ctype] , sizeof_ctype);
-  if ( ecl_type == ECL_DOUBLE_TYPE ) 
+  if ( ecl_type == ECL_DOUBLE_TYPE )
     return *((double *) buffer);
   else if (ecl_type == ECL_FLOAT_TYPE) {
     double double_value;
     float  float_value;
-    
+
     float_value  = *((float *) buffer);
     double_value = float_value;
-    
+
     return double_value;
   } else {
     util_abort("%s: failed - wrong internal type \n",__func__);
@@ -894,15 +895,15 @@ float field_iget_float(const field_type * field , int index) {
   int sizeof_ctype       = field_config_get_sizeof_ctype(field->config);
   char buffer[8];          /* Enough to hold one double */
   memcpy(buffer , &field->data[index * sizeof_ctype] , sizeof_ctype);
-  if ( ecl_type == ECL_FLOAT_TYPE ) 
+  if ( ecl_type == ECL_FLOAT_TYPE )
     return *((float *) buffer);
   else if (ecl_type == ECL_DOUBLE_TYPE) {
     double double_value;
     float  float_value;
-    
+
     double_value = *((double *) buffer);
     float_value  = double_value;
-    
+
     return float_value;
   } else {
     util_abort("%s: failed - wrong internal type \n",__func__);
@@ -952,7 +953,7 @@ static void field_indexed_update(field_type * field, ecl_type_enum src_type , in
       } else if (src_type == ECL_FLOAT_TYPE) {
         float * src_data = (float *) value;
         INDEXED_UPDATE_MACRO(field_data , src_data , len , index_list , add);
-      } else 
+      } else
         util_abort("%s both existing field - and indexed values must be float / double - aborting\n",__func__);
     }
     break;
@@ -965,7 +966,7 @@ static void field_indexed_update(field_type * field, ecl_type_enum src_type , in
       } else if (src_type == ECL_FLOAT_TYPE) {
         float * src_data = (float *) value;
         INDEXED_UPDATE_MACRO(field_data , src_data , len , index_list , add);
-      } else 
+      } else
         util_abort("%s both existing field - and indexed values must be float / double - aborting\n",__func__);
     }
     break;
@@ -990,7 +991,7 @@ double * field_indexed_get_alloc(const field_type * field, int len, const int * 
 {
   double * export_data = util_calloc(len , sizeof * export_data);
   ecl_type_enum src_type = field_config_get_ecl_type(field->config);
-  
+
   if(src_type == ECL_DOUBLE_TYPE) {
     /* double -> double */
     double * field_data = (double *) field->data;
@@ -1003,7 +1004,7 @@ double * field_indexed_get_alloc(const field_type * field, int len, const int * 
       export_data[i] = field_data[index_list[i]];
   } else
     util_abort("%s: existing field must of type float/double - aborting. \n", __func__);
-  
+
   return export_data;
 }
 
@@ -1023,7 +1024,7 @@ void field_ijk_get_if_valid(const field_type * field , int i , int j , int k , v
   if (index >=0) {
     *valid = true;
     field_ijk_get(field , i , j , k , value);
-  } else 
+  } else
     *valid = false;
 }
 
@@ -1056,7 +1057,7 @@ void field_copy_ecl_kw_data(field_type * field , const ecl_kw_type * ecl_kw) {
     fprintf(stderr," ** MINPV / MINPVV problem?? \n");
     util_abort("%s: Aborting \n",__func__ );
   }
-  
+
   ecl_util_memcpy_typed_data(field->data , ecl_kw_get_void_ptr(ecl_kw) , field_type , kw_type , ecl_kw_get_size(ecl_kw));
 }
 
@@ -1069,7 +1070,7 @@ bool field_fload_rms(field_type * field , const char * filename, bool keep_inact
     FILE * stream = util_fopen__( filename , "r");
     if (!stream)
       return false;
-    
+
     fclose( stream );
   }
 
@@ -1078,26 +1079,26 @@ bool field_fload_rms(field_type * field , const char * filename, bool keep_inact
     ecl_type_enum   ecl_type;
     rms_file_type * rms_file   = rms_file_alloc(filename , false);
     rms_tagkey_type * data_tag;
-    if (field_config_enkf_mode(field->config)) 
+    if (field_config_enkf_mode(field->config))
       data_tag = rms_file_fread_alloc_data_tagkey(rms_file , "parameter" , "name" , key);
     else {
-      /** 
+      /**
           Setting the key - purely to support converting between
           different types of files, without knowing the key. A usable
           feature - but not really well defined.
       */
-      
+
       rms_tag_type * rms_tag = rms_file_fread_alloc_tag(rms_file , "parameter" , NULL , NULL);
       const char * parameter_name = rms_tag_get_namekey_name(rms_tag);
       field_config_set_key( (field_config_type *) field->config , parameter_name );
       data_tag = rms_tagkey_copyc( rms_tag_get_key(rms_tag , "data") );
       rms_tag_free(rms_tag);
     }
-    
+
     ecl_type = rms_tagkey_get_ecl_type(data_tag);
-    if (rms_tagkey_get_size(data_tag) != field_config_get_volume(field->config)) 
+    if (rms_tagkey_get_size(data_tag) != field_config_get_volume(field->config))
       util_abort("%s: trying to import rms_data_tag from:%s with wrong size - aborting \n",__func__ , filename);
-    
+
     field_import3D(field , rms_tagkey_get_data_ref(data_tag) , true , keep_inactive, ecl_type);
     rms_tagkey_free(data_tag);
     rms_file_free(rms_file);
@@ -1110,7 +1111,7 @@ bool field_fload_rms(field_type * field , const char * filename, bool keep_inact
 static bool field_fload_ecl_kw(field_type * field , const char * filename, bool keep_inactive) {
   const char * key = field_config_get_ecl_kw_name(field->config);
   ecl_kw_type * ecl_kw = NULL;
-  
+
   {
     bool fmt_file;
 
@@ -1120,14 +1121,14 @@ static bool field_fload_ecl_kw(field_type * field , const char * filename, bool 
         ecl_kw_fseek_kw(key , true , true , fortio);
         ecl_kw = ecl_kw_fread_alloc( fortio );
         fortio_fclose(fortio);
-        
-        if (field_config_get_volume(field->config) == ecl_kw_get_size(ecl_kw)) 
+
+        if (field_config_get_volume(field->config) == ecl_kw_get_size(ecl_kw))
           field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , keep_inactive, ecl_kw_get_type(ecl_kw));
-        else 
+        else
           /* Keyword is already packed - e.g. from a restart file. Size is
              verified in the _copy function.*/
           field_copy_ecl_kw_data(field , ecl_kw);
-        
+
         ecl_kw_free(ecl_kw);
         return true;
       }
@@ -1150,10 +1151,10 @@ static bool field_fload_ecl_grdecl(field_type * field , const char * filename, b
     if (stream) {
       if (ecl_kw_grdecl_fseek_kw(key , false , stream))
         ecl_kw = ecl_kw_fscanf_alloc_grdecl_data(stream , size , ecl_type);
-      else 
+      else
         util_exit("%s: Can not locate %s keyword in %s \n",__func__ , key , filename);
       fclose(stream);
-      
+
       field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , keep_inactive, ecl_kw_get_type(ecl_kw));
       ecl_kw_free(ecl_kw);
       return true;
@@ -1229,7 +1230,7 @@ bool field_cmp(const field_type * f1 , const field_type * f2) {
     fprintf(stderr,"The two fields have different config objects - and the comparison fails trivially.\n");
     return false;
   } else {
-    const int byte_size = field_config_get_byte_size(f1->config);   
+    const int byte_size = field_config_get_byte_size(f1->config);
     if (memcmp( f1->data , f2->data , byte_size) != 0)
       return false;
     else
@@ -1249,7 +1250,7 @@ bool field_cmp(const field_type * f1 , const field_type * f2) {
    from a block of restart data. Current implementation can only
    handle that, but in principle other possibilities should be
    possible.
-   
+
    Observe that forward_load loads from a (already loaded) restart_block,
    and not from a file.
 */
@@ -1257,29 +1258,28 @@ bool field_cmp(const field_type * f1 , const field_type * f2) {
 
 static bool field_forward_load(field_type * field ,
                                const char * ecl_file_name ,
-                               const ecl_sum_type * ecl_sum,
-                               const ecl_file_type * restart_file ,
-                               int report_step) {
+                               const forward_load_context_type * load_context) {
   bool keep_inactive = false;
   bool loadOK = true;
   field_file_format_type import_format = field_config_get_import_format(field->config);
-    
+
   if (import_format == ECL_FILE) {
+    const ecl_file_type * restart_file = forward_load_context_get_restart_file( load_context );
     if (restart_file != NULL) {
       ecl_kw_type * field_kw = ecl_file_iget_named_kw(restart_file , field_config_get_ecl_kw_name(field->config) , 0);
       field_copy_ecl_kw_data(field , field_kw);
-    } else 
+    } else
       loadOK = false;
     //util_abort("%s: fatal error when loading: %s - no restart information has been loaded \n",__func__ , field_config_get_key( field->config ));
-  } else 
+  } else
     /* Loading from unique file - currently this only applies to the modelerror implementation. */
     field_fload_typed(field , ecl_file_name , import_format, keep_inactive);
-  
-  
+
+
   if (loadOK) {
     field_func_type * input_transform = field_config_get_input_transform(field->config);
     /* The input transform is done in-place. */
-    if (input_transform != NULL) 
+    if (input_transform != NULL)
       field_apply(field , input_transform);
 
   }
@@ -1300,9 +1300,9 @@ void field_get_dims(const field_type * field, int *nx, int *ny , int *nz) {
 
 
 void field_iadd(field_type * field1, const field_type * field2) {
-  field_config_assert_binary(field1->config , field2->config , __func__); 
+  field_config_assert_binary(field1->config , field2->config , __func__);
   {
-    const int data_size          = field_config_get_data_size( field1->config );   
+    const int data_size          = field_config_get_data_size( field1->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type( field1->config );
     int i;
 
@@ -1322,9 +1322,9 @@ void field_iadd(field_type * field1, const field_type * field2) {
 
 
 void field_imul(field_type * field1, const field_type * field2) {
-  field_config_assert_binary(field1->config , field2->config , __func__); 
+  field_config_assert_binary(field1->config , field2->config , __func__);
   {
-    const int data_size          = field_config_get_data_size(field1->config );   
+    const int data_size          = field_config_get_data_size(field1->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field1->config);
     int i;
 
@@ -1344,9 +1344,9 @@ void field_imul(field_type * field1, const field_type * field2) {
 
 
 void field_iaddsqr(field_type * field1, const field_type * field2) {
-  field_config_assert_binary(field1->config , field2->config , __func__); 
+  field_config_assert_binary(field1->config , field2->config , __func__);
   {
-    const int data_size          = field_config_get_data_size(field1->config );   
+    const int data_size          = field_config_get_data_size(field1->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field1->config);
     int i;
 
@@ -1366,9 +1366,9 @@ void field_iaddsqr(field_type * field1, const field_type * field2) {
 
 
 void field_scale(field_type * field, double scale_factor) {
-  field_config_assert_unary(field->config, __func__); 
+  field_config_assert_unary(field->config, __func__);
   {
-    const int data_size          = field_config_get_data_size(field->config );   
+    const int data_size          = field_config_get_data_size(field->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
     int i;
 
@@ -1397,9 +1397,9 @@ void field_isqrt(field_type * field) {
 }
 
 void field_imul_add(field_type * field1 , double factor , const field_type * field2) {
-  field_config_assert_binary(field1->config , field2->config , __func__); 
+  field_config_assert_binary(field1->config , field2->config , __func__);
   {
-    const int data_size          = field_config_get_data_size(field1->config );   
+    const int data_size          = field_config_get_data_size(field1->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field1->config);
     int i;
 
@@ -1421,10 +1421,10 @@ void field_imul_add(field_type * field1 , double factor , const field_type * fie
 void field_update_sum(field_type * sum , field_type * field , double lower_limit , double upper_limit) {
   field_output_transform( field );
   {
-    const int data_size          = field_config_get_data_size(field->config );   
+    const int data_size          = field_config_get_data_size(field->config );
     const ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
     int i;
-    
+
     if (ecl_type == ECL_FLOAT_TYPE) {
       float * data       = (float *) field->data;
       float * sum_data   = (float *) sum->data;
@@ -1432,7 +1432,7 @@ void field_update_sum(field_type * sum , field_type * field , double lower_limit
         if (data[i] >= lower_limit)
           if (data[i] < upper_limit)
             sum_data[i] += 1;
-      } 
+      }
     } else if (ecl_type == ECL_DOUBLE_TYPE) {
         double * data       = (double *) field->data;
         double * sum_data   = (double *) sum->data;
@@ -1442,7 +1442,7 @@ void field_update_sum(field_type * sum , field_type * field , double lower_limit
               sum_data[i] += 1;
         }
     }
-  } 
+  }
   field_revert_output_transform( field );
 }
 
@@ -1450,7 +1450,7 @@ void field_update_sum(field_type * sum , field_type * field , double lower_limit
 
 /**
   Here, index_key is i a tree digit string with the i, j and k indicies of
-  the requested block separated by comma. E.g., 1,1,1. 
+  the requested block separated by comma. E.g., 1,1,1.
 
   The string is supposed to contain indices in the range [1...nx] ,
   [1..ny] , [1...nz], they are immediately converted to C-based zero
@@ -1462,7 +1462,7 @@ bool field_user_get(const field_type * field, const char * index_key, int report
   bool     valid;
   int      i,j,k;
   int      parse_user_key = field_config_parse_user_key(field->config , index_key , &i, &j , &k);
-  
+
 
   if (parse_user_key == 0) {
     int active_index = field_config_active_index(field->config , i,j,k);
@@ -1480,7 +1480,7 @@ bool field_user_get(const field_type * field, const char * index_key, int report
     *value = 0.0;
     valid = false;
   }
-  
+
   if (!internal_value && valid) {
     field_func_type * output_transform = field_config_get_output_transform(field->config);
     if (output_transform != NULL)
@@ -1500,26 +1500,26 @@ bool field_user_get(const field_type * field, const char * index_key, int report
       else                                                                                                                                                       \
         inflation_data[i] = 1.0;                                                                                                                                 \
    }                                                                                                                                                             \
-}                                                                   
+}
 
 
 void field_set_inflation(field_type * inflation , const field_type * std , const field_type * min_std) {
   const field_config_type * config = inflation->config;
   ecl_type_enum ecl_type           = field_config_get_ecl_type( config );
-  const int data_size              = field_config_get_data_size( config );   
+  const int data_size              = field_config_get_data_size( config );
 
   if (ecl_type == ECL_FLOAT_TYPE) {
     float       * inflation_data = (float *)       inflation->data;
     const float * std_data       = (const float *) std->data;
     const float * min_std_data   = (const float *) min_std->data;
-    
+
     INFLATE(inflation_data , std_data , min_std_data );
-    
+
   } else if (ecl_type == ECL_DOUBLE_TYPE) {
     double       * inflation_data = (double *)       inflation->data;
     const double * std_data       = (const double *) std->data;
     const double * min_std_data   = (const double *) min_std->data;
-    
+
     INFLATE(inflation_data , std_data , min_std_data );
   }
 }

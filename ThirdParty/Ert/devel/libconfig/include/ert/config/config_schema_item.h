@@ -32,44 +32,25 @@ extern "C" {
 /**
     Types used for validation of config items.
 */
-typedef enum {CONFIG_STRING        = 1,
-              CONFIG_INT           = 2,
-              CONFIG_FLOAT         = 4,
-              CONFIG_PATH          = 8,
-              CONFIG_EXISTING_PATH = 16,
-              CONFIG_BOOL          = 32,
-              CONFIG_CONFIG        = 64,
-              CONFIG_BYTESIZE      = 128,
-              CONFIG_EXECUTABLE    = 256 ,
-              CONFIG_INVALID       = 512  } config_item_types;
-
-#define CONFIG_ITEM_TYPE_ENUM_DEFS               \
-{.value =    1 , .name="CONFIG_STRING"},         \
-{.value =    2 , .name="CONFIG_INT"},            \
-{.value =    4 , .name="CONFIG_FLOAT"},          \
-{.value =    8 , .name="CONFIG_PATH"},           \
-{.value =   16 , .name="CONFIG_EXISTING_PATH"},  \
-{.value =   32 , .name="CONFIG_BOOL"},        \
-{.value =   64 , .name="CONFIG_CONFIG"},         \
-{.value =  128 , .name="CONFIG_BYTESIZE"},       \
-{.value =  256 , .name="CONFIG_EXECUTABLE"},     \
-{.value =  512 , .name="CONFIG_INVALID"}
-#define CONFIG_ITEM_TYPE_ENUM_SIZE 10
+typedef enum {
+    CONFIG_STRING = 1,
+    CONFIG_INT = 2,
+    CONFIG_FLOAT = 4,
+    CONFIG_PATH = 8,
+    CONFIG_EXISTING_PATH = 16,
+    CONFIG_BOOL = 32,
+    CONFIG_CONFIG = 64,
+    CONFIG_BYTESIZE = 128,
+    CONFIG_EXECUTABLE = 256,
+    CONFIG_INVALID = 512
+} config_item_types;
 
 
-  typedef enum  {
+typedef enum {
     CONFIG_UNRECOGNIZED_IGNORE = 0,
     CONFIG_UNRECOGNIZED_WARN = 1,
     CONFIG_UNRECOGNIZED_ERROR = 2
-  } config_schema_unrecognized_enum;
-
-
-#define CONFIG_SCHEMA_UNRECOGNIZED_ENUM_DEFS          \
-{.value =    0 , .name="CONFIG_UNRECOGNIZED_IGNORE"}, \
-{.value =    1 , .name="CONFIG_UNRECOGNIZED_WARN"},   \
-{.value =    2 , .name="CONFIG_UNRECOGNIZED_ERROR"}
-#define CONFIG_SCHEMA_UNRECOGNIZED_ENUM_SIZE 3
-
+} config_schema_unrecognized_enum;
 
 
 

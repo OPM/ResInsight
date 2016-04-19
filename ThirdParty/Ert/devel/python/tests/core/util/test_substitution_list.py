@@ -1,5 +1,5 @@
-from ert.util import SubstitutionList
 from ert.test import ExtendedTestCase
+from ert.util import SubstitutionList
 
 
 class SubstitutionListTest(ExtendedTestCase):
@@ -27,4 +27,3 @@ class SubstitutionListTest(ExtendedTestCase):
 
         with self.assertRaises(KeyError):
             subst_list.indexForKey("AnotherKey")
-

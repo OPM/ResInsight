@@ -16,7 +16,7 @@
 
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
-from ert.enkf.data import EnkfConfigNode
+from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_fs import EnkfFs
 from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType

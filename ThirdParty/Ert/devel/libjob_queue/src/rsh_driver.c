@@ -25,6 +25,8 @@
 #include <pthread.h>
 #include <errno.h>
 
+
+#include <ert/util/ert_api_config.h>
 #include <ert/util/util.h>
 #include <ert/util/arg_pack.h>
 
@@ -122,7 +124,11 @@ static bool rsh_host_available(rsh_host_type * rsh_host) {
   {
     available = false;
     if ((rsh_host->max_running - rsh_host->running) > 0) {  // The host has free slots()
-      if (util_ping( rsh_host->host_name )) {                // The host answers to ping()
+      bool ping_ok = true;
+#ifdef ERT_HAVE_PING
+      ping_ok = util_ping( rsh_host->host_name );
+#endif
+      if (ping_ok) {                // The host answers to ping()
         available = true;
         rsh_host->running++;
       }
@@ -153,7 +159,7 @@ static void rsh_host_submit_job(rsh_host_type * rsh_host , rsh_job_type * job, c
       argv[iarg + 2] = job_argv[iarg];
   }
   
-  util_fork_exec(rsh_cmd , argc , argv , true , NULL , NULL , NULL , NULL , NULL);   /* This call is blocking. */
+  util_spawn_blocking(rsh_cmd, argc, argv, NULL, NULL);   /* This call is blocking. */
   job->status = JOB_QUEUE_DONE;
 
   pthread_mutex_lock( &rsh_host->host_mutex );

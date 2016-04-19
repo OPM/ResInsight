@@ -2,6 +2,7 @@ from ert.enkf.export import DesignMatrixReader, SummaryCollector, GenKwCollector
 from ert.test import ExtendedTestCase, ErtTestContext
 import pandas
 import numpy
+import os
 
 def dumpDesignMatrix(path):
     with open(path, "w") as dm:
@@ -35,7 +36,8 @@ def dumpDesignMatrix(path):
 class ExportJoinTest(ExtendedTestCase):
 
     def setUp(self):
-        self.config = self.createTestPath("Statoil/config/with_data/config")
+        os.environ["TZ"] = "CET" # The ert_statoil case was generated in CET
+        self.config = self.createTestPath("local/snake_oil/snake_oil.ert")
 
     def test_join(self):
 
@@ -43,37 +45,40 @@ class ExportJoinTest(ExtendedTestCase):
             dumpDesignMatrix("DesignMatrix.txt")
             ert = context.getErt()
 
-            summary_data = SummaryCollector.loadAllSummaryData(ert, "default")
-            gen_kw_data = GenKwCollector.loadAllGenKwData(ert, "default")
-            misfit = MisfitCollector.loadAllMisfitData(ert, "default")
+            summary_data = SummaryCollector.loadAllSummaryData(ert, "default_1")
+            gen_kw_data = GenKwCollector.loadAllGenKwData(ert, "default_1")
+            misfit = MisfitCollector.loadAllMisfitData(ert, "default_1")
             dm = DesignMatrixReader.loadDesignMatrix("DesignMatrix.txt")
 
             result = summary_data.join(gen_kw_data, how='inner')
             result = result.join(misfit, how='inner')
             result = result.join(dm, how='inner')
 
-            self.assertFloatEqual(result["FLUID_PARAMS:SGCR"][0]["2000-02-01"], 0.018466)
-            self.assertFloatEqual(result["FLUID_PARAMS:SGCR"][24]["2000-02-01"], 0.221049 )
-            self.assertFloatEqual(result["FLUID_PARAMS:SGCR"][24]["2004-12-01"], 0.221049)
+            first_date = "2010-01-10"
+            last_date = "2015-06-23"
 
-            self.assertFloatEqual(result["EXTRA_FLOAT_COLUMN"][0]["2000-02-01"], 0.08)
-            self.assertEqual(result["EXTRA_INT_COLUMN"][0]["2000-02-01"], 125)
-            self.assertEqual(result["EXTRA_STRING_COLUMN"][0]["2000-02-01"], "ON")
+            self.assertFloatEqual(result["SNAKE_OIL_PARAM:OP1_OCTAVES"][0][first_date], 3.947766)
+            self.assertFloatEqual(result["SNAKE_OIL_PARAM:OP1_OCTAVES"][24][first_date], 4.206698)
+            self.assertFloatEqual(result["SNAKE_OIL_PARAM:OP1_OCTAVES"][24][last_date], 4.206698)
 
-            self.assertFloatEqual(result["EXTRA_FLOAT_COLUMN"][0]["2004-12-01"], 0.08)
-            self.assertEqual(result["EXTRA_INT_COLUMN"][0]["2004-12-01"], 125)
-            self.assertEqual(result["EXTRA_STRING_COLUMN"][0]["2004-12-01"], "ON")
+            self.assertFloatEqual(result["EXTRA_FLOAT_COLUMN"][0][first_date], 0.08)
+            self.assertEqual(result["EXTRA_INT_COLUMN"][0][first_date], 125)
+            self.assertEqual(result["EXTRA_STRING_COLUMN"][0][first_date], "ON")
 
-            self.assertFloatEqual(result["EXTRA_FLOAT_COLUMN"][1]["2004-12-01"], 0.07)
-            self.assertEqual(result["EXTRA_INT_COLUMN"][1]["2004-12-01"], 225)
-            self.assertEqual(result["EXTRA_STRING_COLUMN"][1]["2004-12-01"], "OFF")
+            self.assertFloatEqual(result["EXTRA_FLOAT_COLUMN"][0][last_date], 0.08)
+            self.assertEqual(result["EXTRA_INT_COLUMN"][0][last_date], 125)
+            self.assertEqual(result["EXTRA_STRING_COLUMN"][0][last_date], "ON")
 
-            self.assertFloatEqual(result["MISFIT:WWCT:OP_2"][0]["2004-12-01"], 0.617793)
-            self.assertFloatEqual(result["MISFIT:WWCT:OP_2"][24]["2004-12-01"], 0.256436)
+            self.assertFloatEqual(result["EXTRA_FLOAT_COLUMN"][1][last_date], 0.07)
+            self.assertEqual(result["EXTRA_INT_COLUMN"][1][last_date], 225)
+            self.assertEqual(result["EXTRA_STRING_COLUMN"][1][last_date], "OFF")
 
-            self.assertFloatEqual(result["MISFIT:TOTAL"][0]["2000-02-01"], 7236.322836)
-            self.assertFloatEqual(result["MISFIT:TOTAL"][0]["2004-12-01"], 7236.322836)
-            self.assertFloatEqual(result["MISFIT:TOTAL"][24]["2004-12-01"], 2261.726621)
+            self.assertFloatEqual(result["MISFIT:FOPR"][0][last_date], 489.191069)
+            self.assertFloatEqual(result["MISFIT:FOPR"][24][last_date], 1841.906872)
+
+            self.assertFloatEqual(result["MISFIT:TOTAL"][0][first_date], 500.170035)
+            self.assertFloatEqual(result["MISFIT:TOTAL"][0][last_date], 500.170035)
+            self.assertFloatEqual(result["MISFIT:TOTAL"][24][last_date], 1925.793865)
 
 
             with self.assertRaises(KeyError):

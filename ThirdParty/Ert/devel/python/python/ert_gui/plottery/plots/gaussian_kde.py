@@ -1,11 +1,12 @@
 import numpy
 from scipy.stats import gaussian_kde
 from .plot_tools import PlotTools
+import pandas as pd
 
 
 def plotGaussianKDE(plot_context):
     """
-    @type plot_context: PlotContext
+    @type plot_context: ert_gui.plottery.PlotContext
     """
     ert = plot_context.ert()
     key = plot_context.key()
@@ -13,7 +14,9 @@ def plotGaussianKDE(plot_context):
     axes = plot_context.figure().add_subplot(111)
     """:type: matplotlib.axes.Axes """
 
-    config.deactiveDateSupport()
+    plot_context.deactivateDateSupport()
+    plot_context.x_axis = plot_context.VALUE_AXIS
+    plot_context.y_axis = plot_context.DENSITY_AXIS
 
     if key.startswith("LOG10_"):
         key = key[6:]
@@ -38,28 +41,23 @@ def _plotGaussianKDE(axes, plot_config, data, label):
     @type label: Str
     """
 
-    # axes.set_xlabel(plot_config.xLabel())
-    # axes.set_ylabel(plot_config.yLabel())
-
-    line_color = plot_config.lineColor()
-    line_alpha = plot_config.lineAlpha()
-    line_marker = plot_config.lineMarker()
-    line_style = plot_config.lineStyle()
-    line_width = 2
+    style = plot_config.histogramStyle()
 
     if data.dtype == "object":
-        data = data.convert_objects(convert_numeric=True)
+        try:
+            data = pd.to_numeric(data, errors='coerce')
+        except AttributeError:
+            data = data.convert_objects(convert_numeric=True)
 
     if data.dtype == "object":
         pass
-
     else:
         sample_range = data.max() - data.min()
         indexes = numpy.linspace(data.min() - 0.5 * sample_range, data.max() + 0.5 * sample_range, 1000)
         gkde = gaussian_kde(data.values)
         evaluated_gkde = gkde.evaluate(indexes)
 
-        lines = axes.plot(indexes, evaluated_gkde, linewidth=line_width, color=line_color, alpha=line_alpha)
+        lines = axes.plot(indexes, evaluated_gkde, linewidth=style.width, color=style.color, alpha=style.alpha)
 
         if len(lines) > 0:
             plot_config.addLegendItem(label, lines[0])

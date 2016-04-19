@@ -19,7 +19,7 @@ import os
 from ert.util import BoolVector
 
 from ert.enkf import EnsembleConfig, AnalysisConfig, ModelConfig, SiteConfig, EclConfig, PlotConfig, EnkfObs, ErtTemplates, EnkfFs, EnKFState, EnkfStateType, EnkfVarType, ObsVector , RunArg
-from ert.enkf.data import EnkfConfigNode
+from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_main import EnKFMain
 from ert.enkf.enums import EnkfObservationImplementationType, LoadFailTypeEnum, EnkfInitModeEnum, ErtImplType, RealizationStateEnum , EnkfRunType, EnkfFieldFileFormatEnum, EnkfTruncationType, ActiveMode
 from ert.enkf.observations.summary_observation import SummaryObservation
@@ -138,12 +138,11 @@ class EnKFTest(ExtendedTestCase):
             
     def test_enkf_create_config_file(self):
         config_file      = "test_new_config"
-        firste_case_name = "default_1"
         dbase_type       = "BLOCK_FS"
         num_realizations = 42
         
         with TestAreaContext("python/ens_condif/create_config" , store_area = True) as ta:
-            EnKFMain.createNewConfig(config_file, "storage" , firste_case_name, dbase_type, num_realizations)
+            EnKFMain.createNewConfig(config_file, "storage" , dbase_type, num_realizations)
             main = EnKFMain(config_file)
             self.assertEqual(main.getEnsembleSize(), num_realizations)
 

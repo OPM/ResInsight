@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include <ert/util/stringlist.h>
+#include <ert/util/hash.h>
 
 #include <ert/config/config_parser.h>
 
@@ -49,6 +50,7 @@ extern "C" {
   enkf_config_node_type * enkf_config_node_new_GEN_PARAM( const char * key , bool forward_init);
   enkf_config_node_type * enkf_config_node_new_GEN_DATA( const char * key , bool forward_init);
   enkf_config_node_type * enkf_config_node_new_custom_kw(const char * key, const char * result_file, const char * output_file);
+  enkf_config_node_type * enkf_config_node_new_defined_custom_kw(const char * key, const hash_type * definition);
 
   void enkf_config_node_update_min_std( enkf_config_node_type * config_node , const char * min_std_file );
 

@@ -15,20 +15,70 @@
 #  for more details. 
 
 
-from ert.cwrap import CWrapper
-from ert.util import UTIL_LIB, VectorTemplate
 import warnings
+
+from ert.util import VectorTemplate, UtilPrototype
 
 
 class BoolVector(VectorTemplate):
     default_format       = "%8d"
+
+    _alloc               = UtilPrototype("void*  bool_vector_alloc( int , bool )" , bind = False)
+    _create_active_mask  = UtilPrototype("bool_vector_obj string_util_alloc_active_mask( char* )" , bind = False)
+    _active_list         = UtilPrototype("int_vector_obj bool_vector_alloc_active_list(bool_vector)", bind = False)
+    _alloc_copy          = UtilPrototype("bool_vector_obj bool_vector_alloc_copy( bool_vector )")
+    _update_active_mask  = UtilPrototype("bool string_util_update_active_mask(char*, bool_vector)" , bind = False)
+
+    _strided_copy        = UtilPrototype("bool_vector_obj bool_vector_alloc_strided_copy( bool_vector , int , int , int)")
+    _free                = UtilPrototype("void   bool_vector_free( bool_vector )")
+    _iget                = UtilPrototype("bool   bool_vector_iget( bool_vector , int )")
+    _safe_iget           = UtilPrototype("bool   bool_vector_safe_iget( bool_vector , int )")
+    _iset                = UtilPrototype("void   bool_vector_iset( bool_vector , int , bool)")
+    _size                = UtilPrototype("int    bool_vector_size( bool_vector )")
+    _append              = UtilPrototype("void   bool_vector_append( bool_vector , bool )")
+    _idel_block          = UtilPrototype("void   bool_vector_idel_block( bool_vector , bool , bool )")
+    _idel                = UtilPrototype("void   bool_vector_idel( bool_vector , int )")
+    _pop                 = UtilPrototype("bool   bool_vector_pop( bool_vector )")
+    _lshift              = UtilPrototype("void   bool_vector_lshift( bool_vector , int )")
+    _rshift              = UtilPrototype("void   bool_vector_rshift( bool_vector , int )")
+    _insert              = UtilPrototype("void   bool_vector_insert( bool_vector , int , bool)")
+    _fprintf             = UtilPrototype("void   bool_vector_fprintf( bool_vector , FILE , char* , char*)")
+    _sort                = UtilPrototype("void   bool_vector_sort( bool_vector )")
+    _rsort               = UtilPrototype("void   bool_vector_rsort( bool_vector )")
+    _reset               = UtilPrototype("void   bool_vector_reset( bool_vector )")
+    _set_read_only       = UtilPrototype("void   bool_vector_set_read_only( bool_vector , bool )")
+    _get_read_only       = UtilPrototype("bool   bool_vector_get_read_only( bool_vector )")
+    _get_max             = UtilPrototype("bool   bool_vector_get_max( bool_vector )")
+    _get_min             = UtilPrototype("bool   bool_vector_get_min( bool_vector )")
+    _get_max_index       = UtilPrototype("int    bool_vector_get_max_index( bool_vector , bool)")
+    _get_min_index       = UtilPrototype("int    bool_vector_get_min_index( bool_vector , bool)")
+    _shift               = UtilPrototype("void   bool_vector_shift( bool_vector , bool )")
+    _scale               = UtilPrototype("void   bool_vector_scale( bool_vector , bool )")
+    _div                 = UtilPrototype("void   bool_vector_div( bool_vector , bool )")
+    _inplace_add         = UtilPrototype("void   bool_vector_inplace_add( bool_vector , bool_vector )")
+    _inplace_mul         = UtilPrototype("void   bool_vector_inplace_mul( bool_vector , bool_vector )")
+    _assign              = UtilPrototype("void   bool_vector_set_all( bool_vector , bool)")
+    _memcpy              = UtilPrototype("void   bool_vector_memcpy(bool_vector , bool_vector )")
+    _set_default         = UtilPrototype("void   bool_vector_set_default( bool_vector , bool)")
+    _get_default         = UtilPrototype("bool   bool_vector_get_default( bool_vector )")
+    _element_size        = UtilPrototype("int    bool_vector_element_size( bool_vector )")
+
+    _permute             = UtilPrototype("void bool_vector_permute(bool_vector, permutation_vector)")
+    _sort_perm           = UtilPrototype("permutation_vector_obj bool_vector_alloc_sort_perm(bool_vector)")
+    _rsort_perm          = UtilPrototype("permutation_vector_obj bool_vector_alloc_rsort_perm(bool_vector)")
+
+    _contains            = UtilPrototype("bool bool_vector_contains(bool_vector, bool)")
+    _select_unique       = UtilPrototype("void bool_vector_select_unique(bool_vector)")
+    _element_sum         = UtilPrototype("bool bool_vector_sum(bool_vector)")
+    _get_data_ptr        = UtilPrototype("bool* bool_vector_get_ptr(bool_vector)")
+    _count_equal         = UtilPrototype("int bool_vector_count_equal(bool_vector, bool)")
 
     def __init__(self, default_value=False, initial_size=0):
         super(BoolVector, self).__init__(default_value, initial_size)
 
     def count(self, value=True):
         """ @rtype: int """
-        return BoolVector.cNamespace().count_equal(self, value)
+        return self._count_equal(self, value)
 
     @classmethod
     def createActiveMask(cls, range_string):
@@ -46,7 +96,7 @@ class BoolVector(VectorTemplate):
         The empty list will evaluate to false
         @rtype: BoolVector
         """
-        return cls.cNamespace().create_active_mask(range_string)
+        return cls._create_active_mask(range_string)
 
     @classmethod
     def active_mask(cls, range_string):
@@ -64,18 +114,17 @@ class BoolVector(VectorTemplate):
         The empty list will evaluate to false
         @rtype: BoolVector
         """
-        warnings.warn("The active_mask(cls, rangs_string) method has been renamed: createActiveMask(cls, rangs_string)" , DeprecationWarning)
-        return cls.cNamespace().create_active_mask(range_string)
+        warnings.warn("The active_mask(cls, rangs_string) method has been renamed: createActiveMask(cls, rangs_string)", DeprecationWarning)
+        return cls._create_active_mask(range_string)
 
-    @classmethod
-    def updateActiveMask(cls, range_string, bool_vector):
+    def updateActiveMask(self, range_string):
         """
         Updates a bool vector based on a range string.
         @type range_string: str
         @type bool_vector: BoolVector
         @rtype: bool
         """
-        return cls.cNamespace().update_active_mask(range_string, bool_vector)
+        return self._update_active_mask(range_string , self)
 
     @classmethod
     def createFromList(cls, size, source_list):
@@ -91,61 +140,6 @@ class BoolVector(VectorTemplate):
 
         return bool_vector
 
-
     def createActiveList(self):
         """ @rtype: ert.util.IntVector """
-        return BoolVector.cNamespace().active_list(self)
-
-
-cwrapper = CWrapper(UTIL_LIB)
-CWrapper.registerObjectType("bool_vector", BoolVector)
-
-
-BoolVector.cNamespace().alloc               = cwrapper.prototype("c_void_p   bool_vector_alloc( int , bool )")
-BoolVector.cNamespace().alloc_copy          = cwrapper.prototype("bool_vector_obj bool_vector_alloc_copy( bool_vector )")
-BoolVector.cNamespace().strided_copy        = cwrapper.prototype("bool_vector_obj bool_vector_alloc_strided_copy( bool_vector , int , int , int)")
-BoolVector.cNamespace().free                = cwrapper.prototype("void   bool_vector_free( bool_vector )")
-BoolVector.cNamespace().iget                = cwrapper.prototype("bool   bool_vector_iget( bool_vector , int )")
-BoolVector.cNamespace().safe_iget           = cwrapper.prototype("bool   bool_vector_safe_iget( bool_vector , int )")
-BoolVector.cNamespace().iset                = cwrapper.prototype("void   bool_vector_iset( bool_vector , int , bool)")
-BoolVector.cNamespace().size                = cwrapper.prototype("int    bool_vector_size( bool_vector )")
-BoolVector.cNamespace().append              = cwrapper.prototype("void   bool_vector_append( bool_vector , bool )")
-BoolVector.cNamespace().idel_block          = cwrapper.prototype("void   bool_vector_idel_block( bool_vector , bool , bool )")
-BoolVector.cNamespace().idel                = cwrapper.prototype("void   bool_vector_idel( bool_vector , int )")
-BoolVector.cNamespace().pop                 = cwrapper.prototype("bool   bool_vector_pop( bool_vector )")
-BoolVector.cNamespace().lshift              = cwrapper.prototype("void   bool_vector_lshift( bool_vector , int )")
-BoolVector.cNamespace().rshift              = cwrapper.prototype("void   bool_vector_rshift( bool_vector , int )")
-BoolVector.cNamespace().insert              = cwrapper.prototype("void   bool_vector_insert( bool_vector , int , bool)")
-BoolVector.cNamespace().fprintf             = cwrapper.prototype("void   bool_vector_fprintf( bool_vector , FILE , char* , char*)")
-BoolVector.cNamespace().sort                = cwrapper.prototype("void   bool_vector_sort( bool_vector )")
-BoolVector.cNamespace().rsort               = cwrapper.prototype("void   bool_vector_rsort( bool_vector )")
-BoolVector.cNamespace().reset               = cwrapper.prototype("void   bool_vector_reset( bool_vector )")
-BoolVector.cNamespace().set_read_only       = cwrapper.prototype("void   bool_vector_set_read_only( bool_vector , bool )")
-BoolVector.cNamespace().get_read_only       = cwrapper.prototype("bool   bool_vector_get_read_only( bool_vector )")
-BoolVector.cNamespace().get_max             = cwrapper.prototype("bool   bool_vector_get_max( bool_vector )")
-BoolVector.cNamespace().get_min             = cwrapper.prototype("bool   bool_vector_get_min( bool_vector )")
-BoolVector.cNamespace().get_max_index       = cwrapper.prototype("int    bool_vector_get_max_index( bool_vector , bool)")
-BoolVector.cNamespace().get_min_index       = cwrapper.prototype("int    bool_vector_get_min_index( bool_vector , bool)")
-BoolVector.cNamespace().shift               = cwrapper.prototype("void   bool_vector_shift( bool_vector , bool )")
-BoolVector.cNamespace().scale               = cwrapper.prototype("void   bool_vector_scale( bool_vector , bool )")
-BoolVector.cNamespace().div                 = cwrapper.prototype("void   bool_vector_div( bool_vector , bool )")
-BoolVector.cNamespace().inplace_add         = cwrapper.prototype("void   bool_vector_inplace_add( bool_vector , bool_vector )")
-BoolVector.cNamespace().inplace_mul         = cwrapper.prototype("void   bool_vector_inplace_mul( bool_vector , bool_vector )")
-BoolVector.cNamespace().assign              = cwrapper.prototype("void   bool_vector_set_all( bool_vector , bool)")
-BoolVector.cNamespace().memcpy              = cwrapper.prototype("void   bool_vector_memcpy(bool_vector , bool_vector )")
-BoolVector.cNamespace().set_default         = cwrapper.prototype("void   bool_vector_set_default( bool_vector , bool)")
-BoolVector.cNamespace().get_default         = cwrapper.prototype("bool   bool_vector_get_default( bool_vector )")
-BoolVector.cNamespace().element_size        = cwrapper.prototype("int    bool_vector_element_size( bool_vector )")
-
-BoolVector.cNamespace().permute          = cwrapper.prototype("void bool_vector_permute(bool_vector, permutation_vector)")
-BoolVector.cNamespace().sort_perm        = cwrapper.prototype("permutation_vector_obj bool_vector_alloc_sort_perm(bool_vector)")
-BoolVector.cNamespace().rsort_perm       = cwrapper.prototype("permutation_vector_obj bool_vector_alloc_rsort_perm(bool_vector)")
-
-BoolVector.cNamespace().create_active_mask = cwrapper.prototype("bool_vector_obj string_util_alloc_active_mask( char* )")
-BoolVector.cNamespace().update_active_mask = cwrapper.prototype("bool string_util_update_active_mask(char*, bool_vector)")
-BoolVector.cNamespace().active_list        = cwrapper.prototype("int_vector_obj bool_vector_alloc_active_list(bool_vector)")
-BoolVector.cNamespace().contains           = cwrapper.prototype("bool bool_vector_contains(bool_vector, bool)")
-BoolVector.cNamespace().select_unique          = cwrapper.prototype("void bool_vector_select_unique(bool_vector)")
-BoolVector.cNamespace().element_sum       = cwrapper.prototype("bool bool_vector_sum(bool_vector)")
-BoolVector.cNamespace().get_data_ptr      = cwrapper.prototype("bool* bool_vector_get_ptr(bool_vector)")
-BoolVector.cNamespace().count_equal       = cwrapper.prototype("int bool_vector_count_equal(bool_vector, bool)")
+        return self._active_list(self)

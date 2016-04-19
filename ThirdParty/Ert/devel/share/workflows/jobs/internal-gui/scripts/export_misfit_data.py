@@ -16,7 +16,7 @@ class ExportMisfitDataJob(ErtScript):
         if target_file is None:
             target_file = ert.getModelConfig().getGenKWExportFile()
 
-        runpath_list = ert.getPostSimulationHook().getRunpathList()
+        runpath_list = ert.getHookManager().getRunpathList()
 
         active_list = self.createActiveList(fs)
 

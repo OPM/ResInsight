@@ -382,19 +382,22 @@ int meas_data_get_active_obs_size( const meas_data_type * matrix ) {
 
 
 
+/*
+  Observe that this can return NULL is there is no data/observations.
+*/
 
 matrix_type * meas_data_allocS(const meas_data_type * matrix) {
   int obs_offset  = 0;
   matrix_type * S = matrix_alloc( meas_data_get_active_obs_size( matrix ) , matrix->active_ens_size);
+  if (S) {
+    for (int block_nr = 0; block_nr < vector_get_size( matrix->data ); block_nr++) {
+      const meas_block_type * meas_block = vector_iget_const( matrix->data , block_nr);
+      meas_block_initS( meas_block , S , &obs_offset);
+    }
 
-  for (int block_nr = 0; block_nr < vector_get_size( matrix->data ); block_nr++) {
-    const meas_block_type * meas_block = vector_iget_const( matrix->data , block_nr);
-    meas_block_initS( meas_block , S , &obs_offset);
+    matrix_set_name( S , "S");
+    matrix_assert_finite( S );
   }
-
-  matrix_set_name( S , "S");
-  matrix_assert_finite( S );
-
   return S;
 }
 

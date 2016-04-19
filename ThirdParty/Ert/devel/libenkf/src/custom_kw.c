@@ -36,6 +36,17 @@ custom_kw_type * custom_kw_alloc(const custom_kw_config_type * config) {
     custom_kw_type * custom_kw = util_malloc(sizeof * custom_kw);
     custom_kw->config = (custom_kw_config_type *) config;
     custom_kw->data = stringlist_alloc_new();
+
+    stringlist_type * keys = custom_kw_config_get_keys(custom_kw->config);
+    for(int index = 0; index < stringlist_get_size(keys); index++) {
+        const char * key = stringlist_iget(keys, index);
+        if(custom_kw_config_key_is_double(custom_kw->config, key)) {
+            custom_kw_set_double(custom_kw, key, 0.0);
+        } else {
+            custom_kw_set_string(custom_kw, key, "");
+        }
+    }
+    
     custom_kw->__type_id = CUSTOM_KW;
     return custom_kw;
 }
@@ -54,6 +65,20 @@ bool custom_kw_key_is_null(const custom_kw_type * custom_kw, char * key) {
     return stringlist_iget(custom_kw->data, index) == NULL;
 }
 
+
+void custom_kw_set_double(custom_kw_type * custom_kw, const char * key, double value) {
+    char value_as_string[128];
+    sprintf(value_as_string, "%26.100f", value);
+    custom_kw_set_string(custom_kw, key, value_as_string);
+}
+
+
+void custom_kw_set_string(custom_kw_type * custom_kw, const char * key, const char * value) {
+    int index = custom_kw_config_index_of_key(custom_kw->config, key);
+    stringlist_iset_copy(custom_kw->data, index, value);
+}
+
+
 double custom_kw_iget_as_double(const custom_kw_type * custom_kw, int index) {
     double value;
 
@@ -66,20 +91,20 @@ const char * custom_kw_iget_as_string(const custom_kw_type * custom_kw, int inde
 }
 
 custom_kw_config_type * custom_kw_get_config(const custom_kw_type * custom_kw) {
-    return custom_kw->config;
+  return custom_kw->config;
 }
 
 bool custom_kw_fload(custom_kw_type * custom_kw, const char * filename) {
-    return custom_kw_config_parse_result_file(custom_kw->config, filename, custom_kw->data);
+  return custom_kw_config_parse_result_file(custom_kw->config, filename, custom_kw->data);
 }
 
-bool custom_kw_forward_load(custom_kw_type * custom_kw, const char * ecl_file, const ecl_sum_type * ecl_sum, const ecl_file_type * restart_file, int report_step) {
-    return custom_kw_fload(custom_kw, ecl_file);
+bool custom_kw_forward_load(custom_kw_type * custom_kw, const char * ecl_file, const forward_load_context_type * load_context) {
+  return custom_kw_fload(custom_kw, ecl_file);
 }
 
 bool custom_kw_write_to_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, int report_step, state_enum state) {
-    stringlist_buffer_fwrite(custom_kw->data, buffer);
-    return true;
+  stringlist_buffer_fwrite(custom_kw->data, buffer);
+  return true;
 }
 
 void custom_kw_read_from_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {

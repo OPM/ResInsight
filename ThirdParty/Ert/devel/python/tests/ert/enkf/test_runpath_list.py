@@ -1,5 +1,5 @@
 from ert.cwrap import clib, CWrapper
-from ert.test import ExtendedTestCase
+from ert.test import ExtendedTestCase, TestAreaContext
 from ert.enkf import RunpathList, RunpathNode
 
 
@@ -37,3 +37,39 @@ class RunpathListTest(ExtendedTestCase):
         runpath_list.clear()
 
         self.assertEqual(len(runpath_list), 0)
+
+
+        
+    def test_sorted_export(self):
+        with TestAreaContext("runpath_list"):
+            runpath_list = RunpathList("EXPORT.txt")
+            runpath_list.add( 3 , 1 , "path" , "base" )
+            runpath_list.add( 1 , 1 , "path" , "base" )
+            runpath_list.add( 2 , 1 , "path" , "base" )
+            runpath_list.add( 0 , 0 , "path" , "base" )
+
+            runpath_list.add( 3 , 0 , "path" , "base" )
+            runpath_list.add( 1 , 0 , "path" , "base" )
+            runpath_list.add( 2 , 0 , "path" , "base" )
+            runpath_list.add( 0 , 1 , "path" , "base" )
+
+            runpath_list.export( )
+
+            path_list = []
+            with open("EXPORT.txt") as f:
+                for line in f.readlines():
+                    tmp = line.split()
+                    iens = int(tmp[0])
+                    iteration = int(tmp[3])
+
+                    path_list.append( (iens , iteration) )
+                
+            for iens in range(4):
+                t0 = path_list[iens]
+                t4 = path_list[iens + 4]
+                self.assertEqual( t0[0] , iens )
+                self.assertEqual( t4[0] , iens )
+
+                self.assertEqual( t0[1] , 0 )
+                self.assertEqual( t4[1] , 1 )
+

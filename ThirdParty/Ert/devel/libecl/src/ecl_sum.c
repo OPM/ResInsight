@@ -649,8 +649,8 @@ double ecl_sum_get_general_var(const ecl_sum_type * ecl_sum , int time_index , c
 }
 
 
-void ecl_sum_dump_line_to_csv_file(const ecl_sum_type * ecl_sum, time_t sim_time, const ecl_sum_vector_type * key_words, FILE *fp){
-    ecl_sum_data_write_csv_file(ecl_sum->data, sim_time, key_words, fp);
+void ecl_sum_fwrite_interp_csv_line(const ecl_sum_type * ecl_sum, time_t sim_time, const ecl_sum_vector_type * key_words, FILE *fp){
+  ecl_sum_data_fwrite_interp_csv_line(ecl_sum->data, sim_time, key_words, fp);
 }
 
 
@@ -868,20 +868,6 @@ double ecl_sum_iget_sim_days( const ecl_sum_type * ecl_sum , int index ) {
 /*****************************************************************/
 /* This is essentially the summary.x program. */
 
-void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt ) {
-  fmt->locale     = "Norwegian";
-  fmt->sep        = "\t";
-  fmt->date_fmt   = "%d/%m/%y";
-  fmt->value_fmt  = "%g";
-  fmt->days_fmt   = "%7.2f";
-  fmt->header_fmt = "%s";
-
-  fmt->newline     = "\r\n";
-  fmt->date_header = "DAYS\tDATE";
-  fmt->print_header = true;
-  fmt->print_dash = false;
-}
-
 
 
 void ecl_sum_fmt_init_summary_x( const ecl_sum_type * ecl_sum , ecl_sum_fmt_type * fmt ) {
@@ -1019,6 +1005,36 @@ void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const string
   free( date_string );
 }
 #undef DATE_STRING_LENGTH
+
+
+
+
+static void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt , const char * date_format , const char * date_header , const char * sep) {
+  fmt->locale     = NULL; //"Norwegian";
+  fmt->sep        = sep;
+  fmt->date_fmt   = date_format;
+  fmt->value_fmt  = "%g";
+  fmt->days_fmt   = "%7.2f";
+  fmt->header_fmt = "%s";
+
+  fmt->newline     = "\r\n";
+  fmt->date_header = date_header;
+  fmt->print_header = true;
+  fmt->print_dash   = false;
+}
+
+
+void ecl_sum_export_csv(const ecl_sum_type * ecl_sum , const char * filename  , const stringlist_type * var_list , const char * date_format , const char * sep) {
+  FILE * stream = util_mkdir_fopen(filename , "w");
+  char * date_header = util_alloc_sprintf("DAYS%sDATE" , sep);
+  bool report_only = false;
+  ecl_sum_fmt_type fmt;
+  ecl_sum_fmt_init_csv( &fmt , date_format , date_header , sep );
+  ecl_sum_fprintf( ecl_sum , stream , var_list , report_only , &fmt );
+  fclose( stream );
+  free( date_header );
+}
+
 
 
 const char * ecl_sum_get_case(const ecl_sum_type * ecl_sum) {

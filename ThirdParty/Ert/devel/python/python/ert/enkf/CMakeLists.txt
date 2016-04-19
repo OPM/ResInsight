@@ -32,17 +32,20 @@ set(PYTHON_SOURCES
     obs_block.py
     obs_data.py
     plot_config.py
-    post_simulation_hook.py
+    hook_manager.py
+    hook_workflow.py
     run_arg.py
     runpath_list.py
     site_config.py
     state_map.py
     summary_key_matcher.py
     summary_key_set.py
+    forward_load_context.py
 )
 
 add_python_package("python.ert.enkf" ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)
 
+add_subdirectory(config)
 add_subdirectory(data)
 add_subdirectory(enums)
 add_subdirectory(export)

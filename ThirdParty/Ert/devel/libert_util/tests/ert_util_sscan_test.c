@@ -19,7 +19,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+
+#include <ert/util/util.h>
 #include <ert/util/test_util.h>
+
 
 
 

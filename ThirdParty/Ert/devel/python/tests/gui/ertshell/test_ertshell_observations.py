@@ -23,3 +23,6 @@ class ErtShellObservationsTest(ExtendedTestCase):
 
             self.assertTrue(shell.invokeCommand("observations load Observations/observation_3"))
             self.assertEqual(original_observation_count, len(ert.getObservations()))
+
+            self.assertTrue(shell.invokeCommand("observations reload Observations/observation_1"))
+            self.assertEqual(1, len(ert.getObservations()))

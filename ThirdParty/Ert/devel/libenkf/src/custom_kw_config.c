@@ -26,7 +26,7 @@
 #define CUSTOM_KW_CONFIG_ID 90051933
 
 struct custom_kw_config_struct {
-    CONFIG_STD_FIELDS;
+    UTIL_TYPE_ID_DECLARATION;
     char * name;
     char * result_file;
     char * output_file;
@@ -52,11 +52,38 @@ custom_kw_config_type * custom_kw_config_alloc_empty(const char * key, const cha
     custom_kw_config->key_definition_file = NULL;
 
     custom_kw_config->custom_keys = hash_alloc();
-    custom_kw_config->custom_key_types = hash_alloc(); //types: 0 if string 1 if double
+    custom_kw_config->custom_key_types = hash_alloc(); //types: 0 if string, 1 if double
     pthread_rwlock_init(& custom_kw_config->rw_lock, NULL);
 
     return custom_kw_config;
 }
+
+
+custom_kw_config_type * custom_kw_config_alloc_with_definition(const char * key, const hash_type * definition) {
+    custom_kw_config_type * custom_kw_config = custom_kw_config_alloc_empty(key, NULL, NULL);
+
+    stringlist_type * keys = hash_alloc_stringlist((hash_type *) definition);
+
+    for(int index = 0; index < stringlist_get_size(keys); index++) {
+        const char * definition_key = stringlist_iget_copy(keys, index);
+        int type_value = hash_get_int(definition, definition_key);
+
+        if(type_value < 0 || type_value > 1) {
+            fprintf(stderr ,"[%s] Warning: Value type not 0 or 1 for key: '%s', defaulting to string!\n", __func__, key);
+            type_value = 0;
+        }
+        hash_insert_int(custom_kw_config->custom_keys, definition_key, index);
+        hash_insert_int(custom_kw_config->custom_key_types, definition_key, type_value);
+    }
+
+    custom_kw_config->undefined = false;
+    custom_kw_config->key_definition_file = util_alloc_string_copy("custom definition");
+
+    stringlist_free(keys);
+
+    return custom_kw_config;
+}
+
 
 void custom_kw_config_free(custom_kw_config_type * config) {
     util_safe_free(config->name);
@@ -174,13 +201,13 @@ static bool custom_kw_config_setup__(custom_kw_config_type * config, const char 
         int read_count;
         while ((read_count = fscanf(stream, "%s %s", key, value)) != EOF) {
             if (read_count == 1) {
-                printf("[%s] Warning: Key: '%s:%s' is missing value in file: '%s'\n", __func__, config->name, key, result_file);
+                fprintf(stderr ,"[%s] Warning: Key: '%s:%s' is missing value in file: '%s'\n", __func__, config->name, key, result_file);
                 read_ok = false;
                 break;
             }
 
             if (custom_kw_config_has_key(config, key)) {
-                printf("[%s] Warning: Key: '%s:%s' already defined!\n", __func__, config->name, key);
+                fprintf(stderr ,"[%s] Warning: Key: '%s:%s' already defined!\n", __func__, config->name, key);
             } else {
                 hash_insert_int(config->custom_keys, key, counter++);
                 hash_insert_int(config->custom_key_types, key, util_sscanf_double(value, NULL));
@@ -207,14 +234,14 @@ static bool custom_kw_config_read_data__(const custom_kw_config_type * config, c
         int read_count;
         while ((read_count = fscanf(stream, "%s %s", key, value)) != EOF) {
             if (read_count == 1) {
-                printf("[%s] Warning: Key: '%s:%s' missing value in file: %s!\n", __func__, config->name, key, result_file);
+                fprintf(stderr ,"[%s] Warning: Key: '%s:%s' missing value in file: %s!\n", __func__, config->name, key, result_file);
                 read_ok = false;
                 break;
             }
 
             if (custom_kw_config_has_key(config, key)) {
                 if (hash_has_key(read_keys, key)) {
-                    printf("[%s] Warning:  Key: '%s:%s' has appeared multiple times. Only the last occurrence will be used!\n", __func__, config->name, key);
+                    fprintf(stderr ,"[%s] Warning:  Key: '%s:%s' has appeared multiple times. Only the last occurrence will be used!\n", __func__, config->name, key);
                 }
 
                 hash_insert_int(read_keys, key, 1);
@@ -222,7 +249,7 @@ static bool custom_kw_config_read_data__(const custom_kw_config_type * config, c
                 stringlist_iset_copy(result, index, value);
 
             } else {
-                printf("[%s] Warning: Key: '%s:%s' not in the available set. Ignored!\n", __func__, config->name, key);
+                fprintf(stderr ,"[%s] Warning: Key: '%s:%s' not in the available set. Ignored!\n", __func__, config->name, key);
             }
         }
 
@@ -240,17 +267,21 @@ static bool custom_kw_config_read_data__(const custom_kw_config_type * config, c
 bool custom_kw_config_parse_result_file(custom_kw_config_type * config, const char * result_file, stringlist_type * result) {
     bool read_ok = true;
 
-    pthread_rwlock_wrlock(& config->rw_lock);
-    if (config->undefined) {
-        read_ok = custom_kw_config_setup__(config, result_file);
-        if (read_ok) {
-            config->undefined = false;
+    // if config->result_file is NULL then the CustomKWConfig was made dynamically
+    // for storing data manually and not as part of a forward model output.
+    if(config->result_file != NULL) {
+        pthread_rwlock_wrlock(&config->rw_lock);
+        if (config->undefined) {
+            read_ok = custom_kw_config_setup__(config, result_file);
+            if (read_ok) {
+                config->undefined = false;
+            }
         }
-    }
-    pthread_rwlock_unlock(& config->rw_lock);
+        pthread_rwlock_unlock(&config->rw_lock);
 
-    if (read_ok) {
-        read_ok = custom_kw_config_read_data__(config, result_file, result);
+        if (read_ok) {
+            read_ok = custom_kw_config_read_data__(config, result_file, result);
+        }
     }
 
     return read_ok;

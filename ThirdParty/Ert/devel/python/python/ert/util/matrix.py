@@ -27,27 +27,39 @@
 # choice.
 
 
-from ert.util import UTIL_LIB
-from ert.cwrap import CWrapper, BaseCClass
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
 
 
 class Matrix(BaseCClass):
-    def __init__(self, rows, columns , value = 0):
-        c_ptr = Matrix.cNamespace().matrix_alloc(rows, columns)
+    _matrix_alloc = UtilPrototype("void*  matrix_alloc(int, int )" , bind = False)
+    _free         = UtilPrototype("void   matrix_free(matrix)")
+    _iget         = UtilPrototype("double matrix_iget( matrix , int , int )")
+    _iset         = UtilPrototype("void   matrix_iset( matrix , int , int , double)")
+    _set_all      = UtilPrototype("void   matrix_scalar_set( matrix , double)")
+    _scale_column = UtilPrototype("void matrix_scale_column(matrix , int , double)")
+    _scale_row    = UtilPrototype("void matrix_scale_row(matrix , int , double)")
+    _copy_column  = UtilPrototype("void matrix_copy_column(matrix , matrix , int , int)" , bind = False)
+    _rows         = UtilPrototype("int matrix_get_rows(matrix)")
+    _columns      = UtilPrototype("int matrix_get_columns(matrix)")
+    _equal        = UtilPrototype("bool matrix_equal(matrix, matrix)")
+    _pretty_print = UtilPrototype("void matrix_pretty_print(matrix, char*, char*)")
+    _random_init  = UtilPrototype("void matrix_random_init(matrix, rng)")
+
+    def __init__(self, rows, columns, value=0):
+        c_ptr = self._matrix_alloc(rows, columns)
         super(Matrix, self).__init__(c_ptr)
         self.setAll(value)
-
 
     def __str__(self):
         s = ""
         for i in range(self.rows()):
             s += "["
             for j in range(self.columns()):
-                d = Matrix.cNamespace().iget(self, i,j)
+                d = self._iget(self, i, j)
                 s += "%6.3g " % d
             s += "]\n"
         return s
-
 
     def __getitem__(self, index_tuple):
         if not 0 <= index_tuple[0] < self.rows():
@@ -56,8 +68,7 @@ class Matrix(BaseCClass):
         if not 0 <= index_tuple[1] < self.columns():
             raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.columns()))
 
-        return Matrix.cNamespace().iget(self, index_tuple[0], index_tuple[1])
-
+        return self._iget(index_tuple[0], index_tuple[1])
 
     def __setitem__(self, index_tuple, value):
         if not 0 <= index_tuple[0] < self.rows():
@@ -66,42 +77,37 @@ class Matrix(BaseCClass):
         if not 0 <= index_tuple[1] < self.columns():
             raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.columns()))
 
-        return Matrix.cNamespace().iset(self, index_tuple[0], index_tuple[1], value)
-
+        return self._iset(index_tuple[0], index_tuple[1], value)
 
     def dims(self):
-        return (Matrix.cNamespace().rows(self) , Matrix.cNamespace().columns(self))
-
+        return self._rows(), self._columns()
 
     def rows(self):
         """ @rtype: int """
-        return Matrix.cNamespace().rows(self)
-
+        return self._rows()
 
     def columns(self):
         """ @rtype: int """
-        return Matrix.cNamespace().columns(self)
-
+        return self._columns()
 
     def __eq__(self, other):
         assert isinstance(other, Matrix)
-        return Matrix.cNamespace().equal(self, other)
+        return self._equal(other)
 
-    def scaleColumn(self, column , factor):
+    def scaleColumn(self, column, factor):
         if not 0 <= column < self.columns():
-            raise IndexError("Expected column: [0,%d) got:%d" % (self.columns() , column))
-        Matrix.cNamespace().scale_column(self , column , factor)
+            raise IndexError("Expected column: [0,%d) got:%d" % (self.columns(), column))
+        self._scale_column(column, factor)
 
-    def scaleRow(self, row , factor):
+    def scaleRow(self, row, factor):
         if not 0 <= row < self.rows():
-            raise IndexError("Expected row: [0,%d) got:%d" % (self.rows() , row))
-        Matrix.cNamespace().scale_row(self , row ,  factor)
-        
+            raise IndexError("Expected row: [0,%d) got:%d" % (self.rows(), row))
+        self._scale_row(row, factor)
 
-    def setAll(self , value):
-        Matrix.cNamespace().set_all(self, value)
+    def setAll(self, value):
+        self._set_all(value)
 
-    def copyColumn(self , target_column , src_column):
+    def copyColumn(self, target_column, src_column):
         columns = self.columns()
         if not 0 <= src_column < columns:
             raise ValueError("src column:%d invalid" % src_column)
@@ -111,43 +117,13 @@ class Matrix(BaseCClass):
 
         if src_column != target_column:
             # The underlying C function accepts column copy between matrices.
-            Matrix.cNamespace().copy_column(self, self , target_column , src_column)
-
-
+            Matrix._copy_column(self, self, target_column, src_column)
 
     def prettyPrint(self, name, fmt="%6.3g"):
-        Matrix.cNamespace().pretty_print(self, name, fmt)
+        self._pretty_print(name, fmt)
 
-
-    def randomInit(self , rng):
-        Matrix.cNamespace().random_init(self, rng)
-
+    def randomInit(self, rng):
+        self._random_init(rng)
 
     def free(self):
-        Matrix.cNamespace().free(self)
-
-
-#################################################################
-
-cwrapper = CWrapper(UTIL_LIB)
-CWrapper.registerType("matrix", Matrix)
-CWrapper.registerType("matrix_obj", Matrix.createPythonObject)
-CWrapper.registerType("matrix_ref", Matrix.createCReference)
-
-Matrix.cNamespace().matrix_alloc = cwrapper.prototype("c_void_p matrix_alloc(int, int )")
-Matrix.cNamespace().free = cwrapper.prototype("void   matrix_free(matrix)")
-Matrix.cNamespace().iget = cwrapper.prototype("double matrix_iget( matrix , int , int )")
-Matrix.cNamespace().iset = cwrapper.prototype("void   matrix_iset( matrix , int , int , double)")
-Matrix.cNamespace().set_all = cwrapper.prototype("void   matrix_scalar_set( matrix , double)")
-Matrix.cNamespace().scale_column = cwrapper.prototype("void matrix_scale_column(matrix , int , double)")
-Matrix.cNamespace().scale_row    = cwrapper.prototype("void matrix_scale_row(matrix , int , double)")
-Matrix.cNamespace().copy_column = cwrapper.prototype("void matrix_copy_column(matrix , matrix , int , int)")
-
-Matrix.cNamespace().rows = cwrapper.prototype("int matrix_get_rows(matrix)")
-Matrix.cNamespace().columns = cwrapper.prototype("int matrix_get_columns(matrix)")
-Matrix.cNamespace().equal = cwrapper.prototype("bool matrix_equal(matrix, matrix)")
-
-Matrix.cNamespace().pretty_print = cwrapper.prototype("void matrix_pretty_print(matrix, char*, char*)")
-Matrix.cNamespace().random_init = cwrapper.prototype("void matrix_random_init(matrix, rng)")
-
-    
+        self._free()

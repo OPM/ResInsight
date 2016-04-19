@@ -33,7 +33,7 @@ extern "C" {
 #include <ert/enkf/field_common.h>
 
 /* Typedef field_type moved to field_config.h */
-
+ 
   void         field_scale(field_type * field, double scale_factor);
   int          field_get_global_index(const field_type * , int  , int  , int );
   void         field_ijk_set(field_type * , int  , int  , int  , const void * );

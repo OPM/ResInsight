@@ -1,5 +1,6 @@
 import os.path
-from ert.enkf.data import GenKw, GenKwConfig
+from ert.enkf.data import GenKw
+from ert.enkf.config import GenKwConfig
 from ert.test import TestAreaContext, ExtendedTestCase
 
 

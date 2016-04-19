@@ -83,7 +83,7 @@ else:
     silent_warnings = set()
 
 if not "eclimport" in silent_warnings:
-    warn(warning_message)
+    warn(warning_message , DeprecationWarning)
 
 
 from .ecl_sum import EclSum #, EclSumVector, EclSumNode, EclSMSPECNode
@@ -116,17 +116,6 @@ class default_wrapper(object):
 
 ecl_default = default_wrapper()
 
-
-from .ecl_util import EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, EclUtil
-    
-for enum in EclFileFlagEnum.enum_names:
-    globals()[enum] = getattr(EclFileFlagEnum, enum)
-
-for enum in EclPhaseEnum.enum_names:
-    globals()[enum] = getattr(EclPhaseEnum, enum)
-
-for enum in EclTypeEnum.enum_names:
-    globals()[enum] = getattr(EclTypeEnum, enum)
 
 
         

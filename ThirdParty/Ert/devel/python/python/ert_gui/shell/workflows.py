@@ -1,19 +1,27 @@
 from ert.job_queue import WorkflowRunner
-from ert_gui.shell import ShellFunction, assertConfigLoaded, autoCompleteList
+from ert_gui.shell import assertConfigLoaded, ErtShellCollection
+from ert_gui.shell.libshell import autoCompleteList
 
 
-class Workflows(ShellFunction):
-    def __init__(self, shell_context):
-        super(Workflows, self).__init__("workflows", shell_context)
+class Workflows(ErtShellCollection):
+    def __init__(self, parent):
+        super(Workflows, self).__init__("workflows", parent)
 
-        self.addHelpFunction("list", None, "Shows a list of all available workflows.")
-        self.addHelpFunction("run", "<workflow_name>", "Run a named workflow.")
+        self.addShellFunction(name="list",
+                              function=Workflows.list,
+                              help_message="Shows a list of all available workflows.")
+
+        self.addShellFunction(name="run",
+                              function=Workflows.run,
+                              completer=Workflows.completeRun,
+                              help_arguments="<workflow_name>",
+                              help_message="Run a named workflow.")
 
     def getWorkflowNames(self):
         return [workflow for workflow in self.ert().getWorkflowList().getWorkflowNames()]
 
     @assertConfigLoaded
-    def do_list(self, line):
+    def list(self, line):
         workflows = self.getWorkflowNames()
         if len(workflows) > 0:
             self.columnize(workflows)
@@ -21,7 +29,7 @@ class Workflows(ShellFunction):
             print("No workflows available.")
 
     @assertConfigLoaded
-    def do_run(self, workflow):
+    def run(self, workflow):
         workflow = workflow.strip()
         if workflow in self.getWorkflowNames():
             workflow_list = self.ert().getWorkflowList()
@@ -35,5 +43,6 @@ class Workflows(ShellFunction):
             self.lastCommandFailed("Unknown workflow: '%s'" % workflow)
 
     @assertConfigLoaded
-    def complete_run(self, text, line, begidx, endidx):
+    def completeRun(self, text, line, begidx, endidx):
         return autoCompleteList(text, self.getWorkflowNames())
+

@@ -37,7 +37,7 @@ add_test( job_list_test valgrind --leak-check=full --error-exitcode=1 ${EXECUTAB
 add_test( ext_joblist_test ${EXECUTABLE_OUTPUT_PATH}/ext_joblist_test ${CMAKE_CURRENT_SOURCE_DIR}/data/jobs/util ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable( job_program_output job_program_output.c )
-target_link_libraries( job_program_output util test_util)
+target_link_libraries( job_program_output ert_util test_util)
 
 add_executable( job_queue_test job_job_queue_test.c )
 target_link_libraries( job_queue_test job_queue test_util )
@@ -48,7 +48,9 @@ target_link_libraries( job_queue_stress_task  ert_util )
 
 add_executable( job_queue_stress_test job_queue_stress_test.c )
 target_link_libraries( job_queue_stress_test job_queue test_util )
-add_test( job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task )
+add_test( job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task False)
+add_test( job_queue_user_exit ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task True)
+
 
 
 add_executable( job_queue_driver_test job_queue_driver_test.c )
@@ -62,16 +64,17 @@ endif()
 
 
 add_executable( job_torque_test job_torque_test.c )
-target_link_libraries( job_torque_test job_queue util test_util )
+target_link_libraries( job_torque_test job_queue ert_util test_util )
 add_test( job_torque_test ${EXECUTABLE_OUTPUT_PATH}/job_torque_test )
 
 add_executable( job_queue_manager job_queue_manager.c )
-target_link_libraries( job_queue_manager job_queue util test_util )
+target_link_libraries( job_queue_manager job_queue ert_util test_util )
 add_test( job_queue_manager ${EXECUTABLE_OUTPUT_PATH}/job_queue_manager )
 
-add_executable( job_torque_submit_test job_torque_submit_test.c )
-target_link_libraries( job_torque_submit_test job_queue util test_util )
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/qsub_emulators/ DESTINATION ${EXECUTABLE_OUTPUT_PATH})
+
+add_executable( job_torque_submit_test job_torque_submit_test.c )
+target_link_libraries( job_torque_submit_test job_queue ert_util test_util )
 add_test(NAME job_torque_submit_test WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH} COMMAND ${EXECUTABLE_OUTPUT_PATH}/job_torque_submit_test dummyparam)
 set_property(TEST job_torque_submit_test PROPERTY ENVIRONMENT “setenv PATH ${EXECUTABLE_OUTPUT_PATH}:$PATH”)
 set_property(TEST ext_joblist_test PROPERTY LABELS StatoilData )

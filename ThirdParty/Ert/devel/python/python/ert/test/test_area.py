@@ -15,54 +15,105 @@
 #  for more details.
 import os.path
 
-from ert.cwrap import clib, BaseCClass, CWrapper
-from ert.util import UTIL_LIB
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
 
 
 class TestArea(BaseCClass):
-    def __init__(self, test_name, prefix = None , store_area=False):
-        if prefix:
-            if os.path.exists( prefix ):
-                c_ptr = TestArea.cNamespace().test_area_alloc__(prefix , test_name)
+    _test_area_alloc           = UtilPrototype("void* test_work_area_alloc( char* )" , bind = False)
+    _test_area_alloc_relative  = UtilPrototype("void* test_work_area_alloc_relative( char* , char* )" , bind = False)
+    _free                      = UtilPrototype("void test_work_area_free( test_area )")
+    _install_file              = UtilPrototype("void test_work_area_install_file( test_area , char* )")
+    _copy_directory            = UtilPrototype("void test_work_area_copy_directory( test_area , char* )")
+    _copy_file                 = UtilPrototype("void test_work_area_copy_file( test_area , char* )")
+    _copy_directory_content    = UtilPrototype("void test_work_area_copy_directory_content( test_area , char* )")
+    _copy_parent_directory     = UtilPrototype("void test_work_area_copy_parent_directory( test_area , char* )")
+    _copy_parent_content       = UtilPrototype("void test_work_area_copy_parent_content( test_area , char* )")
+    _get_cwd                   = UtilPrototype("char* test_work_area_get_cwd( test_area )")
+    _get_original_cwd          = UtilPrototype("char* test_work_area_get_original_cwd( test_area )")
+    _set_store                 = UtilPrototype("void test_work_area_set_store( test_area , bool)")
+
+    def __init__(self, test_name, prefix = None , store_area=False , c_ptr = None):
+
+        if c_ptr is None:
+            if prefix:
+                if os.path.exists( prefix ):
+                    c_ptr = self._test_area_alloc_relative(prefix , test_name)
+                else:
+                    raise IOError("The prefix path:%s must exist" % prefix)
             else:
-                raise IOError("The prefix path:%s must exist" % prefix)
-        else:
-            c_ptr = TestArea.cNamespace().test_area_alloc(test_name)
+                c_ptr = self._test_area_alloc(test_name)
+
         super(TestArea, self).__init__(c_ptr)
         self.set_store( store_area )
 
+        
     def get_original_cwd(self):
-        return TestArea.cNamespace().get_original_cwd(self)
+        return self._get_original_cwd()
 
     def get_cwd(self):
-        return TestArea.cNamespace().get_cwd(self)
-        
+        return self._get_cwd()
+
+    def orgPath(self , path):
+        if os.path.isabs( path ):
+            return path
+        else:
+            return os.path.abspath( os.path.join( self.get_original_cwd( ) , path ) )
+    
+
+    # All the methods install_file() , copy_directory(),
+    # copy_parent_directory(), copy_parent_content(),
+    # copy_directory_content() and copy_file() expect an input
+    # argument which is relative to the original CWD - or absolute.
 
     def install_file( self, filename):
-        TestArea.cNamespace().install_file(self, filename)
+        if os.path.isfile(self.orgPath(filename)):
+            self._install_file(filename)
+        else:
+            raise IOError("No such file:%s" % filename)
 
 
     def copy_directory( self, directory):
-        TestArea.cNamespace().copy_directory(self, directory)
+        if os.path.isdir( self.orgPath(directory) ):
+            self._copy_directory(directory)
+        else:
+            raise IOError("No such directory: %s" % directory)
 
     def copy_parent_directory( self , path):
-        TestArea.cNamespace().copy_parent_directory(self , path)
+        if os.path.exists( self.orgPath(path) ):
+            self._copy_parent_directory( path)
+        else:
+            raise IOError("No such file or directeory: %s" % path)
 
+        
     def copy_parent_content( self , path):
-        TestArea.cNamespace().copy_parent_content(self , path)
+        if os.path.exists( self.orgPath(path) ):
+            self._copy_parent_content(path)
+        else:
+            raise IOError("No such file or directeory: %s" % path)
 
     def copy_directory_content( self, directory):
-        TestArea.cNamespace().copy_directory_content(self, directory)
+        if os.path.isdir( self.orgPath(directory) ):
+            self._copy_directory_content(directory)
+        else:
+            raise IOError("No such directeory: %s" % path)
 
+        
     def copy_file( self, filename):
-        TestArea.cNamespace().copy_file(self, filename)
+        if os.path.isfile( self.orgPath(filename) ):
+            self._copy_file(filename)
+        else:
+            raise IOError("No such file:%s" % filename)
 
+        
     def free(self):
-        TestArea.cNamespace().free(self)
+        self._free()
 
+        
     def set_store(self, store):
-        TestArea.cNamespace().set_store(self , store)
+        self._set_store(store)
 
+        
     def getFullPath(self , path):
         if not os.path.exists( path ):
             raise IOError("Path not found:%s" % path)
@@ -73,6 +124,7 @@ class TestArea(BaseCClass):
         return os.path.join( self.get_cwd() , path )
 
 
+    
 
 class TestAreaContext(object):
     def __init__(self, test_name, prefix = None , store_area=False):
@@ -91,23 +143,3 @@ class TestAreaContext(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         del self.test_area
         return False
-
-
-
-cwrapper = CWrapper(UTIL_LIB)
-CWrapper.registerType("test_area", TestArea)
-CWrapper.registerType("test_area_obj", TestArea.createPythonObject)
-CWrapper.registerType("test_area_ref", TestArea.createCReference)
-
-TestArea.cNamespace().test_area_alloc   = cwrapper.prototype("c_void_p test_work_area_alloc( char* )")
-TestArea.cNamespace().test_area_alloc__ = cwrapper.prototype("c_void_p test_work_area_alloc__( char* , char* )")
-TestArea.cNamespace().free = cwrapper.prototype("void test_work_area_free( test_area )")
-TestArea.cNamespace().install_file = cwrapper.prototype("void test_work_area_install_file( test_area , char* )")
-TestArea.cNamespace().copy_directory = cwrapper.prototype("void test_work_area_copy_directory( test_area , char* )")
-TestArea.cNamespace().copy_file = cwrapper.prototype("void test_work_area_copy_file( test_area , char* )")
-TestArea.cNamespace().copy_directory_content = cwrapper.prototype("void test_work_area_copy_directory_content( test_area , char* )")
-TestArea.cNamespace().copy_parent_directory = cwrapper.prototype("void test_work_area_copy_parent_directory( test_area , char* )")
-TestArea.cNamespace().copy_parent_content = cwrapper.prototype("void test_work_area_copy_parent_content( test_area , char* )")
-TestArea.cNamespace().get_cwd = cwrapper.prototype("char* test_work_area_get_cwd( test_area )")
-TestArea.cNamespace().get_original_cwd = cwrapper.prototype("char* test_work_area_get_original_cwd( test_area )")
-TestArea.cNamespace().set_store = cwrapper.prototype("void test_work_area_set_store( test_area , bool)")

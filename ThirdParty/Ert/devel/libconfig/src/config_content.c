@@ -110,6 +110,8 @@ config_error_type * config_content_get_errors( const config_content_type * conte
 
 void config_content_free( config_content_type * content ) {
   vector_free( content->nodes );
+  vector_free( content->path_elm_stack );
+  vector_free( content->path_elm_storage );
   hash_free( content->items );
   config_error_free( content->parse_errors );
   subst_list_free( content->define_list );
@@ -195,6 +197,12 @@ bool config_content_iget_as_bool( const config_content_type * content , const ch
 double config_content_iget_as_double( const config_content_type * content , const char * key , int occurence , int index) {
   config_content_item_type * item = config_content_get_item(content , key);
   return config_content_item_iget_as_double(item , occurence , index);
+}
+
+const char * config_content_iget_as_path( const config_content_type * content , const char * key , int occurence , int index) {
+  config_content_item_type * item = config_content_get_item(content , key);
+  config_content_node_type * node = config_content_item_iget_node( item , index );
+  return config_content_node_iget_as_path(node , index);
 }
 
 

@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <ert/util/ert_api_config.h>
 #include <ert/util/thread_pool.h>
 #include <ert/util/util.h>
 #include <ert/util/matrix.h>
@@ -1069,7 +1070,7 @@ void matrix_inplace_matmul(matrix_type * A, const matrix_type * B) {
    only the serial version matrix_inplace_matmul() will be used.  */
 
 
-#ifdef WITH_THREAD_POOL
+#ifdef ERT_HAVE_THREAD_POOL
 
 static void * matrix_inplace_matmul_mt__(void * arg) {
 
@@ -1314,7 +1315,7 @@ bool matrix_is_quadratic(const matrix_type * matrix) {
    Goes through all the elements in the matrix - and return true if they are all finite.
 */
 
-#ifdef HAVE_ISFINITE
+#ifdef ERT_HAVE_ISFINITE
 
 bool matrix_is_finite(const matrix_type * matrix) {
   int i,j;

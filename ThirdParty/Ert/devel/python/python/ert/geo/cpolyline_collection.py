@@ -19,22 +19,35 @@ Create a polygon
 import ctypes
 
 from ert.cwrap import BaseCClass, CWrapper
-from ert.geo import ERT_GEOMETRY_LIB , CPolyline
+from ert.geo import GeoPrototype, CPolyline
 
 
 class CPolylineCollection(BaseCClass):
+    TYPE_NAME = "geo_polygon_collection"
+
+    _alloc_new          = GeoPrototype("void*            geo_polygon_collection_alloc(  )" , bind = False)
+    _free               = GeoPrototype("void             geo_polygon_collection_free( geo_polygon_collection )" )
+    _size               = GeoPrototype("int              geo_polygon_collection_size( geo_polygon_collection)" )
+    _create_polyline    = GeoPrototype("geo_polygon_ref  geo_polygon_collection_create_polygon(geo_polygon_collection , char*)" )
+    _has_polyline       = GeoPrototype("bool             geo_polygon_collection_has_polygon(geo_polygon_collection , char*)" )
+    _iget               = GeoPrototype("geo_polygon_ref  geo_polygon_collection_iget_polygon(geo_polygon_collection , int)" )
+    _get                = GeoPrototype("geo_polygon_ref  geo_polygon_collection_get_polygon(geo_polygon_collection , char*)" )
+    _add_polyline       = GeoPrototype("void             geo_polygon_collection_add_polygon(geo_polygon_collection , geo_polygon , bool)")
+
+
+    
     def __init__(self):
-        c_ptr = CPolylineCollection.cNamespace().alloc_new(  )
+        c_ptr = self._alloc_new(  )
         super(CPolylineCollection , self).__init__( c_ptr )
         self.parent_ref = None
         
 
     def __contains__(self , name):
-        return CPolylineCollection.cNamespace().has_polyline(self , name)
+        return self._has_polyline(name)
     
 
     def __len__(self):
-        return CPolylineCollection.cNamespace().size(self)
+        return self._size( )
 
     
     def __iter__(self):
@@ -51,12 +64,12 @@ class CPolylineCollection(BaseCClass):
                 index += len(self)
                 
             if 0 <= index < len(self):
-                return CPolylineCollection.cNamespace().iget(self , index).setParent( self )
+                return self._iget( index).setParent( self )
             else:
                 raise IndexError("Invalid index:%d - valid range: [0,%d)" % (index , len(self)))
         elif isinstance(index , str):
             if index in self:
-                return CPolylineCollection.cNamespace().get(self , index)
+                return self._get(index)
             else:
                 raise KeyError("No polyline named:%s" % index)
         else:
@@ -66,7 +79,8 @@ class CPolylineCollection(BaseCClass):
     def shallowCopy(self):
         copy = CPolylineCollection()
         for pl in self:
-            CPolylineCollection.cNamespace().add_polyline(copy , pl , False)
+            copy._add_polyline(pl , False)
+
         # If we make a shallow copy we must ensure that source, owning
         # all the polyline objects does not go out of scope.
         copy.parent_ref = self
@@ -86,10 +100,10 @@ class CPolylineCollection(BaseCClass):
             raise KeyError("The polyline collection already has an object:%s" % name)
 
         if polyline.isReference():
-            CPolylineCollection.cNamespace().add_polyline(self , polyline , False)
+            self._add_polyline( polyline , False)
         else:
             polyline.convertToCReference( self )
-            CPolylineCollection.cNamespace().add_polyline(self , polyline , True)
+            self._add_polyline( polyline , True)
 
 
 
@@ -97,26 +111,11 @@ class CPolylineCollection(BaseCClass):
         if name and name in self:
             raise KeyError("The polyline collection already has an object:%s" % name)
             
-        polyline = CPolylineCollection.cNamespace().create_polyline(self , name)
+        polyline = self._create_polyline(name)
         return polyline
 
 
     def free(self):
-        CPolylineCollection.cNamespace().free(self)
-
-    
+        self._free( )
 
 
-#################################################################
-
-cwrapper = CWrapper(ERT_GEOMETRY_LIB)
-cwrapper.registerObjectType("geo_polygon_collection", CPolylineCollection)
-
-CPolylineCollection.cNamespace().alloc_new          = cwrapper.prototype("c_void_p         geo_polygon_collection_alloc(  )")
-CPolylineCollection.cNamespace().free               = cwrapper.prototype("void             geo_polygon_collection_free( geo_polygon_collection )" )
-CPolylineCollection.cNamespace().size               = cwrapper.prototype("int              geo_polygon_collection_size( geo_polygon_collection)" )
-CPolylineCollection.cNamespace().create_polyline    = cwrapper.prototype("geo_polygon_ref  geo_polygon_collection_create_polygon(geo_polygon_collection , char*)" )
-CPolylineCollection.cNamespace().has_polyline       = cwrapper.prototype("bool             geo_polygon_collection_has_polygon(geo_polygon_collection , char*)" )
-CPolylineCollection.cNamespace().iget               = cwrapper.prototype("geo_polygon_ref  geo_polygon_collection_iget_polygon(geo_polygon_collection , int)" )
-CPolylineCollection.cNamespace().get                = cwrapper.prototype("geo_polygon_ref  geo_polygon_collection_get_polygon(geo_polygon_collection , char*)" )
-CPolylineCollection.cNamespace().add_polyline       = cwrapper.prototype("void             geo_polygon_collection_add_polygon(geo_polygon_collection , geo_polygon , bool)")

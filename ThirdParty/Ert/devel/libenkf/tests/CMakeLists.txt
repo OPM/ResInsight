@@ -147,9 +147,6 @@ add_executable( enkf_fs enkf_fs.c )
 target_link_libraries( enkf_fs enkf test_util )
 add_test( enkf_fs  ${EXECUTABLE_OUTPUT_PATH}/enkf_fs )
 
-add_executable( enkf_fs_invalidate_cache enkf_fs_invalidate_cache.c )
-target_link_libraries( enkf_fs_invalidate_cache enkf test_util )
-add_test( enkf_fs_invalidate_cache ${EXECUTABLE_OUTPUT_PATH}/enkf_fs_invalidate_cache ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/with_data/config)
 
 add_executable( enkf_ert_test_context enkf_ert_test_context.c )
 target_link_libraries( enkf_ert_test_context enkf test_util )
@@ -158,18 +155,6 @@ add_test( enkf_ert_test_context  ${EXECUTABLE_OUTPUT_PATH}/enkf_ert_test_context
           ${CMAKE_CURRENT_SOURCE_DIR}/data/config/test_context/wf_job
           ${CMAKE_CURRENT_SOURCE_DIR}/data/config/test_context/wf_job_fail)
 
-
-add_executable( enkf_analysis_update_job enkf_analysis_update_job.c )
-target_link_libraries( enkf_analysis_update_job enkf test_util )
-add_test( enkf_analysis_update_job ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_update_job 
-          ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/with_data/config 
-          ${PROJECT_SOURCE_DIR}/share/workflows/jobs/internal/config/ANALYSIS_UPDATE )
-
-add_executable( enkf_analysis_enkf_update_job enkf_analysis_enkf_update_job.c )
-target_link_libraries( enkf_analysis_enkf_update_job enkf test_util )
-add_test( enkf_analysis_enkf_update_job ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_enkf_update_job 
-          ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/with_data/config 
-          ${PROJECT_SOURCE_DIR}/share/workflows/jobs/internal/config/ANALYSIS_ENKF_UPDATE )
 
 add_executable( enkf_scale_correlated_std enkf_scale_correlated_std.c )
 target_link_libraries( enkf_scale_correlated_std enkf test_util )
@@ -308,7 +293,7 @@ target_link_libraries( enkf_select_case_job  enkf test_util )
 
 add_test( enkf_select_case_job
           ${EXECUTABLE_OUTPUT_PATH}/enkf_select_case_job 
-          ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/export_fields/config 
+          ${PROJECT_SOURCE_DIR}/test-data/local/snake_oil/snake_oil.ert
           ${PROJECT_SOURCE_DIR}/share/workflows/jobs/internal-tui/config/SELECT_CASE)
 
 
@@ -403,9 +388,9 @@ add_executable( enkf_rng enkf_rng.c )
 target_link_libraries( enkf_rng enkf test_util )
 add_test( enkf_rng  ${EXECUTABLE_OUTPUT_PATH}/enkf_rng ${CMAKE_CURRENT_SOURCE_DIR}/data/config rng)
 
-add_executable( enkf_report_list enkf_report_list.c )
-target_link_libraries( enkf_report_list enkf test_util )
-add_test( enkf_report_list  ${EXECUTABLE_OUTPUT_PATH}/enkf_report_list ${CMAKE_CURRENT_SOURCE_DIR}/data/config/ert_report_list)
+add_executable( enkf_forward_load_context enkf_forward_load_context.c )
+target_link_libraries( enkf_forward_load_context enkf test_util )
+add_test( enkf_forward_load_context  ${EXECUTABLE_OUTPUT_PATH}/enkf_forward_load_context ${CMAKE_CURRENT_SOURCE_DIR}/data/config forward_load_context)
 
 add_executable( enkf_refcase_list enkf_refcase_list.c )
 target_link_libraries( enkf_refcase_list enkf test_util )
@@ -425,9 +410,9 @@ target_link_libraries( enkf_ecl_config_config enkf test_util )
 add_test( enkf_ecl_config_config  ${EXECUTABLE_OUTPUT_PATH}/enkf_ecl_config_config ${PROJECT_SOURCE_DIR}/test-data/Statoil/config/ecl_config )
 set_property( TEST enkf_ecl_config_config PROPERTY LABELS StatoilData )
 
-add_executable( enkf_qc_module_test enkf_qc_module_test.c )
-target_link_libraries( enkf_qc_module_test enkf test_util )
-add_test( enkf_qc_module_test ${EXECUTABLE_OUTPUT_PATH}/enkf_qc_module_test )
+add_executable( enkf_hook_manager_test enkf_hook_manager_test.c )
+target_link_libraries( enkf_hook_manager_test enkf test_util )
+add_test( enkf_hook_manager_test ${EXECUTABLE_OUTPUT_PATH}/enkf_hook_manager_test )
  
 add_executable(enkf_obs_tests enkf_obs_tests.c)
 target_link_libraries(enkf_obs_tests enkf test_util )
@@ -461,15 +446,11 @@ set_property( TEST enkf_state_summary_vars_present PROPERTY LABELS StatoilData )
 set_property( TEST enkf_state_no_summary_vars_present PROPERTY LABELS StatoilData )
 set_property( TEST enkf_export_field_test PROPERTY LABELS StatoilData )
 set_property( TEST enkf_workflow_job_test PROPERTY LABELS StatoilData )
-set_property( TEST enkf_select_case_job   PROPERTY LABELS StatoilData )
 set_property( TEST enkf_main_fs_current_file_test  PROPERTY LABELS StatoilData )
 set_property( TEST enkf_state_manual_load_test PROPERTY LABELS StatoilData )
-set_property( TEST enkf_analysis_update_job PROPERTY LABELS StatoilData )
-set_property( TEST enkf_analysis_enkf_update_job PROPERTY LABELS StatoilData )
 set_property( TEST enkf_block_obs PROPERTY LABELS StatoilData )
 set_property( TEST enkf_plot_gendata_fs PROPERTY LABELS StatoilData )
 set_property( TEST enkf_export_inactive_cells PROPERTY LABELS StatoilData )
-set_property( TEST enkf_fs_invalidate_cache PROPERTY LABELS StatoilData )
 set_property( TEST enkf_obs_fs PROPERTY LABELS StatoilData )
 set_property( TEST enkf_obs_vector_fs PROPERTY LABELS StatoilData )
 set_property( TEST enkf_magic_string_in_workflows PROPERTY LABELS StatoilData )

@@ -14,24 +14,16 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-from ert.cwrap import BaseCClass, CWrapper
-from ert.util import UTIL_LIB
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
 
 
 class Buffer(BaseCClass):
+    _alloc = UtilPrototype("void* buffer_alloc(int)" , bind = False)
+    _free = UtilPrototype("void buffer_free(buffer)")
+
     def __init__(self, size):
-        super(Buffer, self).__init__(Buffer.cNamespace().alloc(size))
+        super(Buffer, self).__init__(self._alloc(size))
 
     def free(self):
-        Buffer.cNamespace().free(self)
-
-##################################################################
-
-cwrapper = CWrapper(UTIL_LIB)
-cwrapper.registerType("buffer", Buffer)
-cwrapper.registerType("buffer_obj", Buffer.createPythonObject)
-cwrapper.registerType("buffer_ref", Buffer.createCReference)
-
-
-Buffer.cNamespace().free = cwrapper.prototype("void buffer_free(buffer)")
-Buffer.cNamespace().alloc = cwrapper.prototype("c_void_p buffer_alloc(int)")
+        self._free()

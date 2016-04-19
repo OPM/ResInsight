@@ -14,8 +14,16 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-from ert.ecl import EclFile, Ecl3DKW , Ecl3DFile
+from ert.ecl import EclFileEnum , EclFile, Ecl3DKW , Ecl3DFile
 
 
 class EclInitFile(Ecl3DFile):
-    pass        
+    def __init__(self , grid , filename , flags = 0):
+        file_type , report_step , fmt_file = EclFile.getFileType( filename )
+        if file_type == EclFileEnum.ECL_INIT_FILE:
+            super(EclInitFile , self).__init__( grid, filename , flags)
+        else:
+            raise ValueError("The input filename:%s does not correspond to a restart file - please follow the Eclipse naming conventions" % filename)
+            
+
+

@@ -8,7 +8,6 @@ from ert_gui.ide.keywords.parametrization_keywords import ParametrizationKeyword
 from ert_gui.ide.keywords.plot_keywords import PlotKeywords
 from ert_gui.ide.keywords.qc_keywords import QCKeywords
 from ert_gui.ide.keywords.queue_system_keywords import QueueSystemKeywords
-from ert_gui.ide.keywords.report_keywords import ReportKeywords
 from ert_gui.ide.keywords.run_keywords import RunKeywords
 from ert_gui.ide.keywords.simulation_control_keywords import SimulationControlKeywords
 from ert_gui.ide.keywords.unix_environment_keywords import UnixEnvironmentKeywords
@@ -32,7 +31,6 @@ class ErtKeywords(object):
         AnalysisModuleKeywords(self)
         PlotKeywords(self)
         WorkflowKeywords(self)
-        ReportKeywords(self)
         AdvancedKeywords(self)
         QCKeywords(self)
         UnixEnvironmentKeywords(self)

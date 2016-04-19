@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_util.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_util.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdlib.h>
@@ -21,6 +21,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+
+#include <ert/util/ert_api_config.h>
 
 #include <ert/util/util.h>
 #include <ert/util/hash.h>
@@ -32,16 +34,16 @@
 
 /*****************************************************************/
 /* The string names for the different ECLIPSE low-level
-   types. 
+   types.
 */
 
 
 #define ECL_TYPE_NAME_CHAR     "CHAR"
 #define ECL_TYPE_NAME_FLOAT    "REAL"
-#define ECL_TYPE_NAME_INT      "INTE" 
+#define ECL_TYPE_NAME_INT      "INTE"
 #define ECL_TYPE_NAME_DOUBLE   "DOUB"
 #define ECL_TYPE_NAME_BOOL     "LOGI"
-#define ECL_TYPE_NAME_MESSAGE  "MESS" 
+#define ECL_TYPE_NAME_MESSAGE  "MESS"
 
 
 #define ECL_PHASE_NAME_OIL   "SOIL"   // SHould match the keywords found in restart file
@@ -50,26 +52,38 @@
 
 
 #define ECL_OTHER_FILE_FMT_PATTERN        "*"
-#define ECL_RESTART_FMT_PATTERN           "F[0-9][0-9][0-9][0-9]"
 #define ECL_UNIFIED_RESTART_FMT_PATTERN   "FUNRST"
-#define ECL_SUMMARY_FMT_PATTERN           "A[0-9][0-9][0-9][0-9]"
 #define ECL_UNIFIED_SUMMARY_FMT_PATTERN   "FUNSMRY"
 #define ECL_GRID_FMT_PATTERN              "FGRID"
 #define ECL_EGRID_FMT_PATTERN             "FEGRID"
 #define ECL_INIT_FMT_PATTERN              "FINIT"
 #define ECL_RFT_FMT_PATTERN               "FRFT"
-#define ECL_DATA_PATTERN                  "DATA"   
-
+#define ECL_DATA_PATTERN                  "DATA"
 
 #define ECL_OTHER_FILE_UFMT_PATTERN       "*"
-#define ECL_RESTART_UFMT_PATTERN          "X[0-9][0-9][0-9][0-9]"
 #define ECL_UNIFIED_RESTART_UFMT_PATTERN  "UNRST"
-#define ECL_SUMMARY_UFMT_PATTERN          "S[0-9][0-9][0-9][0-9]"
-#define ECL_UNIFIED_SUMMARY_UFMT_PATTERN  "UNSMRY" 
+#define ECL_UNIFIED_SUMMARY_UFMT_PATTERN  "UNSMRY"
 #define ECL_GRID_UFMT_PATTERN             "GRID"
 #define ECL_EGRID_UFMT_PATTERN            "EGRID"
-#define ECL_INIT_UFMT_PATTERN             "INIT" 
-#define ECL_RFT_UFMT_PATTERN              "RFT"   
+#define ECL_INIT_UFMT_PATTERN             "INIT"
+#define ECL_RFT_UFMT_PATTERN              "RFT"
+
+#ifdef ERT_WINDOWS
+/*
+  The filename matching function on windows onyl recognizes the '*'
+  and '?' wildcard characters.
+*/
+  #define ECL_RESTART_FMT_PATTERN           "F????"
+  #define ECL_SUMMARY_FMT_PATTERN           "A????"
+  #define ECL_RESTART_UFMT_PATTERN          "X????"
+  #define ECL_SUMMARY_UFMT_PATTERN          "S????"
+#else
+  #define ECL_RESTART_FMT_PATTERN           "F[0-9][0-9][0-9][0-9]"
+  #define ECL_SUMMARY_FMT_PATTERN           "A[0-9][0-9][0-9][0-9]"
+  #define ECL_RESTART_UFMT_PATTERN          "X[0-9][0-9][0-9][0-9]"
+  #define ECL_SUMMARY_UFMT_PATTERN          "S[0-9][0-9][0-9][0-9]"
+#endif
+
 
 
 
@@ -147,8 +161,8 @@ ecl_type_enum ecl_util_get_type_from_name( const char * type_name ) {
 int ecl_util_get_sizeof_ctype_fortio(ecl_type_enum ecl_type) {
   int size = ecl_util_get_sizeof_ctype ( ecl_type );
   if (ecl_type == ECL_CHAR_TYPE)
-    size = ECL_STRING_LENGTH  * sizeof(char); 
-  
+    size = ECL_STRING_LENGTH  * sizeof(char);
+
   return size;
 }
 
@@ -156,13 +170,13 @@ int ecl_util_get_sizeof_ctype(ecl_type_enum ecl_type) {
   int sizeof_ctype = -1;
   switch (ecl_type) {
   case(ECL_CHAR_TYPE):
-    /* 
+    /*
        One element of character data is a string section of 8
        characters + \0.  Observe that the return value here
        corresponds to the size requirements of ECL_CHAR_TYPE instance
        in memory; on disk the trailing \0 is not stored.
     */
-    sizeof_ctype = (ECL_STRING_LENGTH + 1) * sizeof(char); 
+    sizeof_ctype = (ECL_STRING_LENGTH + 1) * sizeof(char);
     break;
   case(ECL_FLOAT_TYPE):
     sizeof_ctype = sizeof(float);
@@ -199,7 +213,7 @@ char * ecl_util_alloc_base_guess(const char * path) {
   stringlist_type * DATA_files = stringlist_alloc_new( );
   stringlist_select_matching_files( data_files , path , "*.data");
   stringlist_select_matching_files( DATA_files , path , "*.DATA");
-  
+
   if ((stringlist_get_size( data_files ) + stringlist_get_size( DATA_files)) == 1) {
     const char * path_name;
 
@@ -222,21 +236,21 @@ char * ecl_util_alloc_base_guess(const char * path) {
 int ecl_util_filename_report_nr(const char *filename) {
   int report_nr = -1;
   char *ext = strrchr(filename , '.');
-  if (ext == NULL) 
+  if (ext == NULL)
     util_abort("%s: can not determine timestep from filename:%s - aborting \n",__func__ , filename);
-  
-  if (ext[1] == 'X' || ext[1] == 'F' || ext[1] == 'S' || ext[1] == 'A') 
+
+  if (ext[1] == 'X' || ext[1] == 'F' || ext[1] == 'S' || ext[1] == 'A')
     report_nr = atoi(&ext[2]);
-  else 
+  else
     util_abort("%s: Filename:%s not recognized - valid extensions: Annnn / Xnnnn / Fnnnn / Snnnn - aborting \n",__func__ , filename);
-  
+
   return report_nr;
 }
 
 
 /*
 bool ecl_util_numeric_extension(const char * extension) {
-  
+
   const char digit_ascii_min = 48;
   const char digit_ascii_max = 57;
   bool valid = true;
@@ -247,65 +261,67 @@ bool ecl_util_numeric_extension(const char * extension) {
     if (!valid)
       break;
   }
-  
+
   return valid;
 }
 */
 
 
-
+/*
+ We accept mixed lowercase/uppercase Eclipse file extensions even if Eclipse itself does not accept them.
+*/
 ecl_file_enum ecl_util_inspect_extension(const char * ext , bool *_fmt_file, int * _report_nr) {
   ecl_file_enum file_type = ECL_OTHER_FILE;
   bool fmt_file = true;
   int report_nr = -1;
-  
-  if (strcmp(ext , "UNRST") == 0) {
+  char* upper_ext = util_alloc_strupr_copy(ext);
+  if (strcmp(upper_ext , "UNRST") == 0) {
     file_type = ECL_UNIFIED_RESTART_FILE;
     fmt_file = false;
-  } else if (strcmp(ext , "FUNRST") == 0) {
+  } else if (strcmp(upper_ext , "FUNRST") == 0) {
     file_type = ECL_UNIFIED_RESTART_FILE;
     fmt_file = true;
-  } else if (strcmp(ext , "UNSMRY") == 0) {
+  } else if (strcmp(upper_ext , "UNSMRY") == 0) {
     file_type = ECL_UNIFIED_SUMMARY_FILE;
     fmt_file  = false;
-  } else if (strcmp(ext , "FUNSMRY") == 0) {
+  } else if (strcmp(upper_ext , "FUNSMRY") == 0) {
     file_type = ECL_UNIFIED_SUMMARY_FILE;
     fmt_file  = true;
-  } else if (strcmp(ext , "SMSPEC") == 0) {
+  } else if (strcmp(upper_ext , "SMSPEC") == 0) {
     file_type = ECL_SUMMARY_HEADER_FILE;
     fmt_file  = false;
-  } else if (strcmp(ext , "FSMSPEC") == 0) {
+  } else if (strcmp(upper_ext , "FSMSPEC") == 0) {
     file_type = ECL_SUMMARY_HEADER_FILE;
     fmt_file  = true;
-  } else if (strcmp(ext , "GRID") == 0) {
+  } else if (strcmp(upper_ext , "GRID") == 0) {
     file_type = ECL_GRID_FILE;
     fmt_file  = false;
-  } else if (strcmp(ext , "FGRID") == 0) {
+  } else if (strcmp(upper_ext , "FGRID") == 0) {
     file_type = ECL_GRID_FILE;
     fmt_file  = true;
-  } else if (strcmp(ext , "EGRID") == 0) {
+  } else if (strcmp(upper_ext , "EGRID") == 0) {
     file_type = ECL_EGRID_FILE;
     fmt_file  = false;
-  } else if (strcmp(ext , "FEGRID") == 0) {
+  } else if (strcmp(upper_ext , "FEGRID") == 0) {
     file_type = ECL_EGRID_FILE;
     fmt_file  = true;
-  } else if (strcmp(ext , "INIT") == 0) {
+  } else if (strcmp(upper_ext , "INIT") == 0) {
     file_type = ECL_INIT_FILE;
     fmt_file  = false;
-  } else if (strcmp(ext , "FINIT") == 0) {
+  } else if (strcmp(upper_ext , "FINIT") == 0) {
     file_type = ECL_INIT_FILE;
     fmt_file  = true;
-  } else if (strcmp(ext , "FRFT") == 0) {
+  } else if (strcmp(upper_ext , "FRFT") == 0) {
     file_type = ECL_RFT_FILE;
     fmt_file  = true;
-  } else if (strcmp(ext , "RFT") == 0) {
+  } else if (strcmp(upper_ext , "RFT") == 0) {
     file_type = ECL_RFT_FILE;
     fmt_file  = false;
-  } else if (strcmp(ext , "DATA") == 0) {
+  } else if (strcmp(upper_ext , "DATA") == 0) {
     file_type = ECL_DATA_FILE;
     fmt_file  = true;  /* Not really relevant ... */
   } else {
-    switch (ext[0]) {
+    switch (upper_ext[0]) {
     case('X'):
       file_type = ECL_RESTART_FILE;
       fmt_file  = false;
@@ -325,25 +341,25 @@ ecl_file_enum ecl_util_inspect_extension(const char * ext , bool *_fmt_file, int
     default:
       file_type = ECL_OTHER_FILE;
     }
-    if (file_type != ECL_OTHER_FILE) 
-      if (!util_sscanf_int(&ext[1] , &report_nr))
+    if (file_type != ECL_OTHER_FILE)
+      if (!util_sscanf_int(&upper_ext[1] , &report_nr))
         file_type = ECL_OTHER_FILE;
   }
-  
+
   if (_fmt_file != NULL)
     *_fmt_file  = fmt_file;
-  
-  if (_report_nr != NULL)  
+
+  if (_report_nr != NULL)
     *_report_nr = report_nr;
-  
+
+  free( upper_ext );
   return file_type;
 }
 
 
 
 
-
-/** 
+/**
   This function takes an eclipse filename as input - looks at the
   extension, and uses that to determine the type of file. In addition
   to the fundamental type, it is also determined whether the file is
@@ -355,7 +371,7 @@ ecl_file_enum ecl_util_inspect_extension(const char * ext , bool *_fmt_file, int
 
 
 ecl_file_enum ecl_util_get_file_type(const char * filename, bool *_fmt_file, int * _report_nr) {
-  
+
   char *ext = strrchr(filename , '.');
   if (ext != NULL) {
     ext++;
@@ -528,7 +544,7 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
     else
       ext = util_alloc_sprintf("S%04d" , report_nr);
     break;
-    
+
   case(ECL_UNIFIED_SUMMARY_FILE):
     if (fmt_file)
       ext = util_alloc_string_copy("FUNSMRY");
@@ -537,35 +553,35 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
     break;
 
   case(ECL_SUMMARY_HEADER_FILE):
-    if (fmt_file) 
+    if (fmt_file)
       ext = util_alloc_string_copy("FSMSPEC");
     else
       ext = util_alloc_string_copy("SMSPEC");
     break;
 
   case(ECL_GRID_FILE):
-    if (fmt_file) 
+    if (fmt_file)
       ext = util_alloc_string_copy("FGRID");
     else
       ext = util_alloc_string_copy("GRID");
     break;
-    
+
   case(ECL_EGRID_FILE):
-    if (fmt_file) 
+    if (fmt_file)
       ext = util_alloc_string_copy("FEGRID");
     else
       ext = util_alloc_string_copy("EGRID");
     break;
 
   case(ECL_INIT_FILE):
-    if (fmt_file) 
+    if (fmt_file)
       ext = util_alloc_string_copy("FINIT");
     else
       ext = util_alloc_string_copy("INIT");
     break;
 
   case(ECL_RFT_FILE):
-    if (fmt_file) 
+    if (fmt_file)
       ext = util_alloc_string_copy("FRFT");
     else
       ext = util_alloc_string_copy("RFT");
@@ -574,7 +590,7 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
   case(ECL_DATA_FILE):
     ext = util_alloc_string_copy("DATA");
     break;
-    
+
   default:
     util_abort("%s: Invalid input file_type to ecl_util_alloc_filename - aborting \n",__func__);
     /* Dummy to shut up compiler */
@@ -583,14 +599,14 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
 
   filename = util_alloc_filename(path , base , ext);
   free(ext);
-  
+
   if (must_exist) {
     if (!util_file_exists( filename )) {
       free(filename);
       filename = NULL;
     }
   }
-  
+
   return filename;
 }
 
@@ -613,7 +629,7 @@ char * ecl_util_alloc_exfilename(const char * path, const char * base , ecl_file
 */
 
 char * ecl_util_alloc_exfilename_anyfmt(const char * path, const char * base , ecl_file_enum file_type , bool fmt_file_first , int report_nr) {
-  
+
   char * filename = ecl_util_alloc_filename( path , base , file_type , fmt_file_first , report_nr);
   if (!util_file_exists( filename )) {
     free( filename );
@@ -621,10 +637,10 @@ char * ecl_util_alloc_exfilename_anyfmt(const char * path, const char * base , e
   }
 
   if (! util_file_exists(filename)) {
-    util_safe_free( filename );  
+    util_safe_free( filename );
     filename = NULL;
   }
-  
+
   return filename;
 }
 
@@ -643,7 +659,7 @@ char * ecl_util_alloc_exfilename_anyfmt(const char * path, const char * base , e
 
 
 int ecl_util_fname_report_cmp(const void *f1, const void *f2) {
-  
+
   int t1 = ecl_util_filename_report_nr( (const char *) f1 );
   int t2 = ecl_util_filename_report_nr( (const char *) f2 );
 
@@ -657,10 +673,10 @@ int ecl_util_fname_report_cmp(const void *f1, const void *f2) {
 }
 
 /**
-   This function will scan the directory @path (or cwd if @path == NULL) 
-   for all ECLIPSE files of type @file_type. If base == NULL it will use 
-   '*' as pattern for basename. If file_type == ECL_OTHER_FILE it will 
-   use '*' as pattern for the extension (as a consequence files which do 
+   This function will scan the directory @path (or cwd if @path == NULL)
+   for all ECLIPSE files of type @file_type. If base == NULL it will use
+   '*' as pattern for basename. If file_type == ECL_OTHER_FILE it will
+   use '*' as pattern for the extension (as a consequence files which do
    not originate from ECLIPSE will also be included).
 
    The stringlist will be cleared before the actual matching process
@@ -677,12 +693,12 @@ int ecl_util_select_filelist( const char * path , const char * base , ecl_file_e
     base_pattern = util_alloc_string_copy( "*" );
   else
     base_pattern = util_alloc_string_copy( base );
-  
+
   file_pattern = util_alloc_filename( NULL , base_pattern , extension );
   stringlist_select_matching_files( filelist , path , file_pattern );
   if ((file_type == ECL_SUMMARY_FILE) || (file_type == ECL_RESTART_FILE))
     stringlist_sort( filelist , ecl_util_fname_report_cmp );
-  
+
   free( base_pattern );
   free( file_pattern );
   return stringlist_get_size( filelist );
@@ -694,7 +710,7 @@ bool ecl_util_unified_file(const char *filename) {
   ecl_file_enum file_type;
   bool fmt_file;
   file_type = ecl_util_get_file_type(filename , &fmt_file , &report_nr);
-  
+
   if ((file_type == ECL_UNIFIED_RESTART_FILE) || (file_type == ECL_UNIFIED_SUMMARY_FILE))
     return true;
   else
@@ -705,23 +721,23 @@ bool ecl_util_unified_file(const char *filename) {
 bool ecl_util_fmt_file(const char *filename , bool * __fmt_file) {
   /*const int min_size = 32768;*/
   const int min_size = 256; /* Veeeery small */
-  
+
   int report_nr;
   ecl_file_enum file_type;
   bool status = true;
   bool fmt_file;
-  
+
   if (util_file_exists(filename)) {
     file_type = ecl_util_get_file_type(filename , &fmt_file , &report_nr);
     if (file_type == ECL_OTHER_FILE) {
       if (util_file_size(filename) > min_size)
         fmt_file = util_fmt_bit8(filename);
-      else 
+      else
         status = false; // Do not know ??
     }
   } else {
     file_type = ecl_util_get_file_type(filename , &fmt_file , &report_nr);
-    if (file_type == ECL_OTHER_FILE) 
+    if (file_type == ECL_OTHER_FILE)
       status = false; // Do not know ??
   }
 
@@ -745,7 +761,7 @@ bool ecl_util_fmt_file(const char *filename , bool * __fmt_file) {
 void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ecl_type_enum target_type , ecl_type_enum src_type, int size) {
   int i;
 
-  if (target_type == src_type) 
+  if (target_type == src_type)
     memcpy(_target_data , _src_data , size * ecl_util_get_sizeof_ctype(src_type));
   else {
     switch (target_type) {
@@ -757,7 +773,7 @@ void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ec
           util_float_to_double(target_data , (const float *) _src_data , size);
           break;
         case(ECL_INT_TYPE):
-          for (i = 0; i < size; i++) 
+          for (i = 0; i < size; i++)
             target_data[i] = ((int *) _src_data)[i];
           break;
         default:
@@ -773,7 +789,7 @@ void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ec
           util_double_to_float(target_data , (const double *) _src_data , size);
           break;
         case(ECL_INT_TYPE):
-          for (i = 0; i < size; i++) 
+          for (i = 0; i < size; i++)
             target_data[i] = ((int *) _src_data)[i];
           break;
         default:
@@ -799,7 +815,7 @@ void ecl_util_alloc_summary_data_files(const char * path , const char * base , b
   int files = ecl_util_select_filelist( path , base , ECL_SUMMARY_FILE , fmt_file , filelist);
 
   if ((files > 0) && (unif_data_file != NULL)) {
-    /* 
+    /*
        We have both a unified file AND a list of files: BASE.S0000,
        BASE.S0001, BASE.S0002, ..., must check which is newest and
        load accordingly.
@@ -807,20 +823,20 @@ void ecl_util_alloc_summary_data_files(const char * path , const char * base , b
     bool unified_newest = true;
     int file_nr = 0;
     while (unified_newest && (file_nr < files)) {
-      if (util_file_difftime( stringlist_iget(filelist , file_nr) , unif_data_file ) > 0) 
+      if (util_file_difftime( stringlist_iget(filelist , file_nr) , unif_data_file ) > 0)
         unified_newest = false;
       file_nr++;
     }
-    
+
     if (unified_newest) {
       stringlist_clear( filelist ); /* Clear out all the BASE.Snnnn selections. */
       stringlist_append_copy( filelist , unif_data_file );
-    } 
+    }
   } else if (unif_data_file != NULL) {
     /* Found a unified summary file :  Clear out all the BASE.Snnnn selections. */
     stringlist_clear( filelist );      /* Clear out all the BASE.Snnnn selections. */
     stringlist_append_copy( filelist , unif_data_file );
-  } 
+  }
   util_safe_free( unif_data_file );
 }
 
@@ -840,35 +856,35 @@ void ecl_util_alloc_summary_data_files(const char * path , const char * base , b
 
    For the data there are four different possibilities:
 
-     1. X.A0001, X.A0002, X.A0003, ... 
+     1. X.A0001, X.A0002, X.A0003, ...
      2. X.FUNSMRY
-     3. X.S0001, X.S0002, X.S0003, ... 
+     3. X.S0001, X.S0002, X.S0003, ...
      4. X.UNSMRY
-  
+
    In principle a directory can contain all different (altough that is
    probably not typical). The algorithm is a a two step algorithm:
 
      1. Determine wether to use X.FSMSPEC or X.SMSPEC based on which
         is the newest. This also implies a decision of wether to use
         formatted, or unformatted filed.
- 
+
      2. Use formatted or unformatted files according to 1. above, and
         then choose either a list of files or unified files according
         to which is the newest.
-   
+
    This algorithm should work in most practical cases, but it is
-   surely possible to fool it. 
+   surely possible to fool it.
 */
 
 
 bool ecl_util_alloc_summary_files(const char * path , const char * _base , const char * ext , char ** _header_file , stringlist_type * filelist) {
   bool    fmt_input      = false;
   bool    fmt_set        = false;
-  bool    fmt_file       = true; 
+  bool    fmt_file       = true;
   bool    unif_input     = false;
   bool    unif_set       = false;
 
-  
+
   char  * header_file    = NULL;
   char  * base;
 
@@ -884,7 +900,7 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
     base = ecl_util_alloc_base_guess(path);
   else
     base = (char *) _base;
-  
+
   if (ext != NULL) {
     ecl_file_enum input_type;
 
@@ -895,7 +911,7 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
     }
 
     if ((input_type != ECL_OTHER_FILE) && (input_type != ECL_DATA_FILE)) {
-      /* 
+      /*
          The file has been recognized as a file type from which we can
          at least infer formatted/unformatted inforamtion.
       */
@@ -914,29 +930,29 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
       default:  /* Nothing wrong with this */
         break;
       }
-    } 
+    }
   }
-  
-  
+
+
   /*
-    2: We continue by looking for header files. 
+    2: We continue by looking for header files.
   */
-  
+
   {
     char * fsmspec_file = ecl_util_alloc_exfilename(path , base , ECL_SUMMARY_HEADER_FILE , true  , -1);
     char *  smspec_file = ecl_util_alloc_exfilename(path , base , ECL_SUMMARY_HEADER_FILE , false , -1);
-    
+
     if ((fsmspec_file == NULL) && (smspec_file == NULL))   /* Neither file exists */
       return false;
 
-    
+
     if (fmt_set)  /* The question of formatted|unformatted has already been settled based on the input filename. */
       fmt_file = fmt_input;
     else {
       if ((fsmspec_file != NULL) && (smspec_file != NULL)) {   /* Both fsmspec and smspec exist - we take the newest. */
-        if (util_file_difftime(fsmspec_file , smspec_file) < 0) 
+        if (util_file_difftime(fsmspec_file , smspec_file) < 0)
           fmt_file = true;
-        else 
+        else
           fmt_file = false;
       } else {                                                /* Only one of fsmspec / smspec exists */
         if (fsmspec_file != NULL)
@@ -945,7 +961,7 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
           fmt_file = false;
       }
     }
-    
+
     if (fmt_file) {
       header_file = fsmspec_file;
       util_safe_free( smspec_file );
@@ -957,10 +973,10 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
     if (header_file == NULL)
       return false;                                           /* If you insist on e.g. unformatted and only fsmspec exists - no results for you. */
   }
-  
-  
 
-  /* 
+
+
+  /*
      3: OK - we have found a SMSPEC / FMSPEC file - continue to look for
      XXX.Snnnn / XXX.UNSMRY files.
   */
@@ -974,16 +990,16 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
         stringlist_append_copy( filelist , unif_data_file );
         free( unif_data_file );
       }
-    } else 
+    } else
       ecl_util_select_filelist( path , base , ECL_SUMMARY_FILE , fmt_file , filelist);
-  } else          
+  } else
     ecl_util_alloc_summary_data_files( path , base , fmt_file , filelist );
-    
+
   if (_base == NULL)
     free(base);
 
   *_header_file    = header_file;
-    
+
   return (stringlist_get_size(filelist) > 0) ? true : false;
 }
 
@@ -995,15 +1011,15 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
 //}
 //
 //
-///** 
+///**
 //    Based on the ordinary util_alloc_file_components function, but if
 //    file_type is used specify the type file we know what extension to
 //    expect, and an optional "." can potentially be included as part of
-//    the filename. 
+//    the filename.
 //*/
 //
 //void ecl_util_alloc_file_components( const char * file, ecl_file_enum file_type , char **_path , char **_basename , char **_extension) {
-//  
+//
 //}
 
 
@@ -1011,7 +1027,7 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
 
 
 void ecl_util_alloc_restart_files(const char * path , const char * _base , char *** _restart_files , int * num_restart_files , bool * _fmt_file , bool * _unified) {
-  
+
   util_exit("Function:%s currently not implemented - sorry \n",__func__);
 
   //char * base = NULL;
@@ -1023,14 +1039,14 @@ void ecl_util_alloc_restart_files(const char * path , const char * _base , char 
   //  int num_F_files;
   //  int num_X_files;
   //
-  //  char *  unrst_file  = ecl_util_alloc_filename(path , base , ECL_UNIFIED_RESTART_FILE , false , -1);  
+  //  char *  unrst_file  = ecl_util_alloc_filename(path , base , ECL_UNIFIED_RESTART_FILE , false , -1);
   //  char *  funrst_file = ecl_util_alloc_filename(path , base , ECL_UNIFIED_RESTART_FILE , true  , -1);
-  //  char *  unif_file   = NULL; 
+  //  char *  unif_file   = NULL;
   //
-  //  char ** F_files     = ecl_util_alloc_scandir_filelist(path , base , ECL_RESTART_FILE , true  , &num_F_files); 
-  //  char ** X_files     = ecl_util_alloc_scandir_filelist(path , base , ECL_RESTART_FILE , false , &num_X_files); 
+  //  char ** F_files     = ecl_util_alloc_scandir_filelist(path , base , ECL_RESTART_FILE , true  , &num_F_files);
+  //  char ** X_files     = ecl_util_alloc_scandir_filelist(path , base , ECL_RESTART_FILE , false , &num_X_files);
   //  char *  FX_file      = NULL;
-  //  char *  final_file; 
+  //  char *  final_file;
   //
   //  /*
   //    Ok now we have formatted/unformatted unified and not
@@ -1038,14 +1054,14 @@ void ecl_util_alloc_restart_files(const char * path , const char * _base , char 
   //    is the newest.
   //  */
   //  unif_file = util_newest_file(unrst_file , funrst_file);
-  //  
-  //  if (num_F_files > 0 || num_X_files > 0) {    
+  //
+  //  if (num_F_files > 0 || num_X_files > 0) {
   //    if (num_F_files > 0 && num_X_files > 0) {
-  //      /* 
+  //      /*
   //         We have both a list of .Fnnnn and a list of .Xnnnn files; if
   //         the length of lists is not equal we take the longest,
   //         otherwise we compare the dates of the last files in the
-  //         list. 
+  //         list.
   //      */
   //      if (num_F_files == num_X_files) {
   //        FX_file = util_newest_file( F_files[num_F_files - 1] , X_files[num_X_files - 1]);
@@ -1064,13 +1080,13 @@ void ecl_util_alloc_restart_files(const char * path , const char * _base , char 
   //      final_file = FX_file;
   //  } else
   //    final_file = unif_file;
-  //    
-  //  
-  //  if (final_file == NULL) 
-  //    util_abort("%s: could not find any restart data in %s/%s \n",__func__ , path , base);
-  //  
   //
-  //  /* 
+  //
+  //  if (final_file == NULL)
+  //    util_abort("%s: could not find any restart data in %s/%s \n",__func__ , path , base);
+  //
+  //
+  //  /*
   //     Determine type of final_file. Thois block is where the return
   //     values are actually set.
   //  */
@@ -1078,7 +1094,7 @@ void ecl_util_alloc_restart_files(const char * path , const char * _base , char 
   //    char ** restart_files;
   //    bool fmt_file , unified;
   //    ecl_file_enum file_type;
-  //    
+  //
   //    ecl_util_get_file_type( final_file , &file_type , &fmt_file , NULL);
   //    if (file_type == ECL_UNIFIED_RESTART_FILE) {
   //      *num_restart_files = 1;
@@ -1092,7 +1108,7 @@ void ecl_util_alloc_restart_files(const char * path , const char * _base , char 
   //    *_restart_files = restart_files;
   //
   //    if (_fmt_file != NULL) *_fmt_file = fmt_file;
-  //    if (_unified  != NULL) *_unified  = unified; 
+  //    if (_unified  != NULL) *_unified  = unified;
   //  }
   //
   //  util_free_stringlist(F_files , num_F_files);
@@ -1142,38 +1158,38 @@ static int ecl_util_get_month_nr__(const char * _month_name) {
   int month_nr = -1;
   char * month_name = util_alloc_string_copy(_month_name);
   util_strupr(month_name);
-  
-  if (strncmp(month_name , "JAN" , 3)      == 0) 
+
+  if (strncmp(month_name , "JAN" , 3)      == 0)
     month_nr = 1;
-  else if (strncmp(month_name , "FEB" , 3) == 0) 
+  else if (strncmp(month_name , "FEB" , 3) == 0)
     month_nr = 2;
-  else if (strncmp(month_name , "MAR" , 3) == 0) 
+  else if (strncmp(month_name , "MAR" , 3) == 0)
     month_nr = 3;
-  else if (strncmp(month_name , "APR" , 3) == 0) 
+  else if (strncmp(month_name , "APR" , 3) == 0)
     month_nr = 4;
-  else if (strncmp(month_name , "MAI" , 3) == 0) 
+  else if (strncmp(month_name , "MAI" , 3) == 0)
     month_nr = 5;
-  else if (strncmp(month_name , "MAY" , 3) == 0) 
+  else if (strncmp(month_name , "MAY" , 3) == 0)
     month_nr = 5;
-  else if (strncmp(month_name , "JUN" , 3) == 0) 
+  else if (strncmp(month_name , "JUN" , 3) == 0)
     month_nr = 6;
-  else if (strncmp(month_name , "JUL" , 3) == 0) 
+  else if (strncmp(month_name , "JUL" , 3) == 0)
     month_nr = 7;
   else if (strncmp(month_name , "JLY" , 3) == 0)   /* ECLIPSE ambigus on July. */
     month_nr = 7;
-  else if (strncmp(month_name , "AUG" , 3) == 0) 
+  else if (strncmp(month_name , "AUG" , 3) == 0)
     month_nr = 8;
-  else if (strncmp(month_name , "SEP" , 3) == 0) 
+  else if (strncmp(month_name , "SEP" , 3) == 0)
     month_nr = 9;
-  else if (strncmp(month_name , "OCT" , 3) == 0) 
+  else if (strncmp(month_name , "OCT" , 3) == 0)
     month_nr = 10;
-  else if (strncmp(month_name , "OKT" , 3) == 0) 
+  else if (strncmp(month_name , "OKT" , 3) == 0)
     month_nr = 10;
-  else if (strncmp(month_name , "NOV" , 3) == 0) 
+  else if (strncmp(month_name , "NOV" , 3) == 0)
     month_nr = 11;
-  else if (strncmp(month_name , "DEC" , 3) == 0) 
+  else if (strncmp(month_name , "DEC" , 3) == 0)
     month_nr = 12;
-  else if (strncmp(month_name , "DES" , 3) == 0) 
+  else if (strncmp(month_name , "DES" , 3) == 0)
     month_nr = 12;
   free(month_name);
   return month_nr;
@@ -1182,9 +1198,9 @@ static int ecl_util_get_month_nr__(const char * _month_name) {
 
 int ecl_util_get_month_nr(const char * month_name) {
   int month_nr = ecl_util_get_month_nr__(month_name);
-  if (month_nr < 0) 
+  if (month_nr < 0)
     util_abort("%s: %s not a valid month name - aborting \n",__func__ , month_name);
-  
+
   return month_nr;
 }
 
@@ -1205,15 +1221,15 @@ int ecl_util_get_month_nr(const char * month_name) {
 */
 
 
-time_t ecl_util_get_start_date(const char * data_file) { 
+time_t ecl_util_get_start_date(const char * data_file) {
   basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   time_t start_date  = -1;
   FILE * stream      = util_fopen(data_file , "r");
   char * buffer;
-  
+
   if (!basic_parser_fseek_string( parser , stream , "START" , true , true))   /* Seeks case insensitive. */
     util_abort("%s: sorry - could not find START in DATA file %s \n",__func__ , data_file);
-  
+
   {
     long int start_pos = util_ftell( stream );
     int buffer_size;
@@ -1221,15 +1237,15 @@ time_t ecl_util_get_start_date(const char * data_file) {
     /* Look for terminating '/' */
     if (!basic_parser_fseek_string( parser , stream , "/" , false , true))
       util_abort("%s: sorry - could not find \"/\" termination of START keyword in data_file: \n",__func__ , data_file);
-    
+
     buffer_size = (util_ftell(stream) - start_pos)  ;
     buffer = util_calloc( buffer_size + 1 , sizeof * buffer  );
     util_fseek( stream , start_pos , SEEK_SET);
     util_fread( buffer , sizeof * buffer , buffer_size ,stream ,  __func__);
     buffer[buffer_size] = '\0';
   }
-  
-  
+
+
   {
     stringlist_type * tokens = basic_parser_tokenize_buffer( parser , buffer , true );
     int day, year, month_nr;
@@ -1240,18 +1256,18 @@ time_t ecl_util_get_start_date(const char * data_file) {
       util_abort("%s: failed to parse DAY MONTH YEAR from : \"%s\" \n",__func__ , buffer);
     stringlist_free( tokens );
   }
-  
+
   free( buffer );
   basic_parser_free( parser );
   fclose(stream);
-  
+
   return start_date;
 }
 
 
 static int ecl_util_get_num_parallel_cpu__(basic_parser_type* parser, FILE* stream, const char * data_file) {
   int num_cpu = 1;
-  char * buffer;  
+  char * buffer;
   long int start_pos = util_ftell( stream );
   int buffer_size;
 
@@ -1267,7 +1283,7 @@ static int ecl_util_get_num_parallel_cpu__(basic_parser_type* parser, FILE* stre
 
   {
     stringlist_type * tokens = basic_parser_tokenize_buffer( parser , buffer , true );
-    
+
     if (stringlist_get_size( tokens ) > 0) {
       const char * num_cpu_string = stringlist_iget( tokens , 0 );
       if (!util_sscanf_int( num_cpu_string , &num_cpu))
@@ -1276,60 +1292,60 @@ static int ecl_util_get_num_parallel_cpu__(basic_parser_type* parser, FILE* stre
       fprintf(stderr,"** Warning: failed to load data for PARALLEL keyword - assuming one CPU\n");
 
     stringlist_free( tokens );
-  }  
+  }
   free( buffer );
-  return num_cpu; 
+  return num_cpu;
 }
 
 
 
 static int ecl_util_get_num_slave_cpu__(basic_parser_type* parser, FILE* stream, const char * data_file) {
   int num_cpu = 0;
-  int linecount = 0; 
+  int linecount = 0;
 
   basic_parser_fseek_string( parser , stream , "\n" , true , true);  /* Go to next line after the SLAVES keyword*/
 
   while (true) {
     char * buffer = util_fscanf_alloc_line( stream , NULL);
-    ++linecount; 
-    if (linecount > 10) 
+    ++linecount;
+    if (linecount > 10)
       util_abort("%s: Did not find ending \"/\" character after SLAVES keyword, aborting \n", __func__);
 
     {
       stringlist_type * tokens = basic_parser_tokenize_buffer( parser , buffer , true );
       if (stringlist_get_size(tokens) > 0 ) {
-        
+
         const char * first_item = stringlist_iget(tokens, 0);
-        
+
         if (first_item[0] == '/') {
-          break; 
+          break;
         }
-        else 
+        else
           ++num_cpu;
       }
       stringlist_free( tokens );
     }
-      
+
     free( buffer );
-  } 
-  
+  }
+
   if (0 == num_cpu)
     util_abort("%s: Did not any CPUs after SLAVES keyword, aborting \n", __func__);
-  return num_cpu; 
+  return num_cpu;
 }
 
 
 
-int ecl_util_get_num_cpu(const char * data_file) { 
-  int num_cpu = 1; 
+int ecl_util_get_num_cpu(const char * data_file) {
+  int num_cpu = 1;
   basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   FILE * stream = util_fopen(data_file , "r");
-  
+
   if (basic_parser_fseek_string( parser , stream , "PARALLEL" , true , true)) {  /* Seeks case insensitive. */
-    num_cpu = ecl_util_get_num_parallel_cpu__(parser, stream, data_file); 
+    num_cpu = ecl_util_get_num_parallel_cpu__(parser, stream, data_file);
   } else if (basic_parser_fseek_string( parser , stream , "SLAVES" , true , true)) {  /* Seeks case insensitive. */
-    num_cpu = ecl_util_get_num_slave_cpu__(parser, stream, data_file) + 1; 
-    fprintf(stderr, "Information: \"SLAVES\" option found, returning %d number of CPUs", num_cpu); 
+    num_cpu = ecl_util_get_num_slave_cpu__(parser, stream, data_file) + 1;
+    fprintf(stderr, "Information: \"SLAVES\" option found, returning %d number of CPUs", num_cpu);
   }
 
   basic_parser_free( parser );
@@ -1428,7 +1444,7 @@ bool ecl_util_valid_basename_fmt(const char * basename_fmt)
   corresponds to the first date in a month the list will start with
   start_date, otherwise the list will start with the first day in the
   month following after start_date.
-  
+
   If end_date corresponds to the first day of the month the list will
   end with end_date, otherwise it will ende with the first day in the
   month prior to end_date:
@@ -1439,7 +1455,7 @@ bool ecl_util_valid_basename_fmt(const char * basename_fmt)
   All time_t values added to the date list will be pure dates,
   i.e. the time part will be 00:00:00; that also applies to start_date
   and end_date where possible time parts will be normalized away prior
-  to insertion.  
+  to insertion.
 */
 
 
@@ -1449,7 +1465,7 @@ void ecl_util_append_month_range( time_t_vector_type * date_list , time_t start_
 
   if (util_is_first_day_in_month( start_date))
     time_t_vector_append( date_list , start_date );
-  
+
   {
     time_t current_date = start_date;
     while (true) {
@@ -1460,7 +1476,7 @@ void ecl_util_append_month_range( time_t_vector_type * date_list , time_t start_
         year += 1;
       } else
         month += 1;
-      
+
       current_date = ecl_util_make_date( 1 , month , year );
       if (current_date < end_date)
         time_t_vector_append( date_list , current_date );
@@ -1481,7 +1497,7 @@ void ecl_util_init_month_range( time_t_vector_type * date_list , time_t start_da
   time_t_vector_reset( date_list );
   if (!util_is_first_day_in_month( start_date ))
     time_t_vector_append( date_list , util_make_pure_date(start_date));
-  
+
   ecl_util_append_month_range( date_list , start_date , end_date , true );
 }
 
@@ -1491,7 +1507,7 @@ void ecl_util_init_month_range( time_t_vector_type * date_list , time_t start_da
 time_t ecl_util_make_date__(int mday , int month , int year, int * __year_offset) {
 time_t date;
 
-#ifdef TIME_T_64BIT_ACCEPT_PRE1970
+#ifdef ERT_TIME_T_64BIT_ACCEPT_PRE1970
   *__year_offset = 0;
   date = util_make_date(mday , month , year);
 #else
@@ -1518,23 +1534,8 @@ time_t ecl_util_make_date(int mday , int month , int year) {
   return ecl_util_make_date__( mday , month , year , &year_offset);
 }
 
-/*****************************************************************/
-/* Small functions to support enum introspection. */
-
-#ifdef HAVE_FORK
-
-const char * ecl_util_phase_enum_iget( int index, int * value) {
-  return util_enum_iget( index , ECL_PHASE_ENUM_SIZE , (const util_enum_element_type []) { ECL_PHASE_ENUM_DEFS }, value);
-}
-
-const char * ecl_util_type_enum_iget( int index, int * value) {
-  return util_enum_iget( index , ECL_TYPE_ENUM_SIZE , (const util_enum_element_type []) { ECL_TYPE_ENUM_DEFS }, value);
-}
-
 void ecl_util_set_date_values(time_t t , int * mday , int * month , int * year) {
     return util_set_date_values(t,mday,month,year);
 }
-
-#endif
 
 

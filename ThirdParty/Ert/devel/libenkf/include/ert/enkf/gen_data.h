@@ -33,9 +33,10 @@ extern "C" {
 #include <ert/enkf/enkf_macros.h>
 #include <ert/enkf/gen_data_common.h>
 #include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/forward_load_context.h>
 
 void                      gen_data_assert_size( gen_data_type * gen_data , int size , int report_step);
-bool                      gen_data_forward_load(gen_data_type * , const char *  ,  const ecl_sum_type * , const ecl_file_type * , int );
+bool                      gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , const forward_load_context_type * load_context);
 void                      gen_data_free(gen_data_type * );
 double                    gen_data_iget_double(const gen_data_type * , int );
 gen_data_config_type   *  gen_data_get_config(const gen_data_type * );
@@ -49,6 +50,7 @@ const char  *             gen_data_get_key( const gen_data_type * gen_data);
 void                      gen_data_upgrade_103(const char * filename);
 int                       gen_data_get_size( const gen_data_type * gen_data );
 void                      gen_data_copy_to_double_vector(const gen_data_type * gen_data , double_vector_type * vector);
+bool                      gen_data_fload_with_report_step( gen_data_type * gen_data , const char * filename , const forward_load_context_type * load_context);
 
 UTIL_SAFE_CAST_HEADER(gen_data);
 UTIL_SAFE_CAST_HEADER_CONST(gen_data);
@@ -70,7 +72,6 @@ VOID_IADD_HEADER(gen_data);
 VOID_IADDSQR_HEADER(gen_data);
 VOID_SCALE_HEADER(gen_data);
 VOID_ISQRT_HEADER(gen_data);
-VOID_FLOAD_HEADER(gen_data)
 #ifdef __cplusplus
 }
 #endif

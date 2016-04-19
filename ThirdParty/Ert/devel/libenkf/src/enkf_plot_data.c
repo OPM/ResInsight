@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'enkf_plot_data.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'enkf_plot_data.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <time.h>
 #include <stdbool.h>
@@ -44,7 +44,7 @@ struct enkf_plot_data_struct {
 static void enkf_plot_data_resize( enkf_plot_data_type * plot_data , int new_size ) {
   if (new_size != plot_data->size) {
     int iens;
-    
+
     if (new_size < plot_data->size) {
       for (iens = new_size; iens < plot_data->size; iens++) {
         enkf_plot_tvector_free( plot_data->ensemble[iens] );
@@ -54,13 +54,13 @@ static void enkf_plot_data_resize( enkf_plot_data_type * plot_data , int new_siz
 
     plot_data->ensemble = util_realloc( plot_data->ensemble , new_size * sizeof * plot_data->ensemble);
     plot_data->work_arg = util_realloc( plot_data->work_arg , new_size * sizeof * plot_data->work_arg);
-    
+
     if (new_size > plot_data->size) {
-      for (iens = plot_data->size; iens < new_size; iens++) { 
+      for (iens = plot_data->size; iens < new_size; iens++) {
         plot_data->ensemble[iens] = enkf_plot_tvector_alloc( plot_data->config_node , iens);
         plot_data->work_arg[iens] = arg_pack_alloc();
       }
-    } 
+    }
     plot_data->size = new_size;
   }
 }
@@ -111,15 +111,15 @@ int enkf_plot_data_get_size( const enkf_plot_data_type * plot_data ) {
 
 
 
-void enkf_plot_data_load( enkf_plot_data_type * plot_data , 
-                          enkf_fs_type * fs , 
-                          const char * index_key , 
-                          state_enum state , 
+void enkf_plot_data_load( enkf_plot_data_type * plot_data ,
+                          enkf_fs_type * fs ,
+                          const char * index_key ,
+                          state_enum state ,
                           const bool_vector_type * input_mask) {
   state_map_type * state_map = enkf_fs_get_state_map( fs );
   int ens_size = state_map_get_size( state_map );
   bool_vector_type * mask;
-  
+
   if (input_mask)
     mask = bool_vector_alloc_copy( input_mask );
   else
@@ -150,4 +150,4 @@ void enkf_plot_data_load( enkf_plot_data_type * plot_data ,
   bool_vector_free( mask );
 }
 
-  
+

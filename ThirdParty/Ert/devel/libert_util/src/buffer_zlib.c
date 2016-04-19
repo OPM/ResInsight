@@ -1,6 +1,6 @@
 /*
   This file is compiled as part of the buffer.c file; if the symbol
-  HAVE_ZLIB is defined.  
+  ERT_HAVE_ZLIB is defined.  
 */
 #include <zlib.h>
 /**

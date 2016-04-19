@@ -8,6 +8,7 @@ extern "C" {
 #include <ert/util/stringlist.h>
 #include <ert/util/util.h>
 #include <ert/util/bool_vector.h>
+#include <ert/util/hash.h>
 
 #include <ert/enkf/enkf_fs_type.h>
 #include <ert/enkf/enkf_types.h>
@@ -16,6 +17,7 @@ extern "C" {
     typedef struct custom_kw_config_struct custom_kw_config_type;
 
     custom_kw_config_type * custom_kw_config_alloc_empty(const char * key, const char * result_file, const char * output_file);
+    custom_kw_config_type * custom_kw_config_alloc_with_definition(const char * key, const hash_type * definition);
     void                    custom_kw_config_free(custom_kw_config_type * config);
     const char *            custom_kw_config_get_name(const custom_kw_config_type * config);
     char *                  custom_kw_config_get_result_file(const custom_kw_config_type * config);

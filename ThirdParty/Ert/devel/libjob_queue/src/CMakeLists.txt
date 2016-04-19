@@ -14,7 +14,7 @@ if (HAVE_LSF_LIBRARY)
 endif()
 
 add_library( job_queue SHARED ${source_files} )
-set_target_properties( job_queue PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+set_target_properties( job_queue PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )
 target_link_libraries( job_queue config ert_util )
 if (USE_RUNPATH)
    add_runpath( job_queue )

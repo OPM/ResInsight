@@ -10,7 +10,6 @@ set(PYTHON_SOURCES
     parametrization_keywords.py
     plot_keywords.py
     queue_system_keywords.py
-    report_keywords.py
     run_keywords.py
     simulation_control_keywords.py
     workflow_keywords.py

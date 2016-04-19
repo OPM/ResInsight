@@ -1,14 +1,14 @@
 /*
-  This file implements the fully fledged util�abort() function which
+  This file implements the fully fledged util_abort() function which
   assumes that the current build has the following features:
 
     fork()      : To support calling external program addr2line().
-    pthread     : To serialize the use of util�abort() - not very important.
-    execinfo.h  : The backtrace functions backtrace() and backtrace�symbols().
+    pthread     : To serialize the use of util_abort() - not very important.
+    execinfo.h  : The backtrace functions backtrace() and backtrace_symbols().
     _GNU_SOURCE : To get the dladdr() function.
 
   If not all these features are availbale the simpler version in
-  util�abort_simple.c is built instead.
+  util_abort_simple.c is built instead.
 */
 
 /**
@@ -25,6 +25,8 @@
 
   This function is purely a helper function for util_abort().
 */
+
+#include <pwd.h>
 
 #if !defined(__GLIBC__)         /* note: not same as __GNUC__ */
 #  if defined (__APPLE__)
@@ -68,10 +70,10 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
               rel_address -= (size_t) dl_info.dli_fbase;
             argv[2] = util_alloc_sprintf("%p" , (void *) rel_address);
           }
-          util_fork_exec("addr2line" , 3  , (const char **) argv , true , NULL , NULL , NULL , stdout_file , NULL);
+          util_spawn_blocking("addr2line", 3, (const char **) argv, stdout_file, NULL);
           util_free_stringlist(argv , 3);
         }
-        
+
         /* 2: Parse stdout output */
         {
           bool at_eof;
@@ -82,9 +84,9 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
             char * stdout_file_name = util_fscanf_alloc_line(stream , &at_eof);
             char * line_string = NULL;
             util_binary_split_string( stdout_file_name , ":" , false , file_name , &line_string);
-            if (line_string && util_sscanf_int( line_string , line_nr)) 
+            if (line_string && util_sscanf_int( line_string , line_nr))
               address_found = true;
-            
+
             free( stdout_file_name );
             util_safe_free( line_string );
           }
@@ -93,13 +95,12 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
         }
         util_unlink_existing(stdout_file);
         free( stdout_file );
-      } 
-    } 
+      }
+    }
     return address_found;
 #endif
   }
 }
-
 
 
 bool util_addr2line_lookup(const void * bt_addr , char ** func_name , char ** file_name , int * line_nr) {
@@ -125,6 +126,7 @@ bool util_addr2line_lookup(const void * bt_addr , char ** func_name , char ** fi
   information is compiled in).
 */
 
+
 static pthread_mutex_t __abort_mutex  = PTHREAD_MUTEX_INITIALIZER; /* Used purely to serialize the util_abort() routine. */
 
 
@@ -144,8 +146,8 @@ static void util_fprintf_backtrace(FILE * stream) {
   const char * func_format        = " #%02d %s(..) %s in ???\n";
   const char * unknown_format     = " #%02d ???? \n";
 
-  const int max_bt = 50;
-  const int max_func_length = 60;
+  const int max_bt = 100;
+  const int max_func_length = 70;
   void *bt_addr[max_bt];
   int    size,i;
 
@@ -157,8 +159,8 @@ static void util_fprintf_backtrace(FILE * stream) {
     char * func_name;
     char * file_name;
     char * padding = NULL;
-    
-    if (util_addr2line_lookup(bt_addr[i] , &func_name , &file_name , &line_nr)) {
+
+    if (util_addr2line_lookup(bt_addr[i], &func_name , &file_name , &line_nr)) {
       int pad_length;
       char * function;
       // Seems it can return true - but with func_name == NULL?! Static/inlinded functions?
@@ -172,7 +174,7 @@ static void util_fprintf_backtrace(FILE * stream) {
       fprintf(stream , with_linenr_format , i , function , padding , file_name , line_nr);
     } else {
       if (func_name != NULL) {
-        int pad_length = 2 + max_func_length - strlen(func_name);
+        int pad_length = util_int_max( 2 , 2 + max_func_length - strlen(func_name));
         padding = realloc_padding( padding , pad_length);
         fprintf(stream , func_format , i , func_name , padding);
       } else {
@@ -180,7 +182,7 @@ static void util_fprintf_backtrace(FILE * stream) {
         fprintf(stream , unknown_format , i , padding);
       }
     }
-    
+
     util_safe_free( func_name );
     util_safe_free( file_name );
     util_safe_free( padding );
@@ -196,7 +198,7 @@ char * util_alloc_dump_filename() {
     uid_t uid = getuid();
     struct passwd *pwd = getpwuid(uid);
     char * filename;
-    
+
     if (pwd)
       filename = util_alloc_sprintf("/tmp/ert_abort_dump.%s.%s.log", pwd->pw_name, day);
     else
@@ -204,6 +206,25 @@ char * util_alloc_dump_filename() {
 
     return filename;
   }
+}
+
+#include <setjmp.h>
+static jmp_buf jump_buffer;
+static char  * intercept_function = NULL;
+
+static void util_abort_test_intercept( const char * function ) {
+  if (intercept_function && (strcmp(function , intercept_function) == 0)) {
+    longjmp(jump_buffer , 0 );
+  }
+}
+
+
+jmp_buf * util_abort_test_jump_buffer() {
+  return &jump_buffer;
+}
+
+void util_abort_test_set_intercept_function(const char * function) {
+  intercept_function = util_realloc_string_copy( intercept_function , function );
 }
 
 
@@ -214,15 +235,15 @@ void util_abort__(const char * file , const char * function , int line , const c
     char * filename = NULL;
     FILE * abort_dump = NULL;
 
-    if (!getenv("ERT_SHOW_BACKTRACE")) 
+    if (!getenv("ERT_SHOW_BACKTRACE"))
       filename = util_alloc_dump_filename();
 
     if (filename)
       abort_dump = fopen(filename, "w");
-    
-    if (abort_dump == NULL) 
+
+    if (abort_dump == NULL)
       abort_dump   = stderr;
-    
+
     va_list ap;
 
     va_start(ap , fmt);
@@ -235,7 +256,7 @@ void util_abort__(const char * file , const char * function , int line , const c
 
     /*
       The backtrace is based on calling the external program
-      addr2line; the call is based on util_fork_exec() which is
+      addr2line; the call is based on util_spawn() which is
       currently only available on POSIX.
     */
     const bool include_backtrace = true;
@@ -275,7 +296,7 @@ void util_abort__(const char * file , const char * function , int line , const c
 
     free(filename);
   }
-  
+
   pthread_mutex_unlock(&__abort_mutex);
   signal(SIGABRT, SIG_DFL);
   abort();

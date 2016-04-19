@@ -32,7 +32,7 @@ void test_update_default(const char * config_file , const char * job_file) {
   ert_test_context_type * test_context = ert_test_context_alloc("AnalysisJob0" , config_file);
 
   stringlist_type * args = stringlist_alloc_new();
-  ert_test_context_install_workflow_job( test_context , "JOB" , job_file );
+  test_assert_true( ert_test_context_install_workflow_job( test_context , "JOB" , job_file ));
   test_assert_true( ert_test_context_run_worklow_job( test_context , "JOB" , args) );
   stringlist_free( args );
 

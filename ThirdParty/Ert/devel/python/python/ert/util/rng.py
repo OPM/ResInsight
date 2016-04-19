@@ -15,59 +15,48 @@
 #  for more details.
 
 
-from ert.util import UTIL_LIB
-from ert.cwrap import CWrapper, BaseCClass
-from ert.util.enums import RngInitModeEnum
-from ert.util.enums import RngAlgTypeEnum
+from ert.cwrap import BaseCClass
+from ert.util import UtilPrototype
+from ert.util.enums import RngInitModeEnum, RngAlgTypeEnum
+
 
 class RandomNumberGenerator(BaseCClass):
-    def __init__(self, alg_type = RngAlgTypeEnum.MZRAN , init_mode = RngInitModeEnum.INIT_CLOCK):
+    TYPE_NAME = "rng"
+
+    _rng_alloc = UtilPrototype("void* rng_alloc(rng_alg_type_enum, rng_init_mode_enum)" , bind = False)
+    _free = UtilPrototype("void rng_free(rng)")
+    _get_double = UtilPrototype("double rng_get_double(rng)")
+    _get_int = UtilPrototype("int rng_get_int(rng, int)")
+    _get_max_int = UtilPrototype("uint rng_get_max_int(rng)")
+    _state_size = UtilPrototype("int rng_state_size(rng)")
+    _set_state = UtilPrototype("void rng_set_state(rng , char*)")
+
+    def __init__(self, alg_type=RngAlgTypeEnum.MZRAN, init_mode=RngInitModeEnum.INIT_CLOCK):
         assert isinstance(alg_type, RngAlgTypeEnum)
         assert isinstance(init_mode, RngInitModeEnum)
 
-        c_ptr = RandomNumberGenerator.cNamespace().rng_alloc(alg_type, init_mode)
+        c_ptr = self._rng_alloc(alg_type, init_mode)
         super(RandomNumberGenerator, self).__init__(c_ptr)
 
-
     def stateSize(self):
-        return RandomNumberGenerator.cNamespace().state_size(self)
+        return self._state_size()
 
-
-    def setState(self , seed_string):
+    def setState(self, seed_string):
         state_size = self.stateSize()
         if len(seed_string) < state_size:
             raise ValueError("The seed string must be at least %d characters long" % self.stateSize())
-        RandomNumberGenerator.cNamespace().set_state(self , seed_string)
-
+        self._set_state( seed_string)
 
     def getDouble(self):
         """ @rtype: float """
-        return RandomNumberGenerator.cNamespace().get_double(self)
-
+        return self._get_double()
 
     def getInt(self, max=None):
         """ @rtype: float """
         if max is None:
-            max = RandomNumberGenerator.cNamespace().get_max_int(self)
+            max = self._get_max_int()
 
-        return RandomNumberGenerator.cNamespace().get_int(self, max)
-
+        return self._get_int(max)
 
     def free(self):
-        RandomNumberGenerator.cNamespace().free(self)
-
-
-#################################################################
-
-cwrapper = CWrapper(UTIL_LIB)
-CWrapper.registerType("rng", RandomNumberGenerator)
-CWrapper.registerType("rng_obj", RandomNumberGenerator.createPythonObject)
-CWrapper.registerType("rng_ref", RandomNumberGenerator.createCReference)
-
-RandomNumberGenerator.cNamespace().rng_alloc = cwrapper.prototype("c_void_p rng_alloc(rng_alg_type_enum, rng_init_mode_enum)")
-RandomNumberGenerator.cNamespace().free = cwrapper.prototype("void rng_free(rng)")
-RandomNumberGenerator.cNamespace().get_double = cwrapper.prototype("double rng_get_double(rng)")
-RandomNumberGenerator.cNamespace().get_int = cwrapper.prototype("int rng_get_int(rng, int)")
-RandomNumberGenerator.cNamespace().get_max_int = cwrapper.prototype("uint rng_get_max_int(rng)")
-RandomNumberGenerator.cNamespace().state_size = cwrapper.prototype("int rng_state_size(rng)")
-RandomNumberGenerator.cNamespace().set_state = cwrapper.prototype("void rng_set_state(rng , char*)")
+        self._free()

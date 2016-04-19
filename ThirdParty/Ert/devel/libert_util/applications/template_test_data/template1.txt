@@ -1,2 +1,0 @@
-xxxx{% for $x in [1,2,3,4] %}$x{% endfor %}yyyy
-{% for var in [A,B,C] %}[hiddenvar]{% endfor %}

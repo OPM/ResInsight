@@ -17,7 +17,10 @@
 */
 #include <stdlib.h>
 
+#include "ert/util/build_config.h"
+
 #include <ert/util/test_util.h>
+#include <ert/util/test_util_abort.h>
 #include <ert/util/path_fmt.h>
 #include <ert/util/subst_list.h>
 #include <ert/util/test_work_area.h>

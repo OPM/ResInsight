@@ -201,6 +201,13 @@ void job_queue_node_free(job_queue_node_type * node) {
   job_queue_node_free_data(node);
   job_queue_node_free_error_info(node);
   util_safe_free(node->run_path);
+
+  // Since the type of the callback_arg is void* it should maybe be
+  // registered with a private destructor - or the type should be
+  // changed to arg_pack?
+  if (arg_pack_is_instance( node->callback_arg ))
+      arg_pack_free( node->callback_arg );
+
   free(node);
 }
 
@@ -422,15 +429,15 @@ static void job_queue_node_set_status(job_queue_node_type * node , job_status_ty
 
 submit_status_type job_queue_node_submit( job_queue_node_type * node , job_queue_status_type * status , queue_driver_type * driver) {
   submit_status_type submit_status;
-  void * job_data = queue_driver_submit_job( driver,
-                                             node->run_cmd,
-                                             node->num_cpu,
-                                             node->run_path,
-                                             node->job_name,
-                                             node->argc,
-                                             (const char **) node->argv);
   pthread_mutex_lock( &node->data_mutex );
   {
+    void * job_data = queue_driver_submit_job( driver,
+                                               node->run_cmd,
+                                               node->num_cpu,
+                                               node->run_path,
+                                               node->job_name,
+                                               node->argc,
+                                               (const char **) node->argv);
     if (job_data != NULL) {
       job_status_type old_status = node->job_status;
       job_status_type new_status = JOB_QUEUE_SUBMITTED;
@@ -502,17 +509,14 @@ bool job_queue_node_kill( job_queue_node_type * node , job_queue_status_type * s
     job_status_type current_status = job_queue_node_get_status( node );
     if (current_status & JOB_QUEUE_CAN_KILL) {
       /*
-         Jobs with status JOB_QUEUE_WAITING are killable - in the
-         sense that status should be set to JOB_QUEUE_USER_KILLED; but
-         they do not have any driver specific job_data, and the
-         driver->kill_job() function can NOT be called.
+        If the job is killed before it is even started no driver
+        specific job data has been assigned; we therefor must check
+        the node->job_data pointer before entering.
       */
-      if (current_status != JOB_QUEUE_WAITING) {
+      if (node->job_data) {
         queue_driver_kill_job( driver , node->job_data );
-        if (node->job_data) {
-          queue_driver_free_job( driver , node->job_data );
-          node->job_data = NULL;
-        }
+        queue_driver_free_job( driver , node->job_data );
+        node->job_data = NULL;
       }
       job_queue_status_transition(status, current_status, JOB_QUEUE_USER_KILLED);
       job_queue_node_set_status( node , JOB_QUEUE_USER_KILLED);

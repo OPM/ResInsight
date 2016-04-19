@@ -22,6 +22,12 @@ class InitFileTest(ExtendedTestCase):
     def setUp(self):
         self.grid_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
         self.init_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.INIT")
+
+        
+    def test_wrong_type(self):
+        g = EclGrid( self.grid_file )
+        with self.assertRaises(ValueError):
+            f = EclInitFile( g , self.grid_file )
         
 
     def test_load(self):

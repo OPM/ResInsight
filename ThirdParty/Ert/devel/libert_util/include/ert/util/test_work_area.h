@@ -31,8 +31,7 @@ extern "C" {
   typedef struct test_work_area_struct test_work_area_type;
 
   test_work_area_type * test_work_area_alloc(const char * test_name );
-  test_work_area_type * test_work_area_alloc_with_prefix(const char * prefix , const char * test_name);
-  test_work_area_type * test_work_area_alloc__(const char * prefix , const char * test_path);
+  test_work_area_type * test_work_area_alloc_relative(const char * prefix , const char * test_path);
   void                  test_work_area_set_store( test_work_area_type * work_area , bool store);
 
   void                  test_work_area_free(test_work_area_type * work_area);
@@ -46,6 +45,9 @@ extern "C" {
   bool                  test_work_area_copy_parent_content( test_work_area_type * work_area , const char * input_path);
 
 
+  test_work_area_type * temp_area_alloc_relative(const char * prefix , const char * test_path);
+  test_work_area_type * temp_area_alloc(const char * test_path);
+  
   UTIL_IS_INSTANCE_HEADER( test_work_area );
 
 #ifdef __cplusplus

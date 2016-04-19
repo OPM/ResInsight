@@ -17,47 +17,38 @@
 Module with utility functions from util.c
 """
 
-from ert.util import UTIL_LIB
-from ert.cwrap import CWrapper, CWrapperNameSpace
+from ert.util import UtilPrototype
 
+strcmp_int = UtilPrototype("int util_strcmp_int( char* , char* )")
+"""
+Function to compare strings with embedded integers.
 
-def strcmp_int( s1, s2):
-    """
-    Function to compare strings with embedded integers. 
+Will use proper numeric comparison when comparing strings with
+embedded numbers, i.e. "CASE-9" will follow after "CASE-10" when
+sorting:
 
-    Will use proper numeric comparison when comparing strings with
-    embedded numbers, i.e. "CASE-9" will follow after "CASE-10" when
-    sorting:
-    
-       >> l = ["CASE-9" , "CASE-10"]
-       >> l.sort()
-       >> print l  
-          ["CASE-10" , "CASE-9"]
-       >> l.sort( strcmp_int )
-       >> print l
-          ["CASE-9" , "CASE-10"]   
+   >> l = ["CASE-9" , "CASE-10"]
+   >> l.sort()
+   >> print l
+      ["CASE-10" , "CASE-9"]
+   >> l.sort( strcmp_int )
+   >> print l
+      ["CASE-9" , "CASE-10"]
 
-    When the standard strcmp() function is used for comparing strings
-    the '1' will compare as less than the '9' and the order will be
-    the reverse. Observe that the '-' is not interpreted as a sign
-    prefix. The strcmp_int function will interpret '.' as separating
-    character, wheras the strcmp_float() function will interpret '.'
-    as a descimal point.
-    """
-    return cfunc.strcmp_int(s1, s2)
+When the standard strcmp() function is used for comparing strings
+the '1' will compare as less than the '9' and the order will be
+the reverse. Observe that the '-' is not interpreted as a sign
+prefix. The strcmp_int function will interpret '.' as separating
+character, wheras the strcmp_float() function will interpret '.'
+as a descimal point.
 
+@type: (str, str) -> int
+"""
 
-def strcmp_float( s1, s2):
-    """
-    Function to compare strings with embedded numbers.
+strcmp_float = UtilPrototype("int util_strcmp_float( char* , char* )")
+"""
+Function to compare strings with embedded numbers.
 
-    See documentation of strcmp_int() for further details.
-    """
-    return cfunc.strcmp_float(s1, s2)
-
-
-cwrapper = CWrapper(UTIL_LIB)
-cfunc = CWrapperNameSpace("util_func")
-
-cfunc.strcmp_int = cwrapper.prototype("int util_strcmp_int( char* , char* )")
-cfunc.strcmp_float = cwrapper.prototype("int util_strcmp_float( char* , char* )")
+See documentation of strcmp_int() for further details.
+@type: (str, str) -> int
+"""

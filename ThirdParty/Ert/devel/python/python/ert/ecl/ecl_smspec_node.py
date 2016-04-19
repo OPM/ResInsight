@@ -1,5 +1,5 @@
-from ert.cwrap import BaseCClass, CWrapper
-from ert.ecl import ECL_LIB
+from ert.cwrap import BaseCClass
+from ert.ecl import EclPrototype
 
 
 class EclSMSPECNode(BaseCClass):
@@ -12,7 +12,19 @@ class EclSMSPECNode(BaseCClass):
     KEYWORD and NUMS taken from the the SMSPEC file are stored in this
     structure.
     """
+    TYPE_NAME = "smspec_node"
+    _node_is_total      = EclPrototype("bool smspec_node_is_total( smspec_node )")
+    _node_is_historical = EclPrototype("bool smspec_node_is_historical( smspec_node )")
+    _node_is_rate       = EclPrototype("bool smspec_node_is_rate( smspec_node )")
+    _node_unit          = EclPrototype("char* smspec_node_get_unit( smspec_node )")
+    _node_wgname        = EclPrototype("char* smspec_node_get_wgname( smspec_node )")
+    _node_keyword       = EclPrototype("char* smspec_node_get_keyword( smspec_node )")
+    _node_num           = EclPrototype("int   smspec_node_get_num( smspec_node )")
+    _node_need_num      = EclPrototype("bool  smspec_node_need_nums( smspec_node )")
+    _gen_key1           = EclPrototype("char* smspec_node_get_gen_key1( smspec_node )")
+    _gen_key2           = EclPrototype("char* smspec_node_get_gen_key2( smspec_node )")
 
+    
     def __init__(self):
         super(EclSMSPECNode, self).__init__(0) # null pointer
         raise NotImplementedError("Class can not be instantiated directly!")
@@ -29,7 +41,7 @@ class EclSMSPECNode(BaseCClass):
         smspec_node.c; this list again is based on the tables 2.7 -
         2.11 in the ECLIPSE fileformat documentation.
         """
-        return EclSMSPECNode.cNamespace().node_is_total(self)
+        return self._node_is_total( )
 
     @property
     def is_rate(self):
@@ -39,7 +51,7 @@ class EclSMSPECNode(BaseCClass):
         The conecpt of rate variabel is important (internally) when
         interpolation values to arbitrary times.
         """
-        return EclSMSPECNode.cNamespace().node_is_rate(self)
+        return self._node_is_rate()
 
 
     @property
@@ -50,7 +62,7 @@ class EclSMSPECNode(BaseCClass):
         The check is only based on the last character; all variables
         ending with 'H' are considered historical.
         """
-        return EclSMSPECNode.cNamespace().node_is_historical(self)
+        return self._node_is_historical( )
 
 
     @property
@@ -58,7 +70,7 @@ class EclSMSPECNode(BaseCClass):
         """
         Returns the unit of this node as a string.
         """
-        return EclSMSPECNode.cNamespace().node_unit(self)
+        return self._node_unit( )
 
     @property
     def wgname(self):
@@ -70,7 +82,7 @@ class EclSMSPECNode(BaseCClass):
         BPR:10,10,10. For these variables the function will return
         None, and not the ECLIPSE dummy value: ":+:+:+:+".
         """
-        return EclSMSPECNode.cNamespace().node_wgname(self)
+        return self._node_wgname( )
 
 
     @property
@@ -83,7 +95,7 @@ class EclSMSPECNode(BaseCClass):
         read from the KEWYORD value; see table 3.4 in the ECLIPSE file
         format reference manual.
         """
-        return EclSMSPECNode.cNamespace().node_keyword(self)
+        return self._node_keyword( )
 
     @property
     def num(self):
@@ -99,24 +111,32 @@ class EclSMSPECNode(BaseCClass):
            sum.smspec_node("FOPT").num     => None
            sum.smspec_node("BPR:1000").num => 1000
         """
-        if EclSMSPECNode.cNamespace().node_need_num(self):
-            return EclSMSPECNode.cNamespace().node_num(self)
+        if self._node_need_num( ):
+            return self._node_num( )
         else:
             return None
 
+    def getKey1(self):
+        """
+        Returns the primary composite key, i.e. like 'WOPR:OPX' for this
+        node.
+        """
+        return self._gen_key1( )
 
 
-cwrapper = CWrapper(ECL_LIB)
+    def getKey2(self):
+        """Returns the secondary composite key for this node.
 
-cwrapper.registerType("smspec_node", EclSMSPECNode)
-cwrapper.registerType("smspec_node_obj", EclSMSPECNode.createPythonObject)
-cwrapper.registerType("smspec_node_ref", EclSMSPECNode.createCReference)
+        Most variables have only one composite key, but in particular
+        nodes which involve (i,j,k) coordinates will contain two
+        forms:
 
-EclSMSPECNode.cNamespace().node_is_total = cwrapper.prototype("bool smspec_node_is_total( smspec_node )")
-EclSMSPECNode.cNamespace().node_is_historical = cwrapper.prototype("bool smspec_node_is_historical( smspec_node )")
-EclSMSPECNode.cNamespace().node_is_rate = cwrapper.prototype("bool smspec_node_is_rate( smspec_node )")
-EclSMSPECNode.cNamespace().node_unit = cwrapper.prototype("char* smspec_node_get_unit( smspec_node )")
-EclSMSPECNode.cNamespace().node_wgname = cwrapper.prototype("char* smspec_node_get_wgname( smspec_node )")
-EclSMSPECNode.cNamespace().node_keyword = cwrapper.prototype("char* smspec_node_get_keyword( smspec_node )")
-EclSMSPECNode.cNamespace().node_num = cwrapper.prototype("int   smspec_node_get_num( smspec_node )")
-EclSMSPECNode.cNamespace().node_need_num = cwrapper.prototype("bool  smspec_node_need_nums( smspec_node )")
+            getKey1()  =>  "BPR:10,11,6"
+            getKey2()  =>  "BPR:52423"
+
+        Where the '52423' in getKey2() corresponds to i + j*nx +
+        k*nx*ny.
+        """
+        return self._gen_key2( )
+
+

@@ -27,10 +27,11 @@ extern "C" {
 #include <ert/enkf/enkf_node.h>
 #include <ert/enkf/fs_types.h>
 
-#define FS_MAGIC_ID          123998L
-#define FSTAB_FILE          "ert_fstab"
-#define CURRENT_FS_VERSION   105
-
+#define FS_MAGIC_ID              123998L
+#define FSTAB_FILE              "ert_fstab"
+#define CURRENT_FS_VERSION       106
+#define MIN_SUPPORTED_FS_VERSION 105
+  
 /**
    Version history:
 
@@ -48,7 +49,8 @@ extern "C" {
                                   |   2140: block_fs_index added
                                   |   2190: started to distribute ert binary internally
    105                            |   3918                |
-   --------------------------------------------------------------------------
+   106                            |   Git ~ Desember 2015 
+   -------------------------------------------------------------------------
 
 
    Version: 100
@@ -126,7 +128,17 @@ extern "C" {
    ------------
    Using time_map to store time information; common to all members in
    ensemble.
-   
+
+
+   Version: 106
+   ------------
+
+   Dropped drivers for storing STATIC eclipse keywords. The upgrade
+   from version 105 to 106 happens silently; the only thing happening
+   is that the information about the static driver is ignored when
+   reading the mount map. An older version of ert - with
+   CURRENT_VERSION == 105 can also read a VERSION == 106 filesystem
+   with a minor backport and some default heuristics.
 */
 
 

@@ -77,21 +77,17 @@ typedef struct enkf_state_struct    enkf_state_type;
   void             * enkf_state_run_eclipse__(void * );
   void             * enkf_state_start_forward_model__(void * );
 
-  void               enkf_state_load_from_forward_model(enkf_state_type * enkf_state ,
+  int                enkf_state_load_from_forward_model(enkf_state_type * enkf_state ,
                                                         run_arg_type * run_arg ,
-                                                        int * result ,
-                                                        bool interactive ,
                                                         stringlist_type * msg_list);
 
-  void enkf_state_forward_init(enkf_state_type * enkf_state ,
-                               run_arg_type * run_arg ,
-                               int * result );
+  int enkf_state_forward_init(enkf_state_type * enkf_state ,
+                              run_arg_type * run_arg);
 
   void enkf_state_init_eclipse(enkf_state_type *enkf_state, const run_arg_type * run_arg );
 
   enkf_state_type  * enkf_state_alloc(int ,
                                       rng_type        * main_rng ,
-                                      enkf_fs_type * fs,
                                       const char * casename ,
                                       bool         pre_clear_runpath,
                                       keep_runpath_type ,
@@ -104,7 +100,6 @@ typedef struct enkf_state_struct    enkf_state_type;
   void               enkf_state_update_node( enkf_state_type * enkf_state , const char * node_key );
   void               enkf_state_update_jobname( enkf_state_type * enkf_state );
   void               enkf_state_update_eclbase( enkf_state_type * enkf_state );
-  void               enkf_state_invalidate_cache( enkf_state_type * enkf_state );
   void               enkf_state_add_node(enkf_state_type * , const char *  , const enkf_config_node_type * );
   enkf_node_type *   enkf_state_get_or_create_node(enkf_state_type * enkf_state, const enkf_config_node_type * config_node);
   void               enkf_state_load_ecl_restart(enkf_state_type * , bool , int );
@@ -126,6 +121,7 @@ typedef struct enkf_state_struct    enkf_state_type;
   unsigned int       enkf_state_get_random( enkf_state_type * enkf_state );
   run_status_type    enkf_state_get_simple_run_status(const enkf_state_type * state);
   void               enkf_state_add_subst_kw(enkf_state_type * enkf_state , const char * kw , const char * value , const char * doc_string);
+  subst_list_type    * enkf_state_get_subst_kw( enkf_state_type * enkf_state );
 
 /******************************************************************/
 /* Forward model callbacks: */

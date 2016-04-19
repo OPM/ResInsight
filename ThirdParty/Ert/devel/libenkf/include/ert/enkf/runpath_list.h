@@ -32,7 +32,6 @@ extern "C" {
   int                 runpath_list_size( const runpath_list_type * list );
   void                runpath_list_add( runpath_list_type * list , int iens , int iter, const char * runpath , const char * basename);
   void                runpath_list_clear( runpath_list_type * list );
-  void                runpath_list_sort( runpath_list_type * list );
   int                 runpath_list_iget_iens( runpath_list_type * list , int index);
   int                 runpath_list_iget_iter( runpath_list_type * list , int index);
   char *              runpath_list_iget_runpath( runpath_list_type * list , int index);

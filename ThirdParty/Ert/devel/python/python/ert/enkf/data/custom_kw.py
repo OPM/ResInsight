@@ -1,4 +1,4 @@
-#  Copyright (C) 2012  Statoil ASA, Norway. 
+#  Copyright (C) 2012  Statoil ASA, Norway.
 #   
 #  The file 'field_config.py' is part of ERT - Ensemble based Reservoir Tool. 
 #   
@@ -15,8 +15,7 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
-from ert.enkf.data import CustomKWConfig
-from ert.util import StringList
+from ert.enkf.config import CustomKWConfig
 
 
 class CustomKW(BaseCClass):
@@ -50,6 +49,23 @@ class CustomKW(BaseCClass):
 
         return CustomKW.cNamespace().iget_as_string(self, index)
 
+    def __setitem__(self, key, value):
+        """
+        @type key: str
+        @type value: float|int|str
+        """
+
+        config = self.getConfig()
+
+        if not key in config:
+            raise KeyError("The key: '%s' is not available!" % key)
+
+        if isinstance(value, (float, int, long)):
+            CustomKW.cNamespace().set_double(self, key, value)
+        else:
+            CustomKW.cNamespace().set_string(self, key, str(value))
+
+
     def getConfig(self):
         """ @rtype: CustomKWConfig """
         return CustomKW.cNamespace().get_config(self)
@@ -61,9 +77,11 @@ cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerObjectType("custom_kw", CustomKW)
 
 CustomKW.cNamespace().free = cwrapper.prototype("void custom_kw_free(custom_kw)")
-CustomKW.cNamespace().alloc = cwrapper.prototype("c_void_p custom_kw_alloc(custom_kw_config)")
+CustomKW.cNamespace().alloc = cwrapper.prototype("void* custom_kw_alloc(custom_kw_config)")
 CustomKW.cNamespace().fload = cwrapper.prototype("bool custom_kw_fload(custom_kw, char*)")
 CustomKW.cNamespace().get_config = cwrapper.prototype("custom_kw_config_ref custom_kw_get_config(custom_kw)")
 CustomKW.cNamespace().key_is_null = cwrapper.prototype("bool custom_kw_key_is_null(custom_kw, char*)")
 CustomKW.cNamespace().iget_as_double = cwrapper.prototype("double custom_kw_iget_as_double(custom_kw, int)")
 CustomKW.cNamespace().iget_as_string = cwrapper.prototype("char* custom_kw_iget_as_string(custom_kw, int)")
+CustomKW.cNamespace().set_string = cwrapper.prototype("void custom_kw_set_string(custom_kw, char*, char*)")
+CustomKW.cNamespace().set_double = cwrapper.prototype("void custom_kw_set_double(custom_kw, char*, double)")

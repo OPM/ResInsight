@@ -14,87 +14,79 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 
-import os.path 
-from ert.test import ExtendedTestCase , TestAreaContext
+from ert.test import ExtendedTestCase
 from ert.util import Version
+
 
 class VersionTest(ExtendedTestCase):
     def setUp(self):
         pass
 
-
     def test_create(self):
-        v1 = Version(1,8,6)
-        self.assertFalse( v1.isDevelVersion() )
+        v1 = Version(1, 8, 6)
+        self.assertFalse(v1.isDevelVersion())
 
-        self.assertEqual( v1.versionString() , "1.8.6" )
-        self.assertEqual( v1.versionTuple() , (1,8,6) )
-        
-        v2 = Version(2,0,"X")
-        self.assertTrue( v2.isDevelVersion() )
-        
+        self.assertEqual(v1.versionString(), "1.8.6")
+        self.assertEqual(v1.versionTuple(), (1, 8, 6))
+
+        v2 = Version(2, 0, "X")
+        self.assertTrue(v2.isDevelVersion())
+
     def test_eq(self):
-        v1 = Version(1,2,3)
-        v2 = Version(1,2,3)
+        v1 = Version(1, 2, 3)
+        v2 = Version(1, 2, 3)
 
-        self.assertTrue( v1 == v2 )
-        self.assertFalse( v1 != v2 )
-        
-        v1 = Version(1,2,"X")
-        v2 = Version(1,2,"Y")
-        self.assertTrue( v1 != v2 )
-        self.assertFalse( v1 == v2 )
-        
-        v1 = Version(1,2,"X")
-        v2 = Version(1,2,0)
-        self.assertTrue( v1 != v2 )
-        self.assertFalse( v1 == v2 )
+        self.assertTrue(v1 == v2)
+        self.assertFalse(v1 != v2)
 
-        v1 = Version(1,2,"X")
-        v2 = Version(1,3,"X")
-        self.assertTrue( v1 != v2 )
-        self.assertFalse( v1 == v2 )
+        v1 = Version(1, 2, "X")
+        v2 = Version(1, 2, "Y")
+        self.assertTrue(v1 != v2)
+        self.assertFalse(v1 == v2)
 
+        v1 = Version(1, 2, "X")
+        v2 = Version(1, 2, 0)
+        self.assertTrue(v1 != v2)
+        self.assertFalse(v1 == v2)
 
-        v1 = Version(1,2,"X")
-        v2 = (1,3,"X")
-        self.assertTrue( v1 != v2 )
-        self.assertFalse( v1 == v2 )
-        
+        v1 = Version(1, 2, "X")
+        v2 = Version(1, 3, "X")
+        self.assertTrue(v1 != v2)
+        self.assertFalse(v1 == v2)
 
+        v1 = Version(1, 2, "X")
+        v2 = (1, 3, "X")
+        self.assertTrue(v1 != v2)
+        self.assertFalse(v1 == v2)
 
     def test_ge(self):
-        v1 = Version(1,2,3)
-        v2 = Version(1,2,3)
-        v3 = (1,2,2)
+        v1 = Version(1, 2, 3)
+        v2 = Version(1, 2, 3)
+        v3 = (1, 2, 2)
 
-        self.assertTrue( v1 >= v2 )
-        self.assertFalse( v1 < v2 )
+        self.assertTrue(v1 >= v2)
+        self.assertFalse(v1 < v2)
 
-        self.assertTrue( v1 >= v3 )
-        self.assertFalse( v1 < v3 )
+        self.assertTrue(v1 >= v3)
+        self.assertFalse(v1 < v3)
 
-        v1 = Version(1,2,"X")
-        v2 = Version(1,1,9)
-        self.assertTrue( v1 > v2 )
+        v1 = Version(1, 2, "X")
+        v2 = Version(1, 1, 9)
+        self.assertTrue(v1 > v2)
 
+        v2 = Version(1, 2, "X")
+        self.assertTrue(v1 >= v2)
 
-        v2 = Version(1,2,"X")
-        self.assertTrue( v1 >= v2 )
-
-        v2 = Version(1,2,0)
-        self.assertFalse( v1 >= v2 )
-
+        v2 = Version(1, 2, 0)
+        self.assertFalse(v1 >= v2)
 
     def test_current(self):
         current = Version.currentVersion()
-        self.assertTrue( current > (0,0,0) )
-
-        
+        self.assertTrue(current > (0, 0, 0))
 
     def test_import(self):
         from ert import Version as globalVersion
-        v1 = globalVersion(1,1,2)
-        v2 = Version(1,1,2)
+        v1 = globalVersion(1, 1, 2)
+        v2 = Version(1, 1, 2)
 
-        self.assertTrue( v1 == v2 )
+        self.assertTrue(v1 == v2)

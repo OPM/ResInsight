@@ -55,8 +55,6 @@ class ErtScript(object):
         self.__failed = False
 
         arguments = []
-
-
         for index, arg_value in enumerate(argument_values):
             if index < len(argument_types):
                 arg_type = argument_types[index]
@@ -70,16 +68,26 @@ class ErtScript(object):
 
         try:
             return self.run(*arguments)
+        except AttributeError as e:
+            if not hasattr(self, "run"):
+                self.__failed = True
+                return "Script '%s' has not implemented a 'run' function" % self.__class__.__name__
+            return self.defaultStackTrace(e)
+        except KeyboardInterrupt:
+            return "Script '%s' cancelled (CTRL+C)" % self.__class__.__name__
         except Exception as e:
-            sys.stderr.write("The script '%s' caused an error while running:\n" % self.__class__.__name__)
-            self.__failed = True
-            stack_trace = traceback.format_exception(sys.exc_type, sys.exc_value, sys.exc_traceback)
-            return "".join(stack_trace)
+            return self.defaultStackTrace(e)
         finally:
             self.cleanup()
 
 
     __module_count = 0 # Need to have unique modules in case of identical object naming in scripts
+
+    def defaultStackTrace(self, error):
+        sys.stderr.write("The script '%s' caused an error while running:\n" % self.__class__.__name__)
+        self.__failed = True
+        stack_trace = traceback.format_exception(sys.exc_type, sys.exc_value, sys.exc_traceback)
+        return "".join(stack_trace)
 
     @staticmethod
     def loadScriptFromFile(path):

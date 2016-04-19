@@ -76,11 +76,14 @@ class LocalConfig(BaseCClass):
         LocalConfig.cNamespace().create_ministep(self, mini_step_key)         
         return self.getMinistep(mini_step_key)  
     
-    def createObsdata(self, obsset_key):
+    def createObsdata(self, obsdata_key):
         """ @rtype: Obsdata """
-        assert isinstance(obsset_key, str)
-        LocalConfig.cNamespace().create_obsdata(self, obsset_key)  
-        obsdata = self.getObsdata(obsset_key)
+        assert isinstance(obsdata_key, str)
+        if LocalConfig.cNamespace().has_obsdata(self, obsdata_key):
+            raise ValueError("Tried to add existing observation key:%s " % obsdata_key)
+        
+        LocalConfig.cNamespace().create_obsdata(self, obsdata_key)  
+        obsdata = self.getObsdata(obsdata_key)
         obsdata.initObservations( self.__getObservations() )
         return obsdata
 
@@ -97,6 +100,9 @@ class LocalConfig(BaseCClass):
     def createDataset(self, dataset_key):
         """ @rtype: Dataset """
         assert isinstance(dataset_key, str)
+        if LocalConfig.cNamespace().has_dataset(self, dataset_key):
+            raise ValueError("Tried to add existing data key:%s " % dataset_key)
+        
         LocalConfig.cNamespace().create_dataset(self, dataset_key)  
         data = self.getDataset(dataset_key)
         data.initEnsembleConfig( self.__getEnsembleConfig() )
@@ -122,10 +128,10 @@ class LocalConfig(BaseCClass):
         assert isinstance(mini_step_key, str)                
         return LocalConfig.cNamespace().get_ministep(self, mini_step_key)  
     
-    def getObsdata(self, obsset_key):
+    def getObsdata(self, obsdata_key):
         """ @rtype: Obsdata """
-        assert isinstance(obsset_key, str)          
-        return LocalConfig.cNamespace().get_obsdata(self, obsset_key)    
+        assert isinstance(obsdata_key, str)          
+        return LocalConfig.cNamespace().get_obsdata(self, obsdata_key)    
     
     def getDataset(self, dataset_key):
         """ @rtype: Dataset """
@@ -168,12 +174,15 @@ LocalConfig.cNamespace().create_ministep                 = cwrapper.prototype("v
 LocalConfig.cNamespace().attach_ministep                 = cwrapper.prototype("void local_updatestep_add_ministep( local_updatestep, local_ministep)")
                                                          
 LocalConfig.cNamespace().get_obsdata                     = cwrapper.prototype("local_obsdata_ref local_config_get_obsdata( local_config, char*)")
-LocalConfig.cNamespace().create_obsdata                  = cwrapper.prototype("void local_config_alloc_obsset( local_config, char*)")
+LocalConfig.cNamespace().create_obsdata                  = cwrapper.prototype("void local_config_alloc_obsdata( local_config, char*)")
 LocalConfig.cNamespace().copy_obsdata                    = cwrapper.prototype("local_obsdata_ref local_config_alloc_obsdata_copy( local_config, char*, char*)")
+LocalConfig.cNamespace().has_obsdata                     = cwrapper.prototype("bool local_config_has_obsdata( local_config, char*)")
+
                                                          
 LocalConfig.cNamespace().get_dataset                     = cwrapper.prototype("local_dataset_ref local_config_get_dataset( local_config, char*)")
 LocalConfig.cNamespace().create_dataset                  = cwrapper.prototype("void local_config_alloc_dataset( local_config, char*)")
 LocalConfig.cNamespace().copy_dataset                    = cwrapper.prototype("local_dataset_ref local_config_alloc_dataset_copy( local_config, char*, char*)")
+LocalConfig.cNamespace().has_dataset                     = cwrapper.prototype("bool local_config_has_dataset( local_config, char*)")
 
 LocalConfig.cNamespace().write_local_config_file         = cwrapper.prototype("void local_config_fprintf( local_config, char*)")
 LocalConfig.cNamespace().write_local_config_summary_file = cwrapper.prototype("void local_config_summary_fprintf( local_config, char*)")

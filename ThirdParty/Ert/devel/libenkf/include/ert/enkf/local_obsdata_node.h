@@ -30,7 +30,7 @@ extern "C" {
 
   typedef struct local_obsdata_node_struct local_obsdata_node_type;
 
-  local_obsdata_node_type   * local_obsdata_node_alloc( const char * obs_key );
+  local_obsdata_node_type   * local_obsdata_node_alloc( const char * obs_key , bool all_timestep_active );
   local_obsdata_node_type   * local_obsdata_node_alloc_copy( const local_obsdata_node_type * src);
   const char                * local_obsdata_node_get_key( const local_obsdata_node_type * node );
   void                        local_obsdata_node_free( local_obsdata_node_type * node );
@@ -39,10 +39,12 @@ extern "C" {
   void                        local_obsdata_node_copy_active_list( local_obsdata_node_type * node , const active_list_type * active_list);
   void                        local_obsdata_node_add_tstep( local_obsdata_node_type * node, int tstep);
   void                        local_obsdata_node_add_range( local_obsdata_node_type * node, int step1, int step2);
-  const int_vector_type     * local_obsdata_node_get_tstep_list( const local_obsdata_node_type * node);
+
+  bool                        local_obsdata_node_tstep_active( const local_obsdata_node_type * node , int tstep );
   bool                        local_obsdata_node_all_timestep_active( const local_obsdata_node_type * node);
   bool                        local_obsdata_node_has_tstep( const local_obsdata_node_type * node , int tstep);
   void                        local_obsdata_node_reset_tstep_list( local_obsdata_node_type * node , const int_vector_type * step_list);
+  void                        local_obsdata_node_set_all_timestep_active( local_obsdata_node_type * node, bool flag);
 
   UTIL_IS_INSTANCE_HEADER( local_obsdata_node );
   UTIL_SAFE_CAST_HEADER( local_obsdata_node );

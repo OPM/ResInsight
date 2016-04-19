@@ -68,95 +68,6 @@ void * enkf_main_dummy_JOB(void * self , const stringlist_type * args ) {
 }
 
 
-void * enkf_main_assimilation_JOB( void * self , const stringlist_type * args ) {
-  enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
-  int ens_size                 = enkf_main_get_ensemble_size( enkf_main );
-  bool_vector_type * iactive   = bool_vector_alloc( 0 , true );
-
-  bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_assimilation( enkf_main , iactive , 0 , 0 ,  ANALYZED );
-  return NULL;
-}
-
-void * enkf_main_analysis_enkf_update_JOB( void * self , const stringlist_type * args) {
-  enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
-  enkf_fs_type * target_fs = enkf_main_get_fs( enkf_main );
-  int target_step;
-  int_vector_type * step_list;
-
-
-  // Argument 0: The number of the step to write to
-  if (stringlist_get_size(args) > 1)
-    util_sscanf_int(stringlist_iget( args , 1) , &target_step);
-  else
-    target_step = 0;
-
-  // Argument 1 - ??: The timesteps to use in the update
-  if (stringlist_get_size( args ) > 2) {
-    char * step_args = stringlist_alloc_joined_substring(args , 2 , stringlist_get_size(args) , " ");
-    step_list = string_util_alloc_active_list( step_args );
-    free( step_args );
-  } else
-    step_list = int_vector_alloc(1,target_step);
-
-  enkf_main_UPDATE( enkf_main , step_list , target_fs , target_step , SMOOTHER_UPDATE);
-
-  int_vector_free( step_list );
-  return NULL;
-}
-
-
-
-#define CURRENT_CASE_STRING "*"
-void * enkf_main_analysis_update_JOB( void * self , const stringlist_type * args) {
-  enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
-  enkf_fs_type * target_fs;
-  int target_step;
-  int_vector_type * step_list;
-  bool decrease_ref = false;
-
-  // Argument 0: Which case to write to
-  if (stringlist_get_size(args)) {
-    const char * target_fs_name = stringlist_iget( args , 0 );
-    if (strcmp( target_fs_name , CURRENT_CASE_STRING) == 0)
-      target_fs = enkf_main_get_fs( enkf_main );
-    else {
-      target_fs = enkf_main_mount_alt_fs( enkf_main , target_fs_name , true);
-      decrease_ref = true;
-    }
-  } else
-      target_fs = enkf_main_get_fs( enkf_main );
-  {
-
-
-    // Argument 1: The number of the step to write to
-    if (stringlist_get_size(args) > 1)
-      util_sscanf_int(stringlist_iget( args , 1) , &target_step);
-    else
-      target_step = 0;
-
-    // Argument 2 - ??: The timesteps to use in the update
-    if (stringlist_get_size( args ) > 2) {
-      char * step_args = stringlist_alloc_joined_substring(args , 2 , stringlist_get_size(args) , " ");
-      step_list = string_util_alloc_active_list( step_args );
-      free( step_args );
-    } else {
-      int stride = 1;
-      time_map_type * time_map = enkf_fs_get_time_map( enkf_main_get_fs( enkf_main ));
-      step_list = enkf_main_update_alloc_step_list( enkf_main , 0 , time_map_get_last_step( time_map ) , stride);
-    }
-
-    enkf_main_UPDATE( enkf_main , step_list , target_fs , target_step , SMOOTHER_UPDATE);
-
-    int_vector_free( step_list );
-
-    if (decrease_ref)
-      enkf_fs_decref( target_fs );
-  }
-  return NULL;
-}
-#undef CURRENT_CASE_STRING
-
 
 
 
@@ -172,36 +83,24 @@ void * enkf_main_ensemble_run_JOB( void * self , const stringlist_type * args ) 
 }
 
 
-#define CURRENT_CASE_STRING "*"
 static void * enkf_main_smoother_JOB__( void * self , int iter , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   int ens_size                 = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive   = bool_vector_alloc( ens_size , true );
   bool valid                   = true;
-  const char * target_case;
-  enkf_fs_type * target_fs     = enkf_main_get_fs( enkf_main );
-
-
-  // Argument 0: Which case to write to. Default current case.
-  if (stringlist_get_size(args)) {
-    target_case = stringlist_iget( args , 0 );
-    if (strcmp( target_case , CURRENT_CASE_STRING) == 0)
-      target_case = enkf_fs_get_case_name(target_fs);
-  } else
-    target_case = enkf_fs_get_case_name(target_fs);
-
-  //Argument 1: Rerun. Default false.
+  const char * target_case     = stringlist_iget( args , 0 );
+  enkf_fs_type * source_fs     = enkf_main_job_get_fs( enkf_main );
+  //Argument 2: Rerun. Default false.
   bool rerun = (stringlist_get_size(args) >= 2) ? stringlist_iget_as_bool(args, 1, &valid) : false;
-
+  
   if (!valid) {
       fprintf(stderr, "** Warning: Function %s : Second argument must be a bool value. Exiting job\n", __func__);
       return NULL;
   }
-  enkf_main_run_smoother( enkf_main , target_case , iactive , iter , rerun);
+  enkf_main_run_smoother( enkf_main , source_fs , target_case , iactive , iter , rerun);
   bool_vector_free( iactive );
   return NULL;
 }
-#undef CURRENT_CASE_STRING
 
 
 void * enkf_main_smoother_JOB( void * self , const stringlist_type * args ) {
@@ -242,15 +141,6 @@ void * enkf_main_select_module_JOB( void * self , const stringlist_type * args )
   return NULL;
 }
 
-
-
-void * enkf_main_create_reports_JOB(void * self , const stringlist_type * args ) {
-  enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
-  ert_report_list_type * report_list = enkf_main_get_report_list( enkf_main );
-
-  ert_report_list_create( report_list , enkf_main_get_current_fs( enkf_main ) , true );
-  return NULL;
-}
 
 void * enkf_main_scale_obs_std_JOB(void * self, const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
@@ -300,9 +190,9 @@ void * enkf_main_init_case_from_existing_JOB( void * self , const stringlist_typ
       if (0 != strcmp(current_case, target_case)) {
         target_fs = enkf_main_mount_alt_fs( enkf_main , target_case , true );
       } else
-        target_fs = enkf_fs_get_ref( enkf_main_get_fs(enkf_main) );  // Using get_ref so that we can unconditionally call decref() further down.
+        target_fs = enkf_fs_get_ref( enkf_main_job_get_fs(enkf_main) );  // Using get_ref so that we can unconditionally call decref() further down.
     } else
-      target_fs = enkf_fs_get_ref( enkf_main_get_fs(enkf_main) );    // Using get_ref so that we can unconditionally call decref() further down.
+      target_fs = enkf_fs_get_ref( enkf_main_job_get_fs(enkf_main) );    // Using get_ref so that we can unconditionally call decref() further down.
 
     enkf_main_init_case_from_existing(enkf_main, source_fs, 0, ANALYZED, target_fs);
     enkf_fs_decref(target_fs);
@@ -516,7 +406,7 @@ void * enkf_main_init_misfit_table_JOB(void * self, const stringlist_type * args
   int history_length           = enkf_main_get_history_length(enkf_main);
   enkf_obs_type * enkf_obs     = enkf_main_get_obs(enkf_main);
   int ens_size                 = enkf_main_get_ensemble_size(enkf_main);
-  enkf_fs_type * fs            = enkf_main_get_fs(enkf_main);
+  enkf_fs_type * fs            = enkf_main_job_get_fs(enkf_main);
   bool force_update            = true;
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
 
@@ -538,9 +428,9 @@ static void enkf_main_export_runpath_file(enkf_main_type * enkf_main,
   const model_config_type * model_config  = enkf_main_get_model_config(enkf_main);
   const char * basename_fmt               = ecl_config_get_eclbase(ecl_config);
   const char * runpath_fmt                = model_config_get_runpath_as_char(model_config);
-  const qc_module_type * qc_module        = enkf_main_get_qc_module( enkf_main );
+  const hook_manager_type * hook_manager        = enkf_main_get_hook_manager( enkf_main );
 
-  runpath_list_type * runpath_list = runpath_list_alloc( qc_module_get_runpath_list_file( qc_module ));
+  runpath_list_type * runpath_list = runpath_list_alloc( hook_manager_get_runpath_list_file( hook_manager ));
 
   for (int iter = 0; iter < int_vector_size(iterations); ++iter) {
     for (int iens = 0; iens < int_vector_size(realizations); ++iens) {
@@ -626,7 +516,7 @@ void * enkf_main_std_scale_correlated_obs_JOB(void * self, const stringlist_type
   if (stringlist_get_size(args) > 0) {
     enkf_main_type * enkf_main              = enkf_main_safe_cast( self );
     int ensemble_size                       = enkf_main_get_ensemble_size(enkf_main);
-    enkf_fs_type * fs                       = enkf_main_get_fs( enkf_main );
+    enkf_fs_type * fs                       = enkf_main_job_get_fs( enkf_main );
     enkf_obs_type * obs                     = enkf_main_get_obs( enkf_main );
     int_vector_type * realizations          = int_vector_alloc(1, 0);
     local_obsdata_type * obsdata = local_obsdata_alloc( "OBS-JOB" );

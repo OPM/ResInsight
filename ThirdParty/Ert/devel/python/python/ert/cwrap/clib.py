@@ -34,7 +34,6 @@ import platform
 import ctypes
 import os
 
-ert_lib_path = None
 so_extension = {"linux"  : "so",
                 "linux2" : "so",
                 "linux3" : "so",
@@ -43,15 +42,44 @@ so_extension = {"linux"  : "so",
                 "darwin" : "dylib" }
 
 
+# The variables ert_lib_path and ert_so_version will be set by the build
+# system. The system works like this:
+#
+#  1. There is a CMake configure command which creates a module
+#     __ert_lib_info.py; that module has the two elements
+#     'ert_lib_path' and 'ert_so_version' which are inferred by the
+#     build system.
+#
+#  2. The root package ert/__init__py will try to import thel
+#     __ert_lib_info module; if that import succeeds the attributes
+#     ert_lib_path and ert_so_version OF THIS MODULE will be updated.
+# 
+#     If the import fails this module will continue with the default
+#     values. The default values will work if the shared libraries are
+#     in the default library load path, with unversioned named/links.
+
+
+ert_lib_path = None           # Warning: Will be updated from ert/__init__.py
+ert_so_version = ""           #  
+
+
+
+
 # Passing None to the CDLL() function means to open a lib handle to
 # the current runnning process, i.e. like dlopen( NULL ). We must
 # special case this to avoid creating the bogus argument 'None.so'.
-def lib_name(lib , path = None):
+
+def lib_name(lib , path = None , so_version = ""):
     if lib is None:
         return None
     else:
         platform_key = platform.system().lower()
-        so_name = "%s.%s" % (lib , so_extension[ platform_key ])
+
+        if platform_key == "darwin":
+            so_name = "%s%s.%s" % (lib, so_version, so_extension[ platform_key ])
+        else:
+            so_name = "%s.%s%s" % (lib, so_extension[ platform_key ], so_version)
+
         if path:
             return os.path.join( path , so_name )
         else:
@@ -80,9 +108,9 @@ def __load( lib_list, ert_prefix):
     dll = None
     for lib in lib_list:
         if ert_prefix:
-            lib_file = lib_name( lib , path = ert_lib_path )
+            lib_file = lib_name( lib , path = ert_lib_path , so_version = ert_so_version)
         else:
-            lib_file = lib_name( lib )
+            lib_file = lib_name( lib , so_version = ert_so_version)
 
         try:
             dll = ctypes.CDLL(lib_file , ctypes.RTLD_GLOBAL)

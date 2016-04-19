@@ -9,16 +9,14 @@ class LocalObsdataNodeTest(ExtendedTestCase):
     def test_tstep(self):
         node = LocalObsdataNode("KEY")
         self.assertTrue( node.allTimeStepActive() )
+        self.assertTrue( node.tstepActive( 10 ))
+        self.assertTrue( node.tstepActive( 0 ))
         
-        with self.assertRaises(ValueError):
-            tstep_list = node.getStepList()
-
         node.addTimeStep(10)
         self.assertFalse( node.allTimeStepActive() )
 
-        tstep_list = node.getStepList()
-        self.assertEqual( len(tstep_list) , 1 )
-        self.assertEqual( tstep_list[0] , 10)
+        self.assertTrue( node.tstepActive( 10 ))
+        self.assertFalse( node.tstepActive( 0 ))
 
         
 

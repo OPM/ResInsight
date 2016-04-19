@@ -787,10 +787,9 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
   }
 
   if (util_entry_readable( config_file)) {
-    ext_job_type * ext_job = ext_job_alloc(name , license_root_path , private_job);
+    ext_job_type * ext_job = NULL;
     config_parser_type  * config  = config_alloc(  );
 
-    ext_job_set_config_file( ext_job , config_file );
     {
       config_schema_item_type * item;
       item = config_add_schema_item(config , "MAX_RUNNING"         , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 ); config_schema_item_iset_type( item , 0 , CONFIG_INT );
@@ -809,8 +808,12 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
     config_add_alias(config , "EXECUTABLE" , "PORTABLE_EXE");
 
     {
-      config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
+      config_content_type * content = config_parse(config , config_file , "--" , NULL , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true);
       if (config_content_is_valid( content )) {
+        ext_job = ext_job_alloc(name , license_root_path , private_job);
+        ext_job_set_config_file( ext_job , config_file );
+
+
         if (config_content_has_item(content , "STDIN"))                 ext_job_set_stdin_file(ext_job       , config_content_iget(content  , "STDIN" , 0,0));
         if (config_content_has_item(content , "STDOUT"))                ext_job_set_stdout_file(ext_job      , config_content_iget(content  , "STDOUT" , 0,0));
         if (config_content_has_item(content , "STDERR"))                ext_job_set_stderr_file(ext_job      , config_content_iget(content  , "STDERR" , 0,0));
@@ -870,23 +873,23 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
             }
           }
         }
+
+        if (!ext_job->__valid) {
+          /*
+            Something NOT OK (i.e. EXECUTABLE now); free the job instance and return NULL:
+          */
+          ext_job_free( ext_job );
+          ext_job = NULL;
+          fprintf(stderr,"** Warning: job: \'%s\' not available ... \n", name );
+        }
       } else {
         config_error_type * error = config_content_get_errors( content );
         config_error_fprintf( error , true , stderr );
-        exit(1);
+        fprintf(stderr,"** Warning: job: \'%s\' not available ... \n", name );
       }
       config_content_free( content );
     }
     config_free(config);
-
-    if (!ext_job->__valid) {
-      /*
-         Something NOT OK (i.e. EXECUTABLE now); free the job instance and return NULL:
-      */
-      ext_job_free( ext_job );
-      ext_job = NULL;
-      fprintf(stderr,"** Warning: job: \'%s\' not available ... \n", name );
-    }
 
     return ext_job;
   } else {

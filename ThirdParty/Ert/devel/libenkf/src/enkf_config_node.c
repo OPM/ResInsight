@@ -139,8 +139,6 @@ static enkf_config_node_type * enkf_config_node_alloc__(enkf_var_type  var_type,
             node->freef             = field_config_free__;
             node->get_data_size     = field_config_get_data_size__;
             break;
-        case(STATIC):
-            break;
         case(GEN_KW):
             node->freef             = gen_kw_config_free__;
             node->get_data_size     = gen_kw_config_get_data_size__;
@@ -320,6 +318,12 @@ enkf_config_node_type * enkf_config_node_new_custom_kw(const char * key, const c
     enkf_config_node_type * config_node = enkf_config_node_alloc__(DYNAMIC_RESULT, CUSTOM_KW, key, false);
     config_node->data = custom_kw_config_alloc_empty(key, result_file, output_file);
     return config_node;
+}
+
+enkf_config_node_type * enkf_config_node_new_defined_custom_kw(const char * key, const hash_type * definition) {
+  enkf_config_node_type * config_node = enkf_config_node_alloc__(DYNAMIC_RESULT, CUSTOM_KW, key, false);
+  config_node->data = custom_kw_config_alloc_with_definition(key, definition);
+  return config_node;
 }
 
 enkf_config_node_type * enkf_config_node_new_surface( const char * key , bool forward_init) {

@@ -69,12 +69,21 @@ per module organization:
      namespace 'ecl'.
 
 """
-from ert.cwrap import clib
-
 import ert.util
 import ert.geo
 
+from ert.cwrap import clib
+from ert.cwrap.metacwrap import Prototype
 
+
+class EclPrototype(Prototype):
+    lib = clib.ert_load("libecl")
+
+    def __init__(self, prototype, bind=True):
+        super(EclPrototype, self).__init__(EclPrototype.lib, prototype, bind=bind)
+
+
+        
 ECL_LIB = clib.ert_load("libecl")
 
 from .ecl_sum_tstep import EclSumTStep
@@ -95,10 +104,11 @@ from .ecl_grid import EclGrid
 from .ecl_region import EclRegion
 from .ecl_subsidence import EclSubsidence
 from .ecl_grav_calc import phase_deltag, deltag
+from .ecl_grav import EclGrav
 from .ecl_sum_node import EclSumNode
 from .ecl_sum_vector import EclSumVector
 from .ecl_npv import EclNPV , NPVPriceVector
-
+from .ecl_cmp import EclCmp
 
 # The EclQueue class uses the libjob_queue library which is only built
 # when the full ert distribution is built. If BUILD_ERT == False the

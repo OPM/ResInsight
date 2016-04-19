@@ -13,17 +13,36 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
+import sys
+
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
+from ert.enkf.config import FieldConfig
+from ert.enkf.enums import EnkfStateType
 
 
 class Field(BaseCClass):
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
+    
     def ijk_get_double(self, i, j, k):
         return Field.cNamespace().ijk_get_double(self, i, j, k)
 
+    
+    def export(self , filename , file_type = None , init_file = None):
+        output_transform = False
+        if file_type is None:
+            try:
+                file_type = FieldConfig.exportFormat( filename )
+            except ValueError:
+                sys.stderr.write("Sorry - could not infer output format from filename:%s\n" % filename)
+                return False
+
+        Field.cNamespace().export(self , filename , None , file_type , output_transform , init_file )
+        return True
+
+    
     def free(self):
         Field.cNamespace().free(self)
 
@@ -31,9 +50,8 @@ class Field(BaseCClass):
 ##################################################################
 
 cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("field", Field)
-cwrapper.registerType("field_obj", Field.createPythonObject)
-cwrapper.registerType("field_ref", Field.createCReference)
+cwrapper.registerObjectType("field", Field)
 
 Field.cNamespace().free = cwrapper.prototype("void field_free( field )")
 Field.cNamespace().ijk_get_double = cwrapper.prototype("double field_ijk_get_double(field, int, int, int)")
+Field.cNamespace().export = cwrapper.prototype("void field_export(field, char* , fortio , enkf_field_file_format_enum , bool , char*)")

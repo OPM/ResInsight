@@ -49,7 +49,7 @@ typedef struct config_parser_struct              config_parser_type;
   void              config_free(config_parser_type *);
   config_parser_type *     config_alloc( );
   char       **     config_alloc_active_list(const config_parser_type * , int * );
-  config_content_type * config_parse(config_parser_type * , const char * , const char * , const char * , const char * , config_schema_unrecognized_enum unrecognized_behaviour , bool );
+  config_content_type * config_parse(config_parser_type * config, const char * filename, const char * comment_string, const char * include_kw, const char * define_kw, const hash_type * pre_defined_kw_map, config_schema_unrecognized_enum unrecognized_behaviour , bool validate);
   bool              config_has_schema_item(const config_parser_type * config , const char * kw);
 
 /*****************************************************************/

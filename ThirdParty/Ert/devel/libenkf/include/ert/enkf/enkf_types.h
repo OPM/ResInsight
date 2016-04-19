@@ -62,7 +62,6 @@ typedef enum {INVALID_VAR      =  0  ,    /* */
               PARAMETER        =  1  ,    /* A parameter which is updated with enkf: PORO , MULTFLT , ..*/
               DYNAMIC_STATE    =  2  ,    /* Dynamic data which are needed for a restart - i.e. pressure and saturations.  */
               DYNAMIC_RESULT   =  4  ,    /* Dynamic results which are NOT needed for a restart - i.e. well rates. */
-              STATIC_STATE     =  8  ,    /* Keywords like XCON++ from eclipse restart files - which are just dragged along          */
               INDEX_STATE      = 16 }     /* Index data - enum value is used for storage classification */
 enkf_var_type;
 
@@ -94,7 +93,6 @@ keep_runpath_type;
 
 typedef enum {INVALID          = 0   ,
               IMPL_TYPE_OFFSET = 100 ,
-              STATIC           = 100 ,       /* MULTZ has been removed & MULTFLT */
               FIELD            = 104 ,       /* WELL has been removed  */
               GEN_KW           = 107 ,       /* RELPERM has been removed & HAVANA_FAULT */
               CUSTOM_KW        = 108 ,
@@ -174,7 +172,7 @@ typedef enum { TRUNCATE_NONE   = 0,
 
 */
 
-typedef enum { ENKF_ASSIMILATION       = 1,
+typedef enum { //ENKF_ASSIMILATION       = 1,
                ENSEMBLE_EXPERIMENT     = 2,
                SMOOTHER_UPDATE         = 4 ,
                INIT_ONLY               = 8 } run_mode_type;

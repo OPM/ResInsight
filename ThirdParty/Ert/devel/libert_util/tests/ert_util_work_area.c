@@ -163,13 +163,13 @@ void test_with_prefix() {
 
   util_make_path( "PREFIX" );
   {
-    test_work_area_type * sub_area = test_work_area_alloc__("PREFIX" , "sub-work" );
+    test_work_area_type * sub_area = test_work_area_alloc_relative("PREFIX" , "sub-work" );
     test_assert_true( test_work_area_is_instance( sub_area ));
     test_work_area_free( sub_area );
     test_assert_true( util_entry_exists("PREFIX/sub-work"));
   }
   {
-    test_work_area_type * sub_area = test_work_area_alloc__("DoesNotExist" , "sub-work" );
+    test_work_area_type * sub_area = test_work_area_alloc_relative("DoesNotExist" , "sub-work" );
     test_assert_NULL( sub_area );
   }
   test_work_area_free( work_area );

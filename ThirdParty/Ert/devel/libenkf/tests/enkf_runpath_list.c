@@ -59,10 +59,7 @@ void test_runpath_list() {
   test_assert_int_equal( runpath_list_iget_iens( list , 0 ) , 3 );
   test_assert_int_equal( runpath_list_iget_iens( list , 2 ) , 1 );
   test_assert_int_equal( runpath_list_iget_iter( list , 3 ) , 1 );
-  runpath_list_sort( list );
 
-  test_assert_int_equal( runpath_list_iget_iens( list , 0 ) , 1 );
-  test_assert_int_equal( runpath_list_iget_iens( list , 4 ) , 3 );
   runpath_list_clear( list );
   test_assert_int_equal( runpath_list_size( list ) , 0 );
 
@@ -93,12 +90,6 @@ void test_runpath_list() {
     }
     thread_pool_join( tp );
     test_assert_int_equal( runpath_list_size( list ) , block_size * threads );
-    runpath_list_sort( list );
-    {
-      int iens;
-      for (iens = 0; iens < block_size * threads; iens++)
-        test_assert_int_equal( runpath_list_iget_iens( list , iens ) , iens );
-    }
 
     {
       test_work_area_type * work_area = test_work_area_alloc("enkf_runpath_list" );
@@ -129,7 +120,7 @@ void test_runpath_list() {
 void test_config( const char * config_file ) {
   ert_test_context_type * test_context = ert_test_context_alloc( "RUNPATH_FILE" , config_file );
   enkf_main_type * enkf_main = ert_test_context_get_main( test_context );
-  qc_module_type * qc_module = enkf_main_get_qc_module( enkf_main );
+  hook_manager_type * hook_manager = enkf_main_get_hook_manager( enkf_main );
 
   ert_test_context_run_worklow( test_context , "ARGECHO_WF");
   {
@@ -137,7 +128,7 @@ void test_config( const char * config_file ) {
     char runpath_file[256];
     fscanf(stream , "%s" , runpath_file );
     fclose( stream );
-    test_assert_string_equal( runpath_file , qc_module_get_runpath_list_file( qc_module ));
+    test_assert_string_equal( runpath_file , hook_manager_get_runpath_list_file( hook_manager ));
   }
 
   ert_test_context_free( test_context );

@@ -1,17 +1,27 @@
 from ert.cwrap import clib, CWrapper
-from ert.enkf.data.enkf_node import EnkfNode
-from ert.enkf.data import GenDataConfig
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
-from ert.enkf.node_id import NodeId
-from ert.test import ErtTestContext
-from ert.test.extended_testcase import ExtendedTestCase
+from ert.enkf.data import EnkfNode
+from ert.enkf.config import GenDataConfig
+from ert.enkf.enums import EnkfStateType
+from ert.enkf import NodeId
+from ert.enkf import ForwardLoadContext
+from ert.test import ErtTestContext, ExtendedTestCase
 from ert.util import BoolVector
 
 test_lib  = clib.ert_load("libenkf")
 cwrapper =  CWrapper(test_lib)
 
 get_active_mask = cwrapper.prototype("bool_vector_ref gen_data_config_get_active_mask( gen_data_config )")
-update_active_mask = cwrapper.prototype("void gen_data_config_update_active( gen_data_config, int, bool_vector)")
+update_active_mask = cwrapper.prototype("void gen_data_config_update_active( gen_data_config, forward_load_context , bool_vector)")
+
+alloc_run_arg = cwrapper.prototype("run_arg_obj run_arg_alloc_ENSEMBLE_EXPERIMENT( enkf_fs , int , int , char*) ")
+
+
+def updateMask(gen_data_config , report_step , fs, active_mask):
+    run_arg = alloc_run_arg( fs , 0 , 0 , "Path")
+    load_context = ForwardLoadContext( run_arg = run_arg , report_step = report_step )
+    update_active_mask( gen_data_config , load_context , active_mask )
+
+    
 
 class GenDataConfigTest(ExtendedTestCase):
     def setUp(self):
@@ -40,14 +50,11 @@ class GenDataConfigTest(ExtendedTestCase):
             self.assertEqual(first_active_mask_length, second_active_mask_len)
 
             # Setting one element to False, load different case, check, reload, and check.
-            self.assertTrue(BoolVector.cNamespace().iget(active_mask, 10))
+            self.assertTrue(active_mask[10])
             active_mask_modified = active_mask.copy()
             active_mask_modified[10] = False
 
-            # Must switch filesystem, because the update mask (writes to storage)
-            # functionality uses the current filesystem (current case)
-            ert.getEnkfFsManager().switchFileSystem(fs2)
-            update_active_mask(config_node.getDataModelConfig(),  60, active_mask_modified)
+            updateMask(config_node.getDataModelConfig(),  60, fs2 , active_mask_modified)
             active_mask = get_active_mask( config_node.getDataModelConfig() )
             self.assertFalse(active_mask[10])
 

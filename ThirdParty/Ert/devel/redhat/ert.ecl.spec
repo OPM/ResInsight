@@ -15,7 +15,7 @@ Source0:        https://github.com/OPM/%{name}/archive/release/%{version}/%{tag}
 BuildRequires:  lapack-devel zlib-devel iputils
 BuildRequires:  gcc
 %{?!el6:BuildRequires: python-devel}
-%{?el6:BuildRequires:  cmake28}
+%{?el6:BuildRequires:  cmake28 devtoolset-2}
 %{?!el6:BuildRequires:  cmake}
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Requires:       libert.ecl1 = %{version}
@@ -63,8 +63,9 @@ This package contains the development and header files for ert.ecl
 %setup -q -n ert-release-%{version}-%{tag}
 
 %build
+%{?el6:scl enable devtoolset-2 bash}
 cd devel
-DESTDIR=${RPM_BUILD_ROOT} %{?el6:cmake28} %{?!el6:cmake} -DBUILD_SHARED_LIBS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%{_prefix} -DBUILD_ECL_SUMMARY=1 %{?el6:-DBUILD_PYTHON=0}
+DESTDIR=${RPM_BUILD_ROOT} %{?el6:cmake28} %{?!el6:cmake} -DBUILD_SHARED_LIBS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%{_prefix} -DBUILD_ECL_SUMMARY=1 %{?el6:-DBUILD_PYTHON=0} %{?el6:-DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-2/root/usr/bin/g++ -DCMAKE_C_COMPILER=/opt/rh/devtoolset-2/root/usr/bin/gcc -DCMAKE_Fortran_COMPILER=/opt/rh/devtoolset-2/root/usr/bin/gfortran}
 make
 
 %install
