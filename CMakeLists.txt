@@ -58,6 +58,7 @@ SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
 SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
+SET(ERT_BUILD_CXX OFF CACHE BOOL "ERT: Disable build of CXX wrappers")
 
 option( ERT_EXTERNAL             "Build ERT from external source" OFF)
 SET(EXT_ERT_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
