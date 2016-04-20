@@ -26,7 +26,7 @@
 #include <QDir>
 #include <QDateTime>
 
-
+#include <memory>
 
 void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<double>& values)
 {
