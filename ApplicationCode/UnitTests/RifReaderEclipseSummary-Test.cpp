@@ -41,6 +41,7 @@ void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<d
 }
 
 
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
     
     {
         // MSJ TODO: Formatted output does not work now, should be reported?
-/*
+/ *
         std::string filename = "g:\\Models\\Statoil\\Brillig\\BRILLIG_FMTOUT";
 
         {
@@ -104,10 +105,10 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
 
             RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
         }
-*/
+* /
     }
     
-/*
+/ *
     {
         std::string path;
         std::string base;
@@ -115,7 +116,7 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
         RifEclipseSummaryTools::findSummaryHeaderFile(filename, &path, &base, &isFormatted);
 
     }
-*/
+* /
 
 }
 
@@ -275,7 +276,7 @@ TEST(RifEclipseSummaryTest, DISABLED_StringlistSelectMatchingFilesQuestion)
 
 
 
-/*
+/ *
 WBHP:I01-01
 WBHP:I01-02
 WBHP:I01-03
@@ -575,14 +576,14 @@ WWPR:P20-01
 WWPR:P20-02
 WWPR:P20-03
 YEARS
-*/
+* /
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
 {
-/*
+/ *
     std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
     
     QString currentFolderName = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10";
@@ -598,7 +599,7 @@ TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
     {
         std::cout << keywords[i] << std::endl;
     }
-*/
+* /
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -606,7 +607,7 @@ TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLED_BasicTest)
 {
-/*
+/ *
     std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
     
     std::string filename = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010";
@@ -619,5 +620,6 @@ TEST(RifEclipseSummaryTest, DISABLED_BasicTest)
     {
         std::cout << keywords[i] << std::endl;
     }
-*/
+* /
 }
+*/
