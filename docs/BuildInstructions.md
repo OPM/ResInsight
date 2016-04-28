@@ -5,6 +5,8 @@ permalink: /docs/buildinstructions/
 published: true
 ---
 
+## Source code
+The source code is hosted at [GitHub](https://github.com/opm/resinsight)
 
 ## CMake configuration
 
