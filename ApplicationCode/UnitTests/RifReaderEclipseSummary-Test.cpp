@@ -29,6 +29,7 @@
 #include <memory>
 
 
+/*
 void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<double>& values)
 {
     EXPECT_TRUE(dates.size() == values.size());
@@ -85,7 +86,6 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
     }
 }
 
-/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
