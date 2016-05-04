@@ -106,6 +106,22 @@ std::vector<std::string> RifReaderEclipseSummary::variableNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RifEclipseSummaryAddress> RifReaderEclipseSummary::allResultAddresses() const
+{
+    std::vector<RifEclipseSummaryAddress> addresses;
+
+    std::vector<std::string> fileVariableNames = variableNames();
+    for (size_t i = 0; i < fileVariableNames.size(); i++)
+    {
+        addresses.push_back(RifEclipseSummaryAddress(fileVariableNames[i]));
+    }
+
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values(const std::string& variableName, std::vector<double>* values)
 {
     assert(ecl_sum != NULL);
@@ -126,6 +142,15 @@ bool RifReaderEclipseSummary::values(const std::string& variableName, std::vecto
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values)
+{
+    std::string var = resultAddress.ertSummaryVarId();
+    return this->values(var, values);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 int RifReaderEclipseSummary::variableIndexFromVariableName(const std::string& keyword) const
 {
     assert(ecl_sum != NULL);
@@ -141,53 +166,6 @@ int RifReaderEclipseSummary::timeStepCount() const
     assert(ecl_sum != NULL);
 
     return ecl_sum_get_data_length(ecl_sum);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifReaderEclipseSummary::wellGroupNames() const
-{
-    assert(ecl_sum != NULL);
-
-    std::vector<std::string> names;
-    stringlist_type* stringList = ecl_sum_alloc_group_list(ecl_sum, NULL);
-    RifReaderEclipseSummary::populateVectorFromStringList(stringList, &names);
-
-    stringlist_free(stringList);
-
-    return names;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifReaderEclipseSummary::wellNames() const
-{
-    assert(ecl_sum != NULL);
-
-    std::vector<std::string> names;
-    stringlist_type* stringList = ecl_sum_alloc_well_list(ecl_sum, NULL);
-    RifReaderEclipseSummary::populateVectorFromStringList(stringList, &names);
-
-    stringlist_free(stringList);
-
-    return names;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifReaderEclipseSummary::wellVariableNames() const
-{
-    assert(ecl_sum != NULL);
-
-    std::vector<std::string> names;
-    stringlist_type* stringList = ecl_sum_alloc_well_var_list(ecl_sum);
-    RifReaderEclipseSummary::populateVectorFromStringList(stringList, &names);
-    stringlist_free(stringList);
-
-    return names;
 }
 
 //--------------------------------------------------------------------------------------------------

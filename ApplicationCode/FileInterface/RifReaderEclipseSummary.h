@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <string>
 #include <vector>
+
 
 class QDateTime;
 
@@ -42,16 +45,13 @@ public:
     bool    open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
     void    close();
 
-    std::vector<std::string> wellNames() const;
-    std::vector<std::string> wellGroupNames() const;
-
-    std::vector<std::string> wellVariableNames() const;
     std::vector<std::string> variableNames() const;
+    std::vector<RifEclipseSummaryAddress> allResultAddresses() const;
 
     std::vector<time_t> timeSteps() const;
 
     bool    values(const std::string& variableName, std::vector<double>* values);
-
+    bool    values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values);
 
     // TODO: Move this to a tools class with static members
     static std::vector<QDateTime> fromTimeT(const std::vector<time_t>& timeSteps);

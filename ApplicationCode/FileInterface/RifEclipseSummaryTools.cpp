@@ -70,33 +70,24 @@ std::vector<std::string> RifEclipseSummaryTools::findSummaryDataFiles(const std:
 //--------------------------------------------------------------------------------------------------
 void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipseSummary)
 {
-    std::cout << " -- Well names --" << std::endl;
+    std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
+
+    for (int category = 0; category < RifEclipseSummaryAddress::SUMMARY_SEGMENT_RIVER; category++)
     {
-        std::vector<std::string> names =  readerEclipseSummary->wellNames();
+        RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory(category);
 
-        for (size_t i = 0; i < names.size(); i++)
+        std::vector<RifEclipseSummaryAddress> catAddresses = addressesForCategory(addresses, categoryEnum);
+
+        if (catAddresses.size() > 0)
         {
-            std::cout << names[i] << std::endl;
-        }
-    }
+            std::cout << RifEclipseSummaryAddress::categoryName(categoryEnum) << " count : " << catAddresses.size() << std::endl;
 
-    std::cout << " -- Well variable names --" << std::endl;
-    {
-        std::vector<std::string> names =  readerEclipseSummary->wellVariableNames();
+            for (size_t i = 0; i < catAddresses.size(); i++)
+            {
+                std::cout << catAddresses[i].ertSummaryVarId() << " " << catAddresses[i].simulationItemName() << " " << catAddresses[i].quantityName() << std::endl;
+            }
 
-        for (size_t i = 0; i < names.size(); i++)
-        {
-            std::cout << names[i] << std::endl;
-        }
-    }
-
-    std::cout << " -- Group names --" << std::endl;
-    {
-        std::vector<std::string> names =  readerEclipseSummary->wellGroupNames();
-
-        for (size_t i = 0; i < names.size(); i++)
-        {
-            std::cout << names[i] << std::endl;
+            std::cout << std::endl;
         }
     }
 }
@@ -130,4 +121,22 @@ void RifEclipseSummaryTools::findSummaryHeaderFileInfo(const std::string& inputF
     util_safe_free(myHeaderFile);
     util_safe_free(myBase);
     util_safe_free(myPath);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RifEclipseSummaryAddress> RifEclipseSummaryTools::addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses, RifEclipseSummaryAddress::SummaryVarCategory category)
+{
+    std::vector<RifEclipseSummaryAddress> filteredAddresses;
+
+    for (size_t i = 0; i < addresses.size(); i++)
+    {
+        if (addresses[i].category() == category)
+        {
+            filteredAddresses.push_back(addresses[i]);
+        }
+    }
+
+    return filteredAddresses;
 }
