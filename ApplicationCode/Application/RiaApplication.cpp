@@ -1216,39 +1216,10 @@ int RiaApplication::launchUnitTestsWithConsole()
         // Only one console can be associated with an app, so should fail if a console is already present.
         AllocConsole();
 
-        bool redirStdOut = true;
-        bool redirStdErr = true;
-        bool redirStdIn = false;
+        FILE* consoleFilePointer;
 
-        if (redirStdOut)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "w");
-
-            *stdout = *fp;
-            setvbuf(stdout, NULL, _IONBF, 0);
-        }
-
-        if (redirStdErr)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_ERROR_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "w");
-
-            *stderr = *fp;
-            setvbuf(stderr, NULL, _IONBF, 0);
-        }
-
-        if (redirStdIn)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_INPUT_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "r");
-
-            *stdin = *fp;
-            setvbuf(stdin, NULL, _IONBF, 0);
-        }
+        freopen_s(&consoleFilePointer, "CONOUT$", "w", stdout);
+        freopen_s(&consoleFilePointer, "CONOUT$", "w", stderr);
 
         // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
         std::ios::sync_with_stdio();
