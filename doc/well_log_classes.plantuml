@@ -1,0 +1,43 @@
+@startuml
+
+
+PdmObject <|-- RimWellLogTrack
+PdmObject <|-- RimWellLogCurve
+PdmObject <|-- RimWellLogPlot
+
+class RimWellLogTrack {
+PdmChildArrayField<RimWellLogCurve*> curves;
+}
+
+class RimWellLogCurve {
+RiuLineSegmentQwtPlotCurve* qwtPlotCurve;
+}
+
+class RimWellLogPlot {
+  PdmChildArrayField<RimWellLogTrack*> m_tracks;
+  QPointer<RiuWellLogPlot> m_viewer;
+}
+
+QWidget <|--- RiuWellLogPlot
+QwtPlot <|--- RiuWellLogTrack
+QWidget <|-- QwtPlot
+QwtPlotCurve <|-- RiuLineSegmentQwtPlotCurve
+
+class RiuWellLogPlot {
+  QList<RiuWellLogTrack*>  m_trackPlots;
+  PdmPointer<RimWellLogPlot> m_plotDefinition;
+}
+
+class RiuWellLogTrack {
+  PdmPointer<RimWellLogTrack> m_plotTrackDefinition;
+}
+
+RimWellLogTrack *-- RimWellLogCurve
+RimWellLogPlot *-- RimWellLogTrack
+
+RimWellLogPlot -> RiuWellLogPlot
+RimWellLogTrack -> RiuWellLogTrack
+RimWellLogCurve -> RiuLineSegmentQwtPlotCurve
+
+
+@enduml
