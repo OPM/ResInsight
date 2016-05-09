@@ -36,7 +36,71 @@ class RiuLineSegmentQwtPlotCurve;
 class QwtPlotCurve;
 
 class QString;
+#if 0
+class RimPlotCurve : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    enum LineStyleEnum
+    {
+        STYLE_NONE,
+        STYLE_SOLID,
+        STYLE_DASH,
+        STYLE_DOT,
+        STYLE_DASH_DOT
+    };
 
+    enum PointSymbolEnum
+    {
+        SYMBOL_NONE,
+        SYMBOL_ELLIPSE,
+        SYMBOL_RECT,
+        SYMBOL_DIAMOND,
+        SYMBOL_TRIANGLE,
+        SYMBOL_CROSS,
+        SYMBOL_XCROSS
+    };
+public:
+    RimPlotCurve();
+    virtual ~RimPlotCurve();
+
+    void                            setColor(const cvf::Color3f& color);
+    void                            detachQwtCurve();
+
+    bool                            isCurveVisible() const;
+
+    QwtPlotCurve*                   plotCurve() const;
+
+    QString                         name() const { return m_curveName; }
+    void                            updateCurveName();
+    void                            updatePlotTitle();
+
+protected:
+    void                            updatePlotConfiguration();
+    void                            updateCurveVisibility();
+    void                            updateOptionSensitivity();
+    void                            updateCurveAppearance();
+protected:
+
+    // Overridden PDM methods
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual caf::PdmFieldHandle*    objectToggleField();
+    virtual caf::PdmFieldHandle*    userDescriptionField();
+protected:
+    RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
+
+    caf::PdmField<bool>             m_showCurve;
+    caf::PdmField<QString>          m_curveName;
+    caf::PdmField<QString>          m_customCurveName;
+
+    caf::PdmField<bool>             m_autoName;
+    caf::PdmField<cvf::Color3f>     m_curveColor;
+    caf::PdmField<float>            m_curveThickness;
+
+    caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
+    caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
+};
+#endif
 //==================================================================================================
 ///  
 ///  

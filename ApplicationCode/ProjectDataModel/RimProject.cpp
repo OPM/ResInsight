@@ -38,6 +38,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -727,6 +728,10 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         if (mainPlotCollection->wellLogPlotCollection())
         {
             uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+        }
+        if (mainPlotCollection->summaryPlotCollection())
+        {
+            uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
         }
     }
 

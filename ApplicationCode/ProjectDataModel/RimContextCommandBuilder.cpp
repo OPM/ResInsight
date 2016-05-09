@@ -77,6 +77,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     if (uiItems.size() == 0)
     {
         commandIds << "RicNewWellLogPlotFeature";
+        commandIds << "RicNewSummaryPlotFeature";
     }
     else if (uiItems.size() > 1)
     {

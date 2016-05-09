@@ -133,6 +133,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
+    Commands/SummaryPlotCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
 )
