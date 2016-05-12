@@ -10,3 +10,7 @@ published: true
 **David Baxendale<br>
 Senior Petroleum Engineering Advisor, RPS Energy**
 
+*"ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research."*
+
+**Tor Harald Sandve<br>
+Researcher, International Research Institute of Stavanger (IRIS)**
