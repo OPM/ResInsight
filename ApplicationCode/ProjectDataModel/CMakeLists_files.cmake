@@ -79,6 +79,7 @@ ${CEE_CURRENT_LIST_DIR}RimGridCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurve.h
+${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
 
 )
 
@@ -157,6 +158,8 @@ ${CEE_CURRENT_LIST_DIR}RimGridCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurve.cpp
+${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES
