@@ -33,6 +33,7 @@ class RigWellLogCurveData;
 class RiuWellLogTrack;
 class RiuLineSegmentQwtPlotCurve;
 
+class QwtPlot;
 class QwtPlotCurve;
 
 class QString;
@@ -105,7 +106,7 @@ protected:
 ///  
 ///  
 //==================================================================================================
-class RimWellLogCurve : public caf::PdmObject
+class RimPlotCurve : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -128,41 +129,37 @@ public:
         SYMBOL_CROSS,
         SYMBOL_XCROSS
     };
-
 public:
-    RimWellLogCurve();
-    virtual ~RimWellLogCurve();
+    RimPlotCurve();
+    virtual ~RimPlotCurve();
 
     void                            setColor(const cvf::Color3f& color);
 
-    bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
-    bool                            valueRange(double* minimumValue, double* maximumValue) const;
-    
-    void                            setQwtTrack(RiuWellLogTrack* plot);
+
+    void                            setQwtTrack(QwtPlot* plot);
     void                            detachQwtCurve();
 
     bool                            isCurveVisible() const;
 
     QwtPlotCurve*                   plotCurve() const;
-    const RigWellLogCurveData*      curveData() const;
-    
+
     QString                         name() const { return m_curveName; }
     void                            updateCurveName();
     void                            updatePlotTitle();
 
-    virtual QString                 wellName() const = 0;
-    virtual QString                 wellLogChannelName() const = 0;
-    virtual QString                 wellDate() const  { return ""; };
     virtual void                    updatePlotData() = 0;
 
 protected:
+
     virtual QString                 createCurveName() = 0;
 
     void                            updatePlotConfiguration();
     void                            updateCurveVisibility();
-    void                            zoomAllOwnerTrackAndPlot();
+    virtual void                    zoomAllOwnerTrackAndPlot() = 0;
     void                            updateOptionSensitivity();
     void                            updateCurveAppearance();
+
+protected:
 
     // Overridden PDM methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -171,10 +168,9 @@ protected:
     virtual void                    initAfterRead();
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
-
-    QPointer<RiuWellLogTrack>       m_ownerQwtTrack;
+protected:
+    QPointer<QwtPlot>               m_ownerQwtTrack;
     RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
-    cvf::ref<RigWellLogCurveData>   m_curveData;
 
     caf::PdmField<bool>             m_showCurve;
     caf::PdmField<QString>          m_curveName;
@@ -186,4 +182,32 @@ protected:
 
     caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
     caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
+};
+
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimWellLogCurve : public RimPlotCurve
+{
+    CAF_PDM_HEADER_INIT;
+public:
+   
+public:
+    RimWellLogCurve();
+    virtual ~RimWellLogCurve();
+
+    bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
+    bool                            valueRange(double* minimumValue, double* maximumValue) const;
+    
+    const RigWellLogCurveData*      curveData() const;
+    
+    virtual QString                 wellName() const = 0;
+    virtual QString                 wellLogChannelName() const = 0;
+    virtual QString                 wellDate() const  { return ""; };
+
+protected:
+    void                            zoomAllOwnerTrackAndPlot() override;
+
+    cvf::ref<RigWellLogCurveData>   m_curveData;
 };
