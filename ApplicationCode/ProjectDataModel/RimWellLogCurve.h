@@ -133,31 +133,28 @@ public:
     RimPlotCurve();
     virtual ~RimPlotCurve();
 
-    void                            setColor(const cvf::Color3f& color);
+    void                            loadDataAndUpdate();
 
-
-    void                            setQwtTrack(QwtPlot* plot);
+    void                            setParentQwtPlot(QwtPlot* plot);
     void                            detachQwtCurve();
+    QwtPlotCurve*                   qwtPlotCurve() const;
 
+    void                            setColor(const cvf::Color3f& color);
     bool                            isCurveVisible() const;
-
-    QwtPlotCurve*                   plotCurve() const;
-
-    QString                         name() const { return m_curveName; }
-    void                            updateCurveName();
-    void                            updatePlotTitle();
-
-    virtual void                    updatePlotData() = 0;
+    QString                         curveName() const { return m_curveName; }
 
 protected:
 
-    virtual QString                 createCurveName() = 0;
+    virtual QString                 createCurveAutoName() = 0;
+    virtual void                    zoomAllParentPlot() = 0;
+    virtual void                    onLoadDataAndUpdate() = 0;
 
-    void                            updatePlotConfiguration();
+    void                            updateCurvePresentation();
+    void                            updateCurveName();
     void                            updateCurveVisibility();
-    virtual void                    zoomAllOwnerTrackAndPlot() = 0;
-    void                            updateOptionSensitivity();
     void                            updateCurveAppearance();
+
+    void                            updateOptionSensitivity();
 
 protected:
 
@@ -169,14 +166,14 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
 protected:
-    QPointer<QwtPlot>               m_ownerQwtTrack;
+    QPointer<QwtPlot>               m_parentQwtPlot;
     RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
 
     caf::PdmField<bool>             m_showCurve;
     caf::PdmField<QString>          m_curveName;
     caf::PdmField<QString>          m_customCurveName;
 
-    caf::PdmField<bool>             m_autoName;
+    caf::PdmField<bool>             m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;
     caf::PdmField<float>            m_curveThickness;
 
@@ -207,7 +204,7 @@ public:
     virtual QString                 wellDate() const  { return ""; };
 
 protected:
-    void                            zoomAllOwnerTrackAndPlot() override;
+    virtual void                    zoomAllParentPlot();
 
     cvf::ref<RigWellLogCurveData>   m_curveData;
 };

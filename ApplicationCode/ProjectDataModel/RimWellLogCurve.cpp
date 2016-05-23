@@ -76,7 +76,7 @@ RimWellLogCurve::RimWellLogCurve()
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
     m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
 
-    m_ownerQwtTrack = NULL;
+    m_parentQwtPlot = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,9 +88,9 @@ RimWellLogCurve::~RimWellLogCurve()
     delete m_qwtPlotCurve;
     m_qwtPlotCurve = NULL;
 
-    if (m_ownerQwtTrack)
+    if (m_parentQwtPlot)
     {
-        m_ownerQwtTrack->replot();
+        m_parentQwtPlot->replot();
     }
 }
 
@@ -108,7 +108,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_customCurveName, "CurveDescription", "Custom Name", "", "", "");
     m_customCurveName.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_autoName, "AutoName", true, "Auto Name", "", "", "");
+    CAF_PDM_InitField(&m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "");
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
@@ -149,7 +149,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     else if (changedField == &m_curveName)
     {
         m_customCurveName = m_curveName;
-        updatePlotTitle();
+        updateCurveName();
     }
     else if (&m_curveColor == changedField
             || &m_curveThickness == changedField
@@ -158,19 +158,18 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     {
         updateCurveAppearance();
     }
-    else if (changedField == &m_autoName)
+    else if (changedField == &m_isUsingAutoName)
     {
-        if (!m_autoName)
+        if (!m_isUsingAutoName)
         {
-            m_customCurveName = createCurveName();
+            m_customCurveName = createCurveAutoName();
         }
 
         updateOptionSensitivity();
         updateCurveName();
-        updatePlotTitle();
     }
 
-    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
+    if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,26 +185,25 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveVisibility()
 {
-    if (m_showCurve() && m_ownerQwtTrack)
+    if (m_showCurve() && m_parentQwtPlot)
     {
-        m_qwtPlotCurve->attach(m_ownerQwtTrack);
+        m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
     else
     {
         m_qwtPlotCurve->detach();
     }
 
-    zoomAllOwnerTrackAndPlot();
+    zoomAllParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updatePlotConfiguration()
+void RimPlotCurve::updateCurvePresentation()
 {
     this->updateCurveVisibility();
     this->updateCurveName();
-    this->updatePlotTitle();
 
     updateCurveAppearance();
     // Todo: Rest of the curve setup controlled from this class
@@ -214,13 +212,13 @@ void RimPlotCurve::updatePlotConfiguration()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setQwtTrack(QwtPlot* plot)
+void RimPlotCurve::setParentQwtPlot(QwtPlot* plot)
 {
-    m_ownerQwtTrack = plot;
+    m_parentQwtPlot = plot;
     if (m_showCurve)
     {
-        m_qwtPlotCurve->attach(m_ownerQwtTrack);
-        m_ownerQwtTrack->replot();
+        m_qwtPlotCurve->attach(m_parentQwtPlot);
+        m_parentQwtPlot->replot();
     }
 }
 
@@ -289,17 +287,9 @@ void RimPlotCurve::detachQwtCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QwtPlotCurve* RimPlotCurve::plotCurve() const
+QwtPlotCurve* RimPlotCurve::qwtPlotCurve() const
 {
     return m_qwtPlotCurve;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updatePlotTitle()
-{
-    m_qwtPlotCurve->setTitle(m_curveName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,7 +311,7 @@ void RimPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::zoomAllOwnerTrackAndPlot()
+void RimWellLogCurve::zoomAllParentPlot()
 {
     RimWellLogPlot* wellLogPlot;
     firstAnchestorOrThisOfType(wellLogPlot);
@@ -345,14 +335,16 @@ void RimWellLogCurve::zoomAllOwnerTrackAndPlot()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveName()
 {
-    if (m_autoName)
+    if (m_isUsingAutoName)
     {
-        m_curveName = this->createCurveName();
+        m_curveName = this->createCurveAutoName();
     }
     else
     {
         m_curveName = m_customCurveName;
     }
+
+    m_qwtPlotCurve->setTitle(m_curveName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,7 +352,7 @@ void RimPlotCurve::updateCurveName()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateOptionSensitivity()
 {
-    m_curveName.uiCapability()->setUiReadOnly(m_autoName);
+    m_curveName.uiCapability()->setUiReadOnly(m_isUsingAutoName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,5 +458,13 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions(const caf::Pdm
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::loadDataAndUpdate()
+{
+    this->onLoadDataAndUpdate();
 }
 

@@ -160,7 +160,7 @@ void RimWellLogTrack::addCurve(RimWellLogCurve* curve)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setQwtTrack(m_wellLogTrackPlotWidget);
+        curve->setParentQwtPlot(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -174,7 +174,7 @@ void RimWellLogTrack::insertCurve(RimWellLogCurve* curve, size_t index)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setQwtTrack(m_wellLogTrackPlotWidget);
+        curve->setParentQwtPlot(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -249,7 +249,7 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->updatePlotData();
+        curves[cIdx]->loadDataAndUpdate();
     }
 }
 
@@ -265,7 +265,7 @@ void RimWellLogTrack::recreateViewer()
 
         for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
         {
-            curves[cIdx]->setQwtTrack(this->m_wellLogTrackPlotWidget);
+            curves[cIdx]->setParentQwtPlot(this->m_wellLogTrackPlotWidget);
         }
     }
 }
@@ -353,7 +353,7 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 {
     for (size_t idx = 0; idx < curves.size(); idx++)
     {
-        if (curves[idx]->plotCurve() == curve)
+        if (curves[idx]->qwtPlotCurve() == curve)
         {
             return curves[idx];
         }

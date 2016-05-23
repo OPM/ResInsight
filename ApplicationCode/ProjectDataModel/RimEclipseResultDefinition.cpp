@@ -165,7 +165,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
         if (curve) 
         {
-            curve->updatePlotData();
+            curve->loadDataAndUpdate();
         }
     }
 
