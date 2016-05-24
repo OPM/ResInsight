@@ -47,6 +47,8 @@ public:
     explicit RiuLineSegmentQwtPlotCurve(const QString &title = QString::null);
     virtual ~RiuLineSegmentQwtPlotCurve();
 
+    void setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
+
     void setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
 
 protected:

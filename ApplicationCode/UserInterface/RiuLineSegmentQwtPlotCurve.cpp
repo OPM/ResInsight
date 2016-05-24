@@ -20,6 +20,8 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "qwt_symbol.h"
+#include "RigCurveDataTools.h"
+#include "qwt_date.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -35,6 +37,44 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
 //--------------------------------------------------------------------------------------------------
 RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+{
+    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
+
+    QPolygonF points;
+    std::vector< std::pair<size_t, size_t> > filteredIntervals;
+    {
+        std::vector<double> filteredTimeHistoryValues;
+        std::vector<QDateTime> filteredDateTimes;
+
+        {
+            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues);
+
+            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
+            RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
+
+            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+        }
+
+
+        for (size_t i = 0; i < filteredDateTimes.size(); i++)
+        {
+            double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
+            points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
+        }
+    }
+
+    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
+
+    this->setSamples(points);
+    this->setLineSegmentStartStopIndices(filteredIntervals);
+
 }
 
 //--------------------------------------------------------------------------------------------------
