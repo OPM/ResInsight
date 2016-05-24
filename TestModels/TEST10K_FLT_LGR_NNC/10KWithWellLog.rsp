@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ResInsightProject>
+    <DocumentFileName>C:/gitRoot/OPM/ResInsight/TestModels/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp</DocumentFileName>
+    <ProjectFileVersionString>1.6.1-dev</ProjectFileVersionString>
+    <NextValidCaseId>1</NextValidCaseId>
+    <NextValidCaseGroupId>0</NextValidCaseGroupId>
+    <OilFields>
+        <ResInsightOilField>
+            <AnalysisModels>
+                <ResInsightAnalysisModels>
+                    <Reservoirs>
+                        <EclipseCase>
+                            <CaseUserDescription>TEST10K_FLT_LGR_NNC</CaseUserDescription>
+                            <CaseId>0</CaseId>
+                            <ReservoirViews>
+                                <ReservoirView>
+                                    <UserDescription>View 1</UserDescription>
+                                    <ShowWindow>True </ShowWindow>
+                                    <CameraPosition>1 0 0 -438.988 0 1 0 -608.278 0 0 1 -1086.95 0 0 0 1</CameraPosition>
+                                    <PerspectiveProjection>True </PerspectiveProjection>
+                                    <GridZScale>5</GridZScale>
+                                    <ViewBackgroundColor>0.752941 0.823529 0.870588</ViewBackgroundColor>
+                                    <MaximumFrameRate>10</MaximumFrameRate>
+                                    <AnimationMode>True </AnimationMode>
+                                    <CurrentTimeStep>0</CurrentTimeStep>
+                                    <OverlayInfoConfig>
+                                        <View3dOverlayInfoConfig>
+                                            <Active>True </Active>
+                                            <ShowAnimProgress>True </ShowAnimProgress>
+                                            <ShowInfoText>True </ShowInfoText>
+                                            <ShowResultInfo>True </ShowResultInfo>
+                                            <ShowHistogram>True </ShowHistogram>
+                                            <StatisticsTimeRange>ALL_TIMESTEPS</StatisticsTimeRange>
+                                            <StatisticsCellRange>ALL_CELLS</StatisticsCellRange>
+                                        </View3dOverlayInfoConfig>
+                                    </OverlayInfoConfig>
+                                    <MeshMode>FULL_MESH</MeshMode>
+                                    <SurfaceMode>SURFACE</SurfaceMode>
+                                    <ShowGridBox>True </ShowGridBox>
+                                    <DisableLighting>False </DisableLighting>
+                                    <WindowGeometry>318 310 317 309 0 </WindowGeometry>
+                                    <RangeFilters>
+                                        <CellRangeFilterCollection>
+                                            <RangeFilters/>
+                                            <Active>True </Active>
+                                        </CellRangeFilterCollection>
+                                    </RangeFilters>
+                                    <CrossSections>
+                                        <CrossSectionCollection>
+                                            <CrossSections/>
+                                            <Active>True </Active>
+                                        </CrossSectionCollection>
+                                    </CrossSections>
+                                    <GridCollection>
+                                        <GridCollection>
+                                            <IsActive>True </IsActive>
+                                        </GridCollection>
+                                    </GridCollection>
+                                    <GridCellResult>
+                                        <ResultSlot>
+                                            <ResultType>DYNAMIC_NATIVE</ResultType>
+                                            <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                            <ResultVariable>SWAT</ResultVariable>
+                                            <ResultVarLegendDefinitionList>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage>None</ResultVariableUsage>
+                                                </Legend>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage>SOIL</ResultVariableUsage>
+                                                </Legend>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage>SGAS</ResultVariableUsage>
+                                                </Legend>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage>SWAT</ResultVariableUsage>
+                                                </Legend>
+                                            </ResultVarLegendDefinitionList>
+                                            <TernaryLegendDefinition>
+                                                <RimTernaryLegendConfig>
+                                                    <Precision>2</Precision>
+                                                    <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                    <ternaryRangeSummary></ternaryRangeSummary>
+                                                    <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                    <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                    <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                    <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                    <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                    <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                </RimTernaryLegendConfig>
+                                            </TernaryLegendDefinition>
+                                            <LegendDefinitionPtrField>ResultVarLegendDefinitionList 3</LegendDefinitionPtrField>
+                                        </ResultSlot>
+                                    </GridCellResult>
+                                    <GridCellEdgeResult>
+                                        <CellEdgeResultSlot>
+                                            <EnableCellEdgeColors>False </EnableCellEdgeColors>
+                                            <CellEdgeVariable>MULT</CellEdgeVariable>
+                                            <UseXVariable>True </UseXVariable>
+                                            <UseYVariable>True </UseYVariable>
+                                            <UseZVariable>True </UseZVariable>
+                                            <LegendDefinition>
+                                                <Legend>
+                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                    <Precision>4</Precision>
+                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                    <ColorRangeMode>PINK_WHITE</ColorRangeMode>
+                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                    <ResultVariableUsage></ResultVariableUsage>
+                                                </Legend>
+                                            </LegendDefinition>
+                                        </CellEdgeResultSlot>
+                                    </GridCellEdgeResult>
+                                    <FaultResultSettings>
+                                        <RimFaultResultSlot>
+                                            <ShowCustomFaultResult>False </ShowCustomFaultResult>
+                                            <CustomResultSlot>
+                                                <ResultSlot>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>None</ResultVariable>
+                                                    <ResultVarLegendDefinitionList>
+                                                        <Legend>
+                                                            <NumberOfLevels>8</NumberOfLevels>
+                                                            <Precision>4</Precision>
+                                                            <TickNumberFormat>FIXED</TickNumberFormat>
+                                                            <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                            <MappingMode>LinearContinuous</MappingMode>
+                                                            <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                            <UserDefinedMax>1</UserDefinedMax>
+                                                            <UserDefinedMin>0</UserDefinedMin>
+                                                            <ResultVariableUsage>None</ResultVariableUsage>
+                                                        </Legend>
+                                                    </ResultVarLegendDefinitionList>
+                                                    <TernaryLegendDefinition>
+                                                        <RimTernaryLegendConfig>
+                                                            <Precision>2</Precision>
+                                                            <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                            <ternaryRangeSummary></ternaryRangeSummary>
+                                                            <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                            <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                            <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                            <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                            <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                            <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                        </RimTernaryLegendConfig>
+                                                    </TernaryLegendDefinition>
+                                                    <LegendDefinitionPtrField>ResultVarLegendDefinitionList 0</LegendDefinitionPtrField>
+                                                </ResultSlot>
+                                            </CustomResultSlot>
+                                        </RimFaultResultSlot>
+                                    </FaultResultSettings>
+                                    <WellCollection>
+                                        <Wells>
+                                            <Active>True </Active>
+                                            <ShowWellHead>True </ShowWellHead>
+                                            <ShowWellLabel>True </ShowWellLabel>
+                                            <WellHeadScale>1</WellHeadScale>
+                                            <WellHeadPosition>WELLHEAD_POS_TOP_COLUMN</WellHeadPosition>
+                                            <WellLabelColor>0.890196 0.890196 0.890196</WellLabelColor>
+                                            <GlobalWellPipeVisibility>OPEN_IN_VISIBLE_CELLS</GlobalWellPipeVisibility>
+                                            <WellPipeRadiusScale>0.1</WellPipeRadiusScale>
+                                            <WellPipeVertexCount>12</WellPipeVertexCount>
+                                            <GlobalWellCellVisibility>FORCE_ALL_OFF</GlobalWellCellVisibility>
+                                            <ShowWellFences>False </ShowWellFences>
+                                            <DefaultWellFenceDirection>K_DIRECTION</DefaultWellFenceDirection>
+                                            <WellCellTransparency>0.5</WellCellTransparency>
+                                            <IsAutoDetectingBranches>True </IsAutoDetectingBranches>
+                                            <Wells>
+                                                <Well>
+                                                    <WellName>GI1</WellName>
+                                                    <ShowWell>True </ShowWell>
+                                                    <ShowWellLabel>True </ShowWellLabel>
+                                                    <ShowWellPipe>True </ShowWellPipe>
+                                                    <WellPipeRadiusScale>1</WellPipeRadiusScale>
+                                                    <WellPipeColor>0.588 0.588 0.804</WellPipeColor>
+                                                    <ShowWellCells>True </ShowWellCells>
+                                                    <ShowWellCellFence>False </ShowWellCellFence>
+                                                </Well>
+                                                <Well>
+                                                    <WellName>GP1</WellName>
+                                                    <ShowWell>True </ShowWell>
+                                                    <ShowWellLabel>True </ShowWellLabel>
+                                                    <ShowWellPipe>True </ShowWellPipe>
+                                                    <WellPipeRadiusScale>1</WellPipeRadiusScale>
+                                                    <WellPipeColor>0.588 0.588 0.804</WellPipeColor>
+                                                    <ShowWellCells>True </ShowWellCells>
+                                                    <ShowWellCellFence>False </ShowWellCellFence>
+                                                </Well>
+                                                <Well>
+                                                    <WellName>GP2</WellName>
+                                                    <ShowWell>True </ShowWell>
+                                                    <ShowWellLabel>True </ShowWellLabel>
+                                                    <ShowWellPipe>True </ShowWellPipe>
+                                                    <WellPipeRadiusScale>1</WellPipeRadiusScale>
+                                                    <WellPipeColor>0.588 0.588 0.804</WellPipeColor>
+                                                    <ShowWellCells>True </ShowWellCells>
+                                                    <ShowWellCellFence>False </ShowWellCellFence>
+                                                </Well>
+                                            </Wells>
+                                        </Wells>
+                                    </WellCollection>
+                                    <FaultCollection>
+                                        <Faults>
+                                            <Active>True </Active>
+                                            <ShowFaultFaces>True </ShowFaultFaces>
+                                            <ShowOppositeFaultFaces>True </ShowOppositeFaultFaces>
+                                            <ShowFaultsOutsideFilters>True </ShowFaultsOutsideFilters>
+                                            <FaultFaceCulling>FAULT_BACK_FACE_CULLING</FaultFaceCulling>
+                                            <ShowFaultLabel>False </ShowFaultLabel>
+                                            <FaultLabelColor>0.890196 0.890196 0.890196</FaultLabelColor>
+                                            <ShowNNCs>True </ShowNNCs>
+                                            <HideNncsWhenNoResultIsAvailable>True </HideNncsWhenNoResultIsAvailable>
+                                            <NoCommonAreaNnncCollection>
+                                                <RimNoCommonAreaNncCollection>
+                                                    <UserDescription>NNCs With No Common Area (0)</UserDescription>
+                                                </RimNoCommonAreaNncCollection>
+                                            </NoCommonAreaNnncCollection>
+                                            <Faults>
+                                                <Fault>
+                                                    <FaultName>Undefined grid faults</FaultName>
+                                                    <ShowFault>True </ShowFault>
+                                                    <Color>0.396078 0.517647 0.376471</Color>
+                                                </Fault>
+                                            </Faults>
+                                        </Faults>
+                                    </FaultCollection>
+                                    <PropertyFilters>
+                                        <CellPropertyFilters>
+                                            <Active>True </Active>
+                                            <PropertyFilters/>
+                                        </CellPropertyFilters>
+                                    </PropertyFilters>
+                                    <ShowMainGrid>True </ShowMainGrid>
+                                    <ShowInactiveCells>False </ShowInactiveCells>
+                                    <ShowInvalidCells>False </ShowInvalidCells>
+                                </ReservoirView>
+                            </ReservoirViews>
+                            <MatrixModelResults>
+                                <ReservoirCellResultStorage>
+                                    <ResultCacheFileName></ResultCacheFileName>
+                                    <ResultCacheEntries/>
+                                </ReservoirCellResultStorage>
+                            </MatrixModelResults>
+                            <FractureModelResults>
+                                <ReservoirCellResultStorage>
+                                    <ResultCacheFileName></ResultCacheFileName>
+                                    <ResultCacheEntries/>
+                                </ReservoirCellResultStorage>
+                            </FractureModelResults>
+                            <FlipXAxis>False </FlipXAxis>
+                            <FlipYAxis>False </FlipYAxis>
+                            <FilesContainingFaults></FilesContainingFaults>
+                            <CaseFileName>C:\gitRoot\OPM\ResInsight\TestModels\TEST10K_FLT_LGR_NNC\TEST10K_FLT_LGR_NNC.EGRID</CaseFileName>
+                        </EclipseCase>
+                    </Reservoirs>
+                    <CaseGroups/>
+                </ResInsightAnalysisModels>
+            </AnalysisModels>
+            <GeoMechModels/>
+            <WellPathCollection>
+                <WellPaths>
+                    <Active>True </Active>
+                    <ShowWellPathLabel>True </ShowWellPathLabel>
+                    <WellPathLabelColor>0.890196 0.890196 0.890196</WellPathLabelColor>
+                    <GlobalWellPathVisibility>ALL_ON</GlobalWellPathVisibility>
+                    <WellPathRadiusScale>0.1</WellPathRadiusScale>
+                    <WellPathClip>True </WellPathClip>
+                    <WellPathClipZDistance>100</WellPathClipZDistance>
+                    <WellPaths>
+                        <WellPath>
+                            <WellPathFilepath>C:\gitRoot\OPM\ResInsight\TestModels\TEST10K_FLT_LGR_NNC\wellpath_a.dev</WellPathFilepath>
+                            <WellPathNumberInFile>0</WellPathNumberInFile>
+                            <ShowWellPathLabel>True </ShowWellPathLabel>
+                            <ShowWellPath>True </ShowWellPath>
+                            <WellPathRadiusScale>1</WellPathRadiusScale>
+                            <WellPathColor>0.999 0.333 0.999</WellPathColor>
+                            <WellLogFile/>
+                        </WellPath>
+                        <WellPath>
+                            <WellPathFilepath>C:\gitRoot\OPM\ResInsight\TestModels\TEST10K_FLT_LGR_NNC\wellpath_b.dev</WellPathFilepath>
+                            <WellPathNumberInFile>0</WellPathNumberInFile>
+                            <ShowWellPathLabel>True </ShowWellPathLabel>
+                            <ShowWellPath>True </ShowWellPath>
+                            <WellPathRadiusScale>1</WellPathRadiusScale>
+                            <WellPathColor>0.999 0.333 0.999</WellPathColor>
+                            <WellLogFile/>
+                        </WellPath>
+                    </WellPaths>
+                </WellPaths>
+            </WellPathCollection>
+        </ResInsightOilField>
+    </OilFields>
+    <ScriptCollection>
+        <ScriptLocation>
+            <ScriptDirectory></ScriptDirectory>
+            <CalcScripts/>
+            <SubDirectories>
+                <ScriptLocation>
+                    <ScriptDirectory>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts</ScriptDirectory>
+                    <CalcScripts>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\InputPropTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\kaverage.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\kslice.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\LGRSOIL.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\OctaveInterfaceTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\ResInsightIterfaceUnitTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\SatNum.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\SoilTimeDiff.m</AbsolutePath>
+                        </CalcScript>
+                    </CalcScripts>
+                    <SubDirectories/>
+                </ScriptLocation>
+            </SubDirectories>
+        </ScriptLocation>
+    </ScriptCollection>
+    <TreeViewState>-1-100000020;-1-1000000;-1-10000;-1-100;-1-1200000;-1-12000;-1-1201000;-1-12010;-1-120;-1-130</TreeViewState>
+    <WellPathImport>
+        <RimWellPathImport>
+            <WellTypeSurvey>True </WellTypeSurvey>
+            <WellTypePlans>True </WellTypePlans>
+            <UtmMode>UTM_FILTER_OFF</UtmMode>
+            <UtmNorth>0</UtmNorth>
+            <UtmSouth>0</UtmSouth>
+            <UtmEast>0</UtmEast>
+            <UtmWest>0</UtmWest>
+            <Regions/>
+        </RimWellPathImport>
+    </WellPathImport>
+    <MainPlotCollection>
+        <MainPlotCollection>
+            <Show>True </Show>
+            <WellLogPlotCollection>
+                <WellLogPlotCollection>
+                    <WellLogPlots>
+                        <WellLogPlot>
+                            <ShowWindow>True </ShowWindow>
+                            <PlotDescription>Well Log Plot 1</PlotDescription>
+                            <DepthType>MEASURED_DEPTH</DepthType>
+                            <DepthUnit>UNIT_METER</DepthUnit>
+                            <MinimumDepth>87.0125</MinimumDepth>
+                            <MaximumDepth>2133.94</MaximumDepth>
+                            <AutoScaleDepthEnabled>True </AutoScaleDepthEnabled>
+                            <Tracks>
+                                <WellLogPlotTrack>
+                                    <TrackDescription>Track 1</TrackDescription>
+                                    <Show>True </Show>
+                                    <Curves>
+                                        <RimWellLogExtractionCurve>
+                                            <Show>True </Show>
+                                            <CurveName>Well Path B,SWAT, 01.jan 2014</CurveName>
+                                            <CurveDescription></CurveDescription>
+                                            <AutoName>True </AutoName>
+                                            <Color>0.501961 0.501961 0</Color>
+                                            <Thickness>1</Thickness>
+                                            <LineStyle>STYLE_SOLID</LineStyle>
+                                            <PointSymbol>SYMBOL_NONE</PointSymbol>
+                                            <CurveWellPath>.. .. .. .. .. OilFields 0 WellPathCollection 0 WellPaths 1</CurveWellPath>
+                                            <CurveCase>.. .. .. .. .. OilFields 0 AnalysisModels 0 Reservoirs 0</CurveCase>
+                                            <CurveEclipseResult>
+                                                <ResultDefinition>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>SWAT</ResultVariable>
+                                                </ResultDefinition>
+                                            </CurveEclipseResult>
+                                            <CurveGeomechResult>
+                                                <GeoMechResultDefinition>
+                                                    <ResultPositionType>NODAL</ResultPositionType>
+                                                    <ResultFieldName></ResultFieldName>
+                                                    <ResultComponentName></ResultComponentName>
+                                                </GeoMechResultDefinition>
+                                            </CurveGeomechResult>
+                                            <CurveTimeStep>0</CurveTimeStep>
+                                            <AddCaseNameToCurveName>False </AddCaseNameToCurveName>
+                                            <AddPropertyToCurveName>True </AddPropertyToCurveName>
+                                            <AddWellNameToCurveName>True </AddWellNameToCurveName>
+                                            <AddTimestepToCurveName>False </AddTimestepToCurveName>
+                                            <AddDateToCurveName>True </AddDateToCurveName>
+                                        </RimWellLogExtractionCurve>
+                                        <RimWellLogExtractionCurve>
+                                            <Show>True </Show>
+                                            <CurveName>Well Path B,SOIL, 01.jan 2014</CurveName>
+                                            <CurveDescription></CurveDescription>
+                                            <AutoName>True </AutoName>
+                                            <Color>0 0 0</Color>
+                                            <Thickness>1</Thickness>
+                                            <LineStyle>STYLE_SOLID</LineStyle>
+                                            <PointSymbol>SYMBOL_NONE</PointSymbol>
+                                            <CurveWellPath>.. .. .. .. .. OilFields 0 WellPathCollection 0 WellPaths 1</CurveWellPath>
+                                            <CurveCase>.. .. .. .. .. OilFields 0 AnalysisModels 0 Reservoirs 0</CurveCase>
+                                            <CurveEclipseResult>
+                                                <ResultDefinition>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>SOIL</ResultVariable>
+                                                </ResultDefinition>
+                                            </CurveEclipseResult>
+                                            <CurveGeomechResult>
+                                                <GeoMechResultDefinition>
+                                                    <ResultPositionType>NODAL</ResultPositionType>
+                                                    <ResultFieldName></ResultFieldName>
+                                                    <ResultComponentName></ResultComponentName>
+                                                </GeoMechResultDefinition>
+                                            </CurveGeomechResult>
+                                            <CurveTimeStep>0</CurveTimeStep>
+                                            <AddCaseNameToCurveName>False </AddCaseNameToCurveName>
+                                            <AddPropertyToCurveName>True </AddPropertyToCurveName>
+                                            <AddWellNameToCurveName>True </AddWellNameToCurveName>
+                                            <AddTimestepToCurveName>False </AddTimestepToCurveName>
+                                            <AddDateToCurveName>True </AddDateToCurveName>
+                                        </RimWellLogExtractionCurve>
+                                        <RimWellLogExtractionCurve>
+                                            <Show>True </Show>
+                                            <CurveName>Well Path B,SGAS, 01.jan 2014</CurveName>
+                                            <CurveDescription></CurveDescription>
+                                            <AutoName>True </AutoName>
+                                            <Color>0.501961 0 0</Color>
+                                            <Thickness>1</Thickness>
+                                            <LineStyle>STYLE_SOLID</LineStyle>
+                                            <PointSymbol>SYMBOL_NONE</PointSymbol>
+                                            <CurveWellPath>.. .. .. .. .. OilFields 0 WellPathCollection 0 WellPaths 1</CurveWellPath>
+                                            <CurveCase>.. .. .. .. .. OilFields 0 AnalysisModels 0 Reservoirs 0</CurveCase>
+                                            <CurveEclipseResult>
+                                                <ResultDefinition>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>SGAS</ResultVariable>
+                                                </ResultDefinition>
+                                            </CurveEclipseResult>
+                                            <CurveGeomechResult>
+                                                <GeoMechResultDefinition>
+                                                    <ResultPositionType>NODAL</ResultPositionType>
+                                                    <ResultFieldName></ResultFieldName>
+                                                    <ResultComponentName></ResultComponentName>
+                                                </GeoMechResultDefinition>
+                                            </CurveGeomechResult>
+                                            <CurveTimeStep>0</CurveTimeStep>
+                                            <AddCaseNameToCurveName>False </AddCaseNameToCurveName>
+                                            <AddPropertyToCurveName>True </AddPropertyToCurveName>
+                                            <AddWellNameToCurveName>True </AddWellNameToCurveName>
+                                            <AddTimestepToCurveName>False </AddTimestepToCurveName>
+                                            <AddDateToCurveName>True </AddDateToCurveName>
+                                        </RimWellLogExtractionCurve>
+                                    </Curves>
+                                    <VisibleXRangeMin>0</VisibleXRangeMin>
+                                    <VisibleXRangeMax>0.955563</VisibleXRangeMax>
+                                    <AutoScaleX>True </AutoScaleX>
+                                    <LogarithmicScaleX>False </LogarithmicScaleX>
+                                </WellLogPlotTrack>
+                            </Tracks>
+                            <WindowGeometry>318 0 317 310 0 </WindowGeometry>
+                        </WellLogPlot>
+                        <WellLogPlot>
+                            <ShowWindow>True </ShowWindow>
+                            <PlotDescription>Well Log Plot 4</PlotDescription>
+                            <DepthType>MEASURED_DEPTH</DepthType>
+                            <DepthUnit>UNIT_METER</DepthUnit>
+                            <MinimumDepth>162.724</MinimumDepth>
+                            <MaximumDepth>2490.69</MaximumDepth>
+                            <AutoScaleDepthEnabled>True </AutoScaleDepthEnabled>
+                            <Tracks>
+                                <WellLogPlotTrack>
+                                    <TrackDescription>Track 1</TrackDescription>
+                                    <Show>True </Show>
+                                    <Curves>
+                                        <RimWellLogExtractionCurve>
+                                            <Show>True </Show>
+                                            <CurveName>Well Path A,SOIL, 01.jan 2014</CurveName>
+                                            <CurveDescription></CurveDescription>
+                                            <AutoName>True </AutoName>
+                                            <Color>0 0 0.501961</Color>
+                                            <Thickness>1</Thickness>
+                                            <LineStyle>STYLE_SOLID</LineStyle>
+                                            <PointSymbol>SYMBOL_NONE</PointSymbol>
+                                            <CurveWellPath>.. .. .. .. .. OilFields 0 WellPathCollection 0 WellPaths 0</CurveWellPath>
+                                            <CurveCase>.. .. .. .. .. OilFields 0 AnalysisModels 0 Reservoirs 0</CurveCase>
+                                            <CurveEclipseResult>
+                                                <ResultDefinition>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>SOIL</ResultVariable>
+                                                </ResultDefinition>
+                                            </CurveEclipseResult>
+                                            <CurveGeomechResult>
+                                                <GeoMechResultDefinition>
+                                                    <ResultPositionType>NODAL</ResultPositionType>
+                                                    <ResultFieldName></ResultFieldName>
+                                                    <ResultComponentName></ResultComponentName>
+                                                </GeoMechResultDefinition>
+                                            </CurveGeomechResult>
+                                            <CurveTimeStep>0</CurveTimeStep>
+                                            <AddCaseNameToCurveName>False </AddCaseNameToCurveName>
+                                            <AddPropertyToCurveName>True </AddPropertyToCurveName>
+                                            <AddWellNameToCurveName>True </AddWellNameToCurveName>
+                                            <AddTimestepToCurveName>False </AddTimestepToCurveName>
+                                            <AddDateToCurveName>True </AddDateToCurveName>
+                                        </RimWellLogExtractionCurve>
+                                        <RimWellLogExtractionCurve>
+                                            <Show>True </Show>
+                                            <CurveName>Well Path A,SGAS, 01.jan 2014</CurveName>
+                                            <CurveDescription></CurveDescription>
+                                            <AutoName>True </AutoName>
+                                            <Color>0 0.501961 0</Color>
+                                            <Thickness>1</Thickness>
+                                            <LineStyle>STYLE_SOLID</LineStyle>
+                                            <PointSymbol>SYMBOL_NONE</PointSymbol>
+                                            <CurveWellPath>.. .. .. .. .. OilFields 0 WellPathCollection 0 WellPaths 0</CurveWellPath>
+                                            <CurveCase>.. .. .. .. .. OilFields 0 AnalysisModels 0 Reservoirs 0</CurveCase>
+                                            <CurveEclipseResult>
+                                                <ResultDefinition>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>SGAS</ResultVariable>
+                                                </ResultDefinition>
+                                            </CurveEclipseResult>
+                                            <CurveGeomechResult>
+                                                <GeoMechResultDefinition>
+                                                    <ResultPositionType>NODAL</ResultPositionType>
+                                                    <ResultFieldName></ResultFieldName>
+                                                    <ResultComponentName></ResultComponentName>
+                                                </GeoMechResultDefinition>
+                                            </CurveGeomechResult>
+                                            <CurveTimeStep>0</CurveTimeStep>
+                                            <AddCaseNameToCurveName>False </AddCaseNameToCurveName>
+                                            <AddPropertyToCurveName>True </AddPropertyToCurveName>
+                                            <AddWellNameToCurveName>True </AddWellNameToCurveName>
+                                            <AddTimestepToCurveName>False </AddTimestepToCurveName>
+                                            <AddDateToCurveName>True </AddDateToCurveName>
+                                        </RimWellLogExtractionCurve>
+                                        <RimWellLogExtractionCurve>
+                                            <Show>True </Show>
+                                            <CurveName>Well Path A,SWAT, 01.jan 2014</CurveName>
+                                            <CurveDescription></CurveDescription>
+                                            <AutoName>True </AutoName>
+                                            <Color>0.501961 0 0.501961</Color>
+                                            <Thickness>1</Thickness>
+                                            <LineStyle>STYLE_SOLID</LineStyle>
+                                            <PointSymbol>SYMBOL_NONE</PointSymbol>
+                                            <CurveWellPath>.. .. .. .. .. OilFields 0 WellPathCollection 0 WellPaths 0</CurveWellPath>
+                                            <CurveCase>.. .. .. .. .. OilFields 0 AnalysisModels 0 Reservoirs 0</CurveCase>
+                                            <CurveEclipseResult>
+                                                <ResultDefinition>
+                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                    <ResultVariable>SWAT</ResultVariable>
+                                                </ResultDefinition>
+                                            </CurveEclipseResult>
+                                            <CurveGeomechResult>
+                                                <GeoMechResultDefinition>
+                                                    <ResultPositionType>NODAL</ResultPositionType>
+                                                    <ResultFieldName></ResultFieldName>
+                                                    <ResultComponentName></ResultComponentName>
+                                                </GeoMechResultDefinition>
+                                            </CurveGeomechResult>
+                                            <CurveTimeStep>0</CurveTimeStep>
+                                            <AddCaseNameToCurveName>False </AddCaseNameToCurveName>
+                                            <AddPropertyToCurveName>True </AddPropertyToCurveName>
+                                            <AddWellNameToCurveName>True </AddWellNameToCurveName>
+                                            <AddTimestepToCurveName>False </AddTimestepToCurveName>
+                                            <AddDateToCurveName>True </AddDateToCurveName>
+                                        </RimWellLogExtractionCurve>
+                                    </Curves>
+                                    <VisibleXRangeMin>0</VisibleXRangeMin>
+                                    <VisibleXRangeMax>0.956023</VisibleXRangeMax>
+                                    <AutoScaleX>True </AutoScaleX>
+                                    <LogarithmicScaleX>False </LogarithmicScaleX>
+                                </WellLogPlotTrack>
+                            </Tracks>
+                            <WindowGeometry>0 0 318 619 0 </WindowGeometry>
+                        </WellLogPlot>
+                    </WellLogPlots>
+                </WellLogPlotCollection>
+            </WellLogPlotCollection>
+            <SummaryPlotCollection>
+                <RimGraphPlotCollection>
+                    <SummaryPlots>
+                        <GraphPlot>
+                            <ShowWindow>True </ShowWindow>
+                            <PlotDescription>Well Log Plot 1</PlotDescription>
+                            <SummaryCurves/>
+                        </GraphPlot>
+                    </SummaryPlots>
+                </RimGraphPlotCollection>
+            </SummaryPlotCollection>
+        </MainPlotCollection>
+    </MainPlotCollection>
+    <LinkedViews>
+        <RimViewLinkerCollection>
+            <Active>True </Active>
+            <ViewLinkers/>
+        </RimViewLinkerCollection>
+    </LinkedViews>
+    <CommandObjects/>
+    <TreeViewCurrentModelIndexPath>2 0;1 0;0 0;2 0</TreeViewCurrentModelIndexPath>
+</ResInsightProject>
