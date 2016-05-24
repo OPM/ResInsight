@@ -29,12 +29,15 @@
 
 #include "RivCellSetEnum.h"
 
+#include "RimViewWindow.h"
+
 #include "cvfArray.h"
 #include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
 #include <QPointer>
+
 
 class Rim3dOverlayInfoConfig;
 class RimCase;
@@ -61,7 +64,7 @@ namespace cvf
 ///  
 ///  
 //==================================================================================================
-class RimView : public caf::PdmObject
+class RimView : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 public:

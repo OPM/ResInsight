@@ -26,6 +26,8 @@
 
 #include <QPointer>
 
+#include "RimViewWindow.h"
+
 class RiuResultQwtPlot;
 class RimSummaryCurve;
 
@@ -33,7 +35,7 @@ class RimSummaryCurve;
 ///  
 ///  
 //==================================================================================================
-class RimSummaryPlot : public caf::PdmObject
+class RimSummaryPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 

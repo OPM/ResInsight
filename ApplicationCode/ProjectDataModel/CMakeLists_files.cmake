@@ -57,6 +57,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
+${CEE_CURRENT_LIST_DIR}RimViewWindow.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
@@ -136,6 +137,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
+${CEE_CURRENT_LIST_DIR}RimViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
