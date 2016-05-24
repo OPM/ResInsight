@@ -24,6 +24,7 @@
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
+#include "RimPlotCurve.h"
 
 class RimEclipseResultCase;
 class RifReaderEclipseSummary;
@@ -33,7 +34,7 @@ class RiuLineSegmentQwtPlotCurve;
 ///  
 ///  
 //==================================================================================================
-class RimSummaryCurve : public caf::PdmObject
+class RimSummaryCurve : public RimPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -44,17 +45,20 @@ public:
 
     caf::PdmField<QString> m_variableName;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
     void curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values);
+
+protected:
+    virtual QString createCurveAutoName() override;
+    virtual void zoomAllParentPlot() override;
+    virtual void onLoadDataAndUpdate() override;
 
 private:
     RifReaderEclipseSummary* summaryReader();
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
-private:
-    RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
 
 };

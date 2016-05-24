@@ -101,14 +101,7 @@ void RimSummaryPlot::loadDataAndUpdate()
     {
         RimSummaryCurve* curve = curves[i];
 
-        std::vector<QDateTime> dateTimes;
-        std::vector<double> values;
-
-        curve->curveData(&dateTimes, &values);
-
-        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
-
-        m_viewer->addCurve(curve->m_variableName(), curveColor, dateTimes, values);
+        curve->loadDataAndUpdate();
     }
 }
 
@@ -161,6 +154,6 @@ void RimSummaryPlot::detachAllCurves()
 {
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        //curves[cIdx]->detachQwtCurve();
+        curves[cIdx]->detachQwtCurve();
     }
 }

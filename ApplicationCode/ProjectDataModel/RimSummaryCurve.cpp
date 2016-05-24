@@ -30,6 +30,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
 
@@ -63,6 +64,8 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
+    this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
+
     QList<caf::PdmOptionItemInfo> optionList;
     if (fieldNeedingOptions == &m_variableName)
     {
@@ -114,16 +117,56 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurve::createCurveAutoName()
+{
+    return m_variableName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::zoomAllParentPlot()
+{
+    // Todo
+    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::onLoadDataAndUpdate()
+{
+    this->RimPlotCurve::updateCurvePresentation();
+
+    if (isCurveVisible())
+    {
+        std::vector<QDateTime> dateTimes;
+        std::vector<double> values;
+
+        this->curveData(&dateTimes, &values);
+
+        m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values);
+
+        zoomAllParentPlot();
+
+        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
+
     if (changedField == &m_variableName)
     {
-        RimSummaryPlot* summaryPlot = NULL;
-        this->firstAnchestorOrThisOfType(summaryPlot);
-        if (summaryPlot)
-        {
-            //summaryPlot->redrawAllCurves();
-        }
+        this->loadDataAndUpdate();
+    }
+    else if (changedField = &m_eclipseCase)
+    {
+        this->loadDataAndUpdate();
     }
 }
 
