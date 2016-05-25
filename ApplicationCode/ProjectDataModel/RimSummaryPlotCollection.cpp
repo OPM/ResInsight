@@ -98,15 +98,19 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const
     std::string headerFile;
     bool isFormatted = false;
     RifEclipseSummaryTools::findSummaryHeaderFile(eclipseCase.toStdString(), &headerFile, &isFormatted);
+    
+    if (headerFile.empty()) return nullptr;
 
     std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(eclipseCase.toStdString());
+
+    if (!dataFiles.size()) return nullptr;
 
     RifReaderEclipseSummary* reader = new RifReaderEclipseSummary;
     if (!reader->open(headerFile, dataFiles))
     {
         delete reader;
 
-        return NULL;
+        return nullptr;
     }
     else
     {

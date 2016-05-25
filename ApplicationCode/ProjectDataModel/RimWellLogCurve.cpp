@@ -46,7 +46,6 @@ RimWellLogCurve::RimWellLogCurve()
     m_qwtPlotCurve->setXAxis(QwtPlot::xTop);
     m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
 
-    m_parentQwtPlot = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

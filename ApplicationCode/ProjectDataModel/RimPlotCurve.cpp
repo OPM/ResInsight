@@ -89,6 +89,7 @@ RimPlotCurve::RimPlotCurve()
 
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
 
+    m_parentQwtPlot = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,21 +46,24 @@ public:
     void                                        setDescription(const QString& description);
     void                                        loadDataAndUpdate();
     RiuResultQwtPlot*                           viewer();
+    void                                        addCurve(RimSummaryCurve* curve);
 
-    caf::PdmChildArrayField<RimSummaryCurve*>   curves;
+
 
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                objectToggleField()    { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                userDescriptionField() { return &m_userName; }
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     void                                        updateViewerWidget();
 
     void                                        detachAllCurves();
 
-    QWidget* createPlotWidget(QWidget* parent);
     void deletePlotWidget();
+
+    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
     caf::PdmField<bool>                         m_showWindow;
     caf::PdmField<QString>                      m_userName;

@@ -44,8 +44,8 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&curves, "SummaryCurves", "",  "", "", "");
-    curves.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_curves, "SummaryCurves", "",  "", "", "");
+    m_curves.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,19 +55,7 @@ RimSummaryPlot::~RimSummaryPlot()
 {
     deletePlotWidget();
 
-    curves.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* RimSummaryPlot::createPlotWidget(QWidget* parent)
-{
-    assert(m_viewer.isNull());
-
-    m_viewer = new RiuResultQwtPlot(parent);
-
-    return m_viewer;
+    m_curves.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,16 +81,53 @@ RiuResultQwtPlot* RimSummaryPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
+{
+    if (curve)
+    {
+        m_curves.push_back(curve);
+        if (m_viewer)
+        {
+            curve->setParentQwtPlot(m_viewer);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_showWindow)
+    {
+        if (m_showWindow)
+        {
+            loadDataAndUpdate();
+        }
+        else
+        {
+            updateViewerWidget();
+        }
+
+        uiCapability()->updateUiIconFromToggleField();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::loadDataAndUpdate()
 {
-    m_viewer->deleteAllCurves();
+   updateViewerWidget();    
 
-    for (size_t i = 0; i < curves.size(); i++)
+    for (size_t i = 0; i < m_curves.size(); i++)
     {
-        RimSummaryCurve* curve = curves[i];
+        RimSummaryCurve* curve = m_curves[i];
 
         curve->loadDataAndUpdate();
     }
+ 
+    // Todo: Update zoom
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,10 +148,15 @@ void RimSummaryPlot::updateViewerWidget()
         if (!m_viewer)
         {
             m_viewer = new RiuResultQwtPlot(RiuMainWindow::instance());
+            for (size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
+            {
+                m_curves[cIdx]->setParentQwtPlot(m_viewer);
+            }
 
 
             RiuMainWindow::instance()->addViewer(m_viewer, std::vector<int>());
             RiuMainWindow::instance()->setActiveViewer(m_viewer);
+
         }
 
         //updateViewerWidgetWindowTitle();
@@ -152,8 +182,8 @@ void RimSummaryPlot::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::detachAllCurves()
 {
-    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    for (size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx)
     {
-        curves[cIdx]->detachQwtCurve();
+        m_curves[cIdx]->detachQwtCurve();
     }
 }

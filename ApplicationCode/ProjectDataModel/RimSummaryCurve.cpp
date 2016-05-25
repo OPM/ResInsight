@@ -31,6 +31,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "RiuLineSegmentQwtPlotCurve.h"
+#include "qwt_date.h"
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
 
@@ -128,7 +129,7 @@ QString RimSummaryCurve::createCurveAutoName()
 void RimSummaryCurve::zoomAllParentPlot()
 {
     // Todo
-    
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,9 +187,7 @@ RifReaderEclipseSummary* RimSummaryCurve::summaryReader()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    // TODO: Used to hide the entry for a case in the tree view as we have no
-    // setUiTreeHidden(true)
-    uiTreeOrdering.setForgetRemainingFields(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,6 +196,8 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
 void RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values)
 {
     RifReaderEclipseSummary* reader = summaryReader();
+    
+    if (!reader) return;
 
     if (timeSteps)
     {

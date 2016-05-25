@@ -7,10 +7,12 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryPlotFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryPlotFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFeature.cpp
 
 )
 
