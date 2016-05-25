@@ -68,5 +68,5 @@ private:
     caf::PdmField<bool>                         m_showWindow;
     caf::PdmField<QString>                      m_userName;
 
-    QPointer<RiuResultQwtPlot>                  m_viewer;
+    QPointer<RiuResultQwtPlot>                  m_qwtPlot;
 };

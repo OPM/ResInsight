@@ -63,10 +63,10 @@ RimSummaryPlot::~RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deletePlotWidget()
 {
-    if (m_viewer)
+    if (m_qwtPlot)
     {
-        m_viewer->deleteLater();
-        m_viewer = NULL;
+        m_qwtPlot->deleteLater();
+        m_qwtPlot = NULL;
     }
 }
 
@@ -75,7 +75,7 @@ void RimSummaryPlot::deletePlotWidget()
 //--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot* RimSummaryPlot::viewer()
 {
-    return m_viewer;
+    return m_qwtPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,9 +86,9 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
     if (curve)
     {
         m_curves.push_back(curve);
-        if (m_viewer)
+        if (m_qwtPlot)
         {
-            curve->setParentQwtPlot(m_viewer);
+            curve->setParentQwtPlot(m_qwtPlot);
         }
     }
 }
@@ -145,17 +145,17 @@ void RimSummaryPlot::updateViewerWidget()
 {
     if (m_showWindow())
     {
-        if (!m_viewer)
+        if (!m_qwtPlot)
         {
-            m_viewer = new RiuResultQwtPlot(RiuMainWindow::instance());
+            m_qwtPlot = new RiuResultQwtPlot(RiuMainWindow::instance());
             for (size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
             {
-                m_curves[cIdx]->setParentQwtPlot(m_viewer);
+                m_curves[cIdx]->setParentQwtPlot(m_qwtPlot);
             }
 
 
-            RiuMainWindow::instance()->addViewer(m_viewer, std::vector<int>());
-            RiuMainWindow::instance()->setActiveViewer(m_viewer);
+            RiuMainWindow::instance()->addViewer(m_qwtPlot, std::vector<int>());
+            RiuMainWindow::instance()->setActiveViewer(m_qwtPlot);
 
         }
 
@@ -163,15 +163,15 @@ void RimSummaryPlot::updateViewerWidget()
     }
     else
     {
-        if (m_viewer)
+        if (m_qwtPlot)
         {
             //windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
 
-            RiuMainWindow::instance()->removeViewer(m_viewer);
+            RiuMainWindow::instance()->removeViewer(m_qwtPlot);
             detachAllCurves();
 
-            delete m_viewer;
-            m_viewer = NULL;
+            delete m_qwtPlot;
+            m_qwtPlot = NULL;
 
         }
     }
