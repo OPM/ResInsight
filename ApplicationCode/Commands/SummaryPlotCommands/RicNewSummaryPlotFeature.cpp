@@ -59,6 +59,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 
     plot->setDescription(QString("Well Log Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
     summaryPlotColl->updateConnectedEditors();
+    plot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

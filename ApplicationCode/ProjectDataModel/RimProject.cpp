@@ -145,6 +145,11 @@ void RimProject::close()
          mainPlotCollection()->wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
     }
 
+    if (mainPlotCollection() && mainPlotCollection()->summaryPlotCollection())
+    {
+        mainPlotCollection()->summaryPlotCollection()->m_summaryPlots.deleteAllChildObjects();
+    }
+
     oilFields.deleteAllChildObjects();
     oilFields.push_back(new RimOilField);
 

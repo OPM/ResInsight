@@ -98,6 +98,8 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlot.h"
 
 namespace caf
 {
@@ -444,14 +446,36 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     }
 
     {
+        RimWellLogPlotCollection* wlpColl = nullptr;
+        RimSummaryPlotCollection* spColl = nullptr;
+
         if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
         {
-            RimWellLogPlotCollection* wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-            caf::ProgressInfo plotProgress(wlpColl->wellLogPlots().size(), "Loading Plot Data");
+            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+        }
+        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection())
+        {
+            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+        }
+        size_t plotCount = 0;
+        plotCount += wlpColl ? wlpColl->wellLogPlots().size(): 0;
+        plotCount += spColl ? spColl->m_summaryPlots().size(): 0;
 
+        caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
+        if (wlpColl)
+        {
             for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
             {
                 wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (spColl)
+        {
+            for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
+            {
+                spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
