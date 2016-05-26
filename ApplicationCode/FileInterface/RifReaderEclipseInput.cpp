@@ -18,23 +18,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "cvfBase.h"
-
-#include "RigMainGrid.h"
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
-
 #include "RifReaderEclipseInput.h"
-#include "RifReaderEclipseOutput.h"
 
 #include "RifEclipseInputFileTools.h"
-
-#include <iostream>
-#include <cmath>
-
-#include "ecl_grid.h"
-#include "well_state.h"
-#include "util.h"
+#include "RigCaseData.h"
 
 //==================================================================================================
 //

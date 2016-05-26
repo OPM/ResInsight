@@ -20,11 +20,9 @@
 
 #include "RifEclipseOutputFileTools.h"
 
-#include "util.h"
-#include "ecl_file.h"
-#include "ecl_kw_magic.h"
-#include "ecl_grid.h"
-#include "ecl_rsthead.h"
+#include "ert/ecl/ecl_file.h"
+#include "ert/ecl/ecl_grid.h"
+#include "ert/ecl/ecl_kw_magic.h"
 
 #include "cafProgressInfo.h"
 

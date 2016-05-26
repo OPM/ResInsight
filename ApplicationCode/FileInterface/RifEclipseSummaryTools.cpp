@@ -20,7 +20,7 @@
 
 #include "RifReaderEclipseSummary.h"
 
-#include "ecl_util.h"
+#include "ert/ecl/ecl_util.h"
 
 #include <iostream>
 

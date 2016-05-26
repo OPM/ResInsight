@@ -65,48 +65,35 @@ SET(EXT_ERT_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
 
 if (ERT_EXTERNAL)
     if (EXT_ERT_ROOT)
-        set(ERT_SOURCE_PATH "${EXT_ERT_ROOT}")
-
+        set(ERT_INCLUDE_ROOT "${EXT_ERT_ROOT}")
         add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
-        include_directories(
-        ${ERT_SOURCE_PATH}/libecl/include/ert/ecl
-        ${ERT_SOURCE_PATH}/libert_util/include/ert/util
-        ${ERT_SOURCE_PATH}/libgeometry/include/ert/geometry
-        ${ERT_SOURCE_PATH}/libecl_well/include/ert/ecl_well
-        ${ERT_SOURCE_PATH}/libecl/include
-        ${ERT_SOURCE_PATH}/libert_util/include
-        ${ERT_SOURCE_PATH}/libgeometry/include
-        ${ERT_SOURCE_PATH}/libecl_well/include
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include/ert/util
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
-        )
-    endif(EXT_ERT_ROOT)
-
-else (ERT_EXTERNAL)
+    endif()
+else()
+    set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel)
     add_subdirectory(ThirdParty/Ert/devel)
-    include_directories(
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include/ert/ecl
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include/ert/geometry
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include/ert/ecl_well
-	${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include
+endif ()
 
-	${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
-    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
+list(APPEND ERT_INCLUDE_DIRS
+    ${ERT_INCLUDE_ROOT}/libecl/include/
+    ${ERT_INCLUDE_ROOT}/libert_util/include/
+    ${ERT_INCLUDE_ROOT}/libgeometry/include/
+    ${ERT_INCLUDE_ROOT}/libecl_well/include/
+    ${ERT_INCLUDE_ROOT}/libeclxx/include
+    ${ERT_INCLUDE_ROOT}/libert_utilxx/include
+
     ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
-    )
-endif (ERT_EXTERNAL)
+)
+
+list(APPEND ERT_LIBRARIES
+	    ecl 
+	    ecl_well 
+	    ert_geometry 
+	    ert_util  
+)
 
 set_property(TARGET  
-				ecl 
-				ecl_well 
-				ert_geometry 
-				ert_util  
-			  PROPERTY FOLDER "ERT"
+    ${ERT_LIBRARIES}
+	PROPERTY FOLDER "ERT"
 )
 
 
@@ -115,7 +102,6 @@ set_property(TARGET
 ################################################################################
 
 add_subdirectory(ThirdParty/NRLib)
-include_directories(ThirdParty/NRLib/nrlib/well)
 
 
 ################################################################################
@@ -141,7 +127,6 @@ find_package( OpenGL )
 ################################################################################
 
 add_subdirectory(ThirdParty/Qwt/src)
-include_directories(ThirdParty/Qwt/src)
 
 ################################################################################
 # Vizualization Framework
@@ -182,13 +167,17 @@ include_directories(
     ${LibGuiQt_SOURCE_DIR}
 )
 
+list(APPEND VIZ_FWK_LIBRARIES
+    LibGuiQt
+    LibViewing
+    LibRender
+    LibGeometry
+    LibCore
+)
+
 set_property(TARGET  
-				LibCore 
-				LibGeometry 
-				LibGuiQt 
-				LibRender 
-				LibViewing  
-			  PROPERTY FOLDER "VizFwk"
+    ${VIZ_FWK_LIBRARIES}
+	PROPERTY FOLDER "VizFwk"
 )
 
 
@@ -213,23 +202,25 @@ add_subdirectory(Fwk/AppFwk/CommonCode)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 
-set_property(TARGET  
-	cafAnimControl
-    cafViewer
-
+list(APPEND APP_FWK_LIBRARIES
     cafPdmCore
     cafPdmUiCore
     cafPdmXml
-	cafProjectDataModel 
-
+    
+    cafUserInterface
+    cafViewer
+    cafAnimControl
     cafCommand
-	cafUserInterface 
+    cafPdmCvf
+
 	cafTensor
-	cafPdmCvf 
-	CommonCode
-	PROPERTY FOLDER "AppFwk"
+    CommonCode
 )
 
+set_property(TARGET  
+    ${APP_FWK_LIBRARIES}
+	PROPERTY FOLDER "AppFwk"
+)
 
 ################################################################################
 # Installation settings

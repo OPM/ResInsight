@@ -23,6 +23,9 @@ include_directories(
     ${CommonCode_SOURCE_DIR}
 
 	${ResInsight_SOURCE_DIR}/ThirdParty
+    ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
+    ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
+	${ERT_INCLUDE_DIRS}
 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
@@ -355,41 +358,12 @@ endif ()
 set( LINK_LIBRARIES
     WellPathImportSsihub
 
-#    cafPdmCvf
-#    cafUserInterface
-#    cafProjectDataModel
-#    cafViewer
-#    cafAnimControl
-#	cafTensor
-#    CommonCode
-
-    #cafPdmCore
-    #cafPdmUiCore
-    cafPdmXml
-    #cafProjectDataModel
-    
-    cafUserInterface
-    cafViewer
-    cafAnimControl
-    cafCommand
-    cafPdmCvf
-
-	cafTensor
-    CommonCode
-    
-    LibGuiQt
-    LibViewing
-    LibRender
-    LibGeometry
-    LibCore
-
 	ResultStatisticsCache
 	RigGeoMechDataModel
 
-    ecl
-    ert_util
-    ert_geometry
-    ecl_well
+    ${APP_FWK_LIBRARIES}
+    ${VIZ_FWK_LIBRARIES}
+    ${ERT_LIBRARIES}
 
     NRLib
 
