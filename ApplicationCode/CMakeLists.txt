@@ -91,6 +91,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuProjectPropertyView.cpp
 	UserInterface/RiuResultQwtPlot.h
 	UserInterface/RiuResultQwtPlot.cpp
+	UserInterface/RiuSummaryQwtPlot.h
+	UserInterface/RiuSummaryQwtPlot.cpp
 	UserInterface/RiuSelectionManager.h
 	UserInterface/RiuSelectionManager.cpp
 	UserInterface/RiuSelectionColors.h

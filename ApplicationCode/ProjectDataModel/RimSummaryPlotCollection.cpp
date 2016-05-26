@@ -31,7 +31,7 @@
 #include "RiuMainWindow.h"
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryPlotCollection, "RimGraphPlotCollection");
+CAF_PDM_SOURCE_INIT(RimSummaryPlotCollection, "SummaryPlotCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 

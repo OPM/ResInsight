@@ -61,8 +61,6 @@ public:
 
     QString                                         depthPlotTitle() const;
 
-    caf::PdmField< std::vector<int> >               windowGeometry;
-
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}

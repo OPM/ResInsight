@@ -28,7 +28,7 @@
 
 #include "RimViewWindow.h"
 
-class RiuResultQwtPlot;
+class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 
 //==================================================================================================
@@ -44,29 +44,25 @@ public:
     virtual ~RimSummaryPlot();
 
     void                                        setDescription(const QString& description);
-    void                                        loadDataAndUpdate();
-    RiuResultQwtPlot*                           viewer();
     void                                        addCurve(RimSummaryCurve* curve);
-
-
+    void                                        loadDataAndUpdate();
+    void                                        handleViewerDeletion();
 
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                objectToggleField()    { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                userDescriptionField() { return &m_userName; }
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                                setupBeforeSave() override;
 
 private:
     void                                        updateViewerWidget();
-
     void                                        detachAllCurves();
-
-    void deletePlotWidget();
-
-    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
+    void                                        deletePlotWidget();
 
     caf::PdmField<bool>                         m_showWindow;
     caf::PdmField<QString>                      m_userName;
+    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
-    QPointer<RiuResultQwtPlot>                  m_qwtPlot;
+    QPointer<RiuSummaryQwtPlot>                  m_qwtPlot;
 };

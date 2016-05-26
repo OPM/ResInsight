@@ -109,8 +109,6 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
-    CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
-    windowGeometry.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
     m_rangeFilterCollection.uiCapability()->setUiHidden(true);
@@ -205,7 +203,7 @@ void RimView::updateViewerWidget()
             m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
 
-            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), windowGeometry());
+            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), mdiWindowGeometry());
             m_viewer->setMinNearPlaneDistance(10);
            
             this->resetLegendsInViewer();
@@ -341,8 +339,8 @@ void RimView::setupBeforeSave()
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
 
-        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
-  }
+       setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

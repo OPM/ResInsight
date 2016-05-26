@@ -21,7 +21,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuResultQwtPlot.h"
+#include "RiuSummaryQwtPlot.h"
 #include "RiuSelectionColors.h"
 
 #include "cvfBase.h"
@@ -31,14 +31,14 @@
 #include "RiuMainWindow.h"
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryPlot, "GraphPlot");
+CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
 {
-    CAF_PDM_InitObject("Graph", ":/WellLogPlot16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Plot", ":/WellLogPlot16x16.png", "", "");
     CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Summary Plot", "", "", "");
     m_showWindow.uiCapability()->setUiHidden(true);
 
@@ -53,6 +53,8 @@ RimSummaryPlot::RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::~RimSummaryPlot()
 {
+    RiuMainWindow::instance()->removeViewer(m_qwtPlot);
+
     deletePlotWidget();
 
     m_curves.deleteAllChildObjects();
@@ -70,12 +72,21 @@ void RimSummaryPlot::deletePlotWidget()
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuResultQwtPlot* RimSummaryPlot::viewer()
+void RimSummaryPlot::handleViewerDeletion()
 {
-    return m_qwtPlot;
+    m_showWindow = false;
+
+    if (m_qwtPlot)
+    {
+        detachAllCurves();
+    }
+
+    uiCapability()->updateUiIconFromToggleField();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +127,17 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setupBeforeSave()
+{
+    if (m_qwtPlot)
+    {
+        this->setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForViewer(m_qwtPlot));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::loadDataAndUpdate()
 {
    updateViewerWidget();    
@@ -147,14 +169,14 @@ void RimSummaryPlot::updateViewerWidget()
     {
         if (!m_qwtPlot)
         {
-            m_qwtPlot = new RiuResultQwtPlot(RiuMainWindow::instance());
+            m_qwtPlot = new RiuSummaryQwtPlot(this, RiuMainWindow::instance());
             for (size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
             {
                 m_curves[cIdx]->setParentQwtPlot(m_qwtPlot);
             }
 
 
-            RiuMainWindow::instance()->addViewer(m_qwtPlot, std::vector<int>());
+            RiuMainWindow::instance()->addViewer(m_qwtPlot, this->mdiWindowGeometry());
             RiuMainWindow::instance()->setActiveViewer(m_qwtPlot);
 
         }
@@ -165,14 +187,12 @@ void RimSummaryPlot::updateViewerWidget()
     {
         if (m_qwtPlot)
         {
-            //windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+            this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_qwtPlot));
 
             RiuMainWindow::instance()->removeViewer(m_qwtPlot);
             detachAllCurves();
 
-            delete m_qwtPlot;
-            m_qwtPlot = NULL;
-
+            deletePlotWidget();
         }
     }
 }

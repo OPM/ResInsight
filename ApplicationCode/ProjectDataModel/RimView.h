@@ -93,7 +93,6 @@ public:
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
     void                                    replaceRangeFilterCollectionWithOverride();
 
-    caf::PdmField< std::vector<int> >       windowGeometry;
 
     caf::PdmChildField<RimCrossSectionCollection*>      crossSectionCollection;
 

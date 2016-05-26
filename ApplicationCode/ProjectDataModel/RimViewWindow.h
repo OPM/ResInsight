@@ -22,6 +22,18 @@
 #include "cafPdmField.h"
 #include "QPointer"
 
+struct RimMdiWindowGeometry 
+{
+    RimMdiWindowGeometry() : x(0), y(0), width(-1), height(-1)  {}
+    bool isValid() const { return (width >= 0 && height >= 0);}
+
+    int x; 
+    int y; 
+    int width;
+    int height; 
+    bool isMaximized;
+};
+
 class RimViewWindow : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -29,19 +41,20 @@ public:
     RimViewWindow(void);
     virtual ~RimViewWindow(void);
 
+    void                 setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
+    RimMdiWindowGeometry mdiWindowGeometry();
 
 protected:
-    void setViewWidget(QWidget* viewWidget);
+    void                 setViewWidget(QWidget* viewWidget);
 
     // Possible abilities of this class
 
-    //caf::PdmField< std::vector<int> >       windowGeometry;
     //virtual QImage snapshotWindowContent() = 0;
     //caf::PdmField<QString>                  name;
     //caf::PdmField<bool>                     showWindow;
-   
 
 private:
-    QPointer<QWidget> m_viewWidget;
+    caf::PdmField< std::vector<int> > m_windowGeometry;
+    QPointer<QWidget>                 m_viewWidget;
 };
 
