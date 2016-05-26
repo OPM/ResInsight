@@ -41,24 +41,23 @@ public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
 
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
-
-    caf::PdmField<QString> m_variableName;
-
-
-    void curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values);
-
 protected:
-    virtual QString createCurveAutoName() override;
-    virtual void zoomAllParentPlot() override;
-    virtual void onLoadDataAndUpdate() override;
+    // RimPlotCurve overrides
+
+    virtual QString                         createCurveAutoName() override;
+    virtual void                            zoomAllParentPlot()   override;
+    virtual void                            onLoadDataAndUpdate() override;
 
 private:
-    RifReaderEclipseSummary* summaryReader();
+    RifReaderEclipseSummary*                summaryReader();
+    void                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values);
 
-    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    // Overridden PDM methods
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
-
+    // Fields
+    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
+    caf::PdmField<QString>                  m_variableName;
 };
