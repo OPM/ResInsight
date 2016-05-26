@@ -53,48 +53,74 @@ include (ResInsightVersion.cmake)
 # ERT
 ################################################################################
 
-# Disable install of ERT libs and headers, as Ert code is compiled and linked directly
-SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
-SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
-SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
-SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-SET(ERT_BUILD_CXX OFF CACHE BOOL "ERT: Disable build of CXX wrappers")
+if (NOT MSVC)
+  # Linux: Optional configuration of externally installed ERT, requires path to libraries and includes
+  set(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT "" CACHE STRING "Path to installed ERT libraries")
+  set(RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT "" CACHE STRING "Path to installed ERT includes")
+endif()
 
-option( ERT_EXTERNAL             "Build ERT from external source" OFF)
-SET(EXT_ERT_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
+if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+  if (NOT(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT))
+    message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
+  endif()
 
-if (ERT_EXTERNAL)
-    if (EXT_ERT_ROOT)
-        set(ERT_INCLUDE_ROOT "${EXT_ERT_ROOT}")
-        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+  list(APPEND ERT_INCLUDE_DIRS
+    ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
+  )
+
+  list(APPEND ERT_LIBRARIES
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
+  )
+  
+else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+
+    # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
+    SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
+    SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
+    SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
+    SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
+    SET(ERT_BUILD_CXX OFF CACHE BOOL "ERT: Disable build of CXX wrappers")
+
+    if (NOT MSVC)
+      SET(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
     endif()
-else()
-    set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel)
-    add_subdirectory(ThirdParty/Ert/devel)
-endif ()
 
-list(APPEND ERT_INCLUDE_DIRS
-    ${ERT_INCLUDE_ROOT}/libecl/include/
-    ${ERT_INCLUDE_ROOT}/libert_util/include/
-    ${ERT_INCLUDE_ROOT}/libgeometry/include/
-    ${ERT_INCLUDE_ROOT}/libecl_well/include/
-    ${ERT_INCLUDE_ROOT}/libeclxx/include
-    ${ERT_INCLUDE_ROOT}/libert_utilxx/include
+    if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
+        set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
+        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+    else()
+        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel)
+        add_subdirectory(ThirdParty/Ert/devel)
+    endif ()
 
-    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
-)
+    list(APPEND ERT_INCLUDE_DIRS
+        ${ERT_INCLUDE_ROOT}/libecl/include/
+        ${ERT_INCLUDE_ROOT}/libert_util/include/
+        ${ERT_INCLUDE_ROOT}/libgeometry/include/
+        ${ERT_INCLUDE_ROOT}/libecl_well/include/
+        ${ERT_INCLUDE_ROOT}/libeclxx/include
+        ${ERT_INCLUDE_ROOT}/libert_utilxx/include
 
-list(APPEND ERT_LIBRARIES
-	    ecl 
-	    ecl_well 
-	    ert_geometry 
-	    ert_util  
-)
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
+    )
 
-set_property(TARGET  
-    ${ERT_LIBRARIES}
-	PROPERTY FOLDER "ERT"
-)
+    list(APPEND ERT_LIBRARIES
+	        ecl 
+	        ecl_well 
+	        ert_geometry 
+	        ert_util  
+    )
+
+    set_property(TARGET  
+        ${ERT_LIBRARIES}
+	    PROPERTY FOLDER "ERT"
+    )
+    
+endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+
 
 
 ################################################################################

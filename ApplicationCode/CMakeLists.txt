@@ -443,16 +443,24 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       # tell binary to first attempt to load libraries from its own directory
+      set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
 
 	  if (${RESINSIGHT_USE_ODB_API})
 		# This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
 		# statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
 		# and really do copy them when doing PRIVATE_INSTALL
-		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN;${RESINSIGHT_ODB_API_DIR}/lib")
-	  else()
-		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+        set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ODB_API_DIR}/lib)
       endif()
+      
+      if (NOT(${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT} STREQUAL ""))
+        # append the external ERT lib root
+        set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT})
+      endif()
+      
+      #message("RESINSIGHT_INSTALL_RPATH : " "${RESINSIGHT_INSTALL_RPATH}")
 
+      set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
+      
         # Find Qt libraries and sym links
         file (GLOB RESINSIGHT_FILES
                 ${QT_LIBRARY_DIR}/libQtCore.so*
