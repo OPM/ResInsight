@@ -14,6 +14,7 @@
                             <CaseId>0</CaseId>
                             <ReservoirViews>
                                 <ReservoirView>
+                                    <WindowGeometry>635 0 440 639 0 </WindowGeometry>
                                     <UserDescription>View 1</UserDescription>
                                     <ShowWindow>True </ShowWindow>
                                     <CameraPosition>1 0 0 -438.988 0 1 0 -608.278 0 0 1 -1086.95 0 0 0 1</CameraPosition>
@@ -38,7 +39,6 @@
                                     <SurfaceMode>SURFACE</SurfaceMode>
                                     <ShowGridBox>True </ShowGridBox>
                                     <DisableLighting>False </DisableLighting>
-                                    <WindowGeometry>318 310 317 309 0 </WindowGeometry>
                                     <RangeFilters>
                                         <CellRangeFilterCollection>
                                             <RangeFilters/>
@@ -285,7 +285,7 @@
                             <FlipXAxis>False </FlipXAxis>
                             <FlipYAxis>False </FlipYAxis>
                             <FilesContainingFaults></FilesContainingFaults>
-                            <CaseFileName>C:\gitRoot\OPM\ResInsight\TestModels\TEST10K_FLT_LGR_NNC\TEST10K_FLT_LGR_NNC.EGRID</CaseFileName>
+                            <CaseFileName>C:/gitRoot/OPM/ResInsight/TestModels/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID</CaseFileName>
                         </EclipseCase>
                     </Reservoirs>
                     <CaseGroups/>
@@ -383,6 +383,7 @@
                 <WellLogPlotCollection>
                     <WellLogPlots>
                         <WellLogPlot>
+                            <WindowGeometry>318 0 317 639 0 </WindowGeometry>
                             <ShowWindow>True </ShowWindow>
                             <PlotDescription>Well Log Plot 1</PlotDescription>
                             <DepthType>MEASURED_DEPTH</DepthType>
@@ -498,9 +499,9 @@
                                     <LogarithmicScaleX>False </LogarithmicScaleX>
                                 </WellLogPlotTrack>
                             </Tracks>
-                            <WindowGeometry>318 0 317 310 0 </WindowGeometry>
                         </WellLogPlot>
                         <WellLogPlot>
+                            <WindowGeometry>0 0 318 619 0 </WindowGeometry>
                             <ShowWindow>True </ShowWindow>
                             <PlotDescription>Well Log Plot 4</PlotDescription>
                             <DepthType>MEASURED_DEPTH</DepthType>
@@ -616,21 +617,14 @@
                                     <LogarithmicScaleX>False </LogarithmicScaleX>
                                 </WellLogPlotTrack>
                             </Tracks>
-                            <WindowGeometry>0 0 318 619 0 </WindowGeometry>
                         </WellLogPlot>
                     </WellLogPlots>
                 </WellLogPlotCollection>
             </WellLogPlotCollection>
             <SummaryPlotCollection>
-                <RimGraphPlotCollection>
-                    <SummaryPlots>
-                        <GraphPlot>
-                            <ShowWindow>True </ShowWindow>
-                            <PlotDescription>Well Log Plot 1</PlotDescription>
-                            <SummaryCurves/>
-                        </GraphPlot>
-                    </SummaryPlots>
-                </RimGraphPlotCollection>
+                <SummaryPlotCollection>
+                    <SummaryPlots/>
+                </SummaryPlotCollection>
             </SummaryPlotCollection>
         </MainPlotCollection>
     </MainPlotCollection>
@@ -641,5 +635,5 @@
         </RimViewLinkerCollection>
     </LinkedViews>
     <CommandObjects/>
-    <TreeViewCurrentModelIndexPath>2 0;1 0;0 0;2 0</TreeViewCurrentModelIndexPath>
+    <TreeViewCurrentModelIndexPath>2 0;0 0</TreeViewCurrentModelIndexPath>
 </ResInsightProject>
