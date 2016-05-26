@@ -55,8 +55,8 @@ include (ResInsightVersion.cmake)
 
 if (NOT MSVC)
   # Linux: Optional configuration of externally installed ERT, requires path to libraries and includes
-  set(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT "" CACHE STRING "Path to installed ERT libraries")
-  set(RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT "" CACHE STRING "Path to installed ERT includes")
+  set(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT "" CACHE PATH "Path to installed ERT libraries")
+  set(RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT "" CACHE PATH "Path to installed ERT includes")
 endif()
 
 if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
