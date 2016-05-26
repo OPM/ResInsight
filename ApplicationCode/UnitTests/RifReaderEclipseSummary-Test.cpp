@@ -21,7 +21,7 @@
 #include "RifReaderEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
 
-#include "stringlist.h"
+//#include "stringlist.h"
 
 #include <QDir>
 #include <QDateTime>
