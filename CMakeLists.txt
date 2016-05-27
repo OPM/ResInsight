@@ -48,6 +48,24 @@ endif()
 ################################################################################
 include (ResInsightVersion.cmake)
 
+################################################################################
+# Boost
+################################################################################
+
+# if we are building shared libraries ourselves, then don't include Boost in them
+if (BUILD_SHARED_LIBS)
+   set(Boost_USE_STATIC_LIBS    OFF)
+elseif (DEFINED BUILD_SHARED_LIBS)
+   set(Boost_USE_STATIC_LIBS    ON)
+endif ()
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+
+
+# Requires BOOST filesystem version 3, thus 1.44 is necessary.
+add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
+find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
+
 
 ################################################################################
 # ERT
