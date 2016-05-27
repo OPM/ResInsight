@@ -378,6 +378,7 @@ set( LINK_LIBRARIES
     ${ERT_LIBRARIES}
     
     custom-opm-common
+    custom-opm-parser
 
     NRLib
 

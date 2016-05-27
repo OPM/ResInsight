@@ -1,0 +1,7 @@
+INCLUDE
+ 'include/foo.inc'
+/
+
+INCLUDE
+ '$FOOPATH/foo_target.inc'
+/

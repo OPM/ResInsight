@@ -1,0 +1,36 @@
+language: cpp
+
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+    - os: linux
+      compiler: gcc
+
+addons:
+  apt:
+    sources:
+      - boost-latest
+      - ubuntu-toolchain-r-test
+    packages:
+      - libboost1.55-all-dev
+      - gcc-4.8
+      - g++-4.8
+      - gfortran-4.8
+      - liblapack-dev
+      - clang
+
+install:
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8" FC="gfortran-4.8"; fi
+
+    - cd ..
+
+    - git clone https://github.com/OPM/opm-common.git
+    - git clone https://github.com/OPM/opm-data.git
+
+    - opm-common/travis/build-opm-common-shared.sh
+    - opm-parser/travis/clone-and-build-ert.sh
+
+script: opm-parser/travis/build-and-test-opm-parser.sh

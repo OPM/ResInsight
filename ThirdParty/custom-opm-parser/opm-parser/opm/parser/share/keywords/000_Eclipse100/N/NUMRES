@@ -1,0 +1,2 @@
+{"name" : "NUMRES" , "sections" : ["RUNSPEC"] , "items" : [
+     {"name" : "num" , "value_type" : "INT" , "default" : 1}]}

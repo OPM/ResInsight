@@ -1,0 +1,8 @@
+{
+  "name": "OCOMPIDX",
+  "sections": ["RUNSPEC"],
+  "size": 1,
+  "items": [
+    {"name" : "OIL_COMPONENT_INDEX" , "value_type" : "INT"}
+  ]
+}

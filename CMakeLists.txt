@@ -147,6 +147,7 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 ################################################################################
 
 add_subdirectory(ThirdParty/custom-opm-common)
+add_subdirectory(ThirdParty/custom-opm-parser)
 
 
 ################################################################################
