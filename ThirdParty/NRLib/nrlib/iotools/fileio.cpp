@@ -24,7 +24,7 @@
 #include "../exception/exception.hpp"
 #include "stringtools.hpp"
 
-#define BOOST_FILESYSTEM_VERSION 2
+//#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 
 #include <fstream>
@@ -52,16 +52,16 @@ void NRLib::OpenRead(std::ifstream&          stream,
   try {
     boost::filesystem::path file_path(filename);
     if (!fs::exists(file_path)) {
-      throw IOError("Failed to open " + file_path.file_string() + " for reading: " +
+      throw IOError("Failed to open " + file_path.generic_string() + " for reading: " +
                     "File does not exist.");
     }
     if (fs::is_directory(file_path)) {
-      throw IOError("Failed to open " + file_path.file_string() + " for reading: " +
+      throw IOError("Failed to open " + file_path.generic_string() + " for reading: " +
                     " It is a directory.");
     }
-    stream.open(file_path.file_string().c_str(), mode);
+    stream.open(file_path.generic_string().c_str(), mode);
     if (!stream) {
-      throw IOError("Failed to open " + file_path.file_string() + " for reading.");
+      throw IOError("Failed to open " + file_path.generic_string() + " for reading.");
     }
   }
   catch (fs::filesystem_error& e) {
@@ -79,16 +79,16 @@ void NRLib::OpenRead(std::fstream&          stream,
   try {
     boost::filesystem::path file_path(filename);
     if (!fs::exists(file_path)) {
-      throw IOError("Failed to open " + file_path.file_string() + " for reading: " +
+      throw IOError("Failed to open " + file_path.generic_string() + " for reading: " +
                     "File does not exist.");
     }
     if (fs::is_directory(file_path)) {
-      throw IOError("Failed to open " + file_path.file_string() + " for reading: " +
+      throw IOError("Failed to open " + file_path.generic_string() + " for reading: " +
                     " It is a directory.");
     }
-    stream.open(file_path.file_string().c_str(), mode);
+    stream.open(file_path.generic_string().c_str(), mode);
     if (!stream) {
-      throw IOError("Failed to open " + file_path.file_string() + " for reading.");
+      throw IOError("Failed to open " + file_path.generic_string() + " for reading.");
     }
   }
   catch (fs::filesystem_error& e) {
@@ -107,7 +107,7 @@ void NRLib::OpenWrite(std::ofstream&          stream,
     fs::path file_path(filename);
     fs::path dir = file_path.parent_path();
     if (fs::is_directory(file_path)) {
-      throw IOError("Failed to open " + file_path.file_string() + " for writing: " +
+      throw IOError("Failed to open " + file_path.generic_string() + " for writing: " +
                     " It is a directory.");
     }
     if (!dir.empty()) {
@@ -115,13 +115,13 @@ void NRLib::OpenWrite(std::ofstream&          stream,
         create_directories(dir);
       }
       else if (!fs::exists(dir)) {
-        throw IOError("Failed to open " + file_path.file_string() + " for writing: "
+        throw IOError("Failed to open " + file_path.generic_string() + " for writing: "
                       + "Parent directory does not exist.");
       }
     }
-    stream.open(file_path.file_string().c_str(), mode);
+    stream.open(file_path.generic_string().c_str(), mode);
     if (!stream) {
-      throw IOError("Failed to open " + file_path.file_string() + " for writing.");
+      throw IOError("Failed to open " + file_path.generic_string() + " for writing.");
     }
   }
   catch (fs::filesystem_error& e) {
@@ -140,7 +140,7 @@ void NRLib::OpenWrite(std::fstream&          stream,
     fs::path file_path(filename);
     fs::path dir = file_path.parent_path();
     if (fs::is_directory(file_path)) {
-      throw IOError("Failed to open " + file_path.file_string() + " for writing: " +
+      throw IOError("Failed to open " + file_path.generic_string() + " for writing: " +
                     " It is a directory.");
     }
     if (!dir.empty()) {
@@ -148,13 +148,13 @@ void NRLib::OpenWrite(std::fstream&          stream,
         create_directories(dir);
       }
       else if (!fs::exists(dir)) {
-        throw IOError("Failed to open " + file_path.file_string() + " for writing: "
+        throw IOError("Failed to open " + file_path.generic_string() + " for writing: "
                       + "Parent directory does not exist.");
       }
     }
-    stream.open(file_path.file_string().c_str(), mode);
+    stream.open(file_path.generic_string().c_str(), mode);
     if (!stream) {
-      throw IOError("Failed to open " + file_path.file_string() + " for writing.");
+      throw IOError("Failed to open " + file_path.generic_string() + " for writing.");
     }
   }
   catch (fs::filesystem_error& e) {

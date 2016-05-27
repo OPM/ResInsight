@@ -62,6 +62,8 @@ set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
 
+
+
 # Requires BOOST filesystem version 3, thus 1.44 is necessary.
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)

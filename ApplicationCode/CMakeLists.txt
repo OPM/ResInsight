@@ -355,6 +355,18 @@ endif ()
 # Set up libraries and dependent projects to link with
 #############################################################################
 
+if (MSVC)
+  set (RI_BOOST_LIBRARIES
+    debug     ${Boost_SYSTEM_LIBRARY_DEBUG}
+    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
+    debug     ${Boost_FILESYSTEM_LIBRARY_DEBUG}
+    optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+  )
+else()
+  set (RI_BOOST_LIBRARIES ${Boost_LIBRARIES})
+endif()
+
+
 set( LINK_LIBRARIES
     WellPathImportSsihub
 
@@ -369,6 +381,8 @@ set( LINK_LIBRARIES
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
+    
+    ${RI_BOOST_LIBRARIES}
 
 	Qwt
 )
