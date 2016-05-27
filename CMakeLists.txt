@@ -61,7 +61,9 @@ endif ()
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
-
+if (MSVC)
+  ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
+endif()
 
 
 # Requires BOOST filesystem version 3, thus 1.44 is necessary.
@@ -102,7 +104,7 @@ else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
     SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-    SET(ERT_BUILD_CXX OFF CACHE BOOL "ERT: Disable build of CXX wrappers")
+    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers")
 
     if (NOT MSVC)
       SET(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
@@ -129,15 +131,19 @@ else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
     list(APPEND ERT_LIBRARIES
 	        ecl 
+	        eclxx
 	        ecl_well 
 	        ert_geometry 
 	        ert_util  
     )
 
-    set_property(TARGET  
-        ${ERT_LIBRARIES}
-	    PROPERTY FOLDER "ERT"
-    )
+    if (MSVC)
+      set_property(TARGET  
+          ${ERT_LIBRARIES}
+          ecl_lfs
+	      PROPERTY FOLDER "ERT"
+      )
+    endif()
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
@@ -148,6 +154,16 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 add_subdirectory(ThirdParty/custom-opm-common)
 add_subdirectory(ThirdParty/custom-opm-parser)
+
+include_directories(${custom-opm-parser_SOURCE_DIR}/opm-parser/)   
+add_subdirectory(ThirdParty/custom-opm-parser/opm-parser/opm/json)
+
+set_property(TARGET  
+    custom-opm-common
+    custom-opm-parser
+    opmjson
+	PROPERTY FOLDER "OPM"
+)
 
 
 ################################################################################

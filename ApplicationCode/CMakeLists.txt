@@ -27,6 +27,10 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
 	${ERT_INCLUDE_DIRS}
 
+    ${Boost_INCLUDE_DIRS}
+    ${custom-opm-common_SOURCE_DIR}/opm-common/
+    ${custom-opm-parser_SOURCE_DIR}/opm-parser/
+
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
@@ -379,6 +383,7 @@ set( LINK_LIBRARIES
     
     custom-opm-common
     custom-opm-parser
+    opmjson
 
     NRLib
 

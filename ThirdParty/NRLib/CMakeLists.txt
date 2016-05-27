@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 
-ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
+if (MSVC)
+  ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
+endif()
 
 project (NRLib)
 
