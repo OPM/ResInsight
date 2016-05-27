@@ -376,6 +376,8 @@ set( LINK_LIBRARIES
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
     ${ERT_LIBRARIES}
+    
+    custom-opm-common
 
     NRLib
 

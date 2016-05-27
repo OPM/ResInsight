@@ -142,6 +142,12 @@ else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 
+################################################################################
+# Opm
+################################################################################
+
+add_subdirectory(ThirdParty/custom-opm-common)
+
 
 ################################################################################
 # NRLib
