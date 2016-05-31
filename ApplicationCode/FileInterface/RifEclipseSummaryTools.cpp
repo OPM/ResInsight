@@ -34,6 +34,62 @@ void RifEclipseSummaryTools::findSummaryHeaderFile(const std::string& inputFile,
     findSummaryHeaderFileInfo(inputFile, headerFile, NULL, NULL, isFormatted);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryTools::findSummaryFiles(const std::string& inputFile, 
+                                                   std::string* headerFile, 
+                                                   std::vector<std::string>* dataFiles)
+{
+    dataFiles->clear();
+    headerFile->clear();
+
+    char* myPath = NULL;
+    char* myBase = NULL;
+    char* myExtention = NULL;
+
+    util_alloc_file_components(inputFile.data(), &myPath, &myBase, &myExtention);
+
+    std::string path; if(myPath) path = myPath;
+    std::string base; if(myBase) base = myBase;
+    std::string extention; if(myExtention) extention = myExtention;
+
+    if(path.empty() || base.empty()) return ;
+
+    char* myHeaderFile = NULL;
+    stringlist_type* summary_file_list = stringlist_alloc_new();
+
+    ecl_util_alloc_summary_files(path.data(), base.data(), extention.data(), &myHeaderFile, summary_file_list);
+    (*headerFile) = myHeaderFile;
+    util_safe_free(myHeaderFile);
+
+    if(stringlist_get_size(summary_file_list) > 0)
+    {
+        for(int i = 0; i < stringlist_get_size(summary_file_list); i++)
+        {
+            dataFiles->push_back(stringlist_iget(summary_file_list,i));
+        }
+    }
+    stringlist_free(summary_file_list);
+
+    return;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryTools::hasSummaryFiles(const std::string& gridFileName)
+{
+    std::string headerFileName;
+    std::vector<std::string> dataFileNames;
+    RifEclipseSummaryTools::findSummaryFiles(gridFileName, &headerFileName, &dataFileNames);
+    if (!headerFileName.empty() && dataFileNames.size()) return true;
+
+    return false;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

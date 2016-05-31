@@ -100,6 +100,9 @@
 #endif
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCase.h"
+#include "RimGridSummaryCase.h"
 
 namespace caf
 {
@@ -387,6 +390,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
+    for (RimOilField* oilField:  m_project->oilFields)
+    {
+        if (oilField == NULL) continue; 
+        // Temporary
+        if(!oilField->summaryCaseCollection())
+        {
+            oilField->summaryCaseCollection = new RimSummaryCaseCollection();
+        }
+        oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
+        oilField->summaryCaseCollection()->loadAllSummaryCaseData();
+    }
 
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
@@ -776,11 +790,21 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     riv->loadDataAndUpdate();
 
+    // Add a corresponding summary case if it exists
+    {
+        RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
+        if(sumCaseColl)
+        {
+            RimGridSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
+            if(newSumCase) newSumCase->loadCase();
+        }
+    }
+
     if (!riv->cellResult()->hasResult())
     {
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
-
+    
     analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());

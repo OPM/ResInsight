@@ -16,60 +16,46 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryPlotFeature.h"
-
-#include "RimProject.h"
-#include "RimSummaryPlot.h"
-
-#include "RiaApplication.h"
-
-#include <QAction>
-
-#include "cvfAssert.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RiuMainWindow.h"
+#include "RimFileSummaryCase.h"
 
 
-CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFeature::isCommandEnabled()
+RimFileSummaryCase::RimFileSummaryCase()
 {
-    return true;
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
+RimFileSummaryCase::~RimFileSummaryCase()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
-
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    summaryPlotColl->m_summaryPlots().push_back(plot);
-
-    plot->setDescription(QString("Well Log Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
-
-    summaryPlotColl->updateConnectedEditors();
-    plot->loadDataAndUpdate();
-
-    RiuMainWindow::instance()->selectAsCurrentItem(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
+void RimFileSummaryCase::setSummaryHeaderFilename(const QString& fileName)
 {
-    actionToSetup->setText("New Summary Plot");
+    m_summaryHeaderFilename = fileName;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFileSummaryCase::summaryHeaderFilename() const
+{
+    return m_summaryHeaderFilename();
+}
+
+

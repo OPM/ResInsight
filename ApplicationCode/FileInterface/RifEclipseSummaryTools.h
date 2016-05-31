@@ -36,6 +36,8 @@ public:
     static void                     findSummaryHeaderFile(const std::string& inputFile, std::string* headerFile, bool* isFormatted);
     static std::vector<std::string> findSummaryDataFiles(const std::string& caseFile);
 
+    static void                     findSummaryFiles(const std::string& inputFile, std::string* headerFile, std::vector<std::string>* dataFiles);
+    static bool                     hasSummaryFiles(const std::string& gridFileName);
     static void                     dumpMetaData(RifReaderEclipseSummary* readerEclipseSummary);
 
 private:

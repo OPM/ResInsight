@@ -32,6 +32,30 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "qwt_date.h"
+#include "RimSummaryCase.h"
+#include "RigSummaryCaseData.h"
+
+namespace caf
+{
+
+template<>
+void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
+{
+    addItem(RifEclipseSummaryAddress::SUMMARY_WELL,            "SUMMARY_WELL",           "Well");
+    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION","Completion");
+    addItem(RifEclipseSummaryAddress::SUMMARY_GROUP,           "SUMMARY_GROUP",          "Group");
+    addItem(RifEclipseSummaryAddress::SUMMARY_FIELD,           "SUMMARY_FIELD",          "Field");
+    addItem(RifEclipseSummaryAddress::SUMMARY_REGION,          "SUMMARY_REGION",         "Region");
+    addItem(RifEclipseSummaryAddress::SUMMARY_MISC,            "SUMMARY_MISC",           "Misc");
+    addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK,           "SUMMARY_BLOCK",          "Block");
+    addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,       "SUMMARY_BLOCK_LGR",      "LGR Block");
+    addItem(RifEclipseSummaryAddress::SUMMARY_AQUIFIER,        "SUMMARY_AQUIFIER",       "Aquifier");
+    addItem(RifEclipseSummaryAddress::SUMMARY_SEGMENT,         "SUMMARY_SEGMENT",        "Segment");
+    addItem(RifEclipseSummaryAddress::SUMMARY_SEGMENT_RIVER,   "SUMMARY_SEGMENT_RIVER",  "Segment River");
+    setDefault(RifEclipseSummaryAddress::SUMMARY_FIELD);
+}
+
+}
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
 
@@ -42,15 +66,28 @@ RimSummaryCurve::RimSummaryCurve()
 {
     CAF_PDM_InitObject("Summary Curve", ":/WellLogCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "ReferencedEclipseCase", "Eclipse Case", "", "", "");
-    m_eclipseCase.uiCapability()->setUiChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Summary Case", "", "", "");
+    m_summaryCase.uiCapability()->setUiChildrenHidden(true);
     
     // TODO: Implement setUiTreeHidden 
     //m_eclipseCase.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_variableName, "SummaryVariableName", "Variable Name", "", "", "");
-
     m_variableName.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_category,"SummaryVarCategory","Category","","","");
+    m_category.xmlCapability()->setIOWritable(false);
+    m_category.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_simulationItemName,"SummaryVarItem","Item","","","");
+    m_simulationItemName.xmlCapability()->setIOWritable(false);
+    m_simulationItemName.xmlCapability()->setIOReadable(false);
+    
+    CAF_PDM_InitFieldNoDefault(&m_quantityName,"SummaryVarQuantity","Quantity","","","");
+    m_quantityName.xmlCapability()->setIOWritable(false);
+    m_quantityName.xmlCapability()->setIOReadable(false);
+
+    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,14 +100,30 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
+{
+    m_summaryCase = sumCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setVariable(QString varName)
+{
+    m_variableName = varName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
+    QList<caf::PdmOptionItemInfo> optionList = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
+    if (!optionList.isEmpty()) return optionList;
 
-    QList<caf::PdmOptionItemInfo> optionList;
     if (fieldNeedingOptions == &m_variableName)
     {
-        if (m_eclipseCase)
+        if (m_summaryCase)
         {
             RifReaderEclipseSummary* reader = summaryReader();
             if (reader)
@@ -91,23 +144,31 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
             if (useOptionsOnly) *useOptionsOnly = true;
         }
     }
-    else if (fieldNeedingOptions == &m_eclipseCase)
+    else if (fieldNeedingOptions == &m_summaryCase)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimCase*> cases;
+        std::vector<RimSummaryCase*> cases;
 
-        proj->allCases(cases);
+        proj->allSummaryCases(cases);
 
         for (size_t i = 0; i < cases.size(); i++)
         {
-            RimCase* rimCase = cases[i];
+            RimSummaryCase* rimCase = cases[i];
 
-            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
+            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
         }
 
         if (optionList.size() > 0)
         {
             optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        }
+    }
+    else if (fieldNeedingOptions == &m_simulationItemName)
+    {
+        RifReaderEclipseSummary* reader = summaryReader();
+        if(reader)
+        {
+            const std::vector<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
         }
     }
 
@@ -157,6 +218,29 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+    curveDataGroup->add(&m_summaryCase);
+    curveDataGroup->add(&m_variableName);
+    //curveDataGroup->add(&m_category);
+    //curveDataGroup->add(&m_simulationItemName);
+    //curveDataGroup->add(&m_quantityName);
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_curveColor);
+    appearanceGroup->add(&m_curveThickness);
+    appearanceGroup->add(&m_pointSymbol);
+    appearanceGroup->add(&m_lineStyle);
+    appearanceGroup->add(&m_curveName);
+    appearanceGroup->add(&m_isUsingAutoName);
+
+    uiOrdering.setForgetRemainingFields(true); // For now. 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
@@ -165,7 +249,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         this->loadDataAndUpdate();
     }
-    else if (changedField = &m_eclipseCase)
+    else if (changedField = &m_summaryCase)
     {
         this->loadDataAndUpdate();
     }
@@ -176,10 +260,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary* RimSummaryCurve::summaryReader()
 {
-    RimSummaryPlotCollection* plotCollection = NULL;
-    this->firstAnchestorOrThisOfType(plotCollection);
+    if (!m_summaryCase()) return nullptr;
 
-    return plotCollection->getOrCreateSummaryFileReader(m_eclipseCase);
+    if (!m_summaryCase->caseData()) return nullptr;
+
+    return m_summaryCase()->caseData()->summaryReader();
 }
 
 //--------------------------------------------------------------------------------------------------

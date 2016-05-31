@@ -25,8 +25,10 @@
 #include "cafPdmPtrField.h"
 
 #include "RimPlotCurve.h"
+#include "RifEclipseSummaryAddress.h"
+#include "cafAppEnum.h"
 
-class RimEclipseResultCase;
+class RimSummaryCase;
 class RifReaderEclipseSummary;
 class RiuLineSegmentQwtPlotCurve;
 
@@ -40,6 +42,9 @@ class RimSummaryCurve : public RimPlotCurve
 public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
+
+    void                                    setSummaryCase(RimSummaryCase* sumCase);
+    void                                    setVariable(QString varName);
 
 protected:
     // RimPlotCurve overrides
@@ -56,8 +61,16 @@ private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     // Fields
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
+    caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
     caf::PdmField<QString>                  m_variableName;
+
+    // Ui Fields
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
+                                            m_category;
+    caf::PdmField<QString>                  m_simulationItemName;
+    caf::PdmField<QString>                  m_quantityName;
+
 };

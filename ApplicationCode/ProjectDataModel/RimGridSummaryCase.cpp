@@ -16,60 +16,56 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryPlotFeature.h"
+#include "RimGridSummaryCase.h"
+#include "RimEclipseCase.h"
+#include <QFileInfo>
+#include "RigSummaryCaseData.h"
 
-#include "RimProject.h"
-#include "RimSummaryPlot.h"
-
-#include "RiaApplication.h"
-
-#include <QAction>
-
-#include "cvfAssert.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RiuMainWindow.h"
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
 
 
-CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
+CAF_PDM_SOURCE_INIT(RimGridSummaryCase,"GridSummaryCase");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFeature::isCommandEnabled()
+RimGridSummaryCase::RimGridSummaryCase()
 {
-    return true;
+    CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "Associated3DCase", "Main View", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
+RimGridSummaryCase::~RimGridSummaryCase()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
-
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    summaryPlotColl->m_summaryPlots().push_back(plot);
-
-    plot->setDescription(QString("Well Log Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
-
-    summaryPlotColl->updateConnectedEditors();
-    plot->loadDataAndUpdate();
-
-    RiuMainWindow::instance()->selectAsCurrentItem(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
+void RimGridSummaryCase::setAssociatedEclipseCase(RimEclipseCase* eclipseCase)
 {
-    actionToSetup->setText("New Summary Plot");
+    m_eclipseCase = eclipseCase;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGridSummaryCase::summaryHeaderFilename() const
+{
+    if (!m_eclipseCase()) return QString();
+
+    QFileInfo gridFileInfo(m_eclipseCase()->gridFileName());
+
+    QString possibleSumHeaderFileName = gridFileInfo.path() +"/"+ gridFileInfo.completeBaseName() + ".SMSPEC";
+
+    return possibleSumHeaderFileName;
+}
+

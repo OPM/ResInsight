@@ -56,6 +56,8 @@
 
 #include <QDir>
 #include <QMenu>
+#include "RimGridSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -466,6 +468,25 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
             for (size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++)
             {
                 cases.push_back(geomModels->cases[caseIdx]);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
+{
+    for (RimOilField* oilField: oilFields)
+    {
+        if(!oilField) continue;
+        RimSummaryCaseCollection* sumCaseColl = oilField->summaryCaseCollection();
+        if(sumCaseColl)
+        {
+            for (size_t scIdx = 0; scIdx <  sumCaseColl->summaryCaseCount(); ++scIdx)
+            {
+                sumCases.push_back(sumCaseColl->summaryCase(scIdx));
             }
         }
     }

@@ -31,6 +31,9 @@
 #include "RimSummaryCurve.h"
 #include "RiuMainWindow.h"
 #include "cafSelectionManager.h"
+#include "WellLogCommands\RicWellLogPlotCurveFeatureImpl.h"
+#include "RimOilField.h"
+#include "RimSummaryCaseCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");
@@ -62,10 +65,22 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
     {
         RimSummaryCurve* newCurve = new RimSummaryCurve();
         plot->addCurve(newCurve);
+
+        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+        newCurve->setColor(curveColor);
+
+        RimSummaryCase* defaultCase = nullptr; 
+        if (project->activeOilField()->summaryCaseCollection()->summaryCaseCount() > 0)
+        {
+            defaultCase = project->activeOilField()->summaryCaseCollection()->summaryCase(0);
+            newCurve->setSummaryCase(defaultCase);
+            newCurve->setVariable("FOPT");
+            newCurve->loadDataAndUpdate();
+        }
+        
         plot->updateConnectedEditors();
 
         RiuMainWindow::instance()->selectAsCurrentItem(newCurve);
-
     }
 
 }

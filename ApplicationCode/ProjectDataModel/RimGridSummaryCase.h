@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016  Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,32 +15,30 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafPdmChildField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
+#include "RimSummaryCase.h"
 
-class RimEclipseCaseCollection;
-class RimGeoMechModels;
-class RimWellPathCollection;
-class RimSummaryCaseCollection;
 //==================================================================================================
-///  
-///  
+//
+// 
+//
 //==================================================================================================
-class RimOilField : public caf::PdmObject
+
+class RimGridSummaryCase: public RimSummaryCase
 {
-     CAF_PDM_HEADER_INIT;
-
+    CAF_PDM_HEADER_INIT;
 public:
-    RimOilField(void);
-    virtual ~RimOilField(void);
+    RimGridSummaryCase();
+    virtual ~RimGridSummaryCase();
 
-    caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
-    caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
-    caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
-    caf::PdmChildField<RimSummaryCaseCollection*> summaryCaseCollection;
+    void                             setAssociatedEclipseCase(RimEclipseCase* eclipseCase);
+    RimEclipseCase*                  associatedEclipseCase() { return m_eclipseCase(); }
+
+    virtual QString                  summaryHeaderFilename() const  override;
+
+private:
+    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
 };
+
+
