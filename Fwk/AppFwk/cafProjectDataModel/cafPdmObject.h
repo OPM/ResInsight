@@ -75,6 +75,7 @@ class PdmObjectCapability;
 
 #define CAF_PDM_HEADER_INIT CAF_PDM_XML_HEADER_INIT
 #define CAF_PDM_SOURCE_INIT CAF_PDM_XML_SOURCE_INIT
+#define CAF_PDM_ABSTRACT_SOURCE_INIT CAF_PDM_XML_ABSTRACT_SOURCE_INIT
 
 
 /// InitObject sets up the user interface related information for the object
