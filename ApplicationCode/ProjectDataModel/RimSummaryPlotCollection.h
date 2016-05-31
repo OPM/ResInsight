@@ -46,8 +46,8 @@ public:
     caf::PdmChildArrayField<RimSummaryPlot*> m_summaryPlots;
 
 private:
-    RifReaderEclipseSummary* createSummaryFileReader(const QString& eclipseCase);
-    RifReaderEclipseSummary* getOrCreateSummaryFileReader(const QString& eclipseCase);
+    RifReaderEclipseSummary* createSummaryFileReader(const QString& eclipseCaseFilePathBasename);
+    RifReaderEclipseSummary* getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename);
 
 private:
     // Map from path to case to summary file reader objects

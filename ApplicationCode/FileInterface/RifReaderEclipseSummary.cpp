@@ -47,7 +47,10 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames)
 {
-    assert(ecl_sum == NULL);
+    assert(ecl_sum == NULL); 
+    
+    if (headerFileName.empty() || dataFileNames.size() == 0) return false;
+
     assert(!headerFileName.empty());
     assert(dataFileNames.size() > 0);
 
@@ -106,17 +109,18 @@ std::vector<std::string> RifReaderEclipseSummary::variableNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress> RifReaderEclipseSummary::allResultAddresses() const
+const std::vector<RifEclipseSummaryAddress>& RifReaderEclipseSummary::allResultAddresses() 
 {
-    std::vector<RifEclipseSummaryAddress> addresses;
-
-    std::vector<std::string> fileVariableNames = variableNames();
-    for (size_t i = 0; i < fileVariableNames.size(); i++)
+    if (m_allResultAddresses.size() == 0)
     {
-        addresses.push_back(RifEclipseSummaryAddress(fileVariableNames[i]));
+        std::vector<std::string> fileVariableNames = variableNames();
+        for(size_t i = 0; i < fileVariableNames.size(); i++)
+        {
+            m_allResultAddresses.push_back(RifEclipseSummaryAddress(fileVariableNames[i]));
+        }
     }
 
-    return addresses;
+    return m_allResultAddresses;
 }
 
 //--------------------------------------------------------------------------------------------------

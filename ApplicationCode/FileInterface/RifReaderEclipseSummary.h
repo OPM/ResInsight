@@ -23,20 +23,17 @@
 #include <string>
 #include <vector>
 
+#include "cvfObject.h"
+
 
 class QDateTime;
 
-// Taken from ecl_sum.h
-typedef struct ecl_sum_struct ecl_sum_type;
-
-// Taken from stringlist.h
-typedef struct stringlist_struct stringlist_type;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifReaderEclipseSummary
+class RifReaderEclipseSummary : public cvf::Object
 {
 public:
     RifReaderEclipseSummary();
@@ -46,7 +43,7 @@ public:
     void    close();
 
     std::vector<std::string> variableNames() const;
-    std::vector<RifEclipseSummaryAddress> allResultAddresses() const;
+    const std::vector<RifEclipseSummaryAddress>& allResultAddresses();
 
     std::vector<time_t> timeSteps() const;
 
@@ -61,8 +58,14 @@ private:
 
     int     timeStepCount() const;
 
+    // Taken from stringlist.h
+    typedef struct stringlist_struct stringlist_type;
     static void    populateVectorFromStringList(stringlist_type* stringList, std::vector<std::string>* strings);
 
 private:
+    // Taken from ecl_sum.h
+    typedef struct ecl_sum_struct ecl_sum_type;
     ecl_sum_type* ecl_sum;
+    std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
 };
+

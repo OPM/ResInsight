@@ -62,16 +62,16 @@ RimSummaryPlotCollection::~RimSummaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const QString& eclipseCase)
+RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename)
 {
-    auto it = m_summaryFileReaders.find(eclipseCase);
+    auto it = m_summaryFileReaders.find(eclipseCaseFilePathBasename);
     if (it != m_summaryFileReaders.end())
     {
         return it->second;
     }
     else
     {
-        return createSummaryFileReader(eclipseCase);
+        return createSummaryFileReader(eclipseCaseFilePathBasename);
     }
 }
 
@@ -93,15 +93,15 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const QString& eclipseCase)
+RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const QString& eclipseCaseFilePathBasename)
 {
     std::string headerFile;
     bool isFormatted = false;
-    RifEclipseSummaryTools::findSummaryHeaderFile(eclipseCase.toStdString(), &headerFile, &isFormatted);
+    RifEclipseSummaryTools::findSummaryHeaderFile(eclipseCaseFilePathBasename.toStdString(), &headerFile, &isFormatted);
     
     if (headerFile.empty()) return nullptr;
 
-    std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(eclipseCase.toStdString());
+    std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(eclipseCaseFilePathBasename.toStdString());
 
     if (!dataFiles.size()) return nullptr;
 
@@ -114,7 +114,7 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const
     }
     else
     {
-        m_summaryFileReaders.insert(std::make_pair(eclipseCase, reader));
+        m_summaryFileReaders.insert(std::make_pair(eclipseCaseFilePathBasename, reader));
         return reader;
     }
 }
