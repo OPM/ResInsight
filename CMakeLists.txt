@@ -154,14 +154,12 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 add_subdirectory(ThirdParty/custom-opm-common)
 add_subdirectory(ThirdParty/custom-opm-parser)
-
-include_directories(${custom-opm-parser_SOURCE_DIR}/opm-parser/)   
-add_subdirectory(ThirdParty/custom-opm-parser/opm-parser/opm/json)
+add_subdirectory(ThirdParty/custom-opmjson)
 
 set_property(TARGET  
     custom-opm-common
     custom-opm-parser
-    opmjson
+    custom-opmjson
 	PROPERTY FOLDER "OPM"
 )
 

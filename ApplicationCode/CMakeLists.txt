@@ -365,6 +365,8 @@ if (MSVC)
     optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
     debug     ${Boost_FILESYSTEM_LIBRARY_DEBUG}
     optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+    debug     ${Boost_REGEX_LIBRARY_DEBUG}
+    optimized ${Boost_REGEX_LIBRARY_RELEASE}
   )
 else()
   set (RI_BOOST_LIBRARIES ${Boost_LIBRARIES})
@@ -383,7 +385,7 @@ set( LINK_LIBRARIES
     
     custom-opm-common
     custom-opm-parser
-    opmjson
+    custom-opmjson
 
     NRLib
 
