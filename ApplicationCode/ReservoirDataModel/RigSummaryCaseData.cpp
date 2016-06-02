@@ -19,7 +19,7 @@
 #include "RigSummaryCaseData.h"
 #include "RifReaderEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
-#include <qstring>
+#include <QString>
 #include <QDir>
 
 //--------------------------------------------------------------------------------------------------
