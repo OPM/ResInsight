@@ -18,22 +18,25 @@
 
 #include "RicNewSummaryCurveFeature.h"
 
-#include "RimProject.h"
-#include "RimSummaryPlot.h"
-
 #include "RiaApplication.h"
 
-#include <QAction>
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+
+#include "RiuMainWindow.h"
+
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimSummaryCurve.h"
-#include "RiuMainWindow.h"
-#include "cafSelectionManager.h"
-#include "WellLogCommands\RicWellLogPlotCurveFeatureImpl.h"
-#include "RimOilField.h"
-#include "RimSummaryCaseCollection.h"
+
+#include <QAction>
 
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");

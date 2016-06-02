@@ -17,10 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigSummaryCaseData.h"
-#include "RifReaderEclipseSummary.h"
+
 #include "RifEclipseSummaryTools.h"
-#include <QString>
+#include "RifReaderEclipseSummary.h"
+
 #include <QDir>
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 /// 
