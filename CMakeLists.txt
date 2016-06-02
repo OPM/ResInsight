@@ -104,7 +104,7 @@ else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
     SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers")
+    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
 
     if (NOT MSVC)
       SET(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
