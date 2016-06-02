@@ -81,6 +81,14 @@ if (NOT MSVC)
   set(RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT "" CACHE PATH "Path to installed ERT includes")
 endif()
 
+set (ERT_BINARY_LIB_NAMES
+    libecl.so
+    libeclxx.so
+    libecl_well.so
+    libert_geometry.so
+    libert_util.so
+    )
+
 if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
   if (NOT(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT))
     message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
@@ -90,24 +98,34 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
   )
 
-  list(APPEND ERT_LIBRARIES
+  list(APPEND ERT_EXTERNAL_LIBRARIES
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libeclxx.so
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
   )
   
-else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+else()
 
     # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
     SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
     SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
-    SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
     SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
 
-    if (NOT MSVC)
-      SET(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
+    # Remember original state
+    set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+    
+    if (MSVC)
+      # Force static linking on Windows
+      set(BUILD_SHARED_LIBS OFF)
+    else ()
+      set(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
+       
+      # Force dynamic linking on other platforms
+      # Copy of libraries into install folder of ResInsight is done a bit further down in this file
+      set(BUILD_SHARED_LIBS ON)
     endif()
 
     if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
@@ -144,6 +162,9 @@ else(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 	      PROPERTY FOLDER "ERT"
       )
     endif()
+    
+    # Restore original state
+    set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
@@ -306,7 +327,26 @@ option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including t
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     #set (CMAKE_INSTALL_PREFIX /usr/${RESINSIGHT_FINAL_NAME})
+    
+    ################################################################################
+    # ERT shared library files
+    # Install procedure will copy so-files from ERT into same install folder as ResInsight
+    ################################################################################
+    
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        file (GLOB ERT_SHARED_LIB_FILES
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so*
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so*
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so*
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so*
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so*
+        )
+      
+      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+    endif()
+    
 endif (RESINSIGHT_PRIVATE_INSTALL)
+
 
 ################################################################################
 # Application 
