@@ -15,7 +15,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_definitions(-DCVF_LINUX)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
-else()
+elseif(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
@@ -68,8 +68,26 @@ endif()
 
 # Requires BOOST filesystem version 3, thus 1.44 is necessary.
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
-find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
 
+if(MSVC)
+	set(BUILD_SHARED_LIBS OFF)
+    set(Boost_USE_STATIC_LIBS    ON)
+	set(RESINSIGHT_BOOST_ROOT "" CACHE PATH "Path to installed boost directories" )
+	set(RESINSIGHT_BOOST_LIBRARYDIR "" CACHE PATH "Path to boost binary libraries" )
+	set(BOOST_ROOT ${RESINSIGHT_BOOST_ROOT})
+	set(BOOST_LIBRARYDIR ${RESINSIGHT_BOOST_LIBRARYDIR})
+	
+	if (RESINSIGHT_BOOST_ROOT AND RESINSIGHT_BOOST_LIBRARYDIR)
+		find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
+	else()
+		message (FATAL_ERROR "You need to set RESINSIGHT_BOOST_ROOT and RESINSIGHT_BOOST_LIBRARYDIR")
+	endif()
+
+else()
+    set(BUILD_SHARED_LIBS ON)
+    set(Boost_USE_STATIC_LIBS    OFF)
+	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
+endif()
 
 ################################################################################
 # ERT
@@ -120,6 +138,7 @@ else()
     if (MSVC)
       # Force static linking on Windows
       set(BUILD_SHARED_LIBS OFF)
+      set(ERT_HAVE_UNISTD OFF) #If anyone has mingw installed
     else ()
       set(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
        
