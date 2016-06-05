@@ -321,9 +321,8 @@ generated-source/ParserKeywords3.cpp
 )
 
 add_library(${PROJECT_NAME} 
-
+    STATIC
     ${incl_path} 
-    
     ${opm_parser_generated_source_files} 
 )
 

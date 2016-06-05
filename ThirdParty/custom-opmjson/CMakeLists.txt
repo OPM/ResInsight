@@ -8,11 +8,12 @@ include_directories(
 )
 
 list (APPEND MAIN_SOURCE_FILES
-      opm/json/JsonObject.cpp
-      opm/json/cjson/cJSON.c
+    opm/json/JsonObject.cpp
+    opm/json/cjson/cJSON.c
 )
 
 add_library( ${PROJECT_NAME}
-       ${MAIN_SOURCE_FILES}
+    STATIC
+    ${MAIN_SOURCE_FILES}
 )
 

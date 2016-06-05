@@ -28,6 +28,7 @@ file ( GLOB NRLIB_WELL_SRC
 )
 
 add_library( ${PROJECT_NAME}
+       STATIC
        ${NRLIB_IOTOOLS_SRC}
        ${NRLIB_WELL_SRC}
 )
