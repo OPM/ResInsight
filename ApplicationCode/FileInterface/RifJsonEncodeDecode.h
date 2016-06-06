@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 // Json parser based on code example found on:
 // http://stackoverflow.com/questions/4169988/easiest-way-to-parse-json-in-qt-4-7
 
