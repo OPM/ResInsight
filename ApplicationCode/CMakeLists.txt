@@ -242,60 +242,6 @@ if ( MSVC )
     set( WIN_RESOURCE Resources/ResInsight.rc )
 endif()
 
-#############################################################################
-# creating PCH's for MSVC and GCC on Linux
-#############################################################################
-
-#set( RAW_SOURCES ${CPP_SOURCES} )
-#
-#list( REMOVE_ITEM RAW_SOURCES 
-#    RiaStdInclude.cpp
-#
-#    ${CODE_SOURCE_FILES}
-#
-#    ModelVisualization/RivCellEdgeEffectGenerator.cpp
-#    ModelVisualization/RivPipeGeometryGenerator.cpp
-#    ModelVisualization/RivWellPipesPartMgr.cpp
-#    ModelVisualization/RivWellHeadPartMgr.cpp
-#
-#    Application/RiaImageFileCompare.cpp
-#    Application/RiaImageCompareReporter.cpp
-#    Application/RiaRegressionTest.cpp
-#
-#    SocketInterface/RiaSocketDataTransfer.cpp
-#
-#    FileInterface/RifEclipseInputFileTools.cpp
-#    FileInterface/RifEclipseOutputFileTools.cpp
-#    FileInterface/RifEclipseRestartFilesetAccess.cpp
-#    FileInterface/RifEclipseRestartDataAccess.cpp
-#    FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
-#    FileInterface/RifReaderEclipseInput.cpp
-#    FileInterface/RifReaderEclipseOutput.cpp
-#
-#    UserInterface/RiuSimpleHistogramWidget.cpp
-#    UserInterface/RiuMultiCaseImportDialog.cpp
-#    UserInterface/RiuResultTextBuilder.cpp
-#)
-#
-#include( CustomPCH.cmake )
-#set( ALL_INCLUDES 
-#    ${LibCore_SOURCE_DIR}
-#    ${LibGeometry_SOURCE_DIR}
-#    ${LibGuiQt_SOURCE_DIR}
-#    ${LibRender_SOURCE_DIR}
-#    ${LibViewing_SOURCE_DIR}
-#    ${QT_INCLUDES}
-#)
-#
-#set( PCH_NAME RiaStdInclude )
-#set( GCC_PCH_TARGET gccPCH )
-#set( PCH_COMPILER_DEFINE EMPTY )
-#IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#    set( PCH_COMPILER_DEFINE CVF_LINUX)
-#ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#
-#precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH_COMPILER_DEFINE} )
-
 
 ################################################################################
 # Create source groups - see also included CMakeLists_files.cmake
@@ -337,6 +283,22 @@ set( EXE_FILES
 )
 
 add_executable( ResInsight ${EXE_FILES} )
+
+if(RESINSIGHT_ENABLE_COTIRE)
+
+  # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+  set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES COTIRE_EXCLUDED TRUE)
+  
+  # TODO: Revisit why opm-parser is not working
+  # Must namespace JsonReader in RifJsonEncodeDecode to guard agains crash with JSON in opm-parser
+  set_source_files_properties (${ResInsight_SOURCE_DIR}/ApplicationCode/UnitTests/opm-parser-Test.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
+ 
+   set_target_properties(ResInsight PROPERTIES
+     COTIRE_PREFIX_HEADER_IGNORE_PATH "${COTIRE_PREFIX_HEADER_IGNORE_PATH}"
+   )
+  
+  cotire(ResInsight)
+endif()
 
 
 #############################################################################
