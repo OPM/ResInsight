@@ -290,7 +290,6 @@ if(RESINSIGHT_ENABLE_COTIRE)
   set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES COTIRE_EXCLUDED TRUE)
   
   # TODO: Revisit why opm-parser is not working
-  # Must namespace JsonReader in RifJsonEncodeDecode to guard agains crash with JSON in opm-parser
   set_source_files_properties (${ResInsight_SOURCE_DIR}/ApplicationCode/UnitTests/opm-parser-Test.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
  
    set_target_properties(ResInsight PROPERTIES

@@ -36,6 +36,9 @@
 
 class QScriptEngine;
 
+// Encapsulate the JSON code in a namespace to avoid issues with JSON classes used in opm-parser
+namespace ResInsightInternalJson {
+
 class JsonReader
 {
 public:
@@ -58,3 +61,6 @@ private:
     QMap<QString, QVariant> decodeInner(QScriptValue object);
     QList<QVariant> decodeInnerToList(QScriptValue arrayValue);
 };
+
+
+} // end ResInsightInternalJson
