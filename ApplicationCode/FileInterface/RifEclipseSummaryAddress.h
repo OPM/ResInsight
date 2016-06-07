@@ -32,22 +32,28 @@ public:
     // Based on list in ecl_smspec.c and list of types taken from Eclipse Reference Manual ecl_rm_2011.1.pdf 
     enum SummaryVarCategory
     {
-        SUMMARY_WELL,               // W
-        SUMMARY_WELL_COMPLETION,    // C
-        SUMMARY_GROUP,              // G
-        SUMMARY_FIELD,              // F
-        SUMMARY_REGION,             // R
-        SUMMARY_MISC,               //
-        SUMMARY_BLOCK,              // B
-        SUMMARY_BLOCK_LGR,          // LB
-        SUMMARY_AQUIFIER,           // A
-        SUMMARY_SEGMENT,            // S
-        SUMMARY_SEGMENT_RIVER       // SR
+        SUMMARY_FIELD,              
+        SUMMARY_AQUIFER,           
+        SUMMARY_NETWORK,           
+        SUMMARY_MISC,               
+        SUMMARY_REGION,             
+        SUMMARY_REGION_2_REGION,    
+        SUMMARY_WELL_GROUP,         
+        SUMMARY_WELL,               
+        SUMMARY_WELL_COMPLETION,    
+        SUMMARY_WELL_LGR,           
+        SUMMARY_WELL_COMPLETION_LGR,
+        SUMMARY_WELL_SEGMENT,       
+        SUMMARY_WELL_SEGMENT_RIVER, 
+        SUMMARY_BLOCK,              
+        SUMMARY_BLOCK_LGR,          
     };
 
 public:
     RifEclipseSummaryAddress(const std::string& ertSummaryVarId);
     RifEclipseSummaryAddress(SummaryVarCategory category, const std::string& simulationItemName, const std::string& quantityName);
+    
+
 
     SummaryVarCategory  category() const;
     std::string         simulationItemName() const;
@@ -67,7 +73,17 @@ private:
 
 private:
     std::string         m_ertSummaryVarId;
-    SummaryVarCategory  m_variableCategory;
     std::string         m_simulationItemName;
+
+    SummaryVarCategory  m_variableCategory;
     std::string         m_quantityName;
+    int                 m_regionNumber;
+    int                 m_regionNumber2;
+    std::string         m_wellGroupName;
+    std::string         m_wellName;
+    int                 m_wellSegmentNumber;
+    std::string         m_lgrName;
+    int                 m_cellI;
+    int                 m_cellJ;
+    int                 m_cellK;
 };

@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmChildField.h"
 
 #include "RimPlotCurve.h"
 #include "RifEclipseSummaryAddress.h"
@@ -31,6 +32,33 @@
 class RimSummaryCase;
 class RifReaderEclipseSummary;
 class RiuLineSegmentQwtPlotCurve;
+
+class RimSummaryAddress: public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimSummaryAddress();;
+    virtual ~RimSummaryAddress();
+
+    void setAddress(const RifEclipseSummaryAddress& addr);
+    RifEclipseSummaryAddress address();
+
+private:
+
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
+        m_category;
+    caf::PdmField<QString>                  m_quantityName;
+    caf::PdmField<int>                      m_regionNumber;
+    caf::PdmField<int>                      m_regionNumber2;
+    caf::PdmField<QString>                  m_wellGroupName;
+    caf::PdmField<QString>                  m_wellName;
+    caf::PdmField<int>                      m_wellSegmentNumber;
+    caf::PdmField<QString>                  m_lgrName;
+    caf::PdmField<int>                      m_cellI;
+    caf::PdmField<int>                      m_cellJ;
+    caf::PdmField<int>                      m_cellK;
+
+};
 
 //==================================================================================================
 ///  
@@ -45,6 +73,26 @@ public:
 
     void                                    setSummaryCase(RimSummaryCase* sumCase);
     void                                    setVariable(QString varName);
+
+    enum SummaryFilterType 
+    {
+        SUM_FILTER_ANY,
+        SUM_FILTER_FIELD,
+        SUM_FILTER_AQUIFER,
+        SUM_FILTER_NETWORK,
+        SUM_FILTER_MISC,
+        SUM_FILTER_REGION,
+        SUM_FILTER_REGION_2_REGION,
+        SUM_FILTER_WELL_GROUP,
+        SUM_FILTER_WELL,
+        SUM_FILTER_WELL_COMPLETION,
+        SUM_FILTER_WELL_COMPLETION_LGR,
+        SUM_FILTER_WELL_LGR,
+        SUM_FILTER_WELL_SEGMENT,
+        SUM_FILTER_WELL_SEGMENT_RIVER,
+        SUM_FILTER_BLOCK,
+        SUM_FILTER_BLOCK_LGR,
+    };
 
 protected:
     // RimPlotCurve overrides
@@ -65,12 +113,24 @@ private:
 
     // Fields
     caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
-    caf::PdmField<QString>                  m_variableName;
+    caf::PdmField<QString>                  m_variableName; // Obsolete
 
-    // Ui Fields
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
-                                            m_category;
-    caf::PdmField<QString>                  m_simulationItemName;
-    caf::PdmField<QString>                  m_quantityName;
+
+    // Filter fields
+    caf::PdmField<caf::AppEnum<SummaryFilterType> >
+                                            m_filterType;
+    caf::PdmField<QString>                  m_filterQuantityName;
+    caf::PdmField<QString>                  m_regionNumberFilter;
+    caf::PdmField<QString>                  m_regionNumber2Filter;
+    caf::PdmField<QString>                  m_wellGroupNameFilter;
+    caf::PdmField<QString>                  m_wellNameFilter;
+    caf::PdmField<QString>                  m_wellSegmentNumberFilter;
+    caf::PdmField<QString>                  m_lgrNameFilter;
+    caf::PdmField<QString>                  m_cellIJKFilter;
+
+    caf::PdmField<int>                      m_uiFilterResultSelection;
+    caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
+
+
 
 };

@@ -128,7 +128,7 @@ void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipse
 {
     std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
 
-    for (int category = 0; category < RifEclipseSummaryAddress::SUMMARY_SEGMENT_RIVER; category++)
+    for (int category = 0; category < RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER; category++)
     {
         RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory(category);
 

@@ -88,7 +88,7 @@ std::string RifEclipseSummaryAddress::categoryName(SummaryVarCategory category)
     case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
         name = "Completion";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_GROUP:
+    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         name = "Group";
         break;
     case RifEclipseSummaryAddress::SUMMARY_FIELD:
@@ -106,13 +106,13 @@ std::string RifEclipseSummaryAddress::categoryName(SummaryVarCategory category)
     case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
         name = "LGR Block";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_AQUIFIER:
+    case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
         name = "Aquifier";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_SEGMENT:
+    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
         name = "Segment";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_SEGMENT_RIVER:
+    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER:
         name = "Segment River";
         break;
     default:
@@ -194,7 +194,7 @@ std::string RifEclipseSummaryAddress::prefixForCategory(SummaryVarCategory categ
     case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
         prefix = "C";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_GROUP:
+    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         prefix = "G";
         break;
     case RifEclipseSummaryAddress::SUMMARY_FIELD:
@@ -211,13 +211,13 @@ std::string RifEclipseSummaryAddress::prefixForCategory(SummaryVarCategory categ
     case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
         prefix = "LB";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_AQUIFIER:
+    case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
         prefix = "A";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_SEGMENT:
+    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
         prefix = "S";
         break;
-    case RifEclipseSummaryAddress::SUMMARY_SEGMENT_RIVER:
+    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER:
         prefix = "SR";
         break;
     default:
@@ -240,7 +240,7 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::categoryF
 
         if (twoFirstChars == "SR")
         {
-            category = RifEclipseSummaryAddress::SUMMARY_SEGMENT_RIVER;
+            category = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER;
         }
         else if (twoFirstChars == "LB")
         {
@@ -258,7 +258,7 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::categoryF
                 category = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
                 break;
             case 'G':
-                category = RifEclipseSummaryAddress::SUMMARY_GROUP;
+                category = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
                 break;
             case 'F':
                 category = RifEclipseSummaryAddress::SUMMARY_FIELD;
@@ -270,10 +270,10 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::categoryF
                 category = RifEclipseSummaryAddress::SUMMARY_BLOCK;
                 break;
             case 'A':
-                category = RifEclipseSummaryAddress::SUMMARY_AQUIFIER;
+                category = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
                 break;
             case 'S':
-                category = RifEclipseSummaryAddress::SUMMARY_SEGMENT;
+                category = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
                 break;
             default:
                 break;
