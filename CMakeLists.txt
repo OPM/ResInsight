@@ -314,6 +314,7 @@ list(APPEND APP_FWK_LIBRARIES
     cafPdmCore
     cafPdmUiCore
     cafPdmXml
+    cafProjectDataModel
     
     cafUserInterface
     cafViewer
