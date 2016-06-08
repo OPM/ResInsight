@@ -284,21 +284,6 @@ set( EXE_FILES
 
 add_executable( ResInsight ${EXE_FILES} )
 
-if(RESINSIGHT_ENABLE_COTIRE)
-
-  # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
-  set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES COTIRE_EXCLUDED TRUE)
-  
-  # TODO: Revisit why opm-parser is not working
-  set_source_files_properties (${ResInsight_SOURCE_DIR}/ApplicationCode/UnitTests/opm-parser-Test.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
- 
-   set_target_properties(ResInsight PROPERTIES
-     COTIRE_PREFIX_HEADER_IGNORE_PATH "${COTIRE_PREFIX_HEADER_IGNORE_PATH}"
-   )
-  
-  cotire(ResInsight)
-endif()
-
 
 #############################################################################
 # Application icon for MacOS X bundle
@@ -374,6 +359,41 @@ IF (${RESINSIGHT_USE_ODB_API})
 ENDIF()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
+
+
+#############################################################################
+# cotire
+#############################################################################
+if(RESINSIGHT_ENABLE_COTIRE)
+
+    # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+    set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc     PROPERTIES COTIRE_EXCLUDED TRUE)
+  
+    # multiple QRC files are not supported
+    set_source_files_properties (qrc_cafAnimControl.cxx                                     PROPERTIES COTIRE_EXCLUDED TRUE)
+
+    # TODO: Revisit why opm-parser is not working
+    set_source_files_properties (UnitTests/opm-parser-Test.cpp                              PROPERTIES COTIRE_EXCLUDED TRUE)
+ 
+    # variables at global file scope
+    set_source_files_properties (ModelVisualization/RivCrossSectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/RivCrossSectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+
+    # using namespace cvf
+    set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+ 
+    set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
+   
+    cotire(ResInsight)
+    
+    # make sure the unity target is included in the active builds to trigger rebuild before debug
+    get_target_property(_unityTargetName ResInsight COTIRE_UNITY_TARGET_NAME)
+    set_target_properties(${_unityTargetName} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD FALSE)
+
+endif()
+
+
 
 #############################################################################
 # Copy Dlls on MSVC
