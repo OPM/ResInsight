@@ -24,11 +24,14 @@ public:
     virtual QList<PdmOptionItemInfo>
                      valueOptions(bool* useOptionsOnly)             { return  QList<PdmOptionItemInfo>(); }
 
-    virtual QVariant toUiBasedQVariant() const                           { return QVariant(); }
+    virtual QVariant toUiBasedQVariant() const                      { return QVariant(); }
     void             notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant);
 
+    bool             isAutoAddingOptionFromValue()                    { return m_isAutoAddingOptionFromValue; }
+    void             setAutoAddingOptionFromValue(bool isAddingValue) { m_isAutoAddingOptionFromValue = isAddingValue;} 
 private:
-    PdmFieldHandle* m_owner;
+    PdmFieldHandle*  m_owner;
+    bool             m_isAutoAddingOptionFromValue;
 };
 
 

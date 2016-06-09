@@ -176,7 +176,7 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOp
 
             // If not all are found, we have to add the missing to the list, to be able to show it
 
-            if (!foundAllFieldValues)
+            if (isAutoAddingOptionFromValue() && !foundAllFieldValues)
             {
                 if (uiBasedQVariant.type() != QVariant::List)  // Single value field
                 {
