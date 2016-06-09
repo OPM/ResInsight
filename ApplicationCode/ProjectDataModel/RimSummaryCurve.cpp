@@ -43,6 +43,20 @@ CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
 RimSummaryAddress::RimSummaryAddress()
 {
 
+    CAF_PDM_InitFieldNoDefault(&m_category,          "SummaryVarType",      "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_quantityName,      "SummaryQuantityName", "Quantity", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumber,      "SummaryRegion",       "Region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumber2,     "SummaryRegion2",      "Region2", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellGroupName,     "SummaryWellGroup",    "Group", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellName,          "SummaryWell",         "Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumber, "SummaryWellSegment",  "Well Segment", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lgrName,           "SummaryLgr",          "Grid", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellI,             "SummaryCellI",        "I", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellJ,             "SummaryCellJ",        "J", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellK,             "SummaryCellK",        "K", "", "", "");
+
+    m_category = RifEclipseSummaryAddress::SUMMARY_INVALID;
+    m_regionNumber = m_regionNumber2 = m_wellSegmentNumber = m_cellI = m_cellJ = m_cellK = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +72,16 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::setAddress(const RifEclipseSummaryAddress& addr)
 {
+    m_category                      = addr.category();
+    m_quantityName                  = addr.quantityName().c_str();
+    m_regionNumber                  = addr.regionNumber();
+    m_regionNumber2                 = addr.regionNumber2();
+    m_wellGroupName                 = addr.wellGroupName().c_str();
+    m_wellName                      = addr.wellName().c_str();
+    m_wellSegmentNumber             = addr.wellSegmentNumber();
+    m_lgrName                       = addr.lgrName().c_str();
 
+    m_cellI = addr.cellI(); m_cellJ = addr.cellJ(); m_cellK = addr.cellK();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +89,15 @@ void RimSummaryAddress::setAddress(const RifEclipseSummaryAddress& addr)
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryAddress::address()
 {
-    return RifEclipseSummaryAddress("");
+    return RifEclipseSummaryAddress( m_category(),
+                                     m_quantityName().toStdString(),
+                                     m_regionNumber(),
+                                     m_regionNumber2(),
+                                     m_wellGroupName().toStdString(),
+                                     m_wellName().toStdString(),
+                                     m_wellSegmentNumber(),
+                                     m_lgrName().toStdString(),
+                                     m_cellI(), m_cellJ(), m_cellK());
 }
 
 namespace caf
@@ -87,7 +118,6 @@ void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
     addItem(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,  "SUMMARY_WELL_COMPLETION_LGR", "Lgr-Completion");
     addItem(RifEclipseSummaryAddress::SUMMARY_WELL_LGR,             "SUMMARY_WELL_LGR",            "Lgr-Well");
     addItem(RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,         "SUMMARY_SEGMENT",             "Segment");
-    addItem(RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER,   "SUMMARY_SEGMENT_RIVER",       "Segment River");
     addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK,                "SUMMARY_BLOCK",               "Block");
     addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,            "SUMMARY_BLOCK_LGR",           "Lgr-Block");
     setDefault(RifEclipseSummaryAddress::SUMMARY_FIELD);
@@ -138,9 +168,6 @@ RimSummaryCurve::RimSummaryCurve()
     // TODO: Implement setUiTreeHidden 
     //m_eclipseCase.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_variableName, "SummaryVariableName", "Variable Name", "", "", "");
-    m_variableName.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
-
     CAF_PDM_InitFieldNoDefault(&m_filterType,"SummaryVarCategory","Category","","","");
     m_filterType.xmlCapability()->setIOWritable(false);
     m_filterType.xmlCapability()->setIOReadable(false);
@@ -177,9 +204,12 @@ RimSummaryCurve::RimSummaryCurve()
     m_cellIJKFilter.xmlCapability()->setIOReadable(false);
     m_uiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_uiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_uiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
 
     CAF_PDM_InitFieldNoDefault(&m_curveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
     m_curveVariable.uiCapability()->setUiHidden(true);
+    m_curveVariable.uiCapability()->setUiChildrenHidden(true);
+
     m_curveVariable = new RimSummaryAddress;
 
     updateOptionSensitivity();
@@ -206,7 +236,7 @@ void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setVariable(QString varName)
 {
-    m_variableName = varName;
+    m_curveVariable->setAddress(RifEclipseSummaryAddress::fieldVarAddress(varName.toStdString()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,30 +247,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
     QList<caf::PdmOptionItemInfo> optionList = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
     if (!optionList.isEmpty()) return optionList;
 
-    if (fieldNeedingOptions == &m_variableName)
-    {
-        if (m_summaryCase)
-        {
-            RifReaderEclipseSummary* reader = summaryReader();
-            if (reader)
-            {
-                std::vector<std::string> varNames = reader->variableNames();
 
-                for (size_t i = 0; i < varNames.size(); i++)
-                {
-                    std::string name = varNames[i];
-
-                    QString s = QString::fromStdString(name);
-                    optionList.push_back(caf::PdmOptionItemInfo(s, s));
-                }
-            }
-
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), RimDefines::undefinedResultName()));
-
-            if (useOptionsOnly) *useOptionsOnly = true;
-        }
-    }
-    else if (fieldNeedingOptions == &m_summaryCase)
+    if (fieldNeedingOptions == &m_summaryCase)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimSummaryCase*> cases;
@@ -264,20 +272,27 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
         if(m_summaryCase)
         {
             RifReaderEclipseSummary* reader = summaryReader();
+            int addressCount = 0;
             if(reader)
             {
-                std::vector<std::string> varNames = reader->variableNames();
-
-                for(size_t i = 0; i < varNames.size(); i++)
+                const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+                addressCount = static_cast<int>(allAddresses.size());
+                std::map<RifEclipseSummaryAddress, int> addrToIdxMap;
+                for(int i = 0; i <addressCount; i++)
                 {
-                    std::string name = varNames[i];
+                    if (!isIncludedByFilter(allAddresses[i] )) continue;
+                    addrToIdxMap[allAddresses[i]] = i;
+                }
 
+                for (const auto& addrIntPair: addrToIdxMap)
+                {
+                    std::string name = addrIntPair.first.uiText();
                     QString s = QString::fromStdString(name);
-                    optionList.push_back(caf::PdmOptionItemInfo(s, i));
+                    optionList.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
                 }
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), -1));
+            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
 
             if(useOptionsOnly) *useOptionsOnly = true;
         }
@@ -291,7 +306,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    return m_variableName();
+    return QString::fromStdString( m_curveVariable->address().uiText());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,16 +444,66 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::isIncludedByFilter(const RifEclipseSummaryAddress& addr)
+{
+    if (!isSumVarTypeMatchingFilterType(m_filterType(), addr.category())) return false;
+    if (!m_filterQuantityName().isEmpty())
+    { 
+        QRegExp searcher(m_filterQuantityName(), Qt::CaseInsensitive, QRegExp::WildcardUnix);
+        QString addrQuant = QString::fromStdString(addr.quantityName());
+        if (!searcher.exactMatch(addrQuant)) return false ;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType)
+{
+    if (sumVarType == RifEclipseSummaryAddress::SUMMARY_INVALID) return false;
+    if (sumFilterType == SUM_FILTER_ANY) return true;
+
+    switch(sumVarType)
+    {
+        case RifEclipseSummaryAddress::SUMMARY_FIELD:               { return (sumFilterType == SUM_FILTER_FIELD); } break;
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:             { return (sumFilterType == SUM_FILTER_AQUIFER);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_NETWORK:             { return (sumFilterType == SUM_FILTER_NETWORK);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_MISC:                { return (sumFilterType == SUM_FILTER_MISC);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION:              { return (sumFilterType == SUM_FILTER_REGION);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:     { return (sumFilterType == SUM_FILTER_REGION_2_REGION);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:          { return (sumFilterType == SUM_FILTER_WELL_GROUP);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL:                { return (sumFilterType == SUM_FILTER_WELL);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:     { return (sumFilterType == SUM_FILTER_WELL_COMPLETION);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:            { return (sumFilterType == SUM_FILTER_WELL_LGR);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR: { return (sumFilterType == SUM_FILTER_FIELD);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:        { return (sumFilterType == SUM_FILTER_WELL_SEGMENT);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:               { return (sumFilterType == SUM_FILTER_BLOCK);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:           { return (sumFilterType == SUM_FILTER_BLOCK_LGR);  } break;
+    }
+
+    return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
 
-    if (changedField == &m_variableName)
+    if(changedField = &m_uiFilterResultSelection)
     {
-        this->loadDataAndUpdate();
-    }
-    else if (changedField = &m_summaryCase)
-    {
+        if (0 <= m_uiFilterResultSelection() && m_uiFilterResultSelection() < summaryReader()->allResultAddresses().size())
+        {
+            m_curveVariable->setAddress(summaryReader()->allResultAddresses()[m_uiFilterResultSelection()]);
+        }
+        else
+        {
+            m_curveVariable->setAddress(RifEclipseSummaryAddress());
+        }
+
         this->loadDataAndUpdate();
     }
 }
@@ -480,8 +545,8 @@ void RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
 
     if (values)
     {
-        std::string keyword = m_variableName().toStdString();
-        reader->values(keyword, values);
+        RifEclipseSummaryAddress addr = m_curveVariable()->address();
+        reader->values(addr, values);
     }
 
 }

@@ -18,269 +18,252 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include <vector>
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::RifEclipseSummaryAddress(const std::string& ertSummaryVarId)
-    : m_ertSummaryVarId(ertSummaryVarId)
+RifEclipseSummaryAddress RifEclipseSummaryAddress::fieldVarAddress(const std::string& fieldVarName)
 {
-    fromErtSummaryVarId(m_ertSummaryVarId, &m_variableCategory, &m_simulationItemName, &m_quantityName);
+    RifEclipseSummaryAddress fieldAddr;
+    fieldAddr.m_variableCategory = SUMMARY_FIELD;
+    fieldAddr.m_quantityName = fieldVarName;
+
+    return fieldAddr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category, const std::string& simulationItemName, const std::string& quantityName)
-    : m_variableCategory(category),
-    m_simulationItemName(simulationItemName),
-    m_quantityName(quantityName)
+std::string RifEclipseSummaryAddress::uiText() const
 {
-    m_ertSummaryVarId = toErtSummaryVarId(m_variableCategory, m_simulationItemName, m_quantityName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::category() const
-{
-    return m_variableCategory;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::simulationItemName() const
-{
-    return m_simulationItemName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::quantityName() const
-{
-    return m_quantityName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::ertSummaryVarId() const
-{
-    return m_ertSummaryVarId;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::categoryName(SummaryVarCategory category)
-{
-    std::string name;
-
-    switch (category)
+    std::string text;
+    text += m_quantityName;
+    switch(this->category())
     {
-    case RifEclipseSummaryAddress::SUMMARY_WELL:
-        name = "Well";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
-        name = "Completion";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
-        name = "Group";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_FIELD:
-        name = "Field";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_REGION:
-        name = "Region";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_MISC:
-        name = "Misc";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        name = "Block";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        name = "LGR Block";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
-        name = "Aquifier";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
-        name = "Segment";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER:
-        name = "Segment River";
-        break;
-    default:
-        break;
-    }
-
-    return name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::toErtSummaryVarId(SummaryVarCategory category, const std::string& simulationItemName, const std::string& quantityName)
-{
-    std::string ertSummaryVarId;
-
-    ertSummaryVarId += prefixForCategory(category);
-    ertSummaryVarId += quantityName;
-
-    if (simulationItemName.size() != 0)
-    {
-        ertSummaryVarId += ":";
-        ertSummaryVarId += simulationItemName;
-    }
-
-    return ertSummaryVarId;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> split(const std::string &text, char sep) {
-    std::vector<std::string> tokens;
-    std::size_t start = 0, end = 0;
-    while ((end = text.find(sep, start)) != std::string::npos) {
-        tokens.push_back(text.substr(start, end - start));
-        start = end + 1;
-    }
-    tokens.push_back(text.substr(start));
-    return tokens;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryAddress::fromErtSummaryVarId(const std::string& ertSummaryVarId, SummaryVarCategory* type, std::string* simulationItemName, std::string* quantityName)
-{
-    *type = categoryFromErtSummaryVarId(ertSummaryVarId);
-
-    std::string prefix = prefixForCategory(*type);
-
-    std::string addressNoPrefix = ertSummaryVarId.substr(prefix.size());
-    
-    std::vector<std::string> tokens = split(addressNoPrefix, ':');
-    if (tokens.size() > 0)
-    {
-        *quantityName = tokens[0];
-    }
-
-    if (tokens.size() > 1)
-    {
-        *simulationItemName = tokens[1];
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::prefixForCategory(SummaryVarCategory category)
-{
-    std::string prefix;
-
-    switch (category)
-    {
-    case RifEclipseSummaryAddress::SUMMARY_WELL:
-        prefix = "W";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
-        prefix = "C";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
-        prefix = "G";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_FIELD:
-        prefix = "F";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_REGION:
-        prefix = "R";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_MISC:
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        prefix = "B";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        prefix = "LB";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
-        prefix = "A";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
-        prefix = "S";
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER:
-        prefix = "SR";
-        break;
-    default:
-        break;
-    }
-
-    return prefix;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::categoryFromErtSummaryVarId(const std::string& resultAddress)
-{
-    SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_MISC;
-
-    if (resultAddress.size() > 1)
-    {
-        std::string twoFirstChars = resultAddress.substr(0, 2);
-
-        if (twoFirstChars == "SR")
+        case RifEclipseSummaryAddress::SUMMARY_REGION:
         {
-            category = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER;
+            text += ", R: " + std::to_string(this->regionNumber());
         }
-        else if (twoFirstChars == "LB")
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
         {
-            category = RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR;
+            text += ", R1: " + std::to_string(this->regionNumber());
+            text += ", R2: " + std::to_string(this->regionNumber2());
         }
-        else
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         {
-            char firstChar = resultAddress[0];
-            switch (firstChar)
-            {
-            case 'W':
-                category = RifEclipseSummaryAddress::SUMMARY_WELL;
-                break;
-            case 'C':
-                category = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
-                break;
-            case 'G':
-                category = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
-                break;
-            case 'F':
-                category = RifEclipseSummaryAddress::SUMMARY_FIELD;
-                break;
-            case 'R':
-                category = RifEclipseSummaryAddress::SUMMARY_REGION;
-                break;
-            case 'B':
-                category = RifEclipseSummaryAddress::SUMMARY_BLOCK;
-                break;
-            case 'A':
-                category = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
-                break;
-            case 'S':
-                category = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
-                break;
-            default:
-                break;
-            }
+            text += ", G:" + this->wellGroupName();
         }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        {
+            text += ", W:" + this->wellName();
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        {
+            text += ", W:" + this->wellName();
+            text += ", IJK: " + std::to_string(this->cellI()) + ", "
+                              + std::to_string(this->cellJ()) + ", "
+                              + std::to_string(this->cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        {
+            text += ", W:" + this->wellName();
+            text += ", LGR:" + this->lgrName();
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        {
+            text += ", W:" + this->wellName();
+            text += ", LGR:" + this->lgrName();
+            text += ", IJK: " + std::to_string(this->cellI()) + ", " 
+                              + std::to_string(this->cellJ()) + ", " 
+                              + std::to_string(this->cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        {
+            text += ", W:" + this->wellName();
+            text += ", S: " + std::to_string(this->wellSegmentNumber());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        {
+            text += ", IJK: " + std::to_string(this->cellI()) + ", "
+                              + std::to_string(this->cellJ()) + ", "
+                              + std::to_string(this->cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        {
+            text += ", LGR:" + this->lgrName();
+            text += ", IJK: " + std::to_string(this->cellI()) + ", "
+                              + std::to_string(this->cellJ()) + ", "
+                              + std::to_string(this->cellK());
+        }
+        break;
     }
 
-    return category;
+    return text;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second)
+{
+    if(first.category() != second.category()) return false;
+    if(first.quantityName() != second.quantityName()) return false;
+    switch(first.category())
+    {
+        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        {
+            if(first.regionNumber() != second.regionNumber()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        {
+            if(first.regionNumber() != second.regionNumber()) return false;
+            if(first.regionNumber2() != second.regionNumber2()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        {
+            if(first.wellGroupName() != second.wellGroupName()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        {
+            if(first.wellName() != second.wellName()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        {
+            if(first.wellName() != second.wellName()) return false;
+            if(first.cellI() != second.cellI()) return false;
+            if(first.cellJ() != second.cellJ()) return false;
+            if(first.cellK() != second.cellK()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        {
+            if(first.wellName() != second.wellName()) return false;
+            if(first.lgrName() != second.lgrName()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        {
+            if(first.wellName() != second.wellName()) return false;
+            if(first.lgrName() != second.lgrName()) return false;
+            if(first.cellI() != second.cellI()) return false;
+            if(first.cellJ() != second.cellJ()) return false;
+            if(first.cellK() != second.cellK()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        {
+            if(first.wellName() != second.wellName()) return false;
+            if(first.wellSegmentNumber() != second.wellSegmentNumber()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        {
+            if(first.cellI() != second.cellI()) return false;
+            if(first.cellJ() != second.cellJ()) return false;
+            if(first.cellK() != second.cellK()) return false;
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        {
+            if(first.lgrName() != second.lgrName()) return false;
+            if(first.cellI() != second.cellI()) return false;
+            if(first.cellJ() != second.cellJ()) return false;
+            if(first.cellK() != second.cellK()) return false;
+        }
+        break;
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second)
+{
+    if(first.category() != second.category())         return first.category() < second.category();
+    if(first.quantityName() != second.quantityName()) return first.quantityName() < second.quantityName();
+
+    switch(first.category())
+    {
+        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        {
+            if(first.regionNumber() != second.regionNumber()) return first.regionNumber() < second.regionNumber();
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        {
+            if(first.regionNumber() != second.regionNumber()) return first.regionNumber() < second.regionNumber();
+            if(first.regionNumber2() != second.regionNumber2()) return first.regionNumber2() < second.regionNumber2();
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        {
+            if(first.wellGroupName() != second.wellGroupName()) return first.wellGroupName() < second.wellGroupName();
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        {
+            if(first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        {
+            if(first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
+            if(first.cellI() != second.cellI()) return (first.cellI() < second.cellI());
+            if(first.cellJ() != second.cellJ()) return (first.cellJ() < second.cellJ());
+            if(first.cellK() != second.cellK()) return (first.cellK() < second.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        {
+            if(first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
+            if(first.lgrName() != second.lgrName()) return (first.lgrName() < second.lgrName());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        {
+            if(first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
+            if(first.lgrName() != second.lgrName()) return (first.lgrName() < second.lgrName());
+            if(first.cellI() != second.cellI()) return (first.cellI() < second.cellI());
+            if(first.cellJ() != second.cellJ()) return (first.cellJ() < second.cellJ());
+            if(first.cellK() != second.cellK()) return (first.cellK() < second.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        {
+            if(first.wellName() != second.wellName()) return (first.wellName() < second.wellName());
+            if(first.wellSegmentNumber() != second.wellSegmentNumber()) return (first.wellSegmentNumber() < second.wellSegmentNumber());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        {
+            if(first.cellI() != second.cellI()) return (first.cellI() < second.cellI());
+            if(first.cellJ() != second.cellJ()) return (first.cellJ() < second.cellJ());
+            if(first.cellK() != second.cellK()) return (first.cellK() < second.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        {
+            if(first.lgrName() != second.lgrName()) return (first.lgrName() < second.lgrName());
+            if(first.cellI() != second.cellI()) return (first.cellI() < second.cellI());
+            if(first.cellJ() != second.cellJ()) return (first.cellJ() < second.cellJ());
+            if(first.cellK() != second.cellK()) return (first.cellK() < second.cellK());
+        }
+        break;
+
+    }
+    return false;
+}

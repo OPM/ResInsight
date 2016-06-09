@@ -23,6 +23,7 @@
 #include "ert/ecl/ecl_util.h"
 
 #include <iostream>
+#include "cafAppEnum.h"
 
 
 
@@ -128,7 +129,7 @@ void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipse
 {
     std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
 
-    for (int category = 0; category < RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT_RIVER; category++)
+    for (int category = 0; category < RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR; category++)
     {
         RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory(category);
 
@@ -136,11 +137,20 @@ void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipse
 
         if (catAddresses.size() > 0)
         {
-            std::cout << RifEclipseSummaryAddress::categoryName(categoryEnum) << " count : " << catAddresses.size() << std::endl;
+            std::cout << caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(categoryEnum).toStdString() << " count : " << catAddresses.size() << std::endl;
 
             for (size_t i = 0; i < catAddresses.size(); i++)
             {
-                std::cout << catAddresses[i].ertSummaryVarId() << " " << catAddresses[i].simulationItemName() << " " << catAddresses[i].quantityName() << std::endl;
+                std::cout << catAddresses[i].quantityName() << " " 
+                          << catAddresses[i].regionNumber() << " " 
+                          << catAddresses[i].regionNumber2() << " "
+                          << catAddresses[i].wellGroupName() << " "
+                          << catAddresses[i].wellName() << " "
+                          << catAddresses[i].wellSegmentNumber() << " "
+                          << catAddresses[i].lgrName() << " "
+                          << catAddresses[i].cellI() << " "
+                          << catAddresses[i].cellJ() << " "
+                          << catAddresses[i].cellK() << std::endl;
             }
 
             std::cout << std::endl;

@@ -113,10 +113,12 @@ private:
 
     // Fields
     caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
-    caf::PdmField<QString>                  m_variableName; // Obsolete
-
+    caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
 
     // Filter fields
+    bool isIncludedByFilter(const RifEclipseSummaryAddress& addr);
+    bool isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
+
     caf::PdmField<caf::AppEnum<SummaryFilterType> >
                                             m_filterType;
     caf::PdmField<QString>                  m_filterQuantityName;
@@ -129,8 +131,4 @@ private:
     caf::PdmField<QString>                  m_cellIJKFilter;
 
     caf::PdmField<int>                      m_uiFilterResultSelection;
-    caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
-
-
-
 };
