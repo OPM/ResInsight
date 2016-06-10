@@ -390,6 +390,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
     # make sure the unity target is included in the active builds to trigger rebuild before debug
     get_target_property(_unityTargetName ResInsight COTIRE_UNITY_TARGET_NAME)
     set_target_properties(${_unityTargetName} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD FALSE)
+    set_target_properties(ResInsight PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 
 endif()
 
