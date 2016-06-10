@@ -418,6 +418,12 @@ if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different  
 						   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
 						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        if (_unityTargetName)
+            add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+                               COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+		    				   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
+		    				   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        endif()
     endforeach()
 
 endif()
@@ -432,6 +438,12 @@ if (MSVC)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${QT_BINARY_DIR}/${qtlib}4.dll"
                 "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        if (_unityTargetName)
+           add_custom_command(TARGET ResInsight POST_BUILD
+               COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                   "${QT_BINARY_DIR}/${qtlib}4.dll"
+                   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        endif()
     endforeach( qtlib )
 
 endif(MSVC)
