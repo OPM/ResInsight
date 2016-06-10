@@ -89,6 +89,22 @@ else()
 	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
 endif()
 
+################################################################################
+# cotire 
+# Fully automated CMake module for build speedup
+# https://github.com/sakra/cotire
+################################################################################
+
+option(RESINSIGHT_ENABLE_COTIRE "Use Cotire to speed up build process" OFF)
+if(RESINSIGHT_ENABLE_COTIRE)
+    set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+    include(cotire)
+  
+    set(CAF_USE_COTIRE TRUE CACHE INTERNAL "CAF: Use cotire")
+    
+endif()
+
 
 ################################################################################
 # ERT
@@ -331,23 +347,6 @@ set_property(TARGET
 	PROPERTY FOLDER "AppFwk"
 )
 
-################################################################################
-# cotire 
-# Fully automated CMake module for build speedup
-# https://github.com/sakra/cotire
-################################################################################
-
-option(RESINSIGHT_ENABLE_COTIRE "Use Cotire to speed up build process" OFF)
-if(RESINSIGHT_ENABLE_COTIRE)
-  set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-  include(cotire)
-
-  set(COTIRE_PREFIX_HEADER_IGNORE_PATH
-    # Avoid Windows Kits includes, as they cause issues for OpenGL and others
-    "C:/Program Files (x86)/Windows Kits"
-  )
-
-endif()
 
 ################################################################################
 # Installation settings
