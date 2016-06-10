@@ -46,7 +46,7 @@ public:
 private:
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
-        m_category;
+                                            m_category;
     caf::PdmField<QString>                  m_quantityName;
     caf::PdmField<int>                      m_regionNumber;
     caf::PdmField<int>                      m_regionNumber2;
@@ -76,6 +76,7 @@ public:
 
     enum SummaryFilterType 
     {
+        SUM_FILTER_VAR_STRING,
         SUM_FILTER_ANY,
         SUM_FILTER_FIELD,
         SUM_FILTER_AQUIFER,
@@ -89,7 +90,6 @@ public:
         SUM_FILTER_WELL_COMPLETION_LGR,
         SUM_FILTER_WELL_LGR,
         SUM_FILTER_WELL_SEGMENT,
-        SUM_FILTER_WELL_SEGMENT_RIVER,
         SUM_FILTER_BLOCK,
         SUM_FILTER_BLOCK_LGR,
     };
@@ -103,7 +103,7 @@ protected:
 
 private:
     RifReaderEclipseSummary*                summaryReader();
-    void                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values);
+    bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values);
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -114,6 +114,7 @@ private:
     // Fields
     caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
     caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
+    caf::PdmField<QString>                  m_selectedVariableDisplayField;
 
     // Filter fields
     bool isIncludedByFilter(const RifEclipseSummaryAddress& addr);
@@ -121,6 +122,8 @@ private:
 
     caf::PdmField<caf::AppEnum<SummaryFilterType> >
                                             m_filterType;
+    caf::PdmField<QString>                  m_completeVarStringFilter;
+
     caf::PdmField<QString>                  m_filterQuantityName;
     caf::PdmField<QString>                  m_regionNumberFilter;
     caf::PdmField<QString>                  m_regionNumber2Filter;
@@ -131,4 +134,5 @@ private:
     caf::PdmField<QString>                  m_cellIJKFilter;
 
     caf::PdmField<int>                      m_uiFilterResultSelection;
+
 };

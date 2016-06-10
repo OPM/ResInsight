@@ -252,7 +252,7 @@ bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddre
         values->push_back(value);
     }
 
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

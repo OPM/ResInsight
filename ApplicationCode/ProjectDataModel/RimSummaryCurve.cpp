@@ -132,23 +132,23 @@ namespace caf
 template<>
 void caf::AppEnum<RimSummaryCurve::SummaryFilterType>::setUp()
 {
-    addItem(RimSummaryCurve::SUM_FILTER_ANY,                  "SUM_FILTER_ANY",                 "Any");
+    addItem(RimSummaryCurve::SUM_FILTER_VAR_STRING,           "SUM_FILTER_VAR_STRING",          "Concatenated Variable Text");
     addItem(RimSummaryCurve::SUM_FILTER_FIELD,                "SUM_FILTER_FIELD",               "Field");
-    addItem(RimSummaryCurve::SUM_FILTER_AQUIFER,              "SUM_FILTER_AQUIFER",             "Aquifer");
-    addItem(RimSummaryCurve::SUM_FILTER_NETWORK,              "SUM_FILTER_NETWORK",             "Network");
-    addItem(RimSummaryCurve::SUM_FILTER_MISC,                 "SUM_FILTER_MISC",                "Misc");
+    addItem(RimSummaryCurve::SUM_FILTER_WELL,                 "SUM_FILTER_WELL",                "Well");
+    addItem(RimSummaryCurve::SUM_FILTER_WELL_GROUP,           "SUM_FILTER_WELL_GROUP",          "Group");
+    addItem(RimSummaryCurve::SUM_FILTER_WELL_COMPLETION,      "SUM_FILTER_WELL_COMPLETION",     "Completion");
+    addItem(RimSummaryCurve::SUM_FILTER_WELL_SEGMENT,         "SUM_FILTER_SEGMENT",             "Segment");
+    addItem(RimSummaryCurve::SUM_FILTER_BLOCK,                "SUM_FILTER_BLOCK",               "Block");
     addItem(RimSummaryCurve::SUM_FILTER_REGION,               "SUM_FILTER_REGION",              "Region");
     addItem(RimSummaryCurve::SUM_FILTER_REGION_2_REGION,      "SUM_FILTER_REGION_2_REGION",     "Region-Region");
-    addItem(RimSummaryCurve::SUM_FILTER_WELL_GROUP,           "SUM_FILTER_WELL_GROUP",          "Group");
-    addItem(RimSummaryCurve::SUM_FILTER_WELL,                 "SUM_FILTER_WELL",                "Well");
-    addItem(RimSummaryCurve::SUM_FILTER_WELL_COMPLETION,      "SUM_FILTER_WELL_COMPLETION",     "Completion");
-    addItem(RimSummaryCurve::SUM_FILTER_WELL_COMPLETION_LGR,  "SUM_FILTER_WELL_COMPLETION_LGR", "Lgr-Completion");
     addItem(RimSummaryCurve::SUM_FILTER_WELL_LGR,             "SUM_FILTER_WELL_LGR",            "Lgr-Well");
-    addItem(RimSummaryCurve::SUM_FILTER_WELL_SEGMENT,         "SUM_FILTER_SEGMENT",             "Segment");
-    addItem(RimSummaryCurve::SUM_FILTER_WELL_SEGMENT_RIVER,   "SUM_FILTER_SEGMENT_RIVER",       "Segment River");
-    addItem(RimSummaryCurve::SUM_FILTER_BLOCK,                "SUM_FILTER_BLOCK",               "Block");
+    addItem(RimSummaryCurve::SUM_FILTER_WELL_COMPLETION_LGR,  "SUM_FILTER_WELL_COMPLETION_LGR", "Lgr-Completion");
     addItem(RimSummaryCurve::SUM_FILTER_BLOCK_LGR,            "SUM_FILTER_BLOCK_LGR",           "Lgr-Block");
-    setDefault(RimSummaryCurve::SUM_FILTER_FIELD);
+    addItem(RimSummaryCurve::SUM_FILTER_MISC,                 "SUM_FILTER_MISC",                "Misc");
+    addItem(RimSummaryCurve::SUM_FILTER_AQUIFER,              "SUM_FILTER_AQUIFER",             "Aquifer");
+    addItem(RimSummaryCurve::SUM_FILTER_NETWORK,              "SUM_FILTER_NETWORK",             "Network");
+    addItem(RimSummaryCurve::SUM_FILTER_ANY,                  "SUM_FILTER_ANY",                 "Any");
+    setDefault(RimSummaryCurve::SUM_FILTER_VAR_STRING);
 }
 
 }
@@ -162,49 +162,55 @@ RimSummaryCurve::RimSummaryCurve()
 {
     CAF_PDM_InitObject("Summary Curve", ":/WellLogCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Summary Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
     m_summaryCase.uiCapability()->setUiChildrenHidden(true);
     
-    // TODO: Implement setUiTreeHidden 
-    //m_eclipseCase.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variable", "", "", "");
+    m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
+    m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
+    m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_filterType,"SummaryVarCategory","Category","","","");
+    CAF_PDM_InitFieldNoDefault(&m_filterType,"SummaryFilterType","Filter Type","","","");
     m_filterType.xmlCapability()->setIOWritable(false);
     m_filterType.xmlCapability()->setIOReadable(false);
 
-   
-    CAF_PDM_InitFieldNoDefault(&m_filterQuantityName,"SummaryVarQuantity","Quantity","","","");
+    CAF_PDM_InitFieldNoDefault(&m_completeVarStringFilter, "SummaryCompleteVarStringFilter", "Filter", "", "", "");
+    m_completeVarStringFilter.xmlCapability()->setIOWritable(false);
+    m_completeVarStringFilter.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_filterQuantityName,"SummaryVarQuantityFilter","Quantity","","","");
     m_filterQuantityName.xmlCapability()->setIOWritable(false);
     m_filterQuantityName.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_regionNumberFilter        ,"SummaryRegionNumber","Region","","","");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumberFilter        ,"SummaryRegionNumberFilter","Region","","","");
     m_regionNumberFilter.xmlCapability()->setIOWritable(false);
     m_regionNumberFilter.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_regionNumber2Filter       ,"SummaryRegionNumber2","Region 2","","","");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumber2Filter       ,"SummaryRegionNumber2Filter","Region 2","","","");
     m_regionNumber2Filter.xmlCapability()->setIOWritable(false);
     m_regionNumber2Filter.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_wellGroupNameFilter, "SummaryWellGroupName", "Well Group", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Well Group", "", "", "");
     m_wellGroupNameFilter.xmlCapability()->setIOWritable(false);
     m_wellGroupNameFilter.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_wellNameFilter            ,"SummaryWellName","Well","","","");
+    CAF_PDM_InitFieldNoDefault(&m_wellNameFilter            ,"SummaryWellNameFilter","Well","","","");
     m_wellNameFilter.xmlCapability()->setIOWritable(false);
     m_wellNameFilter.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumberFilter   ,"SummaryWellSegmentNumber","Segment","","","");
+    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumberFilter   ,"SummaryWellSegmentNumberFilter","Segment","","","");
     m_wellSegmentNumberFilter.xmlCapability()->setIOWritable(false);
     m_wellSegmentNumberFilter.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter             ,"SummaryLgrName","Lgr","","","");
+    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter             ,"SummaryLgrNameFilter","Lgr","","","");
     m_lgrNameFilter.xmlCapability()->setIOWritable(false);
     m_lgrNameFilter.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_cellIJKFilter               ,"SummaryCellIJK","I, J, K","","","");
+    CAF_PDM_InitFieldNoDefault(&m_cellIJKFilter               ,"SummaryCellIJKFilter","I, J, K","","","");
     m_cellIJKFilter.xmlCapability()->setIOWritable(false);
     m_cellIJKFilter.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_uiFilterResultSelection, "FilterResultSelection", "Vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_uiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
     m_cellIJKFilter.xmlCapability()->setIOWritable(false);
     m_cellIJKFilter.xmlCapability()->setIOReadable(false);
     m_uiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_uiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_uiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_uiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
+    
 
     CAF_PDM_InitFieldNoDefault(&m_curveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
     m_curveVariable.uiCapability()->setUiHidden(true);
@@ -325,14 +331,21 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 {
     this->RimPlotCurve::updateCurvePresentation();
 
+    m_selectedVariableDisplayField = QString::fromStdString(m_curveVariable->address().uiText());
+
     if (isCurveVisible())
     {
         std::vector<QDateTime> dateTimes;
         std::vector<double> values;
 
-        this->curveData(&dateTimes, &values);
-
-        m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values);
+        if(this->curveData(&dateTimes, &values))
+        {
+            m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values);
+        }
+        else
+        {
+            m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>());
+        }
 
         zoomAllParentPlot();
 
@@ -345,21 +358,33 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Variable");
     curveDataGroup->add(&m_summaryCase);
-    //curveDataGroup->add(&m_variableName);
-    caf::PdmUiGroup* curveVarFilterGroup = curveDataGroup->addNewGroup("Filter");
+    curveDataGroup->add(&m_selectedVariableDisplayField);
 
-    curveVarFilterGroup->add(&m_filterType);
-    curveVarFilterGroup->add(&m_filterQuantityName);
+    caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Variable Selection");
+    curveVarSelectionGroup->add(&m_filterType);
+
+    caf::PdmUiGroup* curveVarFilterGroup = nullptr;
+
+    if (m_filterType() == SUM_FILTER_VAR_STRING)
+    {
+        curveVarSelectionGroup->add(&m_completeVarStringFilter);
+    }
+    else
+    {
+        caf::PdmUiGroup* curveVarFilterGroup = curveVarSelectionGroup->addNewGroup("Filter Settings");
+
+        curveVarFilterGroup->add(&m_filterQuantityName);
+    
     switch (m_filterType())
     {
         case SUM_FILTER_ANY:
         {
+            curveVarFilterGroup->add(&m_wellNameFilter);
+            curveVarFilterGroup->add(&m_wellGroupNameFilter);
             curveVarFilterGroup->add(&m_regionNumberFilter);
             curveVarFilterGroup->add(&m_regionNumber2Filter);
-            curveVarFilterGroup->add(&m_wellGroupNameFilter);
-            curveVarFilterGroup->add(&m_wellNameFilter);
             curveVarFilterGroup->add(&m_wellSegmentNumberFilter);
             curveVarFilterGroup->add(&m_lgrNameFilter);
             curveVarFilterGroup->add(&m_cellIJKFilter);
@@ -428,7 +453,8 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         break;
 
     }
-    curveDataGroup->add(&m_uiFilterResultSelection);
+    }
+    curveVarSelectionGroup->add(&m_uiFilterResultSelection);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     appearanceGroup->add(&m_curveColor);
@@ -441,18 +467,120 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.setForgetRemainingFields(true); // For now. 
 }
 
+bool isNumberMatch(QString numericalFilterString, int number)
+{
+    if(numericalFilterString.isEmpty()) return true;
+
+    // Todo: Ranges, and lists
+    int filterNumber = numericalFilterString.toInt();
+    return number == filterNumber;
+}
+
+bool isStringMatch(QString filterString, std::string value)
+{
+    if(filterString.isEmpty()) return true;
+
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    QString qstrValue = QString::fromStdString(value);
+    return searcher.exactMatch(qstrValue);
+}
+
+bool isIJKMatch(QString filterString, int cellI, int cellJ, int cellK)
+{
+    if(filterString.isEmpty()) return true;
+
+    // Todo: Ranges, and lists
+    int filterNumber = filterString.toInt();
+    return cellI == filterNumber;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCurve::isIncludedByFilter(const RifEclipseSummaryAddress& addr)
 {
     if (!isSumVarTypeMatchingFilterType(m_filterType(), addr.category())) return false;
-    if (!m_filterQuantityName().isEmpty())
-    { 
-        QRegExp searcher(m_filterQuantityName(), Qt::CaseInsensitive, QRegExp::WildcardUnix);
-        QString addrQuant = QString::fromStdString(addr.quantityName());
-        if (!searcher.exactMatch(addrQuant)) return false ;
+
+    if(m_filterType() == SUM_FILTER_VAR_STRING)
+    {
+        return isStringMatch(m_completeVarStringFilter(), addr.uiText());
     }
+
+    if (!isStringMatch(m_filterQuantityName(), addr.quantityName())) return false;
+
+    if(m_filterType() == SUM_FILTER_ANY)
+    {
+        return (isNumberMatch(m_regionNumberFilter(), addr.regionNumber())
+            &&  isNumberMatch(m_regionNumber2Filter(), addr.regionNumber2())
+            &&  isStringMatch(m_wellGroupNameFilter(), addr.wellGroupName())
+            &&  isStringMatch(m_wellNameFilter(), addr.wellName())
+            &&  isStringMatch(m_lgrNameFilter(), addr.lgrName())
+            &&  isNumberMatch(m_wellSegmentNumberFilter(), addr.wellSegmentNumber())
+            &&  isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK()));
+    }
+
+    switch (addr.category())
+    {
+        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        { 
+            return isNumberMatch(m_regionNumberFilter(), addr.regionNumber());
+        } 
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        {
+            return  isNumberMatch(m_regionNumberFilter(), addr.regionNumber()) 
+                 && isNumberMatch(m_regionNumber2Filter(), addr.regionNumber2()); 
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        {
+            return  isStringMatch(m_wellGroupNameFilter(), addr.wellGroupName());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName()) 
+                 && isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName())
+                 && isStringMatch(m_lgrNameFilter(), addr.lgrName());
+        }
+        break;
+
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName()) 
+                 && isStringMatch(m_lgrNameFilter(), addr.lgrName()) 
+                 && isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName())
+                 && isNumberMatch(m_wellSegmentNumberFilter(), addr.wellSegmentNumber());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        {
+            return  isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        {
+            return  isStringMatch(m_lgrNameFilter(), addr.lgrName()) 
+                 && isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(),addr.cellK());
+        }
+        break;
+    }
+
     return true;
 }
 
@@ -462,7 +590,7 @@ bool RimSummaryCurve::isIncludedByFilter(const RifEclipseSummaryAddress& addr)
 bool RimSummaryCurve::isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType)
 {
     if (sumVarType == RifEclipseSummaryAddress::SUMMARY_INVALID) return false;
-    if (sumFilterType == SUM_FILTER_ANY) return true;
+    if (sumFilterType == SUM_FILTER_ANY || sumFilterType == SUM_FILTER_VAR_STRING) return true;
 
     switch(sumVarType)
     {
@@ -531,22 +659,19 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values)
+bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values)
 {
+    CVF_ASSERT(timeSteps && values);
+
     RifReaderEclipseSummary* reader = summaryReader();
     
-    if (!reader) return;
+    if (!reader) return false;
 
-    if (timeSteps)
-    {
-        std::vector<time_t> times = reader->timeSteps();
-        *timeSteps = RifReaderEclipseSummary::fromTimeT(times);
-    }
+    std::vector<time_t> times = reader->timeSteps();
+    *timeSteps = RifReaderEclipseSummary::fromTimeT(times);
 
-    if (values)
-    {
-        RifEclipseSummaryAddress addr = m_curveVariable()->address();
-        reader->values(addr, values);
-    }
+    if (!times.size()) return false;
 
+    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    return reader->values(addr, values);
 }

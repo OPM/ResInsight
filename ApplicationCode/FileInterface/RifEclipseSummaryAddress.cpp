@@ -41,65 +41,65 @@ std::string RifEclipseSummaryAddress::uiText() const
     {
         case RifEclipseSummaryAddress::SUMMARY_REGION:
         {
-            text += ", R: " + std::to_string(this->regionNumber());
+            text += ":" + std::to_string(this->regionNumber());
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
         {
-            text += ", R1: " + std::to_string(this->regionNumber());
-            text += ", R2: " + std::to_string(this->regionNumber2());
+            text += ":" + std::to_string(this->regionNumber());
+            text += ":" + std::to_string(this->regionNumber2());
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         {
-            text += ", G:" + this->wellGroupName();
+            text += ":" + this->wellGroupName();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:
         {
-            text += ", W:" + this->wellName();
+            text += ":" + this->wellName();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
         {
-            text += ", W:" + this->wellName();
-            text += ", IJK: " + std::to_string(this->cellI()) + ", "
+            text += ":" + this->wellName();
+            text += ":" + std::to_string(this->cellI()) + ", "
                               + std::to_string(this->cellJ()) + ", "
                               + std::to_string(this->cellK());
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
         {
-            text += ", W:" + this->wellName();
-            text += ", LGR:" + this->lgrName();
+            text += ":" + this->wellName();
+            text += ":" + this->lgrName();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
         {
-            text += ", W:" + this->wellName();
-            text += ", LGR:" + this->lgrName();
-            text += ", IJK: " + std::to_string(this->cellI()) + ", " 
+            text += ":" + this->wellName();
+            text += ":" + this->lgrName();
+            text += ":" + std::to_string(this->cellI()) + ", " 
                               + std::to_string(this->cellJ()) + ", " 
                               + std::to_string(this->cellK());
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
         {
-            text += ", W:" + this->wellName();
-            text += ", S: " + std::to_string(this->wellSegmentNumber());
+            text += ":" + this->wellName();
+            text += ":" + std::to_string(this->wellSegmentNumber());
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_BLOCK:
         {
-            text += ", IJK: " + std::to_string(this->cellI()) + ", "
+            text += ":" + std::to_string(this->cellI()) + ", "
                               + std::to_string(this->cellJ()) + ", "
                               + std::to_string(this->cellK());
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
         {
-            text += ", LGR:" + this->lgrName();
-            text += ", IJK: " + std::to_string(this->cellI()) + ", "
+            text += ":" + this->lgrName();
+            text += ":" + std::to_string(this->cellI()) + ", "
                               + std::to_string(this->cellJ()) + ", "
                               + std::to_string(this->cellK());
         }
