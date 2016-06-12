@@ -7,6 +7,7 @@ set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 ################################################################################
 # Setup the main platform defines
