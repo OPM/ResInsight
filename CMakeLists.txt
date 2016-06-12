@@ -84,8 +84,6 @@ if(MSVC)
 	endif()
 
 else()
-    set(BUILD_SHARED_LIBS ON)
-    set(Boost_USE_STATIC_LIBS    OFF)
 	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
 endif()
 

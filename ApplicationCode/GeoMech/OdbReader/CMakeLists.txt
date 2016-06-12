@@ -6,7 +6,7 @@ if (MSVC)
 	add_definitions(-DHKS_NT)
 	add_definitions(-DABQ_WIN86_64)
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -c -fPIC -w -Wno-deprecated")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -w -Wno-deprecated")
 
 	add_definitions(-DTYPENAME=typename)
 	add_definitions(-D_LINUX_SOURCE)
