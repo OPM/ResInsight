@@ -19,7 +19,7 @@ project (custom-opm-parser)
 
 include_directories(
     ${Boost_INCLUDE_DIRS}
-    ${custom-opm-common_SOURCE_DIR}/opm-common
+    ${ResInsight_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common/
     ${ERT_INCLUDE_DIRS}
 )
 

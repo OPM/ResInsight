@@ -1,4 +1,0 @@
-This directory contains the cJSON package downloaded unchanged from:
-http://sourceforge.net/projects/cjson/. The cJSON package is plain C,
-the JsonObject class provides a minimal C++ wrapping of this.
-

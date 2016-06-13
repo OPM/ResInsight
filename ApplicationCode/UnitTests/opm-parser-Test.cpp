@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "custom-opm-parser/opm-parser/opm/parser/eclipse/Parser/Parser.hpp"
+#include "opm/parser/eclipse/Parser/Parser.hpp"
 
 
 using namespace Opm;
