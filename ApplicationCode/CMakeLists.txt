@@ -330,9 +330,7 @@ set( LINK_LIBRARIES
     ${ERT_LIBRARIES}
     ${ERT_EXTERNAL_LIBRARIES}
     
-    custom-opm-common
     custom-opm-parser
-    custom-opmjson
 
     NRLib
 

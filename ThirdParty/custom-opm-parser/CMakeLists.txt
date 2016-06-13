@@ -290,7 +290,6 @@ Utility/Stringview.hpp)
 
 
 
-
 include_directories(
     opm-parser
     generated-source/include
@@ -320,9 +319,16 @@ generated-source/ParserKeywords2.cpp
 generated-source/ParserKeywords3.cpp
 )
 
+# JSON files included directly, not as a separate lib as in original build configuration 
+set (json_source
+    opm-parser/opm/json/JsonObject.cpp
+    opm-parser/opm/json/cjson/cJSON.c
+)
+
 add_library(${PROJECT_NAME} 
     STATIC
     ${incl_path} 
+    ${json_source}
     ${opm_parser_generated_source_files} 
 )
 
