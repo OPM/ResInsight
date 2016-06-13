@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_TUI_MISC_H__
-#define __ENKF_TUI_MISC_H__
+#ifndef ERT_ENKF_TUI_MISC_H
+#define ERT_ENKF_TUI_MISC_H
 
 
 void enkf_tui_misc_menu( void * arg);

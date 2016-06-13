@@ -288,6 +288,11 @@ void ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const smspec_node
   ecl_sum_tstep_iset( tstep , data_index , value);
 }
 
+double ecl_sum_tstep_get_from_node( const ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node) {
+  int data_index = smspec_node_get_params_index( smspec_node );
+  return ecl_sum_tstep_iget( tstep , data_index);
+}
+
 
 void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_key , float value) {
   const smspec_node_type * smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
@@ -295,9 +300,8 @@ void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_k
 }
 
 double ecl_sum_tstep_get_from_key(const ecl_sum_tstep_type * tstep , const char * gen_key) {
-    const smspec_node_type * smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
-    int data_index = smspec_node_get_params_index( smspec_node );
-    return ecl_sum_tstep_iget( tstep , data_index);
+  const smspec_node_type * smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
+  return ecl_sum_tstep_get_from_node(tstep , smspec_node );
 }
 
 bool ecl_sum_tstep_has_key(const ecl_sum_tstep_type * tstep , const char * gen_key) {

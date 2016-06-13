@@ -97,7 +97,7 @@ namespace Opm {
         if (m_recordList.size() == 1)
             return getRecord(0);
         else
-            throw std::range_error("Not a data keyword ?");
+            throw std::range_error("Not a data keyword \"" + name() + "\"?");
     }
 
 

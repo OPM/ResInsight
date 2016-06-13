@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_RSTHEAD_H__
-#define __ECL_RSTHEAD_H__
+#ifndef ERT_ECL_RSTHEAD_H
+#define ERT_ECL_RSTHEAD_H
 
 #ifdef __cplusplus
 extern "C" {

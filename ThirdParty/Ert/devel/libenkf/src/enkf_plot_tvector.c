@@ -131,8 +131,7 @@ bool enkf_plot_tvector_iget_active( const enkf_plot_tvector_type * plot_tvector 
 
 void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
                              enkf_fs_type * fs ,
-                             const char * index_key ,
-                             state_enum state) {
+                             const char * index_key) {
 
   time_map_type * time_map = enkf_fs_get_time_map( fs );
   int step1 = 0;
@@ -140,7 +139,7 @@ void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
   enkf_node_type * work_node  = enkf_node_alloc( plot_tvector->config_node );
 
   if (enkf_node_vector_storage( work_node )) {
-    bool has_data = enkf_node_user_get_vector(work_node , fs , index_key , plot_tvector->iens , state , plot_tvector->work);
+    bool has_data = enkf_node_user_get_vector(work_node , fs , index_key , plot_tvector->iens , plot_tvector->work);
 
     if(has_data) {
         for (int step = 0; step < time_map_get_size(time_map); step++)
@@ -152,7 +151,6 @@ void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
   } else {
     int step;
     node_id_type node_id = {.iens        = plot_tvector->iens,
-                            .state       = state,
                             .report_step = 0 };
 
     for (step = step1 ; step <= step2; step++) {
@@ -176,9 +174,8 @@ void * enkf_plot_tvector_load__( void * arg ) {
   enkf_plot_tvector_type * tvector = arg_pack_iget_ptr( arg_pack , 0 );
   enkf_fs_type * fs = arg_pack_iget_ptr( arg_pack , 1 );
   const char * index_key = arg_pack_iget_ptr( arg_pack , 2 );
-  state_enum state = arg_pack_iget_int( arg_pack , 3 );
 
-  enkf_plot_tvector_load( tvector , fs , index_key , state );
-                      return NULL;
+  enkf_plot_tvector_load( tvector , fs , index_key );
+  return NULL;
 }
 

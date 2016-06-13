@@ -17,8 +17,8 @@
    for more details. 
 */
 
-#ifndef __ECL_GRAV_H__
-#define __ECL_GRAV_H__
+#ifndef ERT_ECL_GRAV_H
+#define ERT_ECL_GRAV_H
 #ifdef __plusplus
 extern "C" {
 #endif

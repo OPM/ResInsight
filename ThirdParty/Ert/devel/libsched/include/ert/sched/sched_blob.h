@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_BLOB_H__
-#define __SCHED_BLOB_H__
+#ifndef ERT_SCHED_BLOB_H
+#define ERT_SCHED_BLOB_H
 #ifdef __cplusplus 
 extern "C" {
 #endif

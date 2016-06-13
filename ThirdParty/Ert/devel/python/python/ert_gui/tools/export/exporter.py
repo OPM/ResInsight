@@ -30,29 +30,27 @@ class Exporter():
         file_name = self.createExportFileNameMask(keyword, values["selected_case"], values["report_step"], values["path"])
 
         if self.__export_keyword_model.isFieldKw(keyword):
-            self.exportField(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["state"], values["selected_case"])
+            self.exportField(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["selected_case"])
         elif self.__export_keyword_model.isGenKw(keyword):
-            self.exportGenKw(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["state"], values["selected_case"])
-        elif self.__export_keyword_model.isGenParamKw(keyword):
-            self.exportGenData(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["state"], values["selected_case"])
-        elif self.__export_keyword_model.isGenDataKw(keyword):
-            self.exportGenData(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["state"], values["selected_case"])
+            self.exportGenKw(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["selected_case"])
+        elif self.__export_keyword_model.isGenParamKw(keyword) or self.__export_keyword_model.isGenDataKw(keyword):
+            self.exportGenData(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["selected_case"])
 
-    def exportField(self, keyword, file_name, iactive, file_type_key, report_step, state, selected_case):
+    def exportField(self, keyword, file_name, iactive, file_type_key, report_step, selected_case):
         if file_type_key == "Eclipse GRDECL":
             file_type = EnkfFieldFileFormatEnum.ECL_GRDECL_FILE
         else:
             file_type = EnkfFieldFileFormatEnum.RMS_ROFF_FILE
 
-        result = ExportModel().exportField(keyword, file_name, iactive, file_type, report_step, state, selected_case)
+        result = ExportModel().exportField(keyword, file_name, iactive, file_type, report_step, selected_case)
         if not result:
-            QMessageBox.warning(self, "Warning",'''Something did not work!''',QMessageBox.Ok);
+            QMessageBox.warning(self, "Warning",'''Something did not work!''', QMessageBox.Ok)
 
-    def exportGenData(self, keyword, file_name, iactive, file_type_key, report_step, state, selected_case):
-        ExportModel().exportGenData(keyword, file_name, iactive, file_type_key, report_step, state, selected_case)
+    def exportGenData(self, keyword, file_name, iactive, file_type_key, report_step, selected_case):
+        ExportModel().exportGenData(keyword, file_name, iactive, file_type_key, report_step, selected_case)
 
-    def exportGenKw(self, keyword, file_name, iactive, file_type_key, report_step, state, selected_case):
-        ExportModel().exportGenKw(keyword, file_name, iactive, file_type_key, report_step, state, selected_case)
+    def exportGenKw(self, keyword, file_name, iactive, file_type_key, report_step, selected_case):
+        ExportModel().exportGenKw(keyword, file_name, iactive, file_type_key, report_step, selected_case)
 
     def createExportFileNameMask(self, keyword, current_case, report_step, path):
         impl_type = None

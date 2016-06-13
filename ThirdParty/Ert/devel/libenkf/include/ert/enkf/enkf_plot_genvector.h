@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ENKF_PLOT_GENVECTOR_H__
-#define __ENKF_PLOT_GENVECTOR_H__
+#ifndef ERT_ENKF_PLOT_GENVECTOR_H
+#define ERT_ENKF_PLOT_GENVECTOR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +33,7 @@ enkf_plot_genvector_type *  enkf_plot_genvector_alloc( const enkf_config_node_ty
 void                        enkf_plot_genvector_free( enkf_plot_genvector_type * vector );
 int                         enkf_plot_genvector_get_size( const enkf_plot_genvector_type * vector );
 void                        enkf_plot_genvector_reset( enkf_plot_genvector_type * vector );
-void                      * enkf_plot_genvector_load__( void * arg );
+  void                      * enkf_plot_genvector_load__( void * arg );
 double                      enkf_plot_genvector_iget( const enkf_plot_genvector_type * vector , int index);
 
 UTIL_IS_INSTANCE_HEADER( enkf_plot_genvector );

@@ -92,7 +92,7 @@ void enkf_tui_run_exp(void * enkf_main) {
     free( prompt );
   }
   if (bool_vector_count_equal(iactive , true))
-    enkf_main_run_exp(enkf_main , iactive , true );
+    enkf_main_run_exp(enkf_main , iactive );
 
   bool_vector_free(iactive);
 }
@@ -115,7 +115,7 @@ void enkf_tui_run_create_runpath__(void * __enkf_main) {
     util_safe_free( select_string );
     free( prompt );
   }
-  enkf_main_run_exp(enkf_main , iactive , false );
+  enkf_main_create_run_path(enkf_main , iactive , 0 );
   bool_vector_free(iactive);
 }
 

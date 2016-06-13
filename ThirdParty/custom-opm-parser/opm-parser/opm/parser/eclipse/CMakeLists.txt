@@ -1,24 +1,23 @@
-
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/generated-source/include)
 
 add_subdirectory(Parser/tests)
-#add_subdirectory(Generator/tests)
-#add_subdirectory(RawDeck/tests)
-#add_subdirectory(Deck/tests)
-#add_subdirectory(Units/tests)
-#add_subdirectory(EclipseState/tests)
-#add_subdirectory(EclipseState/Schedule/tests)
-#add_subdirectory(EclipseState/SimulationConfig/tests)
-#add_subdirectory(EclipseState/Tables/tests)
-#add_subdirectory(EclipseState/Grid/tests)
-#add_subdirectory(EclipseState/Util/tests)
-#add_subdirectory(EclipseState/IOConfig/tests)
-#add_subdirectory(EclipseState/InitConfig/tests)
-#add_subdirectory(EclipseState/SummaryConfig/tests)
-#add_subdirectory(Utility/tests)
+add_subdirectory(Generator/tests)
+add_subdirectory(RawDeck/tests)
+add_subdirectory(Deck/tests)
+add_subdirectory(Units/tests)
+add_subdirectory(EclipseState/tests)
+add_subdirectory(EclipseState/Schedule/tests)
+add_subdirectory(EclipseState/SimulationConfig/tests)
+add_subdirectory(EclipseState/Tables/tests)
+add_subdirectory(EclipseState/Grid/tests)
+add_subdirectory(EclipseState/Util/tests)
+add_subdirectory(EclipseState/IOConfig/tests)
+add_subdirectory(EclipseState/InitConfig/tests)
+add_subdirectory(EclipseState/SummaryConfig/tests)
+add_subdirectory(Utility/tests)
 
-#add_subdirectory(Applications)
-#add_subdirectory(IntegrationTests)
+add_subdirectory(Applications)
+add_subdirectory(IntegrationTests)
 
 set( rawdeck_source 
 RawDeck/StarToken.cpp
@@ -71,6 +70,7 @@ ${generator_source}
 
 set (state_source
 EclipseState/EclipseState.cpp
+EclipseState/EclipseConfig.cpp
 EclipseState/Eclipse3DProperties.cpp
 EclipseState/Messages.cpp
 #
@@ -110,6 +110,7 @@ EclipseState/Tables/Tables.cpp
 #
 EclipseState/Grid/SatfuncPropertyInitializers.cpp
 EclipseState/Grid/GridProperty.cpp
+EclipseState/Grid/GridProperties.cpp
 EclipseState/Grid/Box.cpp
 EclipseState/Grid/BoxManager.cpp
 EclipseState/Grid/FaceDir.cpp
@@ -170,6 +171,7 @@ Units/Dimension.hpp
 Units/ConversionFactors.hpp
 #
 EclipseState/EclipseState.hpp
+EclipseState/EclipseConfig.hpp
 EclipseState/Eclipse3DProperties.hpp
 EclipseState/Messages.hpp
 #
@@ -278,8 +280,6 @@ EclipseState/Tables/TableIndex.hpp
 #
 Utility/Functional.hpp
 Utility/Stringview.hpp)
-
-
 
 add_library(buildParser ${rawdeck_source} ${build_parser_source} ${deck_source} ${unit_source} ${generator_source} ${utility_source})
 target_link_libraries(buildParser opmjson ${opm-common_LIBRARIES} ${Boost_LIBRARIES}  ${ERT_LIBRARIES})

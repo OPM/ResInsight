@@ -41,11 +41,12 @@ namespace Opm {
     struct Message {
         enum type {
             Debug     = 1,
-            Info      = 2,
-            Warning   = 3,
-            Error     = 4,
-            Problem   = 5,
-            Bug       = 6
+            Note      = 2,
+            Info      = 3,
+            Warning   = 4,
+            Error     = 5,
+            Problem   = 6,
+            Bug       = 7
         };
 
         Message( type mt, const std::string& msg, Location&& loc ) :
@@ -84,6 +85,9 @@ namespace Opm {
 
         void problem(const std::string& msg, const std::string& filename, const size_t lineno);
         void problem(const std::string& msg);
+
+        void note(const std::string& msg, const std::string& filename, const size_t lineno);
+        void note(const std::string& msg);
 
         void add( const Message& );
         void add( Message&& );

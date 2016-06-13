@@ -120,3 +120,11 @@ int nnc_vector_get_size( const nnc_vector_type * nnc_vector ) {
 int nnc_vector_get_lgr_nr( const nnc_vector_type * nnc_vector ) {
   return nnc_vector->lgr_nr;
 }
+
+int nnc_vector_iget_nnc_index( const nnc_vector_type * nnc_vector , int index ) {
+  return int_vector_iget( nnc_vector->nnc_index_list , index );
+}
+
+int nnc_vector_iget_grid_index( const nnc_vector_type * nnc_vector , int index ) {
+  return int_vector_iget( nnc_vector->grid_index_list , index );
+}

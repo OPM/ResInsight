@@ -28,6 +28,7 @@
 #include <ert/util/msg.h>
 #include <ert/util/buffer.h>
 #include <ert/util/type_macros.h>
+#include <ert/util/perm_vector.h>
 
 #include <ert/enkf/enkf_obs.h>
 #include <ert/enkf/enkf_fs.h>
@@ -42,7 +43,7 @@ struct data_ranking_struct {
   UTIL_TYPE_ID_DECLARATION;
   int                  ens_size;   
   double_vector_type * data_ensemble;
-  int                * sort_permutation;
+  perm_vector_type   * sort_permutation;
   bool_vector_type   * valid;
   char               * user_key;
   bool                 sort_increasing;
@@ -56,7 +57,10 @@ UTIL_IS_INSTANCE_FUNCTION( data_ranking , DATA_RANKING_TYPE_ID );
 void data_ranking_free( data_ranking_type * ranking ) {
   double_vector_free( ranking->data_ensemble );
   bool_vector_free( ranking->valid );
-  util_safe_free( ranking->sort_permutation );
+
+  if (ranking->sort_permutation)
+    perm_vector_free( ranking->sort_permutation );
+
   util_safe_free( ranking->user_key );
   free( ranking );
 }
@@ -69,8 +73,7 @@ static void data_ranking_init(data_ranking_type * ranking ,
                               enkf_fs_type * fs , 
                               const enkf_config_node_type * config_node, 
                               const char * key_index , 
-                              int step , 
-                              state_enum state ) {
+                              int step) { 
 
   enkf_node_type * enkf_node = enkf_node_alloc( config_node );
   int iens;
@@ -78,8 +81,7 @@ static void data_ranking_init(data_ranking_type * ranking ,
 
     double value;
     node_id_type node_id = {.report_step = step , 
-                            .iens = iens , 
-                            .state = state };
+                            .iens = iens };
 
     if (enkf_node_user_get( enkf_node , fs , key_index , node_id , &value)) {
       double_vector_iset( ranking->data_ensemble , iens , value );
@@ -97,7 +99,7 @@ static void data_ranking_init(data_ranking_type * ranking ,
 
 
 
-data_ranking_type * data_ranking_alloc( bool sort_increasing , int ens_size , const char * user_key , const char * key_index , enkf_fs_type * fs , const enkf_config_node_type * config_node , int step , state_enum state) {
+data_ranking_type * data_ranking_alloc( bool sort_increasing , int ens_size , const char * user_key , const char * key_index , enkf_fs_type * fs , const enkf_config_node_type * config_node , int step) {
   data_ranking_type * ranking = util_malloc( sizeof * ranking );
   UTIL_TYPE_ID_INIT( ranking , DATA_RANKING_TYPE_ID );
   ranking->ens_size = ens_size;
@@ -112,7 +114,7 @@ data_ranking_type * data_ranking_alloc( bool sort_increasing , int ens_size , co
   ranking->sort_permutation = NULL;
   ranking->user_key = util_alloc_string_copy( user_key );
 
-  data_ranking_init( ranking , fs , config_node , key_index , step , state );
+  data_ranking_init( ranking , fs , config_node , key_index , step );
   return ranking;
 }
 
@@ -124,14 +126,14 @@ void data_ranking_free__( void * arg) {
 }
 
 
-const int * data_ranking_get_permutation( const data_ranking_type * data_ranking ) {
+const perm_vector_type * data_ranking_get_permutation( const data_ranking_type * data_ranking ) {
   return data_ranking->sort_permutation;
 }
 
 
 void data_ranking_display( const data_ranking_type * data_ranking , FILE * stream) {
-  const int ens_size                  = data_ranking->ens_size;
-  const int * permutations            = data_ranking->sort_permutation;
+  const int ens_size                    = data_ranking->ens_size;
+  const perm_vector_type * permutations = data_ranking->sort_permutation;
   
   {
     int i;
@@ -139,10 +141,10 @@ void data_ranking_display( const data_ranking_type * data_ranking , FILE * strea
     fprintf(stream,"  #    Realization    %12s\n" , data_ranking->user_key);
     fprintf(stream,"----------------------------------\n");
     for (i = 0; i < ens_size; i++) {
-      if (bool_vector_iget( data_ranking->valid , permutations[i])) {
-        int    iens         = permutations[i];
+      int iens = perm_vector_iget( permutations , i );
+      if (bool_vector_iget( data_ranking->valid , iens))
         fprintf(stream,"%3d    %3d          %14.3f\n",i,iens,double_vector_iget(data_ranking->data_ensemble , iens));
-      }
+
     }
     fprintf(stream,"----------------------------------\n");
   }

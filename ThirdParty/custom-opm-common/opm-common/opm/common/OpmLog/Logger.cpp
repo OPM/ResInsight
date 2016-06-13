@@ -36,18 +36,23 @@ namespace Opm {
         addMessageType( Log::MessageType::Error , "error");
         addMessageType( Log::MessageType::Problem , "problem");
         addMessageType( Log::MessageType::Bug , "bug");
+        addMessageType( Log::MessageType::Note , "note");
     }
 
-    void Logger::addMessage(int64_t messageType , const std::string& message) const {
+    void Logger::addTaggedMessage(int64_t messageType, const std::string& tag, const std::string& message) const {
         if ((m_enabledTypes & messageType) == 0)
             throw std::invalid_argument("Tried to issue message with unrecognized message ID");
 
         if (m_globalMask & messageType) {
-            for (auto iter = m_backends.begin(); iter != m_backends.end(); ++iter) {
-                std::shared_ptr<LogBackend> backend = (*iter).second;
-                backend->addMessage( messageType , message );
+            for (auto iter : m_backends) {
+                LogBackend& backend = *(iter.second);
+                backend.addTaggedMessage( messageType, tag, message );
             }
         }
+    }
+
+    void Logger::addMessage(int64_t messageType , const std::string& message) const {
+        addTaggedMessage(messageType, "", message);
     }
 
 
@@ -61,6 +66,11 @@ namespace Opm {
             return false;
         else
             return true;
+    }
+
+    void Logger::removeAllBackends() {
+        m_backends.clear();
+        m_globalMask = 0;
     }
 
     bool Logger::removeBackend(const std::string& name) {

@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __WELL_SEGMENT_H__
-#define __WELL_SEGMENT_H__
+#ifndef ERT_WELL_SEGMENT_H
+#define ERT_WELL_SEGMENT_H
 
 
 #ifdef __cplusplus

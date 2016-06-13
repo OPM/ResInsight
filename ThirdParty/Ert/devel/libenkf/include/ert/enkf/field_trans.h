@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FIELD_TRANS_H__
-#define __FIELD_TRANS_H__
+#ifndef ERT_FIELD_TRANS_H
+#define ERT_FIELD_TRANS_H
 #ifdef __cplusplus 
 extern "C" {
 #endif

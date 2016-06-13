@@ -11,7 +11,13 @@ class EnsembleExperiment(BaseRunModel):
     def runSimulations(self):
         self.setPhase(0, "Running simulations...", indeterminate=False)
         active_realization_mask = ActiveRealizationsModel().getActiveRealizationsMask()
-        
+
+        self.setPhaseName("Pre processing...", indeterminate=True)
+        self.ert().getEnkfSimulationRunner().createRunPath(active_realization_mask, 0)
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.PRE_SIMULATION )
+
+        self.setPhaseName("Running ensemble experiment...", indeterminate=False)
+
         success = self.ert().getEnkfSimulationRunner().runEnsembleExperiment(active_realization_mask)
 
         if not success:

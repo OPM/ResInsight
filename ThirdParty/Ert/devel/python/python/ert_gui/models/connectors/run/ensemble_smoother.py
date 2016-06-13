@@ -19,11 +19,14 @@ class EnsembleSmoother(BaseRunModel):
 
     def runSimulations(self):
         self.setPhase(0, "Running simulations...", indeterminate=False)
-
         self.setAnalysisModule()
-
         active_realization_mask = ActiveRealizationsModel().getActiveRealizationsMask()
 
+        self.setPhaseName("Pre processing...", indeterminate=True)
+        self.ert().getEnkfSimulationRunner().createRunPath(active_realization_mask, 0)
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.PRE_SIMULATION )
+
+        self.setPhaseName("Running forecast...", indeterminate=False)
         success = self.ert().getEnkfSimulationRunner().runSimpleStep(active_realization_mask, EnkfInitModeEnum.INIT_CONDITIONAL , 0)
 
         if not success:
@@ -37,10 +40,10 @@ class EnsembleSmoother(BaseRunModel):
             #else ignore and continue
 
 
-        
+
         self.setPhaseName("Post processing...", indeterminate=True)
         self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.POST_SIMULATION )
-        
+
         self.setPhaseName("Analyzing...", indeterminate=True)
 
         target_case_name = TargetCaseModel().getValue()
@@ -52,8 +55,14 @@ class EnsembleSmoother(BaseRunModel):
             raise ErtRunError("Analysis of simulation failed!")
 
         self.setPhase(1, "Running simulations...", indeterminate=False)
-
         self.ert().getEnkfFsManager().switchFileSystem(target_fs)
+        
+        self.setPhaseName("Pre processing...", indeterminate=True)
+        self.ert().getEnkfSimulationRunner().createRunPath(active_realization_mask, 1)
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.PRE_SIMULATION )
+
+        self.setPhaseName("Running forecast...", indeterminate=True)
+
         success = self.ert().getEnkfSimulationRunner().runSimpleStep(active_realization_mask, EnkfInitModeEnum.INIT_NONE, 1)
 
         if not success:

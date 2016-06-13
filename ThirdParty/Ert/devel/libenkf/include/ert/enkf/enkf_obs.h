@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ENKF_OBS_H__
-#define __ENKF_OBS_H__
+#ifndef ERT_ENKF_OBS_H
+#define ERT_ENKF_OBS_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,7 +64,6 @@ extern "C" {
   void enkf_obs_get_obs_and_measure_node( const enkf_obs_type      * enkf_obs,
                                           enkf_fs_type             * fs,
                                           const local_obsdata_node_type * obs_node ,
-                                          state_enum                 state,
                                           const int_vector_type    * ens_active_list ,
                                           meas_data_type           * meas_data,
                                           obs_data_type            * obs_data);
@@ -73,7 +72,6 @@ extern "C" {
   void enkf_obs_get_obs_and_measure_data(const enkf_obs_type      * enkf_obs,
                                          enkf_fs_type             * fs,
                                          const local_obsdata_type * local_obsdata ,
-                                         state_enum                 state,
                                          const int_vector_type    * ens_active_list ,
                                          meas_data_type           * meas_data,
                                          obs_data_type            * obs_data);

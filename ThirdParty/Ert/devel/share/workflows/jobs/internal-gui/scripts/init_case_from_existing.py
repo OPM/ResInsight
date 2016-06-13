@@ -1,5 +1,4 @@
 from ert.enkf import ErtScript
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 
 
 class InitCaseFromExistingJob(ErtScript):
@@ -14,4 +13,4 @@ class InitCaseFromExistingJob(ErtScript):
         else:
             target_fs = ert.getEnkfFsManager().getFileSystem(target_case)
 
-        ert.getEnkfFsManager().initializeCaseFromExisting(source_fs, 0, EnkfStateType.ANALYZED, target_fs)
+        ert.getEnkfFsManager().initializeCaseFromExisting(source_fs, 0 , target_fs)

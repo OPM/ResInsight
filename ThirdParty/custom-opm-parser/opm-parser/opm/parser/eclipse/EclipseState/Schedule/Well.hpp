@@ -29,6 +29,7 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/WellPolymerProperties.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/WellProductionProperties.hpp>
 #include <opm/parser/eclipse/EclipseState/Util/Value.hpp>
+#include <opm/parser/eclipse/Parser/MessageContainer.hpp>
 
 namespace Opm {
 
@@ -115,6 +116,7 @@ namespace Opm {
 
         void addSegmentSet(size_t time_step, std::shared_ptr< const SegmentSet > new_segmentset);
 
+        const MessageContainer& getMessageContainer() const;
     private:
         void setRefDepthFromCompletions() const;
         size_t m_creationTimeStep;
@@ -148,7 +150,7 @@ namespace Opm {
 
         WellCompletion::CompletionOrderEnum m_comporder;
         bool m_allowCrossFlow;
-
+        MessageContainer m_messages;
         // WELSEGS DATA - for mutli-segment wells
         // flag indicating if the well is a multi-segment well
         std::shared_ptr<DynamicState<std::shared_ptr< const SegmentSet >>> m_segmentset;

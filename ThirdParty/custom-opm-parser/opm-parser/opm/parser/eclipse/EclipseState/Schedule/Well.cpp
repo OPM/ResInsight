@@ -156,12 +156,15 @@ namespace Opm {
 
     bool Well::setStatus(size_t timeStep, WellCommon::StatusEnum status) {
         if ((WellCommon::StatusEnum::OPEN == status) && getCompletions(timeStep)->allCompletionsShut()) {
-            std::cerr << "ERROR when handling keyword for well "<< name()  << ": Cannot open a well where all completions are shut" << std::endl;
+            m_messages.note("When handling keyword for well " + name() + ": Cannot open a well where all completions are shut");
             return false;
         } else
             return m_status->update( timeStep , status );
     }
 
+    const MessageContainer& Well::getMessageContainer() const {
+        return m_messages;
+    }
     bool Well::isProducer(size_t timeStep) const {
         return m_isProducer->get(timeStep);
     }

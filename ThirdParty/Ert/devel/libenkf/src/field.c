@@ -389,7 +389,7 @@ void field_copy(const field_type *src , field_type * target ) {
 
 
 
-void field_read_from_buffer(field_type * field , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
+void field_read_from_buffer(field_type * field , buffer_type * buffer, enkf_fs_type * fs, int report_step) {
   int byte_size = field_config_get_byte_size( field->config );
   enkf_util_assert_buffer_type(buffer , FIELD);
   buffer_fread_compressed(buffer , buffer_get_remaining_size( buffer ) , field->data , byte_size);
@@ -532,7 +532,7 @@ void field_ROFF_export(const field_type * field , const char * export_filename, 
 
 
 
-bool field_write_to_buffer(const field_type * field , buffer_type * buffer , int report_step , state_enum state) {
+bool field_write_to_buffer(const field_type * field , buffer_type * buffer , int report_step) {
   int byte_size = field_config_get_byte_size( field->config );
   buffer_fwrite_int( buffer , FIELD );
   buffer_fwrite_compressed( buffer , field->data , byte_size );
@@ -1456,7 +1456,7 @@ void field_update_sum(field_type * sum , field_type * field , double lower_limit
   [1..ny] , [1...nz], they are immediately converted to C-based zero
   offset indices.
 */
-bool field_user_get(const field_type * field, const char * index_key, int report_step , state_enum state, double * value)
+bool field_user_get(const field_type * field, const char * index_key, int report_step , double * value)
 {
   const    bool internal_value = false;
   bool     valid;

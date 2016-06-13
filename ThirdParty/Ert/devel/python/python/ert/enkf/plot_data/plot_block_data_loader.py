@@ -1,4 +1,4 @@
-from ert.enkf import EnkfStateType, RealizationStateEnum, EnkfNode, ErtImplType, NodeId
+from ert.enkf import RealizationStateEnum, EnkfNode, ErtImplType, NodeId
 from ert.enkf.plot_data import PlotBlockData, PlotBlockVector
 from ert.util import DoubleVector, BoolVector, ThreadPool
 
@@ -31,11 +31,10 @@ class PlotBlockDataLoader(object):
         return depth
 
 
-    def load(self, fs, report_step, state=EnkfStateType.FORECAST, input_mask=None):
+    def load(self, fs, report_step, input_mask=None):
         """
          @type fs: EnkfFs
          @type report_step: int
-         @type state: EnkfStateType
          @type input_mask: BoolVector
          @rtype: PlotBlockData
         """
@@ -60,7 +59,7 @@ class PlotBlockDataLoader(object):
         thread_pool = ThreadPool()
         for index in range(ensemble_size):
             if mask[index]:
-                thread_pool.addTask(self.loadVector, plot_block_data, fs, report_step, index, state)
+                thread_pool.addTask(self.loadVector, plot_block_data, fs, report_step, index)
 
         thread_pool.nonBlockingStart()
         thread_pool.join()
@@ -68,13 +67,12 @@ class PlotBlockDataLoader(object):
         return plot_block_data
 
 
-    def loadVector(self, plot_block_data, fs, report_step, realization_number, state=EnkfStateType.FORECAST):
+    def loadVector(self, plot_block_data, fs, report_step, realization_number):
         """
         @type plot_block_data: PlotBlockData
         @type fs: EnkfFs
         @type report_step: int
         @type realization_number: int
-        @type state: EnkfStateType
         @rtype PlotBlockVector
         """
         config_node = self.__obs_vector.getConfigNode()
@@ -82,7 +80,7 @@ class PlotBlockDataLoader(object):
         is_private_container = config_node.getImplementationType() == ErtImplType.CONTAINER
         data_node = EnkfNode(config_node, private=is_private_container)
 
-        node_id = NodeId(report_step, realization_number, state)
+        node_id = NodeId(report_step, realization_number)
 
         if data_node.tryLoad(fs, node_id):
             block_obs = self.getBlockObservation(report_step)

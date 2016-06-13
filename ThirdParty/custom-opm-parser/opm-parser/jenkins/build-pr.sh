@@ -32,9 +32,9 @@ source $WORKSPACE/deps/opm-common/jenkins/build-opm-module.sh
 # Downstream revisions
 declare -a downstreams
 downstreams=(opm-material
+             opm-output
              opm-core
              opm-grid
-             opm-output
              opm-simulators
              opm-upscaling
              ewoms)

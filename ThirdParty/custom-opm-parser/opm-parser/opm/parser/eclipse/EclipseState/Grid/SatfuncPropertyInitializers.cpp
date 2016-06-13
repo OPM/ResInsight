@@ -683,15 +683,15 @@ namespace Opm {
                                               const std::vector< double >& fallbackValues,
                                               const TableManager* tableManager,
                                               const EclipseGrid* eclipseGrid,
-                                              GridProperties<int>* intGridProperties,
+                                              const GridProperties<int>* intGridProperties,
                                               bool useOneMinusTableValue ) {
 
 
         std::vector< double > values( size, 0 );
         auto tabdims = tableManager->getTabdims();
 
-        auto& satnum = intGridProperties->getKeyword("SATNUM");
-        auto& endnum = intGridProperties->getKeyword("ENDNUM");
+        const auto& satnum = intGridProperties->getKeyword("SATNUM");
+        const auto& endnum = intGridProperties->getKeyword("ENDNUM");
         int numSatTables = tabdims->getNumSatTables();
 
         satnum.checkLimits( 1 , numSatTables );
@@ -729,13 +729,13 @@ namespace Opm {
                                               const std::vector< double >& fallBackValues,
                                               const TableManager* tableManager,
                                               const EclipseGrid* eclipseGrid,
-                                              GridProperties<int>* intGridProperties,
+                                              const GridProperties<int>* intGridProperties,
                                               bool useOneMinusTableValue ) {
 
         std::vector< double > values( size, 0 );
 
-        auto& imbnum = intGridProperties->getKeyword("IMBNUM");
-        auto& endnum = intGridProperties->getKeyword("ENDNUM");
+        const auto& imbnum = intGridProperties->getKeyword("IMBNUM");
+        const auto& endnum = intGridProperties->getKeyword("ENDNUM");
 
         auto tabdims = tableManager->getTabdims();
         const int numSatTables = tabdims->getNumSatTables();

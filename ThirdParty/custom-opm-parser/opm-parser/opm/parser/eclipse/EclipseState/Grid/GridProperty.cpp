@@ -340,27 +340,6 @@ namespace Opm {
     }
 
     template< typename T >
-    ERT::EclKW<T> GridProperty< T >::getEclKW() const {
-        ERT::EclKW<T> eclKW( getKeywordName(), getCartesianSize());
-        eclKW.assignVector( getData() );
-        return eclKW;
-    }
-
-    template< typename T >
-    ERT::EclKW<T> GridProperty< T >::getEclKW( const EclipseGrid& grid ) const {
-        ERT::EclKW<T> eclKW( getKeywordName(), grid.getNumActive() );
-        size_t activeIndex = 0;
-        for (size_t g = 0; g < getCartesianSize(); g++) {
-            if (grid.cellActive( g )) {
-                eclKW[activeIndex] = iget(g);
-                activeIndex++;
-            }
-        }
-
-        return eclKW;
-    }
-
-    template< typename T >
     void GridProperty< T >::checkLimits( T min, T max ) const {
         for (size_t g=0; g < m_data.size(); g++) {
             T value = m_data[g];
@@ -433,10 +412,11 @@ const std::string& GridProperty<double>::getDimensionString() const {
     return m_kwInfo.getDimensionString();
 }
 
+
 std::vector< double > temperature_lookup( size_t size,
                                             const TableManager* tables,
                                             const EclipseGrid* grid,
-                                            GridProperties<int>* ig_props ) {
+                                            const GridProperties<int>* ig_props ) {
 
     if( !tables->useEqlnum() ) {
         /* if values are defaulted in the TEMPI keyword, but no

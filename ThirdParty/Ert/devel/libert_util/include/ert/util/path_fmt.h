@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __PATH_FMT_H__
-#define __PATH_FMT_H__
+#ifndef ERT_PATH_FMT_H
+#define ERT_PATH_FMT_H
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -194,7 +194,7 @@ site_config_type * site_config_alloc_empty() {
   site_config->user_mode = false;
   site_config->driver_type = NULL_DRIVER;
 
-  site_config->job_queue = job_queue_alloc(DEFAULT_MAX_SUBMIT, "OK", "ERROR");
+  site_config->job_queue = job_queue_alloc(DEFAULT_MAX_SUBMIT, "OK", "STATUS", "ERROR");
   site_config->env_variables_user = hash_alloc();
   site_config->env_variables_site = hash_alloc();
 

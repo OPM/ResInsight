@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ENSEMBLE_CONFIG_H__
-#define __ENSEMBLE_CONFIG_H__
+#ifndef ERT_ENSEMBLE_CONFIG_H
+#define ERT_ENSEMBLE_CONFIG_H
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __UTIL_ENV_H__
-#define __UTIL_ENV_H__
+#ifndef ERT_UTIL_ENV_H
+#define ERT_UTIL_ENV_H
 
 
 

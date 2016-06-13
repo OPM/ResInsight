@@ -22,7 +22,6 @@
 #include <opm/parser/eclipse/Deck/DeckItem.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/CompletionSet.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Compsegs.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/SegmentSet.hpp>
@@ -46,11 +45,7 @@ namespace Opm {
     {
     }
 
-    std::vector<CompsegsPtr> Compsegs::compsegsFromCOMPSEGSKeyword( const DeckKeyword& compsegsKeyword,
-                                                                   EclipseGridConstPtr grid) {
-        // the thickness of grid cells will be required in the future for more complete support.
-        // Silence warning about unused argument
-        static_cast<void>(grid);
+    std::vector<CompsegsPtr> Compsegs::compsegsFromCOMPSEGSKeyword( const DeckKeyword& compsegsKeyword ) {
 
         // only handle the second record here
         // The first record here only contains the well name

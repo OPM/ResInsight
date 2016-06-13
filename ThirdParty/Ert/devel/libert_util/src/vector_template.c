@@ -1205,8 +1205,8 @@ static int @TYPE@_vector_rcmp_node(const void *a, const void *b) {
 
 
 
-static int * @TYPE@_vector_alloc_sort_perm__(const @TYPE@_vector_type * vector, bool reverse) {
-  int * sort_perm             = util_calloc( vector->size , sizeof * sort_perm );
+static perm_vector_type * @TYPE@_vector_alloc_sort_perm__(const @TYPE@_vector_type * vector, bool reverse) {
+  int * perm = util_calloc( vector->size , sizeof * perm ); // The perm_vector return value will take ownership of this array.
   sort_node_type * sort_nodes = util_calloc( vector->size , sizeof * sort_nodes );
   int i;
   for (i=0; i < vector->size; i++) {
@@ -1219,30 +1219,30 @@ static int * @TYPE@_vector_alloc_sort_perm__(const @TYPE@_vector_type * vector, 
     qsort(sort_nodes , vector->size , sizeof * sort_nodes ,  @TYPE@_vector_cmp_node);
 
   for (i=0; i < vector->size; i++)
-    sort_perm[i] = sort_nodes[i].index;
+    perm[i] = sort_nodes[i].index;
 
   free( sort_nodes );
-  return sort_perm;
+  return perm_vector_alloc( perm , vector->size );
 }
 
 
-int * @TYPE@_vector_alloc_sort_perm(const @TYPE@_vector_type * vector) {
+perm_vector_type * @TYPE@_vector_alloc_sort_perm(const @TYPE@_vector_type * vector) {
   return @TYPE@_vector_alloc_sort_perm__( vector , false );
 }
 
 
-int * @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector) {
+perm_vector_type *  @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector) {
   return @TYPE@_vector_alloc_sort_perm__( vector , true );
 }
 
 
-void @TYPE@_vector_permute(@TYPE@_vector_type * vector , const int * perm) {
+void @TYPE@_vector_permute(@TYPE@_vector_type * vector , const perm_vector_type * perm) {
   @TYPE@_vector_assert_writable( vector );
   {
     int i;
     @TYPE@ * tmp = util_alloc_copy( vector->data , sizeof * tmp * vector->size );
     for (i=0; i < vector->size; i++)
-      vector->data[i] = tmp[perm[i]];
+      vector->data[i] = tmp[perm_vector_iget( perm , i )];
     free( tmp );
   }
 }

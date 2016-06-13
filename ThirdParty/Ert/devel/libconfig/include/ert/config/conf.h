@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONF_H__
-#define __CONF_H__
+#ifndef ERT_CONF_H
+#define ERT_CONF_H
 
 /* libconfig: lightweight configuration parser
  *

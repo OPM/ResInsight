@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CASES_CONFIG_H__
-#define __CASES_CONFIG_H__
+#ifndef ERT_CASES_CONFIG_H
+#define ERT_CASES_CONFIG_H
 
 #ifdef __cplusplus 
 extern "C" {

@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __TEST_WORK_AREA_H__
-#define __TEST_WORK_AREA_H__
+#ifndef ERT_TEST_WORK_AREA_H
+#define ERT_TEST_WORK_AREA_H
 
 #ifdef __cplusplus
 extern "C" {

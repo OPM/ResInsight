@@ -21,25 +21,63 @@
 #ifndef OPM_LOGBACKEND_HPP
 #define OPM_LOGBACKEND_HPP
 
+#include <opm/common/OpmLog/MessageFormatter.hpp>
+#include <opm/common/OpmLog/MessageLimiter.hpp>
 #include <cstdint>
 #include <string>
+#include <memory>
 
-namespace Opm {
+namespace Opm
+{
 
-class LogBackend {
+    /// Abstract interface class for log backends.
+    class LogBackend
+    {
+    public:
+        /// Construct with given message mask.
+        explicit LogBackend(int64_t mask);
 
-public:
-    LogBackend( int64_t mask );
-    virtual ~LogBackend() { };
-    virtual void addMessage(int64_t , const std::string& ) { };
+        /// Virtual destructor to enable inheritance.
+        virtual ~LogBackend();
 
-    int64_t getMask() const;
-    bool    includeMessage(int64_t messageFlag);
+        /// Configure how formatMessage() will modify message strings.
+        void setMessageFormatter(std::shared_ptr<MessageFormatterInterface> formatter);
 
-private:
-    int64_t m_mask;
-};
-}
+        /// Configure how message tags will be used to limit messages.
+        void setMessageLimiter(std::shared_ptr<MessageLimiter> limiter);
+
+        /// Add a message to the backend.
+        ///
+        /// Typically a subclass may filter, change, and output
+        /// messages based on configuration and the messageFlag.
+        void addMessage(int64_t messageFlag, const std::string& message);
+
+        /// Add a tagged message to the backend.
+        ///
+        /// Typically a subclass may filter, change, and output
+        /// messages based on configuration and the messageFlag.
+        virtual void addTaggedMessage(int64_t messageFlag,
+                                      const std::string& messageTag,
+                                      const std::string& message) = 0;
+
+        /// The message mask types are specified in the
+        /// Opm::Log::MessageType namespace, in file LogUtils.hpp.
+        int64_t getMask() const;
+
+    protected:
+        /// Return true if all bits of messageFlag are also set in our mask.
+        bool includeMessage(int64_t messageFlag, const std::string& messageTag);
+
+        /// Return decorated version of message depending on configureDecoration() arguments.
+        std::string formatMessage(int64_t messageFlag, const std::string& message);
+
+    private:
+        int64_t m_mask;
+        std::shared_ptr<MessageFormatterInterface> m_formatter;
+        std::shared_ptr<MessageLimiter> m_limiter;
+    };
+
+} // namespace LogBackend
 
 
 #endif

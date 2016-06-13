@@ -31,7 +31,6 @@
 
 #include <opm/parser/eclipse/Parser/ParserEnums.hpp>
 #include <opm/parser/eclipse/Units/ConversionFactors.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Well.hpp>
@@ -44,8 +43,7 @@ BOOST_AUTO_TEST_CASE( parse_WCONPROD_OK ) {
     std::string wconprodFile("testdata/integration_tests/WellWithWildcards/WCONPROD1");
     DeckPtr deck =  parser->parseFile(wconprodFile, ParseContext());
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>( 30,30,30);
-    IOConfigPtr ioConfig;
-    SchedulePtr sched(new Schedule(ParseContext() , grid , deck, ioConfig));
+    SchedulePtr sched(new Schedule(ParseContext() , grid , deck ));
 
     BOOST_CHECK_EQUAL(5U, sched->numWells());
     BOOST_CHECK(sched->hasWell("INJE1"));
@@ -80,8 +78,7 @@ BOOST_AUTO_TEST_CASE( parse_WCONINJE_OK ) {
     std::string wconprodFile("testdata/integration_tests/WellWithWildcards/WCONINJE1");
     DeckPtr deck =  parser->parseFile(wconprodFile, parseContext);
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>( 30,30,30 );
-    IOConfigPtr ioConfig;
-    SchedulePtr sched(new Schedule(parseContext , grid , deck, ioConfig));
+    SchedulePtr sched(new Schedule(parseContext , grid , deck ));
 
     BOOST_CHECK_EQUAL(5U, sched->numWells());
     BOOST_CHECK(sched->hasWell("PROD1"));

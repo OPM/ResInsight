@@ -26,7 +26,6 @@ find_opm_package (
   dune-common REQUIRED;
   dune-geometry REQUIRED;
   MPI;
-  ALUGrid;
   UG
   "
   # header to search for
@@ -49,7 +48,6 @@ int main (void) {
   "HAVE_MPI;
    HAVE_UG;
    HAVE_DUNE_FEM;
-   HAVE_ALUGRID;
    HAVE_GRIDTYPE;
    HAVE_GRAPE;
    HAVE_PSURFACE;

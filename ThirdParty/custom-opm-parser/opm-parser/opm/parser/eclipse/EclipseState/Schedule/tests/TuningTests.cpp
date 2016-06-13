@@ -26,7 +26,6 @@
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp>
 #include <opm/parser/eclipse/Units/ConversionFactors.hpp>
@@ -72,8 +71,7 @@ BOOST_AUTO_TEST_CASE(TuningTest) {
 
   DeckPtr deck = createDeck(deckStr);
   std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>( 10 , 10 , 10 );
-  IOConfigPtr ioConfig;
-  Schedule schedule(ParseContext() , grid , deck, ioConfig);
+  Schedule schedule( ParseContext() , grid , deck );
   TuningPtr tuning = schedule.getTuning();
 
 
@@ -324,8 +322,7 @@ BOOST_AUTO_TEST_CASE(TuningInitTest) {
 
   DeckPtr deck = createDeck(deckStr);
   std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>( 10 , 10 , 10 );
-  IOConfigPtr ioConfig;
-  Schedule schedule(ParseContext() , grid , deck, ioConfig);
+  Schedule schedule(ParseContext() , grid , deck);
   TuningPtr tuning = schedule.getTuning();
 
 
@@ -353,8 +350,7 @@ BOOST_AUTO_TEST_CASE(TuningResetTest) {
 
   DeckPtr deck = createDeck(deckStr);
   std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>( 10 , 10 , 10 );
-  IOConfigPtr ioConfig;
-  Schedule schedule(ParseContext() , grid , deck, ioConfig);
+  Schedule schedule(ParseContext() , grid , deck);
   TuningPtr tuning = schedule.getTuning();
 
 

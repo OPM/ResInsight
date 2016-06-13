@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __WELL_INDEX_H__
-#define __WELL_INDEX_H__
+#ifndef ERT_WELL_INDEX_H
+#define ERT_WELL_INDEX_H
 
 #ifdef __cplusplus 
 extern "C" {

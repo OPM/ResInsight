@@ -1,13 +1,7 @@
 language: cpp
 
-matrix:
-  fast_finish: true
-  include:
-    - os: osx
-      osx_image: xcode7.3
-      compiler: clang
-    - os: linux
-      compiler: gcc
+compiler:
+  - gcc
 
 addons:
   apt:
@@ -20,17 +14,18 @@ addons:
       - g++-4.8
       - gfortran-4.8
       - liblapack-dev
-      - clang
+      - libgmp3-dev
+      - libsuitesparse-dev
+      - libeigen3-dev
 
-install:
-    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8" FC="gfortran-4.8"; fi
-
+before_script:
+    - export CXX="g++-4.8" CC="gcc-4.8" FC="gfortran-4.8"
     - cd ..
-
     - git clone https://github.com/OPM/opm-common.git
-    - git clone https://github.com/OPM/opm-data.git
+    - opm-common/travis/clone-opm.sh opm-parser
+    - opm-common/travis/build-prereqs.sh
+    
 
-    - opm-common/travis/build-opm-common-shared.sh
-    - opm-parser/travis/clone-and-build-ert.sh
+script: opm-common/travis/build-and-test.sh opm-parser
 
-script: opm-parser/travis/build-and-test-opm-parser.sh
+

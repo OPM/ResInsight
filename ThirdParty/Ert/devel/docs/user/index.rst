@@ -8,8 +8,8 @@ Contents:
 
    tutorial/index
    keywords/index
-   magic_strings/index
    workflows/index
+   magic_strings/index
    observations/index
    distributions/index
    localization/index

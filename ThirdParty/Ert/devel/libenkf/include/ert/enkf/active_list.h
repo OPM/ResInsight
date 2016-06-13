@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ACTIVE_LIST_H__
-#define __ACTIVE_LIST_H__
+#ifndef ERT_ACTIVE_LIST_H
+#define ERT_ACTIVE_LIST_H
 
 #ifdef __cplusplus
 extern "C" {

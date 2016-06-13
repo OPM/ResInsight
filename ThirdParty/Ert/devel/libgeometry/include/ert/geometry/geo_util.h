@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __GEO_UTIL_H__
-#define __GEO_UTIL_H__
+#ifndef ERT_GEO_UTIL_H
+#define ERT_GEO_UTIL_H
 
 
 #ifdef __cplusplus

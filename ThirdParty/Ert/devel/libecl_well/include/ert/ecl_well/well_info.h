@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __WELL_INFO_H__
-#define __WELL_INFO_H__
+#ifndef ERT_WELL_INFO_H
+#define ERT_WELL_INFO_H
 
 
 #ifdef __cplusplus

@@ -2,6 +2,10 @@
 # compiler/linker. first parameter is the name of the variable that will
 # receive this list, the rest is considered the list of libraries
 function (linker_cmdline what INTO outvar FROM)
+  if (NOT (UNIX OR MSYS OR MINGW))
+	return ()
+  endif (NOT (UNIX OR MSYS OR MINGW))
+
   # if we are going to put these in regexps, we must escape period
   string (REPLACE "." "\\." esc_dl_pref "${CMAKE_SHARED_LIBRARY_PREFIX}")
   string (REPLACE "." "\\." esc_dl_suff "${CMAKE_SHARED_LIBRARY_SUFFIX}")

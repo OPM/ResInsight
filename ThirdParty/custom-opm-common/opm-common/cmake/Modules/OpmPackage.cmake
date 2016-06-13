@@ -243,7 +243,7 @@ macro (find_opm_package module deps header lib defs prog conf)
 		NAMES "${_lib}"
 		PATHS ${_guess_bin}
 		HINTS ${PkgConf_${module}_LIBRARY_DIRS} ${_guess_hints_bin}
-		PATH_SUFFIXES "lib" "lib/.libs" ".libs" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}" "build-cmake/lib"
+		PATH_SUFFIXES "lib" "lib/Debug" "lib/Release" "lib/.libs" ".libs" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}" "build-cmake/lib"
 		${_no_system_lib}		
 		)
 	  # debug info if we didn't find the desired library

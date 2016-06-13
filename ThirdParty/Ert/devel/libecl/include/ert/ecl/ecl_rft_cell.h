@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ECL_RFT_CELL_H__
-#define __ECL_RFT_CELL_H__
+#ifndef ERT_ECL_RFT_CELL_H
+#define ERT_ECL_RFT_CELL_H
 #ifdef __cplusplus
 extern "C" {
 #endif

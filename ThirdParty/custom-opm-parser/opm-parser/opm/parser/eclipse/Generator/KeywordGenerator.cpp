@@ -41,7 +41,7 @@ namespace Opm {
 
 
     std::string testHeader() {
-        std::string header = "#define BOOST_TEST_MODULE Master OPM test suite\n"
+        std::string header = "#define BOOST_TEST_MODULE ParserRecordTests\n"
             "#include <boost/filesystem.hpp>\n"
             "#include <boost/test/unit_test.hpp>\n"
             "#include <memory>\n"

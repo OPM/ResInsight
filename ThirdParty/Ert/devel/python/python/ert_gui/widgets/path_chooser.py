@@ -138,7 +138,7 @@ class PathChooser(HelpedWidget):
 
     def getPath(self):
         """Returns the path"""
-        return str(self.path_line.text()).strip()
+        return os.path.expanduser(str(self.path_line.text()).strip())
 
     def pathExists(self):
         """Returns True if the entered path exists"""

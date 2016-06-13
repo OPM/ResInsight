@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __POINT_H__
-#define __POINT_H__
+#ifndef ERT_POINT_H
+#define ERT_POINT_H
 #ifdef __cplusplus
 extern "C" {
 #endif

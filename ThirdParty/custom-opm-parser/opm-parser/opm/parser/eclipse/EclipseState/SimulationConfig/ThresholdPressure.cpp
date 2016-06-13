@@ -21,7 +21,6 @@
 #include <opm/parser/eclipse/Deck/Section.hpp>
 #include <opm/parser/eclipse/EclipseState/Eclipse3DProperties.hpp>
 #include <opm/parser/eclipse/EclipseState/SimulationConfig/ThresholdPressure.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/E.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/R.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/T.hpp>
@@ -29,16 +28,14 @@
 
 namespace Opm {
 
-    ThresholdPressure::ThresholdPressure(const ParseContext& parseContext,
-                                         const Deck& deck,
-                                         const Eclipse3DProperties& eclipseProperties) :
-                                         m_parseContext( parseContext )
+    ThresholdPressure::ThresholdPressure(const Deck& deck,
+                                         const Eclipse3DProperties& eclipseProperties)
     {
 
         if (Section::hasRUNSPEC( deck ) && Section::hasSOLUTION( deck )) {
             std::shared_ptr<const RUNSPECSection> runspecSection = std::make_shared<const RUNSPECSection>( deck );
             std::shared_ptr<const SOLUTIONSection> solutionSection = std::make_shared<const SOLUTIONSection>( deck );
-            initThresholdPressure( parseContext, runspecSection, solutionSection, eclipseProperties );
+            initThresholdPressure( runspecSection, solutionSection, eclipseProperties );
         }
     }
 
@@ -66,8 +63,7 @@ namespace Opm {
     }
 
 
-    void ThresholdPressure::initThresholdPressure(const ParseContext& /* parseContext */,
-                                                  std::shared_ptr<const RUNSPECSection> runspecSection,
+    void ThresholdPressure::initThresholdPressure(std::shared_ptr<const RUNSPECSection> runspecSection,
                                                   std::shared_ptr<const SOLUTIONSection> solutionSection,
                                                   const Eclipse3DProperties& eclipseProperties) {
 
@@ -164,7 +160,7 @@ namespace Opm {
                 return value;
             else {
                 std::string msg = "The THPRES value for regions " + std::to_string(r1) + " and " + std::to_string(r2) + " has not been initialized. Using 0.0";
-                m_parseContext.handleError(ParseContext::INTERNAL_ERROR_UNINITIALIZED_THPRES, msg);
+                throw std::invalid_argument(msg);
                 return 0;
             }
         }

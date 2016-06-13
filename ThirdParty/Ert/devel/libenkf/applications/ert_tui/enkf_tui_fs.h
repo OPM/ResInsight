@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_TUI_FS_H__
-#define __ENKF_TUI_FS_H__
+#ifndef ERT_ENKF_TUI_FS_H
+#define ERT_ENKF_TUI_FS_H
 
 void enkf_tui_fs_menu(void * );
 

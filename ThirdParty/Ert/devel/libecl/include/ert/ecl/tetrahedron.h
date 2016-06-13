@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __TETRAHEDRON_H__
-#define __TETRAHEDRON_H__
+#ifndef ERT_TETRAHEDRON_H
+#define ERT_TETRAHEDRON_H
 
 
 typedef struct tetrahedron_struct tetrahedron_type;

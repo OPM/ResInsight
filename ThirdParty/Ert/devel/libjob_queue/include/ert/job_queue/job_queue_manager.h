@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __JOB_QUEUE_MANAGER_H__
-#define __JOB_QUEUE_MANAGER_H__
+#ifndef ERT_JOB_QUEUE_MANAGER_H
+#define ERT_JOB_QUEUE_MANAGER_H
 #ifdef __cplusplus
 extern "C" {
 #endif

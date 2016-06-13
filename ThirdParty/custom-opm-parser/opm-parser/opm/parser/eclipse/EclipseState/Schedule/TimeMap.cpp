@@ -34,7 +34,9 @@ namespace Opm {
         m_timeList.push_back( boost::posix_time::ptime(startDate) );
     }
 
-    TimeMap::TimeMap(Opm::DeckConstPtr deck) {
+    TimeMap::TimeMap(Opm::DeckConstPtr deck) : TimeMap( *deck ) {}
+
+    TimeMap::TimeMap( const Deck& deck) {
         // The default start date is not specified in the Eclipse
         // reference manual. We hence just assume it is same as for
         // the START keyword for Eclipse R100, i.e., January 1st,
@@ -43,8 +45,8 @@ namespace Opm {
 
         // use the 'START' keyword to find out the start date (if the
         // keyword was specified)
-        if (deck->hasKeyword("START")) {
-            const auto& keyword = deck->getKeyword("START");
+        if (deck.hasKeyword("START")) {
+            const auto& keyword = deck.getKeyword("START");
             startTime = timeFromEclipse(keyword.getRecord(/*index=*/0));
         }
 
@@ -52,10 +54,7 @@ namespace Opm {
 
         // find all "TSTEP" and "DATES" keywords in the deck and deal
         // with them one after another
-        size_t numKeywords = deck->size();
-        for (size_t keywordIdx = 0; keywordIdx < numKeywords; ++keywordIdx) {
-            const auto& keyword = deck->getKeyword(keywordIdx);
-
+        for( const auto& keyword : deck ) {
             // We're only interested in "TSTEP" and "DATES" keywords,
             // so we ignore everything else here...
             if (keyword.name() != "TSTEP" &&
@@ -69,6 +68,9 @@ namespace Opm {
             else if (keyword.name() == "DATES")
                 addFromDATESKeyword(keyword);
         }
+
+        this->initFirstTimestepsYears();
+        this->initFirstTimestepsMonths();
     }
 
     size_t TimeMap::numTimesteps() const {

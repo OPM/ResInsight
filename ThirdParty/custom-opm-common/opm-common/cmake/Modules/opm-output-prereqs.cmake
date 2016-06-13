@@ -2,7 +2,7 @@
 # vim: set filetype=cmake autoindent tabstop=2 shiftwidth=2 noexpandtab softtabstop=2 nowrap:
 
 # defines that must be present in config.h for our headers
-set (opm-core_CONFIG_VAR
+set (opm-output_CONFIG_VAR
 	HAVE_ERT
 	)
 
@@ -14,13 +14,11 @@ set (opm-output_DEPS
 	"CXX11Features REQUIRED"
 	# various runtime library enhancements
 	"Boost 1.44.0
-		COMPONENTS date_time filesystem system unit_test_framework REQUIRED"
+		COMPONENTS filesystem system unit_test_framework REQUIRED"
 	# Ensembles-based Reservoir Tools (ERT)
 	"ERT REQUIRED"
 	# Look for MPI support
 	"opm-common REQUIRED"
 	# Parser library for ECL-type simulation models
 	"opm-parser REQUIRED"
-	# TODO remove this dependancy
-	"opm-core REQUIRED"
 	)

@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __GEO_SURFACE_H__
-#define __GEO_SURFACE_H__
+#ifndef ERT_GEO_SURFACE_H
+#define ERT_GEO_SURFACE_H
 
 #ifdef __cplusplus
 extern "C" {

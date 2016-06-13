@@ -35,7 +35,6 @@
 #include <opm/parser/eclipse/Parser/ParserKeywords/W.hpp>
 
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/CompletionSet.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/DynamicState.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/DynamicVector.hpp>
@@ -59,28 +58,31 @@
 
 namespace Opm {
 
+    static inline std::shared_ptr< TimeMap > createTimeMap( const Deck& deck ) {
+        boost::gregorian::date defaultStartTime( 1983, 1, 1 );
+        boost::posix_time::ptime startTime( defaultStartTime );
+
+        if (deck.hasKeyword("START")) {
+            const auto& startKeyword = deck.getKeyword("START");
+            startTime = TimeMap::timeFromEclipse(startKeyword.getRecord(0));
+        }
+
+        return std::make_shared< TimeMap >( startTime );
+    }
+
     Schedule::Schedule(const ParseContext& parseContext,
                        std::shared_ptr<const EclipseGrid> grid,
-                       DeckConstPtr deckptr,
-                       IOConfigPtr ioConfig) :
-            Schedule(parseContext, grid, *deckptr, ioConfig)
+                       std::shared_ptr< const Deck > deckptr ) :
+            Schedule(parseContext, grid, *deckptr )
+    {}
+
+    Schedule::Schedule( const ParseContext& parseContext,
+                        std::shared_ptr<const EclipseGrid> grid,
+                        const Deck& deck ) :
+            m_timeMap( createTimeMap( deck ) ),
+            m_grid( grid )
     {
-    }
-
-    Schedule::Schedule(const ParseContext& parseContext, std::shared_ptr<const EclipseGrid> grid, const Deck& deck,
-            IOConfigPtr ioConfig) :
-            m_grid(grid)
-    {
-        initFromDeck(parseContext, deck, ioConfig);
-    }
-
-    boost::posix_time::ptime Schedule::getStartTime() const {
-        return m_timeMap->getStartTime(/*timeStepIdx=*/0);
-    }
-
-    void Schedule::initFromDeck(const ParseContext& parseContext, const Deck& deck, IOConfigPtr ioConfig) {
         initializeNOSIM(deck);
-        createTimeMap(deck);
         m_tuning.reset(new Tuning(m_timeMap));
         m_events.reset(new Events(m_timeMap));
         m_modifierDeck.reset( new DynamicVector<std::shared_ptr<Deck> >( m_timeMap , std::shared_ptr<Deck>( 0 ) ));
@@ -90,8 +92,17 @@ namespace Opm {
 
         if (Section::hasSCHEDULE(deck)) {
             std::shared_ptr<SCHEDULESection> scheduleSection = std::make_shared<SCHEDULESection>(deck);
-            iterateScheduleSection(parseContext , *scheduleSection , ioConfig);
+            iterateScheduleSection(parseContext , *scheduleSection );
         }
+    }
+
+    boost::posix_time::ptime Schedule::getStartTime() const {
+        return m_timeMap->getStartTime(/*timeStepIdx=*/0);
+    }
+
+    time_t Schedule::posixStartTime() const {
+        boost::posix_time::ptime epoch( boost::gregorian::date( 1970, 1, 1 ) );
+        return time_t( ( this->getStartTime() - epoch ).total_seconds() );
     }
 
     void Schedule::initOilVaporization(TimeMapConstPtr timeMap) {
@@ -110,17 +121,7 @@ namespace Opm {
         }
     }
 
-    void Schedule::createTimeMap(const Deck& deck) {
-        boost::posix_time::ptime startTime(defaultStartDate);
-        if (deck.hasKeyword("START")) {
-             const auto& startKeyword = deck.getKeyword("START");
-            startTime = TimeMap::timeFromEclipse(startKeyword.getRecord(0));
-        }
-
-        m_timeMap.reset(new TimeMap(startTime));
-    }
-
-    void Schedule::iterateScheduleSection(const ParseContext& parseContext , const SCHEDULESection& section, IOConfigPtr ioConfig) {
+    void Schedule::iterateScheduleSection(const ParseContext& parseContext , const SCHEDULESection& section ) {
         /*
           geoModifiers is a list of geo modifiers which can be found in the schedule
           section. This is only partly supported, support is indicated by the bool
@@ -147,7 +148,6 @@ namespace Opm {
 
         size_t currentStep = 0;
         std::vector<std::pair< const DeckKeyword* , size_t> > rftProperties;
-        std::vector<std::pair< const DeckKeyword* , size_t> > IOConfigSettings;
 
         for (size_t keywordIdx = 0; keywordIdx < section.size(); ++keywordIdx) {
             const auto& keyword = section.getKeyword(keywordIdx);
@@ -220,12 +220,6 @@ namespace Opm {
             if (keyword.name() == "NOSIM")
                 handleNOSIM();
 
-            if (keyword.name() == "RPTRST")
-                IOConfigSettings.push_back( std::make_pair( &keyword , currentStep ));
-
-            if (keyword.name() == "RPTSCHED")
-                IOConfigSettings.push_back( std::make_pair( &keyword , currentStep ));
-
             if (keyword.name() == "WRFT")
                 rftProperties.push_back( std::make_pair( &keyword , currentStep ));
 
@@ -265,7 +259,7 @@ namespace Opm {
 
                 } else {
                     std::string msg = "OPM does not support grid property modifier " + keyword.name() + " in the Schedule section. Error at report: " + std::to_string( currentStep );
-                    parseContext.handleError( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , msg );
+                    parseContext.handleError( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , m_messages, msg );
                 }
             }
         }
@@ -282,16 +276,6 @@ namespace Opm {
 
             if (keyword.name() == "WRFTPLT"){
                 handleWRFTPLT(keyword, timeStep);
-            }
-        }
-
-        for (auto restartPair = IOConfigSettings.begin(); restartPair != IOConfigSettings.end(); ++restartPair) {
-            const DeckKeyword& keyword = *restartPair->first;
-            size_t timeStep = restartPair->second;
-            if ((keyword.name() == "RPTRST") && (m_timeMap->size() > timeStep+1 )) {
-                handleRPTRST(keyword, timeStep + 1, ioConfig);
-              } else if ((keyword.name() == "RPTSCHED") && (m_timeMap->size() > timeStep+1 )){
-                handleRPTSCHED(keyword, timeStep + 1, ioConfig);
             }
         }
 
@@ -326,7 +310,8 @@ namespace Opm {
             const auto& methodItem = record.getItem<ParserKeywords::COMPORD::ORDER_TYPE>();
             if ((methodItem.get< std::string >(0) != "TRACK")  && (methodItem.get< std::string >(0) != "INPUT")) {
                 std::string msg = "The COMPORD keyword only handles 'TRACK' or 'INPUT' order.";
-                parseContext.handleError( ParseContext::UNSUPPORTED_COMPORD_TYPE , msg );
+                m_messages.error(msg);
+                parseContext.handleError( ParseContext::UNSUPPORTED_COMPORD_TYPE , m_messages, msg );
             }
         }
     }
@@ -371,6 +356,9 @@ namespace Opm {
             addWellToGroup( getGroup(groupName) , getWell(wellName) , currentStep);
             if (handleGroupFromWELSPECS(groupName, newTree))
                 needNewTree = true;
+
+            //Collect messages from wells.
+            m_messages.appendMessages(currentWell->getMessageContainer());
         }
 
         if (needNewTree) {
@@ -477,7 +465,7 @@ namespace Opm {
                     std::string msg =
                             "Well " + well->name() + " is a history matched well with zero rate where crossflow is banned. " +
                             "This well will be closed at " + std::to_string ( m_timeMap->getTimePassedUntil(currentStep) / (60*60*24) ) + " days";
-                    m_messages.info(msg);
+                    m_messages.note(msg);
                     updateWellStatus(well, currentStep, WellCommon::StatusEnum::SHUT );
                 }
             }
@@ -649,7 +637,7 @@ namespace Opm {
                     std::string msg =
                             "Well " + well->name() + " is an injector with zero rate where crossflow is banned. " +
                             "This well will be closed at " + std::to_string ( m_timeMap->getTimePassedUntil(currentStep) / (60*60*24) ) + " days";
-                    m_messages.info(msg);
+                    m_messages.note(msg);
                     updateWellStatus(well, currentStep, WellCommon::StatusEnum::SHUT );
                 }
             }
@@ -737,7 +725,7 @@ namespace Opm {
                 std::string msg =
                         "Well " + well->name() + " is an injector with zero rate where crossflow is banned. " +
                         "This well will be closed at " + std::to_string ( m_timeMap->getTimePassedUntil(currentStep) / (60*60*24) ) + " days";
-                m_messages.info(msg);
+                m_messages.note(msg);
                 updateWellStatus(well, currentStep, WellCommon::StatusEnum::SHUT );
             }
         }
@@ -833,7 +821,7 @@ namespace Opm {
                         std::string msg =
                                 "Well " + well->name() + " where crossflow is banned has zero total rate. " +
                                 "This well is prevented from opening at " + std::to_string ( m_timeMap->getTimePassedUntil(currentStep) / (60*60*24) ) + " days";
-                        m_messages.info(msg);
+                        m_messages.note(msg);
                         continue;
                     }
                     updateWellStatus( well , currentStep , status );
@@ -1167,123 +1155,6 @@ namespace Opm {
         nosim = true;
     }
 
-    void Schedule::handleRPTRST( const DeckKeyword& keyword, size_t currentStep, IOConfigPtr ioConfig) {
-        const auto& record = keyword.getRecord(0);
-
-        size_t basic = 1;
-        size_t freq  = 0;
-        size_t found_basic = 0;
-        bool handle_RPTRST_BASIC = false;
-
-        const auto& item = record.getItem(0);
-
-        for (size_t index = 0; index < item.size(); ++index) {
-            const std::string& mnemonic = item.get< std::string >(index);
-
-            found_basic = mnemonic.find("BASIC=");
-            if (found_basic != std::string::npos) {
-                std::string basic_no = mnemonic.substr(found_basic+6, mnemonic.size());
-                basic = boost::lexical_cast<size_t>(basic_no);
-                handle_RPTRST_BASIC = true;
-            }
-
-            size_t found_freq = mnemonic.find("FREQ=");
-            if (found_freq != std::string::npos) {
-                std::string freq_no = mnemonic.substr(found_freq+5, mnemonic.size());
-                freq = boost::lexical_cast<size_t>(freq_no);
-            }
-        }
-
-
-        /* If no BASIC mnemonic is found, either it is not present or we might
-           have an old data set containing integer controls instead of mnemonics.
-           BASIC integer switch is integer control nr 1, FREQUENCY is integer
-           control nr 6 */
-
-
-        if (found_basic == std::string::npos) {
-            if (item.size() >= 1)  {
-                const std::string& integer_control_basic = item.get< std::string >(0);
-                try {
-                    basic = boost::lexical_cast<size_t>(integer_control_basic);
-                    if (0 != basic ) // Peculiar special case in eclipse, - not documented
-                                     // This ignore of basic = 0 for the integer mnemonics case
-                                     // is done to make flow write restart file at the same intervals
-                                     // as eclipse for the Norne data set. There might be some rules
-                                     // we are missing here.
-                    {
-                        handle_RPTRST_BASIC = true;
-                    }
-                } catch (boost::bad_lexical_cast &) {
-                    //do nothing
-                }
-            }
-
-            if (item.size() >= 6) { //if frequency is set
-                const std::string& integer_control_frequency = item.get< std::string >(5);
-                try {
-                    freq = boost::lexical_cast<size_t>(integer_control_frequency);
-                } catch (boost::bad_lexical_cast &) {
-                    //do nothing
-                }
-            }
-        }
-
-        if (handle_RPTRST_BASIC) {
-            ioConfig->handleRPTRSTBasic(m_timeMap, currentStep, basic, freq);
-        }
-    }
-
-
-    void Schedule::handleRPTSCHED( const DeckKeyword& keyword, size_t step, IOConfigPtr ioConfig) {
-        const auto& record = keyword.getRecord(0);
-
-        size_t restart = 0;
-        size_t found_mnemonic_RESTART = 0;
-        size_t found_mnemonic_NOTHING = 0;
-        const auto& item = record.getItem(0);
-        bool handle_RPTSCHED_RESTART = false;
-
-        for (size_t index = 0; index < item.size(); ++index) {
-            const std::string& mnemonic = item.get< std::string >(index);
-
-            found_mnemonic_RESTART = mnemonic.find("RESTART=");
-            if (found_mnemonic_RESTART != std::string::npos) {
-                std::string restart_no = mnemonic.substr(found_mnemonic_RESTART+8, mnemonic.size());
-                restart = boost::lexical_cast<size_t>(restart_no);
-                handle_RPTSCHED_RESTART = true;
-            }
-            found_mnemonic_NOTHING = mnemonic.find("NOTHING");
-            if (found_mnemonic_NOTHING != std::string::npos) {
-                restart = 0;
-                handle_RPTSCHED_RESTART = true;
-            }
-        }
-
-
-        /* If no RESTART mnemonic is found, either it is not present or we might
-           have an old data set containing integer controls instead of mnemonics.
-           Restart integer switch is integer control nr 7 */
-
-        if (found_mnemonic_RESTART == std::string::npos) {
-            if (item.size() >= 7)  {
-                const std::string& integer_control = item.get< std::string >(6);
-                try {
-                    restart = boost::lexical_cast<size_t>(integer_control);
-                    handle_RPTSCHED_RESTART = true;
-                } catch (boost::bad_lexical_cast &) {
-                    //do nothing
-                }
-            }
-        }
-
-
-        if (handle_RPTSCHED_RESTART) {
-            ioConfig->handleRPTSCHEDRestart(m_timeMap, step, restart);
-        }
-
-    }
-
     void Schedule::handleCOMPDAT( const DeckKeyword& keyword, size_t currentStep) {
         std::map<std::string , std::vector< CompletionPtr> > completionMapList = Completion::completionsFromCOMPDATKeyword( keyword );
         std::map<std::string , std::vector< CompletionPtr> >::iterator iter;
@@ -1312,7 +1183,7 @@ namespace Opm {
         const std::string& well_name = record1.getItem("WELL").getTrimmedString(0);
         WellPtr well = getWell(well_name);
 
-        std::vector<CompsegsPtr> compsegs_vector = Compsegs::compsegsFromCOMPSEGSKeyword(keyword, m_grid);
+        std::vector<CompsegsPtr> compsegs_vector = Compsegs::compsegsFromCOMPSEGSKeyword( keyword );
 
         SegmentSetConstPtr current_segmentSet = well->getSegmentSet(currentStep);
         Compsegs::processCOMPSEGS(compsegs_vector, current_segmentSet);

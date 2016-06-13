@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __JOB_LIST_H__
-#define __JOB_LIST_H__
+#ifndef ERT_JOB_LIST_H
+#define ERT_JOB_LIST_H
 
 
 #ifdef __cplusplus

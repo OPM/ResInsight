@@ -42,4 +42,5 @@ set (opm-core_DEPS
 	"opm-parser REQUIRED"
 	# the code which implements the material laws
 	"opm-material REQUIRED"
+	"opm-output REQUIRED"
 	)

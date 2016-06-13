@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_FS_H__
-#define __ENKF_FS_H__
+#ifndef ERT_ENKF_FS_H
+#define ERT_ENKF_FS_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,30 +54,28 @@ extern "C" {
   enkf_fs_type    * enkf_fs_mount( const char * path );
   int               enkf_fs_get_version104( const char * path );
   void              enkf_fs_fwrite_node(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,  
-                                        int report_step , int iens , state_enum state);
+                                        int report_step , int iens);
   
   void              enkf_fs_fwrite_vector(enkf_fs_type * enkf_fs , 
                                           buffer_type * buffer , 
                                           const char * node_key, 
                                           enkf_var_type var_type,  
-                                          int iens , 
-                                          state_enum state);
+                                          int iens); 
   
   bool              enkf_fs_exists( const char * mount_point );
 
   void              enkf_fs_fread_node(enkf_fs_type * enkf_fs , buffer_type * buffer , 
                                        const char * node_key , enkf_var_type var_type , 
-                                       int report_step , int iens , state_enum state);
+                                       int report_step , int iens);
   
   void              enkf_fs_fread_vector(enkf_fs_type * enkf_fs , buffer_type * buffer , 
                                          const char * node_key , 
                                          enkf_var_type var_type , 
-                                         int iens , 
-                                         state_enum state);
+                                         int iens); 
   
 
-  bool              enkf_fs_has_vector(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int iens , state_enum state);
-  bool              enkf_fs_has_node(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int report_step , int iens , state_enum state);
+  bool              enkf_fs_has_vector(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int iens);
+  bool              enkf_fs_has_node(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int report_step , int iens);
 
   void              enkf_fs_debug_fprintf( const enkf_fs_type * fs);
 

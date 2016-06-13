@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __RSH_DRIVER_H__
-#define __RSH_DRIVER_H__
+#ifndef ERT_RSH_DRIVER_H
+#define ERT_RSH_DRIVER_H
 #ifdef __cplusplus
 extern "C" {
 #endif

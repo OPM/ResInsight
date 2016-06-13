@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ECL_INIT_FILE_H__
-#define __ECL_INIT_FILE_H__
+#ifndef ERT_ECL_INIT_FILE_H
+#define ERT_ECL_INIT_FILE_H
 
 #ifdef __cplusplus
 extern "C" {

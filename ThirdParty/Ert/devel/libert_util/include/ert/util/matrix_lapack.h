@@ -15,8 +15,8 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
-#ifndef __MATRIX_LAPACK_H__
-#define __MATRIX_LAPACK_H__
+#ifndef ERT_MATRIX_LAPACK_H
+#define ERT_MATRIX_LAPACK_H
 
 #include <ert/util/matrix.h>
 

@@ -1,6 +1,5 @@
 from ert.cwrap import clib, CWrapper
 from ert.enkf.data.enkf_node import EnkfNode
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 from ert.enkf.node_id import NodeId
 from ert.test import ErtTestContext
 from ert.test.extended_testcase import ExtendedTestCase
@@ -22,7 +21,7 @@ class GenDataTest(ExtendedTestCase):
             config_node = ert.ensembleConfig().getNode("TIMESHIFT")
 
             data_node = EnkfNode(config_node)
-            data_node.tryLoad(fs1, NodeId(60, 0, EnkfStateType.FORECAST))
+            data_node.tryLoad(fs1, NodeId(60, 0))
 
             gen_data = data_node.asGenData()
             data = gen_data.getData()

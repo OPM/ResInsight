@@ -19,6 +19,8 @@
 
 #include <opm/common/OpmLog/OpmLog.hpp>
 #include <opm/common/OpmLog/Logger.hpp>
+#include <opm/common/OpmLog/StreamLog.hpp>
+#include <iostream>
 
 namespace Opm {
 
@@ -37,46 +39,98 @@ namespace Opm {
     }
 
 
+    void OpmLog::addTaggedMessage(int64_t messageFlag, const std::string& tag, const std::string& message) {
+        if (m_logger)
+            m_logger->addTaggedMessage( messageFlag, tag, message );
+    }
+
+
     void OpmLog::info(const std::string& message)
     {
-        const std::string msg = Log::prefixMessage(Log::MessageType::Info, message);
-        addMessage(Log::MessageType::Info, msg);
+        addMessage(Log::MessageType::Info, message);
     }
 
 
     void OpmLog::warning(const std::string& message)
     {
-        const std::string msg = Log::prefixMessage(Log::MessageType::Warning, message);
-        addMessage(Log::MessageType::Warning, msg);
+        addMessage(Log::MessageType::Warning, message);
     }
 
 
     void OpmLog::problem(const std::string& message)
     {
-        const std::string msg = Log::prefixMessage(Log::MessageType::Problem, message);
-        addMessage(Log::MessageType::Problem, msg);
+        addMessage(Log::MessageType::Problem, message);
     }
 
 
     void OpmLog::error(const std::string& message)
     {
-        const std::string msg = Log::prefixMessage(Log::MessageType::Error, message);
-        addMessage(Log::MessageType::Error, msg);
+        addMessage(Log::MessageType::Error, message);
     }
 
 
     void OpmLog::bug(const std::string& message)
     {
-        const std::string msg = Log::prefixMessage(Log::MessageType::Bug, message);
-        addMessage(Log::MessageType::Bug, msg);
+        addMessage(Log::MessageType::Bug, message);
     }
 
     
     void OpmLog::debug(const std::string& message)
     {
-        const std::string msg = Log::prefixMessage(Log::MessageType::Debug, message);
-        addMessage(Log::MessageType::Debug, msg);
+        addMessage(Log::MessageType::Debug, message);
     }
+
+
+    void OpmLog::note(const std::string& message)
+    {
+        addMessage(Log::MessageType::Note, message);
+    }
+
+
+
+    void OpmLog::info(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Info, tag, message);
+    }
+
+
+    void OpmLog::warning(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Warning, tag, message);
+    }
+
+
+    void OpmLog::problem(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Problem, tag, message);
+    }
+
+
+    void OpmLog::error(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Error, tag, message);
+    }
+
+
+    void OpmLog::bug(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Bug, tag, message);
+    }
+
+
+    void OpmLog::debug(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Debug, tag, message);
+    }
+
+
+
+    void OpmLog::note(const std::string& tag, const std::string& message)
+    {
+        addTaggedMessage(Log::MessageType::Note, tag, message);
+    }
+
+
 
 
     bool OpmLog::enabledMessageType( int64_t messageType ) {
@@ -102,6 +156,13 @@ namespace Opm {
     }
 
 
+    void OpmLog::removeAllBackends() {
+        if (m_logger) {
+            m_logger->removeAllBackends();
+        }
+    }
+
+
     void OpmLog::addMessageType( int64_t messageType , const std::string& prefix) {
         auto logger = OpmLog::getLogger();
         logger->addMessageType( messageType , prefix );
@@ -114,6 +175,14 @@ namespace Opm {
     }
 
 
+
+    void OpmLog::setupSimpleDefaultLogging(const bool use_prefix)
+    {
+         std::shared_ptr<StreamLog> streamLog = std::make_shared<StreamLog>(std::cout, Log::DefaultMessageTypes);
+         OpmLog::addBackend( "SimpleDefaultLog", streamLog);
+         streamLog->setMessageLimiter(std::make_shared<MessageLimiter>(10));
+         streamLog->setMessageFormatter(std::make_shared<SimpleMessageFormatter>(use_prefix, true));
+    }
 /******************************************************************/
 
     std::shared_ptr<Logger> OpmLog::m_logger;

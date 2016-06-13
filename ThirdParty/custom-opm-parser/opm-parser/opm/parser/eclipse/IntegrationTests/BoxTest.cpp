@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( KEYWORD_BOX_TOO_SMALL) {
     BOOST_CHECK_THROW( makeState("testdata/integration_tests/BOX/BOXTEST3") , std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE( EQUAL ) {
+BOOST_AUTO_TEST_CASE( EQUALS ) {
     EclipseState state = makeState( "testdata/integration_tests/BOX/BOXTEST1" );
     const auto& pvtnum = state.get3DProperties().getIntGridProperty( "PVTNUM" );
     const auto& eqlnum = state.get3DProperties().getIntGridProperty( "EQLNUM" );

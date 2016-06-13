@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __NNC_INFO_H__
-#define __NNC_INFO_H__
+#ifndef ERT_NNC_INFO_H
+#define ERT_NNC_INFO_H
 #ifdef __cplusplus
 extern "C" {
 #endif

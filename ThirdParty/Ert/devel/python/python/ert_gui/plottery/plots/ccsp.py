@@ -36,6 +36,7 @@ def plotCrossCaseStatistics(plot_context):
     for case_index, case in enumerate(case_list):
         case_indexes.append(case_index)
         data = plot_context.dataGatherer().gatherData(ert, case, key)
+        std_dev_factor = config.getStandardDeviationFactor()
 
         if not data.empty:
             data = _assertNumeric(data)
@@ -44,7 +45,7 @@ def plotCrossCaseStatistics(plot_context):
                 ccs["mean"][case_index] = data.mean()
                 ccs["min"][case_index] = data.min()
                 ccs["max"][case_index] = data.max()
-                ccs["std"][case_index] = data.std()
+                ccs["std"][case_index] = data.std() * std_dev_factor
                 ccs["p10"][case_index] = data.quantile(0.1)
                 ccs["p33"][case_index] = data.quantile(0.33)
                 ccs["p50"][case_index] = data.quantile(0.5)

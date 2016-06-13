@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __ENKF_PLOT_GEN_KW_VECTOR_H__
-#define __ENKF_PLOT_GEN_KW_VECTOR_H__
+#ifndef ERT_ENKF_PLOT_GEN_KW_VECTOR_H
+#define ERT_ENKF_PLOT_GEN_KW_VECTOR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +35,7 @@ extern "C" {
   void                           enkf_plot_gen_kw_vector_free( enkf_plot_gen_kw_vector_type * vector );
   int                            enkf_plot_gen_kw_vector_get_size( const enkf_plot_gen_kw_vector_type * vector );
   void                           enkf_plot_gen_kw_vector_reset( enkf_plot_gen_kw_vector_type * vector );
-  void                           enkf_plot_gen_kw_vector_load( enkf_plot_gen_kw_vector_type * vector , enkf_fs_type * fs , bool transform_data , int report_step , state_enum state );
+  void                           enkf_plot_gen_kw_vector_load( enkf_plot_gen_kw_vector_type * vector , enkf_fs_type * fs , bool transform_data , int report_step );
   void                         * enkf_plot_gen_kw_vector_load__( void * arg );
   double                         enkf_plot_gen_kw_vector_iget( const enkf_plot_gen_kw_vector_type * vector , int index);
 

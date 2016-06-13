@@ -34,7 +34,6 @@
 
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 
 using namespace Opm;
 
@@ -137,15 +136,14 @@ BOOST_AUTO_TEST_CASE( CheckUnsupportedInSCHEDULE ) {
     auto deckSupported = parser.parseString( deckStringSupported , parseContext );
     auto deckUnSupported = parser.parseString( deckStringUnSupported , parseContext );
     std::shared_ptr<EclipseGrid> grid = std::make_shared<EclipseGrid>( deckSupported );
-    std::shared_ptr<IOConfig> ioconfig = std::make_shared<IOConfig>();
 
     parseContext.update( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , InputError::IGNORE );
-    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckSupported , ioconfig ));
-    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckUnSupported , ioconfig ));
+    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckSupported ));
+    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckUnSupported ));
 
     parseContext.update( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , InputError::THROW_EXCEPTION );
-    BOOST_CHECK_THROW( Schedule( parseContext , grid , deckUnSupported , ioconfig ), std::invalid_argument );
-    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckSupported , ioconfig ));
+    BOOST_CHECK_THROW( Schedule( parseContext , grid , deckUnSupported ), std::invalid_argument );
+    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckSupported ));
 }
 
 
@@ -203,13 +201,12 @@ BOOST_AUTO_TEST_CASE(TestCOMPORD) {
     auto deck = parser.parseString( deckString , parseContext );
 
     std::shared_ptr<EclipseGrid> grid = std::make_shared<EclipseGrid>( deck );
-    std::shared_ptr<IOConfig> ioconfig = std::make_shared<IOConfig>();
 
     parseContext.update( ParseContext::UNSUPPORTED_COMPORD_TYPE , InputError::IGNORE);
-    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deck , ioconfig ));
+    BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deck ));
 
     parseContext.update( ParseContext::UNSUPPORTED_COMPORD_TYPE , InputError::THROW_EXCEPTION);
-    BOOST_CHECK_THROW( Schedule( parseContext , grid , deck , ioconfig ), std::invalid_argument );
+    BOOST_CHECK_THROW( Schedule( parseContext , grid , deck ), std::invalid_argument );
 }
 
 

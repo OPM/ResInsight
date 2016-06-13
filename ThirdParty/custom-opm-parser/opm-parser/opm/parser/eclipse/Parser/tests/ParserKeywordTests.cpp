@@ -399,13 +399,14 @@ BOOST_AUTO_TEST_CASE(ParseEmptyRecord) {
     ParserIntItemConstPtr item(new ParserIntItem(std::string("ITEM") , ALL));
     RawKeywordPtr rawkeyword(new RawKeyword( tabdimsKeyword->getName() , "FILE" , 10U , 1));
     ParseContext parseContext;
+    MessageContainer msgContainer;
 
     BOOST_CHECK_EQUAL( Raw::FIXED , rawkeyword->getSizeType());
     rawkeyword->addRawRecordString("/");
     record->addItem(item);
     tabdimsKeyword->addRecord( record );
 
-    const auto deckKeyword = tabdimsKeyword->parse( parseContext , rawkeyword );
+    const auto deckKeyword = tabdimsKeyword->parse( parseContext , msgContainer, rawkeyword );
     BOOST_REQUIRE_EQUAL( 1U , deckKeyword.size());
 
     const auto& deckRecord = deckKeyword.getRecord(0);

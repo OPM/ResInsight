@@ -16,7 +16,7 @@
    for more details. 
 */
 
-#ifndef __CONFIG_PARSER_H__
-#define __CONFIG_PARSER_H__
+#ifndef ERT_CONFIG_PARSER_H
+#define ERT_CONFIG_PARSER_H
 
 #endif

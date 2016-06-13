@@ -36,6 +36,25 @@ namespace Opm {
           UNIT_TYPE_LAB    = 2
         };
 
+        enum class measure : int {
+            length,
+            time,
+            density,
+            pressure,
+            temperature_absolute,
+            temperature,
+            viscosity,
+            permeability,
+            liquid_surface_volume,
+            gas_surface_volume,
+            volume,
+            liquid_surface_rate,
+            gas_surface_rate,
+            rate,
+            transmissibility,
+            mass,
+        };
+
         UnitSystem(UnitType unit);
 
         const std::string& getName() const;
@@ -50,6 +69,9 @@ namespace Opm {
 
         std::shared_ptr<const Dimension> parse(const std::string& dimension) const;
 
+        double from_si( measure, double ) const;
+        double to_si( measure, double ) const;
+
         static UnitSystem * newMETRIC();
         static UnitSystem * newFIELD();
     private:
@@ -58,6 +80,8 @@ namespace Opm {
         std::string m_name;
         UnitType m_unittype;
         std::map<std::string , std::shared_ptr<const Dimension> > m_dimensions;
+        const double* measure_table_from_si;
+        const double* measure_table_to_si;
     };
 }
 

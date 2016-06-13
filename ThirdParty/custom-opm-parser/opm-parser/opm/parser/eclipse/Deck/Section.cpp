@@ -49,10 +49,11 @@ namespace Opm {
         };
 
         auto first = std::find_if( deck.begin(), deck.end(), fn );
-        if( first == deck.end() )
-            throw std::invalid_argument( std::string( "Deck requires a '" ) + keyword + "' section" );
 
-        auto last = std::find_if( first + 1, deck.end(), &isSectionDelimiter );
+        if( first == deck.end() )
+            return { first, first };
+
+        auto last = std::find_if( first + 1, deck.end(), isSectionDelimiter );
 
         if( last != deck.end() && last->name() == keyword )
             throw std::invalid_argument( std::string( "Deck contains the '" ) + keyword + "' section multiple times" );

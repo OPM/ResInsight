@@ -1568,10 +1568,15 @@ double matrix_trace(const matrix_type *matrix) {
 
 
 bool matrix_check_dims( const matrix_type * m , int rows , int columns) {
-  if ((m->rows == rows) && (m->columns == columns))
-     return true;
-  else
+  if (m) {
+    if ((m->rows == rows) && (m->columns == columns))
+      return true;
+    else
+      return false;
+  } else {
+    util_abort("%s: internal error - trying to dereference NULL matrix pointer \n",__func__);
     return false;
+  }
 }
 
 

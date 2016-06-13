@@ -77,15 +77,20 @@ namespace Opm {
 
     Message::type ParseContext::handleError(
             const std::string& errorKey,
+            MessageContainer& msgContainer,
             const std::string& msg ) const {
 
         InputError::Action action = get( errorKey );
 
-        if (action == InputError::WARN)
+        if (action == InputError::WARN) {
+            msgContainer.warning(msg);
             return Message::Warning;
+        }
 
-        else if (action == InputError::THROW_EXCEPTION)
+        else if (action == InputError::THROW_EXCEPTION) {
+            msgContainer.error(msg);
             throw std::invalid_argument(errorKey + ": " + msg);
+        }
 
         return Message::Debug;
 

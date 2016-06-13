@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __STRINGLIST_H__
-#define __STRINGLIST_H__
+#ifndef ERT_STRINGLIST_H
+#define ERT_STRINGLIST_H
 #ifdef __cplusplus
 extern "C" {
 #endif

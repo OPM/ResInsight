@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ENKF_CONFIG_NODE_H__
-#define __ENKF_CONFIG_NODE_H__
+#ifndef ERT_ENKF_CONFIG_NODE_H
+#define ERT_ENKF_CONFIG_NODE_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,7 +43,7 @@ extern "C" {
   typedef struct enkf_node_struct        enkf_node_type;
 
 
-  bool                    enkf_config_node_has_vector( const enkf_config_node_type * node , enkf_fs_type * fs , int iens , state_enum state);
+  bool                    enkf_config_node_has_vector( const enkf_config_node_type * node , enkf_fs_type * fs , int iens);
   bool                    enkf_config_node_has_node( const enkf_config_node_type * node , enkf_fs_type * fs , node_id_type node_id);
   bool                    enkf_config_node_vector_storage( const enkf_config_node_type * config_node);
 

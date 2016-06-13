@@ -17,14 +17,16 @@
 */
 
 
-#ifndef __RANKING_TABLE_H__
-#define __RANKING_TABLE_H__
+#ifndef ERT_RANKING_TABLE_H
+#define ERT_RANKING_TABLE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdbool.h>
+
+#include <ert/util/perm_vector.h>
 
 #include <ert/enkf/misfit_ensemble_typedef.h>
 
@@ -41,8 +43,7 @@ extern "C" {
                                                        const char * key_index , 
                                                        enkf_fs_type * fs , 
                                                        const enkf_config_node_type * config_node , 
-                                                       int step , 
-                                                       state_enum state);
+                                                       int step);
 
   bool                 ranking_table_has_ranking( const ranking_table_type * ranking_table , const char * ranking_key );
   bool                 ranking_table_display_ranking( const ranking_table_type * ranking_table , const char * ranking_key );
@@ -56,7 +57,7 @@ extern "C" {
 
 
   int                  ranking_table_get_size( const ranking_table_type * ranking_table );
-  const int          * ranking_table_get_permutation( const ranking_table_type * ranking_table , const char * ranking_key);
+  const perm_vector_type * ranking_table_get_permutation( const ranking_table_type * ranking_table , const char * ranking_key);
 
 #ifdef __cplusplus
 }

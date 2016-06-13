@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __TEST_UTIL_H__
-#define __TEST_UTIL_H__
+#ifndef ERT_TEST_UTIL_H
+#define ERT_TEST_UTIL_H
 
 #ifdef __cplusplus
 extern "C" {

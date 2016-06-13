@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __SUBST_H__
-#define __SUBST_H__
+#ifndef ERT_SUBST_H
+#define ERT_SUBST_H
 
 #ifdef __cplusplus
 extern "C" {

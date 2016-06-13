@@ -23,9 +23,9 @@
 namespace Opm {
 
 
-    void EclipsePRTLog::addMessage(int64_t messageType, const std::string& message) 
+    void EclipsePRTLog::addTaggedMessage(int64_t messageType, const std::string& messageTag, const std::string& message)
     {
-        StreamLog::addMessage(messageType, message);
+        StreamLog::addTaggedMessage(messageType, messageTag, message);
         m_count[messageType]++;
     }
 
@@ -53,7 +53,7 @@ namespace Opm {
             std::string("\nBugs              " + std::to_string(numMessages(Log::MessageType::Bug))) + 
             std::string("\nDebug             " + std::to_string(numMessages(Log::MessageType::Debug))) +
             std::string("\nProblems          " + std::to_string(numMessages(Log::MessageType::Problem))) +"\n";
-        addMessage(Log::MessageType::Info, summary_msg);
+        StreamLog::addTaggedMessage(Log::MessageType::Info, "", summary_msg);
     }
 
 }

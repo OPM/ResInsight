@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __OBS_VECTOR_H__
-#define __OBS_VECTOR_H__
+#ifndef ERT_OBS_VECTOR_H
+#define ERT_OBS_VECTOR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,7 +67,7 @@ extern "C" {
   bool                 obs_vector_iget_active(const obs_vector_type * , int );
   void                 obs_vector_iget_observations(const obs_vector_type *  , int  , obs_data_type * , const active_list_type * active_list, enkf_fs_type * fs);
   bool                 obs_vector_has_data( const obs_vector_type * obs_vector , const bool_vector_type * active_mask , enkf_fs_type * fs);
-  void                 obs_vector_measure(const obs_vector_type *  , enkf_fs_type * fs, state_enum state , int report_step , const int_vector_type * ens_active_list , meas_data_type * , const active_list_type * active_list);
+  void                 obs_vector_measure(const obs_vector_type *  , enkf_fs_type * fs, int report_step , const int_vector_type * ens_active_list , meas_data_type * , const active_list_type * active_list);
   const char         * obs_vector_get_state_kw(const obs_vector_type * );
   const char         * obs_vector_get_key(const obs_vector_type * );
   obs_impl_type        obs_vector_get_impl_type(const obs_vector_type * );
@@ -92,11 +92,10 @@ extern "C" {
                                                    bool_vector_type * valid ,
                                                    int step1 , int step2 ,
                                                    int iens1 , int iens2 ,
-                                                   state_enum load_state ,
                                                    double ** chi2);
 
-  double                  obs_vector_total_chi2(const obs_vector_type * , enkf_fs_type * , int , state_enum  );
-  void                    obs_vector_ensemble_total_chi2(const obs_vector_type *  , enkf_fs_type *  , int  , state_enum , double * );
+  double                  obs_vector_total_chi2(const obs_vector_type * , enkf_fs_type * , int );
+  void                    obs_vector_ensemble_total_chi2(const obs_vector_type *  , enkf_fs_type *  , int  , double * );
   enkf_config_node_type * obs_vector_get_config_node(const obs_vector_type * );
   const char            * obs_vector_get_obs_key( const obs_vector_type * obs_vector);
   local_obsdata_node_type * obs_vector_alloc_local_node(const obs_vector_type * obs_vector);

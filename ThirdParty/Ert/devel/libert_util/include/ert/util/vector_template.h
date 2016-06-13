@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __@TYPE@_VECTOR_H__
-#define __@TYPE@_VECTOR_H__
+#ifndef ERT_@TYPE@_VECTOR_H
+#define ERT_@TYPE@_VECTOR_H
 #ifdef __cplusplus 
 extern "C" {
 #endif
@@ -26,6 +26,7 @@ extern "C" {
 
 #include <ert/util/buffer.h>
 #include <ert/util/type_macros.h>
+#include <ert/util/perm_vector.h>
 
 typedef struct @TYPE@_vector_struct @TYPE@_vector_type;
 typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
@@ -102,9 +103,9 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   int                  @TYPE@_vector_index_sorted(const @TYPE@_vector_type * vector , @TYPE@ value);
   void                 @TYPE@_vector_sort(@TYPE@_vector_type * vector);
   void                 @TYPE@_vector_rsort(@TYPE@_vector_type * vector);
-  void                 @TYPE@_vector_permute(@TYPE@_vector_type * vector , const int * perm);
-  int *                @TYPE@_vector_alloc_sort_perm(const @TYPE@_vector_type * vector);
-  int *                @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector);
+  void                 @TYPE@_vector_permute(@TYPE@_vector_type * vector , const perm_vector_type * perm);
+  perm_vector_type *   @TYPE@_vector_alloc_sort_perm(const @TYPE@_vector_type * vector);
+  perm_vector_type *   @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector);
   void                 @TYPE@_vector_fprintf(const @TYPE@_vector_type * vector , FILE * stream , const char * name , const char * fmt);
   void                 @TYPE@_vector_fwrite(const @TYPE@_vector_type * vector , FILE * stream);
   void                 @TYPE@_vector_buffer_fread(@TYPE@_vector_type * vector , buffer_type * buffer);

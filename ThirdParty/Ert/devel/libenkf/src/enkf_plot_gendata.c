@@ -131,7 +131,6 @@ static void enkf_plot_gendata_reset( enkf_plot_gendata_type * plot_gendata , int
 void enkf_plot_gendata_load( enkf_plot_gendata_type * plot_data ,
                                  enkf_fs_type * fs ,
                                  int report_step ,
-                                 state_enum state ,
                                  const bool_vector_type * input_mask){
 
     state_map_type * state_map = enkf_fs_get_state_map( fs );
@@ -159,7 +158,6 @@ void enkf_plot_gendata_load( enkf_plot_gendata_type * plot_data ,
           arg_pack_append_ptr( work_arg , vector );
           arg_pack_append_ptr( work_arg , fs );
           arg_pack_append_int( work_arg , report_step);
-          arg_pack_append_int( work_arg , state );
 
           thread_pool_add_job( tp , enkf_plot_genvector_load__ , work_arg );
         }

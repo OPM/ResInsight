@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GRID_DIMS_H__
-#define __GRID_DIMS_H__
+#ifndef ERT_GRID_DIMS_H
+#define ERT_GRID_DIMS_H
 #ifdef __cplusplus
 extern "C" {
 #endif

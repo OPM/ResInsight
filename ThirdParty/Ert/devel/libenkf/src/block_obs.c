@@ -126,7 +126,7 @@ static double point_obs_iget_data( const point_obs_type * point_obs , const void
   } else if (point_obs->source_type == SOURCE_SUMMARY) {
     const container_type * container = container_safe_cast_const( state );
     const summary_type * summary = summary_safe_cast_const( container_iget_node( container , iobs ));
-    return summary_get( summary , node_id.report_step , node_id.state );
+    return summary_get( summary , node_id.report_step );
   } else {
     util_abort("%s: unknown source type: %d \n",__func__, point_obs->source_type );
     return -1;

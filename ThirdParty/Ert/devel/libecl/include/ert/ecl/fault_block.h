@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FAULT_BLOCK_H__
-#define __FAULT_BLOCK_H__
+#ifndef ERT_FAULT_BLOCK_H
+#define ERT_FAULT_BLOCK_H
 #ifdef __cplusplus
 extern "C" {
 #endif

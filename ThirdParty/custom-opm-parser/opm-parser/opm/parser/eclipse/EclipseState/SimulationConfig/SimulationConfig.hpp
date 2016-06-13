@@ -26,14 +26,12 @@
 namespace Opm {
 
     class ThresholdPressure;
-    class ParseContext;
 
     class SimulationConfig {
 
     public:
 
-        SimulationConfig(const ParseContext& parseContext,
-                         const Deck& deck,
+        SimulationConfig(const Deck& deck,
                          const Eclipse3DProperties& gridProperties);
 
         std::shared_ptr<const ThresholdPressure> getThresholdPressure() const;
@@ -44,8 +42,7 @@ namespace Opm {
 
     private:
 
-        void initThresholdPressure(const ParseContext& parseContext,
-                                   const Deck& deck,
+        void initThresholdPressure(const Deck& deck,
                                    const Eclipse3DProperties& gridProperties);
 
         std::shared_ptr< const ThresholdPressure > m_ThresholdPressure;

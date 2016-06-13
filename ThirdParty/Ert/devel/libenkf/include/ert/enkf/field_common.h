@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FIELD_COMMON_H__
-#define __FIELD_COMMON_H__
+#ifndef ERT_FIELD_COMMON_H
+#define ERT_FIELD_COMMON_H
 
 /*
   Contains some headers which both field.c and field_config.c need -

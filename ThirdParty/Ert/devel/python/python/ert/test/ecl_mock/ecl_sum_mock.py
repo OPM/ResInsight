@@ -22,6 +22,7 @@ def createEclSum( case , keys , start = datetime.date(2010 , 1, 1) , sim_length_
             for var in var_list:
                 key = var.getKey1( )
                 if key in func_table:
+                    func = func_table[key]
                     t_step[key] = func( days )
                 else:
                     t_step[key] = mock_func( ecl_sum , key , days)

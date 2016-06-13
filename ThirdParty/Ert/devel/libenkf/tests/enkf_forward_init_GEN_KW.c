@@ -30,15 +30,14 @@
 #include <ert/enkf/run_arg.h>
 
 
-void create_runpath(enkf_main_type * enkf_main ) {
+void create_runpath(enkf_main_type * enkf_main, int iter ) {
   const int ens_size         = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive = bool_vector_alloc(0,false);
 
   bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_exp(enkf_main , iactive , false );
+  enkf_main_create_run_path(enkf_main , iactive , iter);
   bool_vector_free(iactive);
 }
-
 
 
 int main(int argc , char ** argv) {
@@ -86,10 +85,9 @@ int main(int argc , char ** argv) {
       run_arg_type * run_arg = run_arg_alloc_ENSEMBLE_EXPERIMENT( fs , 0 , 0 , "simulations/run0");
       enkf_node_type * gen_kw_node = enkf_state_get_node( state , "MULTFLT" );
       node_id_type node_id = {.report_step = 0 ,
-                              .iens = 0,
-                              .state = ANALYZED };
+                              .iens = 0 };
 
-      create_runpath( enkf_main );
+      create_runpath( enkf_main, 0 );
       test_assert_true( util_is_directory( "simulations/run0" ));
 
       {
@@ -146,7 +144,7 @@ int main(int argc , char ** argv) {
       test_assert_true( util_is_file ("simulations/run0/parameters.txt")); //Export of gen kw params
 
       util_clear_directory( "simulations" , true , true );
-      create_runpath( enkf_main );
+      create_runpath( enkf_main, 0 );
       test_assert_true( util_is_directory( "simulations/run0" ));
       test_assert_true( util_is_file( "simulations/run0/MULTFLT.INC" ));
       {

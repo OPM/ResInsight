@@ -75,7 +75,7 @@ find_path (ERT_GEN_INCLUDE_DIR
   HINTS "${ERT_ROOT}"
   PATHS "${PROJECT_SOURCE_DIR}/../ert"
   PATH_SUFFIXES "devel/libert_util/include"
-                "include" "build/libert_util/include"
+                "include" "build/libert_util/include" "devel/build/libert_util/include"
   DOC "Path to ERT generated library header files"
   ${_no_default_path}
   )
@@ -93,7 +93,7 @@ find_library (ERT_LIBRARY_ECL
         "${PROJECT_SOURCE_DIR}/../ert/devel/build"
         "${PROJECT_BINARY_DIR}/../ert-build"
         "${PROJECT_BINARY_DIR}/../ert/devel"
-  PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+  PATH_SUFFIXES "lib" "lib/Release" "lib/Debug" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
   DOC "Path to ERT Eclipse library archive/shared object files"
   ${_no_default_path}
   )
@@ -105,7 +105,7 @@ find_library (ERT_LIBRARY_ECLXX
         "${PROJECT_SOURCE_DIR}/../ert/devel/build"
         "${PROJECT_BINARY_DIR}/../ert-build"
         "${PROJECT_BINARY_DIR}/../ert/devel"
-  PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+  PATH_SUFFIXES "lib" "lib/Release" "lib/Debug" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
   DOC "Path to ERT Eclipse C++ library archive/shared object files"
   ${_no_default_path}
   )
@@ -117,7 +117,7 @@ find_library (ERT_LIBRARY_ECL_WELL
         "${PROJECT_SOURCE_DIR}/../ert/devel/build"
         "${PROJECT_BINARY_DIR}/../ert-build"
         "${PROJECT_BINARY_DIR}/../ert/devel"
-  PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+  PATH_SUFFIXES "lib" "lib/Release" "lib/Debug" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
   DOC "Path to ERT Eclipse library archive/shared object files"
   ${_no_default_path}
   )
@@ -129,7 +129,7 @@ find_library (ERT_LIBRARY_GEOMETRY
         "${PROJECT_SOURCE_DIR}/../ert/devel/build"
         "${PROJECT_BINARY_DIR}/../ert-build"
         "${PROJECT_BINARY_DIR}/../ert/devel"
-  PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+  PATH_SUFFIXES "lib" "lib/Release" "lib/Debug" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
   DOC "Path to ERT Geometry library archive/shared object files"
   ${_no_default_path}
   )
@@ -141,7 +141,7 @@ find_library (ERT_LIBRARY_UTIL
         "${PROJECT_SOURCE_DIR}/../ert/devel/build"
         "${PROJECT_BINARY_DIR}/../ert-build"
         "${PROJECT_BINARY_DIR}/../ert/devel"
-  PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+  PATH_SUFFIXES "lib" "lib/Release" "lib/Debug" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
   DOC "Path to ERT Utilities library archive/shared object files"
   ${_no_default_path}
   )
@@ -243,9 +243,8 @@ if (NOT (ERT_INCLUDE_DIR MATCHES "-NOTFOUND" OR ERT_LIBRARIES MATCHES "-NOTFOUND
   check_cxx_source_compiles (
 "#include <ert/ecl/EclKW.hpp>
 int main ( ) {
-  ERT::EclKW<int> kw(\"SATNUM\" , 1000);
-  kw[0] = 10;
-  return 0;
+    ERT::EclKW< int > kw( ecl_kw_alloc( \"SATNUM\", 0, ECL_INT_TYPE ) );
+    return 0;
 }" HAVE_ERT)
   cmake_pop_check_state ()
 else (NOT (ERT_INCLUDE_DIR MATCHES "-NOTFOUND" OR ERT_LIBRARIES MATCHES "-NOTFOUND"))

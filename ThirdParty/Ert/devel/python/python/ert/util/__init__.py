@@ -65,7 +65,8 @@ from .enums import RngAlgTypeEnum, RngInitModeEnum, LLSQResultEnum
 
 from .ctime import CTime
 
-from .vector_template import VectorTemplate, PermutationVector
+from .permutation_vector import PermutationVector
+from .vector_template import VectorTemplate
 from .double_vector import DoubleVector
 from .int_vector import IntVector
 from .bool_vector import BoolVector

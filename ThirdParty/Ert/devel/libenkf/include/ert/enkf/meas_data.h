@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __MEAS_DATA_H__
-#define __MEAS_DATA_H__
+#ifndef ERT_MEAS_DATA_H
+#define ERT_MEAS_DATA_H
 
 #ifdef __cplusplus
 extern "C" {

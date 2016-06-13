@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __GEO_POINTSET_H__
-#define __GEO_POINTSET_H__
+#ifndef ERT_GEO_POINTSET_H
+#define ERT_GEO_POINTSET_H
 
 
 #ifdef __cplusplus

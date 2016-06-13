@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __NODE_DATA_H__
-#define __NODE_DATA_H__
+#ifndef ERT_NODE_DATA_H
+#define ERT_NODE_DATA_H
 #ifdef __cplusplus
 extern "C" {
 #endif

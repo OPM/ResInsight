@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __WELL_BRANCH_COLLECTION_H__
-#define __WELL_BRANCH_COLLECTION_H__
+#ifndef ERT_WELL_BRANCH_COLLECTION_H
+#define ERT_WELL_BRANCH_COLLECTION_H
 
 
 #ifdef __cplusplus

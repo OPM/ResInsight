@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ECL_COARSE_CELL_H__
-#define __ECL_COARSE_CELL_H__
+#ifndef ERT_ECL_COARSE_CELL_H
+#define ERT_ECL_COARSE_CELL_H
 
 
 #ifdef __cplusplus

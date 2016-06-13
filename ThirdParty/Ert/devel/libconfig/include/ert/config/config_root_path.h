@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONFIG_ROOT_PATH_H__
-#define __CONFIG_ROOT_PATH_H__
+#ifndef ERT_CONFIG_ROOT_PATH_H
+#define ERT_CONFIG_ROOT_PATH_H
 
 #ifdef __cplusplus
 extern "C" 

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __BLOCK_OBS_H__
-#define __BLOCK_OBS_H__
+#ifndef ERT_BLOCK_OBS_H
+#define ERT_BLOCK_OBS_H
 #ifdef __cplusplus
 extern "C" {
 #endif

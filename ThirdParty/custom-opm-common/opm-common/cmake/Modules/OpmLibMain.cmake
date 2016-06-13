@@ -28,6 +28,12 @@ if (POLICY CMP0048)
 	cmake_policy(SET CMP0048 OLD)
 endif()
 
+# set the behavior of the policy 0054 to NEW. (i.e. do not implicitly
+# expand variables in if statements)
+if (POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
+
 # include special
 if (CMAKE_VERSION VERSION_LESS "2.8.3")
 	message (STATUS "Enabling compatibility modules for CMake 2.8.3")
@@ -37,7 +43,7 @@ endif (CMAKE_VERSION VERSION_LESS "2.8.3")
 if (CMAKE_VERSION VERSION_LESS "2.8.5")
 	message (STATUS "Enabling compatibility modules for CMake 2.8.5")
 	list (APPEND CMAKE_MODULE_PATH "${OPM_MACROS_ROOT}/cmake/Modules/compat-2.8.5")
-endif (CMAKE_VERSION VERSION_LESS "2.8.5")	
+endif (CMAKE_VERSION VERSION_LESS "2.8.5")
 
 if (CMAKE_VERSION VERSION_LESS "2.8.7")
 	message (STATUS "Enabling compatibility modules for CMake 2.8.7")
@@ -93,6 +99,8 @@ endif (NOT USE_MPI)
 # parallel programming
 include (UseOpenMP)
 find_openmp (${project})
+include (UseThreads)
+find_threads (${project})
 
 # callback hook to setup additional dependencies
 if (COMMAND prereqs_hook)
@@ -210,12 +218,10 @@ endif (COMMAND install_hook)
 opm_install (${project})
 message (STATUS "This build defaults to installing in ${CMAKE_INSTALL_PREFIX}")
 
-if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    #installation of CMake modules to help user programs locate the library
-    include (OpmProject)
-    opm_cmake_config (${project})
-endif()
-    
+# installation of CMake modules to help user programs locate the library
+include (OpmProject)
+opm_cmake_config (${project})
+
 # routines to build satellites such as tests, tutorials and samples
 include (OpmSatellites)
 

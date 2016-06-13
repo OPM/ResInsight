@@ -42,8 +42,9 @@ public:
     TimerLog(const std::string& logFile);
     TimerLog(std::ostream& os);
 
-    void addMessage(int64_t messageFlag ,
-                    const std::string& message);
+    void addTaggedMessage(int64_t messageFlag,
+                          const std::string& messageTag,
+                          const std::string& message) override;
 
     void clear();
     ~TimerLog() {};

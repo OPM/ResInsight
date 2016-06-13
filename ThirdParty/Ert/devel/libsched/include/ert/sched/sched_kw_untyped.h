@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_KW_UNTYPED_H__
-#define __SCHED_KW_UNTYPED_H__
+#ifndef ERT_SCHED_KW_UNTYPED_H
+#define ERT_SCHED_KW_UNTYPED_H
 #ifdef __cplusplus
 extern "C" {
 #endif

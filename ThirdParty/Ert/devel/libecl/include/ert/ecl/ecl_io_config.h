@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ECL_IO_CONFIG_H__
-#define __ECL_IO_CONFIG_H__
+#ifndef ERT_ECL_IO_CONFIG_H
+#define ERT_ECL_IO_CONFIG_H
 
 
 typedef struct ecl_io_config_struct ecl_io_config_type;

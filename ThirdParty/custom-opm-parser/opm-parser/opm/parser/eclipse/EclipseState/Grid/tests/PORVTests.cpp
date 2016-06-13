@@ -349,3 +349,57 @@ BOOST_AUTO_TEST_CASE(NAKED_GRID_THROWS) {
     const auto props = getProps(deck);
     BOOST_CHECK_THROW( props.getDoubleGridProperty("PORV") , std::invalid_argument );
 }
+
+static Opm::DeckPtr createDeckWithPOROZero() {
+    const char *deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        " 10 10 10 /\n"
+        "GRID\n"
+        "DX\n"
+        "1000*0.25 /\n"
+        "DYV\n"
+        "10*0.25 /\n"
+        "DZ\n"
+        "1000*0.25 /\n"
+        "TOPS\n"
+        "100*0.25 /\n"
+        "PORO\n"
+        "100*0.10 100*0.20 100*0.30 100*0.40 100*0.50 100*0.60 100*0.70 100*0.80 100*0.90 100*1.0 /\n"
+        "EQUALS\n"
+        "  ACTNUM 0 1 10 1 10 2 2 /\n"
+        "/\n"
+        "EQUALS\n"
+        "  PORO 0 1 10 1 10 3 3 /\n"
+        "/\n"
+        "EQUALS\n"
+        "  NTG 0 1 10 1 10 4 4 /\n"
+        "/\n"
+        "EDIT\n"
+        "\n";
+
+    Opm::ParserPtr parser(new Opm::Parser());
+    return parser->parseString(deckData, Opm::ParseContext()) ;
+}
+
+BOOST_AUTO_TEST_CASE(PORO_ZERO_ACTNUM_CORRECT) {
+    /* Check that MULTIPLE Boxed PORV and MULTPV statements work and NTG */
+    Opm::DeckPtr deck = createDeckWithPOROZero();
+    Opm::EclipseState state( deck , Opm::ParseContext());
+    auto grid = state.getInputGrid( );
+
+    /* Top layer is active */
+    BOOST_CHECK( grid->cellActive( 0,0,0 ));
+
+    /* Layer k=1 is inactive due to EQUAL ACTNUM */
+    BOOST_CHECK( !grid->cellActive(0,0,1));
+
+    /* Layer k = 2 is inactive due t PORO = 0 */
+    BOOST_CHECK( !grid->cellActive(0,0,2));
+
+    /* Layer k = 3 is inactive due t NTG = 0 */
+    BOOST_CHECK( !grid->cellActive(0,0,2));
+
+    BOOST_CHECK_EQUAL( grid->getNumActive() , 700U );
+}

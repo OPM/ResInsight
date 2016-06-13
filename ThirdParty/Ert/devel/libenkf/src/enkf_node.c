@@ -334,18 +334,18 @@ void enkf_node_ecl_write(const enkf_node_type *enkf_node , const char *path , vo
 
 
 bool enkf_node_user_get(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , node_id_type node_id , double * value) {
-  return enkf_node_user_get_no_id( enkf_node , fs , key , node_id.report_step , node_id.iens , node_id.state , value );
+  return enkf_node_user_get_no_id( enkf_node , fs , key , node_id.report_step , node_id.iens , value );
 }
 
-bool enkf_node_user_get_no_id(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int report_step, int iens, state_enum state , double * value) {
-  node_id_type node_id = {.report_step = report_step , .iens = iens, .state = state };
+bool enkf_node_user_get_no_id(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int report_step, int iens, double * value) {
+  node_id_type node_id = {.report_step = report_step , .iens = iens};
   bool loadOK;
   FUNC_ASSERT( enkf_node->user_get );
   {
     loadOK = enkf_node_try_load( enkf_node , fs , node_id);
 
     if (loadOK)
-      return enkf_node->user_get(enkf_node->data , key , report_step,  state , value);
+      return enkf_node->user_get(enkf_node->data , key , report_step,  value);
     else {
       *value = 0;
       return false;
@@ -353,10 +353,10 @@ bool enkf_node_user_get_no_id(enkf_node_type * enkf_node , enkf_fs_type * fs , c
   }
 }
 
-bool enkf_node_user_get_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int iens , state_enum state , double_vector_type * values) {
+bool enkf_node_user_get_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int iens , double_vector_type * values) {
   if (enkf_node->vector_storage) {
-    if (enkf_node_try_load_vector( enkf_node , fs , iens , state)) {
-      enkf_node->user_get_vector( enkf_node->data , key , state , values);
+    if (enkf_node_try_load_vector( enkf_node , fs , iens )) {
+      enkf_node->user_get_vector( enkf_node->data , key , values);
       return true;
     } else
       return false;
@@ -443,22 +443,22 @@ bool enkf_node_forward_load_vector(enkf_node_type *enkf_node , const forward_loa
 
 
 
-static bool enkf_node_store_buffer( enkf_node_type * enkf_node , enkf_fs_type * fs , int report_step , int iens , state_enum state) {
+static bool enkf_node_store_buffer( enkf_node_type * enkf_node , enkf_fs_type * fs , int report_step , int iens) {
   FUNC_ASSERT(enkf_node->write_to_buffer);
   {
     bool data_written;
     buffer_type * buffer = buffer_alloc( 100 );
     const enkf_config_node_type * config_node = enkf_node_get_config( enkf_node );
     buffer_fwrite_time_t( buffer , time(NULL));
-    data_written = enkf_node->write_to_buffer(enkf_node->data , buffer , report_step , state );
+    data_written = enkf_node->write_to_buffer(enkf_node->data , buffer , report_step );
     if (data_written) {
       const char * node_key = enkf_config_node_get_key( config_node );
       enkf_var_type var_type = enkf_config_node_get_var_type( config_node );
 
       if (enkf_node->vector_storage)
-        enkf_fs_fwrite_vector( fs , buffer , node_key , var_type , iens , state );
+        enkf_fs_fwrite_vector( fs , buffer , node_key , var_type , iens );
       else
-        enkf_fs_fwrite_node( fs , buffer , node_key , var_type , report_step , iens , state );
+        enkf_fs_fwrite_node( fs , buffer , node_key , var_type , report_step , iens );
 
     }
     buffer_free( buffer );
@@ -466,8 +466,8 @@ static bool enkf_node_store_buffer( enkf_node_type * enkf_node , enkf_fs_type * 
   }
 }
 
-bool enkf_node_store_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int iens , state_enum state) {
-  return enkf_node_store_buffer( enkf_node , fs , -1 , iens , state);
+bool enkf_node_store_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int iens ) {
+  return enkf_node_store_buffer( enkf_node , fs , -1 , iens );
 }
 
 
@@ -475,7 +475,7 @@ bool enkf_node_store_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int 
 bool enkf_node_store(enkf_node_type * enkf_node , enkf_fs_type * fs , bool force_vectors , node_id_type node_id) {
   if (enkf_node->vector_storage) {
     if (force_vectors)
-      return enkf_node_store_vector( enkf_node , fs , node_id.iens , node_id.state );
+      return enkf_node_store_vector( enkf_node , fs , node_id.iens );
     else
       return false;
   } else {
@@ -485,7 +485,7 @@ bool enkf_node_store(enkf_node_type * enkf_node , enkf_fs_type * fs , bool force
         return false;             /* For report step == 0 the summary data is just garbage. */
     }
 
-    return enkf_node_store_buffer( enkf_node , fs , node_id.report_step , node_id.iens , node_id.state );
+    return enkf_node_store_buffer( enkf_node , fs , node_id.report_step , node_id.iens );
   }
 }
 
@@ -502,31 +502,15 @@ bool enkf_node_store(enkf_node_type * enkf_node , enkf_fs_type * fs , bool force
 */
 
 bool enkf_node_try_load(enkf_node_type *enkf_node , enkf_fs_type * fs , node_id_type node_id) {
-  if (node_id.state == BOTH) {
-    node_id_type local_id = node_id;
-    local_id.state = ANALYZED;
-    if (enkf_node_has_data( enkf_node , fs , local_id)) {
-      enkf_node_load( enkf_node , fs , local_id );
-      return true;
-    }
-
-    local_id.state = FORECAST;
-    if (enkf_node_has_data( enkf_node , fs , local_id)) {
-      enkf_node_load( enkf_node , fs , local_id);
-      return true;
-    } else
-      return false;
-  } else {
-    if (enkf_node_has_data( enkf_node , fs , node_id)) {
-      enkf_node_load( enkf_node , fs , node_id);
-      return true;
-    } else
-      return false;
-  }
+  if (enkf_node_has_data( enkf_node , fs , node_id)) {
+    enkf_node_load( enkf_node , fs , node_id);
+    return true;
+  } else
+    return false;
 }
 
 
-static void enkf_node_buffer_load( enkf_node_type * enkf_node , enkf_fs_type * fs , int report_step , int iens , state_enum state) {
+static void enkf_node_buffer_load( enkf_node_type * enkf_node , enkf_fs_type * fs , int report_step , int iens) {
   FUNC_ASSERT(enkf_node->read_from_buffer);
   {
     buffer_type * buffer                      = buffer_alloc( 100 );
@@ -535,12 +519,12 @@ static void enkf_node_buffer_load( enkf_node_type * enkf_node , enkf_fs_type * f
     enkf_var_type var_type                    = enkf_config_node_get_var_type( config_node );
 
     if (enkf_node->vector_storage)
-      enkf_fs_fread_vector( fs , buffer , node_key , var_type , iens , state);
+      enkf_fs_fread_vector( fs , buffer , node_key , var_type , iens );
     else
-      enkf_fs_fread_node( fs , buffer , node_key , var_type , report_step , iens , state );
+      enkf_fs_fread_node( fs , buffer , node_key , var_type , report_step , iens );
 
     buffer_fskip_time_t( buffer );
-    enkf_node->read_from_buffer(enkf_node->data , buffer , fs , report_step , state );
+    enkf_node->read_from_buffer(enkf_node->data , buffer , fs , report_step );
     buffer_free( buffer );
   }
 }
@@ -548,8 +532,8 @@ static void enkf_node_buffer_load( enkf_node_type * enkf_node , enkf_fs_type * f
 
 
 
-void enkf_node_load_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , int iens , state_enum state) {
-  enkf_node_buffer_load( enkf_node , fs , -1 , iens , state);
+void enkf_node_load_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , int iens ) {
+  enkf_node_buffer_load( enkf_node , fs , -1 , iens );
 }
 
 
@@ -567,17 +551,17 @@ void enkf_node_load(enkf_node_type * enkf_node , enkf_fs_type * fs , node_id_typ
     enkf_node_load_container( enkf_node , fs , node_id );
   else {
     if (enkf_node->vector_storage)
-      enkf_node_load_vector( enkf_node , fs , node_id.iens , node_id.state );
+      enkf_node_load_vector( enkf_node , fs , node_id.iens );
     else
       /* Normal load path */
-      enkf_node_buffer_load( enkf_node , fs , node_id.report_step, node_id.iens , node_id.state );
+      enkf_node_buffer_load( enkf_node , fs , node_id.report_step, node_id.iens );
   }
 }
 
 
-bool enkf_node_try_load_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int iens , state_enum state) {
-  if (enkf_config_node_has_vector( enkf_node->config , fs , iens, state)) {
-    enkf_node_load_vector( enkf_node , fs , iens , state );
+bool enkf_node_try_load_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , int iens ) {
+  if (enkf_config_node_has_vector( enkf_node->config , fs , iens)) {
+    enkf_node_load_vector( enkf_node , fs , iens );
     return true;
   } else
     return false;
@@ -594,13 +578,13 @@ bool enkf_node_try_load_vector(enkf_node_type *enkf_node , enkf_fs_type * fs , i
 
 enkf_node_type * enkf_node_load_alloc( const enkf_config_node_type * config_node , enkf_fs_type * fs , node_id_type node_id) {
   if (enkf_config_node_vector_storage( config_node )) {
-    if (enkf_config_node_has_vector( config_node , fs , node_id.iens , node_id.state)) {
+    if (enkf_config_node_has_vector( config_node , fs , node_id.iens)) {
       enkf_node_type * node = enkf_node_alloc( config_node );
       enkf_node_load( node , fs , node_id );
       return node;
     } else {
-      util_abort("%s: could not load vector:%s from iens:%d state:%d \n",__func__ , enkf_config_node_get_key( config_node ),
-                 node_id.iens , node_id.state );
+      util_abort("%s: could not load vector:%s from iens:%d\n",__func__ , enkf_config_node_get_key( config_node ),
+                 node_id.iens );
       return NULL;
     }
   } else {
@@ -609,10 +593,10 @@ enkf_node_type * enkf_node_load_alloc( const enkf_config_node_type * config_node
       enkf_node_load( node , fs , node_id );
       return node;
     } else {
-      util_abort("%s: Could not load node: key:%s  iens:%d  report:%d  state:%d\n",
+      util_abort("%s: Could not load node: key:%s  iens:%d  report:%d \n",
                  __func__ ,
                  enkf_config_node_get_key( config_node ) ,
-                 node_id.iens , node_id.report_step , node_id.state );
+                 node_id.iens , node_id.report_step );
       return NULL;
     }
   }
@@ -653,14 +637,15 @@ bool enkf_node_has_data( enkf_node_type * enkf_node , enkf_fs_type * fs , node_i
     {
       int report_step  = node_id.report_step;
       int iens         = node_id.iens;
-      state_enum state = node_id.state;
 
       // Try to load the vector.
-      if (enkf_config_node_has_vector( enkf_node->config , fs , iens , state ))
-          enkf_node_load_vector( enkf_node , fs , iens , state );
+      if (enkf_config_node_has_vector( enkf_node->config , fs , iens )) {
+        enkf_node_load_vector( enkf_node , fs , iens);
 
-      // The vector is loaded. Check if we have the report_step/state asked for:
-      return enkf_node->has_data( enkf_node->data , report_step , state );
+        // The vector is loaded. Check if we have the report_step/state asked for:
+        return enkf_node->has_data( enkf_node->data , report_step );
+      } else
+        return false;
     }
   } else
     return enkf_config_node_has_node( enkf_node->config , fs , node_id );
@@ -674,13 +659,13 @@ bool enkf_node_has_data( enkf_node_type * enkf_node , enkf_fs_type * fs , node_i
 void enkf_node_copy_ensemble(const enkf_config_node_type * config_node ,
                              enkf_fs_type * src_case ,
                              enkf_fs_type * target_case ,
-                             int report_step_from, state_enum state_from,    /* src state */
-                             int report_step_to  , state_enum state_to,      /* target state */
+                             int report_step_from,    /* src state */
+                             int report_step_to  ,    /* target state */
                              int ens_size,
                              const int * permutations) {
 
-  node_id_type src_id    = {.report_step = report_step_from , .iens = 0 , .state = state_from };
-  node_id_type target_id = {.report_step = report_step_to   , .iens = 0 , .state = state_to   };
+  node_id_type src_id    = {.report_step = report_step_from , .iens = 0 };
+  node_id_type target_id = {.report_step = report_step_to   , .iens = 0 };
 
   for(int iens_from = 0; iens_from < ens_size; iens_from++) {
     int iens_to;
@@ -699,31 +684,12 @@ void enkf_node_copy_ensemble(const enkf_config_node_type * config_node ,
 
 
 enkf_node_type ** enkf_node_load_alloc_ensemble( const enkf_config_node_type * config_node , enkf_fs_type * fs ,
-                                                 int report_step , int iens1 , int iens2 , state_enum state) {
+                                                 int report_step , int iens1 , int iens2) {
   enkf_node_type ** ensemble = util_calloc( (iens2 - iens1) , sizeof * ensemble );
   for (int iens = iens1; iens < iens2; iens++) {
     node_id_type node_id = {.report_step = report_step , .iens = iens };
-    state_enum load_state;
     ensemble[iens - iens1] = NULL;
-
-
-    if (state == BOTH) {
-      node_id.state = ANALYZED;
-      if (enkf_config_node_has_node( config_node , fs , node_id))
-        load_state = ANALYZED;
-      else {
-        node_id.state = FORECAST;
-        if (enkf_config_node_has_node( config_node , fs , node_id))
-          load_state = FORECAST;
-        else
-          load_state = UNDEFINED;
-      }
-    } else
-      load_state = state;
-
-    node_id.state = load_state;
-    if (load_state != UNDEFINED)
-      ensemble[iens - iens1] = enkf_node_load_alloc(config_node , fs , node_id);
+    ensemble[iens - iens1] = enkf_node_load_alloc(config_node , fs , node_id);
   }
 
   return ensemble;

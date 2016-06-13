@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_KW_H__
-#define __CUSTOM_KW_H__
+#ifndef ERT_CUSTOM_KW_H
+#define ERT_CUSTOM_KW_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,8 +31,8 @@ extern "C" {
     bool custom_kw_fload(custom_kw_type * custom_kw, const char * filename);
     bool custom_kw_forward_load(custom_kw_type * custom_kw, const char * ecl_file, const forward_load_context_type * load_context);
 
-    bool custom_kw_write_to_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, int report_step, state_enum state);
-    void custom_kw_read_from_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state);
+    bool custom_kw_write_to_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, int report_step);
+    void custom_kw_read_from_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, enkf_fs_type * fs, int report_step);
     void custom_kw_ecl_write(const custom_kw_type * custom_kw, const char * run_path, const char * base_file, void * filestream);
     void custom_kw_serialize(const custom_kw_type * custom_kw, node_id_type node_id, const active_list_type * active_list, matrix_type * A, int row_offset, int column);
     void custom_kw_deserialize(custom_kw_type * custom_kw, node_id_type node_id, const active_list_type * active_list, const matrix_type * A, int row_offset , int column);

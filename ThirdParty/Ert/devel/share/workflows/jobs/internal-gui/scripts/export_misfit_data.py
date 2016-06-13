@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import os
-from ert.enkf import ErtScript, RealizationStateEnum, EnkfStateType
+from ert.enkf import ErtScript, RealizationStateEnum
 from ert.util import BoolVector
 
 """
@@ -32,7 +32,7 @@ class ExportMisfitDataJob(ErtScript):
 
                 misfit_sum = 0.0
                 for obs_vector in ert.getObservations():
-                    misfit = obs_vector.getTotalChi2(fs, runpath_node.realization, EnkfStateType.FORECAST)
+                    misfit = obs_vector.getTotalChi2(fs, runpath_node.realization )
 
                     key = "MISFIT:%s" % obs_vector.getObservationKey()
                     parameters[key] = misfit

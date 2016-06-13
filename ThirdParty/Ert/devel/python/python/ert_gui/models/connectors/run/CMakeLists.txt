@@ -8,6 +8,7 @@ set(PYTHON_SOURCES
     ensemble_smoother.py
     iterated_analysis_module_model.py
     iterated_ensemble_smoother.py
+    multiple_data_assimilation.py
     number_of_iterations.py
     run_path.py
     sensitivity_study.py

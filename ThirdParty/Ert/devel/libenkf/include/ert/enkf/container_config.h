@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONTAINER_CONFIG_H__
-#define __CONTAINER_CONFIG_H__
+#ifndef ERT_CONTAINER_CONFIG_H
+#define ERT_CONTAINER_CONFIG_H
 
 
 #ifdef __cplusplus

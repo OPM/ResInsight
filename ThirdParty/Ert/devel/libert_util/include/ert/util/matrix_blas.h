@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __MATRIX_BLAS__
-#define __MATRIX_BLAS__
+#ifndef ERT_MATRIX_BLAS
+#define ERT_MATRIX_BLAS
 #include <stdbool.h>
 
 #include <ert/util/matrix.h>

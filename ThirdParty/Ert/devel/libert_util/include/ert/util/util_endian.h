@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __UTIL_ENDIAN_H__
-#define __UTIL_ENDIAN_H__
+#ifndef ERT_UTIL_ENDIAN_H
+#define ERT_UTIL_ENDIAN_H
 
 #ifdef __cplusplus
 extern "C" {

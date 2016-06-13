@@ -16,8 +16,8 @@
   for more details.
 */
 
-#ifndef __ECL_SUM_VECTOR_H__
-#define __ECL_SUM_VECTOR_H__
+#ifndef ERT_ECL_SUM_VECTOR_H
+#define ERT_ECL_SUM_VECTOR_H
 
 #ifdef __cplusplus
 extern "C" {

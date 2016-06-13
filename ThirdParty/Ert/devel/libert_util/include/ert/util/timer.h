@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __TIMER_H__
-#define __TIMER_H__
+#ifndef ERT_TIMER_H
+#define ERT_TIMER_H
 
 #ifdef __cplusplus
 extern "C" {

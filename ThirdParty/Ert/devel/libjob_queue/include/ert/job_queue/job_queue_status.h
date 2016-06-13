@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __JOB_QUEUE_STATUS_H__
-#define __JOB_QUEUE_STATUS_H__
+#ifndef ERT_JOB_QUEUE_STATUS_H
+#define ERT_JOB_QUEUE_STATUS_H
 
 #ifdef __cplusplus
 extern "C" {

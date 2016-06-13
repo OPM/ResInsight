@@ -18,16 +18,51 @@
 */
 #define BOOST_TEST_MODULE FunctionalTests
 
+#include <iostream>
 #include <vector>
+#include <map>
 
 #include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Utility/Functional.hpp>
-#include <iostream>
+
 
 using namespace Opm;
+
+
+BOOST_AUTO_TEST_CASE(TestMap) {
+    std::map<std::string, int> m = { {"C", 3}, {"B" , 2} , {"A" , 1}};
+    std::vector<std::string> keys_expected = {"A" , "B" , "C"};
+    auto keys = fun::map( [] ( const std::pair<std::string,int>& pair) { return pair.first; } , m);
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(keys.begin(), keys.end(),
+                                  keys_expected.begin(), keys_expected.end());
+}
+
+
+BOOST_AUTO_TEST_CASE(TestConcat) {
+    std::vector<std::vector<int>> vector_of_vectors = {{1},{2,2},{3,3,3}};
+    auto conc = fun::concat( std::move(vector_of_vectors) );
+    std::vector<int> expected = {1,2,2,3,3,3};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(conc.begin(), conc.end(),
+                                  expected.begin(), expected.end());
+}
+
+
+BOOST_AUTO_TEST_CASE(TestConcatMap) {
+    std::vector<int> input = {1,2,3};
+    auto conc = fun::concat( fun::map( []( int x ) { return std::vector<int>( x,x ); } , input));
+
+    std::vector<int> expected = {1,2,2,3,3,3};
+    BOOST_CHECK_EQUAL_COLLECTIONS(conc.begin(), conc.end(),
+                                  expected.begin(), expected.end());
+
+}
+
+
 
 BOOST_AUTO_TEST_CASE(iotaEqualCollections) {
     std::vector< int > vec( 5 );

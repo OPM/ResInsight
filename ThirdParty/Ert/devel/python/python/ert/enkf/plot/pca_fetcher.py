@@ -1,6 +1,6 @@
 from ert.enkf.plot import DataFetcher, ObservationGenDataFetcher, BlockObservationDataFetcher, EnsembleDataFetcher
 from ert.enkf.plot_data import PcaPlotData
-from ert.enkf.enums import EnkfStateType, RealizationStateEnum, EnkfObservationImplementationType
+from ert.enkf.enums import RealizationStateEnum, EnkfObservationImplementationType
 from ert.enkf import LocalObsdata, LocalObsdataNode, EnkfLinalg, MeasData, ObsData
 from ert.util import Matrix, BoolVector, DoubleVector
 
@@ -49,11 +49,10 @@ class PcaDataFetcher(DataFetcher):
         active_list = ens_mask.createActiveList( )
 
         if len(ens_mask) > 0:
-            state = EnkfStateType.FORECAST
             meas_data = MeasData(ens_mask)
             obs_data = ObsData()
 
-            self.ert().getObservations().getObservationAndMeasureData(fs, local_obsdata, state, active_list, meas_data, obs_data)
+            self.ert().getObservations().getObservationAndMeasureData(fs, local_obsdata, active_list, meas_data, obs_data)
 
             meas_data.deactivateZeroStdSamples(obs_data)
 

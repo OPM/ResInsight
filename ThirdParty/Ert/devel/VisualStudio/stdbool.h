@@ -13,8 +13,8 @@
   include directory as used by VisualStudio. 
 */
 
-#ifndef __STDBOOL_H__
-#define __STDBOOL_H__
+#ifndef ERT_STDBOOL_H
+#define ERT_STDBOOL_H
 
 #ifndef __cplusplus
 typedef int bool;

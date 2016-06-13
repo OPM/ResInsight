@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONFIG_PATH_ELM_H__
-#define __CONFIG_PATH_ELM_H__
+#ifndef ERT_CONFIG_PATH_ELM_H
+#define ERT_CONFIG_PATH_ELM_H
 
 #ifdef __cplusplus
 extern "C" 

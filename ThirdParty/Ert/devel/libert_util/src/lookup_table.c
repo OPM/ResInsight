@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include <ert/util/util.h>
+#include <ert/util/perm_vector.h>
 #include <ert/util/double_vector.h>
 #include <ert/util/lookup_table.h>
 
@@ -51,10 +52,10 @@ static void lookup_table_sort_data( lookup_table_type * lt) {
         util_abort("%s: x vector is not sorted and read-only - this will not fly\n",__func__);
     
     {
-      int * sort_perm = double_vector_alloc_sort_perm( lt->x_vector );
+      perm_vector_type * sort_perm = double_vector_alloc_sort_perm( lt->x_vector );
       double_vector_permute( lt->x_vector , sort_perm );
       double_vector_permute( lt->y_vector , sort_perm );
-      free( sort_perm );
+      perm_vector_free( sort_perm );
     }
     lt->ymax = double_vector_get_max( lt->y_vector );
     lt->ymin = double_vector_get_min( lt->y_vector );

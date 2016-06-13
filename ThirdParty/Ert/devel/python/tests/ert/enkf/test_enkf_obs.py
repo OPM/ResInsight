@@ -6,7 +6,6 @@ from ert.sched import History
 
 from ert.util import BoolVector,IntVector
 from ert.enkf import ActiveMode, EnsembleConfig
-from ert.enkf.enums import EnkfStateType
 from ert.enkf import ObsVector , LocalObsdata, EnkfObs, TimeMap, LocalObsdataNode , ObsData , MeasData, ActiveList
 
 
@@ -43,7 +42,7 @@ class EnKFObsTest(ExtendedTestCase):
             fs = ert.getEnkfFsManager().getCurrentFileSystem()
             active_list = IntVector()
             active_list.initRange(0,2,1)
-            obs.getObservationAndMeasureData( fs , local_obsdata , EnkfStateType.FORECAST , active_list , meas_data , obs_data )
+            obs.getObservationAndMeasureData( fs , local_obsdata , active_list , meas_data , obs_data )
             self.assertEqual( 2 , len(obs_data) )
 
             v1 = obs_data[0]
@@ -54,7 +53,7 @@ class EnKFObsTest(ExtendedTestCase):
 
             meas_data = MeasData(mask)
             obs_data = ObsData( 10 )
-            obs.getObservationAndMeasureData( fs , local_obsdata , EnkfStateType.FORECAST , active_list , meas_data , obs_data )
+            obs.getObservationAndMeasureData( fs , local_obsdata , active_list , meas_data , obs_data )
             self.assertEqual( 2 , len(obs_data) )
             
             v1 = obs_data[0]
@@ -68,7 +67,7 @@ class EnKFObsTest(ExtendedTestCase):
             obs2.updateStdScaling( 20 , actl)
             meas_data = MeasData(mask)
             obs_data = ObsData( )
-            obs.getObservationAndMeasureData( fs , local_obsdata , EnkfStateType.FORECAST , active_list , meas_data , obs_data )
+            obs.getObservationAndMeasureData( fs , local_obsdata , active_list , meas_data , obs_data )
             self.assertEqual( 2 , len(obs_data) )
             
             v1 = obs_data[0]

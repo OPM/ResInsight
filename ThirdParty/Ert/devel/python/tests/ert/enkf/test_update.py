@@ -20,7 +20,7 @@ from ert.test import ExtendedTestCase, ErtTestContext
 from ert.util.enums import RngAlgTypeEnum, RngInitModeEnum
 from ert.util import Matrix, BoolVector , RandomNumberGenerator
 from ert.analysis import AnalysisModule, AnalysisModuleLoadStatusEnum, AnalysisModuleOptionsEnum
-from ert.enkf import MeasData , ObsData , LocalObsdata, EnkfStateType 
+from ert.enkf import MeasData , ObsData , LocalObsdata
 
 import ert.cwrap.clib as clib
 
@@ -63,13 +63,12 @@ class UpdateTest(ExtendedTestCase):
             local_obsdata = obs.getAllActiveLocalObsdata( )
             
             fs = ert.getEnkfFsManager().getCurrentFileSystem()
-            state = EnkfStateType.FORECAST
 
 
             mask = BoolVector( initial_size = ert.getEnsembleSize() , default_value = True)
             meas_data = MeasData(mask)
             obs_data = ObsData()
-            obs.getObservationAndMeasureData( fs , local_obsdata , state , mask.createActiveList() , meas_data , obs_data )
+            obs.getObservationAndMeasureData( fs , local_obsdata , mask.createActiveList() , meas_data , obs_data )
             update( self.rng , mask , analysis , ert , meas_data , obs_data , state_size)
             
             
@@ -77,7 +76,7 @@ class UpdateTest(ExtendedTestCase):
             mask[4] = False
             meas_data = MeasData(mask)
             obs_data = ObsData()
-            obs.getObservationAndMeasureData( fs , local_obsdata , state , mask.createActiveList() , meas_data , obs_data )
+            obs.getObservationAndMeasureData( fs , local_obsdata , mask.createActiveList() , meas_data , obs_data )
             update( self.rng , mask , analysis , ert , meas_data , obs_data , state_size)
             
         

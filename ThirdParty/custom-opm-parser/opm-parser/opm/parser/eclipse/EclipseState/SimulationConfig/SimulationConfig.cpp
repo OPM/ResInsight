@@ -46,8 +46,7 @@
 
 namespace Opm {
 
-    SimulationConfig::SimulationConfig(const ParseContext& parseContext,
-                                       const Deck& deck,
+    SimulationConfig::SimulationConfig(const Deck& deck,
                                        const Eclipse3DProperties& eclipseProperties) :
         m_useCPR(false),
         m_DISGAS(false),
@@ -70,14 +69,13 @@ namespace Opm {
             }
         }
 
-        initThresholdPressure(parseContext , deck, eclipseProperties);
+        initThresholdPressure(deck, eclipseProperties);
     }
 
 
-    void SimulationConfig::initThresholdPressure(const ParseContext& parseContext,
-                                                 const Deck& deck,
+    void SimulationConfig::initThresholdPressure(const Deck& deck,
                                                  const Eclipse3DProperties& eclipseProperties) {
-        m_ThresholdPressure = std::make_shared<const ThresholdPressure>(parseContext , deck, eclipseProperties);
+        m_ThresholdPressure = std::make_shared<const ThresholdPressure>(deck, eclipseProperties);
     }
 
 

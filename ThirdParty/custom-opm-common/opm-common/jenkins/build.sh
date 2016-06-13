@@ -32,10 +32,10 @@ source $WORKSPACE/deps/opm-common/jenkins/setup-opm-data.sh
 # Downstream revisions
 declare -a downstreams
 downstreams=(opm-parser
+             opm-output
              opm-material
              opm-core
              opm-grid
-             opm-output
              opm-simulators
              opm-upscaling
              ewoms)

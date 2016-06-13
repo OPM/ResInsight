@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __OBS_DATA_H__
-#define __OBS_DATA_H__
+#ifndef ERT_OBS_DATA_H
+#define ERT_OBS_DATA_H
 #ifdef __cplusplus
 extern "C" {
 #endif

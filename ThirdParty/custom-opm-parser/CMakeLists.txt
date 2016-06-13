@@ -79,6 +79,7 @@ ${generator_source}
 
 set (state_source
 EclipseState/EclipseState.cpp
+EclipseState/EclipseConfig.cpp
 EclipseState/Eclipse3DProperties.cpp
 EclipseState/Messages.cpp
 #
@@ -118,6 +119,7 @@ EclipseState/Tables/Tables.cpp
 #
 EclipseState/Grid/SatfuncPropertyInitializers.cpp
 EclipseState/Grid/GridProperty.cpp
+EclipseState/Grid/GridProperties.cpp
 EclipseState/Grid/Box.cpp
 EclipseState/Grid/BoxManager.cpp
 EclipseState/Grid/FaceDir.cpp
@@ -178,6 +180,7 @@ Units/Dimension.hpp
 Units/ConversionFactors.hpp
 #
 EclipseState/EclipseState.hpp
+EclipseState/EclipseConfig.hpp
 EclipseState/Eclipse3DProperties.hpp
 EclipseState/Messages.hpp
 #

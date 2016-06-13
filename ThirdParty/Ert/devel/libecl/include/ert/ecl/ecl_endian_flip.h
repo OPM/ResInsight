@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ECL_ENDIAN_FLIP_H__
-#define __ECL_ENDIAN_FLIP_H__
+#ifndef ERT_ECL_ENDIAN_FLIP_H
+#define ERT_ECL_ENDIAN_FLIP_H
 #ifdef __cplusplus
 extern "C" {
 #endif

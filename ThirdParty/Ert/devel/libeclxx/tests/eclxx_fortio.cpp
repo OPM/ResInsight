@@ -21,16 +21,14 @@
 #include <fstream>
 
 
-#include <ert/util/test_work_area.h>
-
+#include <ert/util/TestArea.hpp>
 #include <ert/util/test_util.hpp>
 #include <ert/ecl/EclKW.hpp>
 #include <ert/ecl/FortIO.hpp>
 
 
 void test_open() {
-    test_work_area_type * work_area = test_work_area_alloc("fortio");
-
+    ERT::TestArea work_area("fortio");
     ERT::FortIO fortio;
     fortio.open( "new_file" , std::fstream::out );
 
@@ -68,13 +66,11 @@ void test_open() {
             test_assert_size_t_equal(data[i], i);
     }
     fortio.close();
-    test_work_area_free( work_area );
 }
 
 
 void test_fortio() {
-    test_work_area_type * work_area = test_work_area_alloc("fortio");
-
+    ERT::TestArea ta("fortio");
     ERT::FortIO fortio("new_file" , std::fstream::out );
     {
         std::vector<int> data;
@@ -97,17 +93,19 @@ void test_fortio() {
 
     }
     fortio.close();
-    test_work_area_free( work_area );
 
     test_assert_throw( ERT::FortIO fortio("file/does/not/exists" , std::fstream::in) , std::invalid_argument );
 }
 
 
 void test_fortio_kw() {
-    test_work_area_type * work_area = test_work_area_alloc("fortio_kw");
-    ERT::EclKW<int> kw("XYZ" , 1000);
-    for (size_t i =0 ; i < kw.size(); i++)
-        kw[i] = i;
+    ERT::TestArea ta("fortio");
+    std::vector< int > vec( 1000 );
+
+    for (size_t i =0 ; i < vec.size(); i++)
+        vec[ i ] = i;
+
+    ERT::EclKW<int> kw("XYZ" , vec );
 
     {
         ERT::FortIO fortio("new_file" , std::fstream::out );
@@ -120,15 +118,13 @@ void test_fortio_kw() {
         ERT::EclKW<int> kw2 = ERT::EclKW<int>::load( fortio );
         fortio.close( );
         for (size_t i =0 ; i < kw.size(); i++)
-            test_assert_int_equal( kw[i] , kw2[i]);
+            test_assert_int_equal( kw.at( i ), kw2.at( i ) );
 
 
         fortio = ERT::FortIO("new_file" , std::fstream::in );
 	test_assert_throw( ERT::EclKW<float>::load(fortio) , std::invalid_argument );
         fortio.close();
     }
-
-    test_work_area_free( work_area );
 }
 
 

@@ -119,6 +119,21 @@ namespace Opm {
         m_messages.emplace_back( Message { Message::Problem, msg, {} } );
     }
 
+
+    void MessageContainer::note( const std::string& msg,
+                                 const std::string& filename,
+                                 const size_t lineno ) {
+        m_messages.emplace_back(
+            Message { Message::Note, msg, { filename, lineno } }
+        );
+    }
+
+
+    void MessageContainer::note( const std::string& msg ) {
+        m_messages.emplace_back( Message { Message::Note, msg, {} } );
+    }
+
+
     void MessageContainer::add( const Message& msg ) {
         this->m_messages.push_back( msg );
     }

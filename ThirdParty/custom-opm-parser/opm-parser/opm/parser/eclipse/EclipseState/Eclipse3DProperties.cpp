@@ -37,6 +37,7 @@
 
 namespace Opm {
 
+
     namespace GridPropertyPostProcessor {
 
         void distTopLayer( std::vector<double>&    values,
@@ -54,25 +55,18 @@ namespace Opm {
         /// initPORV uses doubleGridProperties: PORV, PORO, NTG, MULTPV
         void initPORV( std::vector<double>&    values,
                        const EclipseGrid*      eclipseGrid,
-                       GridProperties<double>* doubleGridProperties)
+                       const GridProperties<double>* doubleGridProperties)
         {
-            /*
-               Observe that this apply method does not alter the values input
-               vector, instead it fetches the PORV property one more time, and
-               then manipulates that.
-               */
+            const auto iter = std::find_if( values.begin(), values.end(), []( double value ) { return std::isnan(value); });
+            if (iter != values.end()) {
+                const auto& poro = doubleGridProperties->getKeyword("PORO");
+                const auto& ntg =  doubleGridProperties->getKeyword("NTG");
 
-            const auto& porv = doubleGridProperties->getOrCreateProperty("PORV");
-
-            if (porv.containsNaN()) {
-                const auto& poro = doubleGridProperties->getOrCreateProperty("PORO");
-
-                const auto& ntg =  doubleGridProperties->getOrCreateProperty("NTG");
                 if (poro.containsNaN())
                     throw std::logic_error("Do not have information for the PORV keyword - some defaulted values in PORO");
                 else {
                     const auto& poroData = poro.getData();
-                    for (size_t globalIndex = 0; globalIndex < porv.getCartesianSize(); globalIndex++) {
+                    for (size_t globalIndex = 0; globalIndex < poro.getCartesianSize(); globalIndex++) {
                         if (std::isnan(values[globalIndex])) {
                             double cell_poro = poroData[globalIndex];
                             double cell_ntg = ntg.iget(globalIndex);
@@ -84,9 +78,49 @@ namespace Opm {
             }
 
             if (doubleGridProperties->hasKeyword("MULTPV")) {
-                const auto& multpvData = doubleGridProperties->getKeyword("MULTPV").getData();
-                for (size_t globalIndex = 0; globalIndex < porv.getCartesianSize(); globalIndex++) {
+                const GridProperty<double>& multpvKeyword = doubleGridProperties->getKeyword("MULTPV");
+                const auto& multpvData = multpvKeyword.getData();
+                for (size_t globalIndex = 0; globalIndex < multpvData.size(); globalIndex++)
                     values[globalIndex] *= multpvData[globalIndex];
+            }
+        }
+
+
+        /*
+          In this codeblock we explicitly set the ACTNUM value to zero
+          for cells with pore volume equal to zero. Observe the
+          following:
+
+             1. The current processing only considers cells with PORV
+                == 0. Processing of the MINPV keyword for cells with
+                small nonzero poervolumes is currently performed along
+                with the Grid processing code.
+
+             2. The PORO or PORV keyword must be explicitly entered
+                in the deck, using getDoubleGridProperty( ) and
+                relying on autocreation will fail - we therefor
+                explicitly check if the PORO or PORV keywords are
+                present in the deck.
+
+             3. The code below will fail hard if it is called with a
+                grid which does not have full cell information.
+        */
+
+        void ACTNUMPostProcessor( std::vector<int>&       values,
+                                  const EclipseGrid*      eclipseGrid,
+                                  const GridProperties<double>* doubleGridProperties)
+        {
+            const bool hasPORV = doubleGridProperties->hasKeyword( "PORV" ) || doubleGridProperties->hasKeyword( "PORO");
+            if (!hasPORV)
+                return;
+
+            {
+                const auto& porv = doubleGridProperties->getKeyword("PORV");
+                {
+                    const auto& porvData = porv.getData();
+                    for (size_t i = 0; i < porvData.size(); i++)
+                        if (porvData[i] == 0)
+                            values[i] = 0;
                 }
             }
         }
@@ -94,11 +128,9 @@ namespace Opm {
 
 
 
-
     static std::vector< GridProperties< int >::SupportedKeywordInfo >
     makeSupportedIntKeywords() {
-        return {GridProperties< int >::SupportedKeywordInfo( "ACTNUM" , 1, "1" ),
-                GridProperties< int >::SupportedKeywordInfo( "SATNUM" , 1, "1" ),
+        return { GridProperties< int >::SupportedKeywordInfo( "SATNUM" , 1, "1" ),
                 GridProperties< int >::SupportedKeywordInfo( "IMBNUM" , 1, "1" ),
                 GridProperties< int >::SupportedKeywordInfo( "PVTNUM" , 1, "1" ),
                 GridProperties< int >::SupportedKeywordInfo( "EQLNUM" , 1, "1" ),
@@ -107,9 +139,9 @@ namespace Opm {
                 GridProperties< int >::SupportedKeywordInfo( "MULTNUM", 1, "1" ),
                 GridProperties< int >::SupportedKeywordInfo( "FIPNUM" , 1, "1" ),
                 GridProperties< int >::SupportedKeywordInfo( "MISCNUM", 1, "1" ),
-                GridProperties< int >::SupportedKeywordInfo( "OPERNUM", 1, "1" ),
-                };
+                GridProperties< int >::SupportedKeywordInfo( "OPERNUM", 1, "1" ) };
     }
+
 
     static std::vector< GridProperties< double >::SupportedKeywordInfo >
     makeSupportedDoubleKeywords(const TableManager*        tableManager,
@@ -318,12 +350,12 @@ namespace Opm {
 
           m_defaultRegion("FLUXNUM"),
           m_deckUnitSystem(deck.getActiveUnitSystem()),
-		  // Note that the variants of grid keywords for radial grids are not
-		  // supported. (and hopefully never will be)
-		  // register the grid properties
-		  m_intGridProperties(eclipseGrid, makeSupportedIntKeywords()),
-		  m_doubleGridProperties(eclipseGrid,
-                        makeSupportedDoubleKeywords(&tableManager, &eclipseGrid, &m_intGridProperties))
+          // Note that the variants of grid keywords for radial grids are not
+          // supported. (and hopefully never will be)
+          // register the grid properties
+          m_intGridProperties(eclipseGrid, makeSupportedIntKeywords()),
+          m_doubleGridProperties(eclipseGrid, &m_deckUnitSystem,
+                                 makeSupportedDoubleKeywords(&tableManager, &eclipseGrid, &m_intGridProperties))
     {
         /*
          * The EQUALREG, MULTREG, COPYREG, ... keywords are used to manipulate
@@ -364,36 +396,35 @@ namespace Opm {
         }
 
 
-        auto initPORV = std::bind(&GridPropertyPostProcessor::initPORV,
-                                                    std::placeholders::_1,
-                                                    &eclipseGrid,
-                                                    &m_doubleGridProperties);
-        // pore volume
-        m_doubleGridProperties.postAddKeyword( "PORV",
-                                                std::numeric_limits<double>::quiet_NaN(),
-                                                initPORV,
-                                                "Volume" );
+        {
+            auto initPORV = std::bind(&GridPropertyPostProcessor::initPORV,
+                                      std::placeholders::_1,
+                                      &eclipseGrid,
+                                      &m_doubleGridProperties);
 
-        // actually create the grid property objects. we need to first process
-        // all integer grid properties before the double ones as these may be
-        // needed in order to initialize the double properties
-        processGridProperties(deck, eclipseGrid, /*enabledTypes=*/IntProperties);
-        processGridProperties(deck, eclipseGrid, /*enabledTypes=*/DoubleProperties);
+            m_doubleGridProperties.postAddKeyword( "PORV",
+                                                   std::numeric_limits<double>::quiet_NaN(),
+                                                   initPORV,
+                                                   "Volume" );
+        }
 
+        {
+            auto actnumPP = std::bind(&GridPropertyPostProcessor::ACTNUMPostProcessor,
+                                      std::placeholders::_1,
+                                      &eclipseGrid,
+                                      &m_doubleGridProperties);
+
+            m_intGridProperties.postAddKeyword( "ACTNUM",
+                                                1,
+                                                actnumPP ,
+                                                "1");
+        }
+
+        processGridProperties(deck, eclipseGrid);
     }
 
-    bool Eclipse3DProperties::supportsGridProperty(const std::string& keyword,
-                                                 int enabledTypes) const
-    {
-        bool result = false;
-        if (enabledTypes & IntProperties)
-            result = result ||
-                m_intGridProperties.supportsKeyword( keyword );
-
-        if (enabledTypes & DoubleProperties)
-            result = result ||
-                m_doubleGridProperties.supportsKeyword( keyword );
-        return result;
+    bool Eclipse3DProperties::supportsGridProperty(const std::string& keyword) const {
+        return m_doubleGridProperties.supportsKeyword( keyword ) || m_intGridProperties.supportsKeyword( keyword );
     }
 
 
@@ -412,22 +443,14 @@ namespace Opm {
         return m_doubleGridProperties.hasKeyword( keyword );
     }
 
-    /*
-      1. The public methods getIntGridProperty & getDoubleGridProperty will
-         invoke and run the property post processor (if any is registered); the
-         post processor will only run one time.
 
-         It is important that post processor is not run prematurely, internal
-         functions in EclipseState should therefore ask for properties by
-         invoking the getKeyword() method of the m_intGridProperties /
-         m_doubleGridProperties() directly and not through these methods.
-
-      2. Observe that this will autocreate a property if it has not been
-         explicitly added.
-    */
     const GridProperty<int>& Eclipse3DProperties::getIntGridProperty( const std::string& keyword ) const {
-        return m_intGridProperties.getKeyword( keyword );
+        auto& gridProperty = const_cast< Eclipse3DProperties* >( this )->m_intGridProperties.getKeyword( keyword );
+        gridProperty.runPostProcessor();
+        return gridProperty;
     }
+
+
 
     /// gets property from doubleGridProperty --- and calls the runPostProcessor
     const GridProperty<double>& Eclipse3DProperties::getDoubleGridProperty( const std::string& keyword ) const {
@@ -449,110 +472,195 @@ namespace Opm {
         }
     }
 
+    std::vector< int > Eclipse3DProperties::getRegions( const std::string& kw ) const {
+        if( !this->hasDeckIntGridProperty( kw ) ) return {};
+
+        const auto& property = this->getIntGridProperty( kw );
+
+        std::set< int > regions( property.getData().begin(),
+                                 property.getData().end() );
+
+        return { regions.begin(), regions.end() };
+    }
+
     ///  Due to the post processor which might be applied to the GridProperty
     ///  objects it is essential that this method use the m_intGridProperties /
     ///  m_doubleGridProperties fields directly and *NOT* use the public methods
     ///  getIntGridProperty / getDoubleGridProperty.
     void Eclipse3DProperties::loadGridPropertyFromDeckKeyword(const Box& inputBox,
-                                                            const DeckKeyword& deckKeyword,
-                                                            int enabledTypes)
-    {
+                                                              const DeckKeyword& deckKeyword) {
         const std::string& keyword = deckKeyword.name();
         if (m_intGridProperties.supportsKeyword( keyword )) {
-            if (enabledTypes & IntProperties) {
-                auto& gridProperty = m_intGridProperties.getOrCreateProperty( keyword );
-                gridProperty.loadFromDeckKeyword( inputBox, deckKeyword );
-            }
+            auto& gridProperty = m_intGridProperties.getOrCreateProperty( keyword );
+            gridProperty.loadFromDeckKeyword( inputBox, deckKeyword );
         } else if (m_doubleGridProperties.supportsKeyword( keyword )) {
-            if (enabledTypes & DoubleProperties) {
-                auto& gridProperty = m_doubleGridProperties.getOrCreateProperty( keyword );
-                gridProperty.loadFromDeckKeyword( inputBox, deckKeyword );
-            }
+            auto& gridProperty = m_doubleGridProperties.getOrCreateProperty( keyword );
+            gridProperty.loadFromDeckKeyword( inputBox, deckKeyword );
         } else {
             throw std::logic_error( "Tried to load unsupported grid property from keyword: " + deckKeyword.name() );
         }
     }
 
-    static bool isInt(double value) {
-        return fabs( nearbyint( value ) - value ) < 1e-6;
-    }
+    /*
+      Issues regarding initialization order and default values.
+      =========================================================
+
+      The 3D properties objects, and in particular their
+      initialization touches upon very fine details of the Eclipse
+      behavior; which are not entirely clear from the documentation:
+
+
+      Default values and EQUALS / COPY / ADD / ...
+      --------------------------------------------
+
+      The keywords which operate on an existing keyword, i.e. COPY,
+      ADD and MULTIPLY require that the mentioned keyword has already
+      been introduced explicitly in the deck, i.e. if this is the
+      first mention of the PORO keyword in the deck this will fail
+      hard:
+
+
+         ADD
+           PORO 0.10 /
+         /
+
+      Because the PORO keyword is undefined.
+
+      All keywords have a default value or initializer; for some
+      keywords this default value is sensical which can be used in a
+      simulation, e.g. ACTNUM; defaults to 1 - whereas PORO defaults
+      to nan.
+
+      Using BOX functionality it is possible to limit the assignment
+      and manipulations to only parts of a 3D property, we then have a
+      partly initialized keyword which can be used in subsequent
+      operations, and undetected give nonsensical results. Consider
+      the following sequyence of keywords:
+
+         -- Set the porosity equal to 0.25 in the top layer.
+         EQUALS
+            PORO 0.25 1 100 1 100 1 1 /
+         /
+
+        -- Shift the porosity with 0.10 in all cells
+        ADD
+            PORO 0.10
+        /
+
+      Now - the second ADD operation will 'silently succeed' because
+      the PORO keyword has been autocreated with the preceeding EQUALS
+      keyword, but since the EQUALS keyword only set a subset of the
+      cells the PORO keyword will not be fully defined. This is fully
+      undedected, and will hopefully blow up hard when you start
+      simualating.
+
+
+      Order of initialization
+      -----------------------
+
+      The kewyords are come into life and are manipulated as you go
+      through the deck; i.e. in this part of the code some of the
+      underlying imperative nature of the Eclipse datamodel comes
+      through - hopefully we have got it right:
+
+        1. The REGIONS section is scanned before the other sections;
+           this is out-of-order compared to the ordering of ECLIPSE
+           sections, but it is required to ensure that the relevant
+           region keywords are defined before we read the properties
+           keywords like SGU and SGOF.
+
+        2. When using the region keywords in e.g. MULTIREG the current
+           state of the region keyword is used, i.e. in the example
+           below the two MULTIREG keywords will use different versions
+           of the MULTNUM keyword:
+
+
+              MULTIREG
+                  PORO  2.0  1  M /
+              /
+
+              ADD
+                MULTNUM 1 /
+              /
+
+              MULTIREG
+                  PERMX  2.0  1  M /
+              /
+    */
+
 
     void Eclipse3DProperties::processGridProperties( const Deck& deck,
-                                                   const EclipseGrid& eclipseGrid,
-                                                   int enabledTypes) {
+                                                     const EclipseGrid& eclipseGrid) {
 
-        if (Section::hasGRID(deck)) {
-            scanSection(GRIDSection(deck), eclipseGrid, enabledTypes);
-        }
 
-        if (Section::hasEDIT(deck)) {
-            scanSection(EDITSection(deck), eclipseGrid, enabledTypes);
-        }
+        /*
+          Observe that the REGIONS section is scanned out of order -
+          before the other section, to ensure that the integer region
+          keywords are correctly defined before parsing the remaining
+          keywords.
+        */
+        if (Section::hasREGIONS(deck))
+            scanSection(REGIONSSection(deck), eclipseGrid);
 
-        if (Section::hasPROPS(deck)) {
-            scanSection(PROPSSection(deck), eclipseGrid, enabledTypes);
-        }
+        if (Section::hasGRID(deck))
+            scanSection(GRIDSection(deck), eclipseGrid);
 
-        if (Section::hasREGIONS(deck)) {
-            scanSection(REGIONSSection(deck), eclipseGrid, enabledTypes);
-        }
+        if (Section::hasEDIT(deck))
+            scanSection(EDITSection(deck), eclipseGrid);
 
-        if (Section::hasSOLUTION(deck)) {
-            scanSection(SOLUTIONSection(deck), eclipseGrid, enabledTypes);
-        }
+        if (Section::hasPROPS(deck))
+            scanSection(PROPSSection(deck), eclipseGrid);
+
+        if (Section::hasSOLUTION(deck))
+            scanSection(SOLUTIONSection(deck), eclipseGrid);
     }
 
 
-
-    // private method
-    double Eclipse3DProperties::getSIScaling(const std::string &dimensionString) const
-    {
-        return m_deckUnitSystem.getDimension(dimensionString)->getSIScaling();
-    }
 
     void Eclipse3DProperties::scanSection(const Section& section,
-                                        const EclipseGrid& eclipseGrid,
-                                        int enabledTypes) {
+                                          const EclipseGrid& eclipseGrid) {
         BoxManager boxManager(eclipseGrid.getNX(),
                               eclipseGrid.getNY(),
                               eclipseGrid.getNZ());
 
         for( const auto& deckKeyword : section ) {
 
-            if (supportsGridProperty(deckKeyword.name(), enabledTypes) )
+            if (supportsGridProperty(deckKeyword.name()) )
                 loadGridPropertyFromDeckKeyword( *boxManager.getActiveBox(),
-                                                 deckKeyword,
-                                                 enabledTypes);
+                                                 deckKeyword);
             else {
-                if (deckKeyword.name() == "ADD")
-                    handleADDKeyword(deckKeyword, boxManager, enabledTypes);
-
                 if (deckKeyword.name() == "BOX")
                     handleBOXKeyword(deckKeyword, boxManager);
-
-                if (deckKeyword.name() == "COPY")
-                    handleCOPYKeyword(deckKeyword, boxManager, enabledTypes);
-
-                if (deckKeyword.name() == "EQUALS")
-                    handleEQUALSKeyword(deckKeyword, boxManager, enabledTypes);
-
-                if (deckKeyword.name() == "MULTIPLY")
-                    handleMULTIPLYKeyword(deckKeyword, boxManager, enabledTypes);
 
                 if (deckKeyword.name() == "ENDBOX")
                     handleENDBOXKeyword(boxManager);
 
+
+                if (deckKeyword.name() == "COPY")
+                    handleCOPYKeyword( deckKeyword , boxManager);
+
+                if (deckKeyword.name() == "EQUALS")
+                    handleEQUALSKeyword(deckKeyword, boxManager);
+
+
+                if (deckKeyword.name() == "ADD")
+                    handleADDKeyword( deckKeyword , boxManager);
+
+                if (deckKeyword.name() == "MULTIPLY")
+                    handleMULTIPLYKeyword(deckKeyword, boxManager);
+
+
                 if (deckKeyword.name() == "EQUALREG")
-                    handleEQUALREGKeyword(deckKeyword, enabledTypes);
+                    handleEQUALREGKeyword(deckKeyword);
 
                 if (deckKeyword.name() == "ADDREG")
-                    handleADDREGKeyword(deckKeyword,   enabledTypes);
+                    handleADDREGKeyword(deckKeyword);
 
                 if (deckKeyword.name() == "MULTIREG")
-                    handleMULTIREGKeyword(deckKeyword, enabledTypes);
+                    handleMULTIREGKeyword(deckKeyword);
 
                 if (deckKeyword.name() == "COPYREG")
-                    handleCOPYREGKeyword(deckKeyword,  enabledTypes);
+                    handleCOPYREGKeyword(deckKeyword);
 
                 boxManager.endKeyword();
             }
@@ -579,192 +687,80 @@ namespace Opm {
     }
 
 
-   void Eclipse3DProperties::handleEQUALREGKeyword( const DeckKeyword& deckKeyword,
-                                                  int enabledTypes)
-   {
+    void Eclipse3DProperties::handleEQUALREGKeyword( const DeckKeyword& deckKeyword) {
        for( const auto& record : deckKeyword ) {
            const std::string& targetArray = record.getItem("ARRAY").get< std::string >(0);
+           auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
 
-            if (!supportsGridProperty( targetArray , IntProperties + DoubleProperties))
-                throw std::invalid_argument("Fatal error processing EQUALREG keyword - invalid/undefined keyword: " + targetArray);
+           if (m_intGridProperties.supportsKeyword( targetArray ))
+               m_intGridProperties.handleEQUALREGRecord( record , regionProperty );
+           else if (m_doubleGridProperties.supportsKeyword( targetArray ))
+               m_doubleGridProperties.handleEQUALREGRecord( record , regionProperty );
+           else
+               throw std::invalid_argument("Fatal error processing EQUALREG keyword - invalid/undefined keyword: " + targetArray);
+       }
+   }
 
-            double doubleValue = record.getItem("VALUE").template get<double>(0);
-            int regionValue = record.getItem("REGION_NUMBER").template get<int>(0);
-            auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
-            std::vector<bool> mask;
 
-            regionProperty.initMask( regionValue , mask);
+    void Eclipse3DProperties::handleADDREGKeyword( const DeckKeyword& deckKeyword) {
+       for( const auto& record : deckKeyword ) {
+           const std::string& targetArray = record.getItem("ARRAY").get< std::string >(0);
+           const auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
 
-            if (m_intGridProperties.supportsKeyword( targetArray )) {
-                if (enabledTypes & IntProperties) {
-                    if (isInt( doubleValue )) {
-                        auto& targetProperty = m_intGridProperties.getOrCreateProperty( targetArray );
-                        int intValue = static_cast<int>( doubleValue + 0.5 );
-                        targetProperty.maskedSet( intValue , mask);
-                    } else
-                        throw std::invalid_argument("Fatal error processing EQUALREG keyword - expected integer value for: " + targetArray);
-                }
-            }
-            else if (m_doubleGridProperties.supportsKeyword( targetArray )) {
-                if (enabledTypes & DoubleProperties) {
-                    auto& targetProperty = m_doubleGridProperties.getOrCreateProperty( targetArray );
-
-                    const std::string& dimensionString = targetProperty.getDimensionString();
-                    double SIValue = doubleValue * getSIScaling( dimensionString );
-
-                    targetProperty.maskedSet( SIValue , mask);
-                }
-            }
-            else {
-                throw std::invalid_argument("Fatal error processing EQUALREG keyword - invalid/undefined keyword: " + targetArray);
-            }
-        }
+           if (m_intGridProperties.hasKeyword( targetArray ))
+               m_intGridProperties.handleADDREGRecord( record , regionProperty );
+           else if (m_doubleGridProperties.hasKeyword( targetArray ))
+               m_doubleGridProperties.handleADDREGRecord( record , regionProperty );
+           else
+               throw std::invalid_argument("Fatal error processing ADDREG keyword - invalid/undefined keyword: " + targetArray);
+       }
     }
 
 
-    void Eclipse3DProperties::handleADDREGKeyword( const DeckKeyword& deckKeyword, int enabledTypes) {
+
+    void Eclipse3DProperties::handleMULTIREGKeyword( const DeckKeyword& deckKeyword) {
         for( const auto& record : deckKeyword ) {
             const std::string& targetArray = record.getItem("ARRAY").get< std::string >(0);
+            const auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
 
-            if (!supportsGridProperty( targetArray , IntProperties + DoubleProperties))
-                throw std::invalid_argument("Fatal error processing ADDREG keyword - invalid/undefined keyword: " + targetArray);
-
-            if (supportsGridProperty( targetArray , enabledTypes)) {
-                double doubleValue = record.getItem("SHIFT").get< double >(0);
-                int regionValue = record.getItem("REGION_NUMBER").get< int >(0);
-                auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
-                std::vector<bool> mask;
-
-                regionProperty.initMask( regionValue , mask);
-
-                if (m_intGridProperties.hasKeyword( targetArray )) {
-                    if (enabledTypes & IntProperties) {
-                        if (isInt( doubleValue )) {
-                            GridProperty<int>& targetProperty = m_intGridProperties.getKeyword(targetArray);
-                            int intValue = static_cast<int>( doubleValue + 0.5 );
-                            targetProperty.maskedAdd( intValue , mask);
-                        } else
-                            throw std::invalid_argument("Fatal error processing ADDREG keyword - expected integer value for: " + targetArray);
-                    }
-                }
-                else if (m_doubleGridProperties.hasKeyword( targetArray )) {
-                    if (enabledTypes & DoubleProperties) {
-                        GridProperty<double>& targetProperty = m_doubleGridProperties.getKeyword(targetArray);
-
-                        const std::string& dimensionString = targetProperty.getDimensionString();
-                        double SIValue = doubleValue * getSIScaling( dimensionString );
-
-                        targetProperty.maskedAdd( SIValue , mask);
-                    }
-                }
-                else {
-                    throw std::invalid_argument("Fatal error processing ADDREG keyword - invalid/undefined keyword: " + targetArray);
-                }
-            }
+           if (m_intGridProperties.supportsKeyword( targetArray ))
+               m_intGridProperties.handleMULTIREGRecord( record , regionProperty );
+           else if (m_doubleGridProperties.supportsKeyword( targetArray ))
+               m_doubleGridProperties.handleMULTIREGRecord( record , regionProperty );
+           else
+               throw std::invalid_argument("Fatal error processing MULTIREG keyword - invalid/undefined keyword: " + targetArray);
         }
     }
 
 
-
-    void Eclipse3DProperties::handleMULTIREGKeyword( const DeckKeyword& deckKeyword, int enabledTypes) {
-        for( const auto& record : deckKeyword ) {
-            const std::string& targetArray = record.getItem("ARRAY").get< std::string >(0);
-
-            if (!supportsGridProperty( targetArray , IntProperties + DoubleProperties))
-                throw std::invalid_argument("Fatal error processing MULTIREG keyword - invalid/undefined keyword: " + targetArray);
-
-            if (supportsGridProperty( targetArray , enabledTypes)) {
-                double doubleValue = record.getItem("FACTOR").get< double >(0);
-                int regionValue = record.getItem("REGION_NUMBER").get< int >(0);
-                auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
-                std::vector<bool> mask;
-
-                regionProperty.initMask( regionValue , mask);
-
-                if (enabledTypes & IntProperties) {
-                    if (isInt( doubleValue )) {
-                        auto& targetProperty = m_intGridProperties.getOrCreateProperty( targetArray );
-                        int intValue = static_cast<int>( doubleValue + 0.5 );
-
-                        targetProperty.maskedMultiply( intValue , mask);
-                    } else
-                        throw std::invalid_argument(
-                            "Fatal error processing MULTIREG keyword - expected"
-                            " integer value for: " + targetArray);
-                }
-                if (enabledTypes & DoubleProperties) {
-                    auto& targetProperty = m_doubleGridProperties.getOrCreateProperty(targetArray);
-                    targetProperty.maskedMultiply( doubleValue , mask);
-                }
-            }
-        }
-    }
-
-
-    void Eclipse3DProperties::handleCOPYREGKeyword( const DeckKeyword& deckKeyword, int enabledTypes) {
+    void Eclipse3DProperties::handleCOPYREGKeyword( const DeckKeyword& deckKeyword) {
         for( const auto& record : deckKeyword ) {
             const std::string& srcArray    = record.getItem("ARRAY").get< std::string >(0);
-            const std::string& targetArray = record.getItem("TARGET_ARRAY").get< std::string >(0);
+            const auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
 
-            if (!supportsGridProperty( targetArray , IntProperties + DoubleProperties))
-                throw std::invalid_argument("Fatal error processing MULTIREG keyword - invalid/undefined keyword: " + targetArray);
-
-            if (!supportsGridProperty( srcArray , IntProperties + DoubleProperties))
-                throw std::invalid_argument("Fatal error processing MULTIREG keyword - invalid/undefined keyword: " + srcArray);
-
-            if (supportsGridProperty( srcArray , enabledTypes))
-            {
-                int regionValue = record.getItem("REGION_NUMBER").get< int >(0);
-                auto& regionProperty = getRegion( record.getItem("REGION_NAME") );
-                std::vector<bool> mask;
-
-                regionProperty.initMask( regionValue , mask );
-
-                if (m_intGridProperties.hasKeyword( srcArray )) {
-                    auto& srcProperty = m_intGridProperties.getInitializedKeyword( srcArray );
-                    if (supportsGridProperty( targetArray , IntProperties)) {
-                        GridProperty<int>& targetProperty = m_intGridProperties.getOrCreateProperty( targetArray );
-                        targetProperty.maskedCopy( srcProperty , mask );
-                    } else
-                        throw std::invalid_argument("Fatal error processing COPYREG keyword.");
-                } else if (m_doubleGridProperties.hasKeyword( srcArray )) {
-                    const GridProperty<double>& srcProperty = m_doubleGridProperties.getInitializedKeyword( srcArray );
-                    if (supportsGridProperty( targetArray , DoubleProperties)) {
-                        auto& targetProperty = m_doubleGridProperties.getOrCreateProperty( targetArray );
-                        targetProperty.maskedCopy( srcProperty , mask );
-                    }
-                }
-                else {
-                    throw std::invalid_argument("Fatal error processing COPYREG keyword - invalid/undefined keyword: " + targetArray);
-                }
-            }
+            if (m_intGridProperties.hasKeyword( srcArray ))
+                m_intGridProperties.handleCOPYREGRecord( record, regionProperty );
+            else if (m_doubleGridProperties.hasKeyword( srcArray ))
+                m_doubleGridProperties.handleCOPYREGRecord( record, regionProperty );
+            else
+                throw std::invalid_argument("Fatal error processing COPYREG keyword - invalid/undefined keyword: " + srcArray);
         }
     }
 
 
 
 
-    void Eclipse3DProperties::handleMULTIPLYKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes) {
+    void Eclipse3DProperties::handleMULTIPLYKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager) {
         for( const auto& record : deckKeyword ) {
             const std::string& field = record.getItem("field").get< std::string >(0);
-            double      scaleFactor  = record.getItem("factor").get< double >(0);
 
-            setKeywordBox(deckKeyword, record, boxManager);
+            if (m_doubleGridProperties.hasKeyword( field ))
+                m_doubleGridProperties.handleMULTIPLYRecord( record , boxManager );
+            else if (m_intGridProperties.hasKeyword( field ))
+                m_intGridProperties.handleMULTIPLYRecord( record , boxManager );
+            else
+                throw std::invalid_argument("Fatal error processing MULTIPLY keyword. Tried to shift not defined keyword " + field);
 
-            if (m_intGridProperties.hasKeyword( field )) {
-                if (enabledTypes & IntProperties) {
-                    int intFactor = static_cast<int>(scaleFactor);
-                    GridProperty<int>& property = m_intGridProperties.getKeyword( field );
-                    property.scale( intFactor , *boxManager.getActiveBox() );
-                }
-            } else if (m_doubleGridProperties.hasKeyword( field )) {
-                if (enabledTypes & DoubleProperties) {
-                    GridProperty<double>& property = m_doubleGridProperties.getKeyword( field );
-                    property.scale( scaleFactor , *boxManager.getActiveBox() );
-                }
-            } else if (!m_intGridProperties.supportsKeyword(field) &&
-                       !m_doubleGridProperties.supportsKeyword(field))
-                throw std::invalid_argument("Fatal error processing MULTIPLY keyword. Tried to multiply not defined keyword " + field);
         }
     }
 
@@ -774,87 +770,51 @@ namespace Opm {
       some state dependent semantics regarding endpoint scaling arrays
       in the PROPS section. That is not supported.
     */
-    void Eclipse3DProperties::handleADDKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes) {
+    void Eclipse3DProperties::handleADDKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager) {
         for( const auto& record : deckKeyword ) {
             const std::string& field = record.getItem("field").get< std::string >(0);
-            double      shiftValue  = record.getItem("shift").get< double >(0);
 
-            setKeywordBox(deckKeyword, record, boxManager);
-
-            if (m_intGridProperties.hasKeyword( field )) {
-                if (enabledTypes & IntProperties) {
-                    int intShift = static_cast<int>(shiftValue);
-                    GridProperty<int>& property = m_intGridProperties.getKeyword( field );
-
-                    property.add( intShift , *boxManager.getActiveBox() );
-                }
-            } else if (m_doubleGridProperties.hasKeyword( field )) {
-                if (enabledTypes & DoubleProperties) {
-                    GridProperty<double>& property = m_doubleGridProperties.getKeyword( field );
-
-                    double siShiftValue = shiftValue * getSIScaling(property.getDimensionString());
-                    property.add(siShiftValue , *boxManager.getActiveBox() );
-                }
-            } else if (!m_intGridProperties.supportsKeyword(field) &&
-                       !m_doubleGridProperties.supportsKeyword(field))
-                throw std::invalid_argument("Fatal error processing ADD keyword. Tried to shift not defined keyword " + field);
-        }
-    }
-
-
-    void Eclipse3DProperties::handleEQUALSKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes) {
-        for( const auto& record : deckKeyword ) {
-            const std::string& field = record.getItem("field").get< std::string >(0);
-            double      value  = record.getItem("value").get< double >(0);
-
-            setKeywordBox(deckKeyword, record, boxManager);
-
-            if (m_intGridProperties.supportsKeyword( field )) {
-                if (enabledTypes & IntProperties) {
-                    int intValue = static_cast<int>(value);
-                    GridProperty<int>& property = m_intGridProperties.getOrCreateProperty( field );
-
-                    property.setScalar( intValue , *boxManager.getActiveBox() );
-                }
-            } else if (m_doubleGridProperties.supportsKeyword( field )) {
-
-                if (enabledTypes & DoubleProperties) {
-                    GridProperty<double>& property = m_doubleGridProperties.getOrCreateProperty( field );
-
-                    double siValue = value * getSIScaling(property.getKeywordInfo().getDimensionString());
-                    property.setScalar( siValue , *boxManager.getActiveBox() );
-                }
-            } else
-                throw std::invalid_argument("Fatal error processing EQUALS keyword. Tried to set not defined keyword " + field);
-        }
-    }
-
-
-
-    void Eclipse3DProperties::handleCOPYKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes) {
-        for( const auto& record : deckKeyword ) {
-            const std::string& srcField = record.getItem("src").get< std::string >(0);
-            const std::string& targetField = record.getItem("target").get< std::string >(0);
-
-            setKeywordBox(deckKeyword, record, boxManager);
-
-            if (m_intGridProperties.hasKeyword( srcField )) {
-                if (enabledTypes & IntProperties)
-                    m_intGridProperties.copyKeyword(    srcField , targetField , *boxManager.getActiveBox() );
-            }
-            else if (m_doubleGridProperties.hasKeyword( srcField )) {
-                if (enabledTypes & DoubleProperties)
-                    m_doubleGridProperties.copyKeyword( srcField , targetField , *boxManager.getActiveBox() );
-            }
+            if (m_doubleGridProperties.hasKeyword( field ))
+                m_doubleGridProperties.handleADDRecord( record , boxManager );
+            else if (m_intGridProperties.hasKeyword( field ))
+                m_intGridProperties.handleADDRecord( record , boxManager );
             else
-                if (!m_intGridProperties.supportsKeyword(srcField) &&
-                    !m_doubleGridProperties.supportsKeyword(srcField))
-                    throw std::invalid_argument("Fatal error processing COPY keyword."
-                                                " Tried to copy from not defined keyword " + srcField);
+                throw std::invalid_argument("Fatal error processing ADD keyword. Tried to shift not defined keyword " + field);
+
         }
     }
 
-    
+
+    void Eclipse3DProperties::handleCOPYKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager) {
+        for( const auto& record : deckKeyword ) {
+            const std::string& field = record.getItem("src").get< std::string >(0);
+
+            if (m_doubleGridProperties.hasKeyword( field ))
+                m_doubleGridProperties.handleCOPYRecord( record , boxManager );
+            else if (m_intGridProperties.hasKeyword( field ))
+                m_intGridProperties.handleCOPYRecord( record , boxManager );
+            else
+                throw std::invalid_argument("Fatal error processing COPY keyword. Tried to copy not defined keyword " + field);
+
+        }
+    }
+
+
+    void Eclipse3DProperties::handleEQUALSKeyword( const DeckKeyword& deckKeyword, BoxManager& boxManager) {
+        for( const auto& record : deckKeyword ) {
+            const std::string& field = record.getItem("field").get< std::string >(0);
+
+            if (m_doubleGridProperties.supportsKeyword( field ))
+                m_doubleGridProperties.handleEQUALSRecord( record , boxManager );
+            else if (m_intGridProperties.supportsKeyword( field ))
+                m_intGridProperties.handleEQUALSRecord( record , boxManager );
+            else
+                throw std::invalid_argument("Fatal error processing EQUALS keyword. Tried to assign not defined keyword " + field);
+
+        }
+    }
+
+
 
     MessageContainer Eclipse3DProperties::getMessageContainer() {
         MessageContainer messages;

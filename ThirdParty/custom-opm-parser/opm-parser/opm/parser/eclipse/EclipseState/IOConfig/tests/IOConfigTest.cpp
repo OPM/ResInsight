@@ -24,15 +24,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/Section.hpp>
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-
 
 using namespace Opm;
 
@@ -113,32 +107,6 @@ const std::string& deckStr =  "RUNSPEC\n"
                                                         "/\n"
                                                         "\n";
 
-
-const std::string& deckStr_NOGGF = "RUNSPEC\n"
-                                   "UNIFIN\n"
-                                   "UNIFOUT\n"
-                                   "FMTIN\n"
-                                   "FMTOUT\n"
-                                   "\n"
-                                   "DIMENS\n"
-                                   "10 10 10 /\n"
-                                   "GRID\n"
-                                   "INIT\n"
-                                   "NOGGF\n"
-                                   "\n";
-
-const std::string& deckStr_NO_GRIDFILE = "RUNSPEC\n"
-                                         "\n"
-                                         "DIMENS\n"
-                                        " 10 10 10 /\n"
-                                         "GRID\n"
-                                         "GRIDFILE\n"
-                                         " 0 0 /\n"
-                                         "\n";
-
-
-
-
 const std::string deckStr_RFT = "RUNSPEC\n"
                                 "OIL\n"
                                 "GAS\n"
@@ -201,284 +169,744 @@ BOOST_AUTO_TEST_CASE( RFT_TIME) {
     BOOST_CHECK_EQUAL( ioConfig->getFirstRFTStep() , 2 );
 }
 
+BOOST_AUTO_TEST_CASE(RPTRST_mixed_mnemonics_int_list) {
+    const char* data = "RUNSPEC\n"
+                       "DIMENS\n"
+                       " 10 10 10 /\n"
+                       "GRID\n"
+                       "START             -- 0 \n"
+                       "19 JUN 2007 / \n"
+                       "SCHEDULE\n"
+                       "DATES             -- 1\n"
+                       " 10  OKT 2008 / \n"
+                       "/\n"
+                       "RPTRST\n"
+                       "BASIC=3 0 1 2\n"
+                       "/\n"
+                       "DATES             -- 2\n"
+                       " 20  JAN 2010 / \n"
+                       "/\n"
+                       "DATES             -- 3\n"
+                       " 20  FEB 2010 / \n"
+                       "/\n"
+                       "RPTSCHED\n"
+                       "BASIC=1\n"
+                       "/\n";
 
-BOOST_AUTO_TEST_CASE(IOConfigTest) {
+    auto deck = Parser().parseString( data, ParseContext() );
+    BOOST_CHECK_THROW( IOConfig c( *deck ), std::runtime_error );
+}
 
-    DeckPtr deck = createDeck(deckStr);
-    std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>( 10 , 10 , 10 );
-    IOConfigPtr ioConfigPtr;
-    BOOST_CHECK_NO_THROW(ioConfigPtr = std::make_shared<IOConfig>());
+BOOST_AUTO_TEST_CASE(RPTRST) {
 
-    std::shared_ptr<const GRIDSection> gridSection = std::make_shared<const GRIDSection>(*deck);
-    std::shared_ptr<const RUNSPECSection> runspecSection = std::make_shared<const RUNSPECSection>(*deck);
-    ioConfigPtr->handleGridSection(gridSection);
-    ioConfigPtr->handleRunspecSection(runspecSection);
+    const char *deckData1 =
+                          "RUNSPEC\n"
+                          "DIMENS\n"
+                          " 10 10 10 /\n"
+                          "GRID\n"
+                          "START             -- 0 \n"
+                          "19 JUN 2007 / \n"
+                          "SCHEDULE\n"
+                          "DATES             -- 1\n"
+                          " 10  OKT 2008 / \n"
+                          "/\n"
+                          "RPTRST\n"
+                          "BASIC=1\n"
+                          "/\n"
+                          "DATES             -- 2\n"
+                          " 20  JAN 2010 / \n"
+                          "/\n";
 
-    Schedule schedule(ParseContext() , grid , deck, ioConfigPtr);
+    const char *deckData2 =
+                          "RUNSPEC\n"
+                          "DIMENS\n"
+                          " 10 10 10 /\n"
+                          "GRID\n"
+                          "START             -- 0 \n"
+                          "19 JUN 2007 / \n"
+                          "SCHEDULE\n"
+                          "DATES             -- 1\n"
+                          " 10  OKT 2008 / \n"
+                          "/\n"
+                          "RPTRST\n"
+                          "BASIC=3 FREQ=2 RUBBISH=5\n"
+                          "/\n"
+                          "DATES             -- 2\n"
+                          " 20  JAN 2010 / \n"
+                          "/\n"
+                          "DATES             -- 3\n"
+                          " 20  JAN 2011 / \n"
+                          "/\n";
 
-    TimeMapConstPtr timemap   = schedule.getTimeMap();
-    const TimeMap* const_tmap = timemap.get();
-    TimeMap* writableTimemap  = const_cast<TimeMap*>(const_tmap);
+    const char *deckData3 =
+                          "RUNSPEC\n"
+                          "DIMENS\n"
+                          " 10 10 10 /\n"
+                          "GRID\n"
+                          "START             -- 0 \n"
+                          "19 JUN 2007 / \n"
+                          "SCHEDULE\n"
+                          "DATES             -- 1\n"
+                          " 10  OKT 2008 / \n"
+                          "/\n"
+                          "RPTRST\n"
+                          "3 0 0 0 0 2\n"
+                          "/\n"
+                          "DATES             -- 2\n"
+                          " 20  JAN 2010 / \n"
+                          "/\n"
+                          "DATES             -- 3\n"
+                          " 20  JAN 2011 / \n"
+                          "/\n";
 
-    writableTimemap->initFirstTimestepsYears();
-    writableTimemap->initFirstTimestepsMonths();
+    Opm::Parser parser;
+    ParseContext ctx;
+
+    auto deck1 = parser.parseString( deckData1, ctx );
+    IOConfig ioConfig1( *deck1 );
+
+    BOOST_CHECK( !ioConfig1.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig1.getWriteRestartFile( 1 ) );
+    BOOST_CHECK(  ioConfig1.getWriteRestartFile( 2 ) );
 
 
-    //If no BASIC keyord has been handled, no restart files should be written
-    for (size_t ts = 0; ts < timemap->numTimesteps(); ++ts) {
-        BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-    }
+    auto deck2 = parser.parseString( deckData2, ctx );
+    IOConfig ioConfig2( *deck2 );
 
-    /*BASIC=1, write restart file for every timestep*/
-    size_t timestep = 3;
-    int basic       = 1;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(),timestep, basic);
-    for (size_t ts = 0; ts < timemap->numTimesteps(); ++ts) {
-        if (ts < 3) {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-        } else {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(ts));
-        }
-    }
+    BOOST_CHECK( !ioConfig2.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig2.getWriteRestartFile( 1 ) );
+    BOOST_CHECK(  ioConfig2.getWriteRestartFile( 2 ) );
+    BOOST_CHECK( !ioConfig2.getWriteRestartFile( 3 ) );
 
+    auto deck3 = parser.parseString( deckData3, ctx );
+    IOConfig ioConfig3( *deck3 );
+
+    BOOST_CHECK( !ioConfig3.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig3.getWriteRestartFile( 1 ) );
+    BOOST_CHECK(  ioConfig3.getWriteRestartFile( 2 ) );
+    BOOST_CHECK( !ioConfig3.getWriteRestartFile( 3 ) );
+}
+
+BOOST_AUTO_TEST_CASE(RPTSCHED) {
+
+    const char *deckData1 =
+                          "RUNSPEC\n"
+                          "DIMENS\n"
+                          " 10 10 10 /\n"
+                          "GRID\n"
+                          "START             -- 0 \n"
+                          "19 JUN 2007 / \n"
+                          "SCHEDULE\n"
+                          "DATES             -- 1\n"
+                          " 10  OKT 2008 / \n"
+                          "/\n"
+                          "RPTSCHED\n"
+                          "RESTART=1\n"
+                          "/\n"
+                          "DATES             -- 2\n"
+                          " 20  JAN 2010 / \n"
+                          "/\n"
+                          "DATES             -- 3\n"
+                          " 20  FEB 2010 / \n"
+                          "/\n"
+                          "RPTSCHED\n"
+                          "RESTART=0\n"
+                          "/\n";
+
+
+    const char *deckData2 =
+                          "RUNSPEC\n"
+                          "DIMENS\n"
+                          " 10 10 10 /\n"
+                          "GRID\n"
+                          "START             -- 0 \n"
+                          "19 JUN 2007 / \n"
+                          "SCHEDULE\n"
+                          "DATES             -- 1\n"
+                          " 10  OKT 2008 / \n"
+                          "/\n"
+                          "RPTSCHED\n"
+                          "RESTART=1\n"
+                          "/\n"
+                          "DATES             -- 2\n"
+                          " 20  JAN 2010 / \n"
+                          "/\n"
+                          "DATES             -- 3\n"
+                          " 20  FEB 2010 / \n"
+                          "/\n"
+                          "RPTSCHED\n"
+                          "NOTHING RUBBISH\n"
+                          "/\n";
+
+    const char *deckData3 =
+                          "RUNSPEC\n"
+                          "DIMENS\n"
+                          " 10 10 10 /\n"
+                          "GRID\n"
+                          "START             -- 0 \n"
+                          "19 JUN 2007 / \n"
+                          "SCHEDULE\n"
+                          "DATES             -- 1\n"
+                          " 10  OKT 2008 / \n"
+                          "/\n"
+                          "RPTRST\n"
+                          "BASIC=3 FREQ=1 RUBBISH=5\n"
+                          "/\n"
+                          "DATES             -- 2\n"
+                          " 20  JAN 2010 / \n"
+                          "/\n"
+                          "DATES             -- 3\n"
+                          " 20  FEB 2010 / \n"
+                          "/\n"
+                          "RPTSCHED\n"
+                          "0 0 0 0 0 0 0 0\n"
+                          "/\n";
+
+    Parser parser;
+    ParseContext ctx;
+
+    auto deck1 = parser.parseString( deckData1, ctx );
+    IOConfig ioConfig1( *deck1 );
+
+    BOOST_CHECK( !ioConfig1.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig1.getWriteRestartFile( 1 ) );
+    BOOST_CHECK(  ioConfig1.getWriteRestartFile( 2 ) );
+    BOOST_CHECK(  ioConfig1.getWriteRestartFile( 3 ) );
+
+
+    auto deck2 = parser.parseString( deckData2, ctx );
+    IOConfig ioConfig2( *deck2 );
+
+    BOOST_CHECK( !ioConfig2.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig2.getWriteRestartFile( 1 ) );
+    BOOST_CHECK(  ioConfig2.getWriteRestartFile( 2 ) );
+    BOOST_CHECK(  ioConfig2.getWriteRestartFile( 3 ) );
+
+
+    auto deck3 = parser.parseString( deckData3, ctx );
+    IOConfig ioConfig3( *deck3 );
+    //Older ECLIPSE 100 data set may use integer controls instead of mnemonics
+    BOOST_CHECK( !ioConfig3.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig3.getWriteRestartFile( 1 ) );
+    BOOST_CHECK(  ioConfig3.getWriteRestartFile( 2 ) );
+    BOOST_CHECK(  ioConfig3.getWriteRestartFile( 3 ) );
+}
+
+BOOST_AUTO_TEST_CASE(RPTSCHED_and_RPTRST) {
+  const char *deckData =
+                        "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START             -- 0 \n"
+                        "19 JUN 2007 / \n"
+                        "SCHEDULE\n"
+                        "DATES             -- 1\n"
+                        " 10  OKT 2008 / \n"
+                        "/\n"
+                        "RPTRST\n"
+                        "BASIC=3 FREQ=3\n"
+                        "/\n"
+                        "DATES             -- 2\n"
+                        " 20  JAN 2010 / \n"
+                        "/\n"
+                        "DATES             -- 3\n"
+                        " 20  FEB 2010 / \n"
+                        "/\n"
+                        "RPTSCHED\n"
+                        "RESTART=1\n"
+                        "/\n";
+
+
+    Opm::Parser parser;
+    ParseContext ctx;
+
+    auto deck = parser.parseString( deckData, ctx );
+    IOConfig ioConfig( *deck );
+
+    BOOST_CHECK( !ioConfig.getWriteRestartFile( 0 ) );
+    BOOST_CHECK( !ioConfig.getWriteRestartFile( 1 ) );
+    BOOST_CHECK( !ioConfig.getWriteRestartFile( 2 ) );
+    BOOST_CHECK(  ioConfig.getWriteRestartFile( 3 ) );
+}
+
+BOOST_AUTO_TEST_CASE(NO_BASIC) {
+    const char* data = "RUNSPEC\n"
+                       "DIMENS\n"
+                       " 10 10 10 /\n"
+                       "GRID\n"
+                       "START             -- 0 \n"
+                       "19 JUN 2007 / \n"
+                       "SCHEDULE\n"
+                       "DATES             -- 1\n"
+                       " 10  OKT 2008 / \n"
+                       "/\n"
+                       "DATES             -- 2\n"
+                       " 20  JAN 2010 / \n"
+                       "/\n"
+                       "DATES             -- 3\n"
+                       " 20  FEB 2010 / \n"
+                       "/\n"
+                       "RPTSCHED\n"
+                       "/\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    for( size_t ts = 0; ts < 4; ++ts )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
+}
+
+BOOST_AUTO_TEST_CASE(BASIC_EQ_1) {
+    const char* data = "RUNSPEC\n"
+                       "DIMENS\n"
+                       " 10 10 10 /\n"
+                       "GRID\n"
+                       "START             -- 0 \n"
+                       "19 JUN 2007 / \n"
+                       "SCHEDULE\n"
+                       "DATES             -- 1\n"
+                       " 10  OKT 2008 / \n"
+                       "/\n"
+                       "RPTRST\n"
+                       "BASIC=3 FREQ=3\n"
+                       "/\n"
+                       "DATES             -- 2\n"
+                       " 20  JAN 2010 / \n"
+                       "/\n"
+                       "DATES             -- 3\n"
+                       " 20  FEB 2010 / \n"
+                       "/\n"
+                       "RPTSCHED\n"
+                       "BASIC=1\n"
+                       "/\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    for( size_t ts = 0; ts < 3; ++ts )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
+
+    BOOST_CHECK( ioConfig.getWriteRestartFile( 3 ) );
+}
+
+BOOST_AUTO_TEST_CASE(BASIC_EQ_3) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=3 FREQ=3\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"              // timestep 1
+                        " 23 MAY 1981 /\n"              // timestep 2
+                        " 24 MAY 1981 /\n"              // timestep 3
+                        " 25 MAY 1981 /\n"              // timestep 4
+                        " 26 MAY 1981 /\n"              // timestep 5
+                        " 1 JAN 1982 /\n"               // timestep 6
+                        " 1 JAN 1982 13:55:44 /\n"      // timestep 7
+                        " 3 JAN 1982 14:56:45.123 /\n"  // timestep 8
+                        " 4 JAN 1982 14:56:45.123 /\n"  // timestep 9
+                        " 5 JAN 1982 14:56:45.123 /\n"  // timestep 10
+                        " 6 JAN 1982 14:56:45.123 /\n"  // timestep 11
+                        "/\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    const size_t freq = 3;
 
     /* BASIC=3, restart files are created every nth report time, n=3 */
-    timestep      = 11;
-    basic         = 3;
-    int frequency = 3;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(),timestep, basic, frequency);
+    for( size_t ts = 1; ts < 12; ++ts )
+        BOOST_CHECK_EQUAL( ts % freq == 0, ioConfig.getWriteRestartFile( ts ) );
+}
 
-    for (size_t ts = timestep ; ts < timemap->numTimesteps(); ++ts) {
-        if ((ts >= timestep) && ((ts % frequency) == 0)) {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(ts));
-        } else {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-        }
-    }
+BOOST_AUTO_TEST_CASE(BASIC_EQ_4) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=4\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"              // timestep 1
+                        " 23 MAY 1981 /\n"              // timestep 2
+                        " 24 MAY 1981 /\n"              // timestep 3
+                        " 25 MAY 1981 /\n"              // timestep 4
+                        " 26 MAY 1981 /\n"              // timestep 5
+                        " 1 JAN 1982 /\n"               // timestep 6
+                        " 1 JAN 1982 13:55:44 /\n"      // timestep 7
+                        " 3 JAN 1982 14:56:45.123 /\n"  // timestep 8
+                        " 4 JAN 1982 14:56:45.123 /\n"  // timestep 9
+                        " 5 JAN 1982 14:56:45.123 /\n"  // timestep 10
+                        " 6 JAN 1982 14:56:45.123 /\n"  // timestep 11
+                        " 6 JAN 1983 14:56:45.123 /\n"  // timestep 12
+                        "/\n";
 
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
 
     /* BASIC=4, restart file is written at the first report step of each year.
-       Optionally, if the mnemonic FREQ is set >1 the restart is written only every n'th year*/
-    timestep      = 17;
-    basic         = 4;
-    frequency     = 0;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(),timestep, basic, frequency);
+     */
+    for( size_t ts : { 1, 2, 3, 4, 5, 7, 8, 9, 10, 11 } )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
 
+    for( size_t ts : { 6, 12 } )
+        BOOST_CHECK( ioConfig.getWriteRestartFile( ts ) );
+}
 
-    for (size_t ts = timestep; ts < timemap->numTimesteps(); ++ts) {
-        ioConfigPtr->getWriteRestartFile(ts);
-        if ((17 == ts) || (20 == ts) || (22 == ts) || (23 == ts) || (26 == ts) ||
-            (27 == ts) || (30 == ts) || (32 == ts) || (33 == ts) || (36 == ts)) {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(ts));
-        } else {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-        }
-    }
+BOOST_AUTO_TEST_CASE(BASIC_EQ_4_FREQ_2) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=4 FREQ=2\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        " 23 MAY 1982 /\n"
+                        " 24 MAY 1982 /\n"
+                        " 24 MAY 1983 /\n" // write
+                        " 25 MAY 1984 /\n"
+                        " 26 MAY 1984 /\n"
+                        " 26 MAY 1985 /\n" // write
+                        " 27 MAY 1985 /\n"
+                        " 1 JAN 1986 /\n" 
+                        "/\n";
 
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
 
     /* BASIC=4, restart file is written at the first report step of each year.
-       Optionally, if the mnemonic FREQ is set >1 the restart is written only every n'th year*/
-    timestep      = 18;
-    basic         = 4;
-    frequency     = 0;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(),timestep, basic, frequency);
+     * Optionally, if the mnemonic FREQ is set >1 the restart is written only
+     * every n'th year.
+     *
+     * FREQ=2
+     */
+    for( size_t ts : { 1, 2, 3, 4, 5, 7, 8, 10, 11  } )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
 
-    for (size_t ts = timestep; ts < timemap->numTimesteps(); ++ts) {
-        ioConfigPtr->getWriteRestartFile(ts);
-        if ((20 == ts) || (22 == ts) || (23 == ts) || (26 == ts) ||
-            (27 == ts) || (30 == ts) || (32 == ts) || (33 == ts) || (36 == ts)) {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(ts));
-        } else {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-        }
-    }
+    for( size_t ts : { 6, 9 } )
+        BOOST_CHECK( ioConfig.getWriteRestartFile( ts ) );
+}
 
+BOOST_AUTO_TEST_CASE(BASIC_EQ_5) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=5 FREQ=2\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        "  1 JUN 1981 /\n"
+                        "  1 JUL 1981 /\n" // write
+                        "  1 JAN 1982 /\n"
+                        "  2 JAN 1982 /\n"
+                        "  1 FEB 1982 /\n" // write
+                        "  1 MAR 1982 /\n" 
+                        "  1 APR 1983 /\n" //write
+                        "  2 JUN 1983 /\n"
+                        "/\n";
 
-    /* BASIC=4, FREQ = 2 restart file is written at the first report step of each year.
-       Optionally, if the mnemonic FREQ is set >1 the restart is written only every n'th year*/
-    timestep      = 27;
-    basic         = 4;
-    frequency     = 2;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(), timestep, basic, frequency);
-
-    for (size_t ts = timestep; ts < timemap->numTimesteps(); ++ts) {
-        if ((30 == ts) || (33 == ts)) {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(ts));
-        } else {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-        }
-    }
-
-
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
 
     /* BASIC=5, restart file is written at the first report step of each month.
-       Optionally, if the mnemonic FREQ is set >1 the restart is written only every n'th month*/
-    timestep      = 37;
-    basic         = 5;
-    frequency     = 2;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(), timestep, basic, frequency);
+     */
+    for( size_t ts : { 1, 2, 3, 4, 6, 7, 9, 11  } )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
 
-    for (size_t ts = timestep; ts < timemap->numTimesteps(); ++ts) {
-        if ((38 == ts) || (44 == ts) || (48 == ts)) {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(ts));
-        } else {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-        }
-    }
+    for( size_t ts : { 5, 8, 10 } )
+        BOOST_CHECK( ioConfig.getWriteRestartFile( ts ) );
+}
 
+BOOST_AUTO_TEST_CASE(BASIC_EQ_0) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=0 FREQ=2\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        "  1 JUN 1981 /\n"
+                        "  1 JUL 1981 /\n"
+                        "  1 JAN 1982 /\n"
+                        "  2 JAN 1982 /\n"
+                        "  1 FEB 1982 /\n"
+                        "  1 MAR 1982 /\n"
+                        "  1 APR 1983 /\n"
+                        "  2 JUN 1983 /\n"
+                        "/\n";
 
-    /* BASIC=0, no restart files are written*/
-    timestep      = 47;
-    basic         = 0;
-    frequency     = 0;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(), timestep, basic, frequency);
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
 
-    for (size_t ts = timestep; ts < timemap->numTimesteps(); ++ts) {
-        BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(ts));
-    }
-
-
-
-
-    /************************* Test RPTSCHED RESTART *************************/
-
-    /* RPTSCHED RESTART=1, restart files are written*/
-    timestep       = 50;
-    size_t restart = 1;
-    ioConfigPtr->handleRPTSCHEDRestart(schedule.getTimeMap(), timestep, restart);
-
-    BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(50));
-    BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(51));
-
-    /* RPTSCHED RESTART=0, no restart files are written*/
-    timestep      = 52;
-    restart       = 0;
-    ioConfigPtr->handleRPTSCHEDRestart(schedule.getTimeMap(), timestep, restart);
-
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(52));
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(53));
-
-    timestep      = 54;
-    basic         = 0;
-    ioConfigPtr->handleRPTSCHEDRestart(schedule.getTimeMap(), timestep, restart);
-
-
-    /* RPTSCHED RESTART IGNORED IF RPTRST BASIC > 2 */
-    timestep      = 56;
-    basic         = 3;
-    frequency     = 1;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(), timestep, basic, frequency);
-
-    timestep      = 58;
-    restart       = 0;
-    writableTimemap->addTStep(boost::posix_time::hours(24));
-    writableTimemap->addTStep(boost::posix_time::hours(24));
-    BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(timestep));
-
-    /* RPTSCHED RESTART IGNORED IF RPTRST BASIC > 2 */
-    ioConfigPtr->handleRPTSCHEDRestart(schedule.getTimeMap(), timestep, restart);
-    BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(timestep));
-
-    /* RPTSCHED RESTART NOT IGNORED IF RPTRST BASIC <= 2 */
-    timestep      = 60;
-    basic         = 1;
-    frequency     = 0;
-    ioConfigPtr->handleRPTRSTBasic(schedule.getTimeMap(), timestep, basic, frequency);
-
-    timestep      = 61;
-    restart       = 0;
-    writableTimemap->addTStep(boost::posix_time::hours(24));
-    writableTimemap->addTStep(boost::posix_time::hours(24));
-    BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(timestep));
-
-    ioConfigPtr->handleRPTSCHEDRestart(schedule.getTimeMap(), timestep, restart);
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(timestep));
-
-    /*Override, interval = 2*/
-    ioConfigPtr->overrideRestartWriteInterval(2);
-    for (size_t tstep = 0; tstep <= 61; ++tstep) {
-        if ((tstep % 2) == 0) {
-            BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteRestartFile(tstep));
-        } else {
-            BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(tstep));
-        }
-    }
-
-    /*Override, turn off RESTART write*/
-    ioConfigPtr->overrideRestartWriteInterval(0);
-    for (size_t tstep = 0; tstep <= 61; ++tstep) {
-        BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteRestartFile(tstep));
-    }
-
-    /*If no GRIDFILE nor NOGGF keywords are specified, default output an EGRID file*/
-    BOOST_CHECK_EQUAL(true, ioConfigPtr->getWriteEGRIDFile());
-
-    /*If no INIT keyword is specified, verify no write of INIT file*/
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getWriteINITFile());
-
-    /*If no UNIFIN keyword is specified, verify UNIFIN false (default is multiple) */
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getUNIFIN());
-
-    /*If no UNIFOUT keyword is specified, verify UNIFOUT false (default is multiple) */
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getUNIFOUT());
-
-    /*If no FMTIN keyword is specified, verify FMTIN false (default is unformatted) */
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getFMTIN());
-
-    /*If no FMTOUT keyword is specified, verify FMTOUT false (default is unformatted) */
-    BOOST_CHECK_EQUAL(false, ioConfigPtr->getFMTOUT());
-
-    /*If NOGGF keyword is present, no EGRID file is written*/
-    DeckPtr deck3 = createDeck(deckStr_NOGGF);
-    IOConfigPtr ioConfigPtr3;
-    BOOST_CHECK_NO_THROW(ioConfigPtr3 = std::make_shared<IOConfig>());
-
-    std::shared_ptr<const GRIDSection> gridSection3 = std::make_shared<const GRIDSection>(*deck3);
-    std::shared_ptr<const RUNSPECSection> runspecSection3 = std::make_shared<const RUNSPECSection>(*deck3);
-    ioConfigPtr3->handleGridSection(gridSection3);
-    ioConfigPtr3->handleRunspecSection(runspecSection3);
-
-    BOOST_CHECK_EQUAL(false, ioConfigPtr3->getWriteEGRIDFile());
-
-    /*If INIT keyword is specified, verify write of INIT file*/
-    BOOST_CHECK_EQUAL(true, ioConfigPtr3->getWriteINITFile());
-
-    /*If UNIFOUT keyword is specified, verify unified write*/
-    BOOST_CHECK_EQUAL(true, ioConfigPtr3->getUNIFOUT());
-
-    /*If FMTOUT keyword is specified, verify formatted write*/
-    BOOST_CHECK_EQUAL(true, ioConfigPtr3->getFMTOUT());
-
-    /*If GRIDFILE 0 0 is specified, no EGRID file is written */
-    DeckPtr deck4 = createDeck(deckStr_NO_GRIDFILE);
-    IOConfigPtr ioConfigPtr4;
-    BOOST_CHECK_NO_THROW(ioConfigPtr4 = std::make_shared<IOConfig>());
-
-    std::shared_ptr<const GRIDSection> gridSection4 = std::make_shared<const GRIDSection>(*deck4);
-    std::shared_ptr<const RUNSPECSection> runspecSection4 = std::make_shared<const RUNSPECSection>(*deck4);
-    ioConfigPtr4->handleGridSection(gridSection4);
-    ioConfigPtr4->handleRunspecSection(runspecSection4);
-
-    BOOST_CHECK_EQUAL(false, ioConfigPtr4->getWriteEGRIDFile());
-
-    IOConfigPtr ioConfigPtr5;
-    BOOST_CHECK_NO_THROW(ioConfigPtr5 = std::make_shared<IOConfig>());
-    BOOST_CHECK_EQUAL("", ioConfigPtr5->getBaseName());
-
-    std::string testString = "testString.DATA";
-    IOConfigPtr ioConfigPtr6 = std::make_shared<IOConfig>(testString);
-    std::string output_dir6 =  ".";
-    ioConfigPtr6->setOutputDir(output_dir6);
-    BOOST_CHECK_EQUAL("testString", ioConfigPtr6->getBaseName());
-
-    std::string absTestPath = "/path/to/testString.DATA";
-    IOConfigPtr ioConfigPtr7 = std::make_shared<IOConfig>(absTestPath);
-    std::string output_dir7 =  "/path/to";
-    ioConfigPtr7->setOutputDir(output_dir7);
-    BOOST_CHECK_EQUAL(output_dir7, ioConfigPtr7->getOutputDir());
-    BOOST_CHECK_EQUAL("testString", ioConfigPtr7->getBaseName());
-
+    /* RESTART=0, no restart file is written
+     */
+    for( size_t ts = 0; ts < 11; ++ts )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
 }
 
 
+BOOST_AUTO_TEST_CASE(RESTART_EQ_0) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTSCHED\n"
+                        "RESTART=0\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        "  1 JUN 1981 /\n"
+                        "  1 JUL 1981 /\n"
+                        "  1 JAN 1982 /\n"
+                        "  2 JAN 1982 /\n"
+                        "  1 FEB 1982 /\n"
+                        "  1 MAR 1982 /\n"
+                        "  1 APR 1983 /\n"
+                        "  2 JUN 1983 /\n"
+                        "/\n";
 
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    /* RESTART=0, no restart file is written
+     */
+    for( size_t ts = 0; ts < 11; ++ts )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
+}
+
+BOOST_AUTO_TEST_CASE(RESTART_BASIC_GT_2) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=4 FREQ=2\n"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        "/\n"
+                        "RPTSCHED\n" // BASIC >2, ignore RPTSCHED RESTART
+                        "RESTART=3, FREQ=1\n"
+                        "/\n"
+                        "DATES\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        " 23 MAY 1982 /\n"
+                        " 24 MAY 1982 /\n"
+                        " 24 MAY 1983 /\n" // write
+                        " 25 MAY 1984 /\n"
+                        " 26 MAY 1984 /\n"
+                        " 26 MAY 1985 /\n" // write
+                        " 27 MAY 1985 /\n"
+                        " 1 JAN 1986 /\n" 
+                       "/\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    for( size_t ts : { 1, 2, 3, 4, 5, 7, 8, 10, 11  } )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
+
+    for( size_t ts : { 6, 9 } )
+        BOOST_CHECK( ioConfig.getWriteRestartFile( ts ) );
+}
+
+BOOST_AUTO_TEST_CASE(RESTART_BASIC_LEQ_2) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=1"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        "/\n"
+                        "RPTSCHED\n"
+                        "RESTART=0\n"
+                        "/\n"
+                        "DATES\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        " 23 MAY 1982 /\n"
+                        " 24 MAY 1982 /\n"
+                        " 24 MAY 1983 /\n"
+                        " 25 MAY 1984 /\n"
+                        " 26 MAY 1984 /\n"
+                        " 26 MAY 1985 /\n"
+                        " 27 MAY 1985 /\n"
+                        " 1 JAN 1986 /\n" 
+                       "/\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    BOOST_CHECK( ioConfig.getWriteRestartFile( 1 ) );
+    for( size_t ts = 2; ts < 11; ++ts )
+        BOOST_CHECK( !ioConfig.getWriteRestartFile( ts ) );
+}
+
+BOOST_AUTO_TEST_CASE(DefaultProperties) {
+    const char* data =  "RUNSPEC\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n"
+                        "RPTRST\n"
+                        "BASIC=1"
+                        "/\n"
+                        "DATES\n"
+                        " 22 MAY 1981 /\n"
+                        "/\n"
+                        "RPTSCHED\n"
+                        "RESTART=0\n"
+                        "/\n"
+                        "DATES\n"
+                        " 23 MAY 1981 /\n"
+                        " 24 MAY 1981 /\n"
+                        " 23 MAY 1982 /\n"
+                        " 24 MAY 1982 /\n"
+                        " 24 MAY 1983 /\n"
+                        " 25 MAY 1984 /\n"
+                        " 26 MAY 1984 /\n"
+                        " 26 MAY 1985 /\n"
+                        " 27 MAY 1985 /\n"
+                        " 1 JAN 1986 /\n" 
+                       "/\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    /*If no GRIDFILE nor NOGGF keywords are specified, default output an EGRID file*/
+    BOOST_CHECK( ioConfig.getWriteEGRIDFile() );
+    /*If no INIT keyword is specified, verify no write of INIT file*/
+    BOOST_CHECK( !ioConfig.getWriteINITFile() );
+    /*If no UNIFIN keyword is specified, verify UNIFIN false (default is multiple) */
+    BOOST_CHECK( !ioConfig.getUNIFIN() );
+    /*If no UNIFOUT keyword is specified, verify UNIFOUT false (default is multiple) */
+    BOOST_CHECK( !ioConfig.getUNIFOUT() );
+    /*If no FMTIN keyword is specified, verify FMTIN false (default is unformatted) */
+    BOOST_CHECK( !ioConfig.getFMTIN() );
+    /*If no FMTOUT keyword is specified, verify FMTOUT false (default is unformatted) */
+    BOOST_CHECK( !ioConfig.getFMTOUT() );
+}
+
+BOOST_AUTO_TEST_CASE(OutputProperties) {
+    const char* data =  "RUNSPEC\n"
+                        "UNIFIN\n"
+                        "UNIFOUT\n"
+                        "FMTIN\n"
+                        "FMTOUT\n"
+                        "DIMENS\n"
+                        " 10 10 10 /\n"
+                        "GRID\n"
+                        "NOGGF\n"
+                        "INIT\n"
+                        "START\n"
+                        " 21 MAY 1981 /\n"
+                        "\n"
+                        "SCHEDULE\n";
+
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    BOOST_CHECK( !ioConfig.getWriteEGRIDFile() );
+    /*If INIT keyword is specified, verify write of INIT file*/
+    BOOST_CHECK( ioConfig.getWriteINITFile() );
+    /*If UNIFOUT keyword is specified, verify unified write*/
+    BOOST_CHECK( ioConfig.getUNIFOUT() );
+    /*If FMTOUT keyword is specified, verify formatted write*/
+    BOOST_CHECK( ioConfig.getFMTOUT() );
+}
+
+BOOST_AUTO_TEST_CASE(NoGRIDFILE) {
+    const char* data =  "RUNSPEC\n"
+                        "\n"
+                        "DIMENS\n"
+                        "10 10 10 /\n"
+                        "GRID\n"
+                        "GRIDFILE\n"
+                        " 0 0 /\n"
+                        "\n";
+
+    auto deck = Parser().parseString( data, ParseContext() );
+    IOConfig ioConfig( *deck );
+
+    /*If GRIDFILE 0 0 is specified, no EGRID file is written */
+    BOOST_CHECK( !ioConfig.getWriteEGRIDFile() );
+}
+
+BOOST_AUTO_TEST_CASE(OutputPaths) {
+
+    IOConfig config1( "" );
+    BOOST_CHECK_EQUAL("", config1.getBaseName() );
+
+    Deck deck2;
+    deck2.setDataFile( "testString.DATA" );
+    IOConfig config2( deck2 );
+    std::string output_dir2 =  ".";
+    BOOST_CHECK_EQUAL( output_dir2,  config2.getOutputDir() );
+    BOOST_CHECK_EQUAL( "testString", config2.getBaseName() );
+
+    Deck deck3;
+    deck3.setDataFile( "/path/to/testString.DATA" );
+    IOConfig config3( deck3 );
+    std::string output_dir3 =  "/path/to";
+    config3.setOutputDir( output_dir3 );
+    BOOST_CHECK_EQUAL( output_dir3,  config3.getOutputDir() );
+    BOOST_CHECK_EQUAL( "testString", config3.getBaseName() );
+}

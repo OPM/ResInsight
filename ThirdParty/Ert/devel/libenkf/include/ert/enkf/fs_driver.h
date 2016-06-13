@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FS_DRIVER_H__
-#define __FS_DRIVER_H__ 
+#ifndef ERT_FS_DRIVER_H
+#define ERT_FS_DRIVER_H 
 #ifdef __cplusplus
 extern "C" {
 #endif

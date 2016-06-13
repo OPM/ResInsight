@@ -17,8 +17,11 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NNC_HPP
-#define NNC_HPP
+#ifndef OPM_PARSER_NNC_HPP
+#define OPM_PARSER_NNC_HPP
+
+#include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -26,8 +29,6 @@
 
 namespace Opm
 {
-    class Deck;
-    class EclipseGrid;
 
 struct NNCdata {
     size_t cell1;
@@ -35,12 +36,17 @@ struct NNCdata {
     double trans;
 };
 
+/// Represents non-neighboring connections (non-standard adjacencies).
+/// This class is essentially a directed weighted graph.
 class NNC
 {
 public:
-    /// Construct from input deck.
     NNC();
+
+    /// [[deprecated]]
     NNC(std::shared_ptr<const Deck> deck_ptr, std::shared_ptr< const EclipseGrid > eclipseGrid);
+
+    /// Construct from input deck.
     NNC(const Deck& deck, std::shared_ptr< const EclipseGrid > eclipseGrid);
     void addNNC(const size_t cell1, const size_t cell2, const double trans);
     const std::vector<NNCdata>& nncdata() const { return m_nnc; }
@@ -56,4 +62,4 @@ private:
 } // namespace Opm
 
 
-#endif // NNC_HPP
+#endif // OPM_PARSER_NNC_HPP

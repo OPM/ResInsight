@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __STRUCT_VECTOR_H__
-#define __STRUCT_VECTOR_H__
+#ifndef ERT_STRUCT_VECTOR_H
+#define ERT_STRUCT_VECTOR_H
 
 #ifdef __cplusplus 
 extern "C" {

@@ -2224,6 +2224,66 @@ static void ecl_grid_init_cell_nnc_info(ecl_grid_type * ecl_grid, int global_ind
     grid_cell->nnc_info = nnc_info_alloc(ecl_grid->lgr_nr);
 }
 
+/*
+  The function ecl_grid_add_self_nnc() will add a NNC connection
+  between two cells in the same grid. Observe that there are two
+  peculiarities with this implementation:
+
+   1. In the ecl_grid structure the nnc information is distributed
+      among the cells. The main purpose of adding the nnc information
+      like this is to include the NNC information in the EGRID files
+      when writing to disk. Before being written to disk the NNC
+      information is serialized into vectors NNC1 and NNC2. It is the
+      ordering in the NNC1 and NNC2 vectors which must be correct, and
+      that is goverened by the nnc_index argument - i.e. the nnc_index
+      serves as an 'ID' for the NNC connections.
+
+      After all NCC information has been entered you should be certain
+      that all nnc_index values in the range [0,num_nnc] have been
+      set.
+
+
+   2. To get valid NNC information to load in e.g. Resinsight the
+      corresponding TRANNNC keyword must be added to the INIT file,
+      i.e. the calling scope must create a ecl_kw with
+      transmissibility values in parallell with adding NNC information
+      to the grid:
+
+         fortio_type * init_file = fortio_open_writer( "CASE.INIT" , ...
+         ecl_grid_type * grid ...
+         ecl_kw_type * trannnc_kw = ecl_kw_alloc( "TRANNNC" , num_nnc , ECL_FLOAT_TYPE );
+
+         for (int i = 0; i < num_nnc; i++) {
+             int   g1 = ...
+             int   g2 = ..
+             float T  = ..
+
+             ecl_grid_add_self_nnc( grid , g1 , g2 , i );
+             ecl_kw_iset( trannnc_kw , i , T );
+         }
+         ...
+         ecl_grid_fwrite_EGRID( grid , ... );
+         ecl_kw_fwrite( trannnc_kw , init_file );
+
+*/
+
+void ecl_grid_add_self_nnc( ecl_grid_type * grid, int cell_index1, int cell_index2, int nnc_index) {
+  ecl_cell_type * grid_cell = ecl_grid_get_cell(grid, cell_index1);
+  ecl_grid_init_cell_nnc_info(grid, cell_index1);
+  nnc_info_add_nnc(grid_cell->nnc_info, grid->lgr_nr, cell_index2, nnc_index);
+}
+
+/*
+  This function will add all the nnc connections given by the g1_list
+  and g2_list arrays. The ncc connections will be added with
+  consecutively running nnc_index = [0,num_nnc).
+*/
+
+void ecl_grid_add_self_nnc_list( ecl_grid_type * grid, const int * g1_list , const int * g2_list , int num_nnc ) {
+  int i;
+  for (i = 0; i < num_nnc; i++)
+    ecl_grid_add_self_nnc( grid , g1_list[i] , g2_list[i] , i );
+}
 
 /*
   This function populates nnc_info for cells with non neighbour
@@ -5790,6 +5850,48 @@ void ecl_grid_reset_actnum( ecl_grid_type * grid , const int * actnum ) {
 }
 
 
+static void  ecl_grid_fwrite_self_nnc( const ecl_grid_type * grid , fortio_type * fortio ) {
+  const int default_index = 1;
+  int_vector_type * g1 = int_vector_alloc(0 , default_index );
+  int_vector_type * g2 = int_vector_alloc(0 , default_index );
+  int g;
+
+  for (g=0; g < ecl_grid_get_global_size(grid); g++) {
+    ecl_cell_type * cell = ecl_grid_get_cell( grid , g );
+    const nnc_info_type * nnc_info = cell->nnc_info;
+    if (nnc_info) {
+      const nnc_vector_type * nnc_vector = nnc_info_get_self_vector(nnc_info);
+      int i;
+      for (i = 0; i < nnc_vector_get_size( nnc_vector ); i++) {
+        int nnc_index = nnc_vector_iget_nnc_index( nnc_vector , i );
+        int_vector_iset( g1 , nnc_index , 1 + g );
+        int_vector_iset( g2 , nnc_index , 1 + nnc_vector_iget_grid_index( nnc_vector , i ));
+      }
+    }
+  }
+  {
+    int num_nnc = int_vector_size( g1 );
+    ecl_kw_type * nnc1_kw = ecl_kw_alloc_new_shared( NNC1_KW , num_nnc , ECL_INT_TYPE , int_vector_get_ptr( g1 ));
+    ecl_kw_type * nnc2_kw = ecl_kw_alloc_new_shared( NNC2_KW , num_nnc , ECL_INT_TYPE , int_vector_get_ptr( g2 ));
+    ecl_kw_type * nnchead_kw = ecl_kw_alloc( NNCHEAD_KW , NNCHEAD_SIZE , ECL_INT_TYPE );
+
+    ecl_kw_scalar_set_int( nnchead_kw , 0 );
+    ecl_kw_iset_int( nnchead_kw , NNCHEAD_NUMNNC_INDEX , num_nnc );
+    ecl_kw_iset_int( nnchead_kw , NNCHEAD_LGR_INDEX , grid->lgr_nr );
+
+    ecl_kw_fwrite( nnchead_kw , fortio);
+    ecl_kw_fwrite( nnc1_kw , fortio);
+    ecl_kw_fwrite( nnc2_kw , fortio);
+
+    ecl_kw_free( nnchead_kw );
+    ecl_kw_free( nnc2_kw );
+    ecl_kw_free( nnc1_kw );
+  }
+
+  int_vector_free( g1 );
+  int_vector_free( g2 );
+}
+
 
 static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio, bool metric_output) {
   bool is_lgr = true;
@@ -5884,6 +5986,7 @@ static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio
     ecl_kw_fwrite( endlgr_kw , fortio );
     ecl_kw_free( endlgr_kw );
   }
+  ecl_grid_fwrite_self_nnc( grid , fortio );
 }
 
 

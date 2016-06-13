@@ -68,11 +68,10 @@ double  enkf_plot_genvector_iget( const enkf_plot_genvector_type * vector , int 
 }
 
 
-void enkf_plot_genvector_load( enkf_plot_genvector_type * vector , enkf_fs_type * fs , int report_step , state_enum state) {
+void enkf_plot_genvector_load( enkf_plot_genvector_type * vector , enkf_fs_type * fs , int report_step ) {
     enkf_node_type * work_node  = enkf_node_alloc( vector->config_node );
 
     node_id_type node_id = { .report_step = report_step ,
-                             .state       = state ,
                              .iens        = vector->iens };
 
     if (enkf_node_try_load( work_node , fs , node_id )) {
@@ -89,9 +88,8 @@ void * enkf_plot_genvector_load__( void * arg ){
     enkf_plot_genvector_type * vector  = arg_pack_iget_ptr( arg_pack , 0);
     enkf_fs_type * fs = arg_pack_iget_ptr( arg_pack , 1 );
     int report_step = arg_pack_iget_int( arg_pack , 2 );
-    state_enum state = arg_pack_iget_int( arg_pack , 3 );
 
-    enkf_plot_genvector_load( vector , fs , report_step , state );
+    enkf_plot_genvector_load( vector , fs , report_step );
     return NULL;
 
 }

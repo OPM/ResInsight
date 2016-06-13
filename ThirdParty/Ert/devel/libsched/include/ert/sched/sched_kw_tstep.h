@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_KW_TSTEP__
-#define __SCHED_KW_TSTEP__
+#ifndef ERT_SCHED_KW_TSTEP
+#define ERT_SCHED_KW_TSTEP
 #ifdef __cplusplus
 extern "C" {
 #endif

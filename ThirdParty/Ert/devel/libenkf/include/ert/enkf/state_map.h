@@ -15,8 +15,8 @@
    for more details. 
 */
 
-#ifndef __STATE_MAP_H__
-#define __STATE_MAP_H__
+#ifndef ERT_STATE_MAP_H
+#define ERT_STATE_MAP_H
 
 #ifdef __cplusplus 
 extern "C" {

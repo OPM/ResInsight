@@ -20,7 +20,7 @@ from ert.util import StringList, IntVector
 from ert.sched import History
 from ert.ecl import EclSum , EclGrid
 from ert.enkf import ENKF_LIB, EnkfFs, LocalObsdataNode , LocalObsdata, MeasData, ObsData
-from ert.enkf.enums import EnkfStateType, EnkfObservationImplementationType
+from ert.enkf.enums import EnkfObservationImplementationType
 
 from ert.enkf.observations import ObsVector
 
@@ -121,15 +121,14 @@ class EnkfObs(BaseCClass):
 
         EnkfObs.cNamespace().add_obs_vector(self, observation_vector)
 
-    def getObservationAndMeasureData(self, fs, local_obsdata, state, active_list, meas_data, obs_data):
+    def getObservationAndMeasureData(self, fs, local_obsdata, active_list, meas_data, obs_data):
         assert isinstance(fs, EnkfFs)
         assert isinstance(local_obsdata, LocalObsdata)
-        assert isinstance(state, EnkfStateType)
         assert isinstance(active_list, IntVector)
         assert isinstance(meas_data, MeasData)
         assert isinstance(obs_data, ObsData)
 
-        EnkfObs.cNamespace().get_obs_and_measure_data(self, fs, local_obsdata, state, active_list, meas_data, obs_data)
+        EnkfObs.cNamespace().get_obs_and_measure_data(self, fs, local_obsdata, active_list, meas_data, obs_data)
 
 
     def scaleCorrelatedStd( self , fs , local_obsdata , active_list):
@@ -169,7 +168,7 @@ EnkfObs.cNamespace().iget_vector = cwrapper.prototype("obs_vector_ref enkf_obs_i
 EnkfObs.cNamespace().iget_obs_time = cwrapper.prototype("time_t enkf_obs_iget_obs_time(enkf_obs, int)")
 EnkfObs.cNamespace().add_obs_vector = cwrapper.prototype("void enkf_obs_add_obs_vector(enkf_obs, obs_vector)")
 
-EnkfObs.cNamespace().get_obs_and_measure_data = cwrapper.prototype("void enkf_obs_get_obs_and_measure_data(enkf_obs, enkf_fs, local_obsdata, enkf_state_type_enum, int_vector, meas_data, obs_data)")
+EnkfObs.cNamespace().get_obs_and_measure_data = cwrapper.prototype("void enkf_obs_get_obs_and_measure_data(enkf_obs, enkf_fs, local_obsdata, int_vector, meas_data, obs_data)")
 EnkfObs.cNamespace().create_all_active_obs       = cwrapper.prototype("local_obsdata_obj enkf_obs_alloc_all_active_local_obs( enkf_obs , char*)");
 EnkfObs.cNamespace().scale_correlated_std        = cwrapper.prototype("double  enkf_obs_scale_correlated_std( enkf_obs , enkf_fs , int_vector , local_obsdata)");
 EnkfObs.cNamespace().local_scale_std             = cwrapper.prototype("void  enkf_obs_local_scale_std( enkf_obs , local_obsdata , double)");

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GROUP_INDEX_H__
-#define __GROUP_INDEX_H__
+#ifndef ERT_GROUP_INDEX_H
+#define ERT_GROUP_INDEX_H
 
 #ifdef __cplusplus 
 extern "C" {

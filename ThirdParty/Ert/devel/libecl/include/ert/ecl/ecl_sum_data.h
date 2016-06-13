@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_SUM_DATA_H__
-#define __ECL_SUM_DATA_H__
+#ifndef ERT_ECL_SUM_DATA_H
+#define ERT_ECL_SUM_DATA_H
 
 
 #ifdef __cplusplus
@@ -87,6 +87,9 @@ typedef struct ecl_sum_data_struct ecl_sum_data_type ;
   bool                     ecl_sum_data_report_step_equal( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2);
   bool                     ecl_sum_data_report_step_compatible( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2);
   void                     ecl_sum_data_fwrite_interp_csv_line(const ecl_sum_data_type * data , time_t sim_time, const ecl_sum_vector_type * keylist, FILE *fp);
+
+  double_vector_type * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_type * data , const smspec_node_type * node , double value, bool rates_clamp_lower);
+
 
 #ifdef __cplusplus
 }

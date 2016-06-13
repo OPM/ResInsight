@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_CONFIG_H__
-#define __ECL_CONFIG_H__
+#ifndef ERT_ECL_CONFIG_H
+#define ERT_ECL_CONFIG_H
 #ifdef __cplusplus
 extern "C" {
 #endif

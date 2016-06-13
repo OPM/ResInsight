@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __TIME_INTERVAL_H__
-#define __TIME_INTERVAL_H__
+#ifndef ERT_TIME_INTERVAL_H
+#define ERT_TIME_INTERVAL_H
 #ifdef __cplusplus
 extern "C" {
 #endif

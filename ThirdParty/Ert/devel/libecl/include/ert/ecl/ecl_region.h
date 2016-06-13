@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_REGION_H__
-#define __ECL_REGION_H__
+#ifndef ERT_ECL_REGION_H
+#define ERT_ECL_REGION_H
 #ifdef __cplusplus
 extern "C" {
 #endif

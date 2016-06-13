@@ -29,7 +29,6 @@ namespace Opm {
 
 
     class Deck;
-    class ParseContext;
     class RUNSPECSection;
     class SOLUTIONSection;
 
@@ -37,8 +36,7 @@ namespace Opm {
 
     public:
 
-        ThresholdPressure(const ParseContext& parseContext,
-                          const Deck& deck,
+        ThresholdPressure(const Deck& deck,
                           const Eclipse3DProperties& eclipseProperties);
 
 
@@ -69,8 +67,7 @@ namespace Opm {
         double getThresholdPressure(int r1 , int r2) const;
         size_t size() const;
     private:
-        void initThresholdPressure(const ParseContext& parseContext,
-                                   std::shared_ptr<const RUNSPECSection> runspecSection,
+        void initThresholdPressure(std::shared_ptr<const RUNSPECSection> runspecSection,
                                    std::shared_ptr<const SOLUTIONSection> solutionSection,
                                    const Eclipse3DProperties& eclipseProperties);
 
@@ -81,7 +78,6 @@ namespace Opm {
 
         std::vector<std::pair<bool,double>> m_thresholdPressureTable;
         std::map<std::pair<int,int> , std::pair<bool , double> > m_pressureTable;
-        const ParseContext& m_parseContext;
     };
 
 

@@ -81,32 +81,14 @@ BOOST_AUTO_TEST_CASE(hasKeyword) {
         SupportedKeywordInfo("SATNUM" , 0, "1")
     };
     const Opm::EclipseGrid grid(10, 7, 9);
-    Opm::GridProperties<int> gridProperties( grid, std::move( supportedKeywords ) );
+    const Opm::GridProperties<int> gridProperties( grid, std::move( supportedKeywords ) );
 
     // calling getKeyword() should not change the semantics of hasKeyword()!
     BOOST_CHECK(!gridProperties.hasKeyword("SATNUM"));
     gridProperties.getKeyword("SATNUM");
     BOOST_CHECK(!gridProperties.hasKeyword("SATNUM"));
-}
-
-
-BOOST_AUTO_TEST_CASE(getKeyword) {
-    typedef Opm::GridProperties<int>::SupportedKeywordInfo SupportedKeywordInfo;
-    std::vector<SupportedKeywordInfo> supportedKeywords = {
-        SupportedKeywordInfo("SATNUM" , 0, "1")
-    };
-    const Opm::EclipseGrid grid(10,7,9);
-    Opm::GridProperties<int> gridProperties( grid, std::move( supportedKeywords ) );
-    const Opm::GridProperty<int>& satnum1 = gridProperties.getKeyword( "SATNUM" );
-    const Opm::GridProperty<int>& satnum2 = gridProperties.getKeyword( "SATNUM" );
-    const Opm::GridProperty<int>& satnum3 = gridProperties.getKeyword( size_t( 0 ) );
-
-    BOOST_CHECK_EQUAL( 1, gridProperties.size() );
-    BOOST_CHECK_EQUAL( &satnum1, &satnum2 );
-    BOOST_CHECK_EQUAL( &satnum1, &satnum3 );
-
     BOOST_CHECK_THROW( gridProperties.getKeyword( "NOT-SUPPORTED" ), std::invalid_argument );
-    BOOST_CHECK_THROW( gridProperties.getKeyword( 3 ), std::invalid_argument );
 }
+
 
 

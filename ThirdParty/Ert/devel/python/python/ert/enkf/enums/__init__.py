@@ -1,7 +1,6 @@
 from .enkf_field_file_format_enum import EnkfFieldFileFormatEnum
 from .load_fail_type_enum import LoadFailTypeEnum
 from .enkf_var_type_enum import EnkfVarType
-from .enkf_state_type_enum import EnkfStateType
 from .enkf_run_enum import EnkfRunType
 from .enkf_obs_impl_type_enum import EnkfObservationImplementationType
 from .ert_impl_type_enum import ErtImplType
@@ -16,7 +15,6 @@ from .hook_runtime_enum import HookRuntime
 __all__ = ["EnkfFieldFileFormatEnum",
            "LoadFailTypeEnum",
            "EnkfVarType",
-           "EnkfStateType",
            "EnkfRunType",
            "EnkfObservationImplementationType",
            "ErtImplType",

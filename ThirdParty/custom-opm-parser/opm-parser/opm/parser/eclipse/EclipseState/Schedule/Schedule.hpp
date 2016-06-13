@@ -41,7 +41,6 @@ namespace Opm
     class Events;
     class Group;
     class GroupTree;
-    class IOConfig;
     class OilVaporizationProperties;
     class ParseContext;
     class SCHEDULESection;
@@ -50,17 +49,21 @@ namespace Opm
     class UnitSystem;
     class Well;
 
-    const boost::gregorian::date defaultStartDate( 1983 , boost::gregorian::Jan , 1);
-
     class Schedule {
     public:
         Schedule(const ParseContext& parseContext, std::shared_ptr<const EclipseGrid> grid,
-                 const Deck& deck,                 std::shared_ptr<IOConfig> ioConfig);
+                 const Deck& deck );
         /// [deprecated]
         Schedule(const ParseContext& parseContext, std::shared_ptr<const EclipseGrid> grid,
-                 std::shared_ptr<const Deck> deck, std::shared_ptr<IOConfig> ioConfig);
+                 std::shared_ptr<const Deck> deck );
 
+        /*
+         * If the input deck does not specify a start time, Eclipse's 1. Jan
+         * 1983 is defaulted
+         */
         boost::posix_time::ptime getStartTime() const;
+        time_t posixStartTime() const;
+
         std::shared_ptr< const TimeMap > getTimeMap() const;
 
         size_t numWells() const;
@@ -106,12 +109,10 @@ namespace Opm
 
         void updateWellStatus(std::shared_ptr<Well> well, size_t reportStep , WellCommon::StatusEnum status);
         void addWellToGroup( std::shared_ptr< Group > newGroup , std::shared_ptr< Well > well , size_t timeStep);
-        void initFromDeck(const ParseContext& parseContext, const Deck& deck, std::shared_ptr<IOConfig> ioConfig);
         void initializeNOSIM(const Deck& deck);
-        void createTimeMap(const Deck& deck);
         void initRootGroupTreeNode(std::shared_ptr< const TimeMap > timeMap);
         void initOilVaporization(std::shared_ptr< const TimeMap > timeMap);
-        void iterateScheduleSection(const ParseContext& parseContext ,  const SCHEDULESection&  section, std::shared_ptr< IOConfig > ioConfig);
+        void iterateScheduleSection(const ParseContext& parseContext ,  const SCHEDULESection& );
         bool handleGroupFromWELSPECS(const std::string& groupName, std::shared_ptr< GroupTree > newTree) const;
         void addGroup(const std::string& groupName , size_t timeStep);
         void addWell(const std::string& wellName, const DeckRecord& record, size_t timeStep, WellCompletion::CompletionOrderEnum wellCompletionOrder);
@@ -136,8 +137,6 @@ namespace Opm
         void handleGEFAC( const DeckKeyword& keyword, size_t currentStep);
         void handleTUNING( const DeckKeyword& keyword, size_t currentStep);
         void handleNOSIM();
-        void handleRPTRST( const DeckKeyword& keyword, size_t currentStep, std::shared_ptr< IOConfig > ioConfig);
-        void handleRPTSCHED( const DeckKeyword& keyword, size_t currentStep, std::shared_ptr< IOConfig > ioConfig);
         void handleDATES( const DeckKeyword& keyword );
         void handleTSTEP( const DeckKeyword& keyword );
         void handleGRUPTREE( const DeckKeyword& keyword, size_t currentStep);

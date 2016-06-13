@@ -24,7 +24,6 @@
 #include <boost/test/unit_test.hpp>
 #include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Well.hpp>
@@ -143,16 +142,14 @@ static DeckPtr createDeckWithWaterInjector() {
 BOOST_AUTO_TEST_CASE(TestNoSolvent) {
     DeckPtr deck = createDeckWithOutSolvent();
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
-    IOConfigPtr ioConfig;
-    Schedule schedule(ParseContext() , grid , deck, ioConfig);
+    Schedule schedule(ParseContext() , grid , deck );
     BOOST_CHECK(!deck->hasKeyword("WSOLVENT"));
 }
 
 BOOST_AUTO_TEST_CASE(TestGasInjector) {
     DeckPtr deck = createDeckWithGasInjector();
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
-    IOConfigPtr ioConfig;
-    Schedule schedule(ParseContext(), grid , deck, ioConfig );
+    Schedule schedule(ParseContext(), grid , deck );
     BOOST_CHECK(deck->hasKeyword("WSOLVENT"));
 
 }
@@ -160,8 +157,7 @@ BOOST_AUTO_TEST_CASE(TestGasInjector) {
 BOOST_AUTO_TEST_CASE(TestDynamicWSOLVENT) {
     DeckPtr deck = createDeckWithDynamicWSOLVENT();
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
-    IOConfigPtr ioConfig;
-    Schedule schedule(ParseContext() , grid , deck, ioConfig);
+    Schedule schedule(ParseContext() , grid , deck );
     BOOST_CHECK(deck->hasKeyword("WSOLVENT"));
     const auto& keyword = deck->getKeyword("WSOLVENT");
     BOOST_CHECK_EQUAL(keyword.size(),1);
@@ -178,13 +174,11 @@ BOOST_AUTO_TEST_CASE(TestDynamicWSOLVENT) {
 BOOST_AUTO_TEST_CASE(TestOilInjector) {
     DeckPtr deck = createDeckWithOilInjector();
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
-    IOConfigPtr ioConfig;
-    BOOST_CHECK_THROW (Schedule(ParseContext() , grid , deck, ioConfig), std::invalid_argument);
+    BOOST_CHECK_THROW (Schedule(ParseContext() , grid , deck ), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(TestWaterInjector) {
     DeckPtr deck = createDeckWithWaterInjector();
     std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
-    IOConfigPtr ioConfig;
-    BOOST_CHECK_THROW (Schedule(ParseContext(), grid , deck, ioConfig), std::invalid_argument);
+    BOOST_CHECK_THROW (Schedule(ParseContext(), grid , deck ), std::invalid_argument);
 }

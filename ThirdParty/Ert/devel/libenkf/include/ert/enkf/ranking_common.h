@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __RANKING_COMMON_H__
-#define __RANKING_COMMON_H__
+#ifndef ERT_RANKING_COMMON_H
+#define ERT_RANKING_COMMON_H
 #include <math.h>
 
 #define INVALID_RANKING_VALUE  INFINITY

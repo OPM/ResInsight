@@ -32,6 +32,7 @@ set(source_files
     ui_return.c
     version.c
     struct_vector.c
+    perm_vector.c
 )
 
 set(header_files
@@ -68,6 +69,7 @@ set(header_files
     ui_return.h
     struct_vector.h
     buffer_string.h
+    perm_vector.h
 )
 
 set( test_source test_util.c )

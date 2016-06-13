@@ -39,8 +39,9 @@ public:
     size_t numMessages(int64_t messageType) const;
 
 
-    void addMessage(int64_t messageFlag ,
-                    const std::string& message);
+    void addTaggedMessage(int64_t messageFlag,
+                          const std::string& messageTag,
+                          const std::string& message);
 
 
     void clear();

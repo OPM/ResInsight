@@ -270,11 +270,17 @@ static void gen_obs_assert_data_size(const gen_obs_type * gen_obs, const gen_dat
 double gen_obs_chi2(const gen_obs_type * gen_obs , const gen_data_type * gen_data, node_id_type node_id) {
   gen_obs_assert_data_size(gen_obs , gen_data);
   {
+    const bool_vector_type * forward_model_active = gen_data_config_get_active_mask( gen_obs->data_config );
     double sum_chi2 = 0;
     for (int iobs = 0; iobs < gen_obs->obs_size; iobs++) {
-      double d = gen_data_iget_double( gen_data , gen_obs->data_index_list[iobs]);
-      double x = (d - gen_obs->obs_data[iobs]) / gen_obs->obs_std[iobs];
-      sum_chi2 += x*x;
+      int data_index = gen_obs->data_index_list[iobs];
+      if (forward_model_active && (bool_vector_iget( forward_model_active , data_index ) == false))
+	continue;        /* Forward model has deactivated this index - just continue. */
+      {
+	double d = gen_data_iget_double( gen_data , data_index);
+	double x = (d - gen_obs->obs_data[iobs]) / gen_obs->obs_std[iobs];
+	sum_chi2 += x*x;
+      }
     }
     return sum_chi2;
   }

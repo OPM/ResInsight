@@ -15,8 +15,8 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
-#ifndef __LOCAL_OBSDATA_NODE_H__
-#define __LOCAL_OBSDATA_NODE_H__
+#ifndef ERT_LOCAL_OBSDATA_NODE_H
+#define ERT_LOCAL_OBSDATA_NODE_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_SERIALIZE_H__
-#define __ENKF_SERIALIZE_H__
+#ifndef ERT_ENKF_SERIALIZE_H
+#define ERT_ENKF_SERIALIZE_H
 #ifdef __cplusplus
 extern "C" {
 #endif

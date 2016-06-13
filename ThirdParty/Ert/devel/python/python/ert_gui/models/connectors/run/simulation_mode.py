@@ -1,11 +1,11 @@
 from ert_gui.models import ErtConnector
 from ert_gui.models.connectors.run import EnsembleExperiment, EnsembleSmoother, \
-     IteratedEnsembleSmoother, SensitivityStudy
+     IteratedEnsembleSmoother, MultipleDataAssimilation
 from ert_gui.models.mixins import ChoiceModelMixin
 
 
 class SimulationModeModel(ErtConnector, ChoiceModelMixin):
-    __modes = [EnsembleExperiment(), SensitivityStudy(), EnsembleSmoother(), IteratedEnsembleSmoother()]
+    __modes = [EnsembleExperiment(), EnsembleSmoother(), IteratedEnsembleSmoother(), MultipleDataAssimilation()]
 
     def __init__(self):
         self.__value = SimulationModeModel.__modes[0]
@@ -20,8 +20,3 @@ class SimulationModeModel(ErtConnector, ChoiceModelMixin):
     def setCurrentChoice(self, value):
         self.__value = value
         self.observable().notify(self.CURRENT_CHOICE_CHANGED_EVENT)
-
-
-
-
-

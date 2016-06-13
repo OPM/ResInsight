@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __HISTORY_H__
-#define __HISTORY_H__
+#ifndef ERT_HISTORY_H
+#define ERT_HISTORY_H
 #ifdef __cplusplus
 extern "C" {
 #endif

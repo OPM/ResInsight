@@ -33,9 +33,6 @@
 struct run_arg_struct {
   UTIL_TYPE_ID_DECLARATION;
   int                     iens;
-  int                     init_step_parameters; /* The report step we initialize parameters from - will often be equal to step1, but can be different. */
-  state_enum              init_state_parameter; /* Whether we should init from a forecast or an analyzed state - parameters. */
-  state_enum              init_state_dynamic;   /* Whether we should init from a forecast or an analyzed state - dynamic state variables. */
   int                     max_internal_submit;  /* How many times the enkf_state object should try to resubmit when the queueu has said everything is OK - but the load fails. */
   int                     num_internal_submit;
   int                     load_start;           /* When loading back results - start at this step. */
@@ -65,40 +62,37 @@ static run_arg_type * run_arg_alloc(enkf_fs_type * init_fs ,
                                     enkf_fs_type * update_target_fs ,
                                     int iens ,
                                     run_mode_type run_mode          ,
-                                    int init_step_parameters        ,
-                                    state_enum init_state_parameter ,
-                                    state_enum init_state_dynamic   ,
                                     int step1                       ,
                                     int step2                       ,
                                     int iter                        ,
                                     const char * runpath) {
+  if ((result_fs != NULL) && (result_fs == update_target_fs))
+    util_abort("%s: internal error - can  not have result_fs == update_target_fs \n",__func__);
+  {
+    run_arg_type * run_arg = util_malloc(sizeof * run_arg );
+    UTIL_TYPE_ID_INIT(run_arg , RUN_ARG_TYPE_ID);
 
-  run_arg_type * run_arg = util_malloc(sizeof * run_arg );
-  UTIL_TYPE_ID_INIT(run_arg , RUN_ARG_TYPE_ID);
+    run_arg->init_fs = init_fs;
+    run_arg->result_fs = result_fs;
+    run_arg->update_target_fs = update_target_fs;
 
-  run_arg->init_fs = init_fs;
-  run_arg->result_fs = result_fs;
-  run_arg->update_target_fs = update_target_fs;
+    run_arg->iens = iens;
+    run_arg->run_mode = run_mode;
+    run_arg->step1 = step1;
+    run_arg->step2 = step2;
+    run_arg->iter = iter;
+    run_arg->run_path = util_alloc_abs_path( runpath );
+    run_arg->num_internal_submit = 0;
+    run_arg->queue_index = INVALID_QUEUE_INDEX;
+    run_arg->run_status = JOB_NOT_STARTED;
 
-  run_arg->iens = iens;
-  run_arg->run_mode = run_mode;
-  run_arg->init_step_parameters = init_step_parameters;
-  run_arg->init_state_parameter = init_state_parameter;
-  run_arg->init_state_dynamic = init_state_dynamic;
-  run_arg->step1 = step1;
-  run_arg->step2 = step2;
-  run_arg->iter = iter;
-  run_arg->run_path = util_alloc_abs_path( runpath );
-  run_arg->num_internal_submit = 0;
-  run_arg->queue_index = INVALID_QUEUE_INDEX;
-  run_arg->run_status = JOB_NOT_STARTED;
+    if (step1 == 0)
+      run_arg->load_start = 1;
+    else
+      run_arg->load_start = step1;
 
-  if (step1 == 0)
-    run_arg->load_start = 1;
-  else
-    run_arg->load_start = step1;
-
-  return run_arg;
+    return run_arg;
+  }
 }
 
 
@@ -106,17 +100,17 @@ static run_arg_type * run_arg_alloc(enkf_fs_type * init_fs ,
 
 
 run_arg_type * run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs_type * fs , int iens , int iter , const char * runpath) {
-  return run_arg_alloc(fs , fs , NULL , iens , ENSEMBLE_EXPERIMENT , 0 , ANALYZED , ANALYZED , 0 , 0 , iter , runpath);
+  return run_arg_alloc(fs , fs , NULL , iens , ENSEMBLE_EXPERIMENT , 0 , 0 , iter , runpath);
 }
 
 
 run_arg_type * run_arg_alloc_INIT_ONLY(enkf_fs_type * init_fs , int iens , int iter , const char * runpath) {
-  return run_arg_alloc(init_fs , NULL , NULL , iens , INIT_ONLY , 0 , ANALYZED , ANALYZED , 0 , 0 , iter , runpath);
+  return run_arg_alloc(init_fs , NULL , NULL , iens , INIT_ONLY , 0 , 0 , iter , runpath);
 }
 
 
 run_arg_type * run_arg_alloc_SMOOTHER_RUN(enkf_fs_type * simulate_fs , enkf_fs_type * update_target_fs , int iens , int iter , const char * runpath) {
-  return run_arg_alloc(simulate_fs , simulate_fs , update_target_fs , iens , ENSEMBLE_EXPERIMENT , 0 , ANALYZED , ANALYZED , 0 , 0 , iter , runpath);
+  return run_arg_alloc(simulate_fs , simulate_fs , update_target_fs , iens , ENSEMBLE_EXPERIMENT , 0 , 0 , iter , runpath);
 }
 
 
@@ -198,22 +192,6 @@ int run_arg_get_step1( const run_arg_type * run_arg ) {
 run_mode_type run_arg_get_run_mode( const run_arg_type * run_arg ) {
   return run_arg->run_mode;
 }
-
-state_enum run_arg_get_dynamic_init_state( const run_arg_type * run_arg ) {
-  return run_arg->init_state_dynamic;
-}
-
-
-state_enum run_arg_get_parameter_init_state( const run_arg_type * run_arg ) {
-  return run_arg->init_state_parameter;
-}
-
-
-
-int run_arg_get_parameter_init_step( const run_arg_type * run_arg ) {
-  return run_arg->init_step_parameters;
-}
-
 
 
 int run_arg_get_queue_index( const run_arg_type * run_arg ) {

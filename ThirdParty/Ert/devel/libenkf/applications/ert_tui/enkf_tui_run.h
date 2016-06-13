@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef  __ENKF_TUI_RUN_H__
-#define  __ENKF_TUI_RUN_H__
+#ifndef  ERT_ENKF_TUI_RUN_H
+#define  ERT_ENKF_TUI_RUN_H
 
 void enkf_tui_run_menu(void *);
 void enkf_tui_run_exp(void *);

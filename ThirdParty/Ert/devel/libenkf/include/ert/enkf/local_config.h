@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __LOCAL_CONFIG_H__
-#define __LOCAL_CONFIG_H__
+#ifndef ERT_LOCAL_CONFIG_H
+#define ERT_LOCAL_CONFIG_H
 
 #include <ert/util/stringlist.h>
 

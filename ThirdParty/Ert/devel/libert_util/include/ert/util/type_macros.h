@@ -1,5 +1,5 @@
-#ifndef __TYPE_MACROS_H__
-#define __TYPE_MACROS_H__
+#ifndef ERT_TYPE_MACROS_H
+#define ERT_TYPE_MACROS_H
 
 #ifdef __cplusplus
 extern "C" {

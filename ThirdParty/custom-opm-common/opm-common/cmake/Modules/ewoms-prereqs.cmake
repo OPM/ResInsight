@@ -33,6 +33,7 @@ set (ewoms_DEPS
 	"opm-material REQUIRED"
 	"dune-alugrid"
 	"dune-fem"
+	"opm-parser"
 	"opm-grid"
 	# librt (on some systems necessary for clock_gettime())
 	"librt REQUIRED"

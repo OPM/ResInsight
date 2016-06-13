@@ -231,7 +231,6 @@ class EnKFMain(BaseCClass):
         @type iactive: BoolVector
         @type file_type: EnkfFieldFileFormatEnum
         @type report_step: int
-        @type state: EnkfStateType
         @type enkfFs: EnkfFs
 
         """
@@ -241,6 +240,8 @@ class EnKFMain(BaseCClass):
     def loadFromForwardModel(self, realization, iteration, fs):
         EnKFMain.cNamespace().load_from_forward_model(self, iteration, realization, fs)
 
+    def createRunPath(self , run_arg):
+        EnKFMain.cNamespace().create_run_path( self , run_arg)
 
     def submitSimulation(self , run_arg):
         EnKFMain.cNamespace().submit_simulation( self , run_arg)
@@ -255,7 +256,7 @@ class EnKFMain(BaseCClass):
 
     def addNode(self, enkf_config_node):
         EnKFMain.cNamespace().add_node(self, enkf_config_node)
-    
+
 
 ##################################################################
 
@@ -309,11 +310,12 @@ EnKFMain.cNamespace().create_new_config = cwrapper.prototype("void enkf_main_cre
 EnKFMain.cNamespace().get_user_config_file = cwrapper.prototype("char* enkf_main_get_user_config_file(enkf_main)")
 EnKFMain.cNamespace().get_mount_point = cwrapper.prototype("char* enkf_main_get_mount_root( enkf_main )")
 
-EnKFMain.cNamespace().export_field = cwrapper.prototype("bool enkf_main_export_field(enkf_main, char*, char*, bool_vector, enkf_field_file_format_enum, int, enkf_state_type_enum)")
+EnKFMain.cNamespace().export_field = cwrapper.prototype("bool enkf_main_export_field(enkf_main, char*, char*, bool_vector, enkf_field_file_format_enum, int)")
 
-EnKFMain.cNamespace().export_field_with_fs = cwrapper.prototype("bool enkf_main_export_field_with_fs(enkf_main, char*, char*, bool_vector, enkf_field_file_format_enum, int, enkf_state_type_enum, enkf_fs_manager)")
+EnKFMain.cNamespace().export_field_with_fs = cwrapper.prototype("bool enkf_main_export_field_with_fs(enkf_main, char*, char*, bool_vector, enkf_field_file_format_enum, int, enkf_fs_manager)")
 EnKFMain.cNamespace().load_from_forward_model = cwrapper.prototype("void enkf_main_load_from_forward_model_from_gui(enkf_main, int, bool_vector, enkf_fs)")
 
+EnKFMain.cNamespace().create_run_path = cwrapper.prototype("void enkf_main_icreate_run_path(enkf_main , run_arg)")
 EnKFMain.cNamespace().submit_simulation = cwrapper.prototype("void enkf_main_isubmit_job(enkf_main , run_arg)")
 EnKFMain.cNamespace().alloc_run_context_ENSEMBLE_EXPERIMENT= cwrapper.prototype("ert_run_context_obj enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT( enkf_main , enkf_fs , bool_vector , enkf_init_mode_enum , int)")
 EnKFMain.cNamespace().alloc_field_init_file = cwrapper.prototype("cstring_obj enkf_main_alloc_abs_path_to_init_file(enkf_main, enkf_config_node)")

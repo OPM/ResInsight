@@ -1,3 +1,4 @@
+
 #  Copyright (C) 2011  Statoil ASA, Norway. 
 #   
 #  The file 'matrix.py' is part of ERT - Ensemble based Reservoir Tool. 
@@ -27,12 +28,13 @@
 # choice.
 
 
-from ert.cwrap import BaseCClass
+from ert.cwrap import BaseCClass,CFILE
 from ert.util import UtilPrototype
 
 
 class Matrix(BaseCClass):
     _matrix_alloc = UtilPrototype("void*  matrix_alloc(int, int )" , bind = False)
+    _copy         = UtilPrototype("matrix_obj  matrix_alloc_copy(matrix)" )
     _free         = UtilPrototype("void   matrix_free(matrix)")
     _iget         = UtilPrototype("double matrix_iget( matrix , int , int )")
     _iset         = UtilPrototype("void   matrix_iset( matrix , int , int , double)")
@@ -44,6 +46,7 @@ class Matrix(BaseCClass):
     _columns      = UtilPrototype("int matrix_get_columns(matrix)")
     _equal        = UtilPrototype("bool matrix_equal(matrix, matrix)")
     _pretty_print = UtilPrototype("void matrix_pretty_print(matrix, char*, char*)")
+    _fprint       = UtilPrototype("void matrix_fprintf(matrix, char*, FILE)")
     _random_init  = UtilPrototype("void matrix_random_init(matrix, rng)")
 
     def __init__(self, rows, columns, value=0):
@@ -51,12 +54,15 @@ class Matrix(BaseCClass):
         super(Matrix, self).__init__(c_ptr)
         self.setAll(value)
 
+    def copy(self):
+        return self._copy( )
+        
     def __str__(self):
         s = ""
         for i in range(self.rows()):
             s += "["
             for j in range(self.columns()):
-                d = self._iget(self, i, j)
+                d = self._iget(i, j)
                 s += "%6.3g " % d
             s += "]\n"
         return s
@@ -85,6 +91,7 @@ class Matrix(BaseCClass):
     def rows(self):
         """ @rtype: int """
         return self._rows()
+
 
     def columns(self):
         """ @rtype: int """
@@ -122,6 +129,33 @@ class Matrix(BaseCClass):
     def prettyPrint(self, name, fmt="%6.3g"):
         self._pretty_print(name, fmt)
 
+    def fprint(self , fileH , fmt = "%g "):
+        """Will print ASCII representation of matrix.
+
+        The fileH argument should point to an open Python
+        filehandle. If you supply a fmt string it is important that it
+        contains a separator, otherwise you might risk that elements
+        overlap in the output. For the matrix:
+
+                  [0 1 2]
+              m = [3 4 5]
+                  [6 7 8]
+
+        The code:
+    
+        with open("matrix.txt" , "w") as f:
+           m.fprintf( f )
+
+         The file 'matrix.txt' will look like:
+
+         0 1 2 
+         3 4 5
+         6 7 8
+
+        """
+        self._fprint( fmt , CFILE( fileH))
+
+        
     def randomInit(self, rng):
         self._random_init(rng)
 

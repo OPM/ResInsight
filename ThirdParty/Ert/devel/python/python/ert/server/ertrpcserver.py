@@ -7,7 +7,7 @@ from ert import Version
 from ert.enkf import EnKFMain, NodeId
 from ert.enkf.config import CustomKWConfig
 from ert.enkf.data import EnkfNode, CustomKW
-from ert.enkf.enums import RealizationStateEnum, EnkfVarType, EnkfStateType, ErtImplType
+from ert.enkf.enums import RealizationStateEnum, EnkfVarType, ErtImplType
 from ert.server import SimulationContext
 from ert.server.ertrpcclient import FAULT_CODES
 from ert.util import IntegerHash
@@ -163,6 +163,9 @@ class ErtRPCServer(SimpleXMLRPCServer):
         self._initializeRealization(target_fs, geo_id, iens, keywords)
         self._session.simulation_context.addSimulation(iens, target_fs)
 
+        if not target_case_name.startswith("."):
+            self.ert.getEnkfFsManager().switchFileSystem(target_fs)
+
 
     def _initializeRealization(self, target_fs, geo_id, iens, keywords):
         state = self.ert.getRealisation(iens)
@@ -171,8 +174,8 @@ class ErtRPCServer(SimpleXMLRPCServer):
         for kw in ens_config.getKeylistFromVarType(EnkfVarType.PARAMETER):
             if not kw in keywords:
                 node = state[kw]
-                init_id = NodeId(0, geo_id, EnkfStateType.ANALYZED)
-                run_id = NodeId(0, iens, EnkfStateType.ANALYZED)
+                init_id = NodeId(0, geo_id)
+                run_id = NodeId(0, iens)
                 node.load(self._getInitializationCase(), init_id)
                 node.save(target_fs, run_id)
 
@@ -181,7 +184,7 @@ class ErtRPCServer(SimpleXMLRPCServer):
             gen_kw = node.asGenKw()
             gen_kw.setValues(value)
 
-            run_id = NodeId(0, iens, EnkfStateType.ANALYZED)
+            run_id = NodeId(0, iens)
             node.save(target_fs, run_id)
 
         target_fs.fsync()
@@ -205,7 +208,7 @@ class ErtRPCServer(SimpleXMLRPCServer):
             gen_data = node.asGenData()
 
             fs = self.ert.getEnkfFsManager().getFileSystem(target_case_name)
-            node_id = NodeId(report_step, iens, EnkfStateType.FORECAST)
+            node_id = NodeId(report_step, iens)
             if node.tryLoad(fs, node_id):
                 data = gen_data.getData()
                 return data.asList()
@@ -231,7 +234,7 @@ class ErtRPCServer(SimpleXMLRPCServer):
             custom_kw = node.asCustomKW()
 
             fs = self.ert.getEnkfFsManager().getFileSystem(target_case_name)
-            node_id = NodeId(0, iens, EnkfStateType.FORECAST)
+            node_id = NodeId(0, iens)
             if node.tryLoad(fs, node_id):
                 config = custom_kw.getConfig()
                 result = {}
@@ -322,7 +325,7 @@ class ErtRPCServer(SimpleXMLRPCServer):
 
 
     def _storeData(self, enkf_node, fs, group_name, keyword, value, realization_number):
-        node_id = NodeId(0, realization_number, EnkfStateType.FORECAST)
+        node_id = NodeId(0, realization_number)
         enkf_node.tryLoad(fs, node_id)  # Fetch any data from previous store calls
         custom_kw = enkf_node.asCustomKW()
         custom_kw[keyword] = value

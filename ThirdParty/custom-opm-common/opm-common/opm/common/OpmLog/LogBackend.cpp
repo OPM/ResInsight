@@ -17,8 +17,8 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
 #include <opm/common/OpmLog/LogBackend.hpp>
+#include <opm/common/OpmLog/LogUtil.hpp>
 
 namespace Opm {
 
@@ -27,17 +27,58 @@ namespace Opm {
     {
     }
 
-
-    bool LogBackend::includeMessage(int64_t messageFlag) {
-        if (((messageFlag & m_mask) == messageFlag) &&
-            (messageFlag > 0))
-            return true;
-        else
-            return false;
+    LogBackend::~LogBackend()
+    {
     }
 
-    int64_t LogBackend::getMask() const {
+    void LogBackend::setMessageFormatter(std::shared_ptr<MessageFormatterInterface> formatter)
+    {
+        m_formatter = formatter;
+    }
+
+    void LogBackend::setMessageLimiter(std::shared_ptr<MessageLimiter> limiter)
+    {
+        m_limiter = limiter;
+    }
+
+    void LogBackend::addMessage(int64_t messageFlag, const std::string& message)
+    {
+        // Forward the call to the tagged version.
+        addTaggedMessage(messageFlag, "", message);
+    }
+
+    int64_t LogBackend::getMask() const
+    {
         return m_mask;
+    }
+
+    bool LogBackend::includeMessage(int64_t messageFlag, const std::string& messageTag)
+    {
+        // Check mask.
+        const bool included = ((messageFlag & m_mask) == messageFlag) && (messageFlag > 0);
+        if (!included) {
+            return false;
+        }
+
+        // Use the message limiter (if any).
+        MessageLimiter::Response res = m_limiter
+            ? m_limiter->handleMessageTag(messageTag)
+            : MessageLimiter::Response::PrintMessage;
+        if (res == MessageLimiter::Response::JustOverLimit) {
+            // Special case: add a message to this backend about limit being reached.
+            std::string msg = "Message limit reached for message tag: " + messageTag;
+            addTaggedMessage(messageFlag, "", msg);
+        }
+        return res == MessageLimiter::Response::PrintMessage;
+    }
+
+    std::string LogBackend::formatMessage(int64_t messageFlag, const std::string& message)
+    {
+        if (m_formatter) {
+            return m_formatter->format(messageFlag, message);
+        } else {
+            return message;
+        }
     }
 
 

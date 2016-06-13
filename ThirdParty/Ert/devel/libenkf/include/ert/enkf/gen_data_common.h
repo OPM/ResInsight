@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GEN_DATA_COMMON_H__
-#define __GEN_DATA_COMMON_H__
+#ifndef ERT_GEN_DATA_COMMON_H
+#define ERT_GEN_DATA_COMMON_H
 
 /*
   Contains some headers which both gen_data.c and gen_data_config.c need -

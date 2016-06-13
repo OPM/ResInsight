@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __MISFIT_ENSEMBLE_H__
-#define __MISFIT_ENSEMBLE_H__
+#ifndef ERT_MISFIT_ENSEMBLE_H
+#define ERT_MISFIT_ENSEMBLE_H
 
 #include <stdbool.h>
 

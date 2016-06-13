@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_KW_H__
-#define __ECL_KW_H__
+#ifndef ERT_ECL_KW_H
+#define ERT_ECL_KW_H
 #ifdef __cplusplus
 extern "C" {
 #endif

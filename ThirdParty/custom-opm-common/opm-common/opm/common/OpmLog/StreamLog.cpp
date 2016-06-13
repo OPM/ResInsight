@@ -22,9 +22,13 @@
 namespace Opm {
 
 
-StreamLog::StreamLog(const std::string& logFile , int64_t messageMask) : LogBackend(messageMask)
+StreamLog::StreamLog(const std::string& logFile , int64_t messageMask, bool append) : LogBackend(messageMask)
 {
-    m_ofstream.open( logFile.c_str() ,  std::ofstream::out );
+    if (append) {
+        m_ofstream.open( logFile.c_str() ,  std::ofstream::app );
+    } else {
+        m_ofstream.open( logFile.c_str() ,  std::ofstream::out );
+    }
     m_streamOwner = true;
     m_ostream = &m_ofstream;
 }
@@ -44,12 +48,12 @@ void StreamLog::close() {
     }
 }
 
-void StreamLog::addMessage(int64_t messageType , const std::string& message) {
-    if (includeMessage( messageType )) {
-        (*m_ostream) << message << std::endl;
-
-        if (m_ofstream.is_open())
+void StreamLog::addTaggedMessage(int64_t messageType, const std::string& messageTag, const std::string& message) {
+    if (includeMessage( messageType, messageTag )) {
+        (*m_ostream) << formatMessage(messageType, message) << std::endl;
+        if (m_ofstream.is_open()) {
             m_ofstream.flush();
+        }
     }
 }
 

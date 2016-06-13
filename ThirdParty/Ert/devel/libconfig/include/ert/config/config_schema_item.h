@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __CONFIG_SCHEMA_ITEM_H__
-#define __CONFIG_SCHEMA_ITEM_H__
+#ifndef ERT_CONFIG_SCHEMA_ITEM_H
+#define ERT_CONFIG_SCHEMA_ITEM_H
 
 #ifdef  __cplusplus
 extern "C" {

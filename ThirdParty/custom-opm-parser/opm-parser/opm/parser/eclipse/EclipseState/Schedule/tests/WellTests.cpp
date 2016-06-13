@@ -31,7 +31,6 @@
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
 
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/CompletionSet.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
@@ -199,8 +198,7 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestTRACK) {
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
     std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>( 10 , 10 , 10 );
-    Opm::IOConfigPtr ioConfig;
-    Opm::Schedule schedule(Opm::ParseContext() , grid , deck, ioConfig);
+    Opm::Schedule schedule(Opm::ParseContext() , grid , deck );
     Opm::WellPtr op_1 = schedule.getWell("OP_1");
 
     size_t timestep = 2;
@@ -241,8 +239,7 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestDefaultTRACK) {
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
     std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>( 10 , 10 , 10 );
-    Opm::IOConfigPtr ioConfig;
-    Opm::Schedule schedule(Opm::ParseContext() , grid , deck, ioConfig);
+    Opm::Schedule schedule(Opm::ParseContext() , grid , deck );
     Opm::WellPtr op_1 = schedule.getWell("OP_1");
 
     size_t timestep = 2;
@@ -285,8 +282,7 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestINPUT) {
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
     std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>( 10 , 10 , 10 );
-    Opm::IOConfigPtr ioConfig;
-    Opm::Schedule schedule(Opm::ParseContext() , grid , deck, ioConfig);
+    Opm::Schedule schedule(Opm::ParseContext() , grid , deck );
     Opm::WellPtr op_1 = schedule.getWell("OP_1");
 
     size_t timestep = 2;

@@ -65,7 +65,7 @@ class IteratedEnsembleSmootherPanel(SimulationConfigPanel):
         self.active_realizations_field.validationChanged.connect(self.simulationConfigurationChanged)
 
         self.setLayout(layout)
-
+        
     def isConfigurationValid(self):
         analysis_module = IteratedAnalysisModuleModel().getCurrentChoice()
         return self.iterated_target_case_format_field.isValid() and self.active_realizations_field.isValid() and analysis_module is not None

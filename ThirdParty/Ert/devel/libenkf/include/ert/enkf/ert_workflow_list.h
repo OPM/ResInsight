@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ERT_WORKFLOW_LIST_H__
-#define __ERT_WORKFLOW_LIST_H__
+#ifndef ERT_WORKFLOW_LIST_H
+#define ERT_WORKFLOW_LIST_H
 
 
 #ifdef __cplusplus

@@ -5,19 +5,14 @@ if (NOT HAVE_CJSON)
     set( CJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
     set(CJSON_LIBRARY "")
 endif()
-
-include_directories(
-       ${Boost_INCLUDE_DIRS}
-)
-
 add_library(opmjson ${json_source})
 target_link_libraries( opmjson ${CJSON_LIBRARY} ${Boost_LIBRARIES} )
-#set_target_properties(opmjson PROPERTIES VERSION ${opm-parser_VERSION_MAJOR}.${opm-parser_VERSION_MINOR}
-#                                         SOVERSION ${opm-parser_VERSION_MAJOR})
+set_target_properties(opmjson PROPERTIES VERSION ${opm-parser_VERSION_MAJOR}.${opm-parser_VERSION_MINOR}
+                                         SOVERSION ${opm-parser_VERSION_MAJOR})
 
 install( TARGETS opmjson DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 foreach ( header ${json_headers} ) 
      install( FILES ${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/opm/json RENAME ${header})
 endforeach()
 
-#add_subdirectory( tests )
+add_subdirectory( tests )

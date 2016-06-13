@@ -29,6 +29,7 @@
 
 namespace Opm
 {
+    /// [[deprecated]]
     NNC::NNC(std::shared_ptr<const Deck> deck, EclipseGridConstPtr eclipseGrid) :
             NNC(*deck, eclipseGrid)
     {}

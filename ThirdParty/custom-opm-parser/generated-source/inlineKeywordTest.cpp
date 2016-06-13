@@ -14,7 +14,7 @@
 using namespace Opm;
 std::shared_ptr<UnitSystem> unitSystem( UnitSystem::newMETRIC() );
 BOOST_AUTO_TEST_CASE(TESTACTDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ACTDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ACTDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(TESTACTDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTACTNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ACTNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ACTNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(TESTACTNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTADDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ADD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ADD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(TESTADDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTADDREGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ADDREG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ADDREG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(TESTADDREGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTADSALNODKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ADSALNOD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ADSALNOD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(TESTADSALNODKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTALLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ALL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/ALL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(TESTALLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTAPIKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/API";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/API";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(TESTAPIKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTAQUCONKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUCON";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUCON";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(TESTAQUCONKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTAQUDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(TESTAQUDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTAQUNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(TESTAQUNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTBLOCK_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/B/BLOCK_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/B/BLOCK_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(TESTBLOCK_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTBLOCK_PROBE300Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/B/BLOCK_PROBE300";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/B/BLOCK_PROBE300";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(TESTBLOCK_PROBE300Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTBOXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/B/BOX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/B/BOX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(TESTBOXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOMPDATKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPDAT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPDAT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(TESTCOMPDATKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOMPLUMPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPLUMP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPLUMP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(TESTCOMPLUMPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOMPORDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPORD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPORD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(TESTCOMPORDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOMPSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/C/COMPS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/C/COMPS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE(TESTCOMPSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOMPSEGSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPSEGS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COMPSEGS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(TESTCOMPSEGSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCONNECTION_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/CONNECTION_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/CONNECTION_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(TESTCONNECTION_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOORDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COORD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COORD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(TESTCOORDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOPYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COPY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COPY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(TESTCOPYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCOPYREGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COPYREG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/COPYREG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(TESTCOPYREGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCPRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/CPR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/C/CPR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE(TESTCPRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCREFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/C/CREF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/C/CREF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -470,7 +470,7 @@ BOOST_AUTO_TEST_CASE(TESTCREFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTCREFSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/C/CREFS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/C/CREFS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE(TESTCREFSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDATEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DATE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DATE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -508,7 +508,7 @@ BOOST_AUTO_TEST_CASE(TESTDATEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDATESKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DATES";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DATES";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE(TESTDATESKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDENSITYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DENSITY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DENSITY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -546,7 +546,7 @@ BOOST_AUTO_TEST_CASE(TESTDENSITYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDEPTHKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DEPTH";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DEPTH";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_CASE(TESTDEPTHKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDEPTHZKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DEPTHZ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DEPTHZ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(TESTDEPTHZKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDIMENSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DIMENS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DIMENS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -603,7 +603,7 @@ BOOST_AUTO_TEST_CASE(TESTDIMENSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDISGASKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DISGAS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DISGAS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -622,7 +622,7 @@ BOOST_AUTO_TEST_CASE(TESTDISGASKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDREFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/D/DREF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/D/DREF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -641,7 +641,7 @@ BOOST_AUTO_TEST_CASE(TESTDREFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDREFSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/D/DREFS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/D/DREFS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -660,7 +660,7 @@ BOOST_AUTO_TEST_CASE(TESTDREFSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDRSDTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DRSDT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DRSDT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(TESTDRSDTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDRVDTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DRVDT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DRVDT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -698,7 +698,7 @@ BOOST_AUTO_TEST_CASE(TESTDRVDTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE(TESTDXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDXVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DXV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DXV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE(TESTDXVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(TESTDYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDYVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DYV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DYV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -774,7 +774,7 @@ BOOST_AUTO_TEST_CASE(TESTDYVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDZKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DZ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DZ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -793,7 +793,7 @@ BOOST_AUTO_TEST_CASE(TESTDZKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTDZVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/D/DZV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/D/DZV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -812,7 +812,7 @@ BOOST_AUTO_TEST_CASE(TESTDZVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTECHOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ECHO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ECHO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -831,7 +831,7 @@ BOOST_AUTO_TEST_CASE(TESTECHOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEDITKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EDIT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EDIT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -850,7 +850,7 @@ BOOST_AUTO_TEST_CASE(TESTEDITKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEDITNNCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EDITNNC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EDITNNC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE(TESTEDITNNCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEHYSTRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EHYSTR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EHYSTR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -888,7 +888,7 @@ BOOST_AUTO_TEST_CASE(TESTEHYSTRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/END";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/END";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -907,7 +907,7 @@ BOOST_AUTO_TEST_CASE(TESTENDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDBOXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDBOX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDBOX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -926,7 +926,7 @@ BOOST_AUTO_TEST_CASE(TESTENDBOXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDINCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDINC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDINC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -945,7 +945,7 @@ BOOST_AUTO_TEST_CASE(TESTENDINCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -964,7 +964,7 @@ BOOST_AUTO_TEST_CASE(TESTENDNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDPOINT_SPECIFIERSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDPOINT_SPECIFIERS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDPOINT_SPECIFIERS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -983,7 +983,7 @@ BOOST_AUTO_TEST_CASE(TESTENDPOINT_SPECIFIERSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDSCALEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDSCALE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDSCALE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1002,7 +1002,7 @@ BOOST_AUTO_TEST_CASE(TESTENDSCALEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENDSKIPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDSKIP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENDSKIP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1021,7 +1021,7 @@ BOOST_AUTO_TEST_CASE(TESTENDSKIPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENKRVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENKRVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENKRVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1040,7 +1040,7 @@ BOOST_AUTO_TEST_CASE(TESTENKRVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTENPTVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENPTVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/ENPTVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1059,7 +1059,7 @@ BOOST_AUTO_TEST_CASE(TESTENPTVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEQLDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQLDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQLDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1078,7 +1078,7 @@ BOOST_AUTO_TEST_CASE(TESTEQLDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEQLNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQLNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQLNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1097,7 +1097,7 @@ BOOST_AUTO_TEST_CASE(TESTEQLNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEQLOPTSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQLOPTS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQLOPTS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1116,7 +1116,7 @@ BOOST_AUTO_TEST_CASE(TESTEQLOPTSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEQUALREGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQUALREG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQUALREG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1135,7 +1135,7 @@ BOOST_AUTO_TEST_CASE(TESTEQUALREGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEQUALSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQUALS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQUALS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1154,7 +1154,7 @@ BOOST_AUTO_TEST_CASE(TESTEQUALSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEQUILKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQUIL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EQUIL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1173,7 +1173,7 @@ BOOST_AUTO_TEST_CASE(TESTEQUILKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEXCELKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EXCEL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EXCEL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1192,7 +1192,7 @@ BOOST_AUTO_TEST_CASE(TESTEXCELKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTEXTRAPMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EXTRAPMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/E/EXTRAPMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1211,7 +1211,7 @@ BOOST_AUTO_TEST_CASE(TESTEXTRAPMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFAULTDIMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FAULTDIM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FAULTDIM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1230,7 +1230,7 @@ BOOST_AUTO_TEST_CASE(TESTFAULTDIMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFAULTSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FAULTS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FAULTS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1249,7 +1249,7 @@ BOOST_AUTO_TEST_CASE(TESTFAULTSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFIELDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FIELD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FIELD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1268,7 +1268,7 @@ BOOST_AUTO_TEST_CASE(TESTFIELDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFIELD_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FIELD_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FIELD_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1287,7 +1287,7 @@ BOOST_AUTO_TEST_CASE(TESTFIELD_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFILLEPSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FILLEPS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FILLEPS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1306,7 +1306,7 @@ BOOST_AUTO_TEST_CASE(TESTFILLEPSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFIPNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FIPNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FIPNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1325,7 +1325,7 @@ BOOST_AUTO_TEST_CASE(TESTFIPNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFLUXNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FLUXNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FLUXNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1344,7 +1344,7 @@ BOOST_AUTO_TEST_CASE(TESTFLUXNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFMTINKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FMTIN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FMTIN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1363,7 +1363,7 @@ BOOST_AUTO_TEST_CASE(TESTFMTINKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFMTOUTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FMTOUT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FMTOUT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1382,7 +1382,7 @@ BOOST_AUTO_TEST_CASE(TESTFMTOUTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTFULLIMPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FULLIMP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/F/FULLIMP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1401,7 +1401,7 @@ BOOST_AUTO_TEST_CASE(TESTFULLIMPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGASKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GAS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GAS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1420,7 +1420,7 @@ BOOST_AUTO_TEST_CASE(TESTGASKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGASVISCTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/G/GASVISCT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/G/GASVISCT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1439,7 +1439,7 @@ BOOST_AUTO_TEST_CASE(TESTGASVISCTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGCOMPIDXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/900_OPM/G/GCOMPIDX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/900_OPM/G/GCOMPIDX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1458,7 +1458,7 @@ BOOST_AUTO_TEST_CASE(TESTGCOMPIDXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGCONINJEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GCONINJE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GCONINJE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1477,7 +1477,7 @@ BOOST_AUTO_TEST_CASE(TESTGCONINJEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGCONPRODKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GCONPROD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GCONPROD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1496,7 +1496,7 @@ BOOST_AUTO_TEST_CASE(TESTGCONPRODKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGDORIENTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GDORIENT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GDORIENT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1515,7 +1515,7 @@ BOOST_AUTO_TEST_CASE(TESTGDORIENTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGECONKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GECON";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GECON";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1534,7 +1534,7 @@ BOOST_AUTO_TEST_CASE(TESTGECONKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGEFACKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GEFAC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GEFAC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1553,7 +1553,7 @@ BOOST_AUTO_TEST_CASE(TESTGEFACKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGRIDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRID";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRID";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1572,7 +1572,7 @@ BOOST_AUTO_TEST_CASE(TESTGRIDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGRIDFILEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRIDFILE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRIDFILE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1591,7 +1591,7 @@ BOOST_AUTO_TEST_CASE(TESTGRIDFILEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGRIDOPTSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRIDOPTS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRIDOPTS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1610,7 +1610,7 @@ BOOST_AUTO_TEST_CASE(TESTGRIDOPTSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGRIDUNITKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRIDUNIT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRIDUNIT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1629,7 +1629,7 @@ BOOST_AUTO_TEST_CASE(TESTGRIDUNITKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGROUP_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GROUP_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GROUP_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1648,7 +1648,7 @@ BOOST_AUTO_TEST_CASE(TESTGROUP_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGRUPNETKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRUPNET";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRUPNET";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1667,7 +1667,7 @@ BOOST_AUTO_TEST_CASE(TESTGRUPNETKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTGRUPTREEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRUPTREE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRUPTREE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1686,7 +1686,7 @@ BOOST_AUTO_TEST_CASE(TESTGRUPTREEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTIMBNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMBNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMBNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1705,7 +1705,7 @@ BOOST_AUTO_TEST_CASE(TESTIMBNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTIMKRVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMKRVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMKRVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1724,7 +1724,7 @@ BOOST_AUTO_TEST_CASE(TESTIMKRVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTIMPESKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMPES";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMPES";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1743,7 +1743,7 @@ BOOST_AUTO_TEST_CASE(TESTIMPESKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTIMPTVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMPTVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IMPTVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1762,7 +1762,7 @@ BOOST_AUTO_TEST_CASE(TESTIMPTVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTINCLUDEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/INCLUDE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/INCLUDE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1781,7 +1781,7 @@ BOOST_AUTO_TEST_CASE(TESTINCLUDEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTINITKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/INIT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/INIT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1800,7 +1800,7 @@ BOOST_AUTO_TEST_CASE(TESTINITKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTIPCGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IPCG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IPCG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1819,7 +1819,7 @@ BOOST_AUTO_TEST_CASE(TESTIPCGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTIPCWKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IPCW";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/IPCW";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1838,7 +1838,7 @@ BOOST_AUTO_TEST_CASE(TESTIPCWKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISGCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISGCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISGCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1857,7 +1857,7 @@ BOOST_AUTO_TEST_CASE(TESTISGCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISGLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISGL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISGL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1876,7 +1876,7 @@ BOOST_AUTO_TEST_CASE(TESTISGLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISGUKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISGU";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISGU";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1895,7 +1895,7 @@ BOOST_AUTO_TEST_CASE(TESTISGUKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISOGCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISOGCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISOGCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1914,7 +1914,7 @@ BOOST_AUTO_TEST_CASE(TESTISOGCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISOWCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISOWCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISOWCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1933,7 +1933,7 @@ BOOST_AUTO_TEST_CASE(TESTISOWCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISWCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISWCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISWCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1952,7 +1952,7 @@ BOOST_AUTO_TEST_CASE(TESTISWCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISWLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISWL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISWL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1971,7 +1971,7 @@ BOOST_AUTO_TEST_CASE(TESTISWLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTISWUKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISWU";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/I/ISWU";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -1990,7 +1990,7 @@ BOOST_AUTO_TEST_CASE(TESTISWUKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMAPAXESKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAPAXES";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAPAXES";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2009,7 +2009,7 @@ BOOST_AUTO_TEST_CASE(TESTMAPAXESKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMAPUNITSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAPUNITS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAPUNITS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2028,7 +2028,7 @@ BOOST_AUTO_TEST_CASE(TESTMAPUNITSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMAXVALUEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAXVALUE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAXVALUE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2047,7 +2047,7 @@ BOOST_AUTO_TEST_CASE(TESTMAXVALUEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMEMORYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MEMORY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MEMORY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2066,7 +2066,7 @@ BOOST_AUTO_TEST_CASE(TESTMEMORYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMESSAGESKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MESSAGES";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MESSAGES";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2085,7 +2085,7 @@ BOOST_AUTO_TEST_CASE(TESTMESSAGESKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMETRICKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/METRIC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/METRIC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2104,7 +2104,7 @@ BOOST_AUTO_TEST_CASE(TESTMETRICKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMINPVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MINPV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MINPV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2123,7 +2123,7 @@ BOOST_AUTO_TEST_CASE(TESTMINPVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMINPVFILKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/900_OPM/M/MINPVFIL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/900_OPM/M/MINPVFIL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2142,7 +2142,7 @@ BOOST_AUTO_TEST_CASE(TESTMINPVFILKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMINVALUEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MINVALUE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MINVALUE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2161,7 +2161,7 @@ BOOST_AUTO_TEST_CASE(TESTMINVALUEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMISCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MISC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MISC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2180,7 +2180,7 @@ BOOST_AUTO_TEST_CASE(TESTMISCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMISCIBLEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MISCIBLE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MISCIBLE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2199,7 +2199,7 @@ BOOST_AUTO_TEST_CASE(TESTMISCIBLEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMISCNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MISCNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MISCNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2218,7 +2218,7 @@ BOOST_AUTO_TEST_CASE(TESTMISCNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMONITORKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MONITOR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MONITOR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2237,7 +2237,7 @@ BOOST_AUTO_TEST_CASE(TESTMONITORKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMSFNKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MSFN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MSFN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2256,7 +2256,7 @@ BOOST_AUTO_TEST_CASE(TESTMSFNKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMSGFILEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MSGFILE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MSGFILE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2275,7 +2275,7 @@ BOOST_AUTO_TEST_CASE(TESTMSGFILEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULTFLTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTFLT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTFLT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2294,7 +2294,7 @@ BOOST_AUTO_TEST_CASE(TESTMULTFLTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULTIPLYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTIPLY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTIPLY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2313,7 +2313,7 @@ BOOST_AUTO_TEST_CASE(TESTMULTIPLYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULTIREGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTIREG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTIREG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2332,7 +2332,7 @@ BOOST_AUTO_TEST_CASE(TESTMULTIREGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULTNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2351,7 +2351,7 @@ BOOST_AUTO_TEST_CASE(TESTMULTNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULTPVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTPV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTPV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2370,7 +2370,7 @@ BOOST_AUTO_TEST_CASE(TESTMULTPVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULTREGTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTREGT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTREGT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2389,7 +2389,7 @@ BOOST_AUTO_TEST_CASE(TESTMULTREGTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMULT_XYZKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULT_XYZ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULT_XYZ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2408,7 +2408,7 @@ BOOST_AUTO_TEST_CASE(TESTMULT_XYZKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMWKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/M/MW";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/M/MW";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2427,7 +2427,7 @@ BOOST_AUTO_TEST_CASE(TESTMWKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTMWSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/M/MWS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/M/MWS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2446,7 +2446,7 @@ BOOST_AUTO_TEST_CASE(TESTMWSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNETBALANKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NETBALAN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NETBALAN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2465,7 +2465,7 @@ BOOST_AUTO_TEST_CASE(TESTNETBALANKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNEWTRANKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NEWTRAN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NEWTRAN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2484,7 +2484,7 @@ BOOST_AUTO_TEST_CASE(TESTNEWTRANKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNEXTSTEPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NEXTSTEP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NEXTSTEP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2503,7 +2503,7 @@ BOOST_AUTO_TEST_CASE(TESTNEXTSTEPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNNCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NNC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NNC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2522,7 +2522,7 @@ BOOST_AUTO_TEST_CASE(TESTNNCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOCASCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOCASC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOCASC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2541,7 +2541,7 @@ BOOST_AUTO_TEST_CASE(TESTNOCASCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOECHOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOECHO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOECHO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2560,7 +2560,7 @@ BOOST_AUTO_TEST_CASE(TESTNOECHOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOGGFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOGGF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOGGF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2579,7 +2579,7 @@ BOOST_AUTO_TEST_CASE(TESTNOGGFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOGRAVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/002_Frontsim/N/NOGRAV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/002_Frontsim/N/NOGRAV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2598,7 +2598,7 @@ BOOST_AUTO_TEST_CASE(TESTNOGRAVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOINSPECKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOINSPEC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOINSPEC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2617,7 +2617,7 @@ BOOST_AUTO_TEST_CASE(TESTNOINSPECKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOMONITOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOMONITO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOMONITO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2636,7 +2636,7 @@ BOOST_AUTO_TEST_CASE(TESTNOMONITOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNONNCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NONNC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NONNC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2655,7 +2655,7 @@ BOOST_AUTO_TEST_CASE(TESTNONNCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNORSSPECKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NORSSPEC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NORSSPEC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2674,7 +2674,7 @@ BOOST_AUTO_TEST_CASE(TESTNORSSPECKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNOSIMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOSIM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NOSIM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2693,7 +2693,7 @@ BOOST_AUTO_TEST_CASE(TESTNOSIMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNSTACKKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NSTACK";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NSTACK";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2712,7 +2712,7 @@ BOOST_AUTO_TEST_CASE(TESTNSTACKKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNTGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NTG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NTG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2731,7 +2731,7 @@ BOOST_AUTO_TEST_CASE(TESTNTGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNUMRESKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NUMRES";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NUMRES";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2750,7 +2750,7 @@ BOOST_AUTO_TEST_CASE(TESTNUMRESKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTNUPCOLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NUPCOL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/N/NUPCOL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2769,7 +2769,7 @@ BOOST_AUTO_TEST_CASE(TESTNUPCOLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOCOMPIDXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/900_OPM/O/OCOMPIDX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/900_OPM/O/OCOMPIDX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2788,7 +2788,7 @@ BOOST_AUTO_TEST_CASE(TESTOCOMPIDXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOILKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OIL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OIL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2807,7 +2807,7 @@ BOOST_AUTO_TEST_CASE(TESTOILKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOILCOMPRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/O/OILCOMPR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/O/OILCOMPR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2826,7 +2826,7 @@ BOOST_AUTO_TEST_CASE(TESTOILCOMPRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOILMWKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/O/OILMW";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/O/OILMW";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2845,7 +2845,7 @@ BOOST_AUTO_TEST_CASE(TESTOILMWKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOILVISCTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OILVISCT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OILVISCT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2864,7 +2864,7 @@ BOOST_AUTO_TEST_CASE(TESTOILVISCTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOILVTIMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/O/OILVTIM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/O/OILVTIM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2883,7 +2883,7 @@ BOOST_AUTO_TEST_CASE(TESTOILVTIMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOLDTRANKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OLDTRAN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OLDTRAN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2902,7 +2902,7 @@ BOOST_AUTO_TEST_CASE(TESTOLDTRANKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTOPTIONSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OPTIONS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OPTIONS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2921,7 +2921,7 @@ BOOST_AUTO_TEST_CASE(TESTOPTIONSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPARALLELKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PARALLEL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PARALLEL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2940,7 +2940,7 @@ BOOST_AUTO_TEST_CASE(TESTPARALLELKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPATHSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PATHS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PATHS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2959,7 +2959,7 @@ BOOST_AUTO_TEST_CASE(TESTPATHSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPBVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PBVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PBVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2978,7 +2978,7 @@ BOOST_AUTO_TEST_CASE(TESTPBVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPCGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PCG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PCG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -2997,7 +2997,7 @@ BOOST_AUTO_TEST_CASE(TESTPCGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERFORMANCE_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERFORMANCE_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERFORMANCE_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3016,7 +3016,7 @@ BOOST_AUTO_TEST_CASE(TESTPERFORMANCE_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERMXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3035,7 +3035,7 @@ BOOST_AUTO_TEST_CASE(TESTPERMXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERMXYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMXY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMXY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3054,7 +3054,7 @@ BOOST_AUTO_TEST_CASE(TESTPERMXYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERMYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3073,7 +3073,7 @@ BOOST_AUTO_TEST_CASE(TESTPERMYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERMYZKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMYZ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMYZ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3092,7 +3092,7 @@ BOOST_AUTO_TEST_CASE(TESTPERMYZKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERMZKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMZ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMZ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3111,7 +3111,7 @@ BOOST_AUTO_TEST_CASE(TESTPERMZKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPERMZXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMZX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PERMZX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3130,7 +3130,7 @@ BOOST_AUTO_TEST_CASE(TESTPERMZXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPIMTDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PIMTDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PIMTDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3149,7 +3149,7 @@ BOOST_AUTO_TEST_CASE(TESTPIMTDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPIMULTABKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PIMULTAB";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PIMULTAB";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3168,7 +3168,7 @@ BOOST_AUTO_TEST_CASE(TESTPIMULTABKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPINCHKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PINCH";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PINCH";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3187,7 +3187,7 @@ BOOST_AUTO_TEST_CASE(TESTPINCHKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLMIXPARKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLMIXPAR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLMIXPAR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3206,7 +3206,7 @@ BOOST_AUTO_TEST_CASE(TESTPLMIXPARKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYADSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYADS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYADS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3225,7 +3225,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYADSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYADSSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYADSS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYADSS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3244,7 +3244,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYADSSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYDHFLFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYDHFLF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYDHFLF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3263,7 +3263,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYDHFLFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYMAXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYMAX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYMAX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3282,7 +3282,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYMAXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYROCKKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYROCK";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYROCK";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3301,7 +3301,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYROCKKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYSHEARKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYSHEAR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYSHEAR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3320,7 +3320,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYSHEARKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYSHLOGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYSHLOG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYSHLOG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3339,7 +3339,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYSHLOGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPLYVISCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYVISC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PLYVISC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3358,7 +3358,7 @@ BOOST_AUTO_TEST_CASE(TESTPLYVISCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPMISCKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PMISC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PMISC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3377,7 +3377,7 @@ BOOST_AUTO_TEST_CASE(TESTPMISCKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPOLYMERKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/POLYMER";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/POLYMER";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3396,7 +3396,7 @@ BOOST_AUTO_TEST_CASE(TESTPOLYMERKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPOROKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PORO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PORO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3415,7 +3415,7 @@ BOOST_AUTO_TEST_CASE(TESTPOROKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPORVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PORV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PORV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3434,7 +3434,7 @@ BOOST_AUTO_TEST_CASE(TESTPORVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPREFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/P/PREF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/P/PREF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3453,7 +3453,7 @@ BOOST_AUTO_TEST_CASE(TESTPREFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPREFSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/P/PREFS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/P/PREFS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3472,7 +3472,7 @@ BOOST_AUTO_TEST_CASE(TESTPREFSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPRESSUREKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PRESSURE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PRESSURE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3491,7 +3491,7 @@ BOOST_AUTO_TEST_CASE(TESTPRESSUREKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPROPSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PROPS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PROPS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3510,7 +3510,7 @@ BOOST_AUTO_TEST_CASE(TESTPROPSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVCDOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVCDO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVCDO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3529,7 +3529,7 @@ BOOST_AUTO_TEST_CASE(TESTPVCDOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVDGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVDG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVDG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3548,7 +3548,7 @@ BOOST_AUTO_TEST_CASE(TESTPVDGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVDOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVDO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVDO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3567,7 +3567,7 @@ BOOST_AUTO_TEST_CASE(TESTPVDOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVDSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVDS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVDS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3586,7 +3586,7 @@ BOOST_AUTO_TEST_CASE(TESTPVDSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVTGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3605,7 +3605,7 @@ BOOST_AUTO_TEST_CASE(TESTPVTGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVTNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3624,7 +3624,7 @@ BOOST_AUTO_TEST_CASE(TESTPVTNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVTOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3643,7 +3643,7 @@ BOOST_AUTO_TEST_CASE(TESTPVTOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTPVTWKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTW";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/P/PVTW";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3662,7 +3662,7 @@ BOOST_AUTO_TEST_CASE(TESTPVTWKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRADFIN4Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RADFIN4";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RADFIN4";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3681,7 +3681,7 @@ BOOST_AUTO_TEST_CASE(TESTRADFIN4Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTREGDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/REGDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/REGDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3700,7 +3700,7 @@ BOOST_AUTO_TEST_CASE(TESTREGDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTREGIONSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/REGIONS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/REGIONS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3719,7 +3719,7 @@ BOOST_AUTO_TEST_CASE(TESTREGIONSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTREGION_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/REGION_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/REGION_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3738,7 +3738,7 @@ BOOST_AUTO_TEST_CASE(TESTREGION_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRESTARTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RESTART";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RESTART";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3757,7 +3757,7 @@ BOOST_AUTO_TEST_CASE(TESTRESTARTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRKTRMDIRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RKTRMDIR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RKTRMDIR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3776,7 +3776,7 @@ BOOST_AUTO_TEST_CASE(TESTRKTRMDIRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTROCKKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCK";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCK";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3795,7 +3795,7 @@ BOOST_AUTO_TEST_CASE(TESTROCKKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTROCKCOMPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCKCOMP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCKCOMP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3814,7 +3814,7 @@ BOOST_AUTO_TEST_CASE(TESTROCKCOMPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTROCKOPTSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCKOPTS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCKOPTS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3833,7 +3833,7 @@ BOOST_AUTO_TEST_CASE(TESTROCKOPTSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTROCKTABKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCKTAB";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/ROCKTAB";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3852,7 +3852,7 @@ BOOST_AUTO_TEST_CASE(TESTROCKTABKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTGRIDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTGRID";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTGRID";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3871,7 +3871,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTGRIDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTONLYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTONLY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTONLY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3890,7 +3890,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTONLYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTONLYOKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTONLYO";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTONLYO";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3909,7 +3909,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTONLYOKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTPROPSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTPROPS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTPROPS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3928,7 +3928,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTPROPSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTRSTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTRST";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTRST";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3947,7 +3947,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTRSTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTRUNSPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTRUNSP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTRUNSP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3966,7 +3966,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTRUNSPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTSCHEDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTSCHED";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTSCHED";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -3985,7 +3985,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTSCHEDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRPTSOLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTSOL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTSOL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4004,7 +4004,7 @@ BOOST_AUTO_TEST_CASE(TESTRPTSOLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4023,7 +4023,7 @@ BOOST_AUTO_TEST_CASE(TESTRSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRSVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RSVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RSVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4042,7 +4042,7 @@ BOOST_AUTO_TEST_CASE(TESTRSVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRTEMPVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RTEMPVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RTEMPVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4061,7 +4061,7 @@ BOOST_AUTO_TEST_CASE(TESTRTEMPVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRUNSPECKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RUNSPEC";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RUNSPEC";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4080,7 +4080,7 @@ BOOST_AUTO_TEST_CASE(TESTRUNSPECKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRUNSUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RUNSUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RUNSUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4099,7 +4099,7 @@ BOOST_AUTO_TEST_CASE(TESTRUNSUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRVKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RV";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RV";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4118,7 +4118,7 @@ BOOST_AUTO_TEST_CASE(TESTRVKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTRVVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RVVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RVVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4137,7 +4137,7 @@ BOOST_AUTO_TEST_CASE(TESTRVVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSATNUMKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SATNUM";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SATNUM";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4156,7 +4156,7 @@ BOOST_AUTO_TEST_CASE(TESTSATNUMKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSATOPTSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SATOPTS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SATOPTS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4175,7 +4175,7 @@ BOOST_AUTO_TEST_CASE(TESTSATOPTSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSAVEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SAVE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SAVE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4194,7 +4194,7 @@ BOOST_AUTO_TEST_CASE(TESTSAVEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSCALECRSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SCALECRS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SCALECRS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4213,7 +4213,7 @@ BOOST_AUTO_TEST_CASE(TESTSCALECRSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSCHEDULEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SCHEDULE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SCHEDULE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4232,7 +4232,7 @@ BOOST_AUTO_TEST_CASE(TESTSCHEDULEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSDENSITYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SDENSITY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SDENSITY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4251,7 +4251,7 @@ BOOST_AUTO_TEST_CASE(TESTSDENSITYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSEPARATEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SEPARATE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SEPARATE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4270,7 +4270,7 @@ BOOST_AUTO_TEST_CASE(TESTSEPARATEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGASKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGAS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGAS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4289,7 +4289,7 @@ BOOST_AUTO_TEST_CASE(TESTSGASKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4308,7 +4308,7 @@ BOOST_AUTO_TEST_CASE(TESTSGCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGCWMISKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGCWMIS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGCWMIS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4327,7 +4327,7 @@ BOOST_AUTO_TEST_CASE(TESTSGCWMISKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGFNKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGFN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGFN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4346,7 +4346,7 @@ BOOST_AUTO_TEST_CASE(TESTSGFNKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4365,7 +4365,7 @@ BOOST_AUTO_TEST_CASE(TESTSGLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGOFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGOF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGOF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4384,7 +4384,7 @@ BOOST_AUTO_TEST_CASE(TESTSGOFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGUKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGU";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGU";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4403,7 +4403,7 @@ BOOST_AUTO_TEST_CASE(TESTSGUKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSGWFNKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGWFN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SGWFN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4422,7 +4422,7 @@ BOOST_AUTO_TEST_CASE(TESTSGWFNKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSHRATEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SHRATE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SHRATE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4441,7 +4441,7 @@ BOOST_AUTO_TEST_CASE(TESTSHRATEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSKIPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4460,7 +4460,7 @@ BOOST_AUTO_TEST_CASE(TESTSKIPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSKIP100Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIP100";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIP100";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4479,7 +4479,7 @@ BOOST_AUTO_TEST_CASE(TESTSKIP100Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSKIP300Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIP300";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIP300";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4498,7 +4498,7 @@ BOOST_AUTO_TEST_CASE(TESTSKIP300Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSKIPRESTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIPREST";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SKIPREST";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4517,7 +4517,7 @@ BOOST_AUTO_TEST_CASE(TESTSKIPRESTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSLGOFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SLGOF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SLGOF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4536,7 +4536,7 @@ BOOST_AUTO_TEST_CASE(TESTSLGOFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSMRYDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SMRYDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SMRYDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4555,7 +4555,7 @@ BOOST_AUTO_TEST_CASE(TESTSMRYDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOF2Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOF2";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOF2";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4574,7 +4574,7 @@ BOOST_AUTO_TEST_CASE(TESTSOF2Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOF3Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOF3";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOF3";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4593,7 +4593,7 @@ BOOST_AUTO_TEST_CASE(TESTSOF3Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOGCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOGCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOGCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4612,7 +4612,7 @@ BOOST_AUTO_TEST_CASE(TESTSOGCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOILKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOIL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOIL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4631,7 +4631,7 @@ BOOST_AUTO_TEST_CASE(TESTSOILKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOLUTIONKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOLUTION";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOLUTION";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4650,7 +4650,7 @@ BOOST_AUTO_TEST_CASE(TESTSOLUTIONKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOLVENTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOLVENT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOLVENT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4669,7 +4669,7 @@ BOOST_AUTO_TEST_CASE(TESTSOLVENTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSORWMISKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SORWMIS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SORWMIS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4688,7 +4688,7 @@ BOOST_AUTO_TEST_CASE(TESTSORWMISKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSOWCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOWCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SOWCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4707,7 +4707,7 @@ BOOST_AUTO_TEST_CASE(TESTSOWCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSPECGRIDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SPECGRID";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SPECGRID";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4726,7 +4726,7 @@ BOOST_AUTO_TEST_CASE(TESTSPECGRIDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSPECHEATKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SPECHEAT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SPECHEAT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4745,7 +4745,7 @@ BOOST_AUTO_TEST_CASE(TESTSPECHEATKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSPECROCKKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SPECROCK";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SPECROCK";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4764,7 +4764,7 @@ BOOST_AUTO_TEST_CASE(TESTSPECROCKKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSSFNKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SSFN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SSFN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4783,7 +4783,7 @@ BOOST_AUTO_TEST_CASE(TESTSSFNKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSSOLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SSOL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SSOL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4802,7 +4802,7 @@ BOOST_AUTO_TEST_CASE(TESTSSOLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSTARTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/START";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/START";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4821,7 +4821,7 @@ BOOST_AUTO_TEST_CASE(TESTSTARTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSTCONDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/S/STCOND";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/S/STCOND";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4840,7 +4840,7 @@ BOOST_AUTO_TEST_CASE(TESTSTCONDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSTONE1Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/STONE1";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/STONE1";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4859,7 +4859,7 @@ BOOST_AUTO_TEST_CASE(TESTSTONE1Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSTONE1EXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/STONE1EX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/STONE1EX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4878,7 +4878,7 @@ BOOST_AUTO_TEST_CASE(TESTSTONE1EXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSUMMARYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SUMMARY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SUMMARY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4897,7 +4897,7 @@ BOOST_AUTO_TEST_CASE(TESTSUMMARYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSUMTHINKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SUMTHIN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SUMTHIN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4916,7 +4916,7 @@ BOOST_AUTO_TEST_CASE(TESTSUMTHINKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWATKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWAT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWAT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4935,7 +4935,7 @@ BOOST_AUTO_TEST_CASE(TESTSWATKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWATINITKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWATINIT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWATINIT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4954,7 +4954,7 @@ BOOST_AUTO_TEST_CASE(TESTSWATINITKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWCRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWCR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWCR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4973,7 +4973,7 @@ BOOST_AUTO_TEST_CASE(TESTSWCRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWFNKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWFN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWFN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -4992,7 +4992,7 @@ BOOST_AUTO_TEST_CASE(TESTSWFNKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5011,7 +5011,7 @@ BOOST_AUTO_TEST_CASE(TESTSWLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWOFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWOF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWOF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5030,7 +5030,7 @@ BOOST_AUTO_TEST_CASE(TESTSWOFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTSWUKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWU";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/S/SWU";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5049,7 +5049,7 @@ BOOST_AUTO_TEST_CASE(TESTSWUKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTABDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TABDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TABDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5068,7 +5068,7 @@ BOOST_AUTO_TEST_CASE(TESTTABDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTEMPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TEMP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TEMP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5087,7 +5087,7 @@ BOOST_AUTO_TEST_CASE(TESTTEMPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTEMPIKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TEMPI";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TEMPI";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5106,7 +5106,7 @@ BOOST_AUTO_TEST_CASE(TESTTEMPIKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTEMPVDKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TEMPVD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TEMPVD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5125,7 +5125,7 @@ BOOST_AUTO_TEST_CASE(TESTTEMPVDKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTHCONRKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/THCONR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/THCONR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5144,7 +5144,7 @@ BOOST_AUTO_TEST_CASE(TESTTHCONRKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTHERMALKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/THERMAL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/THERMAL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5163,7 +5163,7 @@ BOOST_AUTO_TEST_CASE(TESTTHERMALKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTHERMEX1Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/THERMEX1";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/THERMEX1";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5182,7 +5182,7 @@ BOOST_AUTO_TEST_CASE(TESTTHERMEX1Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTHPRESKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/THPRES";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/THPRES";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5201,7 +5201,7 @@ BOOST_AUTO_TEST_CASE(TESTTHPRESKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTITLEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TITLE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TITLE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5220,7 +5220,7 @@ BOOST_AUTO_TEST_CASE(TESTTITLEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTLMIXPARKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TLMIXPAR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TLMIXPAR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5239,7 +5239,7 @@ BOOST_AUTO_TEST_CASE(TESTTLMIXPARKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTLPMIXPAKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/900_OPM/T/TLPMIXPA";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/900_OPM/T/TLPMIXPA";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5258,7 +5258,7 @@ BOOST_AUTO_TEST_CASE(TESTTLPMIXPAKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTOPSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TOPS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TOPS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5277,7 +5277,7 @@ BOOST_AUTO_TEST_CASE(TESTTOPSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTRACERKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRACER";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRACER";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5296,7 +5296,7 @@ BOOST_AUTO_TEST_CASE(TESTTRACERKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTRACERSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRACERS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRACERS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5315,7 +5315,7 @@ BOOST_AUTO_TEST_CASE(TESTTRACERSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTRANXKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRANX";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRANX";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5334,7 +5334,7 @@ BOOST_AUTO_TEST_CASE(TESTTRANXKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTRANYKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRANY";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRANY";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5353,7 +5353,7 @@ BOOST_AUTO_TEST_CASE(TESTTRANYKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTRANZKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRANZ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TRANZ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5372,7 +5372,7 @@ BOOST_AUTO_TEST_CASE(TESTTRANZKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTREFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TREF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TREF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5391,7 +5391,7 @@ BOOST_AUTO_TEST_CASE(TESTTREFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTREFSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TREFS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/T/TREFS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5410,7 +5410,7 @@ BOOST_AUTO_TEST_CASE(TESTTREFSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTSTEPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TSTEP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TSTEP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5429,7 +5429,7 @@ BOOST_AUTO_TEST_CASE(TESTTSTEPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTUNINGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TUNING";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TUNING";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5448,7 +5448,7 @@ BOOST_AUTO_TEST_CASE(TESTTUNINGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTTVDPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TVDP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TVDP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5467,7 +5467,7 @@ BOOST_AUTO_TEST_CASE(TESTTVDPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTUDADIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UDADIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UDADIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5486,7 +5486,7 @@ BOOST_AUTO_TEST_CASE(TESTUDADIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTUDQDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UDQDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UDQDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5505,7 +5505,7 @@ BOOST_AUTO_TEST_CASE(TESTUDQDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTUNIFINKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UNIFIN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UNIFIN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5524,7 +5524,7 @@ BOOST_AUTO_TEST_CASE(TESTUNIFINKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTUNIFOUTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UNIFOUT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/U/UNIFOUT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5543,7 +5543,7 @@ BOOST_AUTO_TEST_CASE(TESTUNIFOUTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVAPOILKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VAPOIL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VAPOIL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5562,7 +5562,7 @@ BOOST_AUTO_TEST_CASE(TESTVAPOILKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVAPPARSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VAPPARS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VAPPARS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5581,7 +5581,7 @@ BOOST_AUTO_TEST_CASE(TESTVAPPARSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVFPIDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPIDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPIDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5600,7 +5600,7 @@ BOOST_AUTO_TEST_CASE(TESTVFPIDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVFPINJKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPINJ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPINJ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5619,7 +5619,7 @@ BOOST_AUTO_TEST_CASE(TESTVFPINJKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVFPPDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPPDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPPDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5638,7 +5638,7 @@ BOOST_AUTO_TEST_CASE(TESTVFPPDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVFPPRODKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPPROD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VFPPROD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5657,7 +5657,7 @@ BOOST_AUTO_TEST_CASE(TESTVFPPRODKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTVISCREFKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VISCREF";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/V/VISCREF";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5676,7 +5676,7 @@ BOOST_AUTO_TEST_CASE(TESTVISCREFKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWATDENTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/W/WATDENT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/W/WATDENT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5695,7 +5695,7 @@ BOOST_AUTO_TEST_CASE(TESTWATDENTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWATERKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WATER";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WATER";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5714,7 +5714,7 @@ BOOST_AUTO_TEST_CASE(TESTWATERKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWATVISCTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WATVISCT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WATVISCT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5733,7 +5733,7 @@ BOOST_AUTO_TEST_CASE(TESTWATVISCTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWCONHISTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONHIST";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONHIST";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5752,7 +5752,7 @@ BOOST_AUTO_TEST_CASE(TESTWCONHISTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWCONINJKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONINJ";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONINJ";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5771,7 +5771,7 @@ BOOST_AUTO_TEST_CASE(TESTWCONINJKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWCONINJEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONINJE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONINJE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5790,7 +5790,7 @@ BOOST_AUTO_TEST_CASE(TESTWCONINJEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWCONINJHKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONINJH";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONINJH";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5809,7 +5809,7 @@ BOOST_AUTO_TEST_CASE(TESTWCONINJHKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWCONPRODKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONPROD";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WCONPROD";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5828,7 +5828,7 @@ BOOST_AUTO_TEST_CASE(TESTWCONPRODKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWELLDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELLDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELLDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5847,7 +5847,7 @@ BOOST_AUTO_TEST_CASE(TESTWELLDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWELL_PROBEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELL_PROBE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELL_PROBE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5866,7 +5866,7 @@ BOOST_AUTO_TEST_CASE(TESTWELL_PROBEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWELOPENKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELOPEN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELOPEN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5885,7 +5885,7 @@ BOOST_AUTO_TEST_CASE(TESTWELOPENKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWELSEGSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELSEGS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELSEGS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5904,7 +5904,7 @@ BOOST_AUTO_TEST_CASE(TESTWELSEGSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWELSPECSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELSPECS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELSPECS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5923,7 +5923,7 @@ BOOST_AUTO_TEST_CASE(TESTWELSPECSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWELTARGKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELTARG";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELTARG";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5942,7 +5942,7 @@ BOOST_AUTO_TEST_CASE(TESTWELTARGKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWGRUPCONKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WGRUPCON";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WGRUPCON";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5961,7 +5961,7 @@ BOOST_AUTO_TEST_CASE(TESTWGRUPCONKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWHISTCTLKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WHISTCTL";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WHISTCTL";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5980,7 +5980,7 @@ BOOST_AUTO_TEST_CASE(TESTWHISTCTLKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWPAVEKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPAVE";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPAVE";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -5999,7 +5999,7 @@ BOOST_AUTO_TEST_CASE(TESTWPAVEKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWPIMULTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPIMULT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPIMULT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6018,7 +6018,7 @@ BOOST_AUTO_TEST_CASE(TESTWPIMULTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWPITABKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPITAB";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPITAB";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6037,7 +6037,7 @@ BOOST_AUTO_TEST_CASE(TESTWPITABKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWPOLYMERKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPOLYMER";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WPOLYMER";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6056,7 +6056,7 @@ BOOST_AUTO_TEST_CASE(TESTWPOLYMERKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWRFTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WRFT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WRFT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6075,7 +6075,7 @@ BOOST_AUTO_TEST_CASE(TESTWRFTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWRFTPLTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WRFTPLT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WRFTPLT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6094,7 +6094,7 @@ BOOST_AUTO_TEST_CASE(TESTWRFTPLTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWSEGDIMSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WSEGDIMS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WSEGDIMS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6113,7 +6113,7 @@ BOOST_AUTO_TEST_CASE(TESTWSEGDIMSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWSOLVENTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WSOLVENT";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WSOLVENT";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6132,7 +6132,7 @@ BOOST_AUTO_TEST_CASE(TESTWSOLVENTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWTEMPKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WTEMP";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WTEMP";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6151,7 +6151,7 @@ BOOST_AUTO_TEST_CASE(TESTWTEMPKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWTESTKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WTEST";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WTEST";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6170,7 +6170,7 @@ BOOST_AUTO_TEST_CASE(TESTWTESTKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTWTRACERKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WTRACER";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WTRACER";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6189,7 +6189,7 @@ BOOST_AUTO_TEST_CASE(TESTWTRACERKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTZCORNKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/Z/ZCORN";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/Z/ZCORN";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6208,7 +6208,7 @@ BOOST_AUTO_TEST_CASE(TESTZCORNKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTZFACT1Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACT1";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACT1";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6227,7 +6227,7 @@ BOOST_AUTO_TEST_CASE(TESTZFACT1Keyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTZFACT1SKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACT1S";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACT1S";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6246,7 +6246,7 @@ BOOST_AUTO_TEST_CASE(TESTZFACT1SKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTZFACTORKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACTOR";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACTOR";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6265,7 +6265,7 @@ BOOST_AUTO_TEST_CASE(TESTZFACTORKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTZFACTORSKeyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACTORS";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/001_Eclipse300/Z/ZFACTORS";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
@@ -6284,7 +6284,7 @@ BOOST_AUTO_TEST_CASE(TESTZFACTORSKeyword) {
 }
 
 BOOST_AUTO_TEST_CASE(TESTZIPPY2Keyword) {
-    std::string jsonFile = "D:/gitroot-magnesj/opm-parser/opm/parser/share/keywords/000_Eclipse100/Z/ZIPPY2";
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/Z/ZIPPY2";
     boost::filesystem::path jsonPath( jsonFile );
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);

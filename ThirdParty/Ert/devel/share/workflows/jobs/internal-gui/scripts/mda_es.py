@@ -3,7 +3,7 @@ import os
 
 from PyQt4.QtGui import QLabel
 
-from ert.enkf import ErtPlugin, CancelPluginException, EnkfInitModeEnum, EnkfStateType, HookRuntime
+from ert.enkf import ErtPlugin, CancelPluginException, EnkfInitModeEnum, HookRuntime
 from ert.enkf.hook_manager import HookManager
 from ert.util import BoolVector
 from ert_gui.ide.keywords.definitions import ProperNameFormatArgument, NumberListStringArgument
@@ -49,7 +49,7 @@ class MDAEnsembleSmootherJob(ErtPlugin):
 
         if not source_fs == target_fs:
             self.ert().getEnkfFsManager().switchFileSystem(target_fs)
-            self.ert().getEnkfFsManager().initializeCurrentCaseFromExisting(source_fs, 0, EnkfStateType.ANALYZED)
+            self.ert().getEnkfFsManager().initializeCurrentCaseFromExisting(source_fs, 0)
 
         active_realization_mask = BoolVector(True, self.ert().getEnsembleSize())
 
@@ -86,7 +86,10 @@ class MDAEnsembleSmootherJob(ErtPlugin):
         self.ert().getEnkfFsManager().switchFileSystem(target_fs)
 
         print("[%s] Running simulation for iteration: %d" % (target_case_name, iteration))
-
+        self.ert().getEnkfSimulationRunner().createRunPath(active_realization_mask, iteration)
+        
+        print("[%s] Pre processing for iteration: %d" % (target_case_name, iteration))
+        self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.PRE_SIMULATION )
 
         success = self.ert().getEnkfSimulationRunner().runSimpleStep(active_realization_mask, EnkfInitModeEnum.INIT_CONDITIONAL, iteration)
 

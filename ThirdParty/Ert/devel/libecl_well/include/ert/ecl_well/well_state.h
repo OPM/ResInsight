@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __WELL_STATE_H__
-#define __WELL_STATE_H__
+#ifndef ERT_WELL_STATE_H
+#define ERT_WELL_STATE_H
 
 #ifdef __cplusplus
 extern "C" {

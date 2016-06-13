@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __HASH_SLL_H__
-#define __HASH_SLL_H__
+#ifndef ERT_HASH_SLL_H
+#define ERT_HASH_SLL_H
 #ifdef __cplusplus
 extern "C" {
 #endif

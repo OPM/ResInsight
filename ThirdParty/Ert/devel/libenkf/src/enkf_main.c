@@ -104,7 +104,9 @@
 #include <ert/enkf/analysis_iter_config.h>
 #include <ert/enkf/field.h>
 #include <ert/enkf/ert_log.h>
+#include <ert/enkf/ert_init_context.h>
 #include <ert/enkf/ert_run_context.h>
+#include <ert/enkf/run_arg.h>
 
 /**/
 
@@ -462,11 +464,10 @@ void enkf_main_exit(enkf_main_type * enkf_main) {
 
 */
 
-enkf_node_type ** enkf_main_get_node_ensemble(const enkf_main_type * enkf_main , enkf_fs_type * src_fs, const char * key , int report_step , state_enum load_state) {
+enkf_node_type ** enkf_main_get_node_ensemble(const enkf_main_type * enkf_main , enkf_fs_type * src_fs, const char * key , int report_step) {
   const int ens_size              = enkf_main_get_ensemble_size( enkf_main );
   enkf_node_type ** node_ensemble = util_calloc(ens_size , sizeof * node_ensemble );
   node_id_type node_id = {.report_step = report_step ,
-                          .state       = load_state ,
                           .iens        = -1 };
   int iens;
 
@@ -531,7 +532,7 @@ void enkf_main_node_std( const enkf_node_type ** ensemble , int ens_size , const
 
 void enkf_main_inflate_node(enkf_main_type * enkf_main , enkf_fs_type * src_fs , enkf_fs_type * target_fs , int report_step , const char * key , const enkf_node_type * min_std) {
   int ens_size                              = enkf_main_get_ensemble_size(enkf_main);
-  enkf_node_type ** ensemble                = enkf_main_get_node_ensemble( enkf_main , src_fs , key , report_step , ANALYZED );
+  enkf_node_type ** ensemble                = enkf_main_get_node_ensemble( enkf_main , src_fs , key , report_step );  // Was ANALYZED
   enkf_node_type * mean                     = enkf_node_copyc( ensemble[0] );
   enkf_node_type * std                      = enkf_node_copyc( ensemble[0] );
   int iens;
@@ -561,7 +562,7 @@ void enkf_main_inflate_node(enkf_main_type * enkf_main , enkf_fs_type * src_fs ,
 
   /* Add the mean back in - and store the updated node to disk.*/
   for (iens = 0; iens < ens_size; iens++) {
-    node_id_type node_id = {.report_step = report_step , .iens = iens , .state = ANALYZED };
+    node_id_type node_id = {.report_step = report_step , .iens = iens };
     enkf_node_iadd( ensemble[iens] , mean );
     enkf_node_store( ensemble[iens] , target_fs , true , node_id);
   }
@@ -613,8 +614,7 @@ static int __get_active_size(const ensemble_config_type * ensemble_config , enkf
     if (enkf_config_node_get_impl_type( config_node ) == GEN_DATA) {
       enkf_node_type * node = enkf_node_alloc( config_node );
       node_id_type node_id = {.report_step = report_step ,
-                              .iens        = 0,
-                              .state       = FORECAST };
+                              .iens        = 0 };
 
       enkf_node_load( node , fs  , node_id );
       enkf_node_free( node );
@@ -654,7 +654,6 @@ typedef struct {
   const char              * key;
   int                       report_step;
   int                       target_step;
-  state_enum                load_state;
   run_mode_type             run_mode;
   int                       row_offset;
   const active_list_type  * active_list;
@@ -669,14 +668,13 @@ static void serialize_node( enkf_fs_type * fs ,
                             const char * key ,
                             int iens ,
                             int report_step ,
-                            state_enum load_state ,
                             int row_offset ,
                             int column,
                             const active_list_type * active_list,
                             matrix_type * A) {
 
   enkf_node_type * node = enkf_state_get_node( ensemble[iens] , key);
-  node_id_type node_id = {.report_step = report_step, .iens = iens , .state = load_state };
+  node_id_type node_id = {.report_step = report_step, .iens = iens  };
   enkf_node_serialize( node , fs , node_id , active_list , A , row_offset , column);
 }
 
@@ -692,7 +690,6 @@ static void * serialize_nodes_mt( void * arg ) {
                       info->key ,
                       iens ,
                       info->report_step ,
-                      info->load_state ,
                       info->row_offset ,
                       column,
                       info->active_list ,
@@ -703,7 +700,6 @@ static void * serialize_nodes_mt( void * arg ) {
 
 
 static void enkf_main_serialize_node( const char * node_key ,
-                                      state_enum load_state ,
                                       const active_list_type * active_list ,
                                       int row_offset ,
                                       thread_pool_type * work_pool ,
@@ -717,7 +713,6 @@ static void enkf_main_serialize_node( const char * node_key ,
   for (icpu = 0; icpu < num_cpu_threads; icpu++) {
     serialize_info[icpu].key         = node_key;
     serialize_info[icpu].active_list = active_list;
-    serialize_info[icpu].load_state  = load_state;
     serialize_info[icpu].row_offset  = row_offset;
 
     thread_pool_add_job( work_pool , serialize_nodes_mt , &serialize_info[icpu]);
@@ -769,14 +764,7 @@ static int enkf_main_serialize_dataset( const ensemble_config_type * ens_config 
       }
 
       if (active_size[ikw] > 0) {
-        state_enum load_state;
-
-        if (hash_inc_counter( use_count , key) == 0)
-          load_state = FORECAST;           /* This is the first time this keyword is updated for this reportstep */
-        else
-          load_state = ANALYZED;
-
-        enkf_main_serialize_node( key , load_state , active_list , row_offset[ikw] , work_pool , serialize_info );
+        enkf_main_serialize_node( key , active_list , row_offset[ikw] , work_pool , serialize_info );
         current_row += active_size[ikw];
       }
     }
@@ -800,7 +788,7 @@ static void deserialize_node( enkf_fs_type            * fs,
                               matrix_type * A) {
 
   enkf_node_type * node = enkf_state_get_node( ensemble[iens] , key);
-  node_id_type node_id = { .report_step = target_step , .iens = iens , .state = ANALYZED };
+  node_id_type node_id = { .report_step = target_step , .iens = iens };
   enkf_node_deserialize(node , fs , node_id , active_list , A , row_offset , column);
   state_map_update_undefined(enkf_fs_get_state_map(fs) , iens , STATE_INITIALIZED);
 }
@@ -937,8 +925,11 @@ void enkf_main_get_PC( const matrix_type * S,
 
 
 static void assert_matrix_size(const matrix_type * m , const char * name , int rows , int columns) {
-  if (!matrix_check_dims(m , rows , columns))
+  if (m) {
+    if (!matrix_check_dims(m , rows , columns))
       util_abort("%s: matrix mismatch %s:[%d,%d]   - expected:[%d, %d]", __func__ , name , matrix_get_rows(m) , matrix_get_columns(m) , rows , columns);
+  } else
+    util_abort("%s: matrix:%s is NULL \n",__func__ , name);
 }
 
 static void assert_size_equal(int ens_size , const bool_vector_type * ens_mask) {
@@ -1107,7 +1098,6 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
   const analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
   const int active_ens_size = state_map_count_matching( source_state_map , STATE_HAS_DATA );
 
-  printf("src fs:%s \n", enkf_fs_get_case_name(source_fs));
   if (analysis_config_have_enough_realisations(analysis_config , active_ens_size)) {
     double alpha       = analysis_config_get_alpha( enkf_main->analysis_config );
     double std_cutoff  = analysis_config_get_std_cutoff( enkf_main->analysis_config );
@@ -1124,7 +1114,7 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
       /*
         Observations and measurements are collected in these temporary
         structures. obs_data is a precursor for the 'd' vector, and
-        meas_forecast is a precursor for the 'S' matrix'.
+        meas_data is a precursor for the 'S' matrix'.
 
         The reason for going via these temporary structures is to support
         deactivating observations which should not be used in the update
@@ -1132,8 +1122,7 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
       */
       double global_std_scaling = analysis_config_get_global_std_scaling(analysis_config);
       obs_data_type               * obs_data      = obs_data_alloc(global_std_scaling);
-      meas_data_type              * meas_forecast = meas_data_alloc( ens_mask );
-      meas_data_type              * meas_analyzed = meas_data_alloc( ens_mask );
+      meas_data_type              * meas_data     = meas_data_alloc( ens_mask );
       local_config_type           * local_config  = enkf_main->local_config;
       const local_updatestep_type * updatestep    = local_config_get_updatestep( local_config );
       hash_type                   * use_count     = hash_alloc();
@@ -1156,7 +1145,6 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
           enkf_node_type * data_node = enkf_node_alloc( config_node );
           for (int j=0; j < int_vector_size(ens_active_list); j++) {
             node_id_type node_id = {.iens = int_vector_iget( ens_active_list , j ),
-                                    .state = FORECAST ,
                                     .report_step = 0 };
             enkf_node_load( data_node , source_fs , node_id );
             enkf_node_store( data_node , target_fs , false , node_id );
@@ -1189,7 +1177,7 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
         local_obsdata_type   * obsdata = local_ministep_get_obsdata( ministep );
 
         obs_data_reset( obs_data );
-        meas_data_reset( meas_forecast );
+        meas_data_reset( meas_data );
 
         /*
            Temporarily we will just force the timestep from the input
@@ -1206,20 +1194,19 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
         enkf_obs_get_obs_and_measure_data( enkf_main->obs,
                                            source_fs ,
                                            obsdata,
-                                           FORECAST,
                                            ens_active_list ,
-                                           meas_forecast,
+                                           meas_data,
                                            obs_data);
 
 
 
-        enkf_analysis_deactivate_outliers( obs_data , meas_forecast  , std_cutoff , alpha , enkf_main->verbose);
+        enkf_analysis_deactivate_outliers( obs_data , meas_data  , std_cutoff , alpha , enkf_main->verbose);
 
         if (enkf_main->verbose)
-          enkf_analysis_fprintf_obs_summary( obs_data , meas_forecast  , step_list , local_ministep_get_name( ministep ) , stdout );
-        enkf_analysis_fprintf_obs_summary( obs_data , meas_forecast  , step_list , local_ministep_get_name( ministep ) , log_stream );
+          enkf_analysis_fprintf_obs_summary( obs_data , meas_data  , step_list , local_ministep_get_name( ministep ) , stdout );
+        enkf_analysis_fprintf_obs_summary( obs_data , meas_data  , step_list , local_ministep_get_name( ministep ) , log_stream );
 
-        if (obs_data_get_active_size(obs_data) > 0)
+        if ((obs_data_get_active_size(obs_data) > 0) && (meas_data_get_active_obs_size( meas_data ) > 0))
           enkf_main_analysis_update( enkf_main ,
                                      target_fs ,
                                      ens_mask ,
@@ -1229,17 +1216,15 @@ bool enkf_main_UPDATE(enkf_main_type * enkf_main , const int_vector_type * step_
                                      int_vector_get_first( step_list ),
                                      current_step ,
                                      ministep ,
-                                     meas_forecast ,
+                                     meas_data ,
                                      obs_data );
-        else if (target_fs != source_fs) {
-          ert_log_add_fmt_message( 1 , stderr , "No active observations for MINISTEP: %s." , local_ministep_get_name(ministep));
-        }
+        else if (target_fs != source_fs)
+          ert_log_add_fmt_message( 1 , stderr , "No active observations/parameters for MINISTEP: %s." , local_ministep_get_name(ministep));
       }
       fclose( log_stream );
 
       obs_data_free( obs_data );
-      meas_data_free( meas_forecast );
-      meas_data_free( meas_analyzed );
+      meas_data_free( meas_data );
 
       enkf_main_inflate( enkf_main , source_fs , target_fs , current_step , use_count);
       hash_free( use_count );
@@ -1290,21 +1275,27 @@ bool enkf_main_smoother_update(enkf_main_type * enkf_main , enkf_fs_type * sourc
 
 
 static void enkf_main_report_run_failure( const enkf_main_type * enkf_main , const run_arg_type * run_arg) {
-  job_queue_type * job_queue = site_config_get_job_queue(enkf_main->site_config);
   int queue_index = run_arg_get_queue_index( run_arg );
-
-  const char * stderr_file = job_queue_iget_stderr_file( job_queue , queue_index );
-  if (stderr_file == NULL)
-    ert_log_add_fmt_message( 1 , stderr , "** ERROR ** path:%s  job:%s  reason:%s" ,
-                             job_queue_iget_run_path( job_queue , queue_index),
-                             job_queue_iget_failed_job( job_queue , queue_index),
-                             job_queue_iget_error_reason( job_queue , queue_index ));
-  else
-    ert_log_add_fmt_message( 1 , stderr , "** ERROR ** path:%s  job:%s  reason:%s  Check file:%s" ,
-                             job_queue_iget_run_path( job_queue , queue_index),
-                             job_queue_iget_failed_job( job_queue , queue_index),
-                             job_queue_iget_error_reason( job_queue , queue_index ),
-                             job_queue_iget_stderr_file( job_queue , queue_index ));
+  /*
+    In the case the jobs have been killed before the jobs has even got
+    a slot in the internal queue we will get queue_index < 0; in that
+    case there is really nothing to report.
+  */
+  if (queue_index >= 0) {
+    job_queue_type * job_queue = site_config_get_job_queue(enkf_main->site_config);
+    const char * stderr_file = job_queue_iget_stderr_file( job_queue , queue_index );
+    if (stderr_file == NULL)
+      ert_log_add_fmt_message( 1 , stderr , "** ERROR ** path:%s  job:%s  reason:%s" ,
+                               job_queue_iget_run_path( job_queue , queue_index),
+                               job_queue_iget_failed_job( job_queue , queue_index),
+                               job_queue_iget_error_reason( job_queue , queue_index ));
+    else
+      ert_log_add_fmt_message( 1 , stderr , "** ERROR ** path:%s  job:%s  reason:%s  Check file:%s" ,
+                               job_queue_iget_run_path( job_queue , queue_index),
+                               job_queue_iget_failed_job( job_queue , queue_index),
+                               job_queue_iget_error_reason( job_queue , queue_index ),
+                               job_queue_iget_stderr_file( job_queue , queue_index ));
+  }
 }
 
 
@@ -1363,6 +1354,37 @@ void enkf_main_isubmit_job( enkf_main_type * enkf_main , run_arg_type * run_arg 
   job_queue_type * job_queue                = site_config_get_job_queue( site_config );
   const char * run_path                     = run_arg_get_runpath( run_arg );
 
+  // The job_queue_node will take ownership of this arg_pack; and destroy it when
+  // the job_queue_node is discarded.
+  arg_pack_type             * callback_arg      = arg_pack_alloc();
+
+  /*
+    Prepare the job and submit it to the queue
+  */
+  arg_pack_append_ptr( callback_arg , enkf_state );
+  arg_pack_append_ptr( callback_arg , run_arg );
+
+  {
+    int queue_index = job_queue_add_job( job_queue ,
+                                         job_script ,
+                                         enkf_state_complete_forward_modelOK__ ,
+                                         enkf_state_complete_forward_modelRETRY__ ,
+                                         enkf_state_complete_forward_modelEXIT__,
+                                         callback_arg ,
+                                         ecl_config_get_num_cpu( ecl_config ),
+                                         run_path ,
+                                         member_config_get_jobname( member_config ) ,
+                                         1,
+                                         (const char *[1]) { run_path } );
+
+    run_arg_set_queue_index( run_arg , queue_index );
+    run_arg_increase_submit_count( run_arg );
+  }
+
+}
+
+void * enkf_main_icreate_run_path( enkf_main_type * enkf_main, run_arg_type * run_arg){
+  enkf_state_type * enkf_state = enkf_main->ensemble[ run_arg_get_iens(run_arg) ];
   {
     runpath_list_type * runpath_list = hook_manager_get_runpath_list( enkf_main->hook_manager );
     runpath_list_add( runpath_list ,
@@ -1371,36 +1393,47 @@ void enkf_main_isubmit_job( enkf_main_type * enkf_main , run_arg_type * run_arg 
                       run_arg_get_runpath( run_arg ),
                       enkf_state_get_eclbase( enkf_state ));
   }
-
   enkf_state_init_eclipse( enkf_state , run_arg );
-  if (run_arg_get_run_mode(run_arg) != INIT_ONLY) {
-    // The job_queue_node will take ownership of this arg_pack; and destroy it when
-    // the job_queue_node is discarded.
-    arg_pack_type             * callback_arg      = arg_pack_alloc();
+  return NULL;
+}
 
-      /*
-        Prepare the job and submit it to the queue
-      */
-    arg_pack_append_ptr( callback_arg , enkf_state );
-    arg_pack_append_ptr( callback_arg , run_arg );
+void * enkf_main_create_run_path__( enkf_main_type * enkf_main,
+                                    const ert_init_context_type * init_context,
+                                    const bool_vector_type * iactive ){
 
-    {
-      int queue_index = job_queue_add_job( job_queue ,
-                                           job_script ,
-                                           enkf_state_complete_forward_modelOK__ ,
-                                           enkf_state_complete_forward_modelRETRY__ ,
-                                           enkf_state_complete_forward_modelEXIT__,
-                                           callback_arg ,
-                                           ecl_config_get_num_cpu( ecl_config ),
-                                           run_path ,
-                                           member_config_get_jobname( member_config ) ,
-                                           1,
-                                           (const char *[1]) { run_path } );
-
-      run_arg_set_queue_index( run_arg , queue_index );
-      run_arg_increase_submit_count( run_arg );
+  const int active_ens_size = util_int_min( bool_vector_size( iactive ) , enkf_main_get_ensemble_size( enkf_main ));
+  int iens;
+  for (iens = 0; iens < active_ens_size; iens++) {
+    if (bool_vector_iget(iactive , iens)) {
+      run_arg_type * run_arg = ert_init_context_iens_get_arg( init_context , iens);
+      enkf_main_icreate_run_path(enkf_main, run_arg);
     }
   }
+  return NULL;
+}
+
+void enkf_main_create_run_path(enkf_main_type * enkf_main , bool_vector_type * iactive , int iter) {
+  init_mode_type init_mode = INIT_CONDITIONAL;
+  ert_init_context_type * init_context = NULL;
+
+  enkf_main_init_internalization(enkf_main , init_mode);
+  {
+    stringlist_type * param_list = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
+    enkf_main_initialize_from_scratch(enkf_main ,
+				      enkf_main_get_fs( enkf_main ),
+				      param_list ,
+				      iactive,
+				      init_mode);
+    stringlist_free( param_list );
+  }
+
+  init_context = enkf_main_alloc_ert_init_context( enkf_main ,
+                                                   enkf_main_get_fs( enkf_main ),
+                                                   iactive ,
+                                                   init_mode ,
+                                                   iter );
+  enkf_main_create_run_path__( enkf_main , init_context, iactive );
+  ert_init_context_free( init_context );
 }
 
 
@@ -1502,25 +1535,23 @@ static bool enkf_main_run_step(enkf_main_type * enkf_main       ,
       bool restart_queue = true;
 
       /* Start the queue */
-      if (ert_run_context_get_mode( run_context ) != INIT_ONLY) {
-        if (site_config_has_job_script( enkf_main->site_config ))
-          job_queue_manager_start_queue( queue_manager , job_size , verbose_queue , restart_queue);
-        else
-          util_exit("No job script specified, can not start any jobs. Use the key JOB_SCRIPT in the config file\n");
-      }
+      if (site_config_has_job_script( enkf_main->site_config ))
+        job_queue_manager_start_queue( queue_manager , job_size , verbose_queue , restart_queue);
+      else
+        util_exit("No job script specified, can not start any jobs. Use the key JOB_SCRIPT in the config file\n");
+
 
       enkf_main_submit_jobs( enkf_main , run_context );
 
-      if (ert_run_context_get_mode(run_context) != INIT_ONLY) {
-        job_queue_submit_complete( job_queue );
-        ert_log_add_message( 1 , NULL , "All jobs submitted to internal queue - waiting for completion" ,  false);
 
-        int max_runtime = analysis_config_get_max_runtime(enkf_main_get_analysis_config( enkf_main ));
-        job_queue_set_max_job_duration(job_queue, max_runtime);
-        enkf_main_monitor_job_queue( enkf_main );
+      job_queue_submit_complete( job_queue );
+      ert_log_add_message( 1 , NULL , "All jobs submitted to internal queue - waiting for completion" ,  false);
 
-        job_queue_manager_wait( queue_manager );
-      }
+      int max_runtime = analysis_config_get_max_runtime(enkf_main_get_analysis_config( enkf_main ));
+      job_queue_set_max_job_duration(job_queue, max_runtime);
+      enkf_main_monitor_job_queue( enkf_main );
+
+      job_queue_manager_wait( queue_manager );
       job_queue_manager_free( queue_manager );
     }
 
@@ -1529,39 +1560,37 @@ static bool enkf_main_run_step(enkf_main_type * enkf_main       ,
        subset (with offset > 0) of realisations are simulated. */
 
     bool totalOK = true;
-    if (ert_run_context_get_mode( run_context ) != INIT_ONLY) {
-      for (iens = 0; iens < active_ens_size; iens++) {
-        if (bool_vector_iget(ert_run_context_get_iactive(run_context) , iens)) {
-          run_arg_type * run_arg = ert_run_context_iens_get_arg( run_context , iens );
-          run_status_type run_status = run_arg_get_run_status( run_arg );
+    for (iens = 0; iens < active_ens_size; iens++) {
+      if (bool_vector_iget(ert_run_context_get_iactive(run_context) , iens)) {
+        run_arg_type * run_arg = ert_run_context_iens_get_arg( run_context , iens );
+        run_status_type run_status = run_arg_get_run_status( run_arg );
 
-          switch (run_status) {
-          case JOB_RUN_FAILURE:
-            enkf_main_report_run_failure( enkf_main , run_arg );
-            bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
-            break;
-          case JOB_NOT_STARTED:
-            enkf_main_report_run_failure( enkf_main , run_arg );
-            bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
-            break;
-          case JOB_LOAD_FAILURE:
-            enkf_main_report_load_failure( enkf_main , run_arg );
-            bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
-            break;
-          case JOB_RUN_OK:
-            break;
-          default:
-            util_abort("%s: invalid job status:%d \n",__func__ , run_status );
-          }
-          totalOK = totalOK && ( run_status == JOB_RUN_OK );
+        switch (run_status) {
+        case JOB_RUN_FAILURE:
+          enkf_main_report_run_failure( enkf_main , run_arg );
+          bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
+          break;
+        case JOB_NOT_STARTED:
+          enkf_main_report_run_failure( enkf_main , run_arg );
+          bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
+          break;
+        case JOB_LOAD_FAILURE:
+          enkf_main_report_load_failure( enkf_main , run_arg );
+          bool_vector_iset(ert_run_context_get_iactive( run_context ), iens, false);
+          break;
+        case JOB_RUN_OK:
+          break;
+        default:
+          util_abort("%s: invalid job status:%d \n",__func__ , run_status );
         }
-
+        totalOK = totalOK && ( run_status == JOB_RUN_OK );
       }
-      enkf_fs_fsync( ert_run_context_get_result_fs( run_context ) );
-      if (totalOK)
-        ert_log_add_fmt_message( 1 , NULL , "All jobs complete and data loaded.");
-    } else
-      totalOK = false;
+
+    }
+    enkf_fs_fsync( ert_run_context_get_result_fs( run_context ) );
+    if (totalOK)
+      ert_log_add_fmt_message( 1 , NULL , "All jobs complete and data loaded.");
+
 
     return totalOK;
   }
@@ -1619,15 +1648,15 @@ void * enkf_main_get_enkf_config_node_type(const ensemble_config_type * ensemble
 */
 
 
-void enkf_main_init_run( enkf_main_type * enkf_main, const ert_run_context_type * run_context) {
+void enkf_main_init_run( enkf_main_type * enkf_main, const ert_run_context_type * run_context, init_mode_type init_mode) {
   enkf_main_init_internalization(enkf_main , ert_run_context_get_mode( run_context ));
   {
     stringlist_type * param_list = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
-    enkf_main_initialize_from_scratch_with_bool_vector(enkf_main , 
-						       ert_run_context_get_init_fs( run_context ),
-						       param_list , 
-						       ert_run_context_get_iactive( run_context ) , 
-						       ert_run_context_get_init_mode( run_context ));
+    enkf_main_initialize_from_scratch(enkf_main ,
+				      ert_run_context_get_init_fs( run_context ),
+				      param_list ,
+				      ert_run_context_get_iactive( run_context ),
+				      init_mode);
     stringlist_free( param_list );
   }
 }
@@ -1636,27 +1665,17 @@ void enkf_main_init_run( enkf_main_type * enkf_main, const ert_run_context_type 
 
 
 void enkf_main_run_exp(enkf_main_type * enkf_main ,
-                       bool_vector_type * iactive ,
-                       bool             simulate ) {
+                       bool_vector_type * iactive) {
 
   ert_run_context_type * run_context;
   init_mode_type init_mode = INIT_CONDITIONAL;
   int iter = 0;
 
-  if (simulate)
-    run_context = enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT(enkf_main ,
-                                                                      enkf_main_get_fs( enkf_main ) ,
-                                                                      iactive ,
-                                                                      init_mode ,
-                                                                      iter );
-  else
-    run_context = enkf_main_alloc_ert_run_context_INIT_ONLY( enkf_main ,
-                                                             enkf_main_get_fs( enkf_main ) ,
-                                                             iactive ,
-                                                             init_mode ,
-                                                             iter );
-
-  enkf_main_init_run( enkf_main , run_context );
+  run_context = enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT(enkf_main ,
+                                                                    enkf_main_get_fs( enkf_main ) ,
+                                                                    iactive ,
+                                                                    iter );
+  enkf_main_init_run( enkf_main , run_context , init_mode);
   if (enkf_main_run_step(enkf_main , run_context)) {
     hook_manager_type * hook_manager = enkf_main_get_hook_manager(enkf_main);
     hook_manager_run_workflows(hook_manager, POST_SIMULATION, enkf_main);
@@ -1673,9 +1692,8 @@ bool enkf_main_run_simple_step(enkf_main_type * enkf_main , bool_vector_type * i
   ert_run_context_type * run_context = enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT( enkf_main ,
                                                                                             enkf_main_get_fs( enkf_main ) ,
                                                                                             iactive ,
-                                                                                            init_mode ,
                                                                                             iter );
-  enkf_main_init_run( enkf_main , run_context );
+  enkf_main_init_run( enkf_main , run_context , init_mode);
   run_ok = enkf_main_run_step( enkf_main , run_context );
   ert_run_context_free( run_context );
 
@@ -1778,14 +1796,14 @@ void enkf_main_run_iterated_ES(enkf_main_type * enkf_main, int num_iterations_to
 
     if (!util_string_equal( initial_case_name , enkf_fs_get_case_name( current_case ))) {
       enkf_fs_type * initial_case = enkf_main_mount_alt_fs( enkf_main , initial_case_name , true);
-      enkf_main_init_case_from_existing(enkf_main, current_case, 0, ANALYZED, initial_case);
+      enkf_main_init_case_from_existing(enkf_main, current_case, 0, initial_case); // ANALYZED argument removed.
       enkf_main_set_fs( enkf_main , initial_case , NULL );
       enkf_fs_decref( initial_case );
     }
 
     { //Iteration 0
       ert_run_context_type * run_context = NULL;
-      enkf_main_init_run(enkf_main , run_context);
+      enkf_main_init_run(enkf_main , run_context , INIT_CONDITIONAL );
       enkf_main_run_simulation_and_postworkflow(enkf_main, run_context);
       ert_run_context_free( run_context );
     }
@@ -1810,7 +1828,7 @@ void enkf_main_run_iterated_ES(enkf_main_type * enkf_main, int num_iterations_to
         } else {
           fprintf(stderr, "\nAnalysis failed, rerunning simulation on changed initial parameters\n");
           enkf_fs_type * target_fs = enkf_main_mount_alt_fs( enkf_main , target_fs_name , false );
-          enkf_main_init_current_case_from_existing(enkf_main, target_fs, 0, ANALYZED);
+          enkf_main_init_current_case_from_existing(enkf_main, target_fs, 0); // ANALYZED argument removed
           enkf_fs_decref(target_fs);
           ++num_tries;
 
@@ -1829,13 +1847,12 @@ void enkf_main_run_iterated_ES(enkf_main_type * enkf_main, int num_iterations_to
 }
 
 
-ert_run_context_type * enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT(const enkf_main_type * enkf_main , enkf_fs_type * fs , const bool_vector_type * iactive , init_mode_type init_mode , int iter) {
-  return ert_run_context_alloc_ENSEMBLE_EXPERIMENT( fs , iactive , model_config_get_runpath_fmt( enkf_main->model_config ) , enkf_main->subst_list , init_mode , iter );
+ert_run_context_type * enkf_main_alloc_ert_run_context_ENSEMBLE_EXPERIMENT(const enkf_main_type * enkf_main , enkf_fs_type * fs , const bool_vector_type * iactive , int iter) {
+  return ert_run_context_alloc_ENSEMBLE_EXPERIMENT( fs , iactive , model_config_get_runpath_fmt( enkf_main->model_config ) , enkf_main->subst_list , iter );
 }
 
-
-ert_run_context_type * enkf_main_alloc_ert_run_context_INIT_ONLY(const enkf_main_type * enkf_main , enkf_fs_type * fs , const bool_vector_type * iactive , init_mode_type init_mode , int iter) {
-  return ert_run_context_alloc_INIT_ONLY( fs , iactive , model_config_get_runpath_fmt( enkf_main->model_config ) , enkf_main->subst_list , init_mode , iter );
+ert_init_context_type * enkf_main_alloc_ert_init_context(const enkf_main_type * enkf_main , enkf_fs_type * fs, const bool_vector_type * iactive , init_mode_type init_mode , int iter) {
+  return ert_init_context_alloc( fs, iactive , model_config_get_runpath_fmt( enkf_main->model_config ) , enkf_main->subst_list , init_mode , iter );
 }
 
 
@@ -3113,7 +3130,7 @@ void enkf_main_load_from_forward_model_with_fs(enkf_main_type * enkf_main, int i
   int result[ens_size];
   model_config_type * model_config = enkf_main->model_config;
 
-  ert_run_context_type * run_context = ert_run_context_alloc_ENSEMBLE_EXPERIMENT( fs , iactive , model_config_get_runpath_fmt( model_config ) , enkf_main->subst_list , INIT_NONE , iter );
+  ert_run_context_type * run_context = ert_run_context_alloc_ENSEMBLE_EXPERIMENT( fs , iactive , model_config_get_runpath_fmt( model_config ) , enkf_main->subst_list , iter );
   arg_pack_type ** arg_list = util_calloc( ens_size , sizeof * arg_list );
   thread_pool_type * tp     = thread_pool_alloc( 4 , true );  /* num_cpu - HARD coded. */
 
@@ -3189,11 +3206,10 @@ bool enkf_main_export_field(const enkf_main_type * enkf_main,
                             const char * path,
                             bool_vector_type * iactive,
                             field_file_format_type file_type,
-                            int report_step,
-                            state_enum state)
+                            int report_step)
 {
     enkf_fs_type * fs = enkf_main_get_fs(enkf_main);
-    bool result = enkf_main_export_field_with_fs(enkf_main, kw, path, iactive, file_type, report_step, state, fs);
+    bool result = enkf_main_export_field_with_fs(enkf_main, kw, path, iactive, file_type, report_step, fs);
     return result;
 }
 
@@ -3206,7 +3222,6 @@ bool enkf_main_export_field_with_fs(const enkf_main_type * enkf_main,
                             bool_vector_type * iactive,
                             field_file_format_type file_type,
                             int report_step,
-                            state_enum state,
                             enkf_fs_type * fs) {
 
   bool ret = false;
@@ -3240,7 +3255,7 @@ bool enkf_main_export_field_with_fs(const enkf_main_type * enkf_main,
     int iens;
     for (iens = 0; iens < bool_vector_size(iactive); ++iens) {
       if (bool_vector_iget(iactive, iens)) {
-        node_id_type node_id = {.report_step = report_step , .iens = iens , .state = state };
+        node_id_type node_id = {.report_step = report_step , .iens = iens };
         node = enkf_state_get_node(enkf_main->ensemble[iens] , kw);
         if (node) {
           if (enkf_node_try_load(node , fs , node_id)) {
@@ -3315,12 +3330,11 @@ void enkf_main_rank_on_data(enkf_main_type * enkf_main,
   ranking_table_type * ranking_table     = enkf_main_get_ranking_table( enkf_main );
   ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config( enkf_main );
   enkf_fs_type * fs                      = enkf_main_get_fs(enkf_main);
-  state_enum state                       = FORECAST;
   char * key_index;
 
   const enkf_config_node_type * config_node = ensemble_config_user_get_node( ensemble_config , data_key , &key_index);
   if (config_node) {
-    ranking_table_add_data_ranking( ranking_table , sort_increasing , ranking_key , data_key , key_index , fs , config_node, step , state );
+    ranking_table_add_data_ranking( ranking_table , sort_increasing , ranking_key , data_key , key_index , fs , config_node, step );
     ranking_table_display_ranking( ranking_table , ranking_key );
   } else {
     fprintf(stderr,"** No data found for key %s\n", data_key);

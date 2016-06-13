@@ -31,6 +31,9 @@ class SimulationContext(object):
         member = self._ert.getRealisation(iens)
         runpath = ErtRunContext.createRunpath(iens , runpath_fmt, member.getDataKW( ))
         run_arg = RunArg.createEnsembleExperimentRunArg(target_fs, iens, runpath)
+
+        self._ert.createRunPath(run_arg)
+
         self._run_args[iens] = run_arg
         self._thread_pool.submitJob(ArgPack(self._ert, run_arg))
 

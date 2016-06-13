@@ -37,7 +37,6 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/WellSet.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Group.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 
 static Opm::TimeMapPtr createXDaysTimeMap(size_t numDays) {
     boost::gregorian::date startDate( 2010 , boost::gregorian::Jan , 1);
@@ -287,8 +286,7 @@ BOOST_AUTO_TEST_CASE(createDeckWithGEFAC) {
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
     std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10, 10, 10);
-    Opm::IOConfigPtr ioConfig;
-    Opm::Schedule schedule(parseContext , grid, deck, ioConfig);
+    Opm::Schedule schedule(parseContext , grid, deck );
 
     Opm::GroupConstPtr group1 = schedule.getGroup("PRODUC");
     BOOST_CHECK_EQUAL(group1->getGroupEfficiencyFactor(0), 0.85);
@@ -335,8 +333,7 @@ BOOST_AUTO_TEST_CASE(createDeckWithWGRUPCONandWCONPROD) {
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
     std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10, 10, 10);
-    Opm::IOConfigPtr ioConfig;
-    Opm::Schedule schedule(parseContext , grid, deck, ioConfig);
+    Opm::Schedule schedule(parseContext , grid, deck );
     Opm::WellConstPtr currentWell = schedule.getWell("B-37T2"); 
     const Opm::WellProductionProperties& wellProductionProperties = currentWell->getProductionProperties(0);
     BOOST_CHECK_EQUAL(wellProductionProperties.controlMode, Opm::WellProducer::ControlModeEnum::GRUP);

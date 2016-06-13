@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ECL_BOX_H__
-#define __ECL_BOX_H__
+#ifndef ERT_ECL_BOX_H
+#define ERT_ECL_BOX_H
 #ifdef __cplusplus
 extern "C" {
 #endif

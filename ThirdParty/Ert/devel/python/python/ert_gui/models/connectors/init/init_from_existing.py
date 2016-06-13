@@ -1,4 +1,3 @@
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 from ert.util import StringList, BoolVector
 from ert_gui.models import ErtConnector
 from ert_gui.models.connectors.ensemble_resizer import EnsembleSizeModel
@@ -20,16 +19,13 @@ class InitializeFromExistingCaseModel(ErtConnector, ButtonModelMixin):
     def buttonTriggered(self):
         source_case = InitializedCaseSelectorModel().getCurrentChoice()
         source_report_step = HistoryLengthModel().getSpinnerValue()
-        source_state = EnkfStateType.ANALYZED
         selected_members = InitializationMembersModel().getSelectedItems()
         total_member_count = EnsembleSizeModel().getSpinnerValue()
 
         member_mask = BoolVector.createFromList(total_member_count, selected_members)
         selected_parameters = StringList((InitializationParametersModel()).getSelectedItems())
 
-        # print("%s %d %d %s %s" % (source_case, source_report_step, int(source_state), str(selected_members), str(selected_parameters)))
-
-        self.ert().getEnkfFsManager().customInitializeCurrentFromExistingCase(source_case, source_report_step, source_state, member_mask, selected_parameters)
+        self.ert().getEnkfFsManager().customInitializeCurrentFromExistingCase(source_case, source_report_step, member_mask, selected_parameters)
 
         self.observable().notify(ButtonModelMixin.BUTTON_TRIGGERED_EVENT)
 

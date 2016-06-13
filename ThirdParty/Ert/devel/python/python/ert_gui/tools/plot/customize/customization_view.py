@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QWidget, QFormLayout, QSpacerItem, QCheckBox
+from PyQt4.QtGui import QWidget, QFormLayout, QSpacerItem, QCheckBox, QHBoxLayout, QSpinBox
 
 from ert_gui.tools.plot import StyleChooser
 from ert_gui.plottery import PlotConfig
@@ -52,6 +52,30 @@ class CustomizationView(QWidget):
 
         self.updateProperty(attribute_name, getter, setter)
 
+    def addSpinBox(self, attribute_name, title, tool_tip=None, min_value=1, max_value=10, single_step=1):
+        sb = QSpinBox()
+        self[attribute_name] = sb
+        sb.setMaximumHeight(25)
+        sb_layout = QHBoxLayout()
+        sb_layout.addWidget(sb)
+        sb_layout.addStretch()
+        self.addRow(title, sb_layout)
+
+        if tool_tip is not None:
+            sb.setToolTip(tool_tip)
+
+        sb.setMinimum(min_value)
+        sb.setMaximum(max_value)
+        sb.setSingleStep(single_step)
+
+        def getter(self):
+            return self[attribute_name].value()
+
+        def setter(self, value):
+            self[attribute_name].setValue(value)
+
+        self.updateProperty(attribute_name, getter, setter)
+        return sb
 
     def addStyleChooser(self, attribute_name, title, tool_tip=None, area_supported=False):
         style_chooser = StyleChooser(area_supported=area_supported)
@@ -68,8 +92,6 @@ class CustomizationView(QWidget):
             self[attribute_name].setStyle(style)
 
         self.updateProperty(attribute_name, getter, setter)
-
-
 
     def updateProperty(self, attribute_name, getter, setter):
         setattr(self.__class__, attribute_name, property(getter, setter))

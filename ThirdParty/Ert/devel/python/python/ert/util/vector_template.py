@@ -46,17 +46,6 @@ from    types import IntType, SliceType
 from ert.cwrap import CFILE, BaseCClass
 from ert.util import UtilPrototype
 
-
-class PermutationVector(BaseCClass):
-    _free = UtilPrototype("void util_safe_free(permutation_vector)")
-
-    def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly!")
-    
-    def free(self):
-        self._free( )
-
-        
     
 
 class VectorTemplate(BaseCClass):
@@ -497,7 +486,6 @@ class VectorTemplate(BaseCClass):
         Reorders this vector based on the indexes in permutation_vector.
         @type permutation_vector: PermutationVector
         """
-        assert isinstance(permutation_vector, PermutationVector)
 
         self._permute( permutation_vector)
 

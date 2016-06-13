@@ -219,7 +219,9 @@ static const char* special_vars[] = {"NEWTON",
                                      "MAXDSO",
                                      "MAXDSG",
                                      "MAXDSW",
-                                     "STEPTYPE"};
+                                     "STEPTYPE",
+                                     "WNEWTON"};
+
 
 
 /*

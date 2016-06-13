@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __WORKFLOW_JOB_H__
-#define __WORKFLOW_JOB_H__
+#ifndef ERT_WORKFLOW_JOB_H
+#define ERT_WORKFLOW_JOB_H
 
 #ifdef __cplusplus
 extern "C" {

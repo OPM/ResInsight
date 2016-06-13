@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __ENKF_ANALYSIS_H__
-#define __ENKF_ANALYSIS_H__
+#ifndef ERT_ENKF_ANALYSIS_H
+#define ERT_ENKF_ANALYSIS_H
 
 #ifdef __cplusplus
 extern "C" {

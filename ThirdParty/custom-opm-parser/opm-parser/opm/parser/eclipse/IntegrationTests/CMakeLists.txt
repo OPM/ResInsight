@@ -26,6 +26,7 @@ if (HAVE_OPM_DATA)
                       ${OPM_DATA_ROOT}/spe3/SPE3CASE1.DATA
                       ${OPM_DATA_ROOT}/spe3/SPE3CASE2.DATA
                       ${OPM_DATA_ROOT}/spe9/SPE9_CP.DATA
+                      ${OPM_DATA_ROOT}/spe9/SPE9_CP_GROUP.DATA
                       ${OPM_DATA_ROOT}/spe9/SPE9.DATA
                       ${OPM_DATA_ROOT}/spe10model1/SPE10_MODEL1.DATA
                       ${OPM_DATA_ROOT}/spe10model2/SPE10_MODEL2.DATA )

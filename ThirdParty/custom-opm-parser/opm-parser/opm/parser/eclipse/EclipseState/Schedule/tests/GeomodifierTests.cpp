@@ -36,7 +36,6 @@
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Events.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 
 using namespace Opm;
 
@@ -66,11 +65,10 @@ BOOST_AUTO_TEST_CASE( CheckUnsoppertedInSCHEDULE ) {
 
     auto deck = parser.parseString( deckString , parseContext );
     std::shared_ptr<EclipseGrid> grid = std::make_shared<EclipseGrid>( deck );
-    std::shared_ptr<IOConfig> ioconfig = std::make_shared<IOConfig>();
 
     parseContext.update( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , InputError::IGNORE );
     {
-        Schedule schedule( parseContext , grid , deck , ioconfig );
+        Schedule schedule( parseContext , grid , deck );
         auto events = schedule.getEvents( );
         BOOST_CHECK_EQUAL( false , events.hasEvent( ScheduleEvents::GEO_MODIFIER , 1 ));
         BOOST_CHECK_EQUAL( true  , events.hasEvent( ScheduleEvents::GEO_MODIFIER , 2 ));

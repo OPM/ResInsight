@@ -42,51 +42,6 @@
 
 
 
-/**
-   This functions displays the user with a prompt, and reads 'A' or
-   'F' (lowercase OK), to check whether the user is interested in the
-   forecast or the analyzed state.
-*/
-
-
-state_enum enkf_tui_util_scanf_state(const char * prompt, int prompt_len, bool accept_both) {
-  char analyzed_string[64];
-  bool OK;
-  state_enum state;
-  do {
-    OK = true;
-    util_printf_prompt(prompt , prompt_len , '=' , "=> ");
-    //scanf("%s" , analyzed_string);
-    fgets(analyzed_string, prompt_len, stdin);
-    char *newline = strchr(analyzed_string,'\n');
-    if(newline)
-      *newline = 0;
-    //getchar(); /* Discards trailing <RETURN> from standard input buffer? */
-    if (strlen(analyzed_string) == 0){
-      OK = true;
-      state = UNDEFINED;
-    }
-    else if (strlen(analyzed_string) == 1) {
-      char c = toupper(analyzed_string[0]);
-      if (c == 'A')
-        state = ANALYZED;
-      else if (c == 'F')
-        state = FORECAST;
-      else {
-        if (accept_both) {
-          if (c == 'B') 
-            state = BOTH;
-          else
-            OK = false;
-        } else
-          OK = false;
-      }
-    } else
-      OK = false;
-  } while ( !OK );
-  return state;
-}
-
 
 
 /**
@@ -325,38 +280,21 @@ int enkf_tui_util_scanf_ijk(const field_config_type * config, int prompt_len) {
 */
    
 
-void enkf_tui_util_get_time(enkf_fs_type * fs , const enkf_config_node_type * config_node, enkf_node_type * node , state_enum analysis_state , int get_index , int step1 , int step2 , int iens , double * x , double * y ) {
+void enkf_tui_util_get_time(enkf_fs_type * fs , const enkf_config_node_type * config_node, enkf_node_type * node , int get_index , int step1 , int step2 , int iens , double * x , double * y ) {
   const char * key = enkf_config_node_get_key(config_node);
   int report_step;
   int index = 0;
   for (report_step = step1; report_step <= step2; report_step++) {
-    
-    if (analysis_state & FORECAST) {
-      node_id_type node_id = {.report_step = report_step , .iens = iens , .state = FORECAST };
-      if (enkf_node_try_load(node , fs , node_id)) {
-        const field_type * field = enkf_node_value_ptr( node );
-        y[index] = field_iget_double(field , get_index);
-      } else {
-        fprintf(stderr," ** Warning field:%s is missing for member,report: %d,%d \n",key  , iens , report_step);
-        y[index] = -1;
-      }
-      x[index] = report_step;
-      index++;
+    node_id_type node_id = {.report_step = report_step , .iens = iens };
+    if (enkf_node_try_load(node , fs , node_id)) {
+      const field_type * field = enkf_node_value_ptr( node );
+      y[index] = field_iget_double(field , get_index);
+    } else {
+      fprintf(stderr," ** Warning field:%s is missing for member,report: %d,%d \n",key  , iens , report_step);
+      y[index] = -1;
     }
-    
-    
-    if (analysis_state & ANALYZED) {
-      node_id_type node_id = {.report_step = report_step , .iens = iens , .state = ANALYZED };
-      if (enkf_node_try_load(node , fs , node_id)) {
-        const field_type * field = enkf_node_value_ptr( node );
-        y[index] = field_iget_double(field , get_index);
-      } else {
-        fprintf(stderr," ** Warning field:%s is missing for member,report: %d,%d \n",key , iens , report_step);
-        y[index] = -1;
-      }
-      x[index] = report_step;
-      index++;
-    }
+    x[index] = report_step;
+    index++;
   }
 }
 

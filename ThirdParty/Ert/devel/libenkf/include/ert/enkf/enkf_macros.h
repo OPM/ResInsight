@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_MACROS_H__
-#define __ENKF_MACROS_H__
+#ifndef ERT_ENKF_MACROS_H
+#define ERT_ENKF_MACROS_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -75,29 +75,29 @@ void * prefix ## _alloc__(const void *void_config) {                            
 /*****************************************************************/
 
 #define VOID_HAS_DATA(prefix) \
-  bool prefix ##_has_data__(const void * void_arg , int report_step , state_enum state) { \
+  bool prefix ##_has_data__(const void * void_arg , int report_step) { \
   const prefix ## _type * arg = prefix ## _safe_cast_const( void_arg ); \
-  return prefix ## _has_data(arg , report_step , state);                \
+  return prefix ## _has_data(arg , report_step);                \
 }
 
-#define VOID_HAS_DATA_HEADER(prefix) bool prefix ##_has_data__(const void *  , int , state_enum );
+#define VOID_HAS_DATA_HEADER(prefix) bool prefix ##_has_data__(const void *  , int);
 
 /*****************************************************************/
 #define VOID_WRITE_TO_BUFFER(prefix)                                        \
-  bool prefix ## _write_to_buffer__(const void * void_arg , buffer_type * buffer , int report_step , state_enum state) { \
+  bool prefix ## _write_to_buffer__(const void * void_arg , buffer_type * buffer , int report_step) { \
    const prefix ## _type * arg = prefix ## _safe_cast_const( void_arg ); \
-   return prefix ## _write_to_buffer(arg , buffer , report_step , state);     \
+   return prefix ## _write_to_buffer(arg , buffer , report_step);     \
 }
 
 
 #define VOID_READ_FROM_BUFFER(prefix)                                              \
-  void prefix ## _read_from_buffer__(void * void_arg , buffer_type * buffer , enkf_fs_type * fs, int report_step, state_enum state) { \
+  void prefix ## _read_from_buffer__(void * void_arg , buffer_type * buffer , enkf_fs_type * fs, int report_step) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                       \
-   prefix ## _read_from_buffer(arg , buffer , fs, report_step, state);            \
+   prefix ## _read_from_buffer(arg , buffer , fs, report_step);            \
 }
 
-#define VOID_WRITE_TO_BUFFER_HEADER(prefix) bool prefix ## _write_to_buffer__(const void * , buffer_type * , int , state_enum);
-#define VOID_READ_FROM_BUFFER_HEADER(prefix) void prefix ## _read_from_buffer__(void * , buffer_type * ,  enkf_fs_type * , int, state_enum);
+#define VOID_WRITE_TO_BUFFER_HEADER(prefix) bool prefix ## _write_to_buffer__(const void * , buffer_type * , int);
+#define VOID_READ_FROM_BUFFER_HEADER(prefix) void prefix ## _read_from_buffer__(void * , buffer_type * ,  enkf_fs_type * , int);
 
 #define VOID_FLOAD(prefix)                                                         \
 bool prefix ## _fload__(void * void_arg , const char * filename) {                 \
@@ -152,23 +152,23 @@ void prefix ## _free__(void * void_arg) {         \
 /*****************************************************************/
 
 #define VOID_USER_GET(prefix)                                                     \
-bool prefix ## _user_get__(void * void_arg , const char * key , int report_step , state_enum state , double * value) { \
+bool prefix ## _user_get__(void * void_arg , const char * key , int report_step , double * value) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                      \
-   return prefix ## _user_get(arg , key , report_step, state , value);   \
+   return prefix ## _user_get(arg , key , report_step, value);   \
 }
 
-#define VOID_USER_GET_HEADER(prefix) bool prefix ## _user_get__(void * , const char * , int, state_enum , double *);
+#define VOID_USER_GET_HEADER(prefix) bool prefix ## _user_get__(void * , const char * , int, double *);
 
 
 /*****************************************************************/
 
 #define VOID_USER_GET_VECTOR(prefix)                                                     \
-void prefix ## _user_get_vector__(void * void_arg , const char * key , state_enum state , double_vector_type * value) { \
+void prefix ## _user_get_vector__(void * void_arg , const char * key , double_vector_type * value) { \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                      \
-   prefix ## _user_get_vector(arg , key , state , value);   \
+   prefix ## _user_get_vector(arg , key , value);   \
 }
 
-#define VOID_USER_GET_VECTOR_HEADER(prefix) void prefix ## _user_get_vector__(void * , const char * , state_enum , double_vector_type *);
+#define VOID_USER_GET_VECTOR_HEADER(prefix) void prefix ## _user_get_vector__(void * , const char * , double_vector_type *);
 
 /*****************************************************************/
 

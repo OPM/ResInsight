@@ -129,14 +129,16 @@ BOOST_AUTO_TEST_CASE(parse_validRecord_noThrow) {
     ParserRecordPtr record = createSimpleParserRecord();
     ParseContext parseContext;
     RawRecord raw( string_view( "100 443" ) );
-    BOOST_CHECK_NO_THROW(record->parse(parseContext, raw ) );
+    MessageContainer msgContainer;
+    BOOST_CHECK_NO_THROW(record->parse(parseContext, msgContainer, raw ) );
 }
 
 BOOST_AUTO_TEST_CASE(parse_validRecord_deckRecordCreated) {
     ParserRecordPtr record = createSimpleParserRecord();
     RawRecord rawRecord( string_view( "100 443" ) );
     ParseContext parseContext;
-    const auto deckRecord = record->parse(parseContext , rawRecord);
+    MessageContainer msgContainer;
+    const auto deckRecord = record->parse(parseContext , msgContainer, rawRecord);
     BOOST_CHECK_EQUAL(2U, deckRecord.size());
 }
 
@@ -169,7 +171,8 @@ BOOST_AUTO_TEST_CASE(parse_validMixedRecord_noThrow) {
     ParserRecordPtr record = createMixedParserRecord();
     RawRecord rawRecord( string_view( "1 2 10.0 20.0 4 90.0") );
     ParseContext parseContext;
-    BOOST_CHECK_NO_THROW(record->parse(parseContext , rawRecord));
+    MessageContainer msgContainer;
+    BOOST_CHECK_NO_THROW(record->parse(parseContext , msgContainer, rawRecord));
 }
 
 BOOST_AUTO_TEST_CASE(Equal_Equal_ReturnsTrue) {
@@ -309,13 +312,15 @@ BOOST_AUTO_TEST_CASE(Parse_RawRecordTooManyItems_Throws) {
 
 
     RawRecord rawRecord(  "3 3 3 " );
-    BOOST_CHECK_NO_THROW(parserRecord->parse(parseContext , rawRecord));
+    MessageContainer msgContainer;
+
+    BOOST_CHECK_NO_THROW(parserRecord->parse(parseContext , msgContainer, rawRecord));
 
     RawRecord rawRecordOneExtra(  "3 3 3 4 " );
-    BOOST_CHECK_THROW(parserRecord->parse(parseContext , rawRecordOneExtra), std::invalid_argument);
+    BOOST_CHECK_THROW(parserRecord->parse(parseContext , msgContainer, rawRecordOneExtra), std::invalid_argument);
 
     RawRecord rawRecordForgotRecordTerminator(  "3 3 3 \n 4 4 4 " );
-    BOOST_CHECK_THROW(parserRecord->parse(parseContext , rawRecordForgotRecordTerminator), std::invalid_argument);
+    BOOST_CHECK_THROW(parserRecord->parse(parseContext , msgContainer, rawRecordForgotRecordTerminator), std::invalid_argument);
 
 }
 
@@ -334,8 +339,9 @@ BOOST_AUTO_TEST_CASE(Parse_RawRecordTooFewItems) {
     RawRecord rawRecord(  "3 3  " );
     // no default specified for the third item, record can be parsed just fine but trying
     // to access the data will raise an exception...
-    BOOST_CHECK_NO_THROW(parserRecord->parse(parseContext , rawRecord));
-    auto record = parserRecord->parse(parseContext , rawRecord);
+    MessageContainer msgContainer;
+    BOOST_CHECK_NO_THROW(parserRecord->parse(parseContext , msgContainer, rawRecord));
+    auto record = parserRecord->parse(parseContext , msgContainer, rawRecord);
     BOOST_CHECK_NO_THROW(record.getItem(2));
     BOOST_CHECK_THROW(record.getItem(2).get< int >(0), std::out_of_range);
 }

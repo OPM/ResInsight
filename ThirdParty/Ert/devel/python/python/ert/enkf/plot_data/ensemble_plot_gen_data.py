@@ -18,29 +18,27 @@ from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_fs import EnkfFs
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType
 from ert.util import BoolVector, DoubleVector
 
 
 class EnsemblePlotGenData(BaseCClass):
-    def __init__(self, ensemble_config_node, file_system, report_step, state=EnkfStateType.FORECAST, input_mask=None):
+    def __init__(self, ensemble_config_node, file_system, report_step, input_mask=None):
         assert isinstance(ensemble_config_node, EnkfConfigNode)
         assert ensemble_config_node.getImplementationType() == ErtImplType.GEN_DATA
 
         c_pointer = EnsemblePlotGenData.cNamespace().alloc(ensemble_config_node)
         super(EnsemblePlotGenData, self).__init__(c_pointer)
 
-        self.__load(file_system, report_step, state, input_mask)
+        self.__load(file_system, report_step, input_mask)
 
 
-    def __load(self, file_system, report_step, state=EnkfStateType.FORECAST, input_mask=None):
+    def __load(self, file_system, report_step, input_mask=None):
         assert isinstance(file_system, EnkfFs)
-        assert isinstance(state, EnkfStateType)
         if not input_mask is None:
             assert isinstance(input_mask, BoolVector)
 
-        EnsemblePlotGenData.cNamespace().load(self, file_system, report_step, state, input_mask)
+        EnsemblePlotGenData.cNamespace().load(self, file_system, report_step, input_mask)
 
     def __len__(self):
         """ @rtype: int """
@@ -79,7 +77,7 @@ EnsemblePlotGenData.cNamespace().free = cwrapper.prototype("void enkf_plot_genda
 EnsemblePlotGenData.cNamespace().alloc = cwrapper.prototype("c_void_p enkf_plot_gendata_alloc(enkf_config_node)")
 
 EnsemblePlotGenData.cNamespace().size = cwrapper.prototype("int enkf_plot_gendata_get_size(ensemble_plot_gen_data)")
-EnsemblePlotGenData.cNamespace().load = cwrapper.prototype("void enkf_plot_gendata_load(ensemble_plot_gen_data, enkf_fs, int, enkf_state_type_enum, bool_vector)")
+EnsemblePlotGenData.cNamespace().load = cwrapper.prototype("void enkf_plot_gendata_load(ensemble_plot_gen_data, enkf_fs, int, bool_vector)")
 EnsemblePlotGenData.cNamespace().get = cwrapper.prototype("ensemble_plot_gen_data_vector_ref enkf_plot_gendata_iget(ensemble_plot_gen_data, int)")
 
 EnsemblePlotGenData.cNamespace().min_values = cwrapper.prototype("double_vector_ref enkf_plot_gendata_get_min_values(ensemble_plot_gen_data)")

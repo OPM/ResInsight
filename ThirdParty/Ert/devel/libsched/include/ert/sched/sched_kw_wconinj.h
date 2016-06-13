@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_KW_WCONINJ_H__
-#define __SCHED_KW_WCONINJ_H__
+#ifndef ERT_SCHED_KW_WCONINJ_H
+#define ERT_SCHED_KW_WCONINJ_H
 
 
 #ifdef __cplusplus

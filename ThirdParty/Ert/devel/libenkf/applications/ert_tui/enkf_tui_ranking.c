@@ -119,7 +119,6 @@ static void enkf_tui_ranking_create_data__( void * arg , bool sort_increasing) {
   const char * prompt2      = "Report step of data [Blank: last step]";
   const char * ranking_name = "Name of new ranking";
 
-  state_enum state = FORECAST;
   char * user_key;
   
   util_printf_prompt(prompt1 , prompt_len , '=' , "=> ");
@@ -147,7 +146,7 @@ static void enkf_tui_ranking_create_data__( void * arg , bool sort_increasing) {
           util_printf_prompt(ranking_name , prompt_len , '=' , "=> ");
           char * ranking_key = util_alloc_stdin_line();
           if (ranking_key != NULL) {
-            ranking_table_add_data_ranking( ranking_table , sort_increasing , ranking_key , user_key , key_index , fs , config_node, step , state );
+            ranking_table_add_data_ranking( ranking_table , sort_increasing , ranking_key , user_key , key_index , fs , config_node, step );
             ranking_table_display_ranking( ranking_table , ranking_key );
           }
           util_safe_free( ranking_key );

@@ -21,6 +21,8 @@ include(CheckCSourceCompiles)
 
 cmake_push_check_state()
 
+set(SUPERLU_FOUND "FALSE")
+
 # find out the size of a pointer. this is required to only search for
 # libraries in the directories relevant for the architecture
 if (CMAKE_SIZEOF_VOID_P)

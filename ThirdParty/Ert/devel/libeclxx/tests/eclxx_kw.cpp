@@ -21,27 +21,70 @@
 #include <fstream>
 
 #include <ert/util/test_util.h>
-#include <ert/util/test_work_area.h>
+
 #include <ert/ecl/EclKW.hpp>
 #include <ert/ecl/FortIO.hpp>
 
+void test_kw_name() {
+    ERT::EclKW< int > kw1( "short", 1 );
+    ERT::EclKW< int > kw2( "verylong", 1 );
 
-void test_kw() {
-    ERT::EclKW<int> kw("XYZ" , 1000);
-    test_assert_size_t_equal( kw.size() , 1000 );
-
-    kw[0] = 1;
-    kw[10] = 77;
-
-    test_assert_int_equal( kw[0] , 1 );
-    test_assert_int_equal( kw[10] , 77 );
+    test_assert_string_equal( kw1.name(), "short" );
+    test_assert_string_equal( kw2.name(), "verylong" );
 }
 
+void test_kw_vector_assign() {
+    std::vector< int > vec = { 1, 2, 3, 4, 5 };
+    ERT::EclKW< int > kw( "XYZ", vec );
 
+    test_assert_size_t_equal( kw.size(), vec.size() );
 
+    for( size_t i = 0; i < kw.size(); ++i )
+        test_assert_int_equal( kw.at( i ), vec[ i ] );
+}
 
+void test_kw_vector_string() {
+    std::vector< const char* > vec = {
+        "short",
+        "sweet",
+        "padded  ",
+        "verylongkeyword"
+    };
 
+    ERT::EclKW< const char* > kw( "XYZ", vec );
+
+    test_assert_size_t_equal( kw.size(), vec.size() );
+
+    test_assert_string_equal( kw.at( 0 ), "short   " );
+    test_assert_string_equal( kw.at( 1 ), "sweet   " );
+    test_assert_string_equal( kw.at( 2 ), vec.at( 2 ) );
+    test_assert_string_equal( kw.at( 3 ), "verylong" );
+    test_assert_string_not_equal( kw.at( 2 ), "verylongkeyword" );
+}
+
+void test_move_semantics_no_crash() {
+    std::vector< int > vec = { 1, 2, 3, 4, 5 };
+    ERT::EclKW< int > kw1( "XYZ", vec );
+
+    ERT::EclKW< int > kw2( std::move( kw1 ) );
+    test_assert_true( kw1.get() == nullptr );
+}
+
+void test_exception_assing_ref_wrong_type() {
+    auto* ptr = ecl_kw_alloc( "XYZ", 1, ECL_INT_TYPE );
+
+    try {
+        ERT::EclKW< double > kw( ptr );
+        test_assert_true( false );
+    } catch (...) {
+        ERT::EclKW< int > kw( ptr );
+    }
+}
 
 int main (int argc, char **argv) {
-    test_kw();
+    test_kw_name();
+    test_kw_vector_assign();
+    test_kw_vector_string();
+    test_move_semantics_no_crash();
+    test_exception_assing_ref_wrong_type();
 }

@@ -49,11 +49,6 @@ namespace Opm {
     class Eclipse3DProperties
     {
     public:
-        enum EnabledTypes {
-            IntProperties = 0x01,
-            DoubleProperties = 0x02,
-            AllProperties = IntProperties | DoubleProperties
-        };
 
         Eclipse3DProperties(const Deck& deck,
                             const TableManager& tableManager,
@@ -61,6 +56,7 @@ namespace Opm {
 
 
         const GridProperty<int>& getRegion(const DeckItem& regionItem) const;
+        std::vector< int > getRegions( const std::string& keyword ) const;
         std::string getDefaultRegionKeyword() const;
 
         const GridProperty<int>&      getIntGridProperty     ( const std::string& keyword ) const;
@@ -68,35 +64,30 @@ namespace Opm {
 
         bool hasDeckIntGridProperty(const std::string& keyword) const;
         bool hasDeckDoubleGridProperty(const std::string& keyword) const;
-        bool supportsGridProperty(const std::string& keyword, int enabledTypes = AllProperties) const;
+        bool supportsGridProperty(const std::string& keyword) const;
         MessageContainer getMessageContainer();
 
     private:
         void processGridProperties(const Deck& deck,
-                                   const EclipseGrid& eclipseGrid,
-                                   int enabledTypes);
-
-        double getSIScaling(const std::string &dimensionString) const;
+                                   const EclipseGrid& eclipseGrid);
 
         void scanSection(const Section& section,
-                         const EclipseGrid& eclipseGrid,
-                         int enabledTypes);
+                         const EclipseGrid& eclipseGrid);
 
-        void handleADDKeyword(     const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes);
+        void handleADDKeyword(     const DeckKeyword& deckKeyword, BoxManager& boxManager);
         void handleBOXKeyword(     const DeckKeyword& deckKeyword, BoxManager& boxManager);
-        void handleCOPYKeyword(    const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes);
+        void handleCOPYKeyword(    const DeckKeyword& deckKeyword, BoxManager& boxManager);
         void handleENDBOXKeyword(  BoxManager& boxManager);
-        void handleEQUALSKeyword(  const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes);
-        void handleMULTIPLYKeyword(const DeckKeyword& deckKeyword, BoxManager& boxManager, int enabledTypes);
+        void handleEQUALSKeyword(  const DeckKeyword& deckKeyword, BoxManager& boxManager);
+        void handleMULTIPLYKeyword(const DeckKeyword& deckKeyword, BoxManager& boxManager);
 
-        void handleADDREGKeyword(  const DeckKeyword& deckKeyword, int enabledTypes);
-        void handleCOPYREGKeyword( const DeckKeyword& deckKeyword, int enabledTypes);
-        void handleEQUALREGKeyword(const DeckKeyword& deckKeyword, int enabledTypes);
-        void handleMULTIREGKeyword(const DeckKeyword& deckKeyword, int enabledTypes);
+        void handleADDREGKeyword(  const DeckKeyword& deckKeyword );
+        void handleCOPYREGKeyword( const DeckKeyword& deckKeyword );
+        void handleEQUALREGKeyword(const DeckKeyword& deckKeyword );
+        void handleMULTIREGKeyword(const DeckKeyword& deckKeyword );
 
         void loadGridPropertyFromDeckKeyword(const Box& inputBox,
-                                             const DeckKeyword& deckKeyword,
-                                             int enabledTypes);
+                                             const DeckKeyword& deckKeyword);
 
         void setKeywordBox(const DeckKeyword& deckKeyword, const DeckRecord&, BoxManager& boxManager);
 

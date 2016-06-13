@@ -235,3 +235,31 @@ BOOST_AUTO_TEST_CASE(PermxUnitAppliedCorrectly) {
                 BOOST_CHECK_CLOSE(4 * Opm::Metric::Permeability, permx.iget(i, j, 0), 0.0001);
         }
 }
+
+BOOST_AUTO_TEST_CASE(getRegions) {
+    const char* input =
+            "START             -- 0 \n"
+            "10 MAI 2007 / \n"
+            "RUNSPEC\n"
+            "\n"
+            "DIMENS\n"
+            " 2 2 1 /\n"
+            "GRID\n"
+            "DXV \n 2*400 /\n"
+            "DYV \n 2*400 /\n"
+            "DZV \n 1*400 /\n"
+            "REGIONS\n"
+            "FIPNUM\n"
+            "1 1 2 3 /\n";
+
+    auto deck = Opm::Parser().parseString(input, Opm::ParseContext());
+    Setup s( deck );
+
+    std::vector< int > ref = { 1, 2, 3 };
+    const auto regions = s.props.getRegions( "FIPNUM" );
+
+    BOOST_CHECK_EQUAL_COLLECTIONS( ref.begin(), ref.end(),
+                                   regions.begin(), regions.end() );
+
+    BOOST_CHECK( s.props.getRegions( "EQLNUM" ).empty() );
+}

@@ -16,21 +16,51 @@
 
 
 import ctypes
-from ert.cwrap import create_enum, CClass, CWrapper, CWrapperNameSpace
-
-from ert.job_queue import JOB_QUEUE_LIB, Job
-
-
-QueueDriverEnum = create_enum(JOB_QUEUE_LIB, "queue_driver_type_enum_iget", "QueueDriverEnum")
+from ert.cwrap import BaseCClass, BaseCEnum
+from ert.job_queue import JOB_QUEUE_LIB, QueuePrototype
+from ert.job_queue import Job
 
 
-class Driver(CClass):
+class QueueDriverEnum(BaseCEnum):
+    NULL_DRIVER = None
+    LSF_DRIVER = None
+    LOCAL_DRIVER = None
+    RSH_DRIVER = None
+    TORQUE_DRIVER = None
+
+QueueDriverEnum.addEnum( "NULL_DRIVER" , 0 )
+QueueDriverEnum.addEnum( "LSF_DRIVER" , 1 )
+QueueDriverEnum.addEnum( "LOCAL_DRIVER" , 2 )
+QueueDriverEnum.addEnum( "RSH_DRIVER" , 3 )
+QueueDriverEnum.addEnum( "TORQUE_DRIVER" , 4 )
+QueueDriverEnum.registerEnum(JOB_QUEUE_LIB, "queue_driver_enum")    
+
+
+LSF_DRIVER   = QueueDriverEnum.LSF_DRIVER
+RSH_DRIVER   = QueueDriverEnum.RSH_DRIVER
+LOCAL_DRIVER = QueueDriverEnum.LOCAL_DRIVER
+
+
+
+class Driver(BaseCClass):
+    TYPE_NAME = "driver"
+    _alloc = QueuePrototype("void* queue_driver_alloc( queue_driver_enum )" , bind = False)
+    _free = QueuePrototype("void queue_driver_free( driver )")
+    _set_option = QueuePrototype("void queue_driver_set_option( driver , char* , char*)")
+    _submit = QueuePrototype("void* queue_driver_submit_job( driver , char* , int , char* , char* , int , char**)")
+    _free_job = QueuePrototype("void   queue_driver_free_job( driver , job )")
+    _get_status = QueuePrototype("int queue_driver_get_status( driver , job)")
+    _kill_job = QueuePrototype("void queue_driver_kill_job( driver , job )")
+    _get_max_running = QueuePrototype("int queue_driver_get_max_running( driver )")
+    _set_max_running = QueuePrototype("void queue_driver_set_max_running( driver , int)")
+    _get_name = QueuePrototype("char* queue_driver_get_name( driver )")
+    
     def __init__( self, driver_type, max_running=1, options=None):
         """
         Creates a new driver instance
         """
-        c_ptr = cfunc.alloc_driver(driver_type)
-        self.init_cobj(c_ptr, cfunc.free_driver)
+        c_ptr = self._alloc( driver_type )
+        super(Driver , self).__init__(c_ptr)
         if options:
             for (key, value) in options:
                 self.set_option(key, value)
@@ -46,45 +76,51 @@ class Driver(CClass):
         recognized the method will return False. The supplied value
         should be a string.
         """
-        return cfunc.set_str_option(self, option, str(value))
+        return self._set_option(option, str(value))
 
+    
     def is_driver_instance( self ):
         return True
 
-
+    
     def submit( self, name, cmd, run_path, argList, num_cpu=1, blocking=False):
         argc = len(argList)
         argv = (ctypes.c_char_p * argc)()
         argv[:] = map(str, argList)
-        job_c_ptr = cfunc.submit(self, cmd, num_cpu, run_path, name, argc, argv)
-        job = Job(self, job_c_ptr, blocking)
+    
+        c_ptr = self._submit(cmd, num_cpu, run_path, name, argc, argv)
+        job = Job( c_ptr , self )
         if blocking:
             job.block()
             job = None
         return job
 
+
     def free_job( self, job ):
-        cfunc.free_job(self, job)
+        self._free_job(job)
 
     def get_status( self, job ):
-        status = cfunc.cget_status(self, job)
+        status = self._get_status(job)
         return status
 
     def kill_job( self, job ):
-        cfunc.ckill_job(self, job)
+        self._kill_job(job)
 
     def get_max_running( self ):
-        return cfunc.get_max_running(self)
+        return self._get_max_running( )
 
     def set_max_running( self, max_running ):
-        cfunc.set_max_running(self, max_running)
+        self._set_max_running(max_running)
 
     max_running = property(get_max_running, set_max_running)
 
     @property
     def name(self):
-        return cfunc.get_name(self)
+        return self._get_name(self)
 
+    def free(self):
+        self._free( )
+    
 
 class LSFDriver(Driver):
     def __init__(self,
@@ -120,30 +156,3 @@ class RSHDriver(Driver):
         Driver.__init__(self, QueueDriverEnum.RSH_DRIVER, max_running, options=options)
 
 
-#Legacy enum support for ecl_local.py
-LSF_DRIVER = QueueDriverEnum.LSF_DRIVER
-RSH_DRIVER = QueueDriverEnum.RSH_DRIVER
-LOCAL_DRIVER = QueueDriverEnum.LOCAL_DRIVER
-
-#################################################################
-cwrapper = CWrapper(JOB_QUEUE_LIB)
-cwrapper.registerType("driver", Driver)
-cwrapper.registerType("job", Job)
-
-cfunc = CWrapperNameSpace("driver")
-
-cfunc.alloc_driver_lsf = cwrapper.prototype("c_void_p    queue_driver_alloc_LSF( char* , char* , char* )")
-cfunc.alloc_driver_local = cwrapper.prototype("c_void_p    queue_driver_alloc_local( )")
-cfunc.alloc_driver_rsh = cwrapper.prototype("c_void_p    queue_driver_alloc_RSH( char* , c_void_p )")
-cfunc.alloc_driver = cwrapper.prototype("c_void_p    queue_driver_alloc( int )")
-cfunc.set_driver_option = cwrapper.prototype("void        queue_driver_set_option(driver , char* , char*)")
-
-cfunc.free_driver = cwrapper.prototype("void        queue_driver_free( driver )")
-cfunc.submit = cwrapper.prototype("c_void_p    queue_driver_submit_job( driver , char* , int , char* , char* , int , char**)")
-cfunc.free_job = cwrapper.prototype("void        queue_driver_free_job( driver , job )")
-cfunc.cget_status = cwrapper.prototype("int         queue_driver_get_status( driver , job)")
-cfunc.kill_job = cwrapper.prototype("void        queue_driver_kill_job( driver , job )")
-cfunc.set_max_running = cwrapper.prototype("void        queue_driver_set_max_running( driver , int )")
-cfunc.get_max_running = cwrapper.prototype("int         queue_driver_get_max_running( driver )")
-cfunc.set_str_option = cwrapper.prototype("bool        queue_driver_set_option( driver , char* , char*) ")
-cfunc.get_name = cwrapper.prototype("char*       queue_driver_get_name(driver)")

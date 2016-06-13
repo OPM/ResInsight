@@ -71,7 +71,7 @@ namespace Opm {
     class EclipseGrid {
     public:
         explicit EclipseGrid(const std::string& filename);
-        explicit EclipseGrid(const ecl_grid_type * src_ptr);
+        explicit EclipseGrid(const EclipseGrid& srcGrid);
         explicit EclipseGrid(size_t nx, size_t ny, size_t nz,
                              double dx = 1.0, double dy = 1.0, double dz = 1.0);
 
@@ -87,6 +87,7 @@ namespace Opm {
         size_t  getNX( ) const;
         size_t  getNY( ) const;
         size_t  getNZ( ) const;
+        std::array< int, 3 > getNXYZ() const;
         size_t  getCartesianSize( ) const;
         bool isPinchActive( ) const;
         double getPinchThresholdThickness( ) const;
@@ -97,6 +98,16 @@ namespace Opm {
         double getMinpvValue( ) const;
 
         bool hasCellInfo() const;
+
+        /// The activeIndex methods will return from (i,j,k) or g,
+        /// where g \in [0,nx*n*nz) to the corresponding active index
+        /// in the range [0,numActive). Observe that if the input
+        /// argument corresponds to a cell which is not active an
+        /// exception will be raised - check with cellActive() first
+        /// if that is a possibillity.
+        size_t activeIndex(size_t i, size_t j, size_t k) const;
+        size_t activeIndex(size_t globalIndex) const;
+
 
         size_t getGlobalIndex(size_t i, size_t j, size_t k) const;
         std::array<int, 3> getIJK(size_t globalIndex) const;

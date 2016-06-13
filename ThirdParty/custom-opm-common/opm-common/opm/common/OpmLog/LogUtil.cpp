@@ -49,22 +49,25 @@ namespace Log {
         std::string prefix;
         switch (messageType) {
         case MessageType::Debug:
-            prefix = "debug";
+            prefix = "Debug";
+            break;
+        case MessageType::Note:
+            prefix = "Note";
             break;
         case MessageType::Info:
-            prefix = "info";
+            prefix = "Info";
             break;
         case MessageType::Warning:
-            prefix = "warning";
+            prefix = "Warning";
             break;
         case MessageType::Error:
-            prefix = "error";
+            prefix = "Error";
             break;
         case MessageType::Problem:
-            prefix = "problem";
+            prefix = "Problem";
             break;
         case MessageType::Bug:
-            prefix = "bug";
+            prefix = "Bug";
             break;
         default:
             throw std::invalid_argument("Unhandled messagetype");
@@ -72,5 +75,24 @@ namespace Log {
 
         return prefix + ": " + message;
     }
+
+
+    std::string colorCodeMessage(int64_t messageType, const std::string& message) {
+        switch (messageType) {
+        case MessageType::Debug:
+        case MessageType::Note:
+        case MessageType::Info:
+            return message; // No color coding, not even the code for default color.
+        case MessageType::Warning:
+            return AnsiTerminalColors::blue_strong + message + AnsiTerminalColors::none;
+        case MessageType::Error:
+        case MessageType::Problem:
+        case MessageType::Bug:
+            return AnsiTerminalColors::red_strong + message + AnsiTerminalColors::none;
+        default:
+            throw std::invalid_argument("Unhandled messagetype");
+        }
+    }
+
 }
 }

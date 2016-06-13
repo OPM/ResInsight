@@ -17,8 +17,8 @@
    for more details. 
 */
 
-#ifndef  __ENKF_TUI_ANALYSIS_H__
-#define  __ENKF_TUI_ANALYSIS_H__
+#ifndef  ERT_ENKF_TUI_ANALYSIS_H
+#define  ERT_ENKF_TUI_ANALYSIS_H
 
 void enkf_tui_analysis_menu(void *);
 

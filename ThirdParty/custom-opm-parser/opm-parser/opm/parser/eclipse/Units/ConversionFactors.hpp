@@ -239,5 +239,4 @@ namespace Opm {
 
 }
 
-
 #endif

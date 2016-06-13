@@ -837,7 +837,6 @@ void obs_vector_iget_observations(const obs_vector_type * obs_vector, int report
 
 void obs_vector_measure(const obs_vector_type * obs_vector ,
                         enkf_fs_type * fs ,
-                        state_enum state ,
                         int report_step ,
                         const int_vector_type * ens_active_list ,
                         meas_data_type * meas_data ,
@@ -848,7 +847,6 @@ void obs_vector_measure(const obs_vector_type * obs_vector ,
     enkf_node_type * enkf_node = enkf_node_deep_alloc( obs_vector->config_node );
 
     node_id_type node_id = { .report_step = report_step ,
-                             .state       = state ,
                              .iens        = 0 };
 
     for (int active_iens_index =0; active_iens_index < int_vector_size( ens_active_list ); active_iens_index++) {
@@ -866,8 +864,7 @@ void obs_vector_measure(const obs_vector_type * obs_vector ,
 static bool obs_vector_has_data_at_report_step( const obs_vector_type * obs_vector , const bool_vector_type * active_mask , enkf_fs_type * fs, int report_step) {
   void * obs_node = vector_iget( obs_vector->nodes , report_step );
   if ( obs_node ) {
-    node_id_type node_id = {.state = FORECAST ,
-                            .report_step = report_step };
+    node_id_type node_id = {.report_step = report_step };
     for (int iens = 0; iens < bool_vector_size( active_mask ); iens++) {
       if (bool_vector_iget( active_mask , iens)) {
         node_id.iens = iens;
@@ -902,7 +899,7 @@ static bool obs_vector_has_vector_data( const obs_vector_type * obs_vector , con
   while (true) {
     const enkf_config_node_type * data_config = obs_vector->config_node;
     if (bool_vector_iget( active_mask , iens )) {
-      if (!enkf_config_node_has_vector(data_config , fs , iens , FORECAST)) {
+      if (!enkf_config_node_has_vector(data_config , fs , iens)) {
         has_data = false;
         break;
       }
@@ -999,13 +996,11 @@ void obs_vector_ensemble_chi2(const obs_vector_type * obs_vector ,
                               int step2 ,
                               int iens1 ,
                               int iens2 ,
-                              state_enum load_state ,
                               double ** chi2) {
 
   int step;
   enkf_node_type * enkf_node = enkf_node_alloc( obs_vector->config_node );
   node_id_type node_id;
-  node_id.state = load_state;
   for (step = step1; step <= step2; step++) {
     int iens;
     node_id.report_step = step;
@@ -1040,11 +1035,11 @@ void obs_vector_ensemble_chi2(const obs_vector_type * obs_vector ,
 */
 
 
-double obs_vector_total_chi2(const obs_vector_type * obs_vector , enkf_fs_type * fs , int iens, state_enum load_state) {
+double obs_vector_total_chi2(const obs_vector_type * obs_vector , enkf_fs_type * fs , int iens) {
   int report_step;
   double sum_chi2 = 0;
   enkf_node_type * enkf_node = enkf_node_deep_alloc( obs_vector->config_node );
-  node_id_type node_id = {.report_step = 0, .iens = iens , .state = load_state };
+  node_id_type node_id = {.report_step = 0, .iens = iens };
 
   for (report_step = 0; report_step < vector_get_size( obs_vector->nodes ); report_step++) {
     if (vector_iget(obs_vector->nodes , report_step) != NULL) {
@@ -1064,7 +1059,7 @@ double obs_vector_total_chi2(const obs_vector_type * obs_vector , enkf_fs_type *
    This function will sum up all timesteps of the obs_vector, for all ensemble members.
 */
 
-void obs_vector_ensemble_total_chi2(const obs_vector_type * obs_vector , enkf_fs_type * fs , int ens_size , state_enum load_state , double * sum_chi2) {
+void obs_vector_ensemble_total_chi2(const obs_vector_type * obs_vector , enkf_fs_type * fs , int ens_size , double * sum_chi2) {
   const bool verbose = true;
   msg_type * msg;
   int report_step;
@@ -1080,7 +1075,7 @@ void obs_vector_ensemble_total_chi2(const obs_vector_type * obs_vector , enkf_fs
   }
 
   {
-    node_id_type node_id = {.report_step = 0, .iens = iens , .state = load_state };
+    node_id_type node_id = {.report_step = 0, .iens = iens };
     enkf_node_type * enkf_node = enkf_node_alloc( obs_vector->config_node );
     for (report_step = 0; report_step < vector_get_size( obs_vector->nodes); report_step++) {
       if (verbose) {

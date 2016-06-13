@@ -48,8 +48,8 @@ size_t CounterLog::numMessages(int64_t messageType) const {
 
 
 
-void CounterLog::addMessage(int64_t messageType , const std::string& ) {
-    if (includeMessage( messageType ))
+void CounterLog::addTaggedMessage(int64_t messageType, const std::string& messageTag, const std::string& ) {
+    if (includeMessage( messageType, messageTag ))
         m_count[messageType]++;
 }
 

@@ -1,6 +1,5 @@
 from pandas import DataFrame
-from ert.enkf import ErtImplType, EnKFMain, EnkfFs, RealizationStateEnum, CustomKWConfig, EnkfNode, NodeId, \
-    EnkfStateType
+from ert.enkf import ErtImplType, EnKFMain, EnkfFs, RealizationStateEnum, CustomKWConfig, EnkfNode, NodeId
 from ert.enkf.key_manager import KeyManager
 
 
@@ -55,7 +54,7 @@ class CustomKWCollector(object):
             keys = custom_kw_keys[name]
 
             for realization_number in realizations:
-                node_id = NodeId(0, realization_number, EnkfStateType.FORECAST)
+                node_id = NodeId(0, realization_number)
                 if enkf_node.tryLoad(fs, node_id):
                     custom_kw = enkf_node.asCustomKW()
 

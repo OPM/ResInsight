@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __LOCAL_MINISTEP_H__
-#define __LOCAL_MINISTEP_H__
+#ifndef ERT_LOCAL_MINISTEP_H
+#define ERT_LOCAL_MINISTEP_H
 
 #ifdef __cplusplus
 extern "C" {

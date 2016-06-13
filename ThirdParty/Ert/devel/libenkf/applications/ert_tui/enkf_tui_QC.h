@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_TUI_QC_H__
-#define __ENKF_TUI_QC_H__
+#ifndef ERT_ENKF_TUI_QC_H
+#define ERT_ENKF_TUI_QC_H
 
 
 

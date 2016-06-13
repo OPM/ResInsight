@@ -5,7 +5,6 @@ set(PYTHON_SOURCES
     enkf_init_modes_enum.py
     enkf_obs_impl_type_enum.py
     enkf_run_enum.py
-    enkf_state_type_enum.py
     enkf_truncation_type.py
     enkf_var_type_enum.py
     ert_impl_type_enum.py

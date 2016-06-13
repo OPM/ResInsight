@@ -20,6 +20,7 @@
 #ifndef OPM_SUMMARY_CONFIG_HPP
 #define OPM_SUMMARY_CONFIG_HPP
 
+#include <array>
 #include <vector>
 
 #include <ert/ecl/Smspec.hpp>
@@ -27,14 +28,20 @@
 namespace Opm {
 
     class Deck;
+    class Eclipse3DProperties;
     class EclipseState;
     class ParserKeyword;
+    class Schedule;
 
     class SummaryConfig {
         public:
             typedef std::vector< ERT::smspec_node >::const_iterator const_iterator;
 
             SummaryConfig( const Deck&, const EclipseState& );
+            SummaryConfig( const Deck&, const Schedule&,
+                           const Eclipse3DProperties&, std::array< int, 3 > );
+            SummaryConfig( const Deck&, const Schedule&,
+                           const Eclipse3DProperties&, int, int, int );
 
             const_iterator begin() const;
             const_iterator end() const;

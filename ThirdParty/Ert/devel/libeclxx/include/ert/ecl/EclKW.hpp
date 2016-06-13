@@ -24,8 +24,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
-#include <iostream>
-
+#include <type_traits>
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_util.h>
@@ -35,60 +34,124 @@
 
 
 namespace ERT {
-    template <typename T>
-    class EclKW
-    {
-    public:
-        EclKW(const std::string& kw, int size_);
-        EclKW() { ; }
+    template< typename > struct ecl_type {};
 
-        static EclKW load(FortIO& fortio);
+    template<> struct ecl_type< float >
+    { static const ecl_type_enum type { ECL_FLOAT_TYPE }; };
+
+    template<> struct ecl_type< double >
+    { static const ecl_type_enum type { ECL_DOUBLE_TYPE }; };
+
+    template<> struct ecl_type< int >
+    { static const ecl_type_enum type { ECL_INT_TYPE }; };
+
+    template<> struct ecl_type< char* >
+    { static const ecl_type_enum type { ECL_CHAR_TYPE }; };
+
+    template<> struct ecl_type< const char* >
+    { static const ecl_type_enum type { ECL_CHAR_TYPE }; };
+
+    template <typename T>
+    class EclKW_ref {
+    public:
+        explicit EclKW_ref( ecl_kw_type* kw ) : m_kw( kw ) {
+            if( ecl_kw_get_type( kw ) != ecl_type< T >::type )
+                throw std::invalid_argument("Type error");
+        }
+
+        EclKW_ref() noexcept = default;
+
+        const char* name() const {
+            return ecl_kw_get_header( this->m_kw );
+        }
 
         size_t size() const {
-            return static_cast<size_t>( ecl_kw_get_size( m_kw.get() ));
+            return size_t( ecl_kw_get_size( this->m_kw ) );
         }
-
-        T& operator[](size_t index) {
-            return *( static_cast<T *>( ecl_kw_iget_ptr( m_kw.get() , index) ));
-        }
-
 
         void fwrite(FortIO& fortio) const {
-            ecl_kw_fwrite( m_kw.get() , fortio.get() );
+            ecl_kw_fwrite( this->m_kw , fortio.get() );
         }
 
-
-        void assignVector(const std::vector<T>& data) {
-            if (data.size() == size())
-                ecl_kw_set_memcpy_data( m_kw.get() , data.data() );
-            else
-                throw std::invalid_argument("Size error");
+        T at( size_t i ) const {
+            return *static_cast< T* >( ecl_kw_iget_ptr( this->m_kw, i ) );
         }
 
-        ecl_kw_type * getPointer() const {
-	    return m_kw.get();
-	}
-
-    private:
-        EclKW(ecl_kw_type * c_ptr) {
-            m_kw.reset( c_ptr );
+        const typename std::remove_pointer< T >::type* data() const {
+            using Tp = const typename std::remove_pointer< T >::type*;
+            return static_cast< Tp >( ecl_kw_get_ptr( this->m_kw ) );
         }
 
-
-        static EclKW checkedLoad(FortIO& fortio, ecl_type_enum expectedType) {
-            ecl_kw_type * c_ptr = ecl_kw_fread_alloc( fortio.get() );
-            if (c_ptr) {
-                if (ecl_kw_get_type( c_ptr ) == expectedType)
-                    return EclKW( c_ptr );
-                else
-                    throw std::invalid_argument("Type error");
-            } else
-                throw std::invalid_argument("fread kw failed - EOF?");
+        ecl_kw_type* get() const {
+            return this->m_kw;
         }
 
-
-        ert_unique_ptr<ecl_kw_type , ecl_kw_free> m_kw;
+    protected:
+        ecl_kw_type* m_kw = nullptr;
     };
+
+template<>
+inline const char* EclKW_ref< const char* >::at( size_t i ) const {
+    return ecl_kw_iget_char_ptr( this->m_kw, i );
+}
+
+template< typename T >
+class EclKW : public EclKW_ref< T > {
+    private:
+        using base = EclKW_ref< T >;
+
+    public:
+        using EclKW_ref< T >::EclKW_ref;
+
+        EclKW( const EclKW& ) = delete;
+        EclKW( EclKW&& rhs ) : base( rhs.m_kw ) {
+            rhs.m_kw = nullptr;
+        }
+
+        ~EclKW() {
+            if( this->m_kw ) ecl_kw_free( this->m_kw );
+        }
+
+        EclKW( const std::string& kw, int size_ ) :
+            base( ecl_kw_alloc( kw.c_str(), size_, ecl_type< T >::type ) )
+        {}
+
+        EclKW( const std::string& kw, const std::vector< T >& data ) :
+            EclKW( kw, data.size() )
+        {
+            ecl_kw_set_memcpy_data( this->m_kw, data.data() );
+        }
+
+        template< typename U >
+        EclKW( const std::string& kw, const std::vector< U >& data ) :
+            EclKW( kw, data.size() )
+        {
+            T* target = static_cast< T* >( ecl_kw_get_ptr( this->m_kw ) );
+
+            for( size_t i = 0; i < data.size(); ++i )
+                target[ i ] = T( data[ i ] );
+        }
+
+        static EclKW load( FortIO& fortio ) {
+            ecl_kw_type* c_ptr = ecl_kw_fread_alloc( fortio.get() );
+
+            if( !c_ptr )
+                throw std::invalid_argument("fread kw failed - EOF?");
+
+            return EclKW( c_ptr );
+        }
+};
+
+template<> inline
+EclKW< const char* >::EclKW( const std::string& kw,
+                             const std::vector< const char* >& data ) :
+    EclKW( kw, data.size() )
+{
+    auto* ptr = this->get();
+    for( size_t i = 0; i < data.size(); ++i )
+        ecl_kw_iset_string8( ptr, i, data[ i ] );
+}
+
 }
 
 #endif

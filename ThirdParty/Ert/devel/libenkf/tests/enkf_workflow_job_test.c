@@ -72,7 +72,7 @@ void test_init_case_job(ert_test_context_type * test_context, const char * job_n
   {
     const char * current_case = enkf_main_get_current_fs( enkf_main );
     test_assert_string_equal(current_case, "new_current_case");
-    test_assert_true(enkf_fs_has_node(enkf_main_get_fs(enkf_main), "PERMZ", PARAMETER, 0, 0, ANALYZED));
+    test_assert_true(enkf_fs_has_node(enkf_main_get_fs(enkf_main), "PERMZ", PARAMETER, 0, 0));  // This had state = ANALYZED; might be unfixable.
 
     enkf_fs_type * default_fs          = enkf_main_mount_alt_fs( enkf_main , "default" , true  );
     state_map_type * default_state_map = enkf_fs_get_state_map(default_fs);
@@ -90,7 +90,7 @@ void test_init_case_job(ert_test_context_type * test_context, const char * job_n
   {
     enkf_fs_type * fs = enkf_main_mount_alt_fs(enkf_main, "new_not_current_case", true);
     test_assert_not_NULL( fs );
-    test_assert_true( enkf_fs_has_node(fs, "PERMZ", PARAMETER, 0, 0, ANALYZED ));
+    test_assert_true( enkf_fs_has_node(fs, "PERMZ", PARAMETER, 0, 0));  // This had state = ANALYZED; might be unfixable.
 
     enkf_fs_type * default_fs          = enkf_main_mount_alt_fs( enkf_main , "default" , true );
     state_map_type * default_state_map = enkf_fs_get_state_map(default_fs);

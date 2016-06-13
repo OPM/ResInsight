@@ -40,25 +40,16 @@ using namespace Opm;
 
 BOOST_AUTO_TEST_CASE(noNNC)
 {
-    Opm::ParseContext parseContext;
-    const std::string filename = "testdata/integration_tests/NNC/noNNC.DATA";
-    Opm::ParserPtr parser(new Opm::Parser());
-    Opm::DeckConstPtr deck(parser->parseFile(filename, parseContext));
-    Opm::EclipseStateConstPtr eclipseState(new EclipseState(deck , parseContext));
-    auto eclGrid = eclipseState->getInputGrid();
-    Opm::NNC nnc(deck, eclGrid);
+    auto eclipseState = Parser::parse("testdata/integration_tests/NNC/noNNC.DATA");
+    const auto& nnc = eclipseState.getInputNNC();
+    BOOST_CHECK(!eclipseState.hasInputNNC());
     BOOST_CHECK(!nnc.hasNNC());
 }
 
 BOOST_AUTO_TEST_CASE(readDeck)
 {
-    Opm::ParseContext parseContext;
-    const std::string filename = "testdata/integration_tests/NNC/NNC.DATA";
-    Opm::ParserPtr parser(new Opm::Parser());
-    Opm::DeckConstPtr deck(parser->parseFile(filename, parseContext));
-    Opm::EclipseStateConstPtr eclipseState(new EclipseState(deck , parseContext));
-    auto eclGrid = eclipseState->getInputGrid();
-    Opm::NNC nnc(deck, eclGrid);
+    auto eclipseState = Parser::parse("testdata/integration_tests/NNC/NNC.DATA");
+    const auto& nnc = eclipseState.getInputNNC();
     BOOST_CHECK(nnc.hasNNC());
     const std::vector<NNCdata>& nncdata = nnc.nncdata();
 
@@ -75,17 +66,14 @@ BOOST_AUTO_TEST_CASE(readDeck)
 
 BOOST_AUTO_TEST_CASE(addNNCfromDeck)
 {
-    Opm::ParseContext parseContext;
-    const std::string filename = "testdata/integration_tests/NNC/NNC.DATA";
-    Opm::ParserPtr parser(new Opm::Parser());
-    Opm::DeckConstPtr deck(parser->parseFile(filename, parseContext));
-    Opm::EclipseStateConstPtr eclipseState(new EclipseState(deck , parseContext));
-    auto eclGrid = eclipseState->getInputGrid();
-    Opm::NNC nnc(deck, eclGrid);
+    auto eclipseState = Parser::parse("testdata/integration_tests/NNC/NNC.DATA");
+    auto nnc = eclipseState.getInputNNC();
+    BOOST_CHECK(nnc.hasNNC());
     const std::vector<NNCdata>& nncdata = nnc.nncdata();
 
+    BOOST_CHECK_EQUAL(nnc.numNNC(), 4);
     // test add NNC
-    nnc.addNNC(2,2,2.0);
+    nnc.addNNC(2, 2, 2.0);
     BOOST_CHECK_EQUAL(nnc.numNNC(), 5);
     BOOST_CHECK_EQUAL(nncdata[4].cell1, 2);
     BOOST_CHECK_EQUAL(nncdata[4].cell2, 2);

@@ -171,7 +171,7 @@ void summary_obs_measure(const summary_obs_type * obs, const summary_type * summ
   int active_size = active_list_get_active_size( __active_list , OBS_SIZE );
   if (active_size == 1) {
     meas_block_type * meas_block = meas_data_add_block( meas_data , obs->obs_key , node_id.report_step , active_size );
-    meas_block_iset( meas_block , node_id.iens , 0 , summary_get(summary, node_id.report_step , node_id.state));
+    meas_block_iset( meas_block , node_id.iens , 0 , summary_get(summary, node_id.report_step ));
   }
 }
 
@@ -180,7 +180,7 @@ void summary_obs_measure(const summary_obs_type * obs, const summary_type * summ
 double summary_obs_chi2(const summary_obs_type * obs,
                         const summary_type     * summary,
                         node_id_type node_id) {
-  double x = (summary_get(summary , node_id.report_step , node_id.state) - obs->value) / obs->std;
+  double x = (summary_get(summary , node_id.report_step) - obs->value) / obs->std;
   return x*x;
 }
 

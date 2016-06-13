@@ -88,7 +88,6 @@ void misfit_ensemble_initialize( misfit_ensemble_type * misfit_ensemble ,
   if (force_init || !misfit_ensemble->initialized) {
     misfit_ensemble_clear( misfit_ensemble );
 
-    state_enum cmp_state           = FORECAST;
     msg_type * msg                 = msg_alloc("Evaluating misfit for observation: " , false);
     double ** chi2_work            = __2d_malloc( history_length + 1 , ens_size );
     bool_vector_type * iens_valid  = bool_vector_alloc( ens_size , true );
@@ -113,7 +112,6 @@ void misfit_ensemble_initialize( misfit_ensemble_type * misfit_ensemble ,
                                 misfit_ensemble->history_length, 
                                 0 , 
                                 ens_size , 
-                                cmp_state , 
                                 chi2_work);
       
       /** 

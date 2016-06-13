@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __RUN_ARG_H__
-#define __RUN_ARG_H__
+#ifndef ERT_RUN_ARG_H
+#define ERT_RUN_ARG_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,9 +40,6 @@ UTIL_IS_INSTANCE_HEADER( run_arg );
   run_arg_type * run_arg_alloc_INIT_ONLY(enkf_fs_type * init_fs , int iens , int iter , const char * runpath);
   run_arg_type * run_arg_alloc_SMOOTHER_RUN(enkf_fs_type * simulate_fs , enkf_fs_type * update_target_fs , int iens , int iter , const char * runpath);
 
-  state_enum     run_arg_get_dynamic_init_state( const run_arg_type * run_arg );
-  state_enum     run_arg_get_parameter_init_state( const run_arg_type * run_arg );
-  int            run_arg_get_parameter_init_step( const run_arg_type * run_arg );
   int            run_arg_get_step1( const run_arg_type * run_arg );
   int            run_arg_get_step2( const run_arg_type * run_arg );
   run_mode_type  run_arg_get_run_mode( const run_arg_type * run_arg );

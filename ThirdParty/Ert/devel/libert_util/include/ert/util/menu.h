@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __MENU_H__
-#define __MENU_H__
+#ifndef ERT_MENU_H
+#define ERT_MENU_H
 
 typedef struct menu_struct menu_type;
 typedef struct menu_item_struct menu_item_type;

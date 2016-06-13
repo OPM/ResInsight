@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_TUI_SIMPLE_H__
-#define __ENKF_TUI_SIMPLE_H__
+#ifndef ERT_ENKF_TUI_SIMPLE_H
+#define ERT_ENKF_TUI_SIMPLE_H
 
 
 void enkf_tui_simple_menu(void * );

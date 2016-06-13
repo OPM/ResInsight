@@ -35,6 +35,7 @@ class Logger {
 public:
     Logger();
     void addMessage(int64_t messageType , const std::string& message) const;
+    void addTaggedMessage(int64_t messageType, const std::string& tag, const std::string& message) const;
 
     static bool enabledDefaultMessageType( int64_t messageType);
     bool enabledMessageType( int64_t messageType) const;
@@ -44,6 +45,7 @@ public:
     void addBackend(const std::string& name , std::shared_ptr<LogBackend> backend);
     bool hasBackend(const std::string& name);
     bool removeBackend(const std::string& name);
+    void removeAllBackends();
 
     template <class BackendType>
     std::shared_ptr<BackendType> getBackend(const std::string& name) const {

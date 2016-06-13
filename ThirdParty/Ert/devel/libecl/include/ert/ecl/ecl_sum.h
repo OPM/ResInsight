@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_SUM_H__
-#define __ECL_SUM_H__
+#ifndef ERT_ECL_SUM_H
+#define ERT_ECL_SUM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -206,7 +206,12 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   bool                  ecl_sum_report_step_compatible( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
   void                  ecl_sum_export_csv(const ecl_sum_type * ecl_sum , const char * filename  , const stringlist_type * var_list , const char * date_format , const char * sep);
 
-UTIL_IS_INSTANCE_HEADER( ecl_sum );
+
+  double_vector_type * ecl_sum_alloc_seconds_solution( const ecl_sum_type * ecl_sum , const char * gen_key , double cmp_value , bool rates_clamp_lower);
+  double_vector_type * ecl_sum_alloc_days_solution( const ecl_sum_type * ecl_sum , const char * gen_key , double cmp_value , bool rates_clamp_lower);
+  time_t_vector_type * ecl_sum_alloc_time_solution( const ecl_sum_type * ecl_sum , const char * gen_key , double cmp_value , bool rates_clamp_lower);
+
+  UTIL_IS_INSTANCE_HEADER( ecl_sum );
 
 #ifdef __cplusplus
 }
