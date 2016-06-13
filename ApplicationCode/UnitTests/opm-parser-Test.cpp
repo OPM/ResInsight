@@ -70,6 +70,7 @@ TEST(opm_parser_test, basicConstruction)
     }
 */
 
+/*
     ParseContext parseContext;
     parseContext.update(InputError::WARN);
 
@@ -79,6 +80,7 @@ TEST(opm_parser_test, basicConstruction)
     Opm::EclipseState es(deck, parseContext);
     auto ep = es.get3DProperties();
     auto grid = es.getInputGrid();
+*/
 
 
 /*
