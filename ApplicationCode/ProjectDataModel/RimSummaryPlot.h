@@ -30,6 +30,7 @@
 
 class RiuSummaryQwtPlot;
 class RimSummaryCurve;
+class RimSummaryCurveFilter;
 
 //==================================================================================================
 ///  
@@ -43,26 +44,29 @@ public:
     RimSummaryPlot();
     virtual ~RimSummaryPlot();
 
-    void                                        setDescription(const QString& description);
-    void                                        addCurve(RimSummaryCurve* curve);
-    void                                        loadDataAndUpdate();
-    void                                        handleViewerDeletion();
+    void                                            setDescription(const QString& description);
+    void                                            addCurve(RimSummaryCurve* curve);
+    void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
+    
+    void                                            loadDataAndUpdate();
+    void                                            handleViewerDeletion();
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                objectToggleField()    { return &m_showWindow; }
-    virtual caf::PdmFieldHandle*                userDescriptionField() { return &m_userName; }
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                setupBeforeSave() override;
+    virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
+    virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                                    setupBeforeSave() override;
 
 private:
-    void                                        updateViewerWidget();
-    void                                        detachAllCurves();
-    void                                        deletePlotWidget();
+    void                                            updateViewerWidget();
+    void                                            detachAllCurves();
+    void                                            deletePlotWidget();
 
-    caf::PdmField<bool>                         m_showWindow;
-    caf::PdmField<QString>                      m_userName;
-    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
+    caf::PdmField<bool>                             m_showWindow;
+    caf::PdmField<QString>                          m_userName;
+    caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
+    caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
 
-    QPointer<RiuSummaryQwtPlot>                  m_qwtPlot;
+    QPointer<RiuSummaryQwtPlot>                     m_qwtPlot;
 };

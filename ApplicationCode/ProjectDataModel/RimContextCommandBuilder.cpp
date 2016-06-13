@@ -270,6 +270,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicNewSummaryCurveFilterFeature";
+
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))

@@ -48,6 +48,8 @@ public:
     virtual ~RimSummaryCurveFilter();
 
     void loadDataAndUpdate() {}
+    void                            setParentQwtPlot(QwtPlot* plot);
+    void                            detachQwtCurve();
 
 private:
     RifReaderEclipseSummary*                summaryReader();

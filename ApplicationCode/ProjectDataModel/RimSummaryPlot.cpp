@@ -19,6 +19,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuSummaryQwtPlot.h"
@@ -44,8 +45,12 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
+    m_curveFilters.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_curves, "SummaryCurves", "",  "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +63,7 @@ RimSummaryPlot::~RimSummaryPlot()
     deletePlotWidget();
 
     m_curves.deleteAllChildObjects();
+    m_curveFilters.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +113,21 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
+{
+    if(curveFilter)
+    {
+        m_curveFilters.push_back(curveFilter);
+        if(m_qwtPlot)
+        {
+            curveFilter->setParentQwtPlot(m_qwtPlot);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_showWindow)
@@ -142,10 +163,13 @@ void RimSummaryPlot::loadDataAndUpdate()
 {
    updateViewerWidget();    
 
-    for (size_t i = 0; i < m_curves.size(); i++)
-    {
-        RimSummaryCurve* curve = m_curves[i];
+   for (RimSummaryCurveFilter* curveFilter: m_curveFilters)
+   {
+        curveFilter->loadDataAndUpdate();
+   }
 
+    for (RimSummaryCurve* curve : m_curves)
+    {
         curve->loadDataAndUpdate();
     }
  
@@ -170,15 +194,19 @@ void RimSummaryPlot::updateViewerWidget()
         if (!m_qwtPlot)
         {
             m_qwtPlot = new RiuSummaryQwtPlot(this, RiuMainWindow::instance());
-            for (size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
+
+            for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
             {
-                m_curves[cIdx]->setParentQwtPlot(m_qwtPlot);
+                curveFilter->setParentQwtPlot(m_qwtPlot);
             }
 
+            for(RimSummaryCurve* curve : m_curves)
+            {
+                curve->setParentQwtPlot(m_qwtPlot);
+            }
 
             RiuMainWindow::instance()->addViewer(m_qwtPlot, this->mdiWindowGeometry());
             RiuMainWindow::instance()->setActiveViewer(m_qwtPlot);
-
         }
 
         //updateViewerWidgetWindowTitle();
@@ -202,8 +230,13 @@ void RimSummaryPlot::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::detachAllCurves()
 {
-    for (size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx)
+    for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
     {
-        m_curves[cIdx]->detachQwtCurve();
+        curveFilter->detachQwtCurve();
+    }
+
+    for(RimSummaryCurve* curve : m_curves)
+    {
+        curve->detachQwtCurve();
     }
 }

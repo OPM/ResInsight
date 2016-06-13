@@ -276,6 +276,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     }
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 
@@ -304,5 +305,27 @@ RifReaderEclipseSummary* RimSummaryCurveFilter::summaryReader()
     if(!m_selectedSummaryCase->caseData()) return nullptr;
 
     return m_selectedSummaryCase()->caseData()->summaryReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::setParentQwtPlot(QwtPlot* plot)
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->setParentQwtPlot(plot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::detachQwtCurve()
+{
+    for(RimSummaryCurve* curve : m_curves)
+    {
+        curve->detachQwtCurve();
+    }
 }
 
