@@ -40,14 +40,12 @@ public:
     RimCase();
     virtual ~RimCase();
     
+    caf::PdmField<int>                          caseId;
     caf::PdmField<QString>                      caseUserDescription;
 
-    caf::PdmField<int>                          caseId;
     virtual std::vector<RimView*>               views() = 0;
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
-
-    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
 
     virtual QStringList                         timeStepStrings() = 0;
     virtual QString                             timeStepName(int frameIdx) = 0;
@@ -61,6 +59,7 @@ protected:
     static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
                                                              bool* foundFile, std::vector<QString>* searchedPaths);
 private:
+    virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 };
 
 

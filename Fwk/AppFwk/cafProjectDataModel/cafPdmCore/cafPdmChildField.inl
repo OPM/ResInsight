@@ -67,6 +67,8 @@ caf::PdmChildField<DataType*>::~PdmChildField()
 template<typename DataType >
 caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=(const DataTypePtr & fieldValue)
 {
+    assert(isInitializedByInitFieldMacro());
+
     if (m_fieldValue) m_fieldValue->removeAsParentField(this);
     m_fieldValue = fieldValue;
     if (m_fieldValue != NULL) m_fieldValue->setAsParentField(this);

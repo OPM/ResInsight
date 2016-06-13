@@ -49,8 +49,10 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 #include "RimTreeViewStateSerializer.h"
+#include "RimViewWindow.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimSummaryPlot.h"
 #include "RimWellPathImport.h"
 
 #include "RiuDragDrop.h"
@@ -59,6 +61,7 @@
 #include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
+#include "RiuSummaryQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
@@ -1216,16 +1219,21 @@ protected:
         QWidget* mainWidget = widget();
 
         RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(mainWidget);
+        RiuSummaryQwtPlot* summaryPlot = dynamic_cast<RiuSummaryQwtPlot*>(mainWidget);
         if (wellLogPlot)
         {
-            wellLogPlot->ownerPlotDefinition()->windowGeometry = RiuMainWindow::instance()->windowGeometryForWidget(this);
+            wellLogPlot->ownerPlotDefinition()->setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForWidget(this));
+        }
+        else if (summaryPlot)
+        {
+            summaryPlot->ownerPlotDefinition()->setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForWidget(this));
         }
         else
         {
             RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
             if (viewer)
             {
-                viewer->ownerReservoirView()->windowGeometry = RiuMainWindow::instance()->windowGeometryForWidget(this);
+                viewer->ownerReservoirView()->setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForWidget(this));
             }
         }
 
@@ -1236,7 +1244,7 @@ protected:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry)
+void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
     RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
@@ -1246,15 +1254,12 @@ void RiuMainWindow::addViewer(QWidget* viewer, const std::vector<int>& windowsGe
     QPoint subWindowPos(-1, -1);
     bool initialStateMaximized = false;
 
-    if (windowsGeometry.size() == 5)
+    if (windowsGeometry.isValid())
     {
-        subWindowPos = QPoint(windowsGeometry[0], windowsGeometry[1]);
-        subWindowSize = QSize(windowsGeometry[2], windowsGeometry[3]);
+        subWindowPos = QPoint(windowsGeometry.x, windowsGeometry.y);
+        subWindowSize = QSize(windowsGeometry.width, windowsGeometry.height);
 
-        if (windowsGeometry[4] > 0)
-        {
-            initialStateMaximized = true;
-        }
+        initialStateMaximized = windowsGeometry.isMaximized;
     }
     else
     {
@@ -2214,7 +2219,7 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
+RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
 {
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
@@ -2222,24 +2227,24 @@ std::vector<int> RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
         return windowGeometryForWidget(mdiWindow);
     }
 
-    std::vector<int> geo;
+    RimMdiWindowGeometry geo;
     return geo;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RiuMainWindow::windowGeometryForWidget(QWidget* widget)
+RimMdiWindowGeometry RiuMainWindow::windowGeometryForWidget(QWidget* widget)
 {
-    std::vector<int> geo;
+    RimMdiWindowGeometry geo;
 
     if (widget)
     {
-        geo.push_back(widget->pos().x());
-        geo.push_back(widget->pos().y());
-        geo.push_back(widget->size().width());
-        geo.push_back(widget->size().height());
-        geo.push_back(widget->isMaximized());
+        geo.x = widget->pos().x();
+        geo.y = widget->pos().y();
+        geo.width = widget->size().width();
+        geo.height = widget->size().height();
+        geo.isMaximized = widget->isMaximized();
     }
 
     return geo;

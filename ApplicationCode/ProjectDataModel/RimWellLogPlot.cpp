@@ -76,9 +76,6 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
-    windowGeometry.uiCapability()->setUiHidden(true);
-   
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
 }
@@ -109,7 +106,7 @@ void RimWellLogPlot::updateViewerWidget()
 
             recreateTrackPlots();
 
-            RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
+            RiuMainWindow::instance()->addViewer(m_viewer, this->mdiWindowGeometry());
             RiuMainWindow::instance()->setActiveViewer(m_viewer);
         }
 
@@ -119,7 +116,7 @@ void RimWellLogPlot::updateViewerWidget()
     {
         if (m_viewer)
         {
-            windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+            this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer));
 
             RiuMainWindow::instance()->removeViewer(m_viewer);
             detachAllCurves();
@@ -368,7 +365,7 @@ void RimWellLogPlot::setupBeforeSave()
 {
     if (m_viewer)
     {
-        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+        this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer));
     }
 }
 

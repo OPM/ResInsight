@@ -28,7 +28,7 @@
 class RimEclipseCaseCollection;
 class RimGeoMechModels;
 class RimWellPathCollection;
-
+class RimSummaryCaseCollection;
 //==================================================================================================
 ///  
 ///  
@@ -44,4 +44,5 @@ public:
     caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
     caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
     caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
+    caf::PdmChildField<RimSummaryCaseCollection*> summaryCaseCollection;
 };

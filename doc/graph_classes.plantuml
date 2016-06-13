@@ -1,0 +1,25 @@
+@startuml
+
+class RiuGraphWindow {
+    menu : QMenu
+	toolbars : QToolbar
+	graphLayoutWindow : QMainWindow
+	Center widget with graphs
+}
+note left: Main window with toolbars and control widgets
+
+class RimGraph {
+QWT widget contained in a dockwidget
+}
+
+QwtPlot <|-- RimGraph
+
+class RimCurve {
+Base class for curves to be rendered in a Graph
+Must notify Graph when data is changed
+}
+
+
+
+
+@enduml

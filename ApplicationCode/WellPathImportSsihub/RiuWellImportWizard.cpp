@@ -354,7 +354,7 @@ void RiuWellImportWizard::updateFieldsModel()
 
     if (QFile::exists(fileName))
     {
-        JsonReader jsonReader;
+        ResInsightInternalJson::JsonReader jsonReader;
         QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(fileName);
 
         QStringList regions;
@@ -581,7 +581,7 @@ void RiuWellImportWizard::parseWellsResponse(RimOilFieldEntry* oilFieldEntry)
 
     if (QFile::exists(oilFieldEntry->wellsFilePath))
     {
-        JsonReader jsonReader;
+        ResInsightInternalJson::JsonReader jsonReader;
         QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(oilFieldEntry->wellsFilePath);
 
         QMapIterator<QString, QVariant> it(jsonMap);

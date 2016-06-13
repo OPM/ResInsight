@@ -18,51 +18,51 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <string>
 #include <vector>
 
+#include "cvfObject.h"
+
+
 class QDateTime;
 
-// Taken from ecl_sum.h
-typedef struct ecl_sum_struct ecl_sum_type;
-
-// Taken from stringlist.h
-typedef struct stringlist_struct stringlist_type;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifReaderEclipseSummary
+class RifReaderEclipseSummary : public cvf::Object
 {
 public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary();
 
-    bool    open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
-    void    close();
+    bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
+    void                                         close();
 
-    std::vector<std::string> wellNames() const;
-    std::vector<std::string> wellGroupNames() const;
+    const std::vector<RifEclipseSummaryAddress>& allResultAddresses();
+    std::vector<time_t>                          timeSteps() const;
 
-    std::vector<std::string> wellVariableNames() const;
-    std::vector<std::string> variableNames() const;
-
-    std::vector<time_t> timeSteps() const;
-
-    bool    values(const std::string& variableName, std::vector<double>* values);
-
+    bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values);
 
     // TODO: Move this to a tools class with static members
-    static std::vector<QDateTime> fromTimeT(const std::vector<time_t>& timeSteps);
+    static std::vector<QDateTime>                fromTimeT(const std::vector<time_t>& timeSteps);
     
 private:
-    int     variableIndexFromVariableName(const std::string& variableName) const;
 
-    int     timeStepCount() const;
-
-    static void    populateVectorFromStringList(stringlist_type* stringList, std::vector<std::string>* strings);
+    int                                          timeStepCount() const;
+    int                                          indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
 
 private:
-    ecl_sum_type* ecl_sum;
+    // Taken from ecl_sum.h
+    typedef struct ecl_sum_struct    ecl_sum_type;
+    typedef struct ecl_smspec_struct ecl_smspec_type;
+
+    ecl_sum_type*               ecl_sum;
+    const ecl_smspec_type *     eclSmSpec;
+
+    std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
 };
+

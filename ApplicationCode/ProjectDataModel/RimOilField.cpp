@@ -23,6 +23,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimGeoMechModels.h"
+#include "RimSummaryCaseCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimOilField, "ResInsightOilField");
 //--------------------------------------------------------------------------------------------------
@@ -35,9 +36,11 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&analysisModels, "AnalysisModels", "Grid Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&summaryCaseCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
     
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
+    summaryCaseCollection = new RimSummaryCaseCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,5 +51,6 @@ RimOilField::~RimOilField(void)
     if (wellPathCollection()) delete wellPathCollection();
     if (geoMechModels()) delete geoMechModels();
     if (analysisModels()) delete analysisModels();
+    if (summaryCaseCollection()) delete summaryCaseCollection();
 }
 

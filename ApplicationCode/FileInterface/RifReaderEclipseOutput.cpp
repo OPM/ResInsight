@@ -32,10 +32,8 @@
 
 #include "cafProgressInfo.h"
 
-#include "ecl_grid.h"
-#include "well_state.h"
-#include "ecl_kw_magic.h"
-#include "ecl_nnc_export.h"
+#include "ert/ecl/ecl_nnc_export.h"
+#include "ert/ecl/ecl_kw_magic.h"
 
 #include <iostream>
 #include <map>

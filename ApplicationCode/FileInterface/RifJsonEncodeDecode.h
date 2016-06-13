@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 // Json parser based on code example found on:
 // http://stackoverflow.com/questions/4169988/easiest-way-to-parse-json-in-qt-4-7
 
@@ -33,6 +35,9 @@
 #endif
 
 class QScriptEngine;
+
+// Encapsulate the JSON code in a namespace to avoid issues with JSON classes used in opm-parser
+namespace ResInsightInternalJson {
 
 class JsonReader
 {
@@ -56,3 +61,6 @@ private:
     QMap<QString, QVariant> decodeInner(QScriptValue object);
     QList<QVariant> decodeInnerToList(QScriptValue arrayValue);
 };
+
+
+} // end ResInsightInternalJson

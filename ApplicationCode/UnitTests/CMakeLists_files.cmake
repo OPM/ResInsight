@@ -21,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper-Test.cpp
 ${CEE_CURRENT_LIST_DIR}ScalarMapper-Test.cpp
 ${CEE_CURRENT_LIST_DIR}WellPathAsciiFileReader-Test.cpp
+${CEE_CURRENT_LIST_DIR}opm-parser-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

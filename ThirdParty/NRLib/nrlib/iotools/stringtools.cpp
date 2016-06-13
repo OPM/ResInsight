@@ -27,7 +27,7 @@
 #include <string>
 #include <sstream>
 
-#define BOOST_FILESYSTEM_VERSION 2
+//#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 
 using namespace NRLib;
@@ -43,7 +43,7 @@ std::string
 NRLib::GetPath(const std::string& filename)
 {
   boost::filesystem::path path(filename);
-  return path.parent_path().file_string();
+  return path.parent_path().generic_string();
 }
 
 
@@ -51,7 +51,7 @@ std::string
 NRLib::GetExtension(const std::string& filename)
 {
   boost::filesystem::path path(filename);
-  return path.extension();
+  return path.extension().generic_string();
 }
 
 
@@ -59,7 +59,7 @@ std::string
 NRLib::RemovePath(const std::string& filename)
 {
   boost::filesystem::path path(filename);
-  return path.filename();
+  return path.filename().generic_string();
 }
 
 
@@ -69,7 +69,7 @@ NRLib::PrependDir(const std::string& prefix,
 {
   boost::filesystem::path path(prefix);
   path /= str;
-  return path.file_string();
+  return path.generic_string();
 }
 
 
@@ -79,7 +79,7 @@ NRLib::ReplaceExtension(const std::string& filename,
 {
   boost::filesystem::path file(filename);
   file.replace_extension(extension);
-  return file.file_string();
+  return file.generic_string();
 }
 
 std::string
@@ -94,7 +94,7 @@ std::string
 NRLib::GetStem(const std::string& filename)
 {
   boost::filesystem::path path(filename);
-  return path.stem();
+  return path.stem().generic_string();
 }
 
 

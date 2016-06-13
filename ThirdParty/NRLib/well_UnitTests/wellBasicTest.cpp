@@ -9,7 +9,9 @@
 //--------------------------------------------------------------------------------------------------
 TEST(WellBaseTest, ReadFromFile)
 {
-    std::string wellName = "C:/dev/projects/ResInsight/GitHub/NRWellProject/well_UnitTests/Bean_A.las";
+    //std::string wellName = "C:/dev/projects/ResInsight/GitHub/NRWellProject/well_UnitTests/Bean_A.las";
+
+    std::string wellName = "d:/Models/LAS Files/D-D' LAS Files/Bean/Bean_A.las";
 
     int wellFormat = NRLib::Well::LAS;
     NRLib::Well* well = NRLib::Well::ReadWell(wellName, wellFormat);

@@ -171,6 +171,8 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName)
 {
     int currentRowIndex = 0;
+    QWidget* previousTabOrderWidget = NULL;
+
     for (size_t i = 0; i < uiItems.size(); ++i)
     {
         if (uiItems[i]->isUiHidden(uiConfigName)) continue;
@@ -333,6 +335,10 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                         int colSpan = editorSpanBoth ? 2 : 1;
                         int colIndex = editorSpanBoth ? 0 : 1;
                         parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
+
+                        if (previousTabOrderWidget) QWidget::setTabOrder(previousTabOrderWidget, fieldEditorWidget);
+                        
+                        previousTabOrderWidget = fieldEditorWidget;
                     }
 
                 }

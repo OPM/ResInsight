@@ -210,7 +210,7 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileRe
 void RimWellPath::readJsonWellPathFile()
 {
     RigWellPath* wellPathGeom = new RigWellPath();
-    JsonReader jsonReader;
+    ResInsightInternalJson::JsonReader jsonReader;
     QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filepath);
 
     // General well info

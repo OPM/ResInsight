@@ -80,11 +80,11 @@ public: \
 
 #define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(EditorClassName) \
     QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(pdm_field_editor_registrate_, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(EditorClassName::uiEditorTypeName())
+    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(my##EditorClassName, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(EditorClassName::uiEditorTypeName())
 
 #define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(EditorClassName, TypeName) \
-    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(pdm_field_register_default_editor_, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(qStringTypeName(caf::PdmField<TypeName>)); \
-    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(pdm_Proxy_field_register_default_editor_, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(qStringTypeName(caf::PdmProxyValueField<TypeName>))
+    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(myField##EditorClassName, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(qStringTypeName(caf::PdmField<TypeName>)); \
+    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(myProxyField##EditorClassName, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(qStringTypeName(caf::PdmProxyValueField<TypeName>))
 
 class PdmUiGroup;
 class PdmUiFieldHandle;

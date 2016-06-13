@@ -64,33 +64,9 @@ RiuResultQwtPlot::~RiuResultQwtPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
-    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
-
-    std::vector<double> filteredTimeHistoryValues;
-    std::vector<QDateTime> filteredDateTimes;
-    std::vector< std::pair<size_t, size_t> > filteredIntervals;
-
-    {
-        std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-        RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues);
-
-        RigCurveDataTools::getValuesByIntervals(timeHistoryValues,  intervalsOfValidValues, &filteredTimeHistoryValues);
-        RigCurveDataTools::getValuesByIntervals(dateTimes,          intervalsOfValidValues, &filteredDateTimes);
-    
-        RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
-    }
-    
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
 
-    QPolygonF points;
-    for (size_t i = 0; i < filteredDateTimes.size(); i++)
-    {
-        double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
-        points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
-    }
-
-    plotCurve->setSamples(points);
-    plotCurve->setLineSegmentStartStopIndices(filteredIntervals);
+    plotCurve->setSamplesFromDateAndValues(dateTimes, timeHistoryValues);
     plotCurve->setTitle(curveName);
 
     plotCurve->setPen(QPen(QColor(curveColor.rByte(), curveColor.gByte(), curveColor.bByte())));

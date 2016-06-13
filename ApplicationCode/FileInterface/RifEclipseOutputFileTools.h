@@ -29,7 +29,7 @@
 #include <QDateTime>
 #include "RifReaderInterface.h"
 
-#include "ecl_util.h"
+#include "ert/ecl/ecl_util.h"
 
 typedef struct ecl_file_struct ecl_file_type;
 

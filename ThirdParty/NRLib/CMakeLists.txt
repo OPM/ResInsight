@@ -1,12 +1,20 @@
 cmake_minimum_required (VERSION 2.8)
 
+if (MSVC)
+  ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
+endif()
+
 project (NRLib)
+
+#add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
+#find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
 
 include_directories(
        ${CMAKE_CURRENT_SOURCE_DIR}
-       ${CMAKE_CURRENT_SOURCE_DIR}/boost
        ${CMAKE_CURRENT_SOURCE_DIR}/nrlib
        ${CMAKE_CURRENT_SOURCE_DIR}/nrlib/well
+       ${Boost_INCLUDE_DIRS}
+
 )
 
 file ( GLOB NRLIB_IOTOOLS_SRC
@@ -20,10 +28,7 @@ file ( GLOB NRLIB_WELL_SRC
 )
 
 add_library( ${PROJECT_NAME}
-       boost/filesystem/operations.cpp
-       boost/filesystem/path.cpp
-       boost/filesystem/portability.cpp
-       boost/system/error_code.cpp
+       STATIC
        ${NRLIB_IOTOOLS_SRC}
        ${NRLIB_WELL_SRC}
 )

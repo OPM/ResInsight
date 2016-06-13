@@ -165,15 +165,15 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         clampTimestep();
 
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }    
     else if (changedField == &m_wellPath)
     {
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }
     else if (changedField == &m_timeStep)
     {
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }
 
     if (changedField == &m_addCaseNameToCurveName ||
@@ -184,16 +184,15 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         this->uiCapability()->updateConnectedEditors();
         updateCurveName();
-        updatePlotTitle();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::updatePlotData()
+void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 {
-    RimWellLogCurve::updatePlotConfiguration();
+    RimWellLogCurve::updateCurvePresentation();
 
     if (isCurveVisible())
     {
@@ -292,11 +291,11 @@ void RimWellLogExtractionCurve::updatePlotData()
         m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        zoomAllOwnerTrackAndPlot();
+        zoomAllParentPlot();
 
         setLogScaleFromSelectedResult();
 
-        if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
+        if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
 }
 
@@ -403,8 +402,8 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     appearanceGroup->add(&m_pointSymbol);
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_autoName);
-    if (m_autoName)
+    appearanceGroup->add(&m_isUsingAutoName);
+    if (m_isUsingAutoName)
     {
         appearanceGroup->add(&m_addWellNameToCurveName);
         appearanceGroup->add(&m_addCaseNameToCurveName);
@@ -463,7 +462,7 @@ void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogExtractionCurve::createCurveName()
+QString RimWellLogExtractionCurve::createCurveAutoName()
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());

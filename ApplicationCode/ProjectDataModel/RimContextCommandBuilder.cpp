@@ -41,6 +41,9 @@
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryCurve.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellLogCurve.h"
@@ -77,6 +80,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     if (uiItems.size() == 0)
     {
         commandIds << "RicNewWellLogPlotFeature";
+        commandIds << "RicNewSummaryPlotFeature";
     }
     else if (uiItems.size() > 1)
     {
@@ -243,6 +247,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewWellLogPlotFeature";
         }
+        else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewSummaryPlotFeature";
+        }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
             commandIds << "RicNewWellLogPlotTrackFeature";
@@ -257,6 +265,15 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellLogCurve*>(uiItem))
         {
             commandIds << "RicExportToLasFileFeature";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem))
+        {
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimSummaryCurve*>(uiItem))
+        {
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))

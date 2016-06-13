@@ -23,6 +23,7 @@
 #include <time.h>
 #include <stdbool.h>
 
+/*
 #include <util.h>
 #include <int_vector.h>
 #include <ecl_file.h>
@@ -34,6 +35,7 @@
 #include <well_info.h>
 #include <well_conn.h>
 #include <well_ts.h>
+*/
 
 
 #include "gtest/gtest.h"
