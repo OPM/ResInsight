@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SSIZE_T_H__
-#define __SSIZE_T_H__
+#ifndef ERT_SSIZE_T_H
+#define ERT_SSIZE_T_H
 
 #ifdef _MSC_VER
 /* maximum number of bytes addressable */

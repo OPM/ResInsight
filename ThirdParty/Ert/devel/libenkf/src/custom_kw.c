@@ -102,12 +102,12 @@ bool custom_kw_forward_load(custom_kw_type * custom_kw, const char * ecl_file, c
   return custom_kw_fload(custom_kw, ecl_file);
 }
 
-bool custom_kw_write_to_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, int report_step, state_enum state) {
+bool custom_kw_write_to_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, int report_step) {
   stringlist_buffer_fwrite(custom_kw->data, buffer);
   return true;
 }
 
-void custom_kw_read_from_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
+void custom_kw_read_from_buffer(const custom_kw_type * custom_kw, buffer_type * buffer, enkf_fs_type * fs, int report_step) {
     stringlist_buffer_fread(custom_kw->data, buffer);
 }
 

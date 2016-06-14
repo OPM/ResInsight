@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ARG_PACK_H__
-#define __ARG_PACK_H__
+#ifndef ERT_ARG_PACK_H
+#define ERT_ARG_PACK_H
 #ifdef __cplusplus
 extern "C" {
 #endif

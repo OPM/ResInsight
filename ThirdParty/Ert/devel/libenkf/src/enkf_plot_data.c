@@ -114,7 +114,6 @@ int enkf_plot_data_get_size( const enkf_plot_data_type * plot_data ) {
 void enkf_plot_data_load( enkf_plot_data_type * plot_data ,
                           enkf_fs_type * fs ,
                           const char * index_key ,
-                          state_enum state ,
                           const bool_vector_type * input_mask) {
   state_map_type * state_map = enkf_fs_get_state_map( fs );
   int ens_size = state_map_get_size( state_map );
@@ -139,7 +138,6 @@ void enkf_plot_data_load( enkf_plot_data_type * plot_data ,
         arg_pack_append_ptr( work_arg , vector );
         arg_pack_append_ptr( work_arg , fs );
         arg_pack_append_const_ptr( work_arg , index_key );
-        arg_pack_append_int( work_arg , state );
 
         thread_pool_add_job( tp , enkf_plot_tvector_load__ , work_arg );
       }

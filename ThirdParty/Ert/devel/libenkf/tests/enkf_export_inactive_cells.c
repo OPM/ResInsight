@@ -1,19 +1,19 @@
 /*
    Copyright (C) 2014  Statoil ASA, Norway.
-    
+
    The file 'enkf_export_inactive_cells.c' is part of ERT - Ensemble based Reservoir Tool.
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -124,7 +124,7 @@ void forward_initialize_node(enkf_main_type * enkf_main, const char * init_file,
     bool_vector_type * iactive = bool_vector_alloc(0, false);
     bool_vector_iset( iactive , ens_size - 1 , true );
 
-    enkf_main_run_exp(enkf_main , iactive , false);
+    enkf_main_create_run_path(enkf_main , iactive , 0);
     bool_vector_free(iactive);
   }
 
@@ -160,7 +160,7 @@ int main(int argc , char ** argv) {
 
   {
     forward_initialize_node(enkf_main, init_file, field_node);
-    node_id_type node_id = {.report_step = 0 , .iens = iens , .state = BOTH };
+    node_id_type node_id = {.report_step = 0 , .iens = iens };
     test_assert_true(enkf_node_try_load(field_node , fs , node_id));
     field_scale(field, 3.0);
   }

@@ -18,30 +18,28 @@ from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_fs import EnkfFs
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType
 from ert.util import BoolVector
 from ert.enkf.plot_data import EnsemblePlotGenKWVector
 
 
 class EnsemblePlotGenKW(BaseCClass):
-    def __init__(self, ensemble_config_node, file_system, state=EnkfStateType.FORECAST, input_mask=None):
+    def __init__(self, ensemble_config_node, file_system, input_mask=None):
         assert isinstance(ensemble_config_node, EnkfConfigNode)
         assert ensemble_config_node.getImplementationType() == ErtImplType.GEN_KW
 
         c_pointer = EnsemblePlotGenKW.cNamespace().alloc(ensemble_config_node)
         super(EnsemblePlotGenKW, self).__init__(c_pointer)
 
-        self.__load(file_system, state, input_mask)
+        self.__load(file_system, input_mask)
 
 
-    def __load(self, file_system, state=EnkfStateType.FORECAST, input_mask=None):
+    def __load(self, file_system, input_mask=None):
         assert isinstance(file_system, EnkfFs)
-        assert isinstance(state, EnkfStateType)
         if not input_mask is None:
             assert isinstance(input_mask, BoolVector)
 
-        EnsemblePlotGenKW.cNamespace().load(self, file_system, True, 0, state, input_mask)
+        EnsemblePlotGenKW.cNamespace().load(self, file_system, True, 0, input_mask)
 
     def __len__(self):
         """ @rtype: int """
@@ -91,7 +89,7 @@ EnsemblePlotGenKW.cNamespace().free = cwrapper.prototype("void enkf_plot_gen_kw_
 EnsemblePlotGenKW.cNamespace().alloc = cwrapper.prototype("c_void_p enkf_plot_gen_kw_alloc(enkf_config_node)")
 
 EnsemblePlotGenKW.cNamespace().size = cwrapper.prototype("int enkf_plot_gen_kw_get_size(ensemble_plot_gen_kw)")
-EnsemblePlotGenKW.cNamespace().load = cwrapper.prototype("void enkf_plot_gen_kw_load(ensemble_plot_gen_kw, enkf_fs, bool, int, enkf_state_type_enum, bool_vector)")
+EnsemblePlotGenKW.cNamespace().load = cwrapper.prototype("void enkf_plot_gen_kw_load(ensemble_plot_gen_kw, enkf_fs, bool, int, bool_vector)")
 EnsemblePlotGenKW.cNamespace().get = cwrapper.prototype("ensemble_plot_gen_kw_vector_ref enkf_plot_gen_kw_iget(ensemble_plot_gen_kw, int)")
 EnsemblePlotGenKW.cNamespace().iget_key = cwrapper.prototype("char* enkf_plot_gen_kw_iget_key(ensemble_plot_gen_kw, int)")
 EnsemblePlotGenKW.cNamespace().get_keyword_count = cwrapper.prototype("int enkf_plot_gen_kw_get_keyword_count(ensemble_plot_gen_kw)")

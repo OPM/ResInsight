@@ -19,107 +19,35 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmFieldCvfColor.h"    
-#include "cafPdmObject.h"
-
+#include "RimPlotCurve.h"
 #include "RigWellLogCurveData.h"
 
-#include <QPointer>
-
-#include <vector>
-
 class RigWellLogCurveData;
-class RiuWellLogTrack;
-class RiuLineSegmentQwtPlotCurve;
-
-class QwtPlotCurve;
-
-class QString;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellLogCurve : public caf::PdmObject
+class RimWellLogCurve : public RimPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 public:
-    enum LineStyleEnum
-    {
-        STYLE_NONE,
-        STYLE_SOLID,
-        STYLE_DASH,
-        STYLE_DOT,
-        STYLE_DASH_DOT
-    };
-
-    enum PointSymbolEnum
-    {
-        SYMBOL_NONE,
-        SYMBOL_ELLIPSE,
-        SYMBOL_RECT,
-        SYMBOL_DIAMOND,
-        SYMBOL_TRIANGLE,
-        SYMBOL_CROSS,
-        SYMBOL_XCROSS
-    };
-
+   
 public:
     RimWellLogCurve();
     virtual ~RimWellLogCurve();
 
-    void                            setColor(const cvf::Color3f& color);
-
     bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
     bool                            valueRange(double* minimumValue, double* maximumValue) const;
     
-    void                            setQwtTrack(RiuWellLogTrack* plot);
-    void                            detachQwtCurve();
-
-    bool                            isCurveVisible() const;
-
-    QwtPlotCurve*                   plotCurve() const;
     const RigWellLogCurveData*      curveData() const;
     
-    QString                         name() const { return m_curveName; }
-    void                            updateCurveName();
-    void                            updatePlotTitle();
-
     virtual QString                 wellName() const = 0;
     virtual QString                 wellLogChannelName() const = 0;
     virtual QString                 wellDate() const  { return ""; };
-    virtual void                    updatePlotData() = 0;
 
 protected:
-    virtual QString                 createCurveName() = 0;
+    virtual void                    zoomAllParentPlot();
 
-    void                            updatePlotConfiguration();
-    void                            updateCurveVisibility();
-    void                            zoomAllOwnerTrackAndPlot();
-    void                            updateOptionSensitivity();
-    void                            updateCurveAppearance();
-
-    // Overridden PDM methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
-    virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual void                    initAfterRead();
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-
-
-    QPointer<RiuWellLogTrack>       m_ownerQwtTrack;
-    RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
     cvf::ref<RigWellLogCurveData>   m_curveData;
-
-    caf::PdmField<bool>             m_showCurve;
-    caf::PdmField<QString>          m_curveName;
-    caf::PdmField<QString>          m_customCurveName;
-
-    caf::PdmField<bool>             m_autoName;
-    caf::PdmField<cvf::Color3f>     m_curveColor;
-    caf::PdmField<float>            m_curveThickness;
-
-    caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
-    caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
 };

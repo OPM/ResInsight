@@ -8,8 +8,8 @@
     
 */
 
-#ifndef __ENKF_DEFAULT__
-#define __ENKF_DEFAULT__
+#ifndef ERT_ENKF_DEFAULT
+#define ERT_ENKF_DEFAULT
 #include <stdbool.h>
 
 #define DEFAULT_RUNPATH_KEY  "DEFAULT_RUNPATH"
@@ -179,7 +179,7 @@
 
 
 /* The magic string used to signal that *ALL* static keywords should be included. */
-#define DEFAULT_ALL_STATIC_KW "__ALL__"
+#define DEFAULT_ALL_STATIC_KW "ERT_ALL"
 #define NUM_STATIC_KW          56
 
 /* 

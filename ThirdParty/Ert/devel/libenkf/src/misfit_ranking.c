@@ -27,6 +27,7 @@
 #include <ert/util/type_macros.h>
 #include <ert/util/msg.h>
 #include <ert/util/buffer.h>
+#include <ert/util/perm_vector.h>
 
 #include <ert/enkf/enkf_obs.h>
 #include <ert/enkf/enkf_fs.h>
@@ -48,7 +49,7 @@ struct misfit_ranking_struct {
   UTIL_TYPE_ID_DECLARATION;
   vector_type        * ensemble;             /* An ensemble of hash instances. Each hash instance is populated like this: hash_insert_double(hash , "WGOR" , 1.09); */
   double_vector_type * total;                /* An enemble of total misfit values (for this misfit_ranking). */
-  int                * sort_permutation;     /* This is how the ens members should be permuted to be sorted under this misfit_ranking.                                     */
+  perm_vector_type   * sort_permutation;     /* This is how the ens members should be permuted to be sorted under this misfit_ranking.                                     */
   int                  ens_size;
 };
 
@@ -56,8 +57,8 @@ UTIL_SAFE_CAST_FUNCTION( misfit_ranking , MISFIT_RANKING_TYPE_ID )
 UTIL_IS_INSTANCE_FUNCTION( misfit_ranking , MISFIT_RANKING_TYPE_ID)
 
 void misfit_ranking_display( const misfit_ranking_type * misfit_ranking , FILE * stream) {
-  const int ens_size                  = double_vector_size( misfit_ranking->total );
-  const int * permutations            = misfit_ranking->sort_permutation;
+  const int ens_size                    = double_vector_size( misfit_ranking->total );
+  const perm_vector_type * permutations = misfit_ranking->sort_permutation;
   hash_type * obs_hash = NULL;
   {
     // The ensemble vector can contain invalid nodes with NULL.
@@ -83,7 +84,7 @@ void misfit_ranking_display( const misfit_ranking_type * misfit_ranking , FILE *
     fprintf(stream,"  #    Realization    Normalized misfit    Total misfit\n");
     fprintf(stream,"-------------------------------------------------------\n");
     for (i = 0; i < ens_size; i++) {
-      int    iens         = permutations[i];
+      int    iens         = perm_vector_iget( permutations, i );
       double total_misfit = double_vector_iget( misfit_ranking->total , iens );
       double normalized_misfit = sqrt(total_misfit / num_obs_total);
       summed_up = summed_up+total_misfit;
@@ -102,9 +103,9 @@ void misfit_ranking_display( const misfit_ranking_type * misfit_ranking , FILE *
 
 
 void misfit_ranking_fprintf( const misfit_ranking_type * misfit_ranking , const char * filename) {
-  FILE * stream                       = util_mkdir_fopen( filename , "w");
-  const int ens_size                  = misfit_ranking->ens_size;
-  const int * permutations            = misfit_ranking->sort_permutation;
+  FILE * stream                         = util_mkdir_fopen( filename , "w");
+  const int ens_size                    = misfit_ranking->ens_size;
+  const perm_vector_type * permutations = misfit_ranking->sort_permutation;
   double summed_up = 0.0;
   {
     // All this whitespace is finely tuned and highly significant ....
@@ -130,7 +131,7 @@ void misfit_ranking_fprintf( const misfit_ranking_type * misfit_ranking , const 
 
     fprintf(stream , "\n");
     for (int i = 0; i < ens_size; i++) {
-      int iens = permutations[i];
+      int iens = perm_vector_iget( permutations , i );
       hash_type * obs_hash = vector_iget( misfit_ranking->ensemble , iens );
       double total_value   = double_vector_iget( misfit_ranking->total , iens );
       double normalized_misfit = sqrt(total_value / num_obs_total);
@@ -214,7 +215,10 @@ misfit_ranking_type *  misfit_ranking_alloc(const misfit_ensemble_type * misfit_
 void misfit_ranking_free( misfit_ranking_type * misfit_ranking ) {
   vector_free( misfit_ranking->ensemble );
   double_vector_free( misfit_ranking->total );
-  util_safe_free( misfit_ranking->sort_permutation );
+
+  if (misfit_ranking->sort_permutation)
+    perm_vector_free( misfit_ranking->sort_permutation );
+
   free( misfit_ranking );
 }
 
@@ -245,6 +249,6 @@ void misfit_ranking_iset_invalid( misfit_ranking_type * misfit_ranking , int ien
 }
 
 
-const int * misfit_ranking_get_permutation( const misfit_ranking_type * misfit_ranking ) {
+const perm_vector_type * misfit_ranking_get_permutation( const misfit_ranking_type * misfit_ranking ) {
   return misfit_ranking->sort_permutation;
 }

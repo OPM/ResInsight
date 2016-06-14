@@ -43,6 +43,7 @@ class RiuResultInfoPanel;
 class RiuViewer;
 class RiuWellLogPlot;
 class RiuResultQwtPlot;
+struct RimMdiWindowGeometry;
 
 namespace caf
 {
@@ -78,7 +79,7 @@ public:
     void            cleanupGuiBeforeProjectClose();
 
     void            removeViewer( QWidget* viewer );
-    void            addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry);
+    void            addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
     void            setActiveViewer(QWidget* subWindow);
 
     void            setResultInfo(const QString& info) const;
@@ -106,8 +107,8 @@ public:
     void            addRecentFiles(const QString& file);
     void            removeRecentFiles(const QString& file);
 
-    std::vector<int>    windowGeometryForViewer(QWidget* viewer);
-    std::vector<int>    windowGeometryForWidget(QWidget* widget);
+    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
+    RimMdiWindowGeometry    windowGeometryForWidget(QWidget* widget);
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();

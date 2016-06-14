@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONF_DATA_H__
-#define __CONF_DATA_H__
+#ifndef ERT_CONF_DATA_H
+#define ERT_CONF_DATA_H
 #include <stdbool.h>
 #include <time.h>
 

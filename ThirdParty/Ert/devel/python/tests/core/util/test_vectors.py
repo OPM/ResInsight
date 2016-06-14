@@ -24,7 +24,7 @@ try:
 except ImportError:
     from unittest import TestCase
 
-from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, CTime
+from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, CTime, PermutationVector
 
 class UtilTest(TestCase):
     def setUp(self):
@@ -482,3 +482,12 @@ class UtilTest(TestCase):
         self.create_range_test(v, 0, 5, 1)
         self.create_range_test(v, 0, 100, 3)
         self.create_range_test(v, 0, 100, -3)
+
+
+        
+    def test_perm_vector(self):
+        v = IntVector.createRange( 11 , 0 , -1 )
+        perm = v.permutationSort( )
+        self.assertEqual( perm[0]  , 10 )
+        self.assertEqual( perm[5]  ,  5 )
+        self.assertEqual( perm[10] ,  0 )

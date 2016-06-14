@@ -1,5 +1,5 @@
-#ifndef __ANALYSIS_TABLE_H__
-#define __ANALYSIS_TABLE_H__
+#ifndef ERT_ANALYSIS_TABLE_H
+#define ERT_ANALYSIS_TABLE_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -40,7 +40,9 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiColorEditor.h"
 
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiColorEditor, cvf::Color3f);
+namespace caf {
+    CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiColorEditor, cvf::Color3f);
+}
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement

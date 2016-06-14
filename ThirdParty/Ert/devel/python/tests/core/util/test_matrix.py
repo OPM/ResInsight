@@ -1,6 +1,6 @@
 from ert.util import Matrix , RandomNumberGenerator
 from ert.util.enums import RngAlgTypeEnum, RngInitModeEnum
-from ert.test import ExtendedTestCase
+from ert.test import ExtendedTestCase, TestAreaContext
 
 class MatrixTest(ExtendedTestCase):
     def test_matrix(self):
@@ -100,4 +100,36 @@ class MatrixTest(ExtendedTestCase):
 
         self.assertEqual(m, r)
 
+    def test_str(self):
+        m = Matrix(2, 2)
+        s = "%s" % m
 
+        m[0,0] = 0
+        m[0,1] = 1
+        m[1,0] = 2
+        m[1,1] = 3
+        
+        with TestAreaContext("matrix_fprint"):
+            with open("matrix.txt", "w") as f:
+                m.fprint( f )
+
+            with open("matrix.txt") as f:
+                l1 = [ float(x) for x in f.readline().split()]
+                l2 = [ float(x) for x in f.readline().split()]
+
+            self.assertEqual( l1[0] , m[0,0])
+            self.assertEqual( l1[1] , m[0,1])
+            self.assertEqual( l2[0] , m[1,0])
+            self.assertEqual( l2[1] , m[1,1])
+
+            
+    def test_copy_equal(self):
+        m1 = Matrix(2, 2)
+        m1[0,0] = 0
+        m1[0,1] = 1
+        m1[1,0] = 2
+        m1[1,1] = 3
+
+        m2 = m1.copy( )
+        self.assertTrue( m1 == m2 )
+        

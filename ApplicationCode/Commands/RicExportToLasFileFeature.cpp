@@ -51,7 +51,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     {
         QString defaultDir = RiaApplication::instance()->defaultFileDialogDirectory("WELL_LOGS_DIR");
  
-        QString defaultFileName = curve->name().trimmed();
+        QString defaultFileName = curve->curveName().trimmed();
         defaultFileName.replace(".", "_");
         defaultFileName.replace(",", "_");
         defaultFileName.replace(":", "_");

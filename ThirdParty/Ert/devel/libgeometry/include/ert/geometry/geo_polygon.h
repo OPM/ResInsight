@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __GEO_POLYGON_H__
-#define __GEO_POLYGON_H__
+#ifndef ERT_GEO_POLYGON_H
+#define ERT_GEO_POLYGON_H
 
 #ifdef __cplusplus
 extern "C" {

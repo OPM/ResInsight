@@ -137,7 +137,7 @@ void gen_data_free(gen_data_type * gen_data) {
 */
 
 
-bool gen_data_write_to_buffer(const gen_data_type * gen_data , buffer_type * buffer , int report_step , state_enum state) {
+bool gen_data_write_to_buffer(const gen_data_type * gen_data , buffer_type * buffer , int report_step) {
   const bool write_zero_size = true; /* true:ALWAYS write a file   false:only write files with size > 0. */
   {
     bool write    = write_zero_size;
@@ -160,7 +160,7 @@ bool gen_data_write_to_buffer(const gen_data_type * gen_data , buffer_type * buf
 
 
 
-void gen_data_read_from_buffer(gen_data_type * gen_data , buffer_type * buffer , enkf_fs_type * fs,  int report_step, state_enum state) {
+void gen_data_read_from_buffer(gen_data_type * gen_data , buffer_type * buffer , enkf_fs_type * fs,  int report_step) {
   int size;
   enkf_util_assert_buffer_type(buffer , GEN_DATA);
   size = buffer_fread_int(buffer);
@@ -497,7 +497,7 @@ void gen_data_export_data(const gen_data_type * gen_data , double_vector_type * 
    false, and return silently in that case.
 */
 
-bool gen_data_user_get(const gen_data_type * gen_data, const char * index_key, int report_step , state_enum state, double * value)
+bool gen_data_user_get(const gen_data_type * gen_data, const char * index_key, int report_step , double * value)
 {
   int index;
   *value = 0.0;

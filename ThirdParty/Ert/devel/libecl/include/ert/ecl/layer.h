@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __LAYER_H__
-#define __LAYER_H__
+#ifndef ERT_LAYER_H
+#define ERT_LAYER_H
 
 #ifdef __cplusplus
 extern "C" {

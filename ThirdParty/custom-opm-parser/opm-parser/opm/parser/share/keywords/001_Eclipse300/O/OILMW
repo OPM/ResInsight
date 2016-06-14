@@ -1,0 +1,12 @@
+{
+  "name": "OILMW",
+  "sections": ["PROPS"],
+  "size" : {
+    "keyword": "TABDIMS",
+    "item" : "NTPVT"
+  },
+
+  "items" : [
+      {"name" : "MOLAR_WEIGHT" , "value_type" : "DOUBLE"}
+   ]
+}

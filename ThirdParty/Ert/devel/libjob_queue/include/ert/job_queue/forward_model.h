@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FORWARD_MODEL_H__
-#define __FORWARD_MODEL_H__
+#ifndef ERT_FORWARD_MODEL_H
+#define ERT_FORWARD_MODEL_H
 #ifdef __cplusplus
 extern "C" {
 #endif

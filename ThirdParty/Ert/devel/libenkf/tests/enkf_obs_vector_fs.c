@@ -90,7 +90,7 @@ void test_measure( ert_test_context_type * test_context ) {
     bool_vector_free( ens_mask );
   }
 
-  obs_vector_measure( rft_obs , fs , FORECAST , 20 , ens_active_list , meas_data_RFT , active_list );
+  obs_vector_measure( rft_obs , fs , 20 , ens_active_list , meas_data_RFT , active_list );
 
   int_vector_free( ens_active_list );
   active_list_free( active_list );

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GEN_KW_CONFIG_H__
-#define __GEN_KW_CONFIG_H__
+#ifndef ERT_GEN_KW_CONFIG_H
+#define ERT_GEN_KW_CONFIG_H
 #ifdef __cplusplus
 extern "C" {
 #endif

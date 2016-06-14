@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __MZRAN_H__
-#define __MZRAN_H__
+#ifndef ERT_MZRAN_H
+#define ERT_MZRAN_H
 
 #ifdef __cplusplus
 extern "C" {

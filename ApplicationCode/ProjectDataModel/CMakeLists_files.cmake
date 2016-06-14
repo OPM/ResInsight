@@ -57,6 +57,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.h
+${CEE_CURRENT_LIST_DIR}RimViewWindow.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.h
@@ -76,6 +77,15 @@ ${CEE_CURRENT_LIST_DIR}RimCrossSection.h
 ${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.h
 ${CEE_CURRENT_LIST_DIR}RimGridCollection.h
+${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
+${CEE_CURRENT_LIST_DIR}RimSummaryPlot.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCurve.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCase.h
+${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
+${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.h
+${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -131,6 +141,7 @@ ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechPropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeoMechCellColors.cpp
+${CEE_CURRENT_LIST_DIR}RimViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimTreeViewStateSerializer.cpp
@@ -150,6 +161,15 @@ ${CEE_CURRENT_LIST_DIR}RimCrossSection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryPlot.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCurve.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCase.cpp
+${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
+${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES

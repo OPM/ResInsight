@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef ERT_LOG_H
+#define ERT_LOG_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -17,8 +17,8 @@
    for more details. 
 */
 
-#ifndef __ECL_GRID_CACHE_H__
-#define __ECL_GRID_CACHE_H__
+#ifndef ERT_ECL_GRID_CACHE_H
+#define ERT_ECL_GRID_CACHE_H
 
 #include <ert/ecl/ecl_grid.h>
 

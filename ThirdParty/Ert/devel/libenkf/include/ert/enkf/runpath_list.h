@@ -15,8 +15,8 @@
    for more details. 
 */
 
-#ifndef __RUNPATH_LIST_H__
-#define __RUNPATH_LIST_H__
+#ifndef ERT_RUNPATH_LIST_H
+#define ERT_RUNPATH_LIST_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -27,6 +27,8 @@
 #include <QPointer>
 #include "RimDefines.h"
 
+#include "RimViewWindow.h"
+
 class RiuWellLogPlot;
 class RimWellLogTrack;
 
@@ -35,7 +37,7 @@ class RimWellLogTrack;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlot : public caf::PdmObject
+class RimWellLogPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 
@@ -58,8 +60,6 @@ public:
     void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
 
     QString                                         depthPlotTitle() const;
-
-    caf::PdmField< std::vector<int> >               windowGeometry;
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);

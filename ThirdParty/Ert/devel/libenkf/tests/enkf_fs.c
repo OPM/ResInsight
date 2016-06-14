@@ -102,7 +102,7 @@ void test_fwrite_readonly( void * arg ) {
      call (which is again intercepted by the testing function) before
      the argument are actually accessed. 
   */
-  enkf_fs_fwrite_node( fs , NULL , "KEY" , PARAMETER , 100 , 1 , FORECAST );
+  enkf_fs_fwrite_node( fs , NULL , "KEY" , PARAMETER , 100 , 1 );
 }
 
 void initialise_shared()

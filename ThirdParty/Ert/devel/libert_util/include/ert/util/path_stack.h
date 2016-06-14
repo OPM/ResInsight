@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __PATH_STACK_H__
-#define __PATH_STACK_H__
+#ifndef ERT_PATH_STACK_H
+#define ERT_PATH_STACK_H
 
 #ifdef __cplusplus
 extern "C" {

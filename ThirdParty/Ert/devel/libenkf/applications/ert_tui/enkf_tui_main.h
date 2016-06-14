@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_INTER_MAIN_H__
-#define __ENKF_INTER_MAIN_H__
+#ifndef ERT_ENKF_INTER_MAIN_H
+#define ERT_ENKF_INTER_MAIN_H
 #include <ert/enkf/enkf_main.h>
 
 

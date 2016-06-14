@@ -18,7 +18,6 @@ import sys
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.enkf.config import FieldConfig
-from ert.enkf.enums import EnkfStateType
 
 
 class Field(BaseCClass):

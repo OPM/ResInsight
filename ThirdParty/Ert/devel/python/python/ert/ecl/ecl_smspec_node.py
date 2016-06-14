@@ -23,7 +23,8 @@ class EclSMSPECNode(BaseCClass):
     _node_need_num      = EclPrototype("bool  smspec_node_need_nums( smspec_node )")
     _gen_key1           = EclPrototype("char* smspec_node_get_gen_key1( smspec_node )")
     _gen_key2           = EclPrototype("char* smspec_node_get_gen_key2( smspec_node )")
-
+    _var_type           = EclPrototype("ecl_sum_var_type smspec_node_get_var_type( smspec_node )")
+    
     
     def __init__(self):
         super(EclSMSPECNode, self).__init__(0) # null pointer
@@ -140,3 +141,5 @@ class EclSMSPECNode(BaseCClass):
         return self._gen_key2( )
 
 
+    def varType(self):
+        return self._var_type( )

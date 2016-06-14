@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __ENKF_PLOT_DATA_H__
-#define __ENKF_PLOT_DATA_H__
+#ifndef ERT_ENKF_PLOT_DATA_H
+#define ERT_ENKF_PLOT_DATA_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,6 @@ extern "C" {
   void                  enkf_plot_data_load( enkf_plot_data_type * plot_data , 
                                              enkf_fs_type * fs , 
                                              const char * user_key , 
-                                             state_enum state , 
                                              const bool_vector_type * input_mask);
   int                   enkf_plot_data_get_size( const enkf_plot_data_type * plot_data );
   enkf_plot_tvector_type * enkf_plot_data_iget( const enkf_plot_data_type * plot_data , int index);

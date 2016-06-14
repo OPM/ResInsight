@@ -132,18 +132,16 @@ static void job_queue_status_dec( job_queue_status_type * status_count , job_sta
 
 /*
   The important point is that each individual ++ and -- operation is
-  atomic, if the different status counts do not add upp perfectly at
+  atomic, if the different status counts do not add up perfectly at
   all times that is ok.
 */
-
-
-bool job_queue_status_transition( job_queue_status_type * status_count , job_status_type src_status , job_status_type target_status) {
-  if (src_status != target_status) {
-    job_queue_status_dec( status_count , src_status );
-    job_queue_status_inc( status_count , target_status );
-    return true;
-  } else
+bool job_queue_status_transition(job_queue_status_type * status_count, job_status_type src_status,
+        job_status_type target_status) {
+  if (src_status == target_status)
     return false;
+  job_queue_status_dec( status_count, src_status );
+  job_queue_status_inc( status_count, target_status );
+  return true;
 }
 
 

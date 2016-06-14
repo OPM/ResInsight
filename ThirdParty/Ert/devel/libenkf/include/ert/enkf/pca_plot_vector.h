@@ -15,8 +15,8 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
    for more details. 
 */
-#ifndef __PCA_PLOT_VECTOR_H__
-#define __PCA_PLOT_VECTOR_H__
+#ifndef ERT_PCA_PLOT_VECTOR_H
+#define ERT_PCA_PLOT_VECTOR_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __WELL_RATE_H__
-#define __WELL_RATE_H__
+#ifndef ERT_WELL_RATE_H
+#define ERT_WELL_RATE_H
 
 #include <time_t_vector.h>
 #include <sched_file.h>

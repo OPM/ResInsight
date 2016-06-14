@@ -153,7 +153,7 @@ bool gen_kw_data_has_key( gen_kw_type * gen_kw, const char * subkey )
   return has_key;
 }
 
-bool gen_kw_write_to_buffer(const gen_kw_type *gen_kw , buffer_type * buffer,  int report_step, state_enum state) {
+bool gen_kw_write_to_buffer(const gen_kw_type *gen_kw , buffer_type * buffer,  int report_step) {
   const int data_size = gen_kw_config_get_data_size( gen_kw->config );
   buffer_fwrite_int( buffer , GEN_KW );
   buffer_fwrite(buffer , gen_kw->data , sizeof *gen_kw->data , data_size);
@@ -172,7 +172,7 @@ bool gen_kw_write_to_buffer(const gen_kw_type *gen_kw , buffer_type * buffer,  i
 
 
 #define MULTFLT 102
-void gen_kw_read_from_buffer(gen_kw_type * gen_kw , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
+void gen_kw_read_from_buffer(gen_kw_type * gen_kw , buffer_type * buffer, enkf_fs_type * fs, int report_step) {
   const int data_size = gen_kw_config_get_data_size( gen_kw->config );
   ert_impl_type file_type;
   file_type = buffer_fread_int(buffer);
@@ -409,7 +409,7 @@ bool gen_kw_fload(gen_kw_type * gen_kw , const char * filename) {
    Will return 0.0 on invalid input, and set valid -> false. It is the
    responsibility of the calling scope to check valid.
 */
-bool gen_kw_user_get(const gen_kw_type * gen_kw, const char * key , int report_step , state_enum state , double * value) {
+bool gen_kw_user_get(const gen_kw_type * gen_kw, const char * key , int report_step , double * value) {
   int index = gen_kw_config_get_index(gen_kw->config , key);
   
   if (index >= 0) {

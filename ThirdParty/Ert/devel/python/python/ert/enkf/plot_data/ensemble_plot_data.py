@@ -2,28 +2,26 @@ from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_fs import EnkfFs
-from ert.enkf.enums.enkf_state_type_enum import EnkfStateType
 from ert.util import BoolVector
 
 
 class EnsemblePlotData(BaseCClass):
-    def __init__(self, ensemble_config_node, file_system=None, user_index=None, state=EnkfStateType.FORECAST, input_mask=None):
+    def __init__(self, ensemble_config_node, file_system=None, user_index=None, input_mask=None):
         assert isinstance(ensemble_config_node, EnkfConfigNode)
 
         c_pointer = EnsemblePlotData.cNamespace().alloc(ensemble_config_node)
         super(EnsemblePlotData, self).__init__(c_pointer)
 
         if not file_system is None:
-            self.load(file_system, user_index, state, input_mask)
+            self.load(file_system, user_index, input_mask)
 
 
-    def load(self, file_system, user_index=None, state=EnkfStateType.FORECAST, input_mask=None):
+    def load(self, file_system, user_index=None, input_mask=None):
         assert isinstance(file_system, EnkfFs)
-        assert isinstance(state, EnkfStateType)
         if not input_mask is None:
             assert isinstance(input_mask, BoolVector)
 
-        EnsemblePlotData.cNamespace().load(self, file_system, user_index, state, input_mask)
+        EnsemblePlotData.cNamespace().load(self, file_system, user_index, input_mask)
 
     def __len__(self):
         """ @rtype: int """
@@ -52,7 +50,7 @@ cwrapper.registerType("ensemble_plot_data_ref", EnsemblePlotData.createCReferenc
 
 EnsemblePlotData.cNamespace().free = cwrapper.prototype("void enkf_plot_data_free(ensemble_plot_data)")
 EnsemblePlotData.cNamespace().alloc = cwrapper.prototype("c_void_p enkf_plot_data_alloc(enkf_config_node)")
-EnsemblePlotData.cNamespace().load = cwrapper.prototype("void enkf_plot_data_load(ensemble_plot_data, enkf_fs, char*, enkf_state_type_enum, bool_vector)")
+EnsemblePlotData.cNamespace().load = cwrapper.prototype("void enkf_plot_data_load(ensemble_plot_data, enkf_fs, char*, bool_vector)")
 EnsemblePlotData.cNamespace().size = cwrapper.prototype("int enkf_plot_data_get_size(ensemble_plot_data)")
 EnsemblePlotData.cNamespace().get = cwrapper.prototype("ensemble_plot_data_vector_ref enkf_plot_data_iget(ensemble_plot_data, int)")
 

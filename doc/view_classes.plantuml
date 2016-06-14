@@ -1,0 +1,35 @@
+@startuml
+
+class RimView {
+  RimViewGeometry* viewGeometry()
+}
+
+class Rim3dView {
+}
+
+class RimPlotView {
+}
+
+
+RimView <|-- RimPlotView
+RimView <|-- Rim3dView
+
+
+RimView *-- RimViewGeometry
+
+RimPlotView <|-- RimWellLogPlot
+RimPlotView <|-- RimSummaryPlot
+
+Rim3dView <|-- RimEclipseView
+Rim3dView <|-- RimGeoMechView
+
+class RimWindow {
+}
+
+RimViewGeometry --> RimWindow
+
+class RimViewGeometry {
+  PtrField<RimWindow> window
+}
+
+@enduml

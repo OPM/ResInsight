@@ -77,7 +77,7 @@ void * enkf_main_ensemble_run_JOB( void * self , const stringlist_type * args ) 
   bool_vector_type * iactive = alloc_iactive_vector_from_range(args, 0, stringlist_get_size(args), ens_size);
 
   bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_exp( enkf_main , iactive , true );
+  enkf_main_run_exp( enkf_main , iactive);
   bool_vector_free(iactive);
   return NULL;
 }
@@ -92,7 +92,7 @@ static void * enkf_main_smoother_JOB__( void * self , int iter , const stringlis
   enkf_fs_type * source_fs     = enkf_main_job_get_fs( enkf_main );
   //Argument 2: Rerun. Default false.
   bool rerun = (stringlist_get_size(args) >= 2) ? stringlist_iget_as_bool(args, 1, &valid) : false;
-  
+
   if (!valid) {
       fprintf(stderr, "** Warning: Function %s : Second argument must be a bool value. Exiting job\n", __func__);
       return NULL;
@@ -194,7 +194,7 @@ void * enkf_main_init_case_from_existing_JOB( void * self , const stringlist_typ
     } else
       target_fs = enkf_fs_get_ref( enkf_main_job_get_fs(enkf_main) );    // Using get_ref so that we can unconditionally call decref() further down.
 
-    enkf_main_init_case_from_existing(enkf_main, source_fs, 0, ANALYZED, target_fs);
+    enkf_main_init_case_from_existing(enkf_main, source_fs, 0, target_fs); // Removed ANALYZED argument
     enkf_fs_decref(target_fs);
   }
   enkf_fs_decref(source_fs);
@@ -262,15 +262,9 @@ static void enkf_main_jobs_export_field(const enkf_main_type * enkf_main, const 
   const char *      file_name        = stringlist_iget(args, 1);
   int               report_step      = 0;
   util_sscanf_int(stringlist_iget(args,2), &report_step);
-  state_enum        state            = enkf_types_get_state_enum(stringlist_iget(args, 3));
-
-  if (BOTH == state) {
-      fprintf(stderr,"** Field export jobs only supports state_enum ANALYZED or FORECAST, not BOTH.\n");
-      return;
-  }
 
   bool_vector_type * iactive = alloc_iactive_vector_from_range(args, 4, stringlist_get_size(args), enkf_main_get_ensemble_size(enkf_main));
-  enkf_main_export_field(enkf_main,field, file_name, iactive, file_type, report_step, state) ;
+  enkf_main_export_field(enkf_main,field, file_name, iactive, file_type, report_step ) ;
   bool_vector_free(iactive);
 }
 

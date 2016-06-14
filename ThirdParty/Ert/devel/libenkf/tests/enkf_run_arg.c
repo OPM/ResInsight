@@ -79,7 +79,6 @@ void test_SMOOTHER_RUN( ) {
   {
     enkf_fs_type * sim_fs    = enkf_fs_create_fs("sim" , BLOCK_FS_DRIVER_ID , NULL , true);
     enkf_fs_type * target_fs = enkf_fs_create_fs("target" , BLOCK_FS_DRIVER_ID , NULL , true);
-
     run_arg_type * run_arg = run_arg_alloc_SMOOTHER_RUN(sim_fs , target_fs , 0 , 6 , "path");
     test_assert_true( run_arg_is_instance( run_arg ));
     test_assert_ptr_equal( run_arg_get_init_fs( run_arg ) , sim_fs );
@@ -91,6 +90,23 @@ void test_SMOOTHER_RUN( ) {
     enkf_fs_decref( target_fs );
   }
   test_work_area_free( test_area );
+}
+
+
+void alloc_invalid_run_arg(void *arg) {
+  test_work_area_type * test_area = test_work_area_alloc("run_arg/invalid");
+  {
+    enkf_fs_type * fs    = enkf_fs_create_fs("fs" , BLOCK_FS_DRIVER_ID , NULL , true);
+    run_arg_type * run_arg = run_arg_alloc_SMOOTHER_RUN(fs , fs , 0 , 6 , "path"); // This should explode ...
+    run_arg_free( run_arg );
+    enkf_fs_decref( fs );
+  }
+  test_work_area_free( test_area );
+}
+
+
+void test_invalid_update_on_self( ) {
+  test_assert_util_abort( "run_arg_alloc" , alloc_invalid_run_arg , NULL);
 }
 
 
@@ -131,16 +147,12 @@ void test_ENSEMBLE_EXPERIMENT( ) {
   test_work_area_free( test_area );
 }
 
-void test_ENKF_ASSIMILATION( ) {
-  test_work_area_type * test_area = test_work_area_alloc("run_arg/ENS");
-  test_work_area_free( test_area );
-}
 
 int main(int argc , char ** argv) {
   test_queue_index();
   test_SMOOTHER_RUN();
   test_INIT_ONLY();
   test_ENSEMBLE_EXPERIMENT();
-  test_ENKF_ASSIMILATION();
+  test_invalid_update_on_self();
   exit(0);
 }

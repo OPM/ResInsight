@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __WELL_TS_H__
-#define __WELL_TS_H__
+#ifndef ERT_WELL_TS_H
+#define ERT_WELL_TS_H
 
 #ifdef __cplusplus
 extern "C" {

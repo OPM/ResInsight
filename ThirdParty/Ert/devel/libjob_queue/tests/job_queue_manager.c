@@ -27,7 +27,7 @@
 
 
 void test_create() {
-  job_queue_type * job_queue = job_queue_alloc( 100 , "OK" , "ERROR");
+  job_queue_type * job_queue = job_queue_alloc( 100 , "OK" , "STATUS", "ERROR");
   job_queue_manager_type * manager = job_queue_manager_alloc( job_queue );
   
   test_assert_true( job_queue_manager_is_instance( manager ));

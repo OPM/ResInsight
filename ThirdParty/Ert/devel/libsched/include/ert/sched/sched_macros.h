@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_MACROS_H___
-#define __SCHED_MACROS_H___
+#ifndef ERT_SCHED_MACROS_H_
+#define ERT_SCHED_MACROS_H_
 
 
 

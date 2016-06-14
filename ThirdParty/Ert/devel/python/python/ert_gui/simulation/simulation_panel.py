@@ -5,7 +5,7 @@ from ert_gui.models.connectors.init import CaseList, CaseSelectorModel
 from ert_gui.models.connectors.run import SimulationModeModel
 from ert_gui.pages.run_dialog import RunDialog
 from ert_gui.simulation import EnsembleExperimentPanel, EnsembleSmootherPanel, \
-    IteratedEnsembleSmootherPanel, SensitivityStudyPanel
+    IteratedEnsembleSmootherPanel, MultipleDataAssimilationPanel
 from ert_gui.simulation.simulation_config_panel import SimulationConfigPanel
 from ert_gui.widgets import util
 
@@ -55,8 +55,8 @@ class SimulationPanel(QWidget):
         self.simulation_widgets = {}
 
         self.addSimulationConfigPanel(EnsembleExperimentPanel())
-        self.addSimulationConfigPanel(SensitivityStudyPanel())
         self.addSimulationConfigPanel(EnsembleSmootherPanel())
+        self.addSimulationConfigPanel(MultipleDataAssimilationPanel())
         self.addSimulationConfigPanel(IteratedEnsembleSmootherPanel())
 
         self.setLayout(layout)

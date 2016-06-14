@@ -414,6 +414,18 @@ static void smspec_node_set_num( smspec_node_type * index , const int grid_dims[
   }
 }
 
+static void smspec_node_decode_R1R2( const smspec_node_type * smspec_node , int * r1 , int * r2) {
+  if (smspec_node->var_type == ECL_SMSPEC_REGION_2_REGION_VAR) {
+    *r1 = smspec_node->num % 32768;
+    *r2 = ((smspec_node->num - (*r1)) / 32768)-10;
+  } else {
+    *r1 = -1;
+    *r2 = -1;
+  }
+}
+
+
+
 /**
    This function will init the gen_key field of the smspec_node
    instance; this is the keyw which is used to install the
@@ -454,8 +466,8 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
   case(ECL_SMSPEC_REGION_2_REGION_VAR):
     // KEYWORDS:RXF:NUM and RXF:R1-R2
     {
-      int r1 = smspec_node->num % 32768;
-      int r2 = ((smspec_node->num-r1) / 32768)-10;
+      int r1,r2;
+      smspec_node_decode_R1R2( smspec_node , &r1 , &r2);
       smspec_node->gen_key1 = smspec_alloc_region_2_region_r1r2_key( key_join_string , smspec_node->keyword , r1, r2);
     }
     smspec_node->gen_key2 = smspec_alloc_region_2_region_num_key( key_join_string , smspec_node->keyword , smspec_node->num);
@@ -856,8 +868,43 @@ void smspec_node_set_unit( smspec_node_type * smspec_node , const char * unit ) 
 }
 
 
+// Will be NULL for smspec_nodes which do not have i,j,k
+const int* smspec_node_get_ijk( const smspec_node_type * smspec_node ) {
+  return smspec_node->ijk;
+}
 
+// Will be NULL for smspec_nodes which are not related to an LGR.
+const char* smspec_node_get_lgr_name( const smspec_node_type * smspec_node ) {
+  return smspec_node->lgr_name;
+}
 
+// Will be NULL for smspec_nodes which are not related to an LGR.
+const int* smspec_node_get_lgr_ijk( const smspec_node_type * smspec_node ) {
+  return smspec_node->lgr_ijk;
+}
+
+/*
+  Will return -1 for smspec_node variables which are not
+  of type ECL_SMSPEC_REGION_2_REGION_VAR.
+*/
+
+int smspec_node_get_R1( const smspec_node_type * smspec_node ) {
+  if (smspec_node->var_type == ECL_SMSPEC_REGION_2_REGION_VAR) {
+    int r1,r2;
+    smspec_node_decode_R1R2( smspec_node , &r1 , &r2);
+    return r1;
+  } else
+    return -1;
+}
+
+int smspec_node_get_R2( const smspec_node_type * smspec_node ) {
+  if (smspec_node->var_type == ECL_SMSPEC_REGION_2_REGION_VAR) {
+    int r1,r2;
+    smspec_node_decode_R1R2( smspec_node , &r1 , &r2);
+    return r2;
+  } else
+    return -1;
+}
 
 
 bool smspec_node_need_nums( const smspec_node_type * smspec_node ) {

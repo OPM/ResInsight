@@ -12,7 +12,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle::PdmUiFieldHandle(PdmFieldHandle* owner, bool giveOwnership)
+PdmUiFieldHandle::PdmUiFieldHandle(PdmFieldHandle* owner, bool giveOwnership): 
+    m_isAutoAddingOptionFromValue(true)
 {
     m_owner = owner; 
     owner->addCapability(this, giveOwnership);

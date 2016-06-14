@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <string>
 #include <vector>
 
@@ -34,8 +36,11 @@ public:
     static void                     findSummaryHeaderFile(const std::string& inputFile, std::string* headerFile, bool* isFormatted);
     static std::vector<std::string> findSummaryDataFiles(const std::string& caseFile);
 
+    static void                     findSummaryFiles(const std::string& inputFile, std::string* headerFile, std::vector<std::string>* dataFiles);
+    static bool                     hasSummaryFiles(const std::string& gridFileName);
     static void                     dumpMetaData(RifReaderEclipseSummary* readerEclipseSummary);
 
 private:
     static void                     findSummaryHeaderFileInfo(const std::string& inputFile, std::string* headerFile, std::string* path, std::string* base, bool* isFormatted);
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses, RifEclipseSummaryAddress::SummaryVarCategory category);
 };

@@ -1,18 +1,18 @@
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
-#  The file 'ecl_sum.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
+#  The file 'ecl_sum.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 """
 Module for loading and querying summary data.
 
@@ -31,6 +31,7 @@ import datetime
 # argument. In the python code this order has been reversed.
 from ert.cwrap import BaseCClass, CFILE
 from ert.ecl import EclSumTStep
+from ert.ecl import EclSumVarType
 from ert.ecl.ecl_sum_vector import EclSumVector
 from ert.ecl.ecl_smspec_node import EclSMSPECNode
 from ert.util import StringList, CTime, DoubleVector, TimeVector, IntVector
@@ -69,12 +70,12 @@ def date2num( dt ):
         delta = dt.tzinfo.utcoffset(dt)
         if delta is not None:
             dt -= delta
-            
+
     base =  float(dt.toordinal())
     if hasattr(dt, 'hour'):
-        base += (dt.hour/HOURS_PER_DAY     + 
+        base += (dt.hour/HOURS_PER_DAY     +
                  dt.minute/MINUTES_PER_DAY +
-                 dt.second/SECONDS_PER_DAY + 
+                 dt.second/SECONDS_PER_DAY +
                  dt.microsecond/MUSECONDS_PER_DAY )
     return base
 
@@ -95,6 +96,8 @@ class EclSum(BaseCClass):
     _get_general_var_index         = EclPrototype("int      ecl_sum_get_general_var_params_index( ecl_sum , char*)")
     _get_general_var_from_sim_days = EclPrototype("double   ecl_sum_get_general_var_from_sim_days( ecl_sum , double , char*)")
     _get_general_var_from_sim_time = EclPrototype("double   ecl_sum_get_general_var_from_sim_time( ecl_sum , time_t , char*)")
+    _solve_days                    = EclPrototype("double_vector_obj  ecl_sum_alloc_days_solution( ecl_sum , char* , double , bool)")
+    _solve_dates                   = EclPrototype("time_t_vector_obj  ecl_sum_alloc_time_solution( ecl_sum , char* , double , bool)")
     _get_first_gt                  = EclPrototype("int      ecl_sum_get_first_gt( ecl_sum , int , double )")
     _get_first_lt                  = EclPrototype("int      ecl_sum_get_first_lt( ecl_sum , int , double )")
     _get_start_date                = EclPrototype("time_t   ecl_sum_get_start_time( ecl_sum )")
@@ -126,7 +129,9 @@ class EclSum(BaseCClass):
     _add_variable                  = EclPrototype("smspec_node_ref   ecl_sum_add_var(ecl_sum , char* , char* , int , char*, double)")
     _add_tstep                     = EclPrototype("ecl_sum_tstep_ref ecl_sum_add_tstep(ecl_sum , int , double)")
     _export_csv                    = EclPrototype("void ecl_sum_export_csv( ecl_sum , char* , stringlist , char* , char*)")
-    
+    _identify_var_type             = EclPrototype("ecl_sum_var_type ecl_sum_identify_var_type( char* )", bind = False)
+
+
 
     def __init__(self, load_case , join_string = ":" , include_restart = True):
         """
@@ -161,7 +166,7 @@ class EclSum(BaseCClass):
             result.__private_init()
         return result
 
-    
+
     @classmethod
     def createPythonObject(cls, c_pointer):
         result = super(EclSum, cls).createPythonObject(c_pointer)
@@ -169,7 +174,10 @@ class EclSum(BaseCClass):
         return result
 
 
-            
+    @classmethod
+    def varType(cls , keyword):
+        return cls._identify_var_type( keyword )
+
 
     @staticmethod
     def writer(case , start_time , nx,ny,nz , fmt_output = False , unified = True , time_in_days = True , key_join_string = ":"):
@@ -182,7 +190,7 @@ class EclSum(BaseCClass):
 
     def addVariable(self , variable , wgname = None , num = 0 , unit = "None" , default_value = 0):
         return self._add_variable(variable , wgname , num , unit , default_value)
-        
+
 
     def addTStep(self , report_step , sim_days):
         """ @rtype: EclSumTStep """
@@ -226,7 +234,7 @@ class EclSum(BaseCClass):
                 if time_index >= 0:
                     break
                 i1 += 1
-                
+
             self.__daysR[i0] = self._iget_sim_days(time_index)
             self.__datesR[i0] = self.iget_date(time_index)
             self.__report_stepR[i0] = self._iget_report_step(time_index)
@@ -261,7 +269,7 @@ class EclSum(BaseCClass):
         return index_list
 
 
-    
+
     def wells( self , pattern = None ):
         """
         Will return a list of all the well names in case.
@@ -283,11 +291,11 @@ class EclSum(BaseCClass):
         """
         return self._create_group_list(  pattern )
 
-    
+
     def get_values( self , key , report_only = False):
         """
         Will return numpy vector of all values according to @key.
-        
+
         If the optional argument report_only is true only the values
         corresponding to report steps are included.  The method is
         also available as the 'values' property of an EclSumVector
@@ -306,7 +314,7 @@ class EclSum(BaseCClass):
                 values = numpy.zeros( length )
                 for i in range( length ):
                     values[i] = self._iiget(  i , key_index )
-                    
+
             return values
         else:
             raise KeyError("Summary object does not have key:%s" % key)
@@ -382,14 +390,14 @@ class EclSum(BaseCClass):
     def iget(self , key , time_index):
         """
         Lookup summary value based on @time_index and key.
-        
+
         The @time_index value should be an integer [0,num_steps) and
         @key should be string key. To get all the water cut values
         from a well:
 
             for time_index in range( sum.length ):
                 wwct = sum.iget( time_index , "WWCT:W5" )
-                
+
         This is a quite low level function, in most cases it will be
         natural to go via e.g. an EclSumVector instance.
         """
@@ -471,7 +479,7 @@ class EclSum(BaseCClass):
         else:
             raise ValueError("Must supply either days or date")
 
-    
+
     def timeRange(self , start = None , end = None , interval = "1Y", extend_end = True):
         (num , timeUnit) = TimeVector.parseTimeUnit( interval )
 
@@ -484,7 +492,7 @@ class EclSum(BaseCClass):
             if start < self.getDataStartTime( ):
                 start = self.getDataStartTime( )
 
-            
+
         if end is None:
             end = self.getEndTime( )
         else:
@@ -493,7 +501,7 @@ class EclSum(BaseCClass):
 
             if end > self.getEndTime( ):
                 end = self.getEndTime( )
-        
+
         if end < start:
             raise ValueError("Invalid time interval start after end")
 
@@ -539,11 +547,11 @@ class EclSum(BaseCClass):
                 trange.append( end )
 
         data_start = self.getDataStartTime( )
-        if trange[0] < data_start: 
+        if trange[0] < data_start:
             trange[0] = CTime(data_start)
-                
+
         return trange
-        
+
 
 
     def blockedProduction(self , totalKey , timeRange):
@@ -578,7 +586,7 @@ class EclSum(BaseCClass):
             step = self._get_report_step_from_time(  CTime(date))
         elif days:
             step = self._get_report_step_from_days(  days)
-            
+
         return step
 
 
@@ -594,7 +602,7 @@ class EclSum(BaseCClass):
         Will return numpy vector with interpolated values.
 
         Requiers exactly one input argument @days or @date; will raise
-        exception ValueError if this is not satisfied. 
+        exception ValueError if this is not satisfied.
 
         The method will check that the time arguments are within the
         time limits of the simulation; if else the method will raise
@@ -634,7 +642,7 @@ class EclSum(BaseCClass):
         else:
             raise ValueError("Must supply either days_list or date_list")
         return vector
-                
+
 
     def get_from_report( self , key , report_step ):
         """
@@ -642,7 +650,7 @@ class EclSum(BaseCClass):
         """
         time_index = self._get_report_end(  report_step )
         return self._get_general_var(  time_index , key )
-    
+
 
     def has_key( self , key):
         """
@@ -669,11 +677,11 @@ class EclSum(BaseCClass):
 
     def unit(self , key):
         """
-        Will return the unit of @key. 
+        Will return the unit of @key.
         """
         node = self.smspec_node( key )
         return node.unit
-        
+
 
     @property
     def case(self):
@@ -686,7 +694,7 @@ class EclSum(BaseCClass):
     @property
     def path(self):
         """
-        Will return the path to the current case. Will be None for 
+        Will return the path to the current case. Will be None for
         case in CWD. See also abs_path.
         """
         return self._get_path( )
@@ -711,13 +719,13 @@ class EclSum(BaseCClass):
     # argument @report_only. If this argument is set to True the
     # functions will return time vectors only corresponding to the
     # report times.
-    #            
+    #
     # In addition to the get_xxx() methods there are properties with
     # the same name (excluding the 'get'); these properties correspond
     # to an get_xxx() invocation with optional argument report_only
     # set to False (i.e. the defualt).
 
-    @property 
+    @property
     def days( self ):
         """
         Will return a numpy vector of simulations days.
@@ -736,7 +744,7 @@ class EclSum(BaseCClass):
         else:
             return self.__days
 
-    @property 
+    @property
     def dates( self ):
         """
         Will return a list of simulation dates.
@@ -785,8 +793,8 @@ class EclSum(BaseCClass):
             return self.__mpl_datesR
         else:
             return self.__mpl_dates
-    
-    @property 
+
+    @property
     def mini_step( self ):
         """
         Will return a a python list of ministep values.
@@ -804,7 +812,7 @@ class EclSum(BaseCClass):
     def get_mini_step( self , report_only = False):
         """
         Will return a a python list of ministep values.
-        
+
         If the optional argument @report_only is set to True, only
         dates values corresponding to report steps will be
         included. See documentation of property: 'mini_step' for
@@ -816,7 +824,7 @@ class EclSum(BaseCClass):
             return self.__mini_step
 
 
-    @property 
+    @property
     def report_step( self ):
         """
         Will return a list of report steps.
@@ -828,7 +836,7 @@ class EclSum(BaseCClass):
         three the report_step vector can look like:
 
           [...,1,1,1,1,1,2,2,2,3,3,3,....]
-            
+
         """
         return self.get_report_step( False )
 
@@ -838,8 +846,8 @@ class EclSum(BaseCClass):
         else:
             return self.__report_step
 
-    #-----------------------------------------------------------------        
-        
+    #-----------------------------------------------------------------
+
     def iget_days(self , time_index):
         """
         Returns the number of simulation days for element nr @time_index.
@@ -858,11 +866,11 @@ class EclSum(BaseCClass):
     def iget_report( self , time_index ):
         """
         Returns the report step corresponding to @time_index.
-        
+
         One report step will in general contain many ministeps.
         """
         return self._iget_report_step(  time_index )
-    
+
 
     @property
     def length(self):
@@ -878,7 +886,7 @@ class EclSum(BaseCClass):
         """
         return self._get_first_day( )
 
-    @property 
+    @property
     def sim_length( self ):
         return self.getSimulationLength( )
 
@@ -903,12 +911,12 @@ class EclSum(BaseCClass):
         """
         return CTime( self._get_end_date( ) ).date()
 
-        
+
 
     @property
     def data_start(self):
         return self.getDataStartTime()
-    
+
 
 
     @property
@@ -918,7 +926,7 @@ class EclSum(BaseCClass):
         """
         return self.getEndTime()
 
-    
+
     @property
     def start_time(self):
         return self.getStartTime()
@@ -935,11 +943,11 @@ class EclSum(BaseCClass):
         return CTime( self._get_data_start( ) ).datetime()
 
 
-    
+
     def getStartTime(self):
         """
         A Python datetime instance with the start time.
-        
+
         See start_date() for further details.
         """
         return CTime( self._get_start_date( ) ).datetime()
@@ -959,7 +967,7 @@ class EclSum(BaseCClass):
         irrespective of whether we have data for this or not.
         """
         return self._sim_length( )
-        
+
 
 
     @property
@@ -998,7 +1006,7 @@ class EclSum(BaseCClass):
         """
         vector = self[key]
         return vector.first_gt( limit )
-    
+
     def first_lt(self , key , limit ):
         """
         First EclSumNode of @key which is below @limit.
@@ -1006,33 +1014,138 @@ class EclSum(BaseCClass):
         vector = self[key]
         return vector.first_lt( limit )
 
+    def solveDates(self , key , value , rates_clamp_lower = True):
+        """Will solve the equation vector[@key] == value for dates.
+
+        See solveDays() for further details.
+        """
+        if not key in self:
+            raise KeyError("Unrecognized key:%s" % key)
+
+        if len(self) < 2:
+            raise ValueError("Must have at least two elements to start solving")
+
+        return [ x.datetime() for x in self._solve_dates( key , value , rates_clamp_lower)]
+    
+
+    def solveDays(self , key , value , rates_clamp_lower = True):
+        """Will solve the equation vector[@key] == value.
+
+        This method will solve find tha approximate simulation days
+        where the vector @key is equal @value. The method will return
+        a list of values, which can have zero, one or multiple values:
+
+          case = EclSum("CASE")
+          days = case.solveDays( "RPR:2" , 200 )
+
+          if len(days) == 0:
+             print("Pressure was never equal to 200 BARSA")
+          elif len(days) == 1:
+             print("Pressure equal to 200 BARSA after %s simulation days" % days[0])
+          else:
+             print("Pressure equal to 200 BARSA multiple times")
+             for index,day in enumerate(days):
+                 print("Solution[%d] : %s days" % (index , day))
+
+        For variables like pressure and total volumes the solution is
+        based on straightforward linear interpolation between the
+        simulated values; that is quite intuitive. However - rates is
+        less intuitive, and how a rate like FOPR is handled can be
+        surprising:
+
+        Fundamentally the simulator works with *volumes*. Assume that
+        the simulator calculates that between the times t1 and t2 the
+        total volume of oil produced is V, then the oil production
+        rate is given as:
+
+                   FOPR = V / (t2 - t1)
+
+        This is the average production rate in the timespan (t1,t2];
+        the simulator does not have any information on a finer time
+        scale than this - so the natural assumption is that the
+        production is constant at this value for the whole time
+        period. The logical consequence of this is that production
+        rates should be visualized as a piecewise constant function:
+
+
+
+                                    A            B
+                                    |            |
+           /|\ OPR                  |            |
+            |                      \|/          \|/
+            |
+            |                       +============X
+            |                       |            |
+            |-------------------------------------------------- X
+            |                       |            |
+            |         +=============X
+            |                                    |
+            |         |                          +===========X
+            |=========X                                      |
+            |
+            +---------+-------------+------------+-----------+-->
+            t0        t1            t2           t3          t4 time
+
+
+        This figure shows a plot of the OPR as a piecewise constant
+        function. In a strict mathematical sense the equation: 
+ 
+                               OPR = X
+                      
+        Does not have a solution at all, but since this inequality:
+
+                         OPR(t2) < X < OPR(t3)
+ 
+        it is natural to say that the equation has a solution. The
+        default behaviour is to say that the (first) solution in this
+        case is:
+
+                           tx = t2 + epsilon
+
+        corresponding to the arrow 'A' on the figure. Alternatively if
+        you set the optional argument 'rates_clamp_lower' to false the
+        method will find the solution:
+
+                      tx = t3
+
+        corresponding to the arrow 'B* in the figure.
+
+        """
+        if not key in self:
+            raise KeyError("Unrecognized key:%s" % key)
+
+        if len(self) < 2:
+            raise ValueError("Must have at least two elements to start solving")
+
+        return self._solve_days( key , value , rates_clamp_lower)
+
 
     def keys( self , pattern = None):
         """
         Return a StringList of summary keys matching @pattern.
-        
+
         The matching algorithm is ultimately based on the fnmatch()
         function, i.e. normal shell-character syntax is used. With
         @pattern == "WWCT:*" you will get a list of watercut keys for
-        all wells. 
-        
+        all wells.
+
         If pattern is None you will get all the keys of summary
         object.
         """
         s = StringList()
         self._select_matching_keys(  pattern , s )
         return s
-        
 
-    
-    
+
+
+
     def fwrite(self , ecl_case = None):
         if ecl_case:
             self._set_case(  ecl_case )
 
         self._fwrite_sum( )
-        
-        
+
+
     def alloc_time_vector(self, report_only):
         return self._alloc_time_vector(report_only)
 
@@ -1050,12 +1163,25 @@ class EclSum(BaseCClass):
         Will dump a csv formatted line of the keywords in @keywords,
         evaluated at the intertpolated time @time. @pfile should point to an open Python file handle.
         """
-        cfile = CFILE(pfile ) 
+        cfile = CFILE(pfile )
         ctime = CTime( time )
         EclSum._dump_csv_line(self , ctime, keywords, cfile)
-        
 
-    def exportCSV(self , filename , keys = None , date_format = "%d/%m/%Y" , sep = ";"):
+
+    def exportCSV(self , filename , keys = None , date_format = "%Y-%m-%d" , sep = ";"):
+        """Will create a CSV file with summary data.
+
+        By default all the vectors in the summary case will be
+        exported, but by using the optional keys parameter you can
+        limit the keys which are exported:
+
+          ecl_sum = EclSum("CASE")
+          ecl_sum.exportCSV( "case.csv" , keys = ["W*:OP1" , "W*:OP2" , "F*T"])
+
+        Will export all well related variables for wells 'OP1' and
+        'OP2' and all total field vectors.
+        """
+
         if keys is None:
             var_list = self.keys( )
         else:
@@ -1063,7 +1189,7 @@ class EclSum(BaseCClass):
             for key in keys:
                 var_list |= self.keys( pattern = key )
         self._export_csv( filename , var_list , date_format , sep)
-        
+
 
 
 

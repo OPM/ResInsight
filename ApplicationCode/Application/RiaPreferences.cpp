@@ -81,8 +81,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and show SOIL", "", "", "");
     loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
+    readerSettings = new RifReaderSettings;
 }
 
 //--------------------------------------------------------------------------------------------------

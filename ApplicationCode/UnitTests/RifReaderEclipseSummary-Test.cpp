@@ -21,13 +21,15 @@
 #include "RifReaderEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
 
-#include "stringlist.h"
+//#include "stringlist.h"
 
 #include <QDir>
 #include <QDateTime>
 
 #include <memory>
 
+
+/*
 void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<double>& values)
 {
     EXPECT_TRUE(dates.size() == values.size());
@@ -40,8 +42,50 @@ void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<d
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
+{
+    {
+//        std::string filename = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010";
+        std::string filename = "g:\\Models\\Statoil\\testcase_juli_2011\\data\\TEST10K_FLT_LGR_NNC";
 
-/*
+        {
+            std::string headerFile;
+            bool isFormatted = false;
+            RifEclipseSummaryTools::findSummaryHeaderFile(filename, &headerFile, &isFormatted);
+
+            EXPECT_FALSE(isFormatted);
+            EXPECT_FALSE(headerFile.empty());
+
+            std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(filename);
+            EXPECT_TRUE(dataFiles.size() > 0);
+
+            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
+            eclSummary->open(headerFile, dataFiles);
+
+            RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
+
+            // Create a vector of summary addresses based on type, item name and variable name, and compare the resulting
+            // resultAddressString to the original string
+
+            std::vector<RifEclipseSummaryAddress> addresses = eclSummary->allResultAddresses();
+            std::vector<RifEclipseSummaryAddress> myAddresses;
+            for (size_t i = 0; i < addresses.size(); i++)
+            {
+                RifEclipseSummaryAddress adr(addresses[i].category(), addresses[i].simulationItemName(), addresses[i].quantityName());
+                myAddresses.push_back(adr);
+            }
+
+            for (size_t i = 0; i < addresses.size(); i++)
+            {
+                EXPECT_TRUE(addresses[i].ertSummaryVarId().compare(myAddresses[i].ertSummaryVarId()) == 0);
+            }
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

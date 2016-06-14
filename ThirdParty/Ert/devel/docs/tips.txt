@@ -271,11 +271,6 @@ input. The required coordinates are:
   tstep: This is the timestep we are after, this numbering is the
      ECLIPSE report steps (ECLIPSE is unfortunately not just any FORWARD
      model, but still has severe influence on the structure of ERT :-( )
-  
-  state: In general the data will exist in "two versions" - the
-     forecast version before the EnKF update and the analyzed version
-     after the update. The state variable is an instance of the enum
-     state_enum defined in enkf_types.h
 
 Observe that the state "coordindate" is not treated like a first class
 coordinate in the same manner as iens and tstep. Exactly how the state

@@ -17,8 +17,8 @@
  */
 
 
-#ifndef  __CONFIG_KEYS_H__
-#define  __CONFIG_KEYS_H__
+#ifndef  ERT_CONFIG_KEYS_H
+#define  ERT_CONFIG_KEYS_H
 #ifdef   __cplusplus
 extern "C" {
 #endif

@@ -44,6 +44,11 @@ class BaseRunModel(ErtConnector, RunModelMixin):
         job_queue.killAllJobs()
 
 
+    def userExitCalled(self):
+        job_queue = self.ert().siteConfig().getJobQueue()
+        return job_queue.getUserExit( )
+
+
     def phaseCount(self):
         """ @rtype: int """
         return self.__phase_count

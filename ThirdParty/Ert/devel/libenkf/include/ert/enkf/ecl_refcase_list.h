@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __ECL_REFCASE_LIST_H__
-#define __ECL_REFCASE_LIST_H__
+#ifndef ERT_ECL_REFCASE_LIST_H
+#define ERT_ECL_REFCASE_LIST_H
 
 #ifdef __cplusplus
 extern "C" {

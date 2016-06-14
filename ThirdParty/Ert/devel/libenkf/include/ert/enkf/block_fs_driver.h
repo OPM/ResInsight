@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __BLOCK_FS_DRIVER_H__
-#define __BLOCK_FS_DRIVER_H__
+#ifndef ERT_BLOCK_FS_DRIVER_H
+#define ERT_BLOCK_FS_DRIVER_H
 #ifdef __cplusplus
 extern "C" {
 #endif

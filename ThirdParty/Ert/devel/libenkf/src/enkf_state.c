@@ -166,11 +166,9 @@ void enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs , co
     if ((current_state == STATE_PARENT_FAILURE) && (init_mode != INIT_FORCE))
       return;
     else {
-      state_enum init_state = ANALYZED;
-
       for (int ip = 0; ip < stringlist_get_size(param_list); ip++) {
         enkf_node_type * param_node = enkf_state_get_node(enkf_state, stringlist_iget(param_list, ip));
-        node_id_type node_id = { .report_step = 0, .iens = iens, .state = init_state };
+        node_id_type node_id = { .report_step = 0, .iens = iens }; 
         bool has_data = enkf_node_has_data(param_node, fs, node_id);
 
         if ((init_mode == INIT_FORCE) || (has_data == false) || (current_state == STATE_LOAD_FAILURE)) {
@@ -579,10 +577,10 @@ static bool enkf_state_internalize_dynamic_eclipse_results(enkf_state_type * enk
                 enkf_config_node_type * config_node = ensemble_config_get_or_create_summary_node(enkf_state->ensemble_config, key);
                 enkf_node_type * node = enkf_state_get_or_create_node(enkf_state, config_node);
 
-                enkf_node_try_load_vector( node , result_fs , iens , FORECAST );  // Ensure that what is currently on file is loaded before we update.
+                enkf_node_try_load_vector( node , result_fs , iens );  // Ensure that what is currently on file is loaded before we update.
 
                 enkf_node_forward_load_vector( node , load_context , time_index);
-                enkf_node_store_vector( node , result_fs , iens , FORECAST );
+                enkf_node_store_vector( node , result_fs , iens );
             }
         }
 
@@ -647,7 +645,7 @@ static void enkf_state_internalize_custom_kw(enkf_state_type * enkf_state,
       if (enkf_node_internalize(node, report_step)) {
         if (enkf_node_has_func(node, forward_load_func)) {
           if (enkf_node_forward_load(node, load_context)) {
-            node_id_type node_id = {.report_step = report_step, .iens = iens, .state = FORECAST};
+            node_id_type node_id = {.report_step = report_step, .iens = iens };
 
             enkf_node_store(node, result_fs, false, node_id);
 
@@ -696,8 +694,7 @@ static void enkf_state_internalize_GEN_DATA(enkf_state_type * enkf_state ,
             forward_load_context_select_step(load_context, report_step);
 	    if (enkf_node_forward_load(node , load_context )) {
 	      node_id_type node_id = {.report_step = report_step ,
-				      .iens = iens ,
-				      .state = FORECAST };
+				      .iens = iens };
 
 	      enkf_node_store( node , result_fs, false , node_id );
               enkf_state_log_GEN_DATA_load( node , report_step , load_context);
@@ -769,8 +766,7 @@ static void enkf_state_internalize_eclipse_state(enkf_state_type * enkf_state ,
             if (enkf_node_has_func(enkf_node , forward_load_func)) {
               if (enkf_node_forward_load(enkf_node , load_context)) {
                 node_id_type node_id = {.report_step = report_step ,
-                                        .iens = iens ,
-                                        .state = FORECAST };
+                                        .iens = iens };
 
                 enkf_node_store( enkf_node , result_fs, store_vectors , node_id );
               } else {
@@ -882,8 +878,7 @@ int enkf_state_forward_init(enkf_state_type * enkf_state ,
       if (enkf_node_use_forward_init(node)) {
         enkf_fs_type * result_fs = run_arg_get_result_fs( run_arg );
         node_id_type node_id = {.report_step = 0 ,
-                                .iens = iens ,
-                                .state = ANALYZED };
+                                .iens = iens };
 
 
         /*
@@ -1014,8 +1009,7 @@ void enkf_state_ecl_write(enkf_state_type * enkf_state, const run_arg_type * run
 
         if ((run_arg_get_step1(run_arg) == 0) && (forward_init)) {
           node_id_type node_id = {.report_step = 0,
-                                  .iens = iens ,
-                                  .state = ANALYZED };
+                                  .iens = iens };
 
           if (enkf_node_has_data( enkf_node , fs , node_id))
             enkf_node_ecl_write(enkf_node , run_arg_get_runpath( run_arg ) , export_file , run_arg_get_step1(run_arg));
@@ -1038,7 +1032,7 @@ void enkf_state_ecl_write(enkf_state_type * enkf_state, const run_arg_type * run
 */
 
 
-void enkf_state_fwrite(const enkf_state_type * enkf_state , enkf_fs_type * fs , int mask , int report_step , state_enum state) {
+void enkf_state_fwrite(const enkf_state_type * enkf_state , enkf_fs_type * fs , int mask , int report_step ) {
   const member_config_type * my_config = enkf_state->my_config;
   const int num_keys = hash_get_size(enkf_state->node_hash);
   char ** key_list   = hash_alloc_keylist(enkf_state->node_hash);
@@ -1047,7 +1041,7 @@ void enkf_state_fwrite(const enkf_state_type * enkf_state , enkf_fs_type * fs , 
   for (ikey = 0; ikey < num_keys; ikey++) {
     enkf_node_type * enkf_node = hash_get(enkf_state->node_hash , key_list[ikey]);
     if (enkf_node_include_type(enkf_node , mask)) {
-      node_id_type node_id = {.report_step = report_step , .iens = member_config_get_iens( my_config ) , .state = state };
+      node_id_type node_id = {.report_step = report_step , .iens = member_config_get_iens( my_config ) };
       enkf_node_store( enkf_node, fs , true , node_id );
     }
   }
@@ -1055,7 +1049,7 @@ void enkf_state_fwrite(const enkf_state_type * enkf_state , enkf_fs_type * fs , 
 }
 
 
-void enkf_state_fread(enkf_state_type * enkf_state , enkf_fs_type * fs , int mask , int report_step , state_enum state) {
+void enkf_state_fread(enkf_state_type * enkf_state , enkf_fs_type * fs , int mask , int report_step ) {
   const member_config_type * my_config = enkf_state->my_config;
   const int num_keys = hash_get_size(enkf_state->node_hash);
   char ** key_list   = hash_alloc_keylist(enkf_state->node_hash);
@@ -1065,8 +1059,7 @@ void enkf_state_fread(enkf_state_type * enkf_state , enkf_fs_type * fs , int mas
     enkf_node_type * enkf_node = hash_get(enkf_state->node_hash , key_list[ikey]);
     if (enkf_node_include_type(enkf_node , mask)) {
       node_id_type node_id = {.report_step = report_step ,
-                              .iens = member_config_get_iens( my_config ) ,
-                              .state = state };
+                              .iens = member_config_get_iens( my_config )};
       bool forward_init = enkf_node_use_forward_init( enkf_node );
       if (forward_init)
         enkf_node_try_load(enkf_node , fs , node_id );
@@ -1086,7 +1079,7 @@ void enkf_state_fread(enkf_state_type * enkf_state , enkf_fs_type * fs , int mas
 */
 
 
-static void enkf_state_fread_state_nodes(enkf_state_type * enkf_state , enkf_fs_type * fs , int report_step , state_enum load_state) {
+static void enkf_state_fread_state_nodes(enkf_state_type * enkf_state , enkf_fs_type * fs , int report_step ) {
   const member_config_type * my_config = enkf_state->my_config;
   const int iens                       = member_config_get_iens( my_config );
 
@@ -1109,8 +1102,7 @@ static void enkf_state_fread_state_nodes(enkf_state_type * enkf_state , enkf_fs_
       enkf_node_type * enkf_node = hash_get(enkf_state->node_hash , key_list[ikey]);
       enkf_var_type var_type = enkf_node_get_var_type( enkf_node );
       node_id_type node_id = {.report_step = report_step ,
-                           .iens = iens ,
-                           .state = BOTH };
+                              .iens = iens };
 
       if (var_type == DYNAMIC_STATE) {
         /*
@@ -1151,8 +1143,7 @@ static void enkf_state_fread_initial_state(enkf_state_type * enkf_state , enkf_f
       char * load_file = enkf_config_node_alloc_infile( config_node , 0);
       if (load_file != NULL) {
         node_id_type node_id = {.report_step = 0 ,
-                                .iens  = member_config_get_iens( my_config ) ,
-                                .state = ANALYZED };
+                                .iens  = member_config_get_iens( my_config ) };
         enkf_node_load(enkf_node , fs , node_id);
       }
 
@@ -1381,14 +1372,14 @@ void enkf_state_init_eclipse(enkf_state_type *enkf_state, const run_arg_type * r
     {
       enkf_fs_type * init_fs = run_arg_get_init_fs( run_arg );
       /* Loading parameter information: loaded from timestep: run_arg->init_step_parameters. */
-      enkf_state_fread(enkf_state , init_fs , PARAMETER , run_arg_get_parameter_init_step(run_arg) , run_arg_get_parameter_init_state(run_arg));
+      enkf_state_fread(enkf_state , init_fs , PARAMETER , 0);
 
 
       /* Loading state information: loaded from timestep: run_arg->step1 */
       if (run_arg_get_step1(run_arg) == 0)
         enkf_state_fread_initial_state(enkf_state , init_fs);
       else
-        enkf_state_fread_state_nodes( enkf_state , init_fs , run_arg_get_step1(run_arg) , run_arg_get_dynamic_init_state(run_arg));
+        enkf_state_fread_state_nodes( enkf_state , init_fs , run_arg_get_step1(run_arg));
 
       enkf_state_set_dynamic_subst_kw(  enkf_state , run_arg );
       ert_templates_instansiate( enkf_state->shared_info->templates , run_arg_get_runpath( run_arg ) , enkf_state->subst_list );

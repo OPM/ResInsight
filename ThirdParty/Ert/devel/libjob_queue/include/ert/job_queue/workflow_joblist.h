@@ -19,8 +19,8 @@
 
 
 
-#ifndef __WORKFLOW_JOBLIST_H__
-#define __WORKFLOW_JOBLIST_H__
+#ifndef ERT_WORKFLOW_JOBLIST_H
+#define ERT_WORKFLOW_JOBLIST_H
 
 #ifdef __cplusplus
 extern "C" {

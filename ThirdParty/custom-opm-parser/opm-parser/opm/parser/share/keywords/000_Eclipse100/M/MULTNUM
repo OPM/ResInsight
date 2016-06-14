@@ -1,0 +1,5 @@
+{
+ "name" : "MULTNUM",
+ "sections" : [ "GRID" ],
+ "data" : {"value_type" : "INT" }
+}

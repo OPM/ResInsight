@@ -83,6 +83,7 @@ set( source_files
      ert_log.c
      run_arg.c
      ert_run_context.c
+     ert_init_context.c
      custom_kw.c
      custom_kw_config.c
      custom_kw_config_set.c
@@ -182,6 +183,7 @@ set( header_files
      run_arg.h
      run_arg_type.h
      ert_run_context.h
+     ert_init_context.h
      custom_kw.h
      custom_kw_config.h
      custom_kw_config_set.h

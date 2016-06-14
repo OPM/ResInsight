@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SET_H__
-#define __SET_H__
+#ifndef ERT_SET_H
+#define ERT_SET_H
 #ifdef __cplusplus
 extern "C" {
 #endif

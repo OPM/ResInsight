@@ -51,6 +51,15 @@ add_executable( ecl_util_make_date_shift ecl_util_make_date_shift.c )
 target_link_libraries( ecl_util_make_date_shift ecl test_util )
 add_test( ecl_util_make_date_shift ${EXECUTABLE_OUTPUT_PATH}/ecl_util_make_date_shift )
 
+add_executable( ecl_sum_writer ecl_sum_writer.c )
+target_link_libraries( ecl_sum_writer ecl test_util )
+add_test( ecl_sum_writer ${EXECUTABLE_OUTPUT_PATH}/ecl_sum_writer )
+
+add_executable( ecl_grid_add_nnc ecl_grid_add_nnc.c )
+target_link_libraries( ecl_grid_add_nnc ecl test_util )
+add_test( ecl_grid_add_nnc ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_add_nnc )
+
+
 add_executable( ecl_sum_case_exists ecl_sum_case_exists.c )
 target_link_libraries( ecl_sum_case_exists ecl test_util )
 add_test( ecl_sum_case_exists ${EXECUTABLE_OUTPUT_PATH}/ecl_sum_case_exists 

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __MSG_H__
-#define __MSG_H__
+#ifndef ERT_MSG_H
+#define ERT_MSG_H
 #ifdef __cplusplus
 extern "C" {
 #endif

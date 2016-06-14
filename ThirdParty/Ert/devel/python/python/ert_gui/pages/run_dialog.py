@@ -194,8 +194,8 @@ class RunDialog(QDialog):
         kill_job = QMessageBox.question(self, "Kill simulations?", "Are you sure you want to kill the currently running simulations?", QMessageBox.Yes | QMessageBox.No )
 
         if kill_job == QMessageBox.Yes:
-            self.__run_model.killAllSimulations()
-            self.reject()
+            if self.__run_model.killAllSimulations():
+                self.reject()
 
 
     def hideKillAndShowDone(self):

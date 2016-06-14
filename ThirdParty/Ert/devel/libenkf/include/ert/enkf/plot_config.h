@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __PLOT_CONFIG_H__
-#define __PLOT_CONFIG_H__
+#ifndef ERT_PLOT_CONFIG_H
+#define ERT_PLOT_CONFIG_H
 
 #include <ert/config/config_parser.h>
 #include <ert/config/config_content.h>

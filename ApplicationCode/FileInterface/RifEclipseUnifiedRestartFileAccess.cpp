@@ -21,11 +21,8 @@
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseOutputFileTools.h"
 
-#include "ecl_kw_magic.h"
-#include <well_state.h>
-#include <well_info.h>
-#include <well_conn.h>
-#include <well_ts.h>
+#include "ert/ecl/ecl_file.h"
+#include "ert/ecl/ecl_kw_magic.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor

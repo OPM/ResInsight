@@ -93,7 +93,6 @@ int local_obsdata_get_size( const local_obsdata_type * data ) {
   return vector_get_size( data->nodes_list );
 }
 
-
 /*
   The @data instance will assume ownership of the node; i.e. calling
   scope should NOT call local_obsdata_node_free().
@@ -147,6 +146,11 @@ void local_obsdata_reset_tstep_list( local_obsdata_type * data , const int_vecto
   }
 }
 
+active_list_type * local_obsdata_get_node_active_list(const local_obsdata_type * obsdata , const char * obs_key ) {
+  local_obsdata_node_type * obsdata_node = local_obsdata_get( obsdata , obs_key );
+  active_list_type  * active_list = local_obsdata_node_get_active_list( obsdata_node );
+  return active_list;
+}
 
 void local_obsdata_fprintf( const local_obsdata_type * obsdata , FILE * stream ) {
 fprintf(stream , "\n%s %s\n", local_config_get_cmd_string( CREATE_OBSSET ) , local_obsdata_get_name(obsdata));

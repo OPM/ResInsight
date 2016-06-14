@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ANALYSIS_MODULE_H__
-#define __ANALYSIS_MODULE_H__
+#ifndef ERT_ANALYSIS_MODULE_H
+#define ERT_ANALYSIS_MODULE_H
 #ifdef  __cplusplus
 extern "C" {
 #endif

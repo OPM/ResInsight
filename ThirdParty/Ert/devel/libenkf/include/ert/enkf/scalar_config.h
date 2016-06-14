@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCALAR_CONFIG_H__
-#define __SCALAR_CONFIG_H__
+#ifndef ERT_SCALAR_CONFIG_H
+#define ERT_SCALAR_CONFIG_H
 #ifdef __cplusplus
 extern "C" {
 #endif

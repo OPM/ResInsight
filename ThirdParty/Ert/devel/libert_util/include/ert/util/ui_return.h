@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __UI_RETURN_H__
-#define __UI_RETURN_H__
+#ifndef ERT_UI_RETURN_H
+#define ERT_UI_RETURN_H
 
 #ifdef __cplusplus
 extern "C" {

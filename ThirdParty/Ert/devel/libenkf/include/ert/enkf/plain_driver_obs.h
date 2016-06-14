@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __PLAIN_DRIVER_OBS_H__
-#define __PLAIN_DRIVER_OBS_H__
+#ifndef ERT_PLAIN_DRIVER_OBS_H
+#define ERT_PLAIN_DRIVER_OBS_H
 #ifdef __cplusplus
 extern "C" {
 #endif

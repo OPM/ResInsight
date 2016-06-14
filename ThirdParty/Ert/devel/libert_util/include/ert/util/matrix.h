@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#ifndef ERT_MATRIX_H
+#define ERT_MATRIX_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>

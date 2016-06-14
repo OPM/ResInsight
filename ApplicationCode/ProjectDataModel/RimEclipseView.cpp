@@ -210,7 +210,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             if (m_viewer)
             {
-                windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
+                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
                 
                 RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
                 delete m_viewer;

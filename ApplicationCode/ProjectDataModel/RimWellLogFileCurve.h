@@ -45,13 +45,13 @@ public:
     void setWellLogChannelName(const QString& name);
     
     // Overrides from RimWellLogPlotCurve
-    virtual void updatePlotData();
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    virtual QString createCurveName();
+    virtual QString createCurveAutoName();
+    virtual void onLoadDataAndUpdate();
 
     // Pdm overrrides
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

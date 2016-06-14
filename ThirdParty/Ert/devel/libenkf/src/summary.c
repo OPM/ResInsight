@@ -39,46 +39,32 @@
 
 /*****************************************************************/
 
-#define SUMMARY_UNDEF_FORECAST -9999
-#define SUMMARY_UNDEF_ANALYZED -999
+#define SUMMARY_UNDEF -9999
 
 struct summary_struct {
   int                          __type_id;         /* Only used for run_time checking. */
   bool                         vector_storage; 
   summary_config_type        * config;            /* Can not be NULL - var_type is set on first load. */
   double                     * data;              /* Size is always one - but what the fuck ... */
-  double_vector_type         * forecast_vector;
-  double_vector_type         * analyzed_vector;
+  double_vector_type         * data_vector;
 };
 
 
 /*****************************************************************/
 
-double_vector_type * SELECT_VECTOR(const summary_type * summary , state_enum state) {
-  if (state == FORECAST)
-    return summary->forecast_vector;
-  else if (state == ANALYZED)
-    return summary->analyzed_vector;
-  else {
-    util_abort("%s: invalid state value:%d \n",__func__ , state);
-    return NULL;
-  }
-}
 
 
-static double SUMMARY_GET_VALUE( const summary_type * summary , node_id_type node_id) {
+static double SUMMARY_GET_VALUE( const summary_type * summary , int report_step) {
   if (summary->vector_storage) {
-    double_vector_type * storage_vector = SELECT_VECTOR( summary , node_id.state );
-    return double_vector_iget( storage_vector , node_id.report_step );
+    return double_vector_iget( summary->data_vector , report_step );
   } else
     return summary->data[0];
 }
 
 
-static void SUMMARY_SET_VALUE( summary_type * summary , node_id_type node_id , double value) {
+static void SUMMARY_SET_VALUE( summary_type * summary , int report_step , double value) {
   if (summary->vector_storage) {
-    double_vector_type * storage_vector = SELECT_VECTOR( summary , node_id.state );
-    double_vector_iset( storage_vector , node_id.report_step , value);
+    double_vector_iset( summary->data_vector , report_step , value);
   } else
     summary->data[0] = value;
 }
@@ -92,8 +78,7 @@ void summary_clear(summary_type * summary) {
   for (int k=0; k < data_size; k++)
     summary->data[k] = 0;
 
-  double_vector_reset( summary->forecast_vector );
-  double_vector_reset( summary->analyzed_vector );
+  double_vector_reset( summary->data_vector );
 }
 
 
@@ -102,8 +87,7 @@ summary_type * summary_alloc(const summary_config_type * summary_config) {
   summary->__type_id       = SUMMARY;
   summary->vector_storage  = summary_config_get_vector_storage( summary_config );
   summary->config          = (summary_config_type *) summary_config;
-  summary->forecast_vector = double_vector_alloc(0 , SUMMARY_UNDEF_FORECAST);  
-  summary->analyzed_vector = double_vector_alloc(0 , SUMMARY_UNDEF_ANALYZED);  
+  summary->data_vector     = double_vector_alloc(0 , SUMMARY_UNDEF);
   {
     const int data_size = summary_config_get_data_size( summary_config );
     summary->data       = util_calloc( data_size , sizeof * summary->data );
@@ -115,9 +99,7 @@ summary_type * summary_alloc(const summary_config_type * summary_config) {
 
 bool summary_active_value( double value ) {
 
-  if (value == SUMMARY_UNDEF_FORECAST)
-    return false;
-  if (value == SUMMARY_UNDEF_ANALYZED)
+  if (value == SUMMARY_UNDEF)
     return false;
 
   return true;
@@ -129,9 +111,8 @@ void summary_copy(const summary_type *src , summary_type * target) {
     const int data_size = summary_config_get_data_size( src->config );
     for (int k=0; k < data_size; k++)
       target->data[k] = src->data[k];
-    
-    double_vector_memcpy( target->forecast_vector , src->forecast_vector );
-    double_vector_memcpy( target->analyzed_vector , src->analyzed_vector );
+
+    double_vector_memcpy( target->data_vector , src->data_vector );
   } else
     util_abort("%s: do not share config objects \n",__func__);
 }
@@ -139,11 +120,10 @@ void summary_copy(const summary_type *src , summary_type * target) {
 
 
 
-void summary_read_from_buffer(summary_type * summary , buffer_type * buffer, enkf_fs_type * fs, int report_step, state_enum state) {
+void summary_read_from_buffer(summary_type * summary , buffer_type * buffer, enkf_fs_type * fs, int report_step) {
   enkf_util_assert_buffer_type( buffer , SUMMARY );
   if (summary->vector_storage) {
-    double_vector_type * storage_vector = SELECT_VECTOR( summary , state );
-    double_vector_buffer_fread( storage_vector , buffer );
+    double_vector_buffer_fread( summary->data_vector , buffer );
   } else {
     int  size = summary_config_get_data_size( summary->config );
     buffer_fread( buffer , summary->data , sizeof * summary->data , size);
@@ -151,11 +131,10 @@ void summary_read_from_buffer(summary_type * summary , buffer_type * buffer, enk
 }
 
 
-bool summary_write_to_buffer(const summary_type * summary , buffer_type * buffer, int report_step , state_enum state) {
+bool summary_write_to_buffer(const summary_type * summary , buffer_type * buffer, int report_step) {
   buffer_fwrite_int( buffer , SUMMARY );
   if (summary->vector_storage) {
-    double_vector_type * storage_vector = SELECT_VECTOR( summary , state );
-    double_vector_buffer_fwrite( storage_vector , buffer );
+    double_vector_buffer_fwrite( summary->data_vector , buffer );
   } else {
     int  size = summary_config_get_data_size( summary->config );
     buffer_fwrite( buffer , summary->data , sizeof * summary->data , size);
@@ -164,18 +143,16 @@ bool summary_write_to_buffer(const summary_type * summary , buffer_type * buffer
 }
 
 
-bool summary_has_data( const summary_type * summary , int report_step , state_enum state) {
+bool summary_has_data( const summary_type * summary , int report_step) {
   if (summary->vector_storage) {
-    double_vector_type * storage_vector = SELECT_VECTOR( summary , state );
-    return (double_vector_size( storage_vector ) > report_step) ? true : false;
+    return (double_vector_size( summary->data_vector ) > report_step) ? true : false;
   } else 
     return true; 
 }
 
 
 void summary_free(summary_type *summary) {
-  double_vector_free( summary->forecast_vector );
-  double_vector_free( summary->analyzed_vector );
+  double_vector_free( summary->data_vector );
   free(summary->data);
   free(summary);
 }
@@ -186,7 +163,7 @@ void summary_free(summary_type *summary) {
 
 
 void summary_serialize(const summary_type * summary , node_id_type node_id , const active_list_type * active_list , matrix_type * A , int row_offset , int column) {
-  double value = SUMMARY_GET_VALUE( summary , node_id );
+  double value = SUMMARY_GET_VALUE( summary , node_id.report_step );
   enkf_matrix_serialize( &value , 1 , ECL_DOUBLE_TYPE , active_list , A , row_offset , column);
 }
 
@@ -194,28 +171,25 @@ void summary_serialize(const summary_type * summary , node_id_type node_id , con
 void summary_deserialize(summary_type * summary , node_id_type node_id , const active_list_type * active_list , const matrix_type * A , int row_offset , int column) {
   double value;
   enkf_matrix_deserialize( &value , 1 , ECL_DOUBLE_TYPE , active_list , A , row_offset , column);
-  SUMMARY_SET_VALUE( summary , node_id , value );
+  SUMMARY_SET_VALUE( summary , node_id.report_step , value );
 }
 
 
-double summary_get(const summary_type * summary, int report_step , state_enum state) {
-  node_id_type node_id = {.report_step = report_step , .state = state , .iens = -1};
-  return SUMMARY_GET_VALUE( summary , node_id );
+double summary_get(const summary_type * summary, int report_step) {
+  return SUMMARY_GET_VALUE( summary , report_step );
 }
 
 
-bool summary_user_get(const summary_type * summary , const char * index_key , int report_step , state_enum state, double * value) {
+bool summary_user_get(const summary_type * summary , const char * index_key , int report_step , double * value) {
   if (summary->vector_storage) {
-    double_vector_type * vector = SELECT_VECTOR( summary , state );
-    
-    if (double_vector_size( vector ) > report_step) {
-      *value = double_vector_iget( vector , report_step);
+    if (double_vector_size( summary->data_vector ) > report_step) {
+      *value = double_vector_iget( summary->data_vector , report_step);
       return true;
     } else {
       *value = -1;
       return false;
     }
-    
+
   } else {
     *value = summary->data[0];
     return true;
@@ -224,11 +198,10 @@ bool summary_user_get(const summary_type * summary , const char * index_key , in
 
 
 
-void summary_user_get_vector(const summary_type * summary , const char * index_key , state_enum state, double_vector_type * value) {
+void summary_user_get_vector(const summary_type * summary , const char * index_key , double_vector_type * value) {
   if (summary->vector_storage) {
-    double_vector_type * vector = SELECT_VECTOR( summary , state );
-    double_vector_memcpy( value , vector );
-  } else 
+    double_vector_memcpy( value , summary->data_vector);
+  } else
     util_abort("%s: internal error - should not call the %s function when not using vector storage \n",__func__ , __func__);
 }
 
@@ -307,10 +280,8 @@ bool summary_forward_load(summary_type * summary , const char * ecl_file_name , 
     } 
   } 
   
-  if (loadOK) {
-    node_id_type node_id = {.report_step = report_step , .iens = -1 , .state = FORECAST };
-    SUMMARY_SET_VALUE( summary , node_id , load_value );
-  }
+  if (loadOK)
+    SUMMARY_SET_VALUE( summary , report_step , load_value );
   
   return loadOK;
 }
@@ -326,7 +297,6 @@ bool summary_forward_load_vector(summary_type * summary ,
   if (summary->vector_storage) {
     const ecl_sum_type * ecl_sum = forward_load_context_get_ecl_sum( load_context );
     if (ecl_sum != NULL) {
-      double_vector_type * storage_vector = SELECT_VECTOR( summary , FORECAST );
       const char * var_key                = summary_config_get_var(summary->config);
       load_fail_type load_fail_action     = summary_config_get_load_fail_mode(summary->config );
       bool normal_load = false;
@@ -342,7 +312,7 @@ bool summary_forward_load_vector(summary_type * summary ,
           for (int step = 0; step < int_vector_size( time_index ); step++) {
             int summary_step = int_vector_iget( time_index , step );
             if (summary_step >= 0)
-              double_vector_iset( storage_vector , summary_step , 0);
+              double_vector_iset( summary->data_vector , summary_step , 0);
           }
           loadOK = true;  
           
@@ -363,7 +333,7 @@ bool summary_forward_load_vector(summary_type * summary ,
           if (summary_index >= 0) {
             if (ecl_sum_has_report_step( ecl_sum , summary_index )) {
               int last_ministep_index = ecl_sum_iget_report_end( ecl_sum , summary_index );
-              double_vector_iset( storage_vector , store_index , ecl_sum_iget(ecl_sum , last_ministep_index  , key_index ));
+              double_vector_iset( summary->data_vector , store_index , ecl_sum_iget(ecl_sum , last_ministep_index  , key_index ));
             }
           }
 

@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __WELL_RSEG_LOADER_H__
-#define __WELL_RSEG_LOADER_H__
+#ifndef ERT_WELL_RSEG_LOADER_H
+#define ERT_WELL_RSEG_LOADER_H
 
 
 #ifdef __cplusplus

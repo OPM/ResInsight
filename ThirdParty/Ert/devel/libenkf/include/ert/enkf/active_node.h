@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ACTIVE_NODE_H__
-#define __ACTIVE_NODE_H__
+#ifndef ERT_ACTIVE_NODE_H
+#define ERT_ACTIVE_NODE_H
 
 
 typedef struct active_var_struct active_var_type;

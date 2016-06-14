@@ -48,7 +48,7 @@ void testS( ert_test_context_type * test_context ) {
     meas_data = meas_data_alloc( ens_mask );
 
     enkf_obs_add_local_nodes_with_data( enkf_obs  , obs_set , fs , ens_mask );
-    enkf_obs_get_obs_and_measure_data( enkf_obs , fs , obs_set, FORECAST , active_list , meas_data , obs_data);
+    enkf_obs_get_obs_and_measure_data( enkf_obs , fs , obs_set,  active_list , meas_data , obs_data);
 
     {
       FILE * stream = util_fopen("analysis/Smatrix" , "r");

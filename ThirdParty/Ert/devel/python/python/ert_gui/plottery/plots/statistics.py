@@ -32,6 +32,7 @@ def plotStatistics(plot_context):
             config.addLegendItem(case, rectangle)
 
             statistics_data = DataFrame()
+            std_dev_factor = config.getStandardDeviationFactor()
 
             statistics_data["Minimum"] = data.min(axis=1)
             statistics_data["Maximum"] = data.max(axis=1)
@@ -41,7 +42,7 @@ def plotStatistics(plot_context):
             statistics_data["p50"] = data.quantile(0.50, axis=1)
             statistics_data["p67"] = data.quantile(0.67, axis=1)
             statistics_data["p90"] = data.quantile(0.90, axis=1)
-            std = data.std(axis=1)
+            std = data.std(axis=1) * std_dev_factor
             statistics_data["std+"] = statistics_data["Mean"] + std
             statistics_data["std-"] = statistics_data["Mean"] - std
 

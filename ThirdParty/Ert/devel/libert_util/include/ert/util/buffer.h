@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __BUFFER_H__
-#define __BUFFER_H__
+#ifndef ERT_BUFFER_H
+#define ERT_BUFFER_H
 
 #ifdef __cplusplus
 extern "C" {

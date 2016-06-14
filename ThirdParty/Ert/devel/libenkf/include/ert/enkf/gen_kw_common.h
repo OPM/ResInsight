@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GEN_KW_COMMON_H__
-#define __GEN_KW_COMMON_H__
+#ifndef ERT_GEN_KW_COMMON_H
+#define ERT_GEN_KW_COMMON_H
 
 /*
   Contains some headers which both gen_kw.c and gen_kw_config.c need -

@@ -46,9 +46,6 @@ const char * fs_types_get_driver_name(fs_driver_enum driver_type) {
   case(DRIVER_DYNAMIC_FORECAST):
     return "FORECAST";
     break;
-  case(DRIVER_DYNAMIC_ANALYZED):
-    return "ANALYZED";
-    break;
   case(DRIVER_INDEX):
     return "INDEX";
     break;
@@ -64,10 +61,12 @@ const char * fs_types_get_driver_name(fs_driver_enum driver_type) {
   December 2015, but there will still be many mount map files with
   this enum value around on disk. This function is a minor convenience
   to handle that.
+
+  The driver type DRIVER_DYNAMIC_ANALYZED was removed ~april 2016.
 */
 
 bool fs_types_valid( fs_driver_enum driver_type) {
-  if (driver_type == DRIVER_STATIC)
+  if ((driver_type == DRIVER_STATIC) || (driver_type == DRIVER_DYNAMIC_ANALYZED))
     return false;
   else
     return true;

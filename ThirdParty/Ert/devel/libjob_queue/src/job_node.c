@@ -41,6 +41,7 @@ struct job_queue_node_struct {
   char                  *run_cmd;         /* The path to the actual executable. */
   char                  *exit_file;       /* The queue will look for the occurence of this file to detect a failure. */
   char                  *ok_file;         /* The queue will look for this file to verify that the job was OK - can be NULL - in which case it is ignored. */
+  char                  *status_file;     /* The queue will look for this file to verify that the job is running or has run. */
   char                  *job_name;        /* The name of the job. */
   char                  *run_path;        /* Where the job is run - absolute path. */
   job_callback_ftype    *done_callback;
@@ -60,11 +61,13 @@ struct job_queue_node_struct {
 
   int                    submit_attempt;  /* Which attempt is this ... */
   job_status_type        job_status;      /* The current status of the job. */
+  bool                   confirmed_running;/* Set to true if file status_file has been detected written. */
   pthread_mutex_t        data_mutex;      /* Protecting the access to the job_data pointer. */
   void                  *job_data;        /* Driver specific data about this job - fully handled by the driver. */
   time_t                 submit_time;     /* When was the job added to job_queue - the FIRST TIME. */
   time_t                 sim_start;       /* When did the job change status -> RUNNING - the LAST TIME. */
   time_t                 sim_end ;        /* When did the job finish successfully */
+  time_t                 max_confirm_wait;/* Max waiting between sim_start and confirmed_running is 2 minutes */
 };
 
 
@@ -252,7 +255,7 @@ job_queue_node_type * job_queue_node_alloc_simple( const char * job_name ,
                                                    const char * run_cmd ,
                                                    int argc ,
                                                    const char ** argv) {
-  return job_queue_node_alloc( job_name , run_path , run_cmd , argc , argv , 1, NULL , NULL, NULL, NULL, NULL, NULL);
+  return job_queue_node_alloc( job_name , run_path , run_cmd , argc , argv , 1, NULL , NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 
@@ -263,6 +266,7 @@ job_queue_node_type * job_queue_node_alloc( const char * job_name ,
                                             const char ** argv,
                                             int num_cpu,
                                             const char * ok_file,
+                                            const char * status_file,
                                             const char * exit_file,
                                             job_callback_ftype * done_callback,
                                             job_callback_ftype * retry_callback,
@@ -292,6 +296,12 @@ job_queue_node_type * job_queue_node_alloc( const char * job_name ,
       else
         node->ok_file = NULL;
 
+      if (status_file)
+        node->status_file = util_alloc_filename(node->run_path , status_file , NULL);
+      else
+        node->status_file = NULL;
+      node->confirmed_running = false;
+
       if (exit_file)
         node->exit_file = util_alloc_filename(node->run_path , exit_file , NULL);
       else
@@ -316,6 +326,7 @@ job_queue_node_type * job_queue_node_alloc( const char * job_name ,
       node->sim_start      = 0;
       node->sim_end        = 0;
       node->submit_time    = time( NULL );
+      node->max_confirm_wait= 60*2; /* 2 minutes before we consider job dead. */
     }
 
     pthread_mutex_init( &node->data_mutex , NULL );
@@ -348,7 +359,9 @@ const char * job_queue_node_get_ok_file( const job_queue_node_type * node) {
   return node->ok_file;
 }
 
-
+const char * job_queue_node_get_status_file( const job_queue_node_type * node) {
+  return node->status_file;
+}
 
 const char * job_queue_node_get_run_path( const job_queue_node_type * node) {
   return node->run_path;
@@ -376,7 +389,9 @@ time_t job_queue_node_get_submit_time( const job_queue_node_type * node ) {
   return node->submit_time;
 }
 
-
+double job_queue_node_time_since_sim_start (const job_queue_node_type * node ) {
+  return util_difftime_seconds( node->sim_start , time(NULL));
+}
 
 bool job_queue_node_run_DONE_callback( job_queue_node_type * node ) {
   bool OK = true;
@@ -467,13 +482,43 @@ submit_status_type job_queue_node_submit( job_queue_node_type * node , job_queue
   return submit_status;
 }
 
+static bool job_queue_node_status_update_confirmed_running__(job_queue_node_type * node) {
+  if (node->confirmed_running)
+      return true;
 
-bool job_queue_node_update_status( job_queue_node_type * node , job_queue_status_type * status , queue_driver_type * driver) {
+  if (!node->status_file) {
+    node->confirmed_running = true;
+    return true;
+  }
+
+  if (util_file_exists(node->status_file))
+    node->confirmed_running = true;
+  return node->confirmed_running;
+}
+
+// if status = running, and current_time > sim_start + max_confirm_wait
+// (usually 2 min), check if job is confirmed running (status_file exists).
+// If not confirmed, set job to JOB_QUEUE_FAILED.
+bool job_queue_node_update_status( job_queue_node_type * node , job_queue_status_type * status , queue_driver_type * driver ) {
   bool status_change = false;
-  pthread_mutex_lock( &node->data_mutex );
+  pthread_mutex_lock(&node->data_mutex);
   {
     if (node->job_data) {
       job_status_type current_status = job_queue_node_get_status(node);
+
+      bool confirmed = job_queue_node_status_update_confirmed_running__(node);
+
+      if ((current_status & JOB_QUEUE_RUNNING) && !confirmed) {
+        // it's running, but not confirmed running.
+        double runtime = job_queue_node_time_since_sim_start(node);
+        if (runtime >= node->max_confirm_wait) {
+          // max_confirm_wait has passed since sim_start without success; the job is dead
+          job_status_type new_status = JOB_QUEUE_EXIT;
+          status_change = job_queue_status_transition(status, current_status, new_status);
+          job_queue_node_set_status(node, new_status);
+        }
+      }
+      current_status = job_queue_node_get_status(node);
       if (current_status & JOB_QUEUE_CAN_UPDATE_STATUS) {
         job_status_type new_status = queue_driver_get_status( driver , node->job_data);
         status_change = job_queue_status_transition(status , current_status , new_status);
@@ -484,7 +529,6 @@ bool job_queue_node_update_status( job_queue_node_type * node , job_queue_status
   pthread_mutex_unlock( &node->data_mutex );
   return status_change;
 }
-
 
 bool job_queue_node_status_transition( job_queue_node_type * node , job_queue_status_type * status , job_status_type new_status) {
   bool status_change;
@@ -500,6 +544,15 @@ bool job_queue_node_status_transition( job_queue_node_type * node , job_queue_st
   return status_change;
 }
 
+void job_queue_node_set_max_confirmation_wait_time(job_queue_node_type * node, time_t time) {
+  node->max_confirm_wait = time;
+}
+
+
+
+bool job_queue_node_status_confirmed_running(job_queue_node_type * node) {
+  return node->confirmed_running;
+}
 
 
 bool job_queue_node_kill( job_queue_node_type * node , job_queue_status_type * status , queue_driver_type * driver) {
@@ -548,6 +601,18 @@ void job_queue_node_free_driver_data( job_queue_node_type * node , queue_driver_
   pthread_mutex_unlock( &node->data_mutex );
 }
 
+
+/*
+  This returns a pointer to a very internal datastructure; used by the
+  Job class in Python which interacts directly with the driver
+  implementation. This is too low level, and the whole Driver / Job
+  implementation in Python should be changed to only expose the higher
+  level queue class.
+*/
+
+void * job_queue_node_get_driver_data( job_queue_node_type * node ) {
+  return node->job_data;
+}
 
 
 void job_queue_node_restart( job_queue_node_type * node , job_queue_status_type * status) {

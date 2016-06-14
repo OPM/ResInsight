@@ -98,6 +98,11 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCase.h"
+#include "RimGridSummaryCase.h"
 
 namespace caf
 {
@@ -385,6 +390,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
+    for (RimOilField* oilField:  m_project->oilFields)
+    {
+        if (oilField == NULL) continue; 
+        // Temporary
+        if(!oilField->summaryCaseCollection())
+        {
+            oilField->summaryCaseCollection = new RimSummaryCaseCollection();
+        }
+        oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
+        oilField->summaryCaseCollection()->loadAllSummaryCaseData();
+    }
 
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
@@ -444,14 +460,36 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     }
 
     {
+        RimWellLogPlotCollection* wlpColl = nullptr;
+        RimSummaryPlotCollection* spColl = nullptr;
+
         if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
         {
-            RimWellLogPlotCollection* wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-            caf::ProgressInfo plotProgress(wlpColl->wellLogPlots().size(), "Loading Plot Data");
+            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+        }
+        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection())
+        {
+            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+        }
+        size_t plotCount = 0;
+        plotCount += wlpColl ? wlpColl->wellLogPlots().size(): 0;
+        plotCount += spColl ? spColl->m_summaryPlots().size(): 0;
 
+        caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
+        if (wlpColl)
+        {
             for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
             {
                 wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (spColl)
+        {
+            for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
+            {
+                spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
@@ -752,11 +790,21 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     riv->loadDataAndUpdate();
 
+    // Add a corresponding summary case if it exists
+    {
+        RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
+        if(sumCaseColl)
+        {
+            RimGridSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
+            if(newSumCase) newSumCase->loadCase();
+        }
+    }
+
     if (!riv->cellResult()->hasResult())
     {
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
-
+    
     analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
@@ -1216,39 +1264,10 @@ int RiaApplication::launchUnitTestsWithConsole()
         // Only one console can be associated with an app, so should fail if a console is already present.
         AllocConsole();
 
-        bool redirStdOut = true;
-        bool redirStdErr = true;
-        bool redirStdIn = false;
+        FILE* consoleFilePointer;
 
-        if (redirStdOut)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "w");
-
-            *stdout = *fp;
-            setvbuf(stdout, NULL, _IONBF, 0);
-        }
-
-        if (redirStdErr)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_ERROR_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "w");
-
-            *stderr = *fp;
-            setvbuf(stderr, NULL, _IONBF, 0);
-        }
-
-        if (redirStdIn)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_INPUT_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "r");
-
-            *stdin = *fp;
-            setvbuf(stdin, NULL, _IONBF, 0);
-        }
+        freopen_s(&consoleFilePointer, "CONOUT$", "w", stdout);
+        freopen_s(&consoleFilePointer, "CONOUT$", "w", stderr);
 
         // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
         std::ios::sync_with_stdio();

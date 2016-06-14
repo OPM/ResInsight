@@ -16,7 +16,7 @@
    for more details. 
 */
 
-#ifndef __ERT_TUI_CONST__
+#ifndef ERT_TUI_CONST
 #ifdef __cplusplus
 extern "C" {
 #endif

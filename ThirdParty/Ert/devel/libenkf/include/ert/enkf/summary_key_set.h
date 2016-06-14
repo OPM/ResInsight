@@ -1,5 +1,5 @@
-#ifndef __SUMMARY_KEY_SET_H__
-#define __SUMMARY_KEY_SET_H__
+#ifndef ERT_SUMMARY_KEY_SET_H
+#define ERT_SUMMARY_KEY_SET_H
 
 #ifdef __cplusplus 
 extern "C" {

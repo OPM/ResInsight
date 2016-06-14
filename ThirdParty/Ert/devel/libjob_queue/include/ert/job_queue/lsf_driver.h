@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __LSF_DRIVER_H__
-#define __LSF_DRIVER_H__
+#ifndef ERT_LSF_DRIVER_H
+#define ERT_LSF_DRIVER_H
 #ifdef __cplusplus
 extern "C" {
 #endif

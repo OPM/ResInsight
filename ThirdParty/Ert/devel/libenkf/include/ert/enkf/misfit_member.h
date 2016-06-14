@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __MISFIT_MEMBER_H__
-#define __MISFIT_MEMBER_H__
+#ifndef ERT_MISFIT_MEMBER_H
+#define ERT_MISFIT_MEMBER_H
 
 #ifdef __cplusplus
 extern "C" {

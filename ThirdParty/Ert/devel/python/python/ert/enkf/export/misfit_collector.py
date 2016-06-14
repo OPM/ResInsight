@@ -1,6 +1,6 @@
 from pandas import DataFrame
 import numpy
-from ert.enkf import EnKFMain, EnkfFs, RealizationStateEnum, EnkfStateType
+from ert.enkf import EnKFMain, EnkfFs, RealizationStateEnum
 from ert.enkf.key_manager import KeyManager
 from ert.util import BoolVector
 
@@ -42,7 +42,7 @@ class MisfitCollector(object):
         for column_index, obs_vector in enumerate(ert.getObservations()):
 
             for realization_index, realization_number in enumerate(realizations):
-                misfit = obs_vector.getTotalChi2(fs, realization_number, EnkfStateType.FORECAST)
+                misfit = obs_vector.getTotalChi2(fs, realization_number)
 
                 misfit_array[column_index][realization_index] = misfit
                 misfit_array[misfit_sum_index][realization_index] += misfit

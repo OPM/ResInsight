@@ -29,7 +29,7 @@
 
 #include <vector>
 
-#include "well_info.h"
+#include "ert/ecl_well/well_info.h"
 
 #include "RifReaderInterface.h"
 

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ACTIVE_CONFIG_H__
-#define __ACTIVE_CONFIG_H__
+#ifndef ERT_ACTIVE_CONFIG_H
+#define ERT_ACTIVE_CONFIG_H
 
 
 #endif

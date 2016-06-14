@@ -52,6 +52,8 @@ class PlotConfig(object):
             "std": PlotStyle("Std dev", line_style="")
         }
 
+        self._std_dev_factor = 1 # sigma 1 is default std dev
+
     def currentColor(self):
         if self._current_color is None:
             self.nextColor()
@@ -172,6 +174,12 @@ class PlotConfig(object):
     def setDistributionLineEnabled(self, enabled):
         self._distribution_line_style.setEnabled(enabled)
 
+    def setStandardDeviationFactor(self, value):
+        self._std_dev_factor = value
+
+    def getStandardDeviationFactor(self):
+        return self._std_dev_factor
+
     def setLegendEnabled(self, enabled):
         self._legend_enabled = enabled
 
@@ -255,6 +263,7 @@ class PlotConfig(object):
         self._statistics_style["p33-p67"].copyStyleFrom(other._statistics_style["p33-p67"], copy_enabled_state=True)
         self._statistics_style["std"].copyStyleFrom(other._statistics_style["std"], copy_enabled_state=True)
 
+        self._std_dev_factor = other._std_dev_factor
         self._legend_enabled = other._legend_enabled
         self._grid_enabled = other._grid_enabled
 

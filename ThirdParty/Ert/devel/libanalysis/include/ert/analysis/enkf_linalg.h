@@ -1,5 +1,5 @@
-#ifndef __ENKF_LINALG_H__
-#define __ENKF_LINALG_H__
+#ifndef ERT_ENKF_LINALG_H
+#define ERT_ENKF_LINALG_H
 
 #include <ert/util/matrix_lapack.h>
 #include <ert/util/matrix.h>

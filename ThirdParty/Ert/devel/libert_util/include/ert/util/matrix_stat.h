@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __MATRIX_STAT_H__
-#define __MATRIX_STAT_H__
+#ifndef ERT_MATRIX_STAT_H
+#define ERT_MATRIX_STAT_H
 
 #include <ert/util/matrix.h>
 

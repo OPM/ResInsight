@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __LARS_H__
-#define __LARS_H__
+#ifndef ERT_LARS_H
+#define ERT_LARS_H
 
 #ifdef __cplusplus
 extern "C" {

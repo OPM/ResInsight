@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SUMMARY_H__
-#define __SUMMARY_H__
+#ifndef ERT_SUMMARY_H
+#define ERT_SUMMARY_H
 #include <ert/util/double_vector.h>
 
 #include <ert/ecl/ecl_sum.h>
@@ -32,7 +32,7 @@
 
 
 
-double    summary_get(const summary_type * summary, int report_step , state_enum state);
+double    summary_get(const summary_type * summary, int report_step );
 bool      summary_active_value( double value );
 
 VOID_HAS_DATA_HEADER(summary);

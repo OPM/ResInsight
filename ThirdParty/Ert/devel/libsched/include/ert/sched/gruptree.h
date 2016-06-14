@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GRUPTREE_H__
-#define __GRUPTREE_H__
+#ifndef ERT_GRUPTREE_H
+#define ERT_GRUPTREE_H
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_SUM_TSTEP_H__
-#define __ECL_SUM_TSTEP_H__
+#ifndef ERT_ECL_SUM_TSTEP_H
+#define ERT_ECL_SUM_TSTEP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,9 @@ typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
 
   void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vector_type * index_map , fortio_type * fortio);
   void ecl_sum_tstep_iset( ecl_sum_tstep_type * tstep , int index , float value);
+
   void ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node , float value);
+  double ecl_sum_tstep_get_from_node( const ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node);
 
   void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_key , float value);
   double ecl_sum_tstep_get_from_key( const ecl_sum_tstep_type * tstep , const char * gen_key);

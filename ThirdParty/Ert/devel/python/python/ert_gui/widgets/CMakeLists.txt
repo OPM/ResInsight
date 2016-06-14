@@ -31,6 +31,7 @@ set(PYTHON_SOURCES
     search_box.py
     simple_progress.py
     string_box.py
+    text_or_file.py
     util.py
     validated_dialog.py
     warning_panel.py

@@ -7,6 +7,7 @@ set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 ################################################################################
 # Setup the main platform defines
@@ -15,12 +16,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_definitions(-DCVF_LINUX)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
-else()
+elseif(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
+    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=gnu++11")
     set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif() 
@@ -48,66 +49,166 @@ endif()
 ################################################################################
 include (ResInsightVersion.cmake)
 
+################################################################################
+# Boost
+################################################################################
+
+# if we are building shared libraries ourselves, then don't include Boost in them
+if (BUILD_SHARED_LIBS)
+   set(Boost_USE_STATIC_LIBS    OFF)
+elseif (DEFINED BUILD_SHARED_LIBS)
+   set(Boost_USE_STATIC_LIBS    ON)
+endif ()
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+
+if (MSVC)
+  ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
+endif()
+
+
+# Requires BOOST filesystem version 3, thus 1.44 is necessary.
+add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
+
+if(MSVC)
+	set(BUILD_SHARED_LIBS OFF)
+    set(Boost_USE_STATIC_LIBS    ON)
+	set(RESINSIGHT_BOOST_ROOT "" CACHE PATH "Path to installed boost directories" )
+	set(RESINSIGHT_BOOST_LIBRARYDIR "" CACHE PATH "Path to boost binary libraries" )
+	set(BOOST_ROOT ${RESINSIGHT_BOOST_ROOT})
+	set(BOOST_LIBRARYDIR ${RESINSIGHT_BOOST_LIBRARYDIR})
+	
+	if (RESINSIGHT_BOOST_ROOT AND RESINSIGHT_BOOST_LIBRARYDIR)
+		find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
+	else()
+		message (FATAL_ERROR "You need to set RESINSIGHT_BOOST_ROOT and RESINSIGHT_BOOST_LIBRARYDIR")
+	endif()
+
+else()
+	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
+endif()
+
+################################################################################
+# cotire 
+# Fully automated CMake module for build speedup
+# https://github.com/sakra/cotire
+################################################################################
+
+option(RESINSIGHT_ENABLE_COTIRE "Use Cotire to speed up build process" OFF)
+if(RESINSIGHT_ENABLE_COTIRE)
+    set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+    include(cotire)
+  
+    set(CAF_USE_COTIRE TRUE CACHE INTERNAL "CAF: Use cotire")
+    
+endif()
+
 
 ################################################################################
 # ERT
 ################################################################################
 
-# Disable install of ERT libs and headers, as Ert code is compiled and linked directly
-SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
-SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
-SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
-SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-SET(ERT_BUILD_CXX OFF CACHE BOOL "ERT: Disable build of CXX wrappers")
+if (NOT MSVC)
+  # Linux: Optional configuration of externally installed ERT, requires path to libraries and includes
+  set(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT "" CACHE PATH "Path to installed ERT libraries")
+  set(RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT "" CACHE PATH "Path to installed ERT includes")
+endif()
 
-option( ERT_EXTERNAL             "Build ERT from external source" OFF)
-SET(EXT_ERT_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
-
-if (ERT_EXTERNAL)
-    if (EXT_ERT_ROOT)
-        set(ERT_SOURCE_PATH "${EXT_ERT_ROOT}")
-
-        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
-        include_directories(
-        ${ERT_SOURCE_PATH}/libecl/include/ert/ecl
-        ${ERT_SOURCE_PATH}/libert_util/include/ert/util
-        ${ERT_SOURCE_PATH}/libgeometry/include/ert/geometry
-        ${ERT_SOURCE_PATH}/libecl_well/include/ert/ecl_well
-        ${ERT_SOURCE_PATH}/libecl/include
-        ${ERT_SOURCE_PATH}/libert_util/include
-        ${ERT_SOURCE_PATH}/libgeometry/include
-        ${ERT_SOURCE_PATH}/libecl_well/include
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include/ert/util
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
-        )
-    endif(EXT_ERT_ROOT)
-
-else (ERT_EXTERNAL)
-    add_subdirectory(ThirdParty/Ert/devel)
-    include_directories(
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include/ert/ecl
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include/ert/geometry
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include/ert/ecl_well
-	${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include
-
-	${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
-    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
-    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
+set (ERT_BINARY_LIB_NAMES
+    libecl.so
+    libeclxx.so
+    libecl_well.so
+    libert_geometry.so
+    libert_util.so
     )
-endif (ERT_EXTERNAL)
 
-set_property(TARGET  
-				ecl 
-				ecl_well 
-				ert_geometry 
-				ert_util  
-			  PROPERTY FOLDER "ERT"
-)
+if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+  if (NOT(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT))
+    message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
+  endif()
+
+  list(APPEND ERT_INCLUDE_DIRS
+    ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
+  )
+
+  list(APPEND ERT_EXTERNAL_LIBRARIES
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libeclxx.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
+	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
+  )
+  
+else()
+
+    # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
+    SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
+    SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
+    SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
+    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
+
+    # Remember original state
+    set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+    
+    if (MSVC)
+      # Force static linking on Windows
+      set(BUILD_SHARED_LIBS OFF)
+      set(ERT_HAVE_UNISTD OFF) #If anyone has mingw installed
+    else ()
+      set(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
+       
+      # Force dynamic linking on other platforms
+      # Copy of libraries into install folder of ResInsight is done a bit further down in this file
+      set(BUILD_SHARED_LIBS ON)
+    endif()
+
+    if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
+        set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
+        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+    else()
+        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel)
+        add_subdirectory(ThirdParty/Ert/devel)
+    endif ()
+
+    list(APPEND ERT_INCLUDE_DIRS
+        ${ERT_INCLUDE_ROOT}/libecl/include/
+        ${ERT_INCLUDE_ROOT}/libert_util/include/
+        ${ERT_INCLUDE_ROOT}/libgeometry/include/
+        ${ERT_INCLUDE_ROOT}/libecl_well/include/
+        ${ERT_INCLUDE_ROOT}/libeclxx/include
+        ${ERT_INCLUDE_ROOT}/libert_utilxx/include
+
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
+    )
+
+    list(APPEND ERT_LIBRARIES
+	        ecl 
+	        eclxx
+	        ecl_well 
+	        ert_geometry 
+	        ert_util  
+    )
+
+    if (MSVC)
+      set_property(TARGET  
+          ${ERT_LIBRARIES}
+          ecl_lfs
+	      PROPERTY FOLDER "ERT"
+      )
+    endif()
+    
+    # Restore original state
+    set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
+    
+endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+
+
+################################################################################
+# Opm
+################################################################################
+
+add_subdirectory(ThirdParty/custom-opm-parser)
 
 
 ################################################################################
@@ -115,7 +216,6 @@ set_property(TARGET
 ################################################################################
 
 add_subdirectory(ThirdParty/NRLib)
-include_directories(ThirdParty/NRLib/nrlib/well)
 
 
 ################################################################################
@@ -141,7 +241,6 @@ find_package( OpenGL )
 ################################################################################
 
 add_subdirectory(ThirdParty/Qwt/src)
-include_directories(ThirdParty/Qwt/src)
 
 ################################################################################
 # Vizualization Framework
@@ -182,13 +281,17 @@ include_directories(
     ${LibGuiQt_SOURCE_DIR}
 )
 
+list(APPEND VIZ_FWK_LIBRARIES
+    LibGuiQt
+    LibViewing
+    LibRender
+    LibGeometry
+    LibCore
+)
+
 set_property(TARGET  
-				LibCore 
-				LibGeometry 
-				LibGuiQt 
-				LibRender 
-				LibViewing  
-			  PROPERTY FOLDER "VizFwk"
+    ${VIZ_FWK_LIBRARIES}
+	PROPERTY FOLDER "VizFwk"
 )
 
 
@@ -213,20 +316,24 @@ add_subdirectory(Fwk/AppFwk/CommonCode)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 
-set_property(TARGET  
-	cafAnimControl
-    cafViewer
-
+list(APPEND APP_FWK_LIBRARIES
     cafPdmCore
     cafPdmUiCore
     cafPdmXml
-	cafProjectDataModel 
-
+    cafProjectDataModel
+    
+    cafUserInterface
+    cafViewer
+    cafAnimControl
     cafCommand
-	cafUserInterface 
+    cafPdmCvf
+
 	cafTensor
-	cafPdmCvf 
-	CommonCode
+    CommonCode
+)
+
+set_property(TARGET  
+    ${APP_FWK_LIBRARIES}
 	PROPERTY FOLDER "AppFwk"
 )
 
@@ -248,7 +355,36 @@ option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including t
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     #set (CMAKE_INSTALL_PREFIX /usr/${RESINSIGHT_FINAL_NAME})
+    
+    ################################################################################
+    # ERT shared library files
+    # Install procedure will copy so-files from ERT into same install folder as ResInsight
+    ################################################################################
+    
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(ERT_SHARED_LIB_FILES
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so.2.0
+        )
+      
+      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+    endif()
+    
 endif (RESINSIGHT_PRIVATE_INSTALL)
+
 
 ################################################################################
 # Application 

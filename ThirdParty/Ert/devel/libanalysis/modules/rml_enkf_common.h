@@ -1,5 +1,5 @@
-#ifndef __RML_ENKF_COMMON_H__
-#define __RML_ENKF_COMMON_H__
+#ifndef ERT_RML_ENKF_COMMON_H
+#define ERT_RML_ENKF_COMMON_H
 
 #include <stdbool.h>
 

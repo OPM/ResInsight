@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_HISTORY_H__
-#define __SCHED_HISTORY_H__
+#ifndef ERT_SCHED_HISTORY_H
+#define ERT_SCHED_HISTORY_H
 
 #ifdef __cplusplus 
 extern "C" {

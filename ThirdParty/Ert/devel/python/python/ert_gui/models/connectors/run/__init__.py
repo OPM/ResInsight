@@ -9,6 +9,7 @@ from .number_of_iterations import NumberOfIterationsModel
 from .base_run_model import BaseRunModel
 from .ensemble_experiment import EnsembleExperiment
 from .ensemble_smoother import EnsembleSmoother
+from .multiple_data_assimilation import MultipleDataAssimilation
 from .iterated_ensemble_smoother import IteratedEnsembleSmoother
 from .sensitivity_study import SensitivityStudy
 from .simulation_mode import SimulationModeModel

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SUMMARY_OBS_H__
-#define __SUMMARY_OBS_H__
+#ifndef ERT_SUMMARY_OBS_H
+#define ERT_SUMMARY_OBS_H
 
 #ifdef __cplusplus 
 extern "C" {

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_TUI_TABLE__
-#define __ENKF_TUI_TABLE__
+#ifndef ERT_ENKF_TUI_TABLE
+#define ERT_ENKF_TUI_TABLE
 
 void enkf_tui_table_menu(void * );
 

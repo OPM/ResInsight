@@ -146,7 +146,6 @@ static void enkf_tui_table__(enkf_main_type * enkf_main , bool gen_kw_table , bo
   }
   
   {
-    state_enum state  = FORECAST;
     int active_length = 0;
     int total_line_count = 0;
     double line[num_keys];
@@ -159,8 +158,7 @@ static void enkf_tui_table__(enkf_main_type * enkf_main , bool gen_kw_table , bo
         for (ikey = 0; ikey < num_keys; ikey++) {
           if (active[ikey]) {
             node_id_type node_id = {.report_step = step, 
-                                    .iens = iens , 
-                                    .state = state };
+                                    .iens = iens };
             if (enkf_node_user_get( nodes[ikey] , fs , index_keys[ikey] , node_id , &line[ikey]))
               line_count++;
             else

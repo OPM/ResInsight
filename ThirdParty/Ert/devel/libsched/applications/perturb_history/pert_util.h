@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __PERT_UTIL_H__
-#define __PERT_UTIL_H__
+#ifndef ERT_PERT_UTIL_H
+#define ERT_PERT_UTIL_H
 #include <double_vector.h>
 #include <bool_vector.h>
 #include <time_t_vector.h>

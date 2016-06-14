@@ -110,6 +110,13 @@ object as:
     def getName(self):
         """ @rtype: str """
         return LocalObsdata.cNamespace().name(self)
+    
+    def getActiveList(self, key):
+        """ @rtype: ActiveList """
+        if key in self:
+            return LocalObsdata.cNamespace().active_list(self , key)
+        else:
+            raise KeyError("Local key:%s not recognized" % key)      
 
     def free(self):
         LocalObsdata.cNamespace().free(self)
@@ -129,6 +136,7 @@ LocalObsdata.cNamespace().clear     = cwrapper.prototype("void local_dataset_cle
 LocalObsdata.cNamespace().iget_node = cwrapper.prototype("local_obsdata_node_ref local_obsdata_iget(local_obsdata, int)")
 LocalObsdata.cNamespace().get_node  = cwrapper.prototype("local_obsdata_node_ref local_obsdata_get(local_obsdata, char*)")
 LocalObsdata.cNamespace().name      = cwrapper.prototype("char* local_obsdata_get_name(local_obsdata)")
+LocalObsdata.cNamespace().active_list    = cwrapper.prototype("active_list_ref local_obsdata_get_node_active_list(local_obsdata, char*)")
 
 
 

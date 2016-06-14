@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SURFACE_CONFIG_H__
-#define __SURFACE_CONFIG_H__
+#ifndef ERT_SURFACE_CONFIG_H
+#define ERT_SURFACE_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {

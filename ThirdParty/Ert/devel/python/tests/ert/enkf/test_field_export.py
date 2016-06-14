@@ -6,7 +6,7 @@ from ert.ecl import EclGrid
 
 from ert.enkf.config import FieldConfig
 from ert.enkf.data import EnkfNode
-from ert.enkf.enums import EnkfFieldFileFormatEnum, EnkfStateType
+from ert.enkf.enums import EnkfFieldFileFormatEnum
 from ert.enkf import NodeId
 
 from ert.test import ExtendedTestCase
@@ -37,7 +37,7 @@ class FieldExportTest(ExtendedTestCase):
             ens_config = ert.ensembleConfig()
             config_node = ens_config["PERMX"]
             data_node = EnkfNode( config_node )
-            node_id = NodeId( 0 , 0 , EnkfStateType.ANALYZED )
+            node_id = NodeId( 0 , 0 )
             fs = fs_manager.getCurrentFileSystem( ) 
             data_node.tryLoad( fs , node_id )
 

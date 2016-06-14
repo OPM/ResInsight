@@ -15,8 +15,8 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
-#ifndef __TYPE_VECTOR_FUNCTIONS_H__
-#define __TYPE_VECTOR_FUNCTIONS_H__
+#ifndef ERT_TYPE_VECTOR_FUNCTIONS_H
+#define ERT_TYPE_VECTOR_FUNCTIONS_H
 
 #ifdef __cplusplus
 extern "C" {

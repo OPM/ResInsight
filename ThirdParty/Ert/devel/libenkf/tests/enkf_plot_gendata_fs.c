@@ -52,7 +52,7 @@ void test_gendata( enkf_main_type * enkf_main , const char * obs_key , int repor
 
     }
 
-    enkf_plot_gendata_load(gen_data, fs, report_step, FORECAST, NULL);
+    enkf_plot_gendata_load(gen_data, fs, report_step, NULL);
 
     test_assert_int_equal( enkf_main_get_ensemble_size( enkf_main ) , enkf_plot_gendata_get_size( gen_data ));
 

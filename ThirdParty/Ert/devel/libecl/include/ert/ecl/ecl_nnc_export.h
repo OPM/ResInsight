@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __ECL_NNC_EXPORT__
-#define __ECL_NNC_EXPORT__
+#ifndef ERT_ECL_NNC_EXPORT
+#define ERT_ECL_NNC_EXPORT
 
 #ifdef __cplusplus
 extern "C" {

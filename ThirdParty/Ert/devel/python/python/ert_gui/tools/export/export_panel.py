@@ -15,7 +15,6 @@
 #  for more details.
 from PyQt4.QtCore import QDir, pyqtSignal
 from PyQt4.QtGui import  QFormLayout, QWidget, QLineEdit, QToolButton, QHBoxLayout, QFileDialog, QComboBox
-from ert.enkf import EnkfStateType
 from ert_gui.ide.keywords.definitions import RangeStringArgument
 from ert_gui.models.connectors import EnsembleSizeModel
 from ert_gui.models.connectors.export import ExportKeywordModel
@@ -126,15 +125,10 @@ class ExportPanel(QWidget):
         path = self.__file_name.text()
         iactive = self.__active_realizations_model.getActiveRealizationsMask()
         file_type_key = self.__file_type_model[self.__file_type_combo.currentIndex()]
-        state = self.getEnkfStateType(keyword)
-        values = {"keyword":keyword, "report_step":report_step, "iactive":iactive,"file_type_key":file_type_key, "state":state, "selected_case":selected_case, "path":path}
+        values = {"keyword":keyword, "report_step":report_step, "iactive":iactive,"file_type_key":file_type_key, "path":path , "selected_case" : selected_case}
         self.runExport.emit(values)
-
-    def getEnkfStateType(self, key):
-        if self.__export_keyword_model.isGenParamKw(key):
-            return EnkfStateType.ANALYZED
-        else:
-            return EnkfStateType.FORECAST
+        
+    
 
     def getReportStep(self, key):
         report_step = 0

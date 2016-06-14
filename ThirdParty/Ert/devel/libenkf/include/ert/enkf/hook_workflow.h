@@ -15,8 +15,8 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
-#ifndef __HOOK_WORKFLOW_H__
-#define __HOOK_WORKFLOW_H__
+#ifndef ERT_HOOK_WORKFLOW_H
+#define ERT_HOOK_WORKFLOW_H
 
 #ifdef __cplusplus
 extern "C" {

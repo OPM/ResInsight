@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GEN_OBS_H__
-#define __GEN_OBS_H__
+#ifndef ERT_GEN_OBS_H
+#define ERT_GEN_OBS_H
 
 #include <ert/enkf/gen_data_config.h>
 #include <ert/enkf/enkf_macros.h>

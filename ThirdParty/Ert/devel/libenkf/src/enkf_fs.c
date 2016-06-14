@@ -223,7 +223,6 @@ struct enkf_fs_struct {
   int                      lock_fd;
 
   fs_driver_type         * dynamic_forecast;
-  fs_driver_type         * dynamic_analyzed;
   fs_driver_type         * parameter;
   fs_driver_type         * index ;
 
@@ -300,7 +299,6 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point ) {
   fs->index                  = NULL;
   fs->parameter              = NULL;
   fs->dynamic_forecast       = NULL;
-  fs->dynamic_analyzed       = NULL;
   fs->read_only              = true;
   fs->mount_point            = util_alloc_string_copy( mount_point );
   fs->refcount               = 0;
@@ -396,7 +394,6 @@ static void enkf_fs_create_plain_fs( FILE * stream , void * arg) {
 
   plain_driver_create_fs( stream , DRIVER_PARAMETER        , DEFAULT_PLAIN_NODE_PARAMETER_PATH        , DEFAULT_PLAIN_VECTOR_PARAMETER_PATH);
   plain_driver_create_fs( stream , DRIVER_DYNAMIC_FORECAST , DEFAULT_PLAIN_NODE_DYNAMIC_FORECAST_PATH , DEFAULT_PLAIN_VECTOR_DYNAMIC_FORECAST_PATH);
-  plain_driver_create_fs( stream , DRIVER_DYNAMIC_ANALYZED , DEFAULT_PLAIN_NODE_DYNAMIC_ANALYZED_PATH , DEFAULT_PLAIN_VECTOR_DYNAMIC_ANALYZED_PATH);
   plain_driver_create_fs( stream , DRIVER_INDEX            , DEFAULT_PLAIN_NODE_INDEX_PATH            , DEFAULT_PLAIN_VECTOR_INDEX_PATH );
 
 }
@@ -407,7 +404,6 @@ static void enkf_fs_create_block_fs( FILE * stream , int num_drivers , const cha
 
   block_fs_driver_create_fs( stream , mount_point , DRIVER_PARAMETER        , num_drivers , "Ensemble/mod_%d" , "PARAMETER");
   block_fs_driver_create_fs( stream , mount_point , DRIVER_DYNAMIC_FORECAST , num_drivers , "Ensemble/mod_%d" , "FORECAST");
-  block_fs_driver_create_fs( stream , mount_point , DRIVER_DYNAMIC_ANALYZED , num_drivers , "Ensemble/mod_%d" , "ANALYZED");
   block_fs_driver_create_fs( stream , mount_point , DRIVER_INDEX            , 1           , "Index"           , "INDEX");
 
 }
@@ -421,14 +417,14 @@ static void enkf_fs_assign_driver( enkf_fs_type * fs , fs_driver_type * driver ,
   case(DRIVER_DYNAMIC_FORECAST):
     fs->dynamic_forecast = driver;
     break;
-  case(DRIVER_DYNAMIC_ANALYZED):
-    fs->dynamic_analyzed = driver;
-    break;
   case(DRIVER_INDEX):
     fs->index = driver;
     break;
   case(DRIVER_STATIC):
     util_abort("%s: internal error - should not assign a STATIC driver \n",__func__);
+    break;
+  case(DRIVER_DYNAMIC_ANALYZED):
+    util_abort("%s: internal error - should not assign a DYNAMIC_ANALYZED driver \n",__func__);
     break;
   }
 }
@@ -697,7 +693,6 @@ static void enkf_fs_umount( enkf_fs_type * fs ) {
     int refcount = fs->refcount;
     if (refcount == 0) {
       enkf_fs_free_driver( fs->dynamic_forecast );
-      enkf_fs_free_driver( fs->dynamic_analyzed );
       enkf_fs_free_driver( fs->parameter );
       enkf_fs_free_driver( fs->index );
 
@@ -729,31 +724,19 @@ static void enkf_fs_umount( enkf_fs_type * fs ) {
 
 
 
-static void * select_dynamic_driver(enkf_fs_type * fs , state_enum state ) {
-  void * driver = NULL;
-
-  if (state == ANALYZED)
-    driver = fs->dynamic_analyzed;
-  else if (state == FORECAST)
-    driver = fs->dynamic_forecast;
-  else
-    util_abort("%s: tried to select dynamic driver according to ID:%d - invalid \n",__func__ , state);
-
-  return driver;
-}
 
 
-static void * enkf_fs_select_driver(enkf_fs_type * fs , enkf_var_type var_type, state_enum state , const char * key) {
+static void * enkf_fs_select_driver(enkf_fs_type * fs , enkf_var_type var_type, const char * key) {
   void * driver = NULL;
   switch (var_type) {
   case(PARAMETER):
     driver = fs->parameter;
     break;
   case(DYNAMIC_RESULT):
-    driver = select_dynamic_driver( fs , state );
+    driver = fs->dynamic_forecast;
     break;
   case(DYNAMIC_STATE):
-    driver = select_dynamic_driver( fs , state );
+    driver = fs->dynamic_forecast;
     break;
   default:
     util_abort("%s: fatal internal error - could not determine enkf_fs driver for object:%s[integer type:%d] - aborting.\n",__func__, key , var_type);
@@ -777,7 +760,6 @@ static void enkf_fs_fsync_driver( fs_driver_type * driver ) {
 void enkf_fs_fsync( enkf_fs_type * fs ) {
   enkf_fs_fsync_driver( fs->parameter );
   enkf_fs_fsync_driver( fs->dynamic_forecast );
-  enkf_fs_fsync_driver( fs->dynamic_analyzed );
   enkf_fs_fsync_driver( fs->index );
 
   enkf_fs_fsync_time_map( fs );
@@ -788,51 +770,18 @@ void enkf_fs_fsync( enkf_fs_type * fs ) {
 }
 
 
-/**
-  For parameters the state is uniquely identified by the report step,
-  corresponding to the __analyzed__ state. If you really want the
-  forecast that is achieved by subtracting one.
-*/
-
-static int __get_parameter_report_step( fs_driver_type * driver , const char * node_key , int report_step , int iens , state_enum state) {
-  if (state == FORECAST) {
-    if (report_step > 0) /* Time step zero is special - we do not differentiate between forecast and analyzed. */
-      report_step--;
-  } else if (state != ANALYZED)
-    util_abort("%s: asked for state:%d - internal error \n",__func__ , state);
-  {
-    /*
-      Observe that if we do not find the filename we are looking for, we
-      seek backwards through the report numbers, all the way back to
-      report_nr 0. The direct motivation for this functionality is the
-      following situation:
-
-        1. We do a spin-up from report 0 to report R1.
-
-        2. We start the assimulation from R1, then we have to go all the
-           way back to report 0 to get hold of the parameter.
-
-    */
-    while (!driver->has_node( driver , node_key , report_step , iens )) {
-      report_step--;
-      if (report_step < 0)
-        util_abort("%s: can not find any stored item for key:%s(%d). Forgot to initialize ensemble ??? \n",__func__ , node_key, iens);
-    }
-  }
-  return report_step;
-}
 
 
 void enkf_fs_fread_node(enkf_fs_type * enkf_fs , buffer_type * buffer ,
                         const char * node_key ,
                         enkf_var_type var_type ,
                         int report_step,
-                        int iens ,
-                        state_enum state) {
+                        int iens) {
 
-  fs_driver_type * driver = enkf_fs_select_driver(enkf_fs , var_type , state , node_key );
+  fs_driver_type * driver = enkf_fs_select_driver(enkf_fs , var_type , node_key );
   if (var_type == PARAMETER)
-    report_step = __get_parameter_report_step(driver , node_key , report_step , iens , state);
+    /* Parameters are *ONLY* stored at report_step == 0 */
+    report_step = 0;
 
   buffer_rewind( buffer );
   driver->load_node(driver , node_key ,  report_step , iens , buffer);
@@ -842,10 +791,9 @@ void enkf_fs_fread_node(enkf_fs_type * enkf_fs , buffer_type * buffer ,
 void enkf_fs_fread_vector(enkf_fs_type * enkf_fs , buffer_type * buffer ,
                           const char * node_key ,
                           enkf_var_type var_type ,
-                          int iens ,
-                          state_enum state) {
+                          int iens) {
 
-  fs_driver_type * driver = enkf_fs_select_driver(enkf_fs , var_type , state , node_key );
+  fs_driver_type * driver = enkf_fs_select_driver(enkf_fs , var_type , node_key );
 
   buffer_rewind( buffer );
   driver->load_vector(driver , node_key ,  iens , buffer);
@@ -853,23 +801,27 @@ void enkf_fs_fread_vector(enkf_fs_type * enkf_fs , buffer_type * buffer ,
 
 
 
-bool enkf_fs_has_node(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int report_step , int iens , state_enum state) {
-  fs_driver_type * driver = fs_driver_safe_cast(enkf_fs_select_driver(enkf_fs , var_type , state , node_key));
+bool enkf_fs_has_node(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int report_step , int iens) {
+  fs_driver_type * driver = fs_driver_safe_cast(enkf_fs_select_driver(enkf_fs , var_type , node_key));
   return driver->has_node(driver , node_key , report_step , iens );
 }
 
 
-bool enkf_fs_has_vector(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int iens , state_enum state) {
-  fs_driver_type * driver = fs_driver_safe_cast(enkf_fs_select_driver(enkf_fs , var_type , state , node_key));
+bool enkf_fs_has_vector(enkf_fs_type * enkf_fs , const char * node_key , enkf_var_type var_type , int iens ) {
+  fs_driver_type * driver = fs_driver_safe_cast(enkf_fs_select_driver(enkf_fs , var_type ,  node_key));
   return driver->has_vector(driver , node_key , iens );
 }
 
 void enkf_fs_fwrite_node(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,
-                         int report_step , int iens , state_enum state) {
+                         int report_step , int iens ) {
   if (enkf_fs->read_only)
     util_abort("%s: attempt to write to read_only filesystem mounted at:%s - aborting. \n",__func__ , enkf_fs->mount_point);
+
+
+  if ((var_type == PARAMETER) && (report_step > 0))
+    util_abort("%s: Parameters can only be saved for report_step = 0   %s:%d\n", __func__ , node_key , report_step);
   {
-    void * _driver = enkf_fs_select_driver(enkf_fs , var_type , state , node_key);
+    void * _driver = enkf_fs_select_driver(enkf_fs , var_type , node_key);
     {
       fs_driver_type * driver = fs_driver_safe_cast(_driver);
       driver->save_node(driver , node_key , report_step , iens , buffer);
@@ -879,11 +831,11 @@ void enkf_fs_fwrite_node(enkf_fs_type * enkf_fs , buffer_type * buffer , const c
 
 
 void enkf_fs_fwrite_vector(enkf_fs_type * enkf_fs , buffer_type * buffer , const char * node_key, enkf_var_type var_type,
-                           int iens , state_enum state) {
+                           int iens ) {
   if (enkf_fs->read_only)
     util_abort("%s: attempt to write to read_only filesystem mounted at:%s - aborting. \n",__func__ , enkf_fs->mount_point);
   {
-    void * _driver = enkf_fs_select_driver(enkf_fs , var_type , state , node_key);
+    void * _driver = enkf_fs_select_driver(enkf_fs , var_type , node_key);
     {
       fs_driver_type * driver = fs_driver_safe_cast(_driver);
       driver->save_vector(driver , node_key  , iens , buffer);
@@ -928,7 +880,6 @@ void enkf_fs_debug_fprintf( const enkf_fs_type * fs) {
   printf("fs...................: %p \n",fs );
   printf("Mount point..........: %s \n",fs->mount_point );
   printf("Dynamic forecast.....: %p \n",fs->dynamic_forecast );
-  printf("Dynamic analyzed.....: %p \n",fs->dynamic_analyzed );
   printf("Parameter............: %p \n",fs->parameter );
   printf("Index................: %p \n",fs->index );
   printf("-----------------------------------------------------------------\n");

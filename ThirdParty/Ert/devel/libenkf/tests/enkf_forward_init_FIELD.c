@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-    
-   The file 'enkf_forward_init_FIELD.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'enkf_forward_init_FIELD.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -29,12 +29,12 @@
 #include <ert/enkf/enkf_main.h>
 
 
-void create_runpath(enkf_main_type * enkf_main ) {
+void create_runpath(enkf_main_type * enkf_main, int iter) {
   const int ens_size         = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive = bool_vector_alloc(0,false);
 
   bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_exp(enkf_main , iactive , false );
+  enkf_main_create_run_path(enkf_main , iactive , iter);
   bool_vector_free(iactive);
 }
 
@@ -73,33 +73,32 @@ int main(int argc , char ** argv) {
         free( init_file1 );
         free( init_file2 );
       }
-  
+
       test_assert_bool_equal( enkf_node_use_forward_init( field_node ) , forward_init );
       if (forward_init)
         test_assert_bool_not_equal( enkf_node_initialize( field_node , 0 , enkf_state_get_rng( state )) , forward_init);
       // else hard_failure()
     }
     test_assert_bool_equal( forward_init, ensemble_config_have_forward_init( enkf_main_get_ensemble_config( enkf_main )));
-    
+
     if (forward_init) {
       enkf_state_type * state   = enkf_main_iget_state( enkf_main , 0 );
       enkf_fs_type * fs = enkf_main_get_fs( enkf_main );
       enkf_node_type * field_node = enkf_state_get_node( state , "PORO" );
       run_arg_type * run_arg = run_arg_alloc_ENSEMBLE_EXPERIMENT( fs , 0 ,0 , "simulations/run0");
-      node_id_type node_id = {.report_step = 0 ,  
-                              .iens = 0,
-                              .state = ANALYZED };
+      node_id_type node_id = {.report_step = 0 ,
+                              .iens = 0 };
 
-      create_runpath( enkf_main );
+      create_runpath( enkf_main, 0 );
       test_assert_true( util_is_directory( "simulations/run0" ));
-      
+
       {
         int result;
         stringlist_type * msg_list = stringlist_alloc_new();
 
-        
+
         test_assert_false( enkf_node_has_data( field_node , fs, node_id ));
-        
+
         util_unlink_existing( "simulations/run0/petro.grdecl" );
 
         test_assert_false(enkf_node_forward_init(field_node, "simulations/run0", 0));
@@ -116,7 +115,7 @@ int main(int argc , char ** argv) {
         stringlist_free(msg_list);
         test_assert_true(LOAD_FAILURE & result);
       }
-      
+
 
       util_copy_file( init_file , "simulations/run0/petro.grdecl");
       {
@@ -133,18 +132,18 @@ int main(int argc , char ** argv) {
 
         {
           double value;
-          test_assert_true( enkf_node_user_get( field_node , fs , "5,5,5" , node_id , &value)); 
+          test_assert_true( enkf_node_user_get( field_node , fs , "5,5,5" , node_id , &value));
           test_assert_double_equal( 0.28485405445 , value);
         }
       }
       util_clear_directory( "simulations" , true , true );
-      create_runpath( enkf_main );
+      create_runpath( enkf_main, 0 );
       test_assert_true( util_is_directory( "simulations/run0" ));
       test_assert_true( util_is_file( "simulations/run0/PORO.grdecl" ));
       test_assert_true( enkf_node_fload( field_node , "simulations/run0/PORO.grdecl"));
       {
         double value;
-        test_assert_true( enkf_node_user_get( field_node , fs , "4,4,4" , node_id , &value)); 
+        test_assert_true( enkf_node_user_get( field_node , fs , "4,4,4" , node_id , &value));
         test_assert_double_equal( 0.130251303315 , value);
       }
       util_clear_directory( "simulations" , true , true );

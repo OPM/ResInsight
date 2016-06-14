@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __WELL_HISTORY__
-#define __WELL_HISTORY__
+#ifndef ERT_WELL_HISTORY
+#define ERT_WELL_HISTORY
 
 #ifdef __cplusplus
 extern "C" {

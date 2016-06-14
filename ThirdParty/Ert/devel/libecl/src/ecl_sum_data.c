@@ -1,4 +1,4 @@
- /*
+/*
    Copyright (C) 2011  Statoil ASA, Norway.
 
    The file 'ecl_sum_data.c' is part of ERT - Ensemble based Reservoir Tool.
@@ -660,6 +660,54 @@ void ecl_sum_data_init_interp_from_sim_days( const ecl_sum_data_type * data , do
   ecl_sum_data_init_interp_from_sim_time( data , sim_time , step1 , step2 , weight1 , weight2);
 }
 
+
+double_vector_type * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_type * data , const smspec_node_type * node , double cmp_value, bool rates_clamp_lower) {
+  double_vector_type * solution = double_vector_alloc( 0, 0);
+  const int param_index = smspec_node_get_params_index( node );
+  const int size = vector_get_size( data->data);
+  const double is_rate = smspec_node_is_rate( node );
+
+  if (size > 1) {
+    int index = 0;
+    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , index );
+    const ecl_sum_tstep_type * prev_ministep;
+    double value = ecl_sum_tstep_iget( ministep , param_index );
+    double prev_value;
+
+    while (true) {
+      index++;
+      if (index >= size)
+        break;
+
+      prev_ministep = ministep;
+      prev_value = value;
+
+      ministep = ecl_sum_data_iget_ministep( data , index );
+      value = ecl_sum_tstep_iget( ministep , param_index );
+
+      if ((value == cmp_value) ||
+          (((value - cmp_value) * (cmp_value - prev_value)) > 0)) {
+        double time1 = ecl_sum_tstep_get_sim_seconds( prev_ministep );
+        double time2 = ecl_sum_tstep_get_sim_seconds( ministep );
+
+        if (is_rate) {
+          if (rates_clamp_lower)
+            double_vector_append( solution ,  time1 + 1 );
+          else
+            double_vector_append( solution ,  time2 );
+        } else {
+          double slope = (value - prev_value) / (time2 - time1);
+          double seconds = (cmp_value - prev_value) / slope + time1;
+
+          double_vector_append( solution , seconds );
+        }
+
+      }
+    }
+  }
+
+  return solution;
+}
 
 
 

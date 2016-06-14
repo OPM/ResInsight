@@ -54,10 +54,10 @@
 #define CAF_FACTORY_CONCATENATE_STRINGS(foo, bar) CAF_FACTORY_CONCATENATE_STRINGS_IMPL_(foo, bar)
 #define CAF_FACTORY_CONCATENATE_STRINGS_IMPL_(foo, bar) foo ## bar
 
-#define CAF_UNIQUE_COMPILE_UNIT_VAR_NAME CAF_FACTORY_CONCATENATE_STRINGS(caf_factory_init_, __LINE__)
+#define CAF_UNIQUE_COMPILE_UNIT_VAR_NAME(foo) CAF_FACTORY_CONCATENATE_STRINGS(foo, __LINE__)
 
 #define CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key) \
-static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key)
+static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME(my##TypeToCreate) = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key)
 
 namespace caf
 {

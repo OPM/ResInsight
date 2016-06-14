@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __NODE_CTYPE_H__
-#define __NODE_CTYPE_H__
+#ifndef ERT_NODE_CTYPE_H
+#define ERT_NODE_CTYPE_H
 #ifdef __cplusplus
 extern "C" {
 #endif

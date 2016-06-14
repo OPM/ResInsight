@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __STATISTICS_H__
-#define __STATISTICS_H__
+#ifndef ERT_STATISTICS_H
+#define ERT_STATISTICS_H
 
 #ifdef __cplusplus
 extern "C" {

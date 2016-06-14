@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __BLOCK_FS__
-#define __BLOCK_FS__
+#ifndef ERT_BLOCK_FS
+#define ERT_BLOCK_FS
 #include <ert/util/buffer.h>
 #include <ert/util/vector.h>
 #include <ert/util/type_macros.h>

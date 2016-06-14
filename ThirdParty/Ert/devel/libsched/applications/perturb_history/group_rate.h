@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GROUP_RATE_H__
-#define __GROUP_RATE_H__
+#ifndef ERT_GROUP_RATE_H
+#define ERT_GROUP_RATE_H
 
 #include <time_t_vector.h>
 #include <well_rate.h>

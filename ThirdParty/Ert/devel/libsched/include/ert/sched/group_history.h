@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GROUP_HISTORY_H__
-#define __GROUP_HISTORY_H__
+#ifndef ERT_GROUP_HISTORY_H
+#define ERT_GROUP_HISTORY_H
 
 #ifdef __cplusplus 
 extern "C" {

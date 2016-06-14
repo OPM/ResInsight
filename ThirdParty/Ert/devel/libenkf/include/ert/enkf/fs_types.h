@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FS_TYPES_H__
-#define __FS_TYPES_H__
+#ifndef ERT_FS_TYPES_H
+#define ERT_FS_TYPES_H
 
 
 
@@ -44,7 +44,7 @@ typedef enum {
   INVALID_DRIVER_ID          = 0,
   PLAIN_DRIVER_ID            = 1005,
   BLOCK_FS_DRIVER_ID         = 3001} fs_driver_impl;
-  
+
 
 
 
@@ -63,7 +63,10 @@ typedef enum {
   DRIVER_STATIC           = 2,  // Driver static is no longer in use since December 2015 - but it must be retained here for old mount files on disk.
   DRIVER_INDEX            = 4,  // DRIVER_DYNAMIC = 3; removed at svn ~ 3720.
   DRIVER_DYNAMIC_FORECAST = 5,
-  DRIVER_DYNAMIC_ANALYZED = 6} fs_driver_enum;
+  DRIVER_DYNAMIC_ANALYZED = 6   // Driver DYNAMIC_ANALYZED is no longer in use since April 2016 - but it must be retained here for old mount files on disk.
+} fs_driver_enum;
+
+
 
 
 

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __PARSER_H__
-#define __PARSER_H__
+#ifndef ERT_PARSER_H
+#define ERT_PARSER_H
 #include <ert/util/stringlist.h>
 
 typedef struct basic_parser_struct basic_parser_type;

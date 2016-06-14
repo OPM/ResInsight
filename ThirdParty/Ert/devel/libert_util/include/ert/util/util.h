@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#ifndef ERT_UTIL_H
+#define ERT_UTIL_H
 
 #include <stdbool.h>
 #include <stdio.h>

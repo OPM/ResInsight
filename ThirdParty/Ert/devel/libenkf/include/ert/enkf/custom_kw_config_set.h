@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_KW_CONFIG_SET_H__
-#define __CUSTOM_KW_CONFIG_SET_H__
+#ifndef ERT_CUSTOM_KW_CONFIG_SET_H
+#define ERT_CUSTOM_KW_CONFIG_SET_H
 
 #ifdef __cplusplus 
 extern "C" {

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __EXT_JOB_H__
-#define __EXT_JOB_H__
+#ifndef ERT_EXT_JOB_H
+#define ERT_EXT_JOB_H
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __LSB_H__
-#define __LSB_H__
+#ifndef ERT_LSB_H
+#define ERT_LSB_H
 
 
 #ifdef __cplusplus

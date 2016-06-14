@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __RMS_EXPORT_H__
-#define __RMS_EXPORT_H__
+#ifndef ERT_RMS_EXPORT_H
+#define ERT_RMS_EXPORT_H
 #ifdef __cplusplus
 extern "C" {
 #endif

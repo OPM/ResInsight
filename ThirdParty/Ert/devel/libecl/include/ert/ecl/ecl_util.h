@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_UTIL_H__
-#define __ECL_UTIL_H__
+#ifndef ERT_ECL_UTIL_H
+#define ERT_ECL_UTIL_H
 #ifdef __cplusplus
 extern "C" {
 #endif

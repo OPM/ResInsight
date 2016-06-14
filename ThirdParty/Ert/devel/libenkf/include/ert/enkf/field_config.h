@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FIELD_CONFIG_H__
-#define __FIELD_CONFIG_H__
+#ifndef ERT_FIELD_CONFIG_H
+#define ERT_FIELD_CONFIG_H
 #ifdef __cplusplus
 extern "C" {
 #endif

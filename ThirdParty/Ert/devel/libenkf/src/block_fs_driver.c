@@ -99,7 +99,7 @@ bfs_config_type * bfs_config_alloc( fs_driver_enum driver_type , bool read_only,
       config->block_size = PARAMETER_blocksize;
       config->preload = PARAMETER_preload;
       break;
-    case(DRIVER_DYNAMIC_ANALYZED):
+    case(DRIVER_DYNAMIC_FORECAST):
       config->block_size = DYNAMIC_blocksize;
       config->preload = DYNAMIC_preload;
       break;

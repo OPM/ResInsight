@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __LOOKUP_TABLE_H__
-#define __LOOKUP_TABLE_H__
+#ifndef ERT_LOOKUP_TABLE_H
+#define ERT_LOOKUP_TABLE_H
 
 #ifdef __cplusplus
 extern "C" {

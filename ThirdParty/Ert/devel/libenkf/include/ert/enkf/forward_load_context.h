@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __FORWARD_LOAD_CONTEXT_H__
-#define __FORWARD_LOAD_CONTEXT_H__
+#ifndef ERT_FORWARD_LOAD_CONTEXT_H
+#define ERT_FORWARD_LOAD_CONTEXT_H
 
 #ifdef __cplusplus
 extern "C" {

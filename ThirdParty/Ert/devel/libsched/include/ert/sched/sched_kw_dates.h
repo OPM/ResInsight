@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_KW_DATES__
-#define __SCHED_KW_DATES__
+#ifndef ERT_SCHED_KW_DATES
+#define ERT_SCHED_KW_DATES
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -66,7 +66,7 @@ void monitor_job_queue(job_queue_type * queue, int max_job_duration, time_t stop
 
 void run_jobs_with_time_limit_test(char * executable_to_run, int number_of_jobs, int number_of_slowjobs, char * sleep_short, char * sleep_long, int max_sleep) {
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
 
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_set_driver(queue, driver);
@@ -101,7 +101,7 @@ void run_and_monitor_jobs(char * executable_to_run,
                           int interval_between_jobs) {
 
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
   job_queue_manager_type * queue_manager = job_queue_manager_alloc( queue );
   queue_driver_type * driver = queue_driver_alloc_local();
 
@@ -146,7 +146,7 @@ void run_jobs_time_limit_multithreaded(char * executable_to_run, int number_of_j
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
 
 
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_set_driver(queue, driver);
   job_queue_set_max_job_duration(queue, max_sleep);
@@ -185,7 +185,7 @@ void test1(char ** argv) {
 
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
 
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_set_driver(queue, driver);
 
@@ -215,7 +215,7 @@ void test2(char ** argv) {
 
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
 
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_set_driver(queue, driver);
 
@@ -371,7 +371,7 @@ void test14(char ** argv) {
   int number_of_jobs = 10;
 
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_manager_type * queue_manager = job_queue_manager_alloc( queue );
   job_queue_set_driver(queue, driver);
@@ -424,7 +424,7 @@ void test15(char ** argv) {
   int number_of_jobs = 10;
 
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_set_driver(queue, driver);
 
@@ -447,7 +447,7 @@ void test16(char ** argv) {
 
   int number_of_jobs = 10;
   test_work_area_type * work_area = test_work_area_alloc("job_queue");
-  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "STATUS", "ERROR");
 
   queue_driver_type * driver = queue_driver_alloc_local();
   job_queue_set_driver(queue, driver);

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __TEMPLATE_H__
-#define __TEMPLATE_H__
+#ifndef ERT_UTIL_TEMPLATE_H
+#define ERT_UTIL_TEMPLATE_H
 #ifdef __cplusplus 
 extern "C" {
 #endif

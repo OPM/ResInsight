@@ -57,7 +57,7 @@ import os
 import ert.util
 import ert.config
 import ert.cwrap.clib as clib
-
+from ert.cwrap.metacwrap import Prototype
 
 def setenv( var, value):
     if not os.getenv(var):
@@ -74,9 +74,17 @@ if LSF_HOME:
 
 JOB_QUEUE_LIB = clib.ert_load("libjob_queue")
 
+class QueuePrototype(Prototype):
+    lib = clib.ert_load("libjob_queue")
+
+    def __init__(self, prototype, bind=True):
+        super(QueuePrototype, self).__init__(QueuePrototype.lib, prototype, bind=bind)
+
+    
+#from .job_status_type_enum import JobStatusType
 from .job_status_type_enum import JobStatusType
 from .job import Job
-from .queue import JobList, JobQueue, statusList, exList, runtimeList
+from .queue import JobQueue
 from .job_queue_manager import JobQueueManager
 from .driver import QueueDriverEnum, Driver, LSFDriver, RSHDriver, LocalDriver
 from .ext_job import ExtJob

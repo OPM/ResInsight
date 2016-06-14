@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __RNG_CONFIG_H__
-#define __RNG_CONFIG_H__
+#ifndef ERT_RNG_CONFIG_H
+#define ERT_RNG_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {

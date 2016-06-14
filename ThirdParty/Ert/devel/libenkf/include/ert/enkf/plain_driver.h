@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __PLAIN_DRIVER_H__
-#define __PLAIN_DRIVER_H__
+#ifndef ERT_PLAIN_DRIVER_H
+#define ERT_PLAIN_DRIVER_H
 
 #include <stdio.h>
 #include <stdbool.h>

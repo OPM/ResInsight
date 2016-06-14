@@ -22,8 +22,9 @@
 
 #include "RigCaseData.h"
 
+#include <ert/ecl/ecl_file.h>
+
 #include "RifReaderEclipseOutput.h"
-#include "ecl_file.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RigCaseCellResultsData.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"

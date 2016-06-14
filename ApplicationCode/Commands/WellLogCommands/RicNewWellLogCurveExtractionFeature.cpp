@@ -68,7 +68,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
             RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath);
 
-            plotCurve->updatePlotData();
+            plotCurve->loadDataAndUpdate();
 
             RimWellLogPlot* plot = NULL;
             wellLogPlotTrack->firstAnchestorOrThisOfType(plot);

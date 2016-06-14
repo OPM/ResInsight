@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONF_UTIL_H__
-#define __CONF_UTIL_H__
+#ifndef ERT_CONF_UTIL_H
+#define ERT_CONF_UTIL_H
 
 char * conf_util_fscanf_alloc_token_buffer(  const char * file_name );
 

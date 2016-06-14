@@ -1,5 +1,5 @@
-#ifndef __ECL_KW_MAGIC_H__
-#define __ECL_KW_MAGIC_H__
+#ifndef ERT_ECL_KW_MAGIC_H
+#define ERT_ECL_KW_MAGIC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -277,13 +277,16 @@ extern "C" {
 #define MAPUNITS_KW    "MAPUNITS"
 #define GRIDUNIT_KW    "GRIDUNIT"
 
-#define NNCHEAD_KW     "NNCHEAD"   /*Non-neighbour connection header*/
 #define NNC1_KW        "NNC1"      /*Upstream cell numbers for non-neighbour connections*/
 #define NNC2_KW        "NNC2"      /*Downstream cell numbers for non-neighbour connections*/
 #define NNCL_KW        "NNCL"      /*Cell numbers for LGR cells that are connected to global grid cells*/
 #define NNCG_KW        "NNCG"      /*Cell numbers for global cells connected to LGR cells*/
+
+#define NNCHEAD_KW     "NNCHEAD"   /*Non-neighbour connection header*/
+#define NNCHEAD_SIZE        10
 #define NNCHEAD_NUMNNC_INDEX  0    /*Item 1 in non-neighbour connection header: number of NNCs. Only present for main grid*/
 #define NNCHEAD_LGR_INDEX     1    /*Item 2 in non-neighbour connection header: LGR number (0 for global grid)*/
+
 #define NNCHEADA_KW    "NNCHEADA"  /*Header for NNC's between two amalgamated LGRs*/
 #define NNA1_KW        "NNA1"      /*Cell numbers in connecting local grid ILOC1*/
 #define NNA2_KW        "NNA2"      /*Cell numbers in connecting local grid ILOC2*/

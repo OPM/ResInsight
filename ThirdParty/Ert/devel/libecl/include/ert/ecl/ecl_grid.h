@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_GRID_H__
-#define __ECL_GRID_H__
+#ifndef ERT_ECL_GRID_H
+#define ERT_ECL_GRID_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -89,6 +89,8 @@ extern "C" {
 
   const nnc_info_type * ecl_grid_get_cell_nnc_info3( const ecl_grid_type * grid , int i , int j , int k);
   const nnc_info_type * ecl_grid_get_cell_nnc_info1( const ecl_grid_type * grid , int global_index);
+  void                  ecl_grid_add_self_nnc( ecl_grid_type * grid1, int g1, int g2, int nnc_index);
+  void                  ecl_grid_add_self_nnc_list( ecl_grid_type * grid, const int * g1_list , const int * g2_list , int num_nnc );
 
   ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type * zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw );
   ecl_grid_type * ecl_grid_alloc_GRDECL_data(int , int , int , const float *  , const float *  , const int * , const float * mapaxes);

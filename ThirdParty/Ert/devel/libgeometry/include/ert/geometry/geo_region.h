@@ -26,8 +26,8 @@
 #include <ert/geometry/geo_pointset.h>
 #include <ert/geometry/geo_polygon.h>
 
-#ifndef __GEO_REGION_H__
-#define __GEO_REGION_H__
+#ifndef ERT_GEO_REGION_H
+#define ERT_GEO_REGION_H
 
 
 #ifdef __cplusplus

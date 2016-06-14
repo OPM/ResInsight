@@ -26,6 +26,7 @@
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValueIterator>
 
+namespace ResInsightInternalJson {
 
 QMap<QString, QVariant> JsonReader::decodeFile(QString filePath)
 {
@@ -141,3 +142,5 @@ QList<QVariant> Json::decodeInnerToList(QScriptValue arrayValue)
     }
     return list;
 }
+
+} // end ResInsightInternalJson

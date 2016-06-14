@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __WORKFLOW_H__
-#define __WORKFLOW_H__
+#ifndef ERT_WORKFLOW_H
+#define ERT_WORKFLOW_H
 
 
 #ifdef __cplusplus

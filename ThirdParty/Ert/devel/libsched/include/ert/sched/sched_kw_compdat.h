@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_KW_COMPDAT_H__
-#define __SCHED_KW_COMPDAT_H__
+#ifndef ERT_SCHED_KW_COMPDAT_H
+#define ERT_SCHED_KW_COMPDAT_H
 #include <stdio.h>
 
 #include <ert/util/set.h>

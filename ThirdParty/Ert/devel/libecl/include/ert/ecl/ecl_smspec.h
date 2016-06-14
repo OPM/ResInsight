@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ECL_SMSPEC__
-#define __ECL_SMSPEC__
+#ifndef ERT_ECL_SMSPEC
+#define ERT_ECL_SMSPEC
 
 #ifdef __cplusplus
 extern "C" {

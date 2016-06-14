@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __ENKF_MAIN_UPDATE__
-#define __ENKF_MAIN_UPDATE__
+#ifndef ERT_ENKF_MAIN_UPDATE
+#define ERT_ENKF_MAIN_UPDATE
 
 #include <enkf_main.h>
 

@@ -38,7 +38,7 @@ def plotHistogram(plot_context):
 
         if data[case].dtype == "object":
             try:
-                data[case] = pd.to_numeric(data[case], errors='coerce')
+                data[case] = pd.to_numeric(data[case], errors='ignore')
             except AttributeError:
                 data[case] = data[case].convert_objects(convert_numeric=True)
 

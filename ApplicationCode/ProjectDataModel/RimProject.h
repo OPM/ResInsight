@@ -38,6 +38,7 @@ class RimViewLinkerCollection;
 class RimMainPlotCollection;
 class RimOilField;
 class RimScriptCollection;
+class RimSummaryCase;
 class RimView;
 class RimWellPathImport;
 
@@ -82,6 +83,7 @@ public:
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
     void            allCases(std::vector<RimCase*>& cases);
+    void            allSummaryCases(std::vector<RimSummaryCase*>& sumCases);
     void            allNotLinkedViews(std::vector<RimView*>& views);
     void            allVisibleViews(std::vector<RimView*>& views);
 

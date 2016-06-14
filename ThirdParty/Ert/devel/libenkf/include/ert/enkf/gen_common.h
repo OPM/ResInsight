@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __GEN_COMMON_H__
-#define __GEN_COMMON_H__
+#ifndef ERT_GEN_COMMON_H
+#define ERT_GEN_COMMON_H
 
 #ifdef __cplusplus
 extern "C" {

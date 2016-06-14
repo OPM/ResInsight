@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __MISFIT_TS_H__
-#define __MISFIT_TS_H__
+#ifndef ERT_MISFIT_TS_H
+#define ERT_MISFIT_TS_H
 
 #ifdef __cplusplus
 extern "C" {

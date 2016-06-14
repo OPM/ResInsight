@@ -10,7 +10,9 @@ class StatisticsCustomizationView(CustomizationView):
     min_max_style = WidgetProperty()
     p10_p90_style = WidgetProperty()
     p33_p67_style = WidgetProperty()
+    std_dev_factor = WidgetProperty()
     distribution_lines = WidgetProperty()
+
 
     def __init__(self):
         CustomizationView.__init__(self)
@@ -28,6 +30,9 @@ class StatisticsCustomizationView(CustomizationView):
         self.addStyleChooser("p10_p90_style", "P10-P90", "Line and marker style for the P10-P90 lines.", True)
         self.addStyleChooser("p33_p67_style", "P33-P67", "Line and marker style for the P33-P67 lines.", True)
         self.addSpacing()
+
+        std_box = self.addSpinBox("std_dev_factor", "Std dev multiplier", "Choose which standard deviation to plot", max_value=3)
+
         self.addCheckBox("distribution_lines", "Connection Lines", "Toggle distribution connection lines visibility.")
 
         self["mean_style"].createLabelLayout(layout)
@@ -92,6 +97,7 @@ class StatisticsCustomizationView(CustomizationView):
         plot_config.setStatisticsStyle("p10-p90", self.p10_p90_style)
         plot_config.setStatisticsStyle("p33-p67", self.p33_p67_style)
 
+        plot_config.setStandardDeviationFactor(self.std_dev_factor)
         plot_config.setDistributionLineEnabled(self.distribution_lines)
 
 
@@ -106,4 +112,5 @@ class StatisticsCustomizationView(CustomizationView):
         self.p10_p90_style = plot_config.getStatisticsStyle("p10-p90")
         self.p33_p67_style = plot_config.getStatisticsStyle("p33-p67")
 
+        self.std_dev_factor = plot_config.getStandardDeviationFactor()
         self.distribution_lines = plot_config.isDistributionLineEnabled()

@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ENKF_STATE_H__
-#define __ENKF_STATE_H__
+#ifndef ERT_ENKF_STATE_H
+#define ERT_ENKF_STATE_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,9 +64,7 @@ typedef struct enkf_state_struct    enkf_state_type;
   //void             * enkf_state_complete_forward_model__(void * arg );
   void *             enkf_state_load_from_forward_model_mt( void * arg );
   void               enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs, const stringlist_type * param_list , init_mode_type init_mode);
-  void               enkf_state_fread(enkf_state_type *  , enkf_fs_type * fs , int  , int  , state_enum );
-  bool               enkf_state_get_analyzed(const enkf_state_type * );
-  void               enkf_state_set_analyzed(enkf_state_type * , bool );
+  void               enkf_state_fread(enkf_state_type *  , enkf_fs_type * fs , int  , int );
   void               enkf_state_swapout_node(const enkf_state_type * , const char *);
   void               enkf_state_swapin_node(const enkf_state_type *  , const char *);
   void               enkf_state_iset_eclpath(enkf_state_type * , int , const char *);
@@ -104,7 +102,7 @@ typedef struct enkf_state_struct    enkf_state_type;
   enkf_node_type *   enkf_state_get_or_create_node(enkf_state_type * enkf_state, const enkf_config_node_type * config_node);
   void               enkf_state_load_ecl_restart(enkf_state_type * , bool , int );
   void               enkf_state_sample(enkf_state_type * , int);
-  void               enkf_state_fwrite(const enkf_state_type *  , enkf_fs_type * fs , int  , int  , state_enum );
+  void               enkf_state_fwrite(const enkf_state_type *  , enkf_fs_type * fs , int  , int  );
   void               enkf_state_ens_read(       enkf_state_type * , const char * , int);
   void               enkf_state_ecl_write(enkf_state_type *, const run_arg_type * run_arg , enkf_fs_type * fs);
   void               enkf_state_free(enkf_state_type * );

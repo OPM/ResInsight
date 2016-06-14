@@ -68,9 +68,9 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::updatePlotData()
+void RimWellLogFileCurve::onLoadDataAndUpdate()
 {
-    RimWellLogCurve::updatePlotConfiguration();
+    RimWellLogCurve::updateCurvePresentation();
 
     if (isCurveVisible())
     {
@@ -107,9 +107,9 @@ void RimWellLogFileCurve::updatePlotData()
                     }
                 }
 
-                if (m_autoName)
+                if (m_isUsingAutoName)
                 {
-                    m_qwtPlotCurve->setTitle(createCurveName());
+                    m_qwtPlotCurve->setTitle(createCurveAutoName());
                 }
             }
         }
@@ -123,9 +123,9 @@ void RimWellLogFileCurve::updatePlotData()
         m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        zoomAllOwnerTrackAndPlot();
+        zoomAllParentPlot();
 
-        if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
+        if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
 }
 
@@ -154,14 +154,14 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_wellPath)
     {
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }
     else if (changedField == &m_wellLogChannnelName)
     {
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }
 
-    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
+    if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     appearanceGroup->add(&m_pointSymbol);
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_autoName);
+    appearanceGroup->add(&m_isUsingAutoName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogFileCurve::createCurveName()
+QString RimWellLogFileCurve::createCurveAutoName()
 {
     if (m_wellPath)
     {

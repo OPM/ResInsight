@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __WELL_CONN_H__
-#define __WELL_CONN_H__
+#ifndef ERT_WELL_CONN_H
+#define ERT_WELL_CONN_H
 
 
 #ifdef __cplusplus

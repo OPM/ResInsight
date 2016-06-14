@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __SCHED_KW_INCLUDE_H__
-#define __SCHED_KW_INCLDUE_H__
+#ifndef ERT_SCHED_KW_INCLUDE_H
+#define ERT_SCHED_KW_INCLDUE_H
 
 #include <ert/util/stringlist.h>
 

@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __FORTIO_H__
-#define __FORTIO_H__
+#ifndef ERT_FORTIO_H
+#define ERT_FORTIO_H
 #ifdef __cplusplus
 extern "C" {
 #endif

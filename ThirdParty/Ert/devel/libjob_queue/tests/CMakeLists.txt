@@ -51,7 +51,9 @@ target_link_libraries( job_queue_stress_test job_queue test_util )
 add_test( job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task False)
 add_test( job_queue_user_exit ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task True)
 
-
+add_executable( job_queue_timeout_test job_queue_timeout_test.c )
+target_link_libraries( job_queue_timeout_test job_queue test_util )
+add_test( job_queue_timeout_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_timeout_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_stress_task)
 
 add_executable( job_queue_driver_test job_queue_driver_test.c )
 target_link_libraries( job_queue_driver_test job_queue test_util )

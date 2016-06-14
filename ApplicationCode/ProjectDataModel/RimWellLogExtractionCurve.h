@@ -41,7 +41,6 @@ public:
     RimWellLogExtractionCurve();
     virtual ~RimWellLogExtractionCurve();
     
-    virtual void updatePlotData();
     
     void setWellPath(RimWellPath* wellPath);
     void setPropertiesFromView(RimView* view);
@@ -51,7 +50,8 @@ public:
     virtual QString wellDate() const;
 
 protected:
-    virtual QString createCurveName();
+    virtual QString createCurveAutoName();
+    virtual void onLoadDataAndUpdate();
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

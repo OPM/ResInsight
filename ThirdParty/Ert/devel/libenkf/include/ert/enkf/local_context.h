@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __LOCAL_CONTEXT_H__
-#define __LOCAL_CONTEXT_H__
+#ifndef ERT_LOCAL_CONTEXT_H
+#define ERT_LOCAL_CONTEXT_H
 
 #ifdef __cplusplus
 extern "C" {

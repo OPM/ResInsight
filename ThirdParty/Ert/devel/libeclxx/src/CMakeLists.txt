@@ -1,5 +1,4 @@
 set( source_files
-     EclKW.cpp
      FortIO.cpp
      Smspec.cpp
      )

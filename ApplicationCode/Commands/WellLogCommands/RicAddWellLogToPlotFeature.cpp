@@ -102,7 +102,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->setWellPath(wellPath);
             curve->setWellLogChannelName(wellLog->name());
 
-            curve->updatePlotData();
+            curve->loadDataAndUpdate();
         }        
     }
 

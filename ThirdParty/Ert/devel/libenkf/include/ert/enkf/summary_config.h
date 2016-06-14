@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __SUMMARY_CONFIG_H__
-#define __SUMMARY_CONFIG_H__
+#ifndef ERT_SUMMARY_CONFIG_H
+#define ERT_SUMMARY_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {

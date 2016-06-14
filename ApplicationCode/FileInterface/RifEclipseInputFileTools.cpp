@@ -38,10 +38,8 @@
 #include <QTextStream>
 #include <QDebug>
 
-#include "ecl_grid.h"
-#include "util.h"
-#include "well_state.h"
-
+#include "ert/ecl/ecl_box.h"
+#include "ert/ecl/ecl_kw.h"
 
 QString includeKeyword("INCLUDE");
 QString faultsKeyword("FAULTS");

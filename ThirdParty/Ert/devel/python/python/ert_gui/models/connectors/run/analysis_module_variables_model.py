@@ -15,7 +15,7 @@
 #  for more details.
 from ert.analysis.analysis_module import AnalysisModule
 from ert_gui.models import ErtConnector
-
+from ert_gui.models.connectors import EnsembleSizeModel
 
 class AnalysisModuleVariablesModel(ErtConnector):
 
@@ -32,7 +32,7 @@ class AnalysisModuleVariablesModel(ErtConnector):
             "LAMBDA_RECALCULATE": {"type": bool, "labelname":"Recalculate Lambda after each Iteration", "pos":7},
             "ENKF_TRUNCATION" :{"type": float, "min": 0, "max": 1, "step":0.1, "labelname":"Singular value truncation", "pos":9},
             "ENKF_NCOMP": {"type": int, "min": -1, "max": 10, "step":1.0, "labelname":"ENKF_NCOMP", "pos":10},
-            "CV_NFOLDS": {"type": int, "min": -1, "max": 10, "step":1.0, "labelname":"CV_NFOLDS", "pos":11},
+            "CV_NFOLDS": {"type": int, "min": 2, "max": EnsembleSizeModel().getValue() - 1, "step":1.0, "labelname":"CV_NFOLDS", "pos":11},
             "FWD_STEP_R2_LIMIT":{"type": float, "min": -1, "max": 100, "step":1.0, "labelname":"FWD_STEP_R2_LIMIT", "pos":12},
             "CV_PEN_PRESS": {"type": bool, "labelname":"CV_PEN_PRESS", "pos":13}
         }

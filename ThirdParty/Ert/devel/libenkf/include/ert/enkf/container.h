@@ -16,8 +16,8 @@
    for more details. 
 */
 
-#ifndef __CONTAINER_H__
-#define __CONTAINER_H__
+#ifndef ERT_CONTAINER_H
+#define ERT_CONTAINER_H
 
 #ifdef __cplusplus
 extern "C" {

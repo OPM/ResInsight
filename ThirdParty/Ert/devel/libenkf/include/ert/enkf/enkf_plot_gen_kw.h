@@ -17,8 +17,8 @@
 */
 
 
-#ifndef __ENKF_PLOT_GEN_KW_H__
-#define __ENKF_PLOT_GEN_KW_H__
+#ifndef ERT_ENKF_PLOT_GEN_KW_H
+#define ERT_ENKF_PLOT_GEN_KW_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +41,6 @@ extern "C" {
                                                         enkf_fs_type           * fs ,
                                                         bool                     transform_data ,
                                                         int                      report_step ,
-                                                        state_enum               state ,
                                                         const bool_vector_type * input_mask);
 
   const char                   * enkf_plot_gen_kw_iget_key( const enkf_plot_gen_kw_type * plot_gen_kw, int index);

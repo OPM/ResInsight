@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __ANALYSIS_ITER_CONFIG_H__
-#define __ANALYSIS_ITER_CONFIG_H__
+#ifndef ERT_ANALYSIS_ITER_CONFIG_H
+#define ERT_ANALYSIS_ITER_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {

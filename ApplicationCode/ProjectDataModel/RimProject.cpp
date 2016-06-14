@@ -38,6 +38,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -55,6 +56,8 @@
 
 #include <QDir>
 #include <QMenu>
+#include "RimGridSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -142,6 +145,11 @@ void RimProject::close()
     if (mainPlotCollection() && mainPlotCollection()->wellLogPlotCollection()) 
     {
          mainPlotCollection()->wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
+    }
+
+    if (mainPlotCollection() && mainPlotCollection()->summaryPlotCollection())
+    {
+        mainPlotCollection()->summaryPlotCollection()->m_summaryPlots.deleteAllChildObjects();
     }
 
     oilFields.deleteAllChildObjects();
@@ -468,6 +476,25 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
+{
+    for (RimOilField* oilField: oilFields)
+    {
+        if(!oilField) continue;
+        RimSummaryCaseCollection* sumCaseColl = oilField->summaryCaseCollection();
+        if(sumCaseColl)
+        {
+            for (size_t scIdx = 0; scIdx <  sumCaseColl->summaryCaseCount(); ++scIdx)
+            {
+                sumCases.push_back(sumCaseColl->summaryCase(scIdx));
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
 {
     std::vector<RimCase*> cases;
@@ -727,6 +754,10 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         if (mainPlotCollection->wellLogPlotCollection())
         {
             uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+        }
+        if (mainPlotCollection->summaryPlotCollection())
+        {
+            uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
         }
     }
 

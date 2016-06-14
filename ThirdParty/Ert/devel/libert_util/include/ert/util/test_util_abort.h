@@ -20,8 +20,8 @@
   This header is purely a convenience header - it is not installed.
 */
 
-#ifndef __TEST_UTIL_ABORT__
-#define __TEST_UTIL_ABORT__
+#ifndef ERT_TEST_UTIL_ABORT
+#define ERT_TEST_UTIL_ABORT
 
 #ifdef __cplusplus
 extern "C" {

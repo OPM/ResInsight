@@ -16,8 +16,8 @@
    for more details.
 */
 
-#ifndef __LOCAL_UPDATESTEP_H__
-#define __LOCAL_UPDATESTEP_H__
+#ifndef ERT_LOCAL_UPDATESTEP_H
+#define ERT_LOCAL_UPDATESTEP_H
 
 #ifdef __cplusplus
 extern "C" {

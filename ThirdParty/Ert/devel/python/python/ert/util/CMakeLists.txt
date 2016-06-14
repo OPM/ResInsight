@@ -22,6 +22,7 @@ set(PYTHON_SOURCES
     ui_return.py
     util_func.py
     vector_template.py
+    permutation_vector.py
     version.py
     arg_pack.py
     path_format.py

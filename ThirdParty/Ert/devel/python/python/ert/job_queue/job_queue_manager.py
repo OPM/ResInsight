@@ -18,72 +18,76 @@ Module implementing a queue for managing external jobs.
 
 """
 from ert.cwrap import BaseCClass, CWrapper
-from ert.job_queue import JOB_QUEUE_LIB, Job, JobStatusType
+from ert.job_queue import QueuePrototype, Job, JobStatusType
 
 class JobQueueManager(BaseCClass):
+    TYPE_NAME = "job_queue_manager"
+    _alloc           = QueuePrototype("void* job_queue_manager_alloc( job_queue)", bind = False)
+    _free            = QueuePrototype("void job_queue_manager_free( job_queue_manager )")
+    _start_queue     = QueuePrototype("void job_queue_manager_start_queue( job_queue_manager , int , bool, bool)")
+    _get_num_waiting = QueuePrototype("int job_queue_manager_get_num_waiting( job_queue_manager )")
+    _get_num_running = QueuePrototype("int job_queue_manager_get_num_running( job_queue_manager )")
+    _get_num_success = QueuePrototype("int job_queue_manager_get_num_success( job_queue_manager )")
+    _get_num_failed  = QueuePrototype("int job_queue_manager_get_num_failed( job_queue_manager )")
+    _is_running      = QueuePrototype("bool job_queue_manager_is_running( job_queue_manager )")
+    _job_complete    = QueuePrototype("bool job_queue_manager_job_complete( job_queue_manager , int)")
+    _job_running     = QueuePrototype("bool job_queue_manager_job_running( job_queue_manager , int)")
+    _job_failed      = QueuePrototype("bool job_queue_manager_job_failed( job_queue_manager , int)")
+    _job_waiting     = QueuePrototype("bool job_queue_manager_job_waiting( job_queue_manager , int)")
+    _job_success     = QueuePrototype("bool job_queue_manager_job_success( job_queue_manager , int)")
+
+    # The return type of the job_queue_manager_iget_job_status should
+    # really be the enum job_status_type_enum, but I just did not
+    # manage to get the prototyping right. Have therefor taken the
+    # return as an integer and convert it in the getJobStatus()
+    # method.
+    _job_status      = QueuePrototype("int job_queue_manager_iget_job_status(job_queue_manager, int)")
 
     def __init__(self, queue):
-        c_ptr = JobQueueManager.cNamespace().alloc(queue)
+        c_ptr = self._alloc(queue)
         super(JobQueueManager, self).__init__(c_ptr)
 
 
     def startQueue(self , total_size , verbose = False , reset_queue = True):
-        JobQueueManager.cNamespace().start_queue( self , total_size , verbose , reset_queue)
+        self._start_queue( total_size , verbose , reset_queue)
 
     def getNumRunning(self):
-        return JobQueueManager.cNamespace().get_num_running( self )
+        return self._get_num_running(  )
 
     def getNumWaiting(self):
-        return JobQueueManager.cNamespace().get_num_waiting( self )
+        return self._get_num_waiting( )
 
     def getNumSuccess(self):
-        return JobQueueManager.cNamespace().get_num_success( self )
+        return self._get_num_success( )
 
     def getNumFailed(self):
-        return JobQueueManager.cNamespace().get_num_failed( self )
+        return self._get_num_failed(  )
     
     def isRunning(self):
-        return JobQueueManager.cNamespace().is_running( self )
+        return self._is_running( )
 
     def free(self):
-        JobQueueManager.cNamespace().free(self)
+        self._free( )
 
     def isJobComplete(self, job_index):
-        return JobQueueManager.cNamespace().job_complete( self , job_index )
+        return self._job_complete( job_index )
 
     def isJobRunning(self, job_index):
-        return JobQueueManager.cNamespace().job_running( self , job_index )
+        return self._job_running( job_index )
 
     def isJobWaiting(self, job_index):
-        return JobQueueManager.cNamespace().job_waiting( self , job_index )
+        return self._job_waiting( job_index )
 
     def didJobFail(self, job_index):
-        return JobQueueManager.cNamespace().job_failed( self , job_index )
+        return self._job_failed( job_index )
 
     def didJobSucceed(self, job_index):
-        return JobQueueManager.cNamespace().job_success( self , job_index )
+        return self._job_success( job_index )
 
     def getJobStatus(self, job_index):
+        # See comment about return type in the prototype section at
+        # the top of class.
         """ @rtype: ert.job_queue.job_status_type_enum.JobStatusType """
-        return JobQueueManager.cNamespace().job_status(self, job_index)
+        int_status = self._job_status(job_index)
+        return JobStatusType( int_status )
         
-
-#################################################################
-
-cwrapper = CWrapper(JOB_QUEUE_LIB)
-cwrapper.registerObjectType("job_queue_manager", JobQueueManager)
-
-JobQueueManager.cNamespace().alloc           = cwrapper.prototype("c_void_p job_queue_manager_alloc( job_queue) ")
-JobQueueManager.cNamespace().free            = cwrapper.prototype("void job_queue_manager_free( job_queue_manager )")
-JobQueueManager.cNamespace().start_queue     = cwrapper.prototype("void job_queue_manager_start_queue( job_queue_manager , int , bool, bool)")
-JobQueueManager.cNamespace().get_num_waiting = cwrapper.prototype("int job_queue_manager_get_num_waiting( job_queue_manager )")
-JobQueueManager.cNamespace().get_num_running = cwrapper.prototype("int job_queue_manager_get_num_running( job_queue_manager )")
-JobQueueManager.cNamespace().get_num_success = cwrapper.prototype("int job_queue_manager_get_num_success( job_queue_manager )")
-JobQueueManager.cNamespace().get_num_failed  = cwrapper.prototype("int job_queue_manager_get_num_failed( job_queue_manager )")
-JobQueueManager.cNamespace().is_running      = cwrapper.prototype("bool job_queue_manager_is_running( job_queue_manager )")
-JobQueueManager.cNamespace().job_complete    = cwrapper.prototype("bool job_queue_manager_job_complete( job_queue_manager , int)")
-JobQueueManager.cNamespace().job_running     = cwrapper.prototype("bool job_queue_manager_job_running( job_queue_manager , int)")
-JobQueueManager.cNamespace().job_failed      = cwrapper.prototype("bool job_queue_manager_job_failed( job_queue_manager , int)")
-JobQueueManager.cNamespace().job_waiting     = cwrapper.prototype("bool job_queue_manager_job_waiting( job_queue_manager , int)")
-JobQueueManager.cNamespace().job_success     = cwrapper.prototype("bool job_queue_manager_job_success( job_queue_manager , int)")
-JobQueueManager.cNamespace().job_status      = cwrapper.prototype("job_status_type_enum job_queue_manager_iget_job_status(job_queue_manager, int)")

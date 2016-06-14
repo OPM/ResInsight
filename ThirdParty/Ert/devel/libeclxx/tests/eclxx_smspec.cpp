@@ -38,7 +38,10 @@ void test_smspec_wg() {
     ERT::smspec_node group( ECL_SMSPEC_GROUP_VAR, gr, kw );
 
     test_assert_true(well.wgname() == wg);
+    test_assert_true(well.type() == ECL_SMSPEC_WELL_VAR );
+
     test_assert_true(group.wgname() == gr);
+    test_assert_true(group.type() == ECL_SMSPEC_GROUP_VAR );
 }
 
 void test_smspec_field() {
@@ -46,6 +49,7 @@ void test_smspec_field() {
     ERT::smspec_node field( kw );
 
     test_assert_true( field.keyword() == kw );
+    test_assert_true( field.type() == ECL_SMSPEC_FIELD_VAR );
 }
 
 void test_smspec_block() {
@@ -56,6 +60,8 @@ void test_smspec_block() {
     ERT::smspec_node block( kw, dims, ijk );
 
     test_assert_true( block.keyword() == kw );
+    test_assert_true( block.type() == ECL_SMSPEC_BLOCK_VAR );
+    test_assert_true( block.num() == 556 );
 }
 
 void test_smspec_region() {
@@ -64,6 +70,8 @@ void test_smspec_region() {
     ERT::smspec_node region( kw, dims, 0 );
 
     test_assert_true( region.keyword() == kw );
+    test_assert_true( region.type() == ECL_SMSPEC_REGION_VAR );
+    test_assert_true( region.num() == 0 );
 }
 
 void test_smspec_completion() {
@@ -74,6 +82,8 @@ void test_smspec_completion() {
     ERT::smspec_node completion( kw, wg, dims, ijk );
 
     test_assert_true( completion.keyword() == kw );
+    test_assert_true( completion.type() == ECL_SMSPEC_COMPLETION_VAR );
+    test_assert_true( completion.num() == 112 );
 }
 
 int main (int argc, char **argv) {
