@@ -37,6 +37,18 @@
 #include "RimSummaryCurve.h"
 
 
+QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
+{
+    CVF_ASSERT(false);
+    return str;
+}
+
+QTextStream& operator >> (QTextStream& str, std::vector<RifEclipseSummaryAddress>& sobj)
+{
+    CVF_ASSERT(false);
+    return str;
+}
+
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurveFilter, "SummaryCurveFilter");
 
@@ -148,22 +160,22 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
             {
                 const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
                 addressCount = static_cast<int>(allAddresses.size());
-                std::map<RifEclipseSummaryAddress, int> addrToIdxMap;
+                std::set<RifEclipseSummaryAddress> addrUnion;
                 for(int i = 0; i <addressCount; i++)
                 {
                     if (false) continue;
-                    addrToIdxMap[allAddresses[i]] = i;
+                    addrUnion.insert(allAddresses[i]);
                 }
 
-                for (const auto& addrIntPair: addrToIdxMap)
+                for (const auto& address: addrUnion)
                 {
-                    std::string name = addrIntPair.first.uiText();
+                    std::string name = address.uiText();
                     QString s = QString::fromStdString(name);
-                    optionList.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
+                    optionList.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
                 }
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
+            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
 
             if(useOptionsOnly) *useOptionsOnly = true;
         }
@@ -327,5 +339,13 @@ void RimSummaryCurveFilter::detachQwtCurve()
     {
         curve->detachQwtCurve();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::syncronizeCurves()
+{
+    
 }
 

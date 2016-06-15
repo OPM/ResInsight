@@ -36,6 +36,8 @@ class RimSummaryCase;
 class RifReaderEclipseSummary;
 class RiuLineSegmentQwtPlotCurve;
 
+Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
+
 //==================================================================================================
 ///  
 ///  
@@ -53,6 +55,7 @@ public:
 
 private:
     RifReaderEclipseSummary*                summaryReader();
+    void                                    syncronizeCurves();
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -80,6 +83,7 @@ private:
     caf::PdmField<QString>                  m_lgrNameFilter;
     caf::PdmField<QString>                  m_cellIJKFilter;
 
-    caf::PdmField<std::vector<int> >        m_uiFilterResultMultiSelection;
+    caf::PdmField<std::vector<RifEclipseSummaryAddress> >        m_uiFilterResultMultiSelection;
 
 };
+
