@@ -43,6 +43,7 @@
 
 #include "cafPdmXmlVec3d.h"
 
+Q_DECLARE_METATYPE(cvf::Vec3d);
 
 namespace caf 
 {

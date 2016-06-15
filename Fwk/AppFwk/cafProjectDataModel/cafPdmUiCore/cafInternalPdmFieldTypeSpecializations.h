@@ -86,7 +86,7 @@ public:
 
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return variantValue == variantValue2;
+        return variantValue.value<T>() == variantValue2.value<T>();
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -123,7 +123,7 @@ public:
 
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return variantValue == variantValue2;
+        return variantValue.value<T>() == variantValue2.value<T>();
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
