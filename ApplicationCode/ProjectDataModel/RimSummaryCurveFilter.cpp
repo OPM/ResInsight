@@ -67,6 +67,15 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
     m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
+    m_summaryFilter.xmlCapability()->setIOWritable(true);
+    m_summaryFilter.xmlCapability()->setIOReadable(true);
+    m_summaryFilter.uiCapability()->setUiChildrenHidden(true);
+    m_summaryFilter.uiCapability()->setUiHidden(true);
+
+    m_summaryFilter = new RimSummaryFilter();
+
+    #if 0
     CAF_PDM_InitFieldNoDefault(&m_filterType,"SummaryFilterType","Filter Type","","","");
     m_filterType.xmlCapability()->setIOWritable(false);
     m_filterType.xmlCapability()->setIOReadable(false);
@@ -100,10 +109,11 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_cellIJKFilter               ,"SummaryCellIJKFilter","I, J, K","","","");
     m_cellIJKFilter.xmlCapability()->setIOWritable(false);
     m_cellIJKFilter.xmlCapability()->setIOReadable(false);
+    #endif
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "", "");
-    m_cellIJKFilter.xmlCapability()->setIOWritable(false);
-    m_cellIJKFilter.xmlCapability()->setIOReadable(false);
+    m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
+    m_uiFilterResultMultiSelection.xmlCapability()->setIOReadable(false);
     m_uiFilterResultMultiSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_uiFilterResultMultiSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue(false);
@@ -163,7 +173,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
                 std::set<RifEclipseSummaryAddress> addrUnion;
                 for(int i = 0; i <addressCount; i++)
                 {
-                    if (false) continue;
+                    if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
                     addrUnion.insert(allAddresses[i]);
                 }
 
@@ -195,11 +205,13 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Variable Selection");
+    m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
+    #if 0
     curveVarSelectionGroup->add(&m_filterType);
 
     caf::PdmUiGroup* curveVarFilterGroup = nullptr;
 
-    if (m_filterType() == RimSummaryCurve::SUM_FILTER_VAR_STRING)
+    if (m_filterType() == RimSummaryFilter::SUM_FILTER_VAR_STRING)
     {
         curveVarSelectionGroup->add(&m_completeVarStringFilter);
     }
@@ -211,7 +223,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     
     switch (m_filterType())
     {
-        case RimSummaryCurve::SUM_FILTER_ANY:
+        case RimSummaryFilter::SUM_FILTER_ANY:
         {
             curveVarFilterGroup->add(&m_wellNameFilter);
             curveVarFilterGroup->add(&m_wellGroupNameFilter);
@@ -222,62 +234,62 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
             curveVarFilterGroup->add(&m_cellIJKFilter);
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_REGION:
+        case RimSummaryFilter::SUM_FILTER_REGION:
         {
             curveVarFilterGroup->add(&m_regionNumberFilter);
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_REGION_2_REGION:
+        case RimSummaryFilter::SUM_FILTER_REGION_2_REGION:
         {
             curveVarFilterGroup->add(&m_regionNumberFilter);
             curveVarFilterGroup->add(&m_regionNumber2Filter);
 
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_WELL_GROUP:
+        case RimSummaryFilter::SUM_FILTER_WELL_GROUP:
         {
             curveVarFilterGroup->add(&m_wellGroupNameFilter);
 
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_WELL:
+        case RimSummaryFilter::SUM_FILTER_WELL:
         {
             curveVarFilterGroup->add(&m_wellNameFilter);
 
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_WELL_COMPLETION:
+        case RimSummaryFilter::SUM_FILTER_WELL_COMPLETION:
         {
             curveVarFilterGroup->add(&m_wellNameFilter);
             curveVarFilterGroup->add(&m_cellIJKFilter);
             
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_WELL_LGR:
+        case RimSummaryFilter::SUM_FILTER_WELL_LGR:
         {
             curveVarFilterGroup->add(&m_wellNameFilter);
             curveVarFilterGroup->add(&m_lgrNameFilter);
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_WELL_COMPLETION_LGR:
+        case RimSummaryFilter::SUM_FILTER_WELL_COMPLETION_LGR:
         {
             curveVarFilterGroup->add(&m_wellNameFilter);
             curveVarFilterGroup->add(&m_lgrNameFilter);
             curveVarFilterGroup->add(&m_cellIJKFilter);
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_WELL_SEGMENT:
+        case RimSummaryFilter::SUM_FILTER_WELL_SEGMENT:
         {
             curveVarFilterGroup->add(&m_wellNameFilter);
             curveVarFilterGroup->add(&m_wellSegmentNumberFilter);
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_BLOCK:
+        case RimSummaryFilter::SUM_FILTER_BLOCK:
         {
             curveVarFilterGroup->add(&m_cellIJKFilter);
         }
         break;
-        case RimSummaryCurve::SUM_FILTER_BLOCK_LGR:
+        case RimSummaryFilter::SUM_FILTER_BLOCK_LGR:
         {
             curveVarFilterGroup->add(&m_lgrNameFilter);
             curveVarFilterGroup->add(&m_cellIJKFilter);
@@ -286,6 +298,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     }
     }
+    #endif
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
     uiOrdering.setForgetRemainingFields(true);

@@ -31,6 +31,7 @@
 #include "cafAppEnum.h"
 
 #include "RimSummaryCurve.h"
+#include "RimSummaryFilter.h"
 
 class RimSummaryCase;
 class RifReaderEclipseSummary;
@@ -69,8 +70,9 @@ private:
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
 
     // Filter fields
-
-    caf::PdmField<caf::AppEnum<RimSummaryCurve::SummaryFilterType> >
+    caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
+#if 0
+    caf::PdmField<caf::AppEnum<RimSummaryFilter::SummaryFilterType> >
                                             m_filterType;
     caf::PdmField<QString>                  m_completeVarStringFilter;
 
@@ -82,7 +84,7 @@ private:
     caf::PdmField<QString>                  m_wellSegmentNumberFilter;
     caf::PdmField<QString>                  m_lgrNameFilter;
     caf::PdmField<QString>                  m_cellIJKFilter;
-
+    #endif
     caf::PdmField<std::vector<RifEclipseSummaryAddress> >        m_uiFilterResultMultiSelection;
 
 };

@@ -1,0 +1,340 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2016 Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimSummaryFilter.h"
+#include "RimSummaryCurve.h"
+
+namespace caf
+{
+
+template<>
+void caf::AppEnum<RimSummaryFilter::SummaryFilterType>::setUp()
+{
+    addItem(RimSummaryFilter::SUM_FILTER_VAR_STRING, "SUM_FILTER_VAR_STRING", "Concatenated Variable Text");
+    addItem(RimSummaryFilter::SUM_FILTER_FIELD, "SUM_FILTER_FIELD", "Field");
+    addItem(RimSummaryFilter::SUM_FILTER_WELL, "SUM_FILTER_WELL", "Well");
+    addItem(RimSummaryFilter::SUM_FILTER_WELL_GROUP, "SUM_FILTER_WELL_GROUP", "Group");
+    addItem(RimSummaryFilter::SUM_FILTER_WELL_COMPLETION, "SUM_FILTER_WELL_COMPLETION", "Completion");
+    addItem(RimSummaryFilter::SUM_FILTER_WELL_SEGMENT, "SUM_FILTER_SEGMENT", "Segment");
+    addItem(RimSummaryFilter::SUM_FILTER_BLOCK, "SUM_FILTER_BLOCK", "Block");
+    addItem(RimSummaryFilter::SUM_FILTER_REGION, "SUM_FILTER_REGION", "Region");
+    addItem(RimSummaryFilter::SUM_FILTER_REGION_2_REGION, "SUM_FILTER_REGION_2_REGION", "Region-Region");
+    addItem(RimSummaryFilter::SUM_FILTER_WELL_LGR, "SUM_FILTER_WELL_LGR", "Lgr-Well");
+    addItem(RimSummaryFilter::SUM_FILTER_WELL_COMPLETION_LGR, "SUM_FILTER_WELL_COMPLETION_LGR", "Lgr-Completion");
+    addItem(RimSummaryFilter::SUM_FILTER_BLOCK_LGR, "SUM_FILTER_BLOCK_LGR", "Lgr-Block");
+    addItem(RimSummaryFilter::SUM_FILTER_MISC, "SUM_FILTER_MISC", "Misc");
+    addItem(RimSummaryFilter::SUM_FILTER_AQUIFER, "SUM_FILTER_AQUIFER", "Aquifer");
+    addItem(RimSummaryFilter::SUM_FILTER_NETWORK, "SUM_FILTER_NETWORK", "Network");
+    addItem(RimSummaryFilter::SUM_FILTER_ANY, "SUM_FILTER_ANY", "Any");
+    setDefault(RimSummaryFilter::SUM_FILTER_VAR_STRING);
+}
+
+}
+
+CAF_PDM_SOURCE_INIT(RimSummaryFilter, "SummaryFilterSettings");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryFilter::RimSummaryFilter()
+{
+    CAF_PDM_InitObject("Summary Filter", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_filterType, "SummaryFilterType", "Filter Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_completeVarStringFilter, "SummaryCompleteVarStringFilter", "Filter", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_filterQuantityName, "SummaryVarQuantityFilter", "Quantity", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumberFilter, "SummaryRegionNumberFilter", "Region", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumber2Filter, "SummaryRegionNumber2Filter", "Region 2", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Well Group", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellNameFilter, "SummaryWellNameFilter", "Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumberFilter, "SummaryWellSegmentNumberFilter", "Segment", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter, "SummaryLgrNameFilter", "Lgr", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellIJKFilter, "SummaryCellIJKFilter", "I, J, K", "", "", "");
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryFilter::~RimSummaryFilter()
+{
+
+}
+
+
+
+
+bool isNumberMatch(QString numericalFilterString, int number)
+{
+    if(numericalFilterString.isEmpty()) return true;
+
+    // Todo: Ranges, and lists
+    int filterNumber = numericalFilterString.toInt();
+    return number == filterNumber;
+}
+
+bool isStringMatch(QString filterString, std::string value)
+{
+    if(filterString.isEmpty()) return true;
+
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    QString qstrValue = QString::fromStdString(value);
+    return searcher.exactMatch(qstrValue);
+}
+
+bool isIJKMatch(QString filterString, int cellI, int cellJ, int cellK)
+{
+    if(filterString.isEmpty()) return true;
+
+    // Todo: Ranges, and lists
+    int filterNumber = filterString.toInt();
+    return cellI == filterNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryFilter::isIncludedByFilter(const RifEclipseSummaryAddress& addr)
+{
+    if(!isSumVarTypeMatchingFilterType(m_filterType(), addr.category())) return false;
+
+    if(m_filterType() == SUM_FILTER_VAR_STRING)
+    {
+        return isStringMatch(m_completeVarStringFilter(), addr.uiText());
+    }
+
+    if(!isStringMatch(m_filterQuantityName(), addr.quantityName())) return false;
+
+    if(m_filterType() == SUM_FILTER_ANY)
+    {
+        return (isNumberMatch(m_regionNumberFilter(), addr.regionNumber())
+                &&  isNumberMatch(m_regionNumber2Filter(), addr.regionNumber2())
+                &&  isStringMatch(m_wellGroupNameFilter(), addr.wellGroupName())
+                &&  isStringMatch(m_wellNameFilter(), addr.wellName())
+                &&  isStringMatch(m_lgrNameFilter(), addr.lgrName())
+                &&  isNumberMatch(m_wellSegmentNumberFilter(), addr.wellSegmentNumber())
+                &&  isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK()));
+    }
+
+    switch(addr.category())
+    {
+        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        {
+            return isNumberMatch(m_regionNumberFilter(), addr.regionNumber());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        {
+            return  isNumberMatch(m_regionNumberFilter(), addr.regionNumber())
+                && isNumberMatch(m_regionNumber2Filter(), addr.regionNumber2());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        {
+            return  isStringMatch(m_wellGroupNameFilter(), addr.wellGroupName());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName())
+                && isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName())
+                && isStringMatch(m_lgrNameFilter(), addr.lgrName());
+        }
+        break;
+
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName())
+                && isStringMatch(m_lgrNameFilter(), addr.lgrName())
+                && isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        {
+            return  isStringMatch(m_wellNameFilter(), addr.wellName())
+                && isNumberMatch(m_wellSegmentNumberFilter(), addr.wellSegmentNumber());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        {
+            return  isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        {
+            return  isStringMatch(m_lgrNameFilter(), addr.lgrName())
+                && isIJKMatch(m_cellIJKFilter(), addr.cellI(), addr.cellJ(), addr.cellK());
+        }
+        break;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryFilter::isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType)
+{
+    if(sumVarType == RifEclipseSummaryAddress::SUMMARY_INVALID) return false;
+    if(sumFilterType == SUM_FILTER_ANY || sumFilterType == SUM_FILTER_VAR_STRING) return true;
+
+    switch(sumVarType)
+    {
+        case RifEclipseSummaryAddress::SUMMARY_FIELD: { return (sumFilterType == SUM_FILTER_FIELD); } break;
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER: { return (sumFilterType == SUM_FILTER_AQUIFER);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_NETWORK: { return (sumFilterType == SUM_FILTER_NETWORK);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_MISC: { return (sumFilterType == SUM_FILTER_MISC);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION: { return (sumFilterType == SUM_FILTER_REGION);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION: { return (sumFilterType == SUM_FILTER_REGION_2_REGION);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP: { return (sumFilterType == SUM_FILTER_WELL_GROUP);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL: { return (sumFilterType == SUM_FILTER_WELL);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION: { return (sumFilterType == SUM_FILTER_WELL_COMPLETION);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR: { return (sumFilterType == SUM_FILTER_WELL_LGR);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR: { return (sumFilterType == SUM_FILTER_FIELD);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT: { return (sumFilterType == SUM_FILTER_WELL_SEGMENT);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK: { return (sumFilterType == SUM_FILTER_BLOCK);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR: { return (sumFilterType == SUM_FILTER_BLOCK_LGR);  } break;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_filterType);
+
+    caf::PdmUiGroup* curveVarFilterGroup = nullptr;
+
+    if(m_filterType() == SUM_FILTER_VAR_STRING)
+    {
+        uiOrdering.add(&m_completeVarStringFilter);
+    }
+    else
+    {
+        caf::PdmUiGroup* curveVarFilterGroup = uiOrdering.addNewGroup("Filter Settings");
+
+        curveVarFilterGroup->add(&m_filterQuantityName);
+
+        switch(m_filterType())
+        {
+            case SUM_FILTER_ANY:
+            {
+                curveVarFilterGroup->add(&m_wellNameFilter);
+                curveVarFilterGroup->add(&m_wellGroupNameFilter);
+                curveVarFilterGroup->add(&m_regionNumberFilter);
+                curveVarFilterGroup->add(&m_regionNumber2Filter);
+                curveVarFilterGroup->add(&m_wellSegmentNumberFilter);
+                curveVarFilterGroup->add(&m_lgrNameFilter);
+                curveVarFilterGroup->add(&m_cellIJKFilter);
+            }
+            break;
+            case SUM_FILTER_REGION:
+            {
+                curveVarFilterGroup->add(&m_regionNumberFilter);
+            }
+            break;
+            case SUM_FILTER_REGION_2_REGION:
+            {
+                curveVarFilterGroup->add(&m_regionNumberFilter);
+                curveVarFilterGroup->add(&m_regionNumber2Filter);
+
+            }
+            break;
+            case SUM_FILTER_WELL_GROUP:
+            {
+                curveVarFilterGroup->add(&m_wellGroupNameFilter);
+
+            }
+            break;
+            case SUM_FILTER_WELL:
+            {
+                curveVarFilterGroup->add(&m_wellNameFilter);
+
+            }
+            break;
+            case SUM_FILTER_WELL_COMPLETION:
+            {
+                curveVarFilterGroup->add(&m_wellNameFilter);
+                curveVarFilterGroup->add(&m_cellIJKFilter);
+
+            }
+            break;
+            case SUM_FILTER_WELL_LGR:
+            {
+                curveVarFilterGroup->add(&m_wellNameFilter);
+                curveVarFilterGroup->add(&m_lgrNameFilter);
+            }
+            break;
+            case SUM_FILTER_WELL_COMPLETION_LGR:
+            {
+                curveVarFilterGroup->add(&m_wellNameFilter);
+                curveVarFilterGroup->add(&m_lgrNameFilter);
+                curveVarFilterGroup->add(&m_cellIJKFilter);
+            }
+            break;
+            case SUM_FILTER_WELL_SEGMENT:
+            {
+                curveVarFilterGroup->add(&m_wellNameFilter);
+                curveVarFilterGroup->add(&m_wellSegmentNumberFilter);
+            }
+            break;
+            case SUM_FILTER_BLOCK:
+            {
+                curveVarFilterGroup->add(&m_cellIJKFilter);
+            }
+            break;
+            case SUM_FILTER_BLOCK_LGR:
+            {
+                curveVarFilterGroup->add(&m_lgrNameFilter);
+                curveVarFilterGroup->add(&m_cellIJKFilter);
+            }
+            break;
+
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+
+    caf::PdmObject* parent = dynamic_cast<caf::PdmObject*>( this->parentField()->ownerObject());
+
+    if (parent)
+    {
+        parent->updateConnectedEditors();
+    }
+
+}
+

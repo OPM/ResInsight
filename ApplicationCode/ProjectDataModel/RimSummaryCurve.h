@@ -32,6 +32,7 @@
 class RimSummaryCase;
 class RifReaderEclipseSummary;
 class RiuLineSegmentQwtPlotCurve;
+class RimSummaryFilter;
 
 class RimSummaryAddress: public caf::PdmObject
 {
@@ -46,7 +47,7 @@ public:
 private:
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >
-                                            m_category;
+        m_category;
     caf::PdmField<QString>                  m_quantityName;
     caf::PdmField<int>                      m_regionNumber;
     caf::PdmField<int>                      m_regionNumber2;
@@ -73,7 +74,7 @@ public:
 
     void                                    setSummaryCase(RimSummaryCase* sumCase);
     void                                    setVariable(QString varName);
-
+    #if 0
     enum SummaryFilterType 
     {
         SUM_FILTER_VAR_STRING,
@@ -93,7 +94,7 @@ public:
         SUM_FILTER_BLOCK,
         SUM_FILTER_BLOCK_LGR,
     };
-
+    #endif
 protected:
     // RimPlotCurve overrides
 
@@ -117,8 +118,10 @@ private:
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
 
     // Filter fields
+    caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
+    #if 0
     bool isIncludedByFilter(const RifEclipseSummaryAddress& addr);
-    bool isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
+    static bool isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
 
     caf::PdmField<caf::AppEnum<SummaryFilterType> >
                                             m_filterType;
@@ -132,7 +135,7 @@ private:
     caf::PdmField<QString>                  m_wellSegmentNumberFilter;
     caf::PdmField<QString>                  m_lgrNameFilter;
     caf::PdmField<QString>                  m_cellIJKFilter;
-
+    #endif
     caf::PdmField<int>                      m_uiFilterResultSelection;
 
 };
