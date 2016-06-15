@@ -140,36 +140,49 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_BLOCK_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_BLOCK;
-            // Todo: Get IJK values
+            
+            const int* ijk = smspec_node_get_ijk(ertSumVarNode);
+            cellI = ijk[0];
+            cellJ = ijk[1];
+            cellK = ijk[2];
         }
         break;
         case ECL_SMSPEC_COMPLETION_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
             wellName = smspec_node_get_wgname(ertSumVarNode);
-            // Todo: Get IJK values
+            const int* ijk = smspec_node_get_ijk(ertSumVarNode);
+            cellI = ijk[0];
+            cellJ = ijk[1];
+            cellK = ijk[2];
         }
         break;
         case ECL_SMSPEC_LOCAL_BLOCK_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR;
-            // Todo: GetLGR name
-            // Todo: Get IJK values
+            lgrName = smspec_node_get_lgr_name(ertSumVarNode);
+            const int* ijk = smspec_node_get_lgr_ijk(ertSumVarNode);
+            cellI = ijk[0];
+            cellJ = ijk[1];
+            cellK = ijk[2];
         }
         break;
         case ECL_SMSPEC_LOCAL_COMPLETION_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR;
             wellName = smspec_node_get_wgname(ertSumVarNode);
-            // Todo: GetLGR name
-            // Todo: Get IJK values
+            lgrName = smspec_node_get_lgr_name(ertSumVarNode);
+            const int* ijk = smspec_node_get_lgr_ijk(ertSumVarNode);
+            cellI = ijk[0];
+            cellJ = ijk[1];
+            cellK = ijk[2];
         }
         break;
         case ECL_SMSPEC_LOCAL_WELL_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_LGR;
             wellName = smspec_node_get_wgname(ertSumVarNode);
-            // Todo: GetLGR name
+            lgrName = smspec_node_get_lgr_name(ertSumVarNode);
         }
         break;
         case ECL_SMSPEC_NETWORK_VAR:
@@ -180,7 +193,9 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_REGION_2_REGION_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;
-            // Todo: Get R1 R2 values
+            regionNumber = smspec_node_get_R1(ertSumVarNode);
+            regionNumber2 = smspec_node_get_R2(ertSumVarNode);
+
         }
         break;
         case ECL_SMSPEC_SEGMENT_VAR:
