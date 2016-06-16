@@ -61,10 +61,6 @@ public:
 
     bool                        operator==(const DataTypePtr& fieldValue)   { return m_fieldValue == fieldValue; }
 
-    // Child objects
-    
-    virtual void childObjects(std::vector<PdmObjectHandle*>*);
-
     // Ptr referenced objects
 
     virtual void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill);

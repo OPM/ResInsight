@@ -54,6 +54,7 @@ public:
 protected:
     // Overridden methods
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     friend class RimEclipseFaultColors;
     virtual void                                initAfterRead();

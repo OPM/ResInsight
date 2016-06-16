@@ -27,6 +27,7 @@
 #include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 
@@ -179,6 +180,14 @@ void RimEclipseCellColors::initAfterRead()
     changeLegendConfig(this->resultVariable());
 
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+   uiTreeOrdering.add(m_legendConfigPtrField());
 }
 
 //--------------------------------------------------------------------------------------------------
