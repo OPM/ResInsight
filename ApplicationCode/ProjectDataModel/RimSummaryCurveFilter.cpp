@@ -36,7 +36,7 @@
 #include "RigSummaryCaseData.h"
 #include "RimSummaryCurve.h"
 #include "cafPdmUiPushButtonEditor.h"
-#include "WellLogCommands\RicWellLogPlotCurveFeatureImpl.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
