@@ -74,27 +74,7 @@ public:
 
     void                                    setSummaryCase(RimSummaryCase* sumCase);
     void                                    setVariable(QString varName);
-    #if 0
-    enum SummaryFilterType 
-    {
-        SUM_FILTER_VAR_STRING,
-        SUM_FILTER_ANY,
-        SUM_FILTER_FIELD,
-        SUM_FILTER_AQUIFER,
-        SUM_FILTER_NETWORK,
-        SUM_FILTER_MISC,
-        SUM_FILTER_REGION,
-        SUM_FILTER_REGION_2_REGION,
-        SUM_FILTER_WELL_GROUP,
-        SUM_FILTER_WELL,
-        SUM_FILTER_WELL_COMPLETION,
-        SUM_FILTER_WELL_COMPLETION_LGR,
-        SUM_FILTER_WELL_LGR,
-        SUM_FILTER_WELL_SEGMENT,
-        SUM_FILTER_BLOCK,
-        SUM_FILTER_BLOCK_LGR,
-    };
-    #endif
+
 protected:
     // RimPlotCurve overrides
 
@@ -119,23 +99,6 @@ private:
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
-    #if 0
-    bool isIncludedByFilter(const RifEclipseSummaryAddress& addr);
-    static bool isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
-
-    caf::PdmField<caf::AppEnum<SummaryFilterType> >
-                                            m_filterType;
-    caf::PdmField<QString>                  m_completeVarStringFilter;
-
-    caf::PdmField<QString>                  m_filterQuantityName;
-    caf::PdmField<QString>                  m_regionNumberFilter;
-    caf::PdmField<QString>                  m_regionNumber2Filter;
-    caf::PdmField<QString>                  m_wellGroupNameFilter;
-    caf::PdmField<QString>                  m_wellNameFilter;
-    caf::PdmField<QString>                  m_wellSegmentNumberFilter;
-    caf::PdmField<QString>                  m_lgrNameFilter;
-    caf::PdmField<QString>                  m_cellIJKFilter;
-    #endif
     caf::PdmField<int>                      m_uiFilterResultSelection;
 
 };

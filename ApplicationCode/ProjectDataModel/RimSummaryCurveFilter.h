@@ -71,20 +71,6 @@ private:
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
-#if 0
-    caf::PdmField<caf::AppEnum<RimSummaryFilter::SummaryFilterType> >
-                                            m_filterType;
-    caf::PdmField<QString>                  m_completeVarStringFilter;
-
-    caf::PdmField<QString>                  m_filterQuantityName;
-    caf::PdmField<QString>                  m_regionNumberFilter;
-    caf::PdmField<QString>                  m_regionNumber2Filter;
-    caf::PdmField<QString>                  m_wellGroupNameFilter;
-    caf::PdmField<QString>                  m_wellNameFilter;
-    caf::PdmField<QString>                  m_wellSegmentNumberFilter;
-    caf::PdmField<QString>                  m_lgrNameFilter;
-    caf::PdmField<QString>                  m_cellIJKFilter;
-    #endif
     caf::PdmField<std::vector<RifEclipseSummaryAddress> >        m_uiFilterResultMultiSelection;
 
 };
