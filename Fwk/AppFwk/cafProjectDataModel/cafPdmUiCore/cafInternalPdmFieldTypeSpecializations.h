@@ -37,7 +37,7 @@ public:
         value.setRawPtr(variantValue.value<PdmPointer<PdmObjectHandle> >().rawPtr());
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return variantValue.value<PdmPointer<PdmObjectHandle> >() == variantValue2.value<PdmPointer<PdmObjectHandle> >() ;
     }
@@ -84,7 +84,7 @@ public:
         }
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return variantValue.value<T>() == variantValue2.value<T>();
     }
@@ -121,7 +121,7 @@ public:
         return PdmValueFieldSpecialization< std::vector<T> >::setFromVariant(variantValue, value);
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return variantValue.value<T>() == variantValue2.value<T>();
     }
@@ -174,7 +174,7 @@ public:
 #endif
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return variantValue == variantValue2;
     }

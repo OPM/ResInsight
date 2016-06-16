@@ -65,7 +65,7 @@ public:
         PdmValueFieldSpecialization< cvf::Vec3d >::setFromVariant(variantValue, value);
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return PdmValueFieldSpecialization< cvf::Vec3d >::isEqual(variantValue, variantValue2);
     }

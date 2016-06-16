@@ -66,7 +66,7 @@ public:
         PdmValueFieldSpecialization< cvf::Color3f >::setFromVariant(variantValue, value);
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return PdmValueFieldSpecialization< cvf::Color3f >::isEqual(variantValue, variantValue2);
     }

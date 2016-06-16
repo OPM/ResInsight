@@ -27,7 +27,7 @@ public:
     virtual QVariant toUiBasedQVariant() const                      { return QVariant(); }
     void             notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant);
 
-    bool             isAutoAddingOptionFromValue()                    { return m_isAutoAddingOptionFromValue; }
+    bool             isAutoAddingOptionFromValue() const              { return m_isAutoAddingOptionFromValue; }
     void             setAutoAddingOptionFromValue(bool isAddingValue) { m_isAutoAddingOptionFromValue = isAddingValue;} 
 private:
     PdmFieldHandle*  m_owner;

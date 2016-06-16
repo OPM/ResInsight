@@ -116,7 +116,11 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
         PdmOptionItemInfo::findValues<typename FieldType::FieldDataType>(m_optionEntryCache, uiBasedQVariant, indexesToFoundOptions);
         if (uiBasedQVariant.type() == QVariant::List)
         {
-            if (indexesToFoundOptions.size() == static_cast<size_t>(uiBasedQVariant.toList().size()))
+            if (isAutoAddingOptionFromValue() && indexesToFoundOptions.size() != static_cast<size_t>(uiBasedQVariant.toList().size())) 
+            {
+                assert(false); // Did not find all the field values among the options available, even though we should. The "core" data type in the field is probably not supported by QVariant::toString() 
+            }
+            else
             {
                 QList<QVariant> returnList;
                 for (size_t i = 0; i < indexesToFoundOptions.size(); ++i)
@@ -125,7 +129,6 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
                 }
                 return QVariant(returnList);
             }
-            assert(false); // Did not find all the field values among the options available.
         }
         else
         {
@@ -175,7 +178,8 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOp
             bool foundAllFieldValues = PdmOptionItemInfo::findValues<typename FieldType::FieldDataType>(m_optionEntryCache, uiBasedQVariant, foundIndexes);
 
             // If not all are found, we have to add the missing to the list, to be able to show it
-
+            // This will only work if the field data type (or elemnt type for containers) is supported by QVariant.toString(). Custom classes don't
+             
             if (isAutoAddingOptionFromValue() && !foundAllFieldValues)
             {
                 if (uiBasedQVariant.type() != QVariant::List)  // Single value field
@@ -193,7 +197,10 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOp
                         bool isFound = false;
                         for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(m_optionEntryCache.size()); ++opIdx)
                         {
-                            if (valuesSelectedInField[i] == m_optionEntryCache[opIdx].value) isFound = true;
+                            if(PdmUiFieldSpecialization<typename FieldType::FieldDataType>::isDataElementEqual(valuesSelectedInField[i], m_optionEntryCache[opIdx].value))
+                            {
+                                isFound = true;
+                            }
                         }
 
                         if (!isFound && !valuesSelectedInField[i].toString().isEmpty())

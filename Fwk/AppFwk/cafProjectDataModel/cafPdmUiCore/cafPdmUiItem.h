@@ -128,7 +128,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
             {
                 for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(optionList.size()); ++opIdx)
                 {
-                    if (PdmUiFieldSpecialization<T>::isEqual(valuesSelectedInField[i], optionList[opIdx].value))
+                    if (PdmUiFieldSpecialization<T>::isDataElementEqual(valuesSelectedInField[i], optionList[opIdx].value))
                     {
                         foundIndexes.push_back(opIdx);
                     }
@@ -142,7 +142,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
     {
         for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(optionList.size()); ++opIdx)
         {
-            if (PdmUiFieldSpecialization<T>::isEqual(optionList[opIdx].value, fieldValue))
+            if (PdmUiFieldSpecialization<T>::isDataElementEqual(optionList[opIdx].value, fieldValue))
             {
                 foundIndexes.push_back(opIdx);
                 break;

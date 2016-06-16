@@ -43,7 +43,7 @@ public:
     /// The == operator will normally work, but does not support custom types in the QVariant 
     /// See http://qt-project.org/doc/qt-4.8/qvariant.html#operator-eq-eq-64
     /// This is needed for the lookup regarding OptionValues
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return variantValue == variantValue2; 
     }
