@@ -155,8 +155,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
                 }
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
-
             if(useOptionsOnly) *useOptionsOnly = true;
         }
     }
@@ -181,6 +179,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
     uiOrdering.add(&m_applyButtonField);
     uiOrdering.setForgetRemainingFields(true);
+
 }
 
 
@@ -242,7 +241,7 @@ void RimSummaryCurveFilter::detachQwtCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 {
-    // Create a search map containing whats supposed to be
+    // Create a search map containing whats supposed to be curves
 
     std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
 
@@ -294,10 +293,21 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::syncUiSelectionFromCurves()
 {
-    
+    // Create a search map containing whats supposed to be uiSelected
+
+    std::set<RifEclipseSummaryAddress> existingCurveDefinitions;
+
+    // Populate the existingCurveDefinitions from the existing curves
     for(RimSummaryCurve* curve: m_curves)
     {
-        
+        existingCurveDefinitions.insert(curve->summaryAddress());
+    }
+
+    m_uiFilterResultMultiSelection.v().clear();
+    RimSummaryCase* currentCase = m_selectedSummaryCase();
+    for(const RifEclipseSummaryAddress& addr: existingCurveDefinitions)
+    {
+        m_uiFilterResultMultiSelection.v().push_back(addr);
     }
 }
 
@@ -322,4 +332,6 @@ void RimSummaryCurveFilter::loadDataAndUpdate()
     {
         curve->loadDataAndUpdate();
     }
+
+    syncUiSelectionFromCurves();
 }
