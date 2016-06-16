@@ -189,9 +189,33 @@ void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCurve::summaryCase()
+{
+    return m_summaryCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setVariable(QString varName)
 {
     m_curveVariable->setAddress(RifEclipseSummaryAddress::fieldVarAddress(varName.toStdString()));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
+{
+    return m_curveVariable->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
+{
+    m_curveVariable->setAddress(address);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,7 +359,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 {
     this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
 
-    if(changedField = &m_uiFilterResultSelection)
+    if(changedField == &m_uiFilterResultSelection)
     {
         if (0 <= m_uiFilterResultSelection() && m_uiFilterResultSelection() < summaryReader()->allResultAddresses().size())
         {
@@ -367,7 +391,7 @@ RifReaderEclipseSummary* RimSummaryCurve::summaryReader()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-
+    
 }
 
 //--------------------------------------------------------------------------------------------------

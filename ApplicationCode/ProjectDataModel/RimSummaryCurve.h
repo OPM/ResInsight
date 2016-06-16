@@ -73,7 +73,11 @@ public:
     virtual ~RimSummaryCurve();
 
     void                                    setSummaryCase(RimSummaryCase* sumCase);
+    RimSummaryCase*                         summaryCase(); 
     void                                    setVariable(QString varName);
+
+    RifEclipseSummaryAddress                summaryAddress();
+    void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
 
 protected:
     // RimPlotCurve overrides

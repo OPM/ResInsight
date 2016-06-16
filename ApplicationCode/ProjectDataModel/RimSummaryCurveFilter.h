@@ -50,18 +50,22 @@ public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
 
-    void loadDataAndUpdate() {}
+    void loadDataAndUpdate();
     void                            setParentQwtPlot(QwtPlot* plot);
     void                            detachQwtCurve();
 
 private:
     RifReaderEclipseSummary*                summaryReader();
-    void                                    syncronizeCurves();
+    void                                    syncCurvesFromUiSelection();
+    void                                    syncUiSelectionFromCurves();
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+
+    QPointer<QwtPlot>                       m_parentQwtPlot;
 
     // Fields
     caf::PdmPtrField<RimSummaryCase*>       m_selectedSummaryCase;
@@ -72,6 +76,8 @@ private:
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
     caf::PdmField<std::vector<RifEclipseSummaryAddress> >        m_uiFilterResultMultiSelection;
+
+    caf::PdmField<bool>                     m_applyButtonField;
 
 };
 

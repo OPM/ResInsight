@@ -35,6 +35,8 @@
 #include "RimSummaryCase.h"
 #include "RigSummaryCaseData.h"
 #include "RimSummaryCurve.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "WellLogCommands\RicWellLogPlotCurveFeatureImpl.h"
 
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
@@ -81,7 +83,15 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     
     CAF_PDM_InitFieldNoDefault(&m_curves, "FilteredCurves", "Filtered Curves", "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
-    m_curves.uiCapability()->setUiChildrenHidden(true);
+    m_curves.uiCapability()->setUiChildrenHidden(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "Apply", "", "", "");
+    m_applyButtonField.xmlCapability()->setIOWritable(false);
+    m_applyButtonField.xmlCapability()->setIOReadable(false);
+    m_applyButtonField = false;
+    m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +99,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveFilter::~RimSummaryCurveFilter()
 {
+    delete m_summaryFilter();
     m_curves.deleteAllChildObjects();
 }
 
@@ -168,7 +179,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
 
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
-
+    uiOrdering.add(&m_applyButtonField);
     uiOrdering.setForgetRemainingFields(true);
 }
 
@@ -178,9 +189,15 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if(changedField = &m_uiFilterResultMultiSelection)
+    if(changedField == &m_uiFilterResultMultiSelection)
     {
-        this->loadDataAndUpdate();
+        
+    }
+    else if (changedField == &m_applyButtonField)
+    {
+        syncCurvesFromUiSelection();
+        loadDataAndUpdate();
+        m_applyButtonField = false;
     }
 }
 
@@ -202,6 +219,7 @@ RifReaderEclipseSummary* RimSummaryCurveFilter::summaryReader()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::setParentQwtPlot(QwtPlot* plot)
 {
+    m_parentQwtPlot = plot;
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->setParentQwtPlot(plot);
@@ -222,8 +240,86 @@ void RimSummaryCurveFilter::detachQwtCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::syncronizeCurves()
+void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 {
+    // Create a search map containing whats supposed to be
+
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
+
+    // Populate the newCurveDefinitions from the Gui
     
+    for (int caseIdx = 0; caseIdx < 1; ++caseIdx)
+    {
+        RimSummaryCase* currentCase = m_selectedSummaryCase();
+        for(const RifEclipseSummaryAddress& addr: m_uiFilterResultMultiSelection.v())
+        {
+            newCurveDefinitions.insert(std::make_pair(currentCase, addr));
+        }
+    }
+
+    // Delete all existing curves that is not matching
+    // Remove the entries in the search set that we already have
+    for(RimSummaryCurve* curve: m_curves)
+    {
+        auto foundIt = newCurveDefinitions.find(std::make_pair(curve->summaryCase(), curve->summaryAddress() ));
+        if (foundIt == newCurveDefinitions.end())
+        {
+            delete curve;
+        }
+        else
+        {
+            newCurveDefinitions.erase(foundIt);
+        }
+    }
+    m_curves.removeChildObject(nullptr);
+
+    // Create all new curves that is missing
+
+    for (auto& caseAddrPair: newCurveDefinitions)
+    {
+        RimSummaryCase* currentCase = caseAddrPair.first;
+        RimSummaryCurve* curve = new RimSummaryCurve();
+
+        curve->setParentQwtPlot(m_parentQwtPlot);
+        curve->setSummaryCase(currentCase);
+        curve->setSummaryAddress(caseAddrPair.second);
+        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+        curve->setColor(curveColor);
+        m_curves.push_back(curve);
+    }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::syncUiSelectionFromCurves()
+{
+    
+    for(RimSummaryCurve* curve: m_curves)
+    {
+        
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if(&m_applyButtonField == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        attrib->m_buttonText = "Apply" ;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::loadDataAndUpdate()
+{
+    for (RimSummaryCurve* curve: m_curves)
+    {
+        curve->loadDataAndUpdate();
+    }
+}
