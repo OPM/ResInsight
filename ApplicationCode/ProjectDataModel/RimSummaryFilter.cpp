@@ -83,6 +83,12 @@ bool isNumberMatch(QString numericalFilterString, int number)
 {
     if(numericalFilterString.isEmpty()) return true;
 
+    if (numericalFilterString.trimmed() == "*") 
+    {
+        if(number >= 0) return true;
+        else return false;
+    }
+
     // Todo: Ranges, and lists
     int filterNumber = numericalFilterString.toInt();
     return number == filterNumber;
@@ -91,6 +97,11 @@ bool isNumberMatch(QString numericalFilterString, int number)
 bool isStringMatch(QString filterString, std::string value)
 {
     if(filterString.isEmpty()) return true;
+    if(filterString.trimmed() == "*")
+    {
+        if(!value.empty()) return true;
+        else return false;
+    }
 
     QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
     QString qstrValue = QString::fromStdString(value);
@@ -100,10 +111,22 @@ bool isStringMatch(QString filterString, std::string value)
 bool isIJKMatch(QString filterString, int cellI, int cellJ, int cellK)
 {
     if(filterString.isEmpty()) return true;
+    if(filterString.trimmed() == "*")
+    {
+        if(cellI >= 0 && cellJ >= 0 && cellK >= 0) return true;
+        else return false;
+    }
+
+     QString ijkString;
+     if(cellI >= 0 && cellJ >= 0 && cellK >= 0)
+     {
+         ijkString = QString::number(cellI) + ", " + QString::number(cellJ) + ", " + QString::number(cellK);
+     }
 
     // Todo: Ranges, and lists
-    int filterNumber = filterString.toInt();
-    return cellI == filterNumber;
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+
+    return searcher.exactMatch(ijkString);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,7 +239,7 @@ bool RimSummaryFilter::isSumVarTypeMatchingFilterType(SummaryFilterType sumFilte
         case RifEclipseSummaryAddress::SUMMARY_WELL: { return (sumFilterType == SUM_FILTER_WELL);  } break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION: { return (sumFilterType == SUM_FILTER_WELL_COMPLETION);  } break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_LGR: { return (sumFilterType == SUM_FILTER_WELL_LGR);  } break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR: { return (sumFilterType == SUM_FILTER_FIELD);  } break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR: { return (sumFilterType == SUM_FILTER_WELL_COMPLETION_LGR);  } break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT: { return (sumFilterType == SUM_FILTER_WELL_SEGMENT);  } break;
         case RifEclipseSummaryAddress::SUMMARY_BLOCK: { return (sumFilterType == SUM_FILTER_BLOCK);  } break;
         case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR: { return (sumFilterType == SUM_FILTER_BLOCK_LGR);  } break;
