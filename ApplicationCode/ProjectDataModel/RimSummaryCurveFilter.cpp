@@ -68,6 +68,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
     m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
     m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
+    m_selectedVariableDisplayField.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
     m_summaryFilter.uiCapability()->setUiChildrenHidden(true);
@@ -228,7 +229,7 @@ void RimSummaryCurveFilter::setParentQwtPlot(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::detachQwtCurve()
+void RimSummaryCurveFilter::detachQwtCurves()
 {
     for(RimSummaryCurve* curve : m_curves)
     {

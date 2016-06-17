@@ -232,7 +232,7 @@ void RimSummaryPlot::detachAllCurves()
 {
     for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
     {
-        curveFilter->detachQwtCurve();
+        curveFilter->detachQwtCurves();
     }
 
     for(RimSummaryCurve* curve : m_curves)

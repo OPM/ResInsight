@@ -50,9 +50,9 @@ public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
 
-    void loadDataAndUpdate();
-    void                            setParentQwtPlot(QwtPlot* plot);
-    void                            detachQwtCurve();
+    void                                    loadDataAndUpdate();
+    void                                    setParentQwtPlot(QwtPlot* plot);
+    void                                    detachQwtCurves();
 
 private:
     RifReaderEclipseSummary*                summaryReader();
@@ -69,15 +69,15 @@ private:
 
     // Fields
     caf::PdmPtrField<RimSummaryCase*>       m_selectedSummaryCase;
-    caf::PdmChildArrayField<RimSummaryCurve*>  m_curves;
+    caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
-    caf::PdmField<std::vector<RifEclipseSummaryAddress> >        m_uiFilterResultMultiSelection;
+    caf::PdmField<std::vector<RifEclipseSummaryAddress> > 
+                                            m_uiFilterResultMultiSelection;
 
     caf::PdmField<bool>                     m_applyButtonField;
-
 };
 
