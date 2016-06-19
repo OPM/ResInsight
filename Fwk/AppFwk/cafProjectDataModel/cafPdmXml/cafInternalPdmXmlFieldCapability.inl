@@ -2,6 +2,8 @@
 #include "cafPdmObjectFactory.h"
 #include "cafPdmXmlObjectHandle.h"
 
+#include <QStringList>
+
 #include <iostream>
 
 namespace caf
