@@ -64,6 +64,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCases, "SummaryCases", "Cases", "", "", "");
     m_selectedSummaryCases.uiCapability()->setUiChildrenHidden(true);
     m_selectedSummaryCases.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variables", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
@@ -125,11 +126,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
             RimSummaryCase* rimCase = cases[i];
 
             optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
-        }
-
-        if (optionList.size() > 0)
-        {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
         }
     }
     else if(fieldNeedingOptions == &m_uiFilterResultMultiSelection)
