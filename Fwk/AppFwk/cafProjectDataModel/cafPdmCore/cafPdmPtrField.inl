@@ -7,6 +7,7 @@ namespace caf
 template<typename DataType >
 caf::PdmPtrField<DataType*>::PdmPtrField(const DataTypePtr& fieldValue)
 {
+    m_isResolved = true; 
     m_fieldValue = fieldValue;
     if (m_fieldValue != NULL) m_fieldValue->addReferencingPtrField(this);
 }

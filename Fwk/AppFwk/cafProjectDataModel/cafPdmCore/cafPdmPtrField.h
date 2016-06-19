@@ -37,7 +37,7 @@ class PdmPtrField <DataType*> : public PdmFieldHandle
 public:
     typedef PdmPointer<DataType> FieldDataType;
 
-    PdmPtrField()                                                          { m_referenceString = ""; m_isResolved = false; }
+    PdmPtrField() : m_isResolved(false)                                     { }
     explicit PdmPtrField(const DataTypePtr& fieldValue);                
     virtual ~PdmPtrField();
 
