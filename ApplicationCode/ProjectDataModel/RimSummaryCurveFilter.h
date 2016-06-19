@@ -32,6 +32,7 @@
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryFilter.h"
+#include "cafPdmPtrArrayField.h"
 
 class RimSummaryCase;
 class RifReaderEclipseSummary;
@@ -55,7 +56,6 @@ public:
     void                                    detachQwtCurves();
 
 private:
-    RifReaderEclipseSummary*                summaryReader();
     void                                    syncCurvesFromUiSelection();
     void                                    syncUiSelectionFromCurves();
 
@@ -68,7 +68,7 @@ private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
 
     // Fields
-    caf::PdmPtrField<RimSummaryCase*>       m_selectedSummaryCase;
+    caf::PdmPtrArrayField<RimSummaryCase*>    m_selectedSummaryCases;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
     caf::PdmField<QString>                  m_selectedVariableDisplayField;

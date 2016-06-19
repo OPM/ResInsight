@@ -61,9 +61,10 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
 {
     CAF_PDM_InitObject("Curve Filter", ":/WellLogCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCase, "SummaryCases", "Cases", "", "", "");
-    m_selectedSummaryCase.uiCapability()->setUiChildrenHidden(true);
-    
+    CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCases, "SummaryCases", "Cases", "", "", "");
+    m_selectedSummaryCases.uiCapability()->setUiChildrenHidden(true);
+    m_selectedSummaryCases.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variables", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
     m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
@@ -112,7 +113,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 {
     QList<caf::PdmOptionItemInfo> optionList;
 
-    if (fieldNeedingOptions == &m_selectedSummaryCase)
+    if (fieldNeedingOptions == &m_selectedSummaryCases)
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimSummaryCase*> cases;
@@ -133,32 +134,37 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
     }
     else if(fieldNeedingOptions == &m_uiFilterResultMultiSelection)
     {
-        if(m_selectedSummaryCase)
+        size_t caseCount = m_selectedSummaryCases.size();
+        std::set<RifEclipseSummaryAddress> addrUnion;
+
+        for(RimSummaryCase* currCase: m_selectedSummaryCases)
         {
-            RifReaderEclipseSummary* reader = summaryReader();
-            int addressCount = 0;
+            RifReaderEclipseSummary* reader = nullptr;
+            if(currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
+
             if(reader)
             {
                 const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-                addressCount = static_cast<int>(allAddresses.size());
-                std::set<RifEclipseSummaryAddress> addrUnion;
+                int addressCount = static_cast<int>(allAddresses.size());
+
                 for(int i = 0; i <addressCount; i++)
                 {
-                    if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
+                    if(!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
                     addrUnion.insert(allAddresses[i]);
                 }
-
-                for (const auto& address: addrUnion)
-                {
-                    std::string name = address.uiText();
-                    QString s = QString::fromStdString(name);
-                    optionList.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
-                }
             }
+        }
 
-            if(useOptionsOnly) *useOptionsOnly = true;
+        for(const auto& address: addrUnion)
+        {
+            std::string name = address.uiText();
+            QString s = QString::fromStdString(name);
+            optionList.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
         }
     }
+
+    if(useOptionsOnly) *useOptionsOnly = true;
+
     return optionList;
 
 }
@@ -170,7 +176,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Variable");
-    curveDataGroup->add(&m_selectedSummaryCase);
+    curveDataGroup->add(&m_selectedSummaryCases);
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Variable Selection");
@@ -201,18 +207,6 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryCurveFilter::summaryReader()
-{
-    if(!m_selectedSummaryCase()) return nullptr;
-
-    if(!m_selectedSummaryCase->caseData()) return nullptr;
-
-    return m_selectedSummaryCase()->caseData()->summaryReader();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -248,9 +242,8 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 
     // Populate the newCurveDefinitions from the Gui
     
-    for (int caseIdx = 0; caseIdx < 1; ++caseIdx)
+    for (RimSummaryCase* currentCase: m_selectedSummaryCases)
     {
-        RimSummaryCase* currentCase = m_selectedSummaryCase();
         for(const RifEclipseSummaryAddress& addr: m_uiFilterResultMultiSelection.v())
         {
             newCurveDefinitions.insert(std::make_pair(currentCase, addr));
@@ -305,7 +298,7 @@ void RimSummaryCurveFilter::syncUiSelectionFromCurves()
     }
 
     m_uiFilterResultMultiSelection.v().clear();
-    RimSummaryCase* currentCase = m_selectedSummaryCase();
+    
     for(const RifEclipseSummaryAddress& addr: existingCurveDefinitions)
     {
         m_uiFilterResultMultiSelection.v().push_back(addr);
