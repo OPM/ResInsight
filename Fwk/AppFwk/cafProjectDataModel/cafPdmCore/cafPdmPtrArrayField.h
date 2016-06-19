@@ -5,27 +5,11 @@
 #include <assert.h>
 
 #include "cafPdmPtrArrayFieldHandle.h"
-
 namespace caf
 {
 
 template <typename T> class PdmFieldXmlCap;
 
-//==================================================================================================
-/// 
-/// 
-/// 
-//==================================================================================================
-class PdmChildArrayFieldHandle : public PdmPtrArrayFieldHandle
-{
-public:
-    PdmChildArrayFieldHandle()          {}
-    virtual ~PdmChildArrayFieldHandle() {}
-
-    virtual void        deleteAllChildObjects() = 0;
-    
-    bool                hasSameFieldCountForAllObjects();
-};
 
 //==================================================================================================
 /// PdmFieldClass to handle a collection of PdmObject derived pointers
@@ -34,32 +18,36 @@ public:
 //==================================================================================================
 
 template<typename DataType>
-class PdmChildArrayField : public PdmFieldHandle
+class PdmPtrArrayField : public PdmFieldHandle
 {
 public:
-    PdmChildArrayField()
+    PdmPtrArrayField()
     {
-        bool doNotUsePdmPointersFieldForAnythingButPointersToPdmObject = false; assert(doNotUsePdmPointersFieldForAnythingButPointersToPdmObject);
+        bool doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject = false; assert(doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject);
     }
 };
 
 
 template<typename DataType>
-class PdmChildArrayField<DataType*> : public PdmChildArrayFieldHandle
+class PdmPtrArrayField<DataType*> : public PdmPtrArrayFieldHandle
 {
     typedef DataType* DataTypePtr;
 public:
-    PdmChildArrayField()          { }
-    virtual ~PdmChildArrayField();
+    typedef std::vector< PdmPointer<DataType> > FieldDataType;
 
-    PdmChildArrayField&   operator() () { return *this; }
+    PdmPtrArrayField() : m_isResolved(false)          { }
+    virtual ~PdmPtrArrayField();
 
+    PdmPtrArrayField&   operator() () { return *this; }
+
+    void                setValue(const std::vector< PdmPointer<DataType> >& fieldValue);
+    const std::vector< PdmPointer<DataType> >& value() const;
+     
     // Reimplementation of PdmPointersFieldHandle methods
   
     virtual size_t      size() const                              { return m_pointers.size(); }
     virtual bool        empty() const                             { return m_pointers.empty(); }
     virtual void        clear();
-    virtual void        deleteAllChildObjects(); 
     virtual void        insertAt(int indexAfter, PdmObjectHandle* obj);
     virtual PdmObjectHandle* at(size_t index);
 
@@ -75,6 +63,7 @@ public:
 
     void                erase(size_t index);
     size_t              index(DataType* pointer);
+    void                removePtr(PdmObjectHandle* object);
 
     typename std::vector< PdmPointer<DataType> >::iterator begin()        { return m_pointers.begin(); };
     typename std::vector< PdmPointer<DataType> >::iterator end()          { return m_pointers.end(); };
@@ -83,22 +72,22 @@ public:
     typename std::vector< PdmPointer<DataType> >::const_iterator end()   const        { return m_pointers.end();      };
 
     // Child objects
-
-    virtual void        childObjects(std::vector<PdmObjectHandle*>* objects);
-    virtual void        removeChildObject(PdmObjectHandle* object);
+    virtual void        ptrReferencedObjects(std::vector<PdmObjectHandle*>*);
 
 private: //To be disabled
-    PDM_DISABLE_COPY_AND_ASSIGN(PdmChildArrayField);
+    PDM_DISABLE_COPY_AND_ASSIGN(PdmPtrArrayField);
+
+    void addThisAsReferencingPtrField();
+    void removeThisAsReferencingPtrField();
 
 private:
-    void                removeThisAsParentField();
-    void                addThisAsParentField();
+    friend class PdmFieldXmlCap< PdmPtrArrayField<DataType*> >;
 
-private:
-    friend class PdmFieldXmlCap< PdmChildArrayField<DataType*> >;
     std::vector< PdmPointer<DataType> > m_pointers;
+    QString               m_referenceString;
+    bool                  m_isResolved;
 };
 
 } // End of namespace caf
 
-#include "cafPdmChildArrayField.inl"
+#include "cafPdmPtrArrayField.inl"

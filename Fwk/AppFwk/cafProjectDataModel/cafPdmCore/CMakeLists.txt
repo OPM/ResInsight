@@ -29,6 +29,9 @@ set( PROJECT_FILES
 	cafPdmPointer.cpp
 	cafPdmPointer.h
 	cafPdmProxyValueField.h
+	cafPdmPtrArrayField.h
+	cafPdmPtrArrayField.inl
+	cafPdmPtrArrayFieldHandle.h
 	cafPdmPtrField.h
 	cafPdmPtrField.inl
 	cafPdmReferenceHelper.cpp

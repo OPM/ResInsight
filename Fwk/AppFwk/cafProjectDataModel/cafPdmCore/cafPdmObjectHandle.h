@@ -84,6 +84,7 @@ private:
     // Give access to set/removeAsParentField
     template < class T > friend class PdmChildArrayField;
     template < class T > friend class PdmChildField;
+    template < class T > friend class PdmPtrArrayField;
     template < class T > friend class PdmPtrField;
     template < class T > friend class PdmField; // For backwards compatibility layer
 
