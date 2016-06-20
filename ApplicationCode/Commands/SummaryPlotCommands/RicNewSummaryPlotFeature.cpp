@@ -58,7 +58,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimSummaryPlot* plot = new RimSummaryPlot();
     summaryPlotColl->m_summaryPlots().push_back(plot);
 
-    plot->setDescription(QString("Well Log Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
+    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
 
     summaryPlotColl->updateConnectedEditors();
     plot->loadDataAndUpdate();

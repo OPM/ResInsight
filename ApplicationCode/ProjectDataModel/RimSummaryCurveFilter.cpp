@@ -173,11 +173,11 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Variable");
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
     curveDataGroup->add(&m_selectedSummaryCases);
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
-    caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Variable Selection");
+    caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
 
     m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
 

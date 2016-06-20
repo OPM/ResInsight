@@ -139,7 +139,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
     m_summaryCase.uiCapability()->setUiChildrenHidden(true);
     
-    CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variable", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
     m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
     m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
@@ -331,11 +331,11 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Variable");
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
     curveDataGroup->add(&m_summaryCase);
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
-    caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Variable Selection");
+    caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
     m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
 
     curveVarSelectionGroup->add(&m_uiFilterResultSelection);

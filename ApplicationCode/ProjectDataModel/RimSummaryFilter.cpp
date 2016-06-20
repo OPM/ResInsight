@@ -25,7 +25,7 @@ namespace caf
 template<>
 void caf::AppEnum<RimSummaryFilter::SummaryFilterType>::setUp()
 {
-    addItem(RimSummaryFilter::SUM_FILTER_VAR_STRING, "SUM_FILTER_VAR_STRING", "Concatenated Variable Text");
+    addItem(RimSummaryFilter::SUM_FILTER_VAR_STRING, "SUM_FILTER_VAR_STRING", "All");
     addItem(RimSummaryFilter::SUM_FILTER_FIELD, "SUM_FILTER_FIELD", "Field");
     addItem(RimSummaryFilter::SUM_FILTER_WELL, "SUM_FILTER_WELL", "Well");
     addItem(RimSummaryFilter::SUM_FILTER_WELL_GROUP, "SUM_FILTER_WELL_GROUP", "Group");
@@ -55,15 +55,15 @@ RimSummaryFilter::RimSummaryFilter()
 {
     CAF_PDM_InitObject("Summary Filter", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_filterType, "SummaryFilterType", "Filter Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_filterType, "SummaryFilterType", "Search", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_completeVarStringFilter, "SummaryCompleteVarStringFilter", "Filter", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_filterQuantityName, "SummaryVarQuantityFilter", "Quantity", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_regionNumberFilter, "SummaryRegionNumberFilter", "Region", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_regionNumber2Filter, "SummaryRegionNumber2Filter", "Region 2", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Well Group", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellNameFilter, "SummaryWellNameFilter", "Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumberFilter, "SummaryWellSegmentNumberFilter", "Segment", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter, "SummaryLgrNameFilter", "Lgr", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_filterQuantityName, "SummaryVarQuantityFilter", "Vector name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumberFilter, "SummaryRegionNumberFilter", "Region number", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionNumber2Filter, "SummaryRegionNumber2Filter", "2. Region number", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Group name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellNameFilter, "SummaryWellNameFilter", "Well name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellSegmentNumberFilter, "SummaryWellSegmentNumberFilter", "Segment number", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lgrNameFilter, "SummaryLgrNameFilter", "Lgr name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_cellIJKFilter, "SummaryCellIJKFilter", "I, J, K", "", "", "");
 
 }
@@ -263,7 +263,7 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     }
     else
     {
-        caf::PdmUiGroup* curveVarFilterGroup = uiOrdering.addNewGroup("Filter Settings");
+        caf::PdmUiGroup* curveVarFilterGroup = uiOrdering.addNewGroup("Search Options");
 
         curveVarFilterGroup->add(&m_filterQuantityName);
 
