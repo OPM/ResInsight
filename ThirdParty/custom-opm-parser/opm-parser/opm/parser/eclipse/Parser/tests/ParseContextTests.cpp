@@ -27,6 +27,7 @@
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/D.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/E.hpp>
+#include <opm/parser/eclipse/Parser/ParserKeywords/O.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/S.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/T.hpp>
 #include <opm/parser/eclipse/Parser/InputErrorAction.hpp>
@@ -80,6 +81,40 @@ BOOST_AUTO_TEST_CASE(TestUnkownKeyword) {
     parseContext.update(ParseContext::PARSE_RANDOM_TEXT , InputError::IGNORE );
     BOOST_CHECK_NO_THROW( parser.parseString( deck2 , parseContext ) );
 }
+
+
+BOOST_AUTO_TEST_CASE(TEST_UNKNOWN_OPERATE) {
+    const char * deck =
+        "OPERATE\n"
+        "SWL    6* MULTX  PERMX 1.E10       / Temp:  SWL=1.E10*PERMX\n"
+        "SWL    6* MINLIM SWL   1.0         /\n"
+        "SWL    6* LOG10  SWL               / Temp:  SWL=log(1.E10*PERMX)\n"
+        "SWL    6* MULTA  SWL   -0.06  0.91 / Final: SWL=0.31-0.06*log(PERMX)\n"
+        "--SWCR 6* COPY   SWL               / SWCR=SWL\n"
+        "SWCR   6* MULTA  SWL   1.0    0.0  / SWCR=SWL+0.0 (+0.3)\n"
+        "SWCR   6* MAXLIM SWCR  0.7         / max(SWCR)=0.7\n"
+        "SGU    6* MULTA  SWL   -1.0   1.0  / SGU=1-SWL\n"
+        "/\n";
+
+    ParseContext parseContext;
+    Parser parser(false);
+
+    parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD , InputError::THROW_EXCEPTION );
+    BOOST_CHECK_THROW( parser.parseString( deck , parseContext ) , std::invalid_argument);
+
+    parseContext.update(ParseContext::PARSE_RANDOM_SLASH , InputError::IGNORE );
+    parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD , InputError::IGNORE );
+    parser.parseString( deck , parseContext );
+    BOOST_CHECK_NO_THROW( parser.parseString( deck , parseContext ) );
+
+    parser.addKeyword<ParserKeywords::OPERATE>();
+    parser.parseString( deck , parseContext );
+    parseContext.update(ParseContext::PARSE_RANDOM_SLASH , InputError::THROW_EXCEPTION );
+    parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD , InputError::THROW_EXCEPTION );
+    BOOST_CHECK_NO_THROW( parser.parseString( deck , parseContext ) );
+}
+
+
 
 
 BOOST_AUTO_TEST_CASE( CheckMissingSizeKeyword) {

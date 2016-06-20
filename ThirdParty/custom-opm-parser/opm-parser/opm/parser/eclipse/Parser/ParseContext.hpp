@@ -161,6 +161,14 @@ namespace Opm {
         const static std::string PARSE_EXTRA_DATA;
 
         /*
+          If an include file is not found we can configure the parser
+          to contine reading; of course the resulting deck can
+          obviously be quite broken.
+        */
+        const static std::string PARSE_MISSING_INCLUDE;
+
+
+        /*
           Some property modfiers can be modified in the Schedule
           section; this effectively means that Eclipse supports time
           dependent geology. This is marked as an exocit special

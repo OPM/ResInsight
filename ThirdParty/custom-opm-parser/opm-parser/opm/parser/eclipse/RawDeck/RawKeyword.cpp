@@ -23,8 +23,7 @@
 #include <opm/parser/eclipse/RawDeck/RawConsts.hpp>
 #include <opm/parser/eclipse/RawDeck/RawKeyword.hpp>
 #include <opm/parser/eclipse/RawDeck/RawRecord.hpp>
-
-#include <cctype>
+#include <opm/parser/eclipse/Utility/String.hpp>
 
 namespace Opm {
 
@@ -130,12 +129,6 @@ namespace Opm {
 
     const RawRecord& RawKeyword::getFirstRecord() const {
         return *m_records.begin();
-    }
-
-    static inline std::string uppercase( std::string&& str ) {
-        std::transform( str.begin(), str.end(), str.begin(),
-            []( char c ) { return std::toupper( c ); } );
-        return str;
     }
 
     bool RawKeyword::isKeywordPrefix(const string_view& line, std::string& keyword ) {

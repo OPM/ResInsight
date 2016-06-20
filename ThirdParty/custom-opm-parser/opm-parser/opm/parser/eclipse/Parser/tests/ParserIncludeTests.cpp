@@ -27,6 +27,25 @@
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
 
+#include "opm_parser_build_config.hpp"
+
+
+#ifdef OPM_PARSER_BUILD_HAVE_SYMLINK
+
+BOOST_AUTO_TEST_CASE(ParserKeyword_includeInvalid) {
+    boost::filesystem::path inputFilePath("testdata/parser/includeInvalid.data");
+
+    Opm::ParserPtr parser(new Opm::Parser());
+    Opm::ParseContext parseContext;
+
+    parseContext.update(Opm::ParseContext::PARSE_MISSING_INCLUDE , Opm::InputError::THROW_EXCEPTION );
+    BOOST_CHECK_THROW(parser->parseFile(inputFilePath.string() , parseContext) , std::invalid_argument);
+
+    parseContext.update(Opm::ParseContext::PARSE_MISSING_INCLUDE , Opm::InputError::IGNORE );
+    BOOST_CHECK_NO_THROW(parser->parseFile(inputFilePath.string() , parseContext));
+}
+
+
 
 BOOST_AUTO_TEST_CASE(Verify_find_includes_Data_file_is_a_symlink) {
     boost::filesystem::path inputFilePath("testdata/parser/includeSymlinkTestdata/symlink1/case_symlink.data");
@@ -57,6 +76,7 @@ BOOST_AUTO_TEST_CASE(Verify_find_includes_Data_file_has_include_file_that_again_
     BOOST_CHECK_EQUAL(false , deck->hasKeyword("WATER"));
 }
 
+#endif
 
 
 BOOST_AUTO_TEST_CASE(ParserKeyword_includeValid) {
@@ -70,12 +90,9 @@ BOOST_AUTO_TEST_CASE(ParserKeyword_includeValid) {
 }
 
 
-BOOST_AUTO_TEST_CASE(ParserKeyword_includeInvalid) {
-    boost::filesystem::path inputFilePath("testdata/parser/includeInvalid.data");
 
-    Opm::ParserPtr parser(new Opm::Parser());
-    BOOST_CHECK_THROW(parser->parseFile(inputFilePath.string() , Opm::ParseContext()), std::runtime_error);
-}
+
+
 
 BOOST_AUTO_TEST_CASE(ParserKeyword_includeWrongCase) {
     boost::filesystem::path inputFile1Path("testdata/parser/includeWrongCase1.data");
@@ -89,9 +106,12 @@ BOOST_AUTO_TEST_CASE(ParserKeyword_includeWrongCase) {
     // exactly the same spelling as their names on disk. Eclipse seems
     // to be a bit more relaxed when it comes to this, so we might
     // have to change the current behavior one not-so-fine day...
-    BOOST_CHECK_THROW(parser->parseFile(inputFile1Path.string(), Opm::ParseContext()), std::runtime_error);
-    BOOST_CHECK_THROW(parser->parseFile(inputFile2Path.string(), Opm::ParseContext()), std::runtime_error);
-    BOOST_CHECK_THROW(parser->parseFile(inputFile3Path.string(), Opm::ParseContext()), std::runtime_error);
+    Opm::ParseContext parseContext;
+    parseContext.update(Opm::ParseContext::PARSE_MISSING_INCLUDE , Opm::InputError::THROW_EXCEPTION );
+
+    BOOST_CHECK_THROW(parser->parseFile(inputFile1Path.string(), parseContext), std::invalid_argument);
+    BOOST_CHECK_THROW(parser->parseFile(inputFile2Path.string(), parseContext), std::invalid_argument);
+    BOOST_CHECK_THROW(parser->parseFile(inputFile3Path.string(), parseContext), std::invalid_argument);
 #else
     // for case-insensitive filesystems, the include statement will
     // always work regardless of how the capitalization of the

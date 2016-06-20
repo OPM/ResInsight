@@ -13,7 +13,6 @@ namespace ParserKeywords {
 
 
 void addDefaultKeywords1(Parser& p) {
-p.addKeyword< ParserKeywords::GRIDOPTS >();
 p.addKeyword< ParserKeywords::GRIDUNIT >();
 p.addKeyword< ParserKeywords::GROUP_PROBE >();
 p.addKeyword< ParserKeywords::GRUPNET >();
@@ -82,6 +81,7 @@ p.addKeyword< ParserKeywords::OILMW >();
 p.addKeyword< ParserKeywords::OILVISCT >();
 p.addKeyword< ParserKeywords::OILVTIM >();
 p.addKeyword< ParserKeywords::OLDTRAN >();
+p.addKeyword< ParserKeywords::OPERATE >();
 p.addKeyword< ParserKeywords::OPTIONS >();
 p.addKeyword< ParserKeywords::PARALLEL >();
 p.addKeyword< ParserKeywords::PATHS >();
@@ -96,4 +96,5 @@ p.addKeyword< ParserKeywords::PERMZ >();
 p.addKeyword< ParserKeywords::PERMZX >();
 p.addKeyword< ParserKeywords::PIMTDIMS >();
 p.addKeyword< ParserKeywords::PIMULTAB >();
+p.addKeyword< ParserKeywords::PINCH >();
 }}}

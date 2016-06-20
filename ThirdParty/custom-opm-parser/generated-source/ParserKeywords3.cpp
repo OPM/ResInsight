@@ -13,8 +13,6 @@ namespace ParserKeywords {
 
 
 void addDefaultKeywords3(Parser& p) {
-p.addKeyword< ParserKeywords::SPECROCK >();
-p.addKeyword< ParserKeywords::SSFN >();
 p.addKeyword< ParserKeywords::SSOL >();
 p.addKeyword< ParserKeywords::START >();
 p.addKeyword< ParserKeywords::STCOND >();

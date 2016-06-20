@@ -5936,6 +5936,91 @@ OLDTRAN::OLDTRAN( ) : ParserKeyword("OLDTRAN") {
 const std::string OLDTRAN::keywordName = "OLDTRAN";
 
 
+OPERATE::OPERATE( ) : ParserKeyword("OPERATE") {
+  setSizeType(SLASH_TERMINATED);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("EDIT");
+  addValidSectionName("GRID");
+  addValidSectionName("PROPS");
+  addValidSectionName("REGIONS");
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("OPERATE");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserStringItem("RESULT_ARRAY",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("I1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("I2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("J1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("J2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("K1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("K2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("OPERATION",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("ARRAY_ARG",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("PARAM1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("PARAM2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string OPERATE::keywordName = "OPERATE";
+const std::string OPERATE::RESULT_ARRAY::itemName = "RESULT_ARRAY";
+const std::string OPERATE::I1::itemName = "I1";
+const std::string OPERATE::I2::itemName = "I2";
+const std::string OPERATE::J1::itemName = "J1";
+const std::string OPERATE::J2::itemName = "J2";
+const std::string OPERATE::K1::itemName = "K1";
+const std::string OPERATE::K2::itemName = "K2";
+const std::string OPERATE::OPERATION::itemName = "OPERATION";
+const std::string OPERATE::ARRAY_ARG::itemName = "ARRAY_ARG";
+const std::string OPERATE::PARAM1::itemName = "PARAM1";
+const std::string OPERATE::PARAM2::itemName = "PARAM2";
+
+
 OPTIONS::OPTIONS( ) : ParserKeyword("OPTIONS") {
   setFixedSize( (size_t) 1);
   setDescription("");

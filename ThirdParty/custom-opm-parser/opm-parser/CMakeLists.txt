@@ -61,6 +61,7 @@ endif()
 include(UseMultiArch)
 include(OpmSatellites)
 include(UseWarnings)
+include(cmake/build_check.cmake)
 
 #-----------------------------------------------------------------
 # This is modified copy & paste from the OpmDefaults.cmake module.
@@ -113,6 +114,7 @@ find_package(Boost 1.44.0 COMPONENTS filesystem date_time system unit_test_frame
 include_directories(${Boost_INCLUDE_DIRS})
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_BINARY_DIR})
 
 # if we are using dynamic boost, the header file must generate a main() function
 if (NOT Boost_USE_STATIC_LIBS)

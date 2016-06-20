@@ -30,7 +30,6 @@ namespace Opm {
     class Eclipse3DProperties;
     class IOConfig;
     class InitConfig;
-    class ParseContext;
     class SimulationConfig;
 
 
@@ -38,7 +37,6 @@ namespace Opm {
     {
     public:
         EclipseConfig(const Deck& deck,
-                      const ParseContext& parseContext,
                       const Eclipse3DProperties& eclipse3DProperties,
                       std::shared_ptr< EclipseGrid > inputGrid,
                       const Schedule& schedule);

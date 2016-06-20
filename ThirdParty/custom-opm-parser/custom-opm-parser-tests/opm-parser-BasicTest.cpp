@@ -20,10 +20,10 @@ TEST(OpmParserTest, ReadFromFile)
     /*
     std::string filename = "d:/Models/MRST/simple/SIMPLE.DATA";
     std::string filename = "d:/gitroot/opm-data/spe1/SPE1CASE1.DATA";
-    std::string filename = "d:/Models/Statoil/Brillig/BRILLIG.DATA";
+    std::string filename = "d:/gitroot-magnesj/opm-parser/testdata/cases_with_issues/testcase_juli_2011/TEST10K_FLT_LGR_NNC.DATA";
     std::string filename = "d:/gitroot-magnesj/opm-parser/testdata/cases_with_issues/testcase_juli_2011/TEST10K_FLT_LGR_NNC.DATA";
     */
-    std::string filename = "d:/gitroot-magnesj/opm-parser/testdata/cases_with_issues/testcase_juli_2011/TEST10K_FLT_LGR_NNC.DATA";
+    std::string filename = "d:/Models/Statoil/Brillig/BRILLIG.DATA";
 
     /*
     std::string filename = "d:/Models/Statoil/1.2.0_Osesyd_segfault/BASEPRED6.DATA";
@@ -66,27 +66,6 @@ TEST(OpmParserTest, ReadFromFile)
     // GRDECL files
     //std::string filename = "d:/Models/Statoil/no_map_axis/geocell.grdecl";
 
-    /*
-    try
-    {
-    }
-    catch (CException* e)
-    {
-    }
-    */
-
-
-    const char * deck =
-        "OPERATE\n"
-         "SWL    6* MULTX  PERMX 1.E10       / Temp:  SWL=1.E10*PERMX\n"
-         "SWL    6* MINLIM SWL   1.0         /\n"
-         "SWL    6* LOG10  SWL               / Temp:  SWL=log(1.E10*PERMX)\n"
-         "SWL    6* MULTA  SWL   -0.06  0.91 / Final: SWL=0.31-0.06*log(PERMX)\n"
-         "--SWCR 6* COPY   SWL               / SWCR=SWL\n"
-         "SWCR   6* MULTA  SWL   1.0    0.0  / SWCR=SWL+0.0 (+0.3)\n"
-         "SWCR   6* MAXLIM SWCR  0.7         / max(SWCR)=0.7\n"
-         "SGU    6* MULTA  SWL   -1.0   1.0  / SGU=1-SWL\n"
-         "/\n";
 
     //ParseContext parseContext;
     //parseContext.update(InputError::WARN);
@@ -97,12 +76,13 @@ TEST(OpmParserTest, ReadFromFile)
     ParseContext parseContext;
     Parser parser;
     
-    parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD, InputError::THROW_EXCEPTION);
-    //BOOST_CHECK_THROW(parser.parseString(deck, parseContext), std::invalid_argument);
-    
-    parseContext.update(ParseContext::PARSE_RANDOM_SLASH, InputError::IGNORE);
-    parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD, InputError::IGNORE);
-    parser.parseString(deck, parseContext);
+    parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD, InputError::WARN);
+    parseContext.update(ParseContext::PARSE_RANDOM_SLASH, InputError::WARN);
+    parseContext.update(ParseContext::PARSE_RANDOM_TEXT, InputError::WARN);
+    parseContext.update(ParseContext::PARSE_MISSING_INCLUDE, InputError::WARN);
+
+    //parseContext.update(ParseContext::PARSE_UNKNOWN_KEYWORD, InputError::IGNORE);
+    //parser.parseString(deck, parseContext);
     //BOOST_CHECK_NO_THROW(parser.parseString(deck, parseContext));
 
 /*
@@ -117,11 +97,8 @@ TEST(OpmParserTest, ReadFromFile)
 */
 
 
-    /*
-    Parser parser;
-    const auto deck = parser.newDeckFromFile(filename, Opm::ParseContext());
+    const auto deck = parser.parseFile(filename, parseContext);
     const auto grid = Parser::parseGrid(*deck);
-    */
 
     /*
     {
@@ -152,39 +129,4 @@ TEST(OpmParserTest, ReadFromFile)
         //BOOST_CHECK_EQUAL("untitled", deck->getKeyword("TITLE").getStringData().front());
 
     }
-
-
-/*
-    //std::string wellName = "C:/dev/projects/ResInsight/GitHub/NRWellProject/well_UnitTests/Bean_A.las";
-
-    std::string wellName = "d:/Models/LAS Files/D-D' LAS Files/Bean/Bean_A.las";
-
-    int wellFormat = NRLib::Well::LAS;
-    NRLib::Well* well = NRLib::Well::ReadWell(wellName, wellFormat);
-
-    std::cout << "Well name : " << well->GetWellName() << "\n";
-
-    std::cout << "Total number of logs : " << well->GetNlog() << "\n";
-
-    const std::map<std::string, std::vector<double> >& continuousLogs = well->GetContLog();
-
-    std::cout << "Continuous log names : " << "\n";
-
-    std::vector<std::string> names;
-    std::map<std::string, std::vector<double> >::const_iterator it;
-    for (it = continuousLogs.begin(); it != continuousLogs.end(); it++)
-    {
-        std::cout << "  " << it->first << "data value count : " << it->second.size() << "\n";
-        names.push_back(it->first);
-    }
-
-    for (size_t i = 0; i < 20; i++)
-    {
-        for (size_t n = 0; n < names.size(); n++)
-        {
-            std::cout << "\t" << continuousLogs.at(names[n])[i];
-        }
-        std::cout << "\n";
-    }
-*/
 }

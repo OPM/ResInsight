@@ -393,9 +393,10 @@ void VFPProdTable::check(const DeckKeyword& keyword, const double table_scaling_
                            + std::string("monotonically increasing.\nThis may cause convergence ")
                            + "issues due to switching between BHP and THP control mode."
                            + std::string("\nIn keyword VFPPROD table number ") 
-                           + std::to_string(m_table_num) 
-                           + ", line " + std::to_string(keyword.getLineNumber()) 
-                           + ", in file " + keyword.getFileName());
+                           + std::to_string(m_table_num)
+                           + ", file " + keyword.getFileName()
+                           + ", line " + std::to_string(keyword.getLineNumber())
+                           + "\n");
         m_messages.note(points);
     }
 }

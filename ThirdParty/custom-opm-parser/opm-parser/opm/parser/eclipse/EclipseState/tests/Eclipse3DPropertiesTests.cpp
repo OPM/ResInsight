@@ -64,7 +64,7 @@ static Opm::DeckPtr createDeck() {
             "\n"
             "PROPS\n"
             "REGIONS\n"
-            "SWAT\n"
+            "swat\n"
             "1000*1 /\n"
             "SATNUM\n"
             "1000*2 /\n"
@@ -93,7 +93,7 @@ static Opm::DeckPtr createValidIntDeck() {
             " 25*1 \n"
             "/\n"
             "ADDREG\n"
-            "  SATNUM 11 1    M / \n"
+            "  satnum 11 1    M / \n"
             "  SATNUM 20 2      / \n"
             "/\n"
             "EDIT\n"
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(SupportsProperty) {
         // int props
         "ACTNUM", "SATNUM", "IMBNUM", "PVTNUM", "EQLNUM", "ENDNUM", "FLUXNUM", "MULTNUM", "FIPNUM", "MISCNUM", "OPERNUM",
         // double props
-        "TEMPI", "MULTPV", "PERMX", "PERMY", "PERMZ", "SWATINIT", "THCONR", "NTG"
+        "TEMPI", "MULTPV", "PERMX", "permy", "PERMZ", "SWATINIT", "THCONR", "NTG"
     };
 
     for (auto keyword : keywordList)
@@ -193,14 +193,14 @@ BOOST_AUTO_TEST_CASE(UnsupportedKeywordsThrows) {
     BOOST_CHECK_THROW(s.props.getIntGridProperty("NONO"), std::logic_error);
     BOOST_CHECK_THROW(s.props.getDoubleGridProperty("NONO"), std::logic_error);
 
-    BOOST_CHECK_NO_THROW(s.props.hasDeckIntGridProperty("FLUXNUM"));
+    BOOST_CHECK_NO_THROW(s.props.hasDeckIntGridProperty("FluxNUM"));
     BOOST_CHECK_NO_THROW(s.props.supportsGridProperty("NONO"));
 }
 
 BOOST_AUTO_TEST_CASE(IntGridProperty) {
     Setup s(createDeck());
     int cnt = 0;
-    for (auto x : s.props.getIntGridProperty("SATNUM").getData()) {
+    for (auto x : s.props.getIntGridProperty("SaTNuM").getData()) {
         BOOST_CHECK_EQUAL(x, 2);
         cnt++;
     }
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(AddregIntSetCorrectly) {
 BOOST_AUTO_TEST_CASE(PermxUnitAppliedCorrectly) {
     Opm::DeckPtr deck = createValidPERMXDeck();
     Setup s(deck);
-    const auto& permx = s.props.getDoubleGridProperty("PERMX");
+    const auto& permx = s.props.getDoubleGridProperty("PermX");
 
     for (size_t j = 0; j < 5; j++)
         for (size_t i = 0; i < 5; i++) {

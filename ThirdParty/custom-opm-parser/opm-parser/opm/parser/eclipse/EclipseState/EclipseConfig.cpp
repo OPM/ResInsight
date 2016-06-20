@@ -29,12 +29,10 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
 #include <opm/parser/eclipse/EclipseState/SimulationConfig/SimulationConfig.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
 
 namespace Opm {
 
     EclipseConfig::EclipseConfig(const Deck& deck,
-                                 const ParseContext& parseContext,
                                  const Eclipse3DProperties& eclipse3DProperties,
                                  std::shared_ptr< EclipseGrid > inputGrid,
                                  const Schedule& schedule) :

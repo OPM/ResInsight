@@ -163,6 +163,29 @@ inline std::string clean( const std::string& str ) {
         dst.push_back( '\n' );
     }
 
+    struct f {
+        bool inside_quotes = false;
+        bool operator()( char c ) {
+            if( c == ',' ) return true;
+            if( RawConsts::is_quote( c ) ) inside_quotes = !inside_quotes;
+            return false;
+        }
+    };
+
+    /* some decks use commas for item separation in records, but commas add
+     * nothing over whitespace. run over the deck and replace all non-quoted
+     * commas with whitespace. commas withing quotes are read verbatim and not
+     * to be touched.
+     *
+     * There's a known defect: considering the record
+     * foo bar, , , baz, , /
+     * baz will silently interpreted as item #3 instead of item #5. As of
+     * writing we're not sure if this is even legal, nor have we seen it
+     * happen, but the effort needed to support it is tremendous and will
+     * require significant changes throughout.
+     */
+    std::replace_if( dst.begin(), dst.end(), f(), ' ' );
+
     return dst;
 }
 
@@ -280,7 +303,9 @@ void ParserState::loadFile(const boost::filesystem::path& inputFile) {
     try {
         inputFileCanonical = boost::filesystem::canonical(inputFile);
     } catch (boost::filesystem::filesystem_error fs_error) {
-        throw std::runtime_error(std::string("Parser::loadFile fails: ") + fs_error.what());
+        std::string msg = "Could not open file: " + inputFile.string();
+        parseContext.handleError( ParseContext::PARSE_MISSING_INCLUDE , deck->getMessageContainer() , msg);
+        return;
     }
 
     const auto closer = []( std::FILE* f ) { std::fclose( f ); };
@@ -291,9 +316,9 @@ void ParserState::loadFile(const boost::filesystem::path& inputFile) {
 
     // make sure the file we'd like to parse is readable
     if( !ufp ) {
-        throw std::runtime_error(std::string("Input file '") +
-                inputFileCanonical.string() +
-                std::string("' is not readable"));
+        std::string msg = "Could not read from file: " + inputFile.string();
+        parseContext.handleError( ParseContext::PARSE_MISSING_INCLUDE , deck->getMessageContainer() , msg);
+        return;
     }
 
     /*

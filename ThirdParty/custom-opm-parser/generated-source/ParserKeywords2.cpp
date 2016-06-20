@@ -13,7 +13,6 @@ namespace ParserKeywords {
 
 
 void addDefaultKeywords2(Parser& p) {
-p.addKeyword< ParserKeywords::PINCH >();
 p.addKeyword< ParserKeywords::PLMIXPAR >();
 p.addKeyword< ParserKeywords::PLYADS >();
 p.addKeyword< ParserKeywords::PLYADSS >();
@@ -96,4 +95,6 @@ p.addKeyword< ParserKeywords::SORWMIS >();
 p.addKeyword< ParserKeywords::SOWCR >();
 p.addKeyword< ParserKeywords::SPECGRID >();
 p.addKeyword< ParserKeywords::SPECHEAT >();
+p.addKeyword< ParserKeywords::SPECROCK >();
+p.addKeyword< ParserKeywords::SSFN >();
 }}}

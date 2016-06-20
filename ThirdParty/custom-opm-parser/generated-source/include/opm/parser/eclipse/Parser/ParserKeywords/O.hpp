@@ -98,6 +98,69 @@ namespace ParserKeywords {
 
 
 
+   class OPERATE : public ParserKeyword {
+   public:
+       OPERATE();
+       static const std::string keywordName;
+
+       class RESULT_ARRAY {
+       public:
+           static const std::string itemName;
+       };
+
+       class I1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class I2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class J1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class J2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class K1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class K2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class OPERATION {
+       public:
+           static const std::string itemName;
+       };
+
+       class ARRAY_ARG {
+       public:
+           static const std::string itemName;
+       };
+
+       class PARAM1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PARAM2 {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class OPTIONS : public ParserKeyword {
    public:
        OPTIONS();

@@ -23,11 +23,7 @@
 #include <memory>
 #include <set>
 
-#ifdef HAVE_REGEX
-#include <regex>
-#else
 #include <boost/regex.hpp>
-#endif
 
 #include <opm/parser/eclipse/EclipseState/Util/RecordVector.hpp>
 #include <opm/parser/eclipse/Parser/ParserEnums.hpp>
@@ -113,11 +109,7 @@ namespace Opm {
         DeckNameSet m_deckNames;
         DeckNameSet m_validSectionNames;
         std::string m_matchRegexString;
-#ifdef HAVE_REGEX
-        std::regex m_matchRegex;
-#else
         boost::regex m_matchRegex;
-#endif
         RecordVector<std::shared_ptr< ParserRecord >> m_records;
         enum ParserKeywordSizeEnum m_keywordSizeType;
         size_t m_fixedSize;

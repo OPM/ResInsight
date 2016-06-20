@@ -2901,6 +2901,25 @@ BOOST_AUTO_TEST_CASE(TESTOLDTRANKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTOPERATEKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OPERATE";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::OPERATE inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTOPTIONSKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/O/OPTIONS";
     boost::filesystem::path jsonPath( jsonFile );

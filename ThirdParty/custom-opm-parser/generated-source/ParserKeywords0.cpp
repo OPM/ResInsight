@@ -96,4 +96,5 @@ p.addKeyword< ParserKeywords::GECON >();
 p.addKeyword< ParserKeywords::GEFAC >();
 p.addKeyword< ParserKeywords::GRID >();
 p.addKeyword< ParserKeywords::GRIDFILE >();
+p.addKeyword< ParserKeywords::GRIDOPTS >();
 }}}

@@ -257,12 +257,9 @@ namespace Opm {
          *   this->keywords = fun::concat( fun::map( handler, section ) );
          * The following code is a workaround for this compiler bug */
         for (auto& x : section)
-        {
-            auto keywords = handler(x);
-            for (auto& keyword : keywords)
             {
+            for (auto& keyword : handler(x))
                 this->keywords.push_back(keyword);
-            }
         }
     }
 

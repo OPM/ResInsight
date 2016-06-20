@@ -59,7 +59,7 @@ namespace Opm {
         m_inputGrid(         std::make_shared<EclipseGrid>(deck, nullptr) ),
         m_schedule(          std::make_shared<Schedule>( m_parseContext, m_inputGrid, deck ) ),
         m_eclipseProperties( deck, m_tables, *m_inputGrid ),
-        m_eclipseConfig(     deck, m_parseContext, m_eclipseProperties, m_inputGrid, *m_schedule),
+        m_eclipseConfig(     deck, m_eclipseProperties, m_inputGrid, *m_schedule),
         m_inputNnc(          deck, m_inputGrid ),
         m_deckUnitSystem(    deck.getActiveUnitSystem() )
 

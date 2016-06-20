@@ -344,7 +344,7 @@ namespace Opm {
         for (size_t g=0; g < m_data.size(); g++) {
             T value = m_data[g];
             if ((value < min) || (value > max))
-                throw std::invalid_argument("Property element outside valid limits");
+                throw std::invalid_argument("Property element " + std::to_string( value) + " in " + getKeywordName() + " outside valid limits: [" + std::to_string(min) + ", " + std::to_string(max) + "]");
         }
     }
 
