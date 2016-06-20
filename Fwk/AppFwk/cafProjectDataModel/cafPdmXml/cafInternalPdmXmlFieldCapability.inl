@@ -151,7 +151,7 @@ template<typename FieldType >
      for (size_t i = 0; i < pointerCount; ++i)
      {
          dataString += PdmReferenceHelper::referenceFromFieldToObject(m_field, m_field->m_pointers[i].rawPtr());
-         if (i < pointerCount-1) dataString += "|\n";
+         if (!dataString.isEmpty() && i < pointerCount-1) dataString += " | \n\t";
      }
      xmlStream.writeCharacters(dataString);
  }
