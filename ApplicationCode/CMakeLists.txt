@@ -380,6 +380,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
     # using namespace cvf
     set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
  
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    

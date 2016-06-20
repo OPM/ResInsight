@@ -427,6 +427,7 @@ void RiuMainWindow::createMenus()
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API

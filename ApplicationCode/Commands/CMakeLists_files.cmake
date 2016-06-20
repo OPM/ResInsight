@@ -44,6 +44,7 @@ ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.h
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
@@ -90,6 +91,7 @@ ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.cpp
 
 
 # General delete of any object in a child array field

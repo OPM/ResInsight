@@ -87,7 +87,7 @@ ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
-
+${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -173,7 +173,7 @@ ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
-
+${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

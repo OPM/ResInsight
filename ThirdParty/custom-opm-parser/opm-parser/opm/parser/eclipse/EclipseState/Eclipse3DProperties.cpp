@@ -430,16 +430,18 @@ namespace Opm {
 
     bool Eclipse3DProperties::hasDeckIntGridProperty(const std::string& keyword) const {
         auto kw = uppercase(keyword);
-        if (!m_intGridProperties.supportsKeyword( kw ))
-            throw std::logic_error("Integer grid property " + kw + " is unsupported!");
+        if (!m_intGridProperties.supportsKeyword(kw))
+            return false;
+            //throw std::logic_error("Integer grid property " + kw + " is unsupported!");
 
         return m_intGridProperties.hasKeyword( kw );
     }
 
     bool Eclipse3DProperties::hasDeckDoubleGridProperty(const std::string& keyword) const {
         auto kw = uppercase(keyword);
-        if (!m_doubleGridProperties.supportsKeyword( kw ))
-            throw std::logic_error("Double grid property " + kw + " is unsupported!");
+        if (!m_doubleGridProperties.supportsKeyword(kw))
+            return false;
+            //throw std::logic_error("Double grid property " + kw + " is unsupported!");
 
         return m_doubleGridProperties.hasKeyword( kw );
     }
