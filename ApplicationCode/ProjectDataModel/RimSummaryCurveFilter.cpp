@@ -65,6 +65,8 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedSummaryCases.uiCapability()->setUiChildrenHidden(true);
     m_selectedSummaryCases.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue(false);
+    m_selectedSummaryCases.xmlCapability()->setIOWritable(false);
+    m_selectedSummaryCases.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variables", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
