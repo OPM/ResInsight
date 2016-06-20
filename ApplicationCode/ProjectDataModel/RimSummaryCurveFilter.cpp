@@ -64,7 +64,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCases, "SummaryCases", "Cases", "", "", "");
     m_selectedSummaryCases.uiCapability()->setUiChildrenHidden(true);
     m_selectedSummaryCases.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue(false);
+    m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variables", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
@@ -284,13 +284,21 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 void RimSummaryCurveFilter::syncUiSelectionFromCurves()
 {
     // Create a search map containing whats supposed to be uiSelected
-
+    std::set<RimSummaryCase*> referredCases;
     std::set<RifEclipseSummaryAddress> existingCurveDefinitions;
 
     // Populate the existingCurveDefinitions from the existing curves
     for(RimSummaryCurve* curve: m_curves)
     {
         existingCurveDefinitions.insert(curve->summaryAddress());
+        referredCases.insert(curve->summaryCase());
+    }
+
+    m_selectedSummaryCases.clear();
+
+    for (RimSummaryCase* currCase: referredCases)
+    {
+        m_selectedSummaryCases.push_back(currCase);
     }
 
     m_uiFilterResultMultiSelection.v().clear();
