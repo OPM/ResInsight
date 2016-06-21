@@ -229,6 +229,37 @@ void RimSummaryCurveFilter::detachQwtCurves()
     }
 }
 
+static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
+static const int RI_LOGPLOT_CURVECOLORS[] =
+{
+    Qt::black,
+    Qt::darkBlue,
+    Qt::darkRed,
+    Qt::darkGreen,
+    Qt::darkYellow,
+    Qt::darkMagenta,
+    Qt::darkCyan,
+    Qt::darkGray,
+    Qt::blue,
+    Qt::red,
+    Qt::green,
+    Qt::yellow,
+    Qt::magenta,
+    Qt::cyan,
+    Qt::gray
+};
+
+//--------------------------------------------------------------------------------------------------
+/// Pick default curve color from an index based palette
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f curveColorFromTable(int colorIndex)
+{
+    QColor color = QColor(Qt::GlobalColor(RI_LOGPLOT_CURVECOLORS[colorIndex % RI_LOGPLOT_CURVECOLORSCOUNT]));
+    ++colorIndex;
+    cvf::Color3f cvfColor(color.redF(), color.greenF(), color.blueF());
+    return cvfColor;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -276,17 +307,41 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 
 
     // Create all new curves that is missing
+    int colorIndex = 2;
+    int lineStyleIdx = -1;
+
+    RimSummaryCase* prevCase = nullptr;
+    RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
 
     for (auto& caseAddrPair: newCurveDefinitions)
     {
         RimSummaryCase* currentCase = caseAddrPair.first;
-        RimSummaryCurve* curve = new RimSummaryCurve();
 
+
+        RimSummaryCurve* curve = new RimSummaryCurve();
         curve->setParentQwtPlot(m_parentQwtPlot);
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(caseAddrPair.second);
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+
+        if(currentCase != prevCase)
+        {
+            prevCase = currentCase;
+            colorIndex = 2;
+            lineStyleIdx ++;
+            lineStyle = caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(lineStyleIdx%caf::AppEnum<RimPlotCurve::LineStyleEnum>::size());
+            if(lineStyle == RimPlotCurve::STYLE_NONE)
+            {
+                lineStyle = RimPlotCurve::STYLE_SOLID;
+                lineStyleIdx++;
+            }
+        }
+
+        cvf::Color3f curveColor = curveColorFromTable(colorIndex);
+        colorIndex++;
+
         curve->setColor(curveColor);
+        curve->setLineStyle(lineStyle);
+
         m_curves.push_back(curve);
     }
 }

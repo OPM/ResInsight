@@ -375,5 +375,12 @@ void RimPlotCurve::loadDataAndUpdate()
     this->onLoadDataAndUpdate();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setLineStyle(LineStyleEnum lineStyle)
+{
+    m_lineStyle = lineStyle;
+}
 
 

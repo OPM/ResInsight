@@ -66,6 +66,7 @@ public:
     QwtPlotCurve*                   qwtPlotCurve() const;
 
     void                            setColor(const cvf::Color3f& color);
+    void                            setLineStyle(LineStyleEnum lineStyle);
     bool                            isCurveVisible() const;
     QString                         curveName() const { return m_curveName; }
 
