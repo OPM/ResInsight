@@ -336,10 +336,17 @@ void RimPlotCurve::updateCurveAppearance()
             break;
         }
     }
+    QPen curvePen(curveColor);
+    curvePen.setWidth(m_curveThickness);
+    curvePen.setStyle(penStyle);
 
-    m_qwtPlotCurve->setPen(curveColor, m_curveThickness, penStyle);
+    m_qwtPlotCurve->setPen(curvePen);
     m_qwtPlotCurve->setStyle(curveStyle);
     m_qwtPlotCurve->setSymbol(symbol);
+
+    m_qwtPlotCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
+    m_qwtPlotCurve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol, true);
+    m_qwtPlotCurve->setLegendAttribute(QwtPlotCurve::LegendShowBrush, true);
 }
 
 //--------------------------------------------------------------------------------------------------
