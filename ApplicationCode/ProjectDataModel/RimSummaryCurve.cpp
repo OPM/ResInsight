@@ -134,7 +134,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve::RimSummaryCurve()
 {
-    CAF_PDM_InitObject("Summary Curve", ":/WellLogCurve16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Curve", ":/SummaryCurve16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
     m_summaryCase.uiCapability()->setUiChildrenHidden(true);

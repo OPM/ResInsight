@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
 {
-    CAF_PDM_InitObject("Summary Plot", ":/WellLogPlot16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Plot", ":/SummaryPlot16x16.png", "", "");
     CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Summary Plot", "", "", "");
     m_showWindow.uiCapability()->setUiHidden(true);
 

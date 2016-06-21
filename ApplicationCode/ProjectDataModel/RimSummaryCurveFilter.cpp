@@ -59,7 +59,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryCurveFilter, "SummaryCurveFilter");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveFilter::RimSummaryCurveFilter()
 {
-    CAF_PDM_InitObject("Curve Filter", ":/WellLogCurve16x16.png", "", "");
+    CAF_PDM_InitObject("Curve Filter", ":/SummaryCurveFilter16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCases, "SummaryCases", "Cases", "", "", "");
     m_selectedSummaryCases.uiCapability()->setUiChildrenHidden(true);
