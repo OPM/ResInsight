@@ -242,12 +242,19 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
     
     for (RimSummaryCase* currentCase: m_selectedSummaryCases)
     {
+        if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
+
+        RifReaderEclipseSummary* reader = currentCase->caseData()->summaryReader();
+
         for(const RifEclipseSummaryAddress& addr: m_uiFilterResultMultiSelection.v())
         {
+            if(!reader->hasAddress(addr)) continue;
+
             newCurveDefinitions.insert(std::make_pair(currentCase, addr));
         }
     }
 
+    #if 0
     // Delete all existing curves that is not matching
     // Remove the entries in the search set that we already have
     for(RimSummaryCurve* curve: m_curves)
@@ -263,6 +270,10 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
         }
     }
     m_curves.removeChildObject(nullptr);
+    #else
+    m_curves.deleteAllChildObjects();
+    #endif
+
 
     // Create all new curves that is missing
 

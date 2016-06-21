@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "cvfObject.h"
 
@@ -42,6 +43,7 @@ public:
     bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
     void                                         close();
 
+    bool                                         hasAddress(const RifEclipseSummaryAddress& resultAddress);
     const std::vector<RifEclipseSummaryAddress>& allResultAddresses();
     std::vector<time_t>                          timeSteps() const;
 
@@ -55,6 +57,7 @@ private:
     int                                          timeStepCount() const;
     int                                          indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
 
+    void                                         buildMetaData();
 private:
     // Taken from ecl_sum.h
     typedef struct ecl_sum_struct    ecl_sum_type;
@@ -64,5 +67,7 @@ private:
     const ecl_smspec_type *     eclSmSpec;
 
     std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
+    std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
+
 };
 
