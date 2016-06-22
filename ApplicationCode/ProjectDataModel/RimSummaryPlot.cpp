@@ -98,6 +98,36 @@ void RimSummaryPlot::handleViewerDeletion()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateYAxisUnit()
+{
+    if (!m_qwtPlot) return;
+
+    std::set<std::string> unitNames;
+
+    for(RimSummaryCurve* rimCurve: m_curves)
+    {
+        if (rimCurve->isCurveVisible()) unitNames.insert(rimCurve->unitName());
+    }
+
+    for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
+    {
+        std::set<std::string> filterUnitNames = curveFilter->unitNames();
+        unitNames.insert(filterUnitNames.begin(), filterUnitNames.end());
+    }
+
+    QString assembledYAxisText;
+
+    for (const std::string& unitName : unitNames)
+    {
+        assembledYAxisText += "[" + QString::fromStdString(unitName) + "] ";
+    }
+
+    m_qwtPlot->setYAxisTitle(assembledYAxisText);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
 {
     if (curve)
@@ -106,6 +136,7 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
         if (m_qwtPlot)
         {
             curve->setParentQwtPlot(m_qwtPlot);
+            this->updateYAxisUnit();
         }
     }
 }
@@ -121,6 +152,7 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
         if(m_qwtPlot)
         {
             curveFilter->setParentQwtPlot(m_qwtPlot);
+            this->updateYAxisUnit();
         }
     }
 }
@@ -173,6 +205,8 @@ void RimSummaryPlot::loadDataAndUpdate()
         curve->loadDataAndUpdate();
     }
  
+    this->updateYAxisUnit();
+
     // Todo: Update zoom
 }
 

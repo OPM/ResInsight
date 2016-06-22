@@ -56,6 +56,7 @@ public:
     void                                    detachQwtCurves();
 
     RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
+    std::set<std::string>                   unitNames();
 
 private:
     void                                    syncCurvesFromUiSelection();

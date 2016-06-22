@@ -78,7 +78,7 @@ public:
 
     RifEclipseSummaryAddress                summaryAddress();
     void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
-
+    std::string                             unitName();
 protected:
     // RimPlotCurve overrides
 

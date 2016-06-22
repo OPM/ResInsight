@@ -350,6 +350,19 @@ bool RifReaderEclipseSummary::hasAddress(const RifEclipseSummaryAddress& resultA
     return (it != m_resultAddressToErtNodeIdx.end());
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RifReaderEclipseSummary::unitName(const RifEclipseSummaryAddress& resultAddress)
+{
+    int variableIndex = indexFromAddress(resultAddress);
+
+    if(variableIndex < 0) return "";
+
+    const smspec_node_type * ertSumVarNode = ecl_smspec_iget_node(eclSmSpec, variableIndex);
+    return smspec_node_get_unit(ertSumVarNode);
+}
+
 #if 0
 //--------------------------------------------------------------------------------------------------
 /// 

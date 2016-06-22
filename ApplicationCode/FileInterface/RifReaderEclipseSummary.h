@@ -48,6 +48,7 @@ public:
     std::vector<time_t>                          timeSteps() const;
 
     bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values);
+    std::string                                  unitName(const RifEclipseSummaryAddress& resultAddress);
 
     // TODO: Move this to a tools class with static members
     static std::vector<QDateTime>                fromTimeT(const std::vector<time_t>& timeSteps);

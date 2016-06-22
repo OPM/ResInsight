@@ -38,6 +38,7 @@ public:
     virtual ~RiuSummaryQwtPlot();
 
     RimSummaryPlot*                 ownerPlotDefinition();
+    void                            setYAxisTitle(const QString& title);
 
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event);

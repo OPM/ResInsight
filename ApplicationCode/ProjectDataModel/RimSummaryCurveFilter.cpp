@@ -67,6 +67,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue(false);
     m_selectedSummaryCases.xmlCapability()->setIOWritable(false);
     m_selectedSummaryCases.xmlCapability()->setIOReadable(false);
+    m_selectedSummaryCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variables", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
@@ -173,7 +174,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vectors");
     curveDataGroup->add(&m_selectedSummaryCases);
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
@@ -202,6 +203,10 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         syncCurvesFromUiSelection();
         loadDataAndUpdate();
         m_applyButtonField = false;
+
+        RimSummaryPlot* plot = nullptr;
+        firstAnchestorOrThisOfType(plot);
+        plot->updateYAxisUnit();
     }
 }
 
@@ -419,4 +424,17 @@ void RimSummaryCurveFilter::loadDataAndUpdate()
     }
 
     syncUiSelectionFromCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveFilter::unitNames()
+{
+    std::set<std::string> unitNames;
+    for(RimSummaryCurve* curve: m_curves)
+    {
+        if (curve->isCurveVisible()) unitNames.insert( curve->unitName());
+    }
+    return unitNames;
 }

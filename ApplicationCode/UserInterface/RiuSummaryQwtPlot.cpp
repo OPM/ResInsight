@@ -72,6 +72,16 @@ RimSummaryPlot* RiuSummaryQwtPlot::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::setYAxisTitle(const QString& title)
+{
+    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
+    axisTitleY.setText(title);
+    setAxisTitle(QwtPlot::yLeft, axisTitleY);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setDefaults()
 {
     QPalette newPalette(palette());

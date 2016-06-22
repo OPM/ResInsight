@@ -223,6 +223,16 @@ void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::string RimSummaryCurve::unitName()
+{
+    RifReaderEclipseSummary* reader = summaryReader();
+    if (reader) return reader->unitName(this->summaryAddress());
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> optionList = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
@@ -287,7 +297,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    return QString::fromStdString( m_curveVariable->address().uiText());
+    return QString::fromStdString( m_curveVariable->address().uiText()) + "["+ this->unitName().c_str() + "]";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,7 +371,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
-
+    
     if(changedField == &m_uiFilterResultSelection)
     {
         if (0 <= m_uiFilterResultSelection() && m_uiFilterResultSelection() < summaryReader()->allResultAddresses().size())
@@ -374,6 +384,16 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         }
 
         this->loadDataAndUpdate();
+
+        RimSummaryPlot* plot = nullptr;
+        firstAnchestorOrThisOfType(plot);
+        plot->updateYAxisUnit();
+    } 
+    else if (&m_showCurve == changedField)
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAnchestorOrThisOfType(plot);
+        plot->updateYAxisUnit();
     }
 }
 

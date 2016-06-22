@@ -53,7 +53,7 @@ public:
     
     void                                            loadDataAndUpdate();
     void                                            handleViewerDeletion();
-
+    void                                            updateYAxisUnit();
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
