@@ -47,15 +47,27 @@ public:
     explicit RiuLineSegmentQwtPlotCurve(const QString &title = QString::null);
     virtual ~RiuLineSegmentQwtPlotCurve();
 
-    void setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
+    void         setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
 
-    void setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
+    void         setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
+
+    void         setSymbolSkipPixelDistance(float distance);
+
 
 protected:
     virtual void drawCurve(QPainter* p, int style,
                             const QwtScaleMap& xMap, const QwtScaleMap& yMap,
-                            const QRectF& canvasRect, int from, int to) const;
+                            const QRectF& canvasRect, 
+                            int from, int to) const;
  
+
+    virtual void drawSymbols(QPainter *p, const QwtSymbol &symbol, 
+                             const QwtScaleMap &xMap, 
+                             const QwtScaleMap &yMap, 
+                             const QRectF &canvasRect, 
+                             int from, int to) const override;
+
 private:
     std::vector< std::pair<size_t, size_t> > m_polyLineStartStopIndices;
+    float                                    m_symbolSkipPixelDistance;
 };
