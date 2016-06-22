@@ -400,6 +400,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     appearanceGroup->add(&m_curveColor);
     appearanceGroup->add(&m_curveThickness);
     appearanceGroup->add(&m_pointSymbol);
+    appearanceGroup->add(&m_symbolSkipPixelDistance);
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_isUsingAutoName);

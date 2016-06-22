@@ -103,6 +103,8 @@ protected:
     caf::PdmField<bool>             m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;
     caf::PdmField<float>            m_curveThickness;
+    caf::PdmField<float>            m_symbolSkipPixelDistance;
+
 
     caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
     caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;

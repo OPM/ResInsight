@@ -165,6 +165,8 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveVariable.uiCapability()->setUiChildrenHidden(true);
 
     m_curveVariable = new RimSummaryAddress;
+    
+    m_symbolSkipPixelDistance = 10.0f;
 
     updateOptionSensitivity();
 }
@@ -344,6 +346,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     appearanceGroup->add(&m_curveColor);
     appearanceGroup->add(&m_curveThickness);
     appearanceGroup->add(&m_pointSymbol);
+    appearanceGroup->add(&m_symbolSkipPixelDistance);
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_isUsingAutoName);

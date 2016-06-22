@@ -87,6 +87,8 @@ RimPlotCurve::RimPlotCurve()
     caf::AppEnum< RimPlotCurve::PointSymbolEnum > pointSymbol = SYMBOL_NONE;
     CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Point style", "", "", "");
 
+    CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
+
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
 
     m_parentQwtPlot = NULL;
@@ -121,7 +123,8 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     else if (&m_curveColor == changedField
              || &m_curveThickness == changedField
              || &m_pointSymbol == changedField
-             || &m_lineStyle == changedField)
+             || &m_lineStyle == changedField
+             || &m_symbolSkipPixelDistance == changedField)
     {
         updateCurveAppearance();
     }
@@ -343,10 +346,7 @@ void RimPlotCurve::updateCurveAppearance()
     m_qwtPlotCurve->setPen(curvePen);
     m_qwtPlotCurve->setStyle(curveStyle);
     m_qwtPlotCurve->setSymbol(symbol);
-
-    m_qwtPlotCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
-    m_qwtPlotCurve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol, true);
-    m_qwtPlotCurve->setLegendAttribute(QwtPlotCurve::LegendShowBrush, true);
+    m_qwtPlotCurve->setSymbolSkipPixelDistance(m_symbolSkipPixelDistance());
 }
 
 //--------------------------------------------------------------------------------------------------

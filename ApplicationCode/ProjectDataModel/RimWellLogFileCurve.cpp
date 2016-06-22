@@ -177,6 +177,7 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     appearanceGroup->add(&m_curveColor);
     appearanceGroup->add(&m_curveThickness);
     appearanceGroup->add(&m_pointSymbol);
+    appearanceGroup->add(&m_symbolSkipPixelDistance);
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_isUsingAutoName);
