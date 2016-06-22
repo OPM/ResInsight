@@ -59,7 +59,7 @@ private:
     void                                    selectClosestCurve(const QPoint& pos);
 
 private:
-    caf::PdmPointer<RimWellLogTrack>    m_plotTrackDefinition;
+    caf::PdmPointer<RimWellLogTrack>        m_plotTrackDefinition;
     QwtPlotGrid*                            m_grid;
 };
 
