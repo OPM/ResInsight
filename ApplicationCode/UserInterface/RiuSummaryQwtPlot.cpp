@@ -26,6 +26,9 @@
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
+#include <QEvent>
+#include "RiuMainWindow.h"
+#include "RimSummaryCurve.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -123,4 +126,94 @@ void RiuSummaryQwtPlot::setDefaults()
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
     this->insertLegend(legend, BottomLegend);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
+{
+    if(watched == canvas())
+    {
+        QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>(event);
+        if(wheelEvent)
+        {
+        #if 0
+            if(!m_plotDefinition)
+            {
+                return QwtPlot::eventFilter(watched, event);
+            }
+
+            if(wheelEvent->modifiers() & Qt::ControlModifier)
+            {
+                QwtScaleMap scaleMap = canvasMap(QwtPlot::yLeft);
+                double zoomCenter = scaleMap.invTransform(wheelEvent->pos().y());
+
+                if(wheelEvent->delta() > 0)
+                {
+                    plotDefinition->setDepthZoomByFactorAndCenter(RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                }
+                else
+                {
+                    plotDefinition->setDepthZoomByFactorAndCenter(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
+                }
+            }
+            else
+            {
+                plotDefinition->panDepth(wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR : -RIU_SCROLLWHEEL_PANFACTOR);
+            }
+
+            event->accept();
+            return true;
+            #endif
+        }
+        else
+        {
+            QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+            if(mouseEvent)
+            {
+                if(mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
+                {
+                    selectClosestCurve(mouseEvent->pos());
+                }
+            }
+        }
+    }
+
+    return QwtPlot::eventFilter(watched, event);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
+{
+    QwtPlotCurve* closestCurve = NULL;
+    double distMin = DBL_MAX;
+
+    const QwtPlotItemList& itmList = itemList();
+    for(QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
+    {
+        if((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
+        {
+            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
+            double dist;
+            candidateCurve->closestPoint(pos, &dist);
+            if(dist < distMin)
+            {
+                closestCurve = candidateCurve;
+                distMin = dist;
+            }
+        }
+    }
+
+    if(closestCurve && distMin < 20)
+    {
+        RimSummaryCurve* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
+        if(selectedCurve)
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem(selectedCurve);
+        }
+    }
 }

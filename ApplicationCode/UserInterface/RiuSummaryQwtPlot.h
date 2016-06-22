@@ -39,8 +39,12 @@ public:
 
     RimSummaryPlot*                 ownerPlotDefinition();
 
+protected:
+    virtual bool                    eventFilter(QObject* watched, QEvent* event);
+
 private:
     void                            setDefaults();
+    void                            selectClosestCurve(const QPoint& pos);
 
 private:
     QwtPlotGrid*                    m_grid;

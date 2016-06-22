@@ -55,6 +55,8 @@ public:
     void                                    setParentQwtPlot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
+    RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
+
 private:
     void                                    syncCurvesFromUiSelection();
     void                                    syncUiSelectionFromCurves();

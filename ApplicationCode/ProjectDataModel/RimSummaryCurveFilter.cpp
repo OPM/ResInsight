@@ -229,6 +229,25 @@ void RimSummaryCurveFilter::detachQwtCurves()
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimSummaryCurveFilter::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
+{
+    for(RimSummaryCurve* rimCurve: m_curves)
+    {
+        if(rimCurve->qwtPlotCurve() == qwtCurve)
+        {
+            return rimCurve;
+        }
+    }
+
+    return NULL;
+}
+
+
+
 static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
 static const int RI_LOGPLOT_CURVECOLORS[] =
 {

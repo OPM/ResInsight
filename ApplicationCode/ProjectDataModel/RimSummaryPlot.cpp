@@ -240,3 +240,25 @@ void RimSummaryPlot::detachAllCurves()
         curve->detachQwtCurve();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
+{
+    for(RimSummaryCurve* rimCurve: m_curves)
+    {
+        if(rimCurve->qwtPlotCurve() == qwtCurve)
+        {
+            return rimCurve;
+        }
+    }
+
+    for (RimSummaryCurveFilter* curveFilter: m_curveFilters)
+    {
+        RimSummaryCurve* foundCurve = curveFilter->findRimCurveFromQwtCurve(qwtCurve);
+        if (foundCurve) return foundCurve;
+    }
+
+    return NULL;
+}

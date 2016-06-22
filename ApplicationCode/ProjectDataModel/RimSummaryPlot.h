@@ -31,6 +31,7 @@
 class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
+class QwtPlotCurve;
 
 //==================================================================================================
 ///  
@@ -47,6 +48,8 @@ public:
     void                                            setDescription(const QString& description);
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
+
+    RimSummaryCurve*                                findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
     
     void                                            loadDataAndUpdate();
     void                                            handleViewerDeletion();
