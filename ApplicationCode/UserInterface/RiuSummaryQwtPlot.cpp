@@ -27,8 +27,11 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
 #include <QEvent>
+#include <QWheelEvent>
 #include "RiuMainWindow.h"
 #include "RimSummaryCurve.h"
+
+#include <float.h>
 
 //--------------------------------------------------------------------------------------------------
 /// 
