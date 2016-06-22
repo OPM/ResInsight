@@ -40,7 +40,7 @@ void caf::AppEnum<RimSummaryFilter::SummaryFilterType>::setUp()
     addItem(RimSummaryFilter::SUM_FILTER_MISC, "SUM_FILTER_MISC", "Misc");
     addItem(RimSummaryFilter::SUM_FILTER_AQUIFER, "SUM_FILTER_AQUIFER", "Aquifer");
     addItem(RimSummaryFilter::SUM_FILTER_NETWORK, "SUM_FILTER_NETWORK", "Network");
-    addItem(RimSummaryFilter::SUM_FILTER_ANY, "SUM_FILTER_ANY", "Any");
+    addItem(RimSummaryFilter::SUM_FILTER_ANY, "SUM_FILTER_ANY", "All (Advanced)");
     setDefault(RimSummaryFilter::SUM_FILTER_VAR_STRING);
 }
 
@@ -263,7 +263,7 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     }
     else
     {
-        caf::PdmUiGroup* curveVarFilterGroup = uiOrdering.addNewGroup("Search Options");
+        caf::PdmUiOrdering* curveVarFilterGroup = &uiOrdering;//uiOrdering.addNewGroup("Search Options");
 
         curveVarFilterGroup->add(&m_filterQuantityName);
 
