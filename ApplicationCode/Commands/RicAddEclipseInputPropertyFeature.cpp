@@ -21,6 +21,7 @@
 
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseInputCase.h"
+#include "RimEclipseInputCaseOpm.h"
 
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
@@ -39,6 +40,18 @@ CAF_CMD_SOURCE_INIT(RicAddEclipseInputPropertyFeature, "RicAddEclipseInputProper
 //--------------------------------------------------------------------------------------------------
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
+    RimEclipseInputPropertyCollection* inputProp = selectedInputPropertyCollection();
+    if (inputProp)
+    {
+        RimEclipseInputCaseOpm* inputCaseOpm = NULL;
+
+        inputProp->firstAnchestorOrThisOfType(inputCaseOpm);
+        if (inputCaseOpm)
+        {
+            return false;
+        }
+    }
+
     return selectedInputPropertyCollection() != NULL;
 }
 
