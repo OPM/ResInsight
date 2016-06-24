@@ -646,64 +646,6 @@ void RiuMainWindow::createDockPanels()
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::saveWinGeoAndDockToolBarLayout()
-{
-    // Company and appname set through QCoreApplication
-    QSettings settings;
-
-    QByteArray winGeo = saveGeometry();
-    settings.setValue("winGeometry", winGeo);
-
-    QByteArray layout = saveState(0);
-    settings.setValue("dockAndToolBarLayout", layout);
-
-    settings.setValue("isMaximized", isMaximized());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::loadWinGeoAndDockToolBarLayout()
-{
-    // Company and appname set through QCoreApplication
-    QSettings settings;
-
-    QVariant winGeo = settings.value("winGeometry");
-    QVariant layout = settings.value("dockAndToolBarLayout");
-
-    if (winGeo.isValid())
-    {
-        if (restoreGeometry(winGeo.toByteArray()))
-        {
-            if (layout.isValid())
-            {
-                restoreState(layout.toByteArray(), 0);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::showWindow()
-{
-    // Company and appname set through QCoreApplication
-    QSettings settings;
-
-    showNormal();
-
-    QVariant isMax = settings.value("isMaximized", false);
-    if (isMax.toBool())
-    {
-        showMaximized();
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

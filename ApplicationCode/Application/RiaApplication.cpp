@@ -710,10 +710,15 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 void RiaApplication::onProjectOpenedOrClosed()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    mainWnd->initializeGuiNewProjectLoaded();
-    //mainWnd->redrawAllViews();
+    if (mainWnd)
+    {
+        mainWnd->initializeGuiNewProjectLoaded();
+    }
+    RiuMainPlotWindow* mainPlotWnd = RiuMainPlotWindow::instance();
+    if (mainPlotWnd)
+    {
+        mainPlotWnd->initializeGuiNewProjectLoaded();
+    }
 
     setWindowCaptionFromAppState();
 }

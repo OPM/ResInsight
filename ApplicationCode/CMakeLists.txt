@@ -111,6 +111,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuToolTipMenu.cpp
 	UserInterface/RiuMdiSubWindow.h
 	UserInterface/RiuMdiSubWindow.cpp
+	UserInterface/RiuMainWindowBase.h
+	UserInterface/RiuMainWindowBase.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -206,6 +208,7 @@ set ( QT_MOC_HEADERS
     
     ProjectDataModel/RimMimeData.h
     
+    UserInterface/RiuMainWindowBase.h
     UserInterface/RiuMainWindow.h
     UserInterface/RiuMainPlotWindow.h
     UserInterface/RiuResultInfoPanel.h

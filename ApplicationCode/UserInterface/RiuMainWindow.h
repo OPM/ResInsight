@@ -20,8 +20,9 @@
 
 #pragma once
 
+#include "RiuMainWindowBase.h"
+
 #include <QEvent>
-#include <QMainWindow>
 #include <QPointer>
 #include <QMdiArea>
 
@@ -67,13 +68,15 @@ namespace ssihub
 // 
 //
 //==================================================================================================
-class RiuMainWindow : public QMainWindow
+class RiuMainWindow : public RiuMainWindowBase
 {
     Q_OBJECT
 
 public:
     RiuMainWindow();
     static RiuMainWindow* instance();
+
+    virtual QString mainWindowName()        { return "RiuMainWindow";  }
     
     void            initializeGuiNewProjectLoaded();
     void            cleanupGuiBeforeProjectClose();
@@ -91,8 +94,6 @@ public:
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
-    void            loadWinGeoAndDockToolBarLayout();
-    void            showWindow();
 
     void            selectAsCurrentItem(caf::PdmObject* object);
 
@@ -125,7 +126,6 @@ private:
     void            createMenus();
     void            createToolBars();
     void            createDockPanels();
-    void            saveWinGeoAndDockToolBarLayout();
 
     bool            checkForDocumentModifications();
 
