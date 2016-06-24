@@ -75,6 +75,7 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuResultTextBuilder.cpp
 	UserInterface/RiuFemResultTextBuilder.cpp
     UserInterface/RiuMainWindow.cpp
+    UserInterface/RiuMainPlotWindow.cpp
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
@@ -106,6 +107,10 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuSelectionColors.cpp
 	UserInterface/RiuSelectionChangedHandler.h
 	UserInterface/RiuSelectionChangedHandler.cpp
+	UserInterface/RiuToolTipMenu.h
+	UserInterface/RiuToolTipMenu.cpp
+	UserInterface/RiuMdiSubWindow.h
+	UserInterface/RiuMdiSubWindow.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -202,6 +207,7 @@ set ( QT_MOC_HEADERS
     ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h
+    UserInterface/RiuMainPlotWindow.h
     UserInterface/RiuResultInfoPanel.h
     UserInterface/RiuViewer.h
     UserInterface/RiuProcessMonitor.h

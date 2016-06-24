@@ -51,12 +51,17 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
@@ -64,6 +69,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RiuSelectionManager.h"
@@ -98,11 +104,6 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
-#include "RimSummaryPlotCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryCaseCollection.h"
-#include "RimSummaryCase.h"
-#include "RimGridSummaryCase.h"
 
 namespace caf
 {
@@ -685,6 +686,10 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
     RiuSelectionManager::instance()->deleteAllItems();
 
     mainWnd->cleanupGuiBeforeProjectClose();
+
+    RiuMainPlotWindow* mainPlotWnd = RiuMainPlotWindow::instance();
+    mainPlotWnd->cleanupGuiBeforeProjectClose();
+
 
     caf::EffectGenerator::clearEffectCache();
     m_project->close();

@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
@@ -106,26 +104,22 @@
 
 //==================================================================================================
 ///
-/// \class RiuMainWindow
+/// \class RiuMainPlotWindow
 ///
 /// Contains our main window
 ///
 //==================================================================================================
 
 
-RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuMainWindow::RiuMainWindow()
+RiuMainPlotWindow::RiuMainPlotWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
-    CVF_ASSERT(sm_mainWindowInstance == NULL);
-
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
@@ -141,8 +135,6 @@ RiuMainWindow::RiuMainWindow()
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState(0);
 
-    sm_mainWindowInstance = this;
-
     m_dragDropInterface = new RiuDragDrop;
 
     initializeGuiNewProjectLoaded();
@@ -150,21 +142,32 @@ RiuMainWindow::RiuMainWindow()
     // Enabling the line below will activate the undo stack
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+
+//    if (sm_mainWindowInstance->isVisible())
+    {
+        QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
+        setWindowTitle("ResInsight " + platform);
+        setDefaultWindowSize();
+        loadWinGeoAndDockToolBarLayout();
+        showWindow();
+    }
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuMainWindow* RiuMainWindow::instance()
+RiuMainPlotWindow* RiuMainPlotWindow::instance()
 {
-    return sm_mainWindowInstance;
+    static RiuMainPlotWindow staticInstance;
+
+    return &staticInstance;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::initializeGuiNewProjectLoaded()
+void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot(RiaApplication::instance()->project());
     restoreTreeViewState();
@@ -180,7 +183,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::cleanupGuiBeforeProjectClose()
+void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 {
     caf::CmdExecCommandManager::instance()->undoStack()->clear();
 
@@ -208,7 +211,7 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::closeEvent(QCloseEvent* event)
+void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
     if (!RiaApplication::instance()->closeProject(true))
     {
@@ -226,7 +229,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::createActions()
+void RiuMainPlotWindow::createActions()
 {
     // File actions
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
@@ -373,7 +376,7 @@ void RiuMainWindow::createActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::createMenus()
+void RiuMainPlotWindow::createMenus()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
@@ -477,7 +480,7 @@ void RiuMainWindow::createMenus()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::createToolBars()
+void RiuMainPlotWindow::createToolBars()
 {
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
@@ -544,7 +547,7 @@ void RiuMainWindow::createToolBars()
 /// 
 //--------------------------------------------------------------------------------------------------
 
-void RiuMainWindow::createDockPanels()
+void RiuMainPlotWindow::createDockPanels()
 {
     {
         QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
@@ -650,7 +653,7 @@ void RiuMainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::saveWinGeoAndDockToolBarLayout()
+void RiuMainPlotWindow::saveWinGeoAndDockToolBarLayout()
 {
     // Company and appname set through QCoreApplication
     QSettings settings;
@@ -667,7 +670,7 @@ void RiuMainWindow::saveWinGeoAndDockToolBarLayout()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::loadWinGeoAndDockToolBarLayout()
+void RiuMainPlotWindow::loadWinGeoAndDockToolBarLayout()
 {
     // Company and appname set through QCoreApplication
     QSettings settings;
@@ -690,7 +693,7 @@ void RiuMainWindow::loadWinGeoAndDockToolBarLayout()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::showWindow()
+void RiuMainPlotWindow::showWindow()
 {
     // Company and appname set through QCoreApplication
     QSettings settings;
@@ -707,7 +710,7 @@ void RiuMainWindow::showWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setResultInfo(const QString& info) const
+void RiuMainPlotWindow::setResultInfo(const QString& info) const
 {
     m_resultInfoPanel->setInfo(info);
 }
@@ -723,7 +726,7 @@ void RiuMainWindow::setResultInfo(const QString& info) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotRefreshFileActions()
+void RiuMainPlotWindow::slotRefreshFileActions()
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -744,7 +747,7 @@ void RiuMainWindow::slotRefreshFileActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotRefreshEditActions()
+void RiuMainPlotWindow::slotRefreshEditActions()
 {
 //     RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* proj = app->project();
@@ -754,7 +757,7 @@ void RiuMainWindow::slotRefreshEditActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotRefreshViewActions()
+void RiuMainPlotWindow::slotRefreshViewActions()
 {
     bool enabled = true;
     m_viewFromNorth->setEnabled(enabled);
@@ -772,7 +775,7 @@ void RiuMainWindow::slotRefreshViewActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::refreshAnimationActions()
+void RiuMainPlotWindow::refreshAnimationActions()
 {
     caf::FrameAnimationControl* animationControl = NULL;
     if (RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer())
@@ -843,7 +846,7 @@ void RiuMainWindow::refreshAnimationActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotAbout()
+void RiuMainPlotWindow::slotAbout()
 {
     caf::AboutDialog dlg(this);
 
@@ -874,7 +877,7 @@ void RiuMainWindow::slotAbout()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportGeoMechModel()
+void RiuMainPlotWindow::slotImportGeoMechModel()
 {
     if (checkForDocumentModifications())
     {
@@ -905,7 +908,7 @@ void RiuMainWindow::slotImportGeoMechModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenProject()
+void RiuMainPlotWindow::slotOpenProject()
 {
     if (checkForDocumentModifications())
     {
@@ -929,7 +932,7 @@ void RiuMainWindow::slotOpenProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenLastUsedProject()
+void RiuMainPlotWindow::slotOpenLastUsedProject()
 {
     RiaApplication* app = RiaApplication::instance();
     QString fileName = app->preferences()->lastUsedProjectFileName;
@@ -944,7 +947,7 @@ void RiuMainWindow::slotOpenLastUsedProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotMockModel()
+void RiuMainPlotWindow::slotMockModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createMockModel();
@@ -953,7 +956,7 @@ void RiuMainWindow::slotMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotMockResultsModel()
+void RiuMainPlotWindow::slotMockResultsModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createResultsMockModel();
@@ -963,7 +966,7 @@ void RiuMainWindow::slotMockResultsModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotMockLargeResultsModel()
+void RiuMainPlotWindow::slotMockLargeResultsModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createLargeResultsMockModel();
@@ -972,7 +975,7 @@ void RiuMainWindow::slotMockLargeResultsModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotMockModelCustomized()
+void RiuMainPlotWindow::slotMockModelCustomized()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createMockModelCustomized();
@@ -981,7 +984,7 @@ void RiuMainWindow::slotMockModelCustomized()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotInputMockModel()
+void RiuMainPlotWindow::slotInputMockModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createInputMockModel();
@@ -990,7 +993,7 @@ void RiuMainWindow::slotInputMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuMainWindow::checkForDocumentModifications()
+bool RiuMainPlotWindow::checkForDocumentModifications()
 {
 //    RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* project = app->sceneManager();
@@ -1020,7 +1023,7 @@ bool RiuMainWindow::checkForDocumentModifications()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotCloseProject()
+void RiuMainPlotWindow::slotCloseProject()
 {
     RiaApplication* app = RiaApplication::instance();
     app->closeProject(true);
@@ -1029,7 +1032,7 @@ void RiuMainWindow::slotCloseProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenRecentFile()
+void RiuMainPlotWindow::slotOpenRecentFile()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     if (action)
@@ -1064,7 +1067,7 @@ void RiuMainWindow::slotOpenRecentFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::updateRecentFileActions()
+void RiuMainPlotWindow::updateRecentFileActions()
 {
     QSettings settings;
     QStringList files = settings.value("recentFileList").toStringList();
@@ -1087,7 +1090,7 @@ void RiuMainWindow::updateRecentFileActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addRecentFiles(const QString& file)
+void RiuMainPlotWindow::addRecentFiles(const QString& file)
 {
     QSettings settings;
     QStringList files = settings.value("recentFileList").toStringList();
@@ -1105,7 +1108,7 @@ void RiuMainWindow::addRecentFiles(const QString& file)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeRecentFiles(const QString& file)
+void RiuMainPlotWindow::removeRecentFiles(const QString& file)
 {
     QSettings settings;
     QStringList files = settings.value("recentFileList").toStringList();
@@ -1120,7 +1123,7 @@ void RiuMainWindow::removeRecentFiles(const QString& file)
 /// 
 //--------------------------------------------------------------------------------------------------
 
-QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
+QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
 {
     QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();
     int i; 
@@ -1138,7 +1141,7 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
+QList<QMdiSubWindow*> RiuMainPlotWindow::subWindowList(QMdiArea::WindowOrder order)
 {
 	return m_mdiArea->subWindowList(order);
 }
@@ -1146,7 +1149,7 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuResultQwtPlot* RiuMainWindow::resultPlot()
+RiuResultQwtPlot* RiuMainPlotWindow::resultPlot()
 {
     return m_resultQwtPlot;
 }
@@ -1154,7 +1157,7 @@ RiuResultQwtPlot* RiuMainWindow::resultPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeViewer(QWidget* viewer)
+void RiuMainPlotWindow::removeViewer(QWidget* viewer)
 {
     m_blockSlotSubWindowActivated = true;
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
@@ -1163,10 +1166,11 @@ void RiuMainWindow::removeViewer(QWidget* viewer)
     slotRefreshViewActions();
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
+void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
     RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
@@ -1229,7 +1233,7 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSaveProject()
+void RiuMainPlotWindow::slotSaveProject()
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -1241,7 +1245,7 @@ void RiuMainWindow::slotSaveProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSaveProjectAs()
+void RiuMainPlotWindow::slotSaveProjectAs()
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -1254,7 +1258,7 @@ void RiuMainWindow::slotSaveProjectAs()
 //--------------------------------------------------------------------------------------------------
 /// This method needs to handle memory deallocation !!!
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
+void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 {
     m_pdmRoot = pdmRoot;
 
@@ -1279,7 +1283,7 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotViewFromNorth()
+void RiuMainPlotWindow::slotViewFromNorth()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1290,7 +1294,7 @@ void RiuMainWindow::slotViewFromNorth()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotViewFromSouth()
+void RiuMainPlotWindow::slotViewFromSouth()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1301,7 +1305,7 @@ void RiuMainWindow::slotViewFromSouth()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotViewFromEast()
+void RiuMainPlotWindow::slotViewFromEast()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1312,7 +1316,7 @@ void RiuMainWindow::slotViewFromEast()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotViewFromWest()
+void RiuMainPlotWindow::slotViewFromWest()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1323,7 +1327,7 @@ void RiuMainWindow::slotViewFromWest()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotViewFromAbove()
+void RiuMainPlotWindow::slotViewFromAbove()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1334,7 +1338,7 @@ void RiuMainWindow::slotViewFromAbove()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotViewFromBelow()
+void RiuMainPlotWindow::slotViewFromBelow()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1345,7 +1349,7 @@ void RiuMainWindow::slotViewFromBelow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotZoomAll()
+void RiuMainPlotWindow::slotZoomAll()
 {
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
@@ -1356,7 +1360,7 @@ void RiuMainWindow::slotZoomAll()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
+void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow) return;
     if (m_blockSlotSubWindowActivated) return;
@@ -1481,7 +1485,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotUseShaders(bool enable)
+void RiuMainPlotWindow::slotUseShaders(bool enable)
 {
     RiaApplication::instance()->setUseShaders(enable);
 }
@@ -1489,7 +1493,7 @@ void RiuMainWindow::slotUseShaders(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotShowPerformanceInfo(bool enable)
+void RiuMainPlotWindow::slotShowPerformanceInfo(bool enable)
 {
     RiaApplication::instance()->setShowPerformanceInfo(enable);
 }
@@ -1498,7 +1502,7 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotEditPreferences()
+void RiuMainPlotWindow::slotEditPreferences()
 {
     RiaApplication* app = RiaApplication::instance();
     caf::PdmUiPropertyViewDialog propertyDialog(this, app->preferences(), "Preferences", "");
@@ -1518,7 +1522,7 @@ void RiuMainWindow::slotEditPreferences()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setActiveViewer(QWidget* viewer)
+void RiuMainPlotWindow::setActiveViewer(QWidget* viewer)
 {
    m_blockSlotSubWindowActivated = true;
    
@@ -1531,7 +1535,7 @@ void RiuMainWindow::setActiveViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotFramerateChanged(double frameRate)
+void RiuMainPlotWindow::slotFramerateChanged(double frameRate)
 {
     if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
@@ -1543,7 +1547,7 @@ void RiuMainWindow::slotFramerateChanged(double frameRate)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuProcessMonitor* RiuMainWindow::processMonitor()
+RiuProcessMonitor* RiuMainPlotWindow::processMonitor()
 {
     return m_processMonitor;
 }
@@ -1551,7 +1555,7 @@ RiuProcessMonitor* RiuMainWindow::processMonitor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotBuildWindowActions()
+void RiuMainPlotWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
     m_windowMenu->addAction(m_newPropertyView);
@@ -1585,7 +1589,7 @@ void RiuMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectedObjectsChanged()
+void RiuMainPlotWindow::selectedObjectsChanged()
 {
     std::vector<caf::PdmUiItem*> uiItems;
     m_projectTreeView->selectedUiItems(uiItems);
@@ -1671,7 +1675,7 @@ void RiuMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotNewObjectPropertyView()
+void RiuMainPlotWindow::slotNewObjectPropertyView()
 {
     QDockWidget* dockWidget = new QDockWidget(QString("Additional Project Tree (%1)").arg(additionalProjectViews.size() + 1), this);
     dockWidget->setObjectName("dockWidget");
@@ -1689,7 +1693,7 @@ void RiuMainWindow::slotNewObjectPropertyView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSnapshotToFile()
+void RiuMainPlotWindow::slotSnapshotToFile()
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -1699,7 +1703,7 @@ void RiuMainWindow::slotSnapshotToFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSnapshotToClipboard()
+void RiuMainPlotWindow::slotSnapshotToClipboard()
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -1709,7 +1713,7 @@ void RiuMainWindow::slotSnapshotToClipboard()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSnapshotAllViewsToFile()
+void RiuMainPlotWindow::slotSnapshotAllViewsToFile()
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -1721,7 +1725,7 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::hideAllDockWindows()
+void RiuMainPlotWindow::hideAllDockWindows()
 {
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
 
@@ -1735,7 +1739,7 @@ void RiuMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-/*void RiuMainWindow::slotOpenMultipleCases()
+/*void RiuMainPlotWindow::slotOpenMultipleCases()
 {
 #if 1
     QAction* action = caf::CmdFeatureManager::instance()->action("RicCreateGridCaseGroupFeature");
@@ -1770,7 +1774,7 @@ void RiuMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
+void RiuMainPlotWindow::slotDrawStyleChanged(QAction* activatedAction)
 {
     if (!RiaApplication::instance()->activeReservoirView()) return;
 
@@ -1796,7 +1800,7 @@ void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotToggleHideGridCellsAction(bool hideGridCells)
+void RiuMainPlotWindow::slotToggleHideGridCellsAction(bool hideGridCells)
 {
     if (!RiaApplication::instance()->activeReservoirView()) return;
 
@@ -1807,7 +1811,7 @@ void RiuMainWindow::slotToggleHideGridCellsAction(bool hideGridCells)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
+void RiuMainPlotWindow::slotToggleFaultLabelsAction(bool showLabels)
 {
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
@@ -1821,7 +1825,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::refreshDrawStyleActions()
+void RiuMainPlotWindow::refreshDrawStyleActions()
 {
     RimView* view = RiaApplication::instance()->activeReservoirView();
     bool enable = view != NULL;
@@ -1869,7 +1873,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotDisableLightingAction(bool disable)
+void RiuMainPlotWindow::slotDisableLightingAction(bool disable)
 {
     RimView* view = RiaApplication::instance()->activeReservoirView();
     if (view)
@@ -1882,7 +1886,7 @@ void RiuMainWindow::slotDisableLightingAction(bool disable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::storeTreeViewState()
+void RiuMainPlotWindow::storeTreeViewState()
 {
     if (m_projectTreeView)
     {
@@ -1902,7 +1906,7 @@ void RiuMainWindow::storeTreeViewState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::restoreTreeViewState()
+void RiuMainPlotWindow::restoreTreeViewState()
 {
     if (m_projectTreeView)
     {
@@ -1925,7 +1929,7 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectAsCurrentItem(caf::PdmObject* object)
+void RiuMainPlotWindow::selectAsCurrentItem(caf::PdmObject* object)
 {
     m_projectTreeView->selectAsCurrentItem(object);
 }
@@ -1933,7 +1937,7 @@ void RiuMainWindow::selectAsCurrentItem(caf::PdmObject* object)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotScaleChanged(int scaleValue)
+void RiuMainPlotWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
@@ -1945,7 +1949,7 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::updateScaleValue()
+void RiuMainPlotWindow::updateScaleValue()
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
@@ -1965,7 +1969,7 @@ void RiuMainWindow::updateScaleValue()
 //--------------------------------------------------------------------------------------------------
 /// TODO: This function will be moved to a class responsible for handling the application selection concept
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
+void RiuMainPlotWindow::selectedCases(std::vector<RimCase*>& cases)
 {
     caf::SelectionManager::instance()->objectsByType(&cases);
 }
@@ -1973,7 +1977,7 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotShowCommandLineHelp()
+void RiuMainPlotWindow::slotShowCommandLineHelp()
 {
     RiaApplication* app = RiaApplication::instance();
     QString text = app->commandLineParameterHelp();
@@ -1983,7 +1987,7 @@ void RiuMainWindow::slotShowCommandLineHelp()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotCreateCommandObject()
+void RiuMainPlotWindow::slotCreateCommandObject()
 {
     RiaApplication* app = RiaApplication::instance();
     if (!app->project()) return;
@@ -2018,7 +2022,7 @@ void RiuMainWindow::slotCreateCommandObject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotShowRegressionTestDialog()
+void RiuMainPlotWindow::slotShowRegressionTestDialog()
 {
     RiaRegressionTest regTestConfig;
 
@@ -2043,7 +2047,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotExecutePaintEventPerformanceTest()
+void RiuMainPlotWindow::slotExecutePaintEventPerformanceTest()
 {
 
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
@@ -2070,7 +2074,7 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setDefaultWindowSize()
+void RiuMainPlotWindow::setDefaultWindowSize()
 {
     resize(1000, 810);
 }
@@ -2078,7 +2082,7 @@ void RiuMainWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
+void RiuMainPlotWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 {
     RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
@@ -2097,7 +2101,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
+void RiuMainPlotWindow::slotOpenUsersGuideInBrowserAction()
 {
     QString usersGuideUrl = "http://resinsight.org/docs/home";
     
@@ -2111,7 +2115,7 @@ void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
+void RiuMainPlotWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
    
     m_projectTreeView->setExpanded(uiItem, expanded);
@@ -2120,7 +2124,7 @@ void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::customMenuRequested(const QPoint& pos)
+void RiuMainPlotWindow::customMenuRequested(const QPoint& pos)
 {
     QMenu menu;
 
@@ -2141,7 +2145,7 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
+RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForViewer(QWidget* viewer)
 {
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
@@ -2156,7 +2160,7 @@ RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindow::windowGeometryForWidget(QWidget* widget)
+RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForWidget(QWidget* widget)
 {
     RimMdiWindowGeometry geo;
 
@@ -2175,7 +2179,7 @@ RimMdiWindowGeometry RiuMainWindow::windowGeometryForWidget(QWidget* widget)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::tileWindows()
+void RiuMainPlotWindow::tileWindows()
 {
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
@@ -2194,7 +2198,7 @@ void RiuMainWindow::tileWindows()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuMainWindow::isAnyMdiSubWindowVisible()
+bool RiuMainPlotWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
 }
