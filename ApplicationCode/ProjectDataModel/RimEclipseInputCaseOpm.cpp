@@ -48,10 +48,6 @@ RimEclipseInputCaseOpm::RimEclipseInputCaseOpm()
 
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
     m_gridFileName.uiCapability()->setUiReadOnly(true);
-
-    CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
-    m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
-    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +55,6 @@ RimEclipseInputCaseOpm::RimEclipseInputCaseOpm()
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputCaseOpm::~RimEclipseInputCaseOpm()
 {
-    delete m_inputPropertyCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,33 +120,6 @@ void RimEclipseInputCaseOpm::importEclipseGridAndProperties(const QString& fileN
         {
             return;
         }
-
-        for (auto inputProperty : m_inputPropertyCollection->inputProperties)
-        {
-            inputProperty->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
-        }
-
-        for (auto it = mapUiNameToKeyword.begin(); it != mapUiNameToKeyword.end(); ++it)
-        {
-            RimEclipseInputProperty* inputProperty = m_inputPropertyCollection->findInputProperty(it->first);
-
-            if (!inputProperty)
-            {
-                inputProperty = new RimEclipseInputProperty;
-
-                inputProperty->resultName = it->first;
-                inputProperty->eclipseKeyword = it->second;
-                inputProperty->fileName = fileName;
-                inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
-
-                m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-            }
-            else
-            {
-                inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
-            }
-        }
-
 
         this->reservoirData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
 

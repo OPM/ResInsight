@@ -43,9 +43,6 @@ public:
     RimEclipseInputCaseOpm();
     virtual ~RimEclipseInputCaseOpm();
 
-    // Fields
-    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
-
     void                        importNewEclipseGridAndProperties(const QString& fileName);
 
     // RimCase overrides
