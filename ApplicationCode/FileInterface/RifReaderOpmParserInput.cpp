@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, RigCaseData* caseData, std::map<QString, QString>* mapFromResultNameToKeyword)
 {
-    RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Started reading of grid and properties from file : " + fileName + "\n"));
+    RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("\nStarted reading of grid and properties from file : " + fileName + "\n"));
 
     {
         std::shared_ptr<const Opm::EclipseGrid> eclipseGrid;
@@ -144,11 +144,11 @@ void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, R
             const Opm::MessageContainer& messages = deck->getMessageContainer();
             if (messages.size() > 0)
             {
-                RiuMainWindow::instance()->processMonitor()->addStringToLog("\n\n  Error messages from Deck : \n");
+                RiuMainWindow::instance()->processMonitor()->addStringToLog("\n\nLog messages from Deck : \n");
             }
             for (auto m : messages)
             {
-                RiuMainWindow::instance()->processMonitor()->addStringToLog("  : " + QString::fromStdString(m.message) + "\n");
+                RiuMainWindow::instance()->processMonitor()->addStringToLog("  Deck : " + QString::fromStdString(m.message) + "\n");
             }
         }
 
@@ -157,16 +157,17 @@ void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, R
             const Opm::MessageContainer& messages = eclipseGrid->getMessageContainer();
             if (messages.size() > 0)
             {
-                RiuMainWindow::instance()->processMonitor()->addStringToLog("\n\n  Error messages from EclipseGrid : \n");
+                RiuMainWindow::instance()->processMonitor()->addStringToLog("\n\nLog messages from EclipseGrid : \n");
             }
             for (auto m : messages)
             {
-                RiuMainWindow::instance()->processMonitor()->addStringToLog("  EclipseG" + QString::fromStdString(m.message) + "\n");
+                RiuMainWindow::instance()->processMonitor()->addStringToLog("  EclipseGrid :" + QString::fromStdString(m.message) + "\n");
             }
         }
 
         if (errorMessage.size() > 0)
         {
+            RiuMainWindow::instance()->processMonitor()->addStringToLog("\n\nError messages : \n");
             RiuMainWindow::instance()->processMonitor()->addStringToLog("  " + QString::fromStdString(errorMessage) + "\n");
             RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Failed reading of grid and properties from file : " + fileName + "\n"));
         }
