@@ -42,6 +42,7 @@ ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
+${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.h
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.h
@@ -89,6 +90,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.cpp

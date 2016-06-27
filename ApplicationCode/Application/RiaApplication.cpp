@@ -203,6 +203,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 RiaApplication::~RiaApplication()
 {
+    deleteMainPlotWindow();
+
     delete m_preferences;
 }
 
@@ -692,10 +694,7 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
     if (m_mainPlotWindow)
     {
         m_mainPlotWindow->cleanupGuiBeforeProjectClose();
-
-        deleteMainPlotWindow();
     }
-
 
     caf::EffectGenerator::clearEffectCache();
     m_project->close();
@@ -1329,7 +1328,10 @@ RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
         createMainPlotWindow();
     }
 
-    m_mainPlotWindow->showWindow();
+    if (!m_mainPlotWindow->isVisible())
+    {
+        m_mainPlotWindow->show();
+    }
 
     return m_mainPlotWindow;
 }

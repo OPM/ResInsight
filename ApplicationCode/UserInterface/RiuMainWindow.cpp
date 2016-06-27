@@ -509,9 +509,6 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromAbove);
     m_viewToolBar->addAction(m_viewFromBelow);
     m_viewToolBar->addSeparator();
-    m_viewToolBar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
-    m_viewToolBar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
-    m_viewToolBar->addSeparator();
     m_viewToolBar->addAction(m_drawStyleLinesAction);
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
@@ -534,6 +531,15 @@ void RiuMainWindow::createToolBars()
     m_animationToolBar = new caf::AnimationToolBar("Animation", this);
     addToolBar(m_animationToolBar);
     //connect(m_animationToolBar, SIGNAL(signalFrameRateChanged(double)), SLOT(slotFramerateChanged(double)));
+
+    {
+        // Snapshots
+        QToolBar* toolbar = addToolBar(tr("Window Management"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
+    }
 
     refreshAnimationActions();
     refreshDrawStyleActions();
