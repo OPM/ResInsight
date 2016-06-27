@@ -18,11 +18,14 @@
 
 #include "RiuMdiSubWindow.h"
 
+#include "RiaApplication.h"
+
 #include "RimSummaryPlot.h"
 #include "RimView.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
@@ -40,7 +43,12 @@ RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags 
 //--------------------------------------------------------------------------------------------------
 RiuMdiSubWindow::~RiuMdiSubWindow()
 {
-    RiuMainPlotWindow::instance()->slotRefreshViewActions();
+    RiuMainWindow::instance()->slotRefreshViewActions();
+
+    if (RiaApplication::instance()->mainPlotWindow())
+    {
+        RiaApplication::instance()->mainPlotWindow()->slotRefreshViewActions();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,18 +62,24 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
     RiuSummaryQwtPlot* summaryPlot = dynamic_cast<RiuSummaryQwtPlot*>(mainWidget);
     if (wellLogPlot)
     {
-        wellLogPlot->ownerPlotDefinition()->setMdiWindowGeometry(RiuMainPlotWindow::instance()->windowGeometryForWidget(this));
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        CVF_ASSERT(mainPlotWindow);
+
+        wellLogPlot->ownerPlotDefinition()->setMdiWindowGeometry(mainPlotWindow->windowGeometryForWidget(this));
     }
     else if (summaryPlot)
     {
-        summaryPlot->ownerPlotDefinition()->setMdiWindowGeometry(RiuMainPlotWindow::instance()->windowGeometryForWidget(this));
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        CVF_ASSERT(mainPlotWindow);
+
+        summaryPlot->ownerPlotDefinition()->setMdiWindowGeometry(mainPlotWindow->windowGeometryForWidget(this));
     }
     else
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
         if (viewer)
         {
-            viewer->ownerReservoirView()->setMdiWindowGeometry(RiuMainPlotWindow::instance()->windowGeometryForWidget(this));
+            viewer->ownerReservoirView()->setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForWidget(this));
         }
     }
 

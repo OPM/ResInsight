@@ -22,17 +22,17 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RimWellLogFileCurve.h"
-#include "RimWellLogTrack.h"
+#include "RiaApplication.h"
+
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogFileCurve.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimProject.h"
-#include "RimOilField.h"
-
-#include "RiuMainWindow.h"
-#include "RiaApplication.h"
+#include "RiuMainPlotWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -152,7 +152,8 @@ RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogTrack* pl
 
     plotTrack->updateConnectedEditors();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(curve);
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    plotwindow->selectAsCurrentItem(curve);
 
     return curve;
 }

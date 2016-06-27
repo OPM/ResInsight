@@ -19,13 +19,12 @@
 
 #include "RicWellLogPlotTrackFeatureImpl.h"
 
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogCurve.h"
 
-#include "RiuMainWindow.h"
+#include "cvfAssert.h"
 
-#include "cafPdmUiTreeView.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -43,6 +43,7 @@ class RimProject;
 class RimCommandObject;
 class RiaProjectModifier;
 class RimWellLogPlot;
+class RiuMainPlotWindow;
 
 namespace caf
 {
@@ -163,6 +164,9 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
+    RiuMainPlotWindow*  getOrCreateMainPlotWindow();
+    RiuMainPlotWindow*  mainPlotWindow();
+
 private:
     enum ProjectLoadAction
     {
@@ -177,6 +181,9 @@ private:
     
     QImage                  grabFrameBufferImage();
     void                    clearViewsScheduledForUpdate();
+
+    void                    createMainPlotWindow();
+    void                    deleteMainPlotWindow();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -215,4 +222,6 @@ private:
 
     QString                             m_helpText;
     bool                                m_runningRegressionTests;
+
+    RiuMainPlotWindow*                  m_mainPlotWindow;
 };

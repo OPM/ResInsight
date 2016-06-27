@@ -72,7 +72,7 @@ class RiuMainPlotWindow : public RiuMainWindowBase
 
 public:
     RiuMainPlotWindow();
-    static RiuMainPlotWindow* instance();
+    ~RiuMainPlotWindow();
     
     virtual QString mainWindowName()            { return "RiuMainPlotWindow";  }
     
@@ -289,8 +289,6 @@ private:
     
     caf::PdmUiDragDropInterface* m_dragDropInterface;
     
-    QUndoView*                  m_undoView;
-
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 

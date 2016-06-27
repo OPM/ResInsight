@@ -19,11 +19,13 @@
 
 #include "RimWellLogPlot.h"
 
+#include "RiaApplication.h"
+
 #include "RimWellLogTrack.h"
 
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
-#include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "cafPdmUiTreeView.h"
 
@@ -85,7 +87,10 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
-    RiuMainWindow::instance()->removeViewer(m_viewer);
+    if (RiaApplication::instance()->mainPlotWindow())
+    {
+        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_viewer);
+    }
     
     detachAllCurves();
     m_tracks.deleteAllChildObjects();
@@ -98,16 +103,18 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateViewerWidget()
 {
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+
     if (m_showWindow())
     {
         if (!m_viewer)
         {
-            m_viewer = new RiuWellLogPlot(this, RiuMainWindow::instance());
+            m_viewer = new RiuWellLogPlot(this, mainPlotWindow);
 
             recreateTrackPlots();
 
-            RiuMainWindow::instance()->addViewer(m_viewer, this->mdiWindowGeometry());
-            RiuMainWindow::instance()->setActiveViewer(m_viewer);
+            mainPlotWindow->addViewer(m_viewer, this->mdiWindowGeometry());
+            mainPlotWindow->setActiveViewer(m_viewer);
         }
 
         updateViewerWidgetWindowTitle();
@@ -116,14 +123,13 @@ void RimWellLogPlot::updateViewerWidget()
     {
         if (m_viewer)
         {
-            this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer));
+            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_viewer));
 
-            RiuMainWindow::instance()->removeViewer(m_viewer);
+            mainPlotWindow->removeViewer(m_viewer);
             detachAllCurves();
 
             delete m_viewer;
             m_viewer = NULL;
-           
         }
     }
 }
@@ -365,7 +371,10 @@ void RimWellLogPlot::setupBeforeSave()
 {
     if (m_viewer)
     {
-        this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer));
+        if (RiaApplication::instance()->mainPlotWindow())
+        {
+            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_viewer));
+        }
     }
 }
 

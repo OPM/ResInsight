@@ -143,23 +143,14 @@ RiuMainPlotWindow::RiuMainPlotWindow()
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 
-    {
-        setWindowTitle("Summary Plots for ResInsight");
-        setDefaultWindowSize();
-        loadWinGeoAndDockToolBarLayout();
-        showWindow();
-    }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow* RiuMainPlotWindow::instance()
+RiuMainPlotWindow::~RiuMainPlotWindow()
 {
-    static RiuMainPlotWindow staticInstance;
-
-    return &staticInstance;
+    delete m_dragDropInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,14 +202,6 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
-    if (!RiaApplication::instance()->closeProject(true))
-    {
-        event->ignore();
-        return;
-    }
-
-    delete m_dragDropInterface;
-    
     saveWinGeoAndDockToolBarLayout();
         
     event->accept();
@@ -578,6 +561,8 @@ void RiuMainPlotWindow::createDockPanels()
         connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(customMenuRequested(const QPoint&)));
+
+        m_projectTreeView->setUiConfigurationName("PlotWindow");
     }
     
 /*

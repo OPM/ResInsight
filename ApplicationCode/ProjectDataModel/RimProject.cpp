@@ -735,34 +735,49 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (viewLinkerCollection()->viewLinker())
+    if (uiConfigName == "PlotWindow")
     {
-        // Use object instead of field to avoid duplicate entries in the tree view
-        uiTreeOrdering.add(viewLinkerCollection());
-    }
-
-    RimOilField* oilField = activeOilField();
-    if (oilField)
-    {
-        if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
-        if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
-        if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
-    }
-
-    if (mainPlotCollection)
-    {
-        if (mainPlotCollection->wellLogPlotCollection())
+        RimOilField* oilField = activeOilField();
+        if (oilField)
         {
-            uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            if (oilField->summaryCaseCollection())     uiTreeOrdering.add(oilField->summaryCaseCollection());
         }
-        if (mainPlotCollection->summaryPlotCollection())
-        {
-            uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
-        }
-    }
 
-    uiTreeOrdering.add(scriptCollection());
-    
-    uiTreeOrdering.setForgetRemainingFields(true);
+        if (mainPlotCollection)
+        {
+            if (mainPlotCollection->wellLogPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            }
+            if (mainPlotCollection->summaryPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
+            }
+        }
+
+        uiTreeOrdering.setForgetRemainingFields(true);
+
+        return;
+    }
+    else
+    {
+        if (viewLinkerCollection()->viewLinker())
+        {
+            // Use object instead of field to avoid duplicate entries in the tree view
+            uiTreeOrdering.add(viewLinkerCollection());
+        }
+
+        RimOilField* oilField = activeOilField();
+        if (oilField)
+        {
+            if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
+            if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
+            if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
+        }
+
+        uiTreeOrdering.add(scriptCollection());
+
+        uiTreeOrdering.setForgetRemainingFields(true);
+    }
 }
 

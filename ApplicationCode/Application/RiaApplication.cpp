@@ -193,6 +193,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_resViewUpdateTimer = NULL;
 
     m_runningRegressionTests = false;
+
+    m_mainPlotWindow = NULL;
 }
 
 
@@ -687,8 +689,12 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     mainWnd->cleanupGuiBeforeProjectClose();
 
-    RiuMainPlotWindow* mainPlotWnd = RiuMainPlotWindow::instance();
-    mainPlotWnd->cleanupGuiBeforeProjectClose();
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->cleanupGuiBeforeProjectClose();
+
+        deleteMainPlotWindow();
+    }
 
 
     caf::EffectGenerator::clearEffectCache();
@@ -714,10 +720,9 @@ void RiaApplication::onProjectOpenedOrClosed()
     {
         mainWnd->initializeGuiNewProjectLoaded();
     }
-    RiuMainPlotWindow* mainPlotWnd = RiuMainPlotWindow::instance();
-    if (mainPlotWnd)
+    if (m_mainPlotWindow)
     {
-        mainPlotWnd->initializeGuiNewProjectLoaded();
+        m_mainPlotWindow->initializeGuiNewProjectLoaded();
     }
 
     setWindowCaptionFromAppState();
@@ -1285,6 +1290,54 @@ int RiaApplication::launchUnitTestsWithConsole()
 #endif
 
     return launchUnitTests();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::createMainPlotWindow()
+{
+    CVF_ASSERT(m_mainPlotWindow == NULL);
+
+    m_mainPlotWindow = new RiuMainPlotWindow;
+
+    m_mainPlotWindow->setWindowTitle("Summary Plots for ResInsight");
+    m_mainPlotWindow->setDefaultWindowSize();
+    m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
+    m_mainPlotWindow->showWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::deleteMainPlotWindow()
+{
+    m_mainPlotWindow->deleteLater();
+
+    processEvents();
+
+    m_mainPlotWindow = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMainPlotWindow* RiaApplication::getOrCreateMainPlotWindow()
+{
+    if (!m_mainPlotWindow)
+    {
+        createMainPlotWindow();
+    }
+
+    return m_mainPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMainPlotWindow* RiaApplication::mainPlotWindow()
+{
+    return m_mainPlotWindow;
 }
 
 //--------------------------------------------------------------------------------------------------

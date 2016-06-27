@@ -18,6 +18,8 @@
 
 #include "RimSummaryPlot.h"
 
+#include "RiaApplication.h"
+
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotCollection.h"
@@ -58,7 +60,10 @@ RimSummaryPlot::RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::~RimSummaryPlot()
 {
-    RiuMainPlotWindow::instance()->removeViewer(m_qwtPlot);
+    if (RiaApplication::instance()->mainPlotWindow())
+    {
+        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_qwtPlot);
+    }
 
     deletePlotWidget();
 
@@ -184,7 +189,11 @@ void RimSummaryPlot::setupBeforeSave()
 {
     if (m_qwtPlot)
     {
-        this->setMdiWindowGeometry(RiuMainPlotWindow::instance()->windowGeometryForViewer(m_qwtPlot));
+        if (RiaApplication::instance()->mainPlotWindow())
+        {
+            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
+        }
+
     }
 }
 
@@ -223,11 +232,13 @@ void RimSummaryPlot::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateViewerWidget()
 {
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+
     if (m_showWindow())
     {
         if (!m_qwtPlot)
         {
-            m_qwtPlot = new RiuSummaryQwtPlot(this, RiuMainPlotWindow::instance());
+            m_qwtPlot = new RiuSummaryQwtPlot(this, mainPlotWindow);
 
             for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
             {
@@ -239,8 +250,8 @@ void RimSummaryPlot::updateViewerWidget()
                 curve->setParentQwtPlot(m_qwtPlot);
             }
 
-            RiuMainPlotWindow::instance()->addViewer(m_qwtPlot, this->mdiWindowGeometry());
-            RiuMainPlotWindow::instance()->setActiveViewer(m_qwtPlot);
+            mainPlotWindow->addViewer(m_qwtPlot, this->mdiWindowGeometry());
+            mainPlotWindow->setActiveViewer(m_qwtPlot);
         }
 
         //updateViewerWidgetWindowTitle();
@@ -249,9 +260,9 @@ void RimSummaryPlot::updateViewerWidget()
     {
         if (m_qwtPlot)
         {
-            this->setMdiWindowGeometry(RiuMainPlotWindow::instance()->windowGeometryForViewer(m_qwtPlot));
+            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_qwtPlot));
 
-            RiuMainPlotWindow::instance()->removeViewer(m_qwtPlot);
+            mainPlotWindow->removeViewer(m_qwtPlot);
             detachAllCurves();
 
             deletePlotWidget();

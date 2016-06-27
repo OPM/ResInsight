@@ -29,8 +29,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RiuMainPlotWindow.h"
 
-#include "RiuMainWindow.h"
 #include "RiaApplication.h"
 
 #include "cafSelectionManager.h"
@@ -136,7 +136,13 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(curve);
+
+    // Make sure the summary plot window is created and visible
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    plotwindow->selectAsCurrentItem(curve);
 
     return curve;
 }
