@@ -160,6 +160,9 @@ void RiuMainPlotWindow::createMenus()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createToolBars()
 {
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    CVF_ASSERT(cmdFeatureMgr);
+
     {
         // Snapshots
         QToolBar* toolbar = addToolBar(tr("View Snapshots"));
@@ -167,10 +170,10 @@ void RiuMainPlotWindow::createToolBars()
         toolbar->addAction(m_snapshotToClipboard);
         toolbar->addAction(m_snapshotToFile);
         toolbar->addAction(m_snapshotAllViewsToFile);
+
+        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
     }
 
-    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    CVF_ASSERT(cmdFeatureMgr);
 
     {
         QToolBar* toolbar = addToolBar(tr("Window Management"));

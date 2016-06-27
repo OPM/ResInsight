@@ -184,6 +184,22 @@ caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QImage RimWellLogPlot::snapshotWindowContent()
+{
+    QImage image;
+
+    if (m_viewer)
+    {
+        QPixmap pix = QPixmap::grabWidget(m_viewer);
+        image = pix.toImage();
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::addTrack(RimWellLogTrack* track)
 {
     m_tracks.push_back(track);

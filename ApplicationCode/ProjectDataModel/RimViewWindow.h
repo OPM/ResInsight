@@ -44,12 +44,13 @@ public:
     void                 setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
     RimMdiWindowGeometry mdiWindowGeometry();
 
+    virtual QImage snapshotWindowContent() = 0;
+
 protected:
     void                 setViewWidget(QWidget* viewWidget);
 
     // Possible abilities of this class
 
-    //virtual QImage snapshotWindowContent() = 0;
     //caf::PdmField<QString>                  name;
     //caf::PdmField<bool>                     showWindow;
 

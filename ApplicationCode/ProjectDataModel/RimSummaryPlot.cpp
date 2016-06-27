@@ -32,6 +32,7 @@
 #include "cvfColor3.h"
 
 #include <QDateTime>
+#include "qwt_plot_renderer.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -195,6 +196,29 @@ void RimSummaryPlot::setupBeforeSave()
         }
 
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage RimSummaryPlot::snapshotWindowContent()
+{
+    QImage image;
+
+    if (m_qwtPlot)
+    {
+        image = QImage(m_qwtPlot->size(), QImage::Format_ARGB32);
+        image.fill(QColor(Qt::white).rgb());
+
+        QPainter painter(&image);
+        QRectF rect(0, 0, m_qwtPlot->size().width(), m_qwtPlot->size().height());
+
+        QwtPlotRenderer plotRenderer;
+        plotRenderer.render(m_qwtPlot, &painter, rect);
+
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -93,6 +93,9 @@ protected:
     virtual caf::PdmFieldHandle*                    objectToggleField();
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
 
+    virtual QImage                                  snapshotWindowContent() override;
+
+
 private:
     void                                            updateViewerWidget();
     void                                            updateViewerWidgetWindowTitle();
