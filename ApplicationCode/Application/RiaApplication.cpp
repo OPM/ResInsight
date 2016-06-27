@@ -1322,12 +1322,14 @@ void RiaApplication::deleteMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow* RiaApplication::getOrCreateMainPlotWindow()
+RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
 {
     if (!m_mainPlotWindow)
     {
         createMainPlotWindow();
     }
+
+    m_mainPlotWindow->showWindow();
 
     return m_mainPlotWindow;
 }

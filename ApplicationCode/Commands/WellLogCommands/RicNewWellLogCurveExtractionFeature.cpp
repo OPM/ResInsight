@@ -138,7 +138,7 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     plotTrack->updateConnectedEditors();
 
     // Make sure the summary plot window is created and visible
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 

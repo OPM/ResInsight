@@ -164,7 +164,7 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
-    RiuMainPlotWindow*  getOrCreateMainPlotWindow();
+    RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
     RiuMainPlotWindow*  mainPlotWindow();
 
 private:

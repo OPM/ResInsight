@@ -232,7 +232,7 @@ void RimSummaryPlot::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateViewerWidget()
 {
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
     if (m_showWindow())
     {

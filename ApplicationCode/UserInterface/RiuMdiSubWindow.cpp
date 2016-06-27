@@ -44,11 +44,6 @@ RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags 
 RiuMdiSubWindow::~RiuMdiSubWindow()
 {
     RiuMainWindow::instance()->slotRefreshViewActions();
-
-    if (RiaApplication::instance()->mainPlotWindow())
-    {
-        RiaApplication::instance()->mainPlotWindow()->slotRefreshViewActions();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

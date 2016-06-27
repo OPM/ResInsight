@@ -103,7 +103,7 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateViewerWidget()
 {
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
     if (m_showWindow())
     {
