@@ -37,6 +37,15 @@ RimGridSummaryCase::RimGridSummaryCase()
 {
     CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "Associated3DCase", "Main View", "", "", "");
 
+    CAF_PDM_InitField(&m_userName, "UserName", QString("User Name"), "Case Name", "", "", "");
+    m_userName.xmlCapability()->setIOReadable(false);
+    m_userName.xmlCapability()->setIOWritable(false);
+    m_userName.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitField(&m_summaryHeaderFilename, "SummaryHeaderFile", QString("Summary Header File"), "Summary File", "", "", "");
+    m_summaryHeaderFilename.xmlCapability()->setIOReadable(false);
+    m_summaryHeaderFilename.xmlCapability()->setIOWritable(false);
+    m_summaryHeaderFilename.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,6 +62,8 @@ RimGridSummaryCase::~RimGridSummaryCase()
 void RimGridSummaryCase::setAssociatedEclipseCase(RimEclipseCase* eclipseCase)
 {
     m_eclipseCase = eclipseCase;
+
+    updateUiNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,5 +78,35 @@ QString RimGridSummaryCase::summaryHeaderFilename() const
     QString possibleSumHeaderFileName = gridFileInfo.path() +"/"+ gridFileInfo.completeBaseName() + ".SMSPEC";
 
     return possibleSumHeaderFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridSummaryCase::initAfterRead()
+{
+    updateUiNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridSummaryCase::updateUiNames()
+{
+    m_summaryHeaderFilename = summaryHeaderFilename();
+
+    m_userName = baseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGridSummaryCase::baseName() const
+{
+    if (!m_eclipseCase()) return QString();
+
+    QFileInfo gridFileInfo(m_eclipseCase()->gridFileName());
+
+    return gridFileInfo.completeBaseName();
 }
 
