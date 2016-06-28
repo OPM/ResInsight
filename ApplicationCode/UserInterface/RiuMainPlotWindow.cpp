@@ -23,12 +23,14 @@
 #include "RiaPreferences.h"
 
 #include "RimProject.h"
+#include "RimSummaryPlot.h"
 #include "RimTreeViewStateSerializer.h"
 #include "RimViewWindow.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuSummaryQwtPlot.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellLogPlot.h"
@@ -364,24 +366,41 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
 
-    RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
-
-    if (wellLogPlotViewer)
     {
-        RimWellLogPlot* wellLogPlot = wellLogPlotViewer->ownerPlotDefinition();
-        
-        if (wellLogPlot != RiaApplication::instance()->activeWellLogPlot())
+        RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
+        if (wellLogPlotViewer)
         {
-            RiaApplication::instance()->setActiveWellLogPlot(wellLogPlot);
-            if (wellLogPlot)
+            RimWellLogPlot* wellLogPlot = wellLogPlotViewer->ownerPlotDefinition();
+
+            if (wellLogPlot != RiaApplication::instance()->activeWellLogPlot())
             {
+                RiaApplication::instance()->setActiveWellLogPlot(wellLogPlot);
                 projectTreeView()->selectAsCurrentItem(wellLogPlot);
             }
         }
-        return;
+        else
+        {
+            RiaApplication::instance()->setActiveWellLogPlot(NULL);
+        }
     }
 
-    RiaApplication::instance()->setActiveWellLogPlot(NULL);
+    {
+        RiuSummaryQwtPlot* summaryPlotViewer = dynamic_cast<RiuSummaryQwtPlot*>(subWindow->widget());
+        if (summaryPlotViewer)
+        {
+            RimSummaryPlot* summaryPlot = summaryPlotViewer->ownerPlotDefinition();
+
+            if (summaryPlot != RiaApplication::instance()->activeSummaryPlot())
+            {
+                RiaApplication::instance()->setActiveSummaryPlot(summaryPlot);
+                projectTreeView()->selectAsCurrentItem(summaryPlot);
+            }
+        }
+        else
+        {
+            RiaApplication::instance()->setActiveSummaryPlot(NULL);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -457,7 +476,9 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         if (!firstSelectedObject) return;
 
-        bool isActiveViewChanged = false;
+        // Well log plot
+
+        bool isActiveWellLogPlotChanged = false;
         
         RimWellLogPlot* selectedWellLogPlot = dynamic_cast<RimWellLogPlot*>(firstSelectedObject);
 
@@ -473,13 +494,41 @@ void RiuMainPlotWindow::selectedObjectsChanged()
                 setActiveViewer(selectedWellLogPlot->viewer());
 
             }
-            isActiveViewChanged = true;
+            isActiveWellLogPlotChanged = true;
         }
 
-        if (isActiveViewChanged)
+        if (isActiveWellLogPlotChanged)
         {
             RiaApplication::instance()->setActiveWellLogPlot(selectedWellLogPlot);
+        }
 
+        // Summary plot
+
+        bool isActiveSummaryPlotChanged = false;
+
+        RimSummaryPlot* selectedSummaryPlot = dynamic_cast<RimSummaryPlot*>(firstSelectedObject);
+
+        if (!selectedSummaryPlot)
+        {
+            firstSelectedObject->firstAnchestorOrThisOfType(selectedSummaryPlot);
+        }
+
+        if (selectedSummaryPlot)
+        {
+            if (selectedSummaryPlot->viewer())
+            {
+                setActiveViewer(selectedSummaryPlot->viewer());
+            }
+            isActiveSummaryPlotChanged = true;
+        }
+
+        if (isActiveSummaryPlotChanged)
+        {
+            RiaApplication::instance()->setActiveSummaryPlot(selectedSummaryPlot);
+        }
+
+        if (isActiveWellLogPlotChanged || isActiveSummaryPlotChanged)
+        {
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation

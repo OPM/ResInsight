@@ -55,6 +55,8 @@ public:
     void                                            handleViewerDeletion();
     void                                            updateYAxisUnit();
 
+    QWidget*                                        viewer();
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
