@@ -19,6 +19,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include <QApplication>
 #include <QProcess>
 #include <QMutex>
@@ -31,18 +32,24 @@
 
 #include <iostream>
 
-class RIProcess;
-class RigCaseData;
-class RimEclipseCase;
 class Drawable;
-class RiaSocketServer;
+
+class RIProcess;
+
 class RiaPreferences;
-class RimEclipseView;
-class RimView;
-class RimProject;
-class RimCommandObject;
 class RiaProjectModifier;
+class RiaSocketServer;
+
+class RigCaseData;
+
+class RimCommandObject;
+class RimEclipseCase;
+class RimEclipseView;
+class RimProject;
+class RimSummaryPlot;
+class RimView;
 class RimWellLogPlot;
+
 class RiuMainPlotWindow;
 
 namespace caf
@@ -84,6 +91,9 @@ public:
 
     void                    setActiveWellLogPlot(RimWellLogPlot*);
     RimWellLogPlot*         activeWellLogPlot();
+
+    void                    setActiveSummaryPlot(RimSummaryPlot*);
+    RimSummaryPlot*         activeSummaryPlot();
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -193,6 +203,7 @@ private slots:
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
     caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
+    caf::PdmPointer<RimSummaryPlot>     m_activeSummaryPlot;
 
     caf::PdmPointer<RimProject>         m_project;
 

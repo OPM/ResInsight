@@ -78,6 +78,7 @@ void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Close");
+    actionToSetup->setText("Snapshot To Clipboard");
+    actionToSetup->setIcon(QIcon(":/SnapShot.png"));
 }
 

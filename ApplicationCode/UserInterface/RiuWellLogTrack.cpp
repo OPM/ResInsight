@@ -23,7 +23,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellLogCurve.h"
 
-#include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
@@ -39,6 +39,7 @@
 #include <QWheelEvent>
 
 #include <float.h>
+#include "RiaApplication.h"
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
@@ -220,7 +221,7 @@ void RiuWellLogTrack::focusInEvent(QFocusEvent* event)
 {
     if (m_plotTrackDefinition)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(m_plotTrackDefinition);
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(m_plotTrackDefinition);
         clearFocus();
     }
 }
@@ -254,7 +255,7 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
         RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
         if (selectedCurve)
         {
-            RiuMainWindow::instance()->selectAsCurrentItem(selectedCurve);
+            RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
         }
     }
 }

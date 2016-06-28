@@ -50,8 +50,6 @@
 #include "RimTools.h"
 #include "RimTreeViewStateSerializer.h"
 #include "RimViewWindow.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimWellPathImport.h"
 
@@ -67,7 +65,6 @@
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 #include "RiuWellImportWizard.h"
-#include "RiuWellLogPlot.h"
 
 #include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
@@ -1133,20 +1130,12 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     }
     else
     {
-        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
-        if (wellLogPlot)
-        {
-            subWindowSize = QSize(275, m_mdiArea->height());
-        }
-        else
-        {
-            subWindowSize = QSize(400, 400);
+        subWindowSize = QSize(400, 400);
 
-            if (m_mdiArea->subWindowList().size() < 1)
-            {
-                // Show first 3D view maximized
-                initialStateMaximized = true;
-            }
+        if (m_mdiArea->subWindowList().size() < 1)
+        {
+            // Show first 3D view maximized
+            initialStateMaximized = true;
         }
     }
 
@@ -1311,25 +1300,6 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
-
-    RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
-
-    if (wellLogPlotViewer)
-    {
-        RimWellLogPlot* wellLogPlot = wellLogPlotViewer->ownerPlotDefinition();
-        
-        if (wellLogPlot != RiaApplication::instance()->activeWellLogPlot())
-        {
-            RiaApplication::instance()->setActiveWellLogPlot(wellLogPlot);
-            if (wellLogPlot)
-            {
-                projectTreeView()->selectAsCurrentItem(wellLogPlot);
-            }
-        }
-        return;
-    }
-
-    RiaApplication::instance()->setActiveWellLogPlot(NULL);
 
     // Find the activated 3D view
     
@@ -1567,8 +1537,6 @@ void RiuMainWindow::selectedObjectsChanged()
 
         bool isActiveViewChanged = false;
         
-        RimWellLogPlot* selectedWellLogPlot = NULL;
-
         if (selectedReservoirView)
         {
             // Set focus in MDI area to this window if it exists
@@ -1578,29 +1546,10 @@ void RiuMainWindow::selectedObjectsChanged()
             }
             isActiveViewChanged = true;
         }
-        else // Check if we are winthin a Well Log plot
-        {
-            selectedWellLogPlot = dynamic_cast<RimWellLogPlot*>(firstSelectedObject);
-            if (!selectedWellLogPlot)
-            {
-                firstSelectedObject->firstAnchestorOrThisOfType(selectedWellLogPlot);
-            }
-
-            if (selectedWellLogPlot)
-            {
-                if (selectedWellLogPlot->viewer())
-                {
-                    setActiveViewer(selectedWellLogPlot->viewer());
-
-                }
-                isActiveViewChanged = true;
-            }
-        }
 
         if (isActiveViewChanged)
         {
             RiaApplication::instance()->setActiveReservoirView(selectedReservoirView);
-            RiaApplication::instance()->setActiveWellLogPlot(selectedWellLogPlot);
             refreshDrawStyleActions();
             refreshAnimationActions();
             slotRefreshFileActions();

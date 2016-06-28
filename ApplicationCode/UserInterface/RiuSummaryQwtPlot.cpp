@@ -17,7 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuSummaryQwtPlot.h"
+
+#include "RiaApplication.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
+#include "RiuMainPlotWindow.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
@@ -26,10 +30,9 @@
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
+
 #include <QEvent>
 #include <QWheelEvent>
-#include "RiuMainWindow.h"
-#include "RimSummaryCurve.h"
 
 #include <float.h>
 
@@ -226,7 +229,7 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
         RimSummaryCurve* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
         if(selectedCurve)
         {
-            RiuMainWindow::instance()->selectAsCurrentItem(selectedCurve);
+            RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
         }
     }
 }
