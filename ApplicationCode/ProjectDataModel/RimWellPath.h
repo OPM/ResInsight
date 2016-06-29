@@ -73,7 +73,7 @@ public:
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
-    void                                updateFilePathsFromProjectPath();
+    void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 
 

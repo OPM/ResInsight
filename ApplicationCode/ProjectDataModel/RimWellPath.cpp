@@ -365,13 +365,20 @@ bool RimWellPath::isStoredInCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::updateFilePathsFromProjectPath()
+void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    QString newCacheFileName = getCacheFileName();
-
-    if (QFile::exists(newCacheFileName))
+    if (isStoredInCache())
     {
-        filepath = newCacheFileName;
+        QString newCacheFileName = getCacheFileName();
+
+        if (QFile::exists(newCacheFileName))
+        {
+            filepath = newCacheFileName;
+        }
+    }
+    else
+    {
+        filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, NULL, NULL);
     }
 }
 

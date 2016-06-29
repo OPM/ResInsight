@@ -390,7 +390,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
     {
         RimOilField* oilField = oilFields[oilFieldIdx];
         if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
-        oilField->wellPathCollection->updateFilePathsFromProjectPath();
+        oilField->wellPathCollection->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
 
     wellPathImport->updateFilePaths();
