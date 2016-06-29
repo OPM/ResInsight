@@ -369,14 +369,13 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+
     curveDataGroup->add(&m_wellPath);
+    curveDataGroup->add(&m_case);
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
-    curveDataGroup->add(&m_wellPath);
-
-    curveDataGroup->add(&m_case);
     if (eclipseCase)
     {
         curveDataGroup->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
