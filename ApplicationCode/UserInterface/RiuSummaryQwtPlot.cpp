@@ -214,7 +214,7 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
         if((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
-            double dist;
+            double dist = DBL_MAX;
             candidateCurve->closestPoint(pos, &dist);
             if(dist < distMin)
             {
