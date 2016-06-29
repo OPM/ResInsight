@@ -62,7 +62,10 @@ void RifEclipseSummaryTools::findSummaryFiles(const std::string& inputFile,
     stringlist_type* summary_file_list = stringlist_alloc_new();
 
     ecl_util_alloc_summary_files(path.data(), base.data(), extention.data(), &myHeaderFile, summary_file_list);
-    (*headerFile) = myHeaderFile;
+    if (myHeaderFile != NULL)
+    {
+        *headerFile = myHeaderFile;
+    }
     util_safe_free(myHeaderFile);
 
     if(stringlist_get_size(summary_file_list) > 0)
