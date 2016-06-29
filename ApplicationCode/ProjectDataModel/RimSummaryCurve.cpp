@@ -374,7 +374,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     
     if(changedField == &m_uiFilterResultSelection)
     {
-        if (0 <= m_uiFilterResultSelection() && m_uiFilterResultSelection() < summaryReader()->allResultAddresses().size())
+        if (0 <= m_uiFilterResultSelection() && static_cast<size_t>(m_uiFilterResultSelection()) < summaryReader()->allResultAddresses().size())
         {
             m_curveVariable->setAddress(summaryReader()->allResultAddresses()[m_uiFilterResultSelection()]);
         }
@@ -425,7 +425,7 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
     CVF_ASSERT(timeSteps && values);
 
     RifReaderEclipseSummary* reader = summaryReader();
-    
+   
     if (!reader) return false;
 
     std::vector<time_t> times = reader->timeSteps();
