@@ -21,17 +21,21 @@
 #include "RimEclipseInputCase.h"
 
 #include "RiaPreferences.h"
+
 #include "RifEclipseInputFileTools.h"
 #include "RifReaderEclipseInput.h"
 #include "RifReaderInterface.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderSettings.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RimDefines.h"
+
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -394,10 +398,10 @@ void RimEclipseInputCase::updateFilePathsFromProjectPath(const QString& newProje
     bool foundFile = false;
     std::vector<QString> searchedPaths;
 
-    m_gridFileName = relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    m_gridFileName = RimTools::relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
 
     for (size_t i = 0; i < m_additionalFileNames().size(); i++)
     {
-        m_additionalFileNames.v()[i] = relocateFile(m_additionalFileNames()[i], newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        m_additionalFileNames.v()[i] = RimTools::relocateFile(m_additionalFileNames()[i], newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     }
 }

@@ -21,15 +21,19 @@
 #include "RimEclipseResultCase.h"
 
 #include "RiaPreferences.h"
+
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderSettings.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimTools.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -322,7 +326,7 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
     std::vector<QString> searchedPaths;
 
     // Update filename and folder paths when opening project from a different file location
-    caseFileName = relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    caseFileName = RimTools::relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)

@@ -31,6 +31,7 @@
 #include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 
 #include <QFile>
@@ -126,7 +127,7 @@ void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPat
     std::vector<QString> searchedPaths;
 
     // Update filename and folder paths when opening project from a different file location
-    m_caseFileName = relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    m_caseFileName = RimTools::relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)

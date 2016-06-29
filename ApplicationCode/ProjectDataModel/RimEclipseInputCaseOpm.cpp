@@ -31,6 +31,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -100,7 +101,7 @@ void RimEclipseInputCaseOpm::updateFilePathsFromProjectPath(const QString& newPr
     bool foundFile = false;
     std::vector<QString> searchedPaths;
 
-    m_gridFileName = relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    m_gridFileName = RimTools::relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
 }
 
 //--------------------------------------------------------------------------------------------------

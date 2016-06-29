@@ -55,9 +55,6 @@ public:
 
     virtual cvf::Vec3d                          displayModelOffset() const;
 
-protected:
-    static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
-                                                             bool* foundFile, std::vector<QString>* searchedPaths);
 private:
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 };
