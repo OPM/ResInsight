@@ -65,7 +65,8 @@ protected:
     virtual void     configureAndUpdateUi(const QString& uiConfigName);
 
 private:
-    void recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName );
+    void recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
+    void recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames);
 
     std::map<QString, PdmUiFieldEditorHandle*>  m_fieldViews; 
     std::map<QString, QPointer<QGroupBox> >     m_groupBoxes;

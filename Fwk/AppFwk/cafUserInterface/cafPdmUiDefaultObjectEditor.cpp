@@ -127,6 +127,12 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_newGroupBoxes.clear();
 
     const std::vector<PdmUiItem*>& uiItems = config.uiItems();
+    
+    {
+        std::set<QString> fieldKeywordNames;
+        std::set<QString> groupNames;
+        recursiveVerifyUniqueNames(uiItems, uiConfigName, &fieldKeywordNames, &groupNames);
+    }
 
     recursiveSetupFieldsAndGroups(uiItems, m_mainWidget, m_layout, uiConfigName);
 
@@ -348,6 +354,50 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                 currentRowIndex++;
             }
 
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames)
+{
+    for (size_t i = 0; i < uiItems.size(); ++i)
+    {
+        if (uiItems[i]->isUiGroup())
+        {
+            PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
+            const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
+
+            QString groupBoxKey = uiItems[i]->uiName();
+
+            if (groupNames->find(groupBoxKey) != groupNames->end())
+            {
+                // It is not supported to have two groups with identical names
+                assert(false);
+            }
+            else
+            {
+                groupNames->insert(groupBoxKey);
+            }
+
+            recursiveVerifyUniqueNames(groupChildren, uiConfigName, fieldKeywordNames, groupNames);
+        }
+        else
+        {
+            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItems[i]);
+
+            QString fieldKeyword = field->fieldHandle()->keyword();
+            if (fieldKeywordNames->find(fieldKeyword) != fieldKeywordNames->end())
+            {
+                // It is not supported to have two fields with identical names
+                assert(false);
+            }
+            else
+            {
+                fieldKeywordNames->insert(fieldKeyword);
+            }
         }
     }
 }
