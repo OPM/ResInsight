@@ -385,12 +385,20 @@ if(RESINSIGHT_ENABLE_COTIRE)
     # variables at global file scope
     set_source_files_properties (ModelVisualization/RivCrossSectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (ModelVisualization/RivCrossSectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/GridBox/RivGridBoxGenerator.cpp         PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (Commands/WellLogCommands/RicWellLogPlotCurveFeatureImpl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
 
     # using namespace cvf
     set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
- 
+
+    # opm parser
+    set_source_files_properties (FileInterface/RifReaderOpmParserInput.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/opm-Test.cpp                                 PROPERTIES COTIRE_EXCLUDED TRUE)
+    
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    
     cotire(ResInsight)
