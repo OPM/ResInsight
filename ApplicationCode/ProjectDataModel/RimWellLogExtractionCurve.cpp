@@ -575,7 +575,14 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogExtractionCurve::wellName() const
 {
-    return m_wellPath->name();
+    if (m_wellPath)
+    {
+        return m_wellPath->name();
+    }
+    else
+    {
+        return QString();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
