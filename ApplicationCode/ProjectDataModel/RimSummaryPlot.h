@@ -68,6 +68,7 @@ protected:
 
 private:
     void                                            updateViewerWidget();
+    void                                            updateViewerWidgetWindowTitle();
     void                                            detachAllCurves();
     void                                            deletePlotWidget();
 

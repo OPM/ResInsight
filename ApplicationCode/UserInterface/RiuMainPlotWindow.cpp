@@ -168,8 +168,8 @@ void RiuMainPlotWindow::createToolBars()
     {
         // Snapshots
         QToolBar* toolbar = addToolBar(tr("View Snapshots"));
-/*
         toolbar->setObjectName(toolbar->windowTitle());
+/*
         toolbar->addAction(m_snapshotToClipboard);
         toolbar->addAction(m_snapshotToFile);
         toolbar->addAction(m_snapshotAllViewsToFile);

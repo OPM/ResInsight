@@ -189,6 +189,10 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         uiCapability()->updateUiIconFromToggleField();
     }
+    else if (changedField == &m_userName)
+    {
+        updateViewerWidgetWindowTitle();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,7 +206,6 @@ void RimSummaryPlot::setupBeforeSave()
         {
             this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
         }
-
     }
 }
 
@@ -223,7 +226,6 @@ QImage RimSummaryPlot::snapshotWindowContent()
 
         QwtPlotRenderer plotRenderer;
         plotRenderer.render(m_qwtPlot, &painter, rect);
-
     }
 
     return image;
@@ -286,7 +288,7 @@ void RimSummaryPlot::updateViewerWidget()
             mainPlotWindow->setActiveViewer(m_qwtPlot);
         }
 
-        //updateViewerWidgetWindowTitle();
+        updateViewerWidgetWindowTitle();
     }
     else
     {
@@ -299,6 +301,17 @@ void RimSummaryPlot::updateViewerWidget()
 
             deletePlotWidget();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateViewerWidgetWindowTitle()
+{
+    if (m_qwtPlot)
+    {
+        m_qwtPlot->setWindowTitle(m_userName);
     }
 }
 

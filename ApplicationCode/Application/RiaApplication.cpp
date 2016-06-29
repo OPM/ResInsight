@@ -1316,7 +1316,7 @@ void RiaApplication::createMainPlotWindow()
 
     m_mainPlotWindow = new RiuMainPlotWindow;
 
-    m_mainPlotWindow->setWindowTitle("Summary Plots for ResInsight");
+    m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
     m_mainPlotWindow->showWindow();
@@ -1327,11 +1327,11 @@ void RiaApplication::createMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::deleteMainPlotWindow()
 {
-    m_mainPlotWindow->deleteLater();
-
-    processEvents();
-
-    m_mainPlotWindow = NULL;
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->deleteLater();
+        m_mainPlotWindow = NULL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
