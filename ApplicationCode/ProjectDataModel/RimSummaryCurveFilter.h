@@ -51,7 +51,7 @@ public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
 
-    void                                    createCurves(const QString& stringFilter);
+    void                                    createCurves(RimSummaryCase* summaryCase, const QString& stringFilter);
 
     void                                    loadDataAndUpdate();
     void                                    setParentQwtPlot(QwtPlot* plot);

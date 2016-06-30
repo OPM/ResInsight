@@ -75,6 +75,8 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
+#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+
 #include "cafAppEnum.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectCache.h"
@@ -810,7 +812,15 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         if(sumCaseColl)
         {
             RimGridSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
-            if(newSumCase) newSumCase->loadCase();
+            if (newSumCase)
+            {
+                newSumCase->loadCase();
+
+                RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+                RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+                
+                RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+            }
         }
     }
 

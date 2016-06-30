@@ -57,19 +57,10 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
     CVF_ASSERT(summaryPlotColl);
 
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    summaryPlotColl->m_summaryPlots().push_back(plot);
+    std::vector<RimSummaryCase*> cases;
+    project->allSummaryCases(cases);
 
-    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
-
-    RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
-    newCurveFilter->createCurves("*F*P*");
-    plot->addCurveFilter(newCurveFilter);
-
-    summaryPlotColl->updateConnectedEditors();
-    plot->loadDataAndUpdate();
-
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurveFilter);
+    createNewSummaryPlot(summaryPlotColl, cases.size() > 0 ? cases[0] : NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,4 +69,29 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Plot");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
+{
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    summaryPlotColl->m_summaryPlots().push_back(plot);
+
+    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
+
+    RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
+
+    if (summaryCase)
+    {
+        newCurveFilter->createCurves(summaryCase, "F*PT");
+    }
+
+    plot->addCurveFilter(newCurveFilter);
+
+    summaryPlotColl->updateConnectedEditors();
+    plot->loadDataAndUpdate();
+
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurveFilter);
 }

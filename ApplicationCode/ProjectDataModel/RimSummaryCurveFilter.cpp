@@ -115,17 +115,12 @@ RimSummaryCurveFilter::~RimSummaryCurveFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::createCurves(const QString& stringFilter)
+void RimSummaryCurveFilter::createCurves(RimSummaryCase* summaryCase, const QString& stringFilter)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    std::vector<RimSummaryCase*> cases;
-
-    proj->allSummaryCases(cases);
-
-    if (cases.size() > 0)
+    if (summaryCase)
     {
         std::vector<RimSummaryCase*> selectedCases;
-        selectedCases.push_back(cases[0]);
+        selectedCases.push_back(summaryCase);
 
         m_summaryFilter->setCompleteVarStringFilter(stringFilter);
 
