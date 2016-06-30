@@ -28,7 +28,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -83,7 +83,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
         
         plot->updateConnectedEditors();
 
-        RiuMainWindow::instance()->selectAsCurrentItem(newCurve);
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
     }
 
 }

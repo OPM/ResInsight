@@ -22,8 +22,6 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuMainWindow.h"
-
 #include "RicNewWellLogCurveExtractionFeature.h"
 
 #include "cafSelectionManager.h"

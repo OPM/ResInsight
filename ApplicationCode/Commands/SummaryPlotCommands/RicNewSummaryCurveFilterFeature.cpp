@@ -25,11 +25,11 @@
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimSummaryCurveFilter.h"
 
-#include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -69,11 +69,10 @@ void RicNewSummaryCurveFilterFeature::onActionTriggered(bool isChecked)
     {
         RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
         plot->addCurveFilter(newCurveFilter);
-
         
         plot->updateConnectedEditors();
 
-        RiuMainWindow::instance()->selectAsCurrentItem(newCurveFilter);
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurveFilter);
     }
 
 }
