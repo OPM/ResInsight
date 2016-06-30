@@ -49,8 +49,9 @@ public:
     RimSummaryFilter();
     virtual ~RimSummaryFilter();
 
-    bool isIncludedByFilter(const RifEclipseSummaryAddress& addr);
+    bool isIncludedByFilter(const RifEclipseSummaryAddress& addr) const;
 
+    void setCompleteVarStringFilter(const QString& stringFilter);
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 

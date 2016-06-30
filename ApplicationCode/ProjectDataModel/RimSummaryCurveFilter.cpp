@@ -19,24 +19,28 @@
 #include "RimSummaryCurveFilter.h"
 
 #include "RiaApplication.h"
+
 #include "RifReaderEclipseSummary.h"
+
+#include "RigSummaryCaseData.h"
+
 #include "RimDefines.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+
+#include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
+
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
-#include "cafPdmUiTreeOrdering.h"
-#include "RiuLineSegmentQwtPlotCurve.h"
-#include "qwt_date.h"
-#include "RimSummaryCase.h"
-#include "RigSummaryCaseData.h"
-#include "RimSummaryCurve.h"
 #include "cafPdmUiPushButtonEditor.h"
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
@@ -97,7 +101,6 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +112,30 @@ RimSummaryCurveFilter::~RimSummaryCurveFilter()
     m_curves.deleteAllChildObjects();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::createCurves(const QString& stringFilter)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    std::vector<RimSummaryCase*> cases;
+
+    proj->allSummaryCases(cases);
+
+    if (cases.size() > 0)
+    {
+        std::vector<RimSummaryCase*> selectedCases;
+        selectedCases.push_back(cases[0]);
+
+        m_summaryFilter->setCompleteVarStringFilter(stringFilter);
+
+        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
+
+        createSetOfCasesAndResultAdresses(selectedCases, *m_summaryFilter, &newCurveDefinitions);
+
+        createCurvesFromCurveDefinitions(newCurveDefinitions);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -165,9 +192,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
     if(useOptionsOnly) *useOptionsOnly = true;
 
     return optionList;
-
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -185,9 +210,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
     uiOrdering.add(&m_applyButtonField);
     uiOrdering.setForgetRemainingFields(true);
-
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -209,7 +232,6 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         plot->updateYAxisUnit();
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -233,7 +255,6 @@ void RimSummaryCurveFilter::detachQwtCurves()
         curve->detachQwtCurve();
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -329,45 +350,7 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
     m_curves.deleteAllChildObjects();
     #endif
 
-
-    // Create all new curves that is missing
-    int colorIndex = 2;
-    int lineStyleIdx = -1;
-
-    RimSummaryCase* prevCase = nullptr;
-    RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
-
-    for (auto& caseAddrPair: newCurveDefinitions)
-    {
-        RimSummaryCase* currentCase = caseAddrPair.first;
-
-
-        RimSummaryCurve* curve = new RimSummaryCurve();
-        curve->setParentQwtPlot(m_parentQwtPlot);
-        curve->setSummaryCase(currentCase);
-        curve->setSummaryAddress(caseAddrPair.second);
-
-        if(currentCase != prevCase)
-        {
-            prevCase = currentCase;
-            colorIndex = 2;
-            lineStyleIdx ++;
-            lineStyle = caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(lineStyleIdx%caf::AppEnum<RimPlotCurve::LineStyleEnum>::size());
-            if(lineStyle == RimPlotCurve::STYLE_NONE)
-            {
-                lineStyle = RimPlotCurve::STYLE_SOLID;
-                lineStyleIdx++;
-            }
-        }
-
-        cvf::Color3f curveColor = curveColorFromTable(colorIndex);
-        colorIndex++;
-
-        curve->setColor(curveColor);
-        curve->setLineStyle(lineStyle);
-
-        m_curves.push_back(curve);
-    }
+    createCurvesFromCurveDefinitions(newCurveDefinitions);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -437,4 +420,72 @@ std::set<std::string> RimSummaryCurveFilter::unitNames()
         if (curve->isCurveVisible()) unitNames.insert( curve->unitName());
     }
     return unitNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
+    const std::vector<RimSummaryCase*>& cases,
+    const RimSummaryFilter& filter,
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const
+{
+    for (RimSummaryCase* currentCase : cases)
+    {
+        if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
+
+        RifReaderEclipseSummary* reader = currentCase->caseData()->summaryReader();
+
+        const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+        int addressCount = static_cast<int>(allAddresses.size());
+        for (int i = 0; i < addressCount; i++)
+        {
+            if (!filter.isIncludedByFilter(allAddresses[i])) continue;
+
+            curveDefinitions->insert(std::make_pair(currentCase, allAddresses[i]));
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
+{
+    int colorIndex = 2;
+    int lineStyleIdx = -1;
+
+    RimSummaryCase* prevCase = nullptr;
+    RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
+
+    for (auto& caseAddrPair : curveDefinitions)
+    {
+        RimSummaryCase* currentCase = caseAddrPair.first;
+
+        RimSummaryCurve* curve = new RimSummaryCurve();
+        curve->setParentQwtPlot(m_parentQwtPlot);
+        curve->setSummaryCase(currentCase);
+        curve->setSummaryAddress(caseAddrPair.second);
+
+        if (currentCase != prevCase)
+        {
+            prevCase = currentCase;
+            colorIndex = 2;
+            lineStyleIdx++;
+            lineStyle = caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(lineStyleIdx%caf::AppEnum<RimPlotCurve::LineStyleEnum>::size());
+            if (lineStyle == RimPlotCurve::STYLE_NONE)
+            {
+                lineStyle = RimPlotCurve::STYLE_SOLID;
+                lineStyleIdx++;
+            }
+        }
+
+        cvf::Color3f curveColor = curveColorFromTable(colorIndex);
+        colorIndex++;
+
+        curve->setColor(curveColor);
+        curve->setLineStyle(lineStyle);
+
+        m_curves.push_back(curve);
+    }
 }

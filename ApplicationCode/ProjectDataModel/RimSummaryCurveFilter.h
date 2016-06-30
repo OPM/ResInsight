@@ -51,6 +51,8 @@ public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
 
+    void                                    createCurves(const QString& stringFilter);
+
     void                                    loadDataAndUpdate();
     void                                    setParentQwtPlot(QwtPlot* plot);
     void                                    detachQwtCurves();
@@ -60,7 +62,15 @@ public:
 
 private:
     void                                    syncCurvesFromUiSelection();
+
+    void                                    createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
+
     void                                    syncUiSelectionFromCurves();
+    
+    void                             createSetOfCasesAndResultAdresses(
+        const std::vector<RimSummaryCase*>& cases,
+        const RimSummaryFilter& filter,
+        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const;
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

@@ -132,7 +132,7 @@ bool isIJKMatch(QString filterString, int cellI, int cellJ, int cellK)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryFilter::isIncludedByFilter(const RifEclipseSummaryAddress& addr)
+bool RimSummaryFilter::isIncludedByFilter(const RifEclipseSummaryAddress& addr) const
 {
     if(!isSumVarTypeMatchingFilterType(m_filterType(), addr.category())) return false;
 
@@ -359,5 +359,14 @@ void RimSummaryFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         parent->updateConnectedEditors();
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFilter::setCompleteVarStringFilter(const QString& stringFilter)
+{
+    m_filterType = SUM_FILTER_VAR_STRING;
+    m_completeVarStringFilter = stringFilter;
 }
 

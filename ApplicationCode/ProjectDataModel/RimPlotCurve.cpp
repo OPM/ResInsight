@@ -185,7 +185,7 @@ void RimPlotCurve::updateCurvePresentation()
 void RimPlotCurve::setParentQwtPlot(QwtPlot* plot)
 {
     m_parentQwtPlot = plot;
-    if (m_showCurve)
+    if (m_showCurve && m_parentQwtPlot)
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
         m_parentQwtPlot->replot();

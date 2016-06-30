@@ -18,17 +18,19 @@
 
 #include "RicNewSummaryPlotFeature.h"
 
-#include "RimProject.h"
-#include "RimSummaryPlot.h"
-
 #include "RiaApplication.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+
+#include "RiuMainPlotWindow.h"
 
 #include <QAction>
 
 #include "cvfAssert.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RiuMainWindow.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
@@ -60,10 +62,14 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 
     plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
 
+    RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
+    newCurveFilter->createCurves("*F*P*");
+    plot->addCurveFilter(newCurveFilter);
+
     summaryPlotColl->updateConnectedEditors();
     plot->loadDataAndUpdate();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(plot);
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurveFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
