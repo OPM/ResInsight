@@ -329,6 +329,8 @@ endif()
 
 
 set( LINK_LIBRARIES
+    custom-opm-parser
+    
     WellPathImportSsihub
 
 	ResultStatisticsCache
@@ -336,11 +338,10 @@ set( LINK_LIBRARIES
 
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
+    
     ${ERT_LIBRARIES}
     ${ERT_EXTERNAL_LIBRARIES}
     
-    custom-opm-parser
-
     NRLib
 
     ${OPENGL_LIBRARIES}
