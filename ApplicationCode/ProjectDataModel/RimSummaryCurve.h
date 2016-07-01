@@ -100,6 +100,8 @@ private:
     caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
     caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
+    caf::PdmField<bool>                     m_addCaseNameToCurveName;
+
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;

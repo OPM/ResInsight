@@ -165,6 +165,9 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveVariable.uiCapability()->setUiChildrenHidden(true);
 
     m_curveVariable = new RimSummaryAddress;
+
+    // Add some space before name to indicate these belong to the Auto Name field
+    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", false, "   Case Name", "", "", "");
     
     m_symbolSkipPixelDistance = 10.0f;
 
@@ -297,7 +300,19 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    return QString::fromStdString( m_curveVariable->address().uiText()) + "["+ this->unitName().c_str() + "]";
+    QString generatedCurveName = QString::fromStdString( m_curveVariable->address().uiText()) + "["+ this->unitName().c_str() + "]";
+
+    if (m_addCaseNameToCurveName && m_summaryCase())
+    {
+        if (!generatedCurveName.isEmpty())
+        {
+            generatedCurveName += ", ";
+        }
+
+        generatedCurveName += m_summaryCase->caseName();
+    }
+
+    return generatedCurveName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,6 +375,10 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_isUsingAutoName);
+    if (m_isUsingAutoName)
+    {
+        appearanceGroup->add(&m_addCaseNameToCurveName);
+    }
 
     uiOrdering.setForgetRemainingFields(true); // For now. 
 }
@@ -394,6 +413,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         RimSummaryPlot* plot = nullptr;
         firstAnchestorOrThisOfType(plot);
         plot->updateYAxisUnit();
+    }
+    else if (changedField == &m_addCaseNameToCurveName)
+    {
+        this->uiCapability()->updateConnectedEditors();
+        updateCurveName();
     }
 }
 
