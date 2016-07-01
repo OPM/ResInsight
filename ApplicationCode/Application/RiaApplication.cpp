@@ -820,6 +820,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
                 RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
                 
                 RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+
+                sumCaseColl->updateConnectedEditors();
             }
         }
     }

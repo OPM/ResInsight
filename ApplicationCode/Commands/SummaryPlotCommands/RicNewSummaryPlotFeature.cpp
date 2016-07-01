@@ -22,11 +22,14 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainPlotWindow.h"
+
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -57,10 +60,24 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
     CVF_ASSERT(summaryPlotColl);
 
-    std::vector<RimSummaryCase*> cases;
-    project->allSummaryCases(cases);
+    RimSummaryCase* summaryCase = nullptr;
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+    if (selection.size() == 1)
+    {
+        summaryCase = selection[0];
+    }
+    else
+    {
+        std::vector<RimSummaryCase*> cases;
+        project->allSummaryCases(cases);
+        if (cases.size() > 0)
+        {
+            summaryCase = cases[0];
+        }
+    }
 
-    createNewSummaryPlot(summaryPlotColl, cases.size() > 0 ? cases[0] : NULL);
+    createNewSummaryPlot(summaryPlotColl, summaryCase);
 }
 
 //--------------------------------------------------------------------------------------------------

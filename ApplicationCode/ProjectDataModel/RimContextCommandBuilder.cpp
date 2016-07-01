@@ -41,9 +41,10 @@
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimSummaryPlot.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellLogCurve.h"
@@ -277,6 +278,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {
             commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimSummaryCase*>(uiItem))
+        {
+            commandIds << "RicNewSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
