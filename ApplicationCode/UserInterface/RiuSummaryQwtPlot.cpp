@@ -109,6 +109,29 @@ void RiuSummaryQwtPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QRectF RiuSummaryQwtPlot::currentVisibleWindow() const
+{
+    QRectF scaleRect;
+    scaleRect.setLeft(axisScaleDiv(xBottom).lowerBound());
+    scaleRect.setRight(axisScaleDiv(xBottom).upperBound());
+
+    scaleRect.setBottom(axisScaleDiv(yLeft).upperBound());
+    scaleRect.setTop(axisScaleDiv(yLeft).lowerBound());
+
+    return scaleRect;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::setZoomWindow(const QRectF& zoomWindow)
+{
+    zoomer->zoom(zoomWindow);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setDefaults()
 {
     QPalette newPalette(palette());

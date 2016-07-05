@@ -79,6 +79,7 @@ private:
     caf::PdmField<QString>                          m_userName;
     caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
+    caf::PdmField<std::vector<float> >              m_visibleWindow;
 
     QPointer<RiuSummaryQwtPlot>                     m_qwtPlot;
 };

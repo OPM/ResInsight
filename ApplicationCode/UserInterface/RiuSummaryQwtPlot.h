@@ -44,6 +44,9 @@ public:
     void                            setYAxisTitle(const QString& title);
     void                            zoomAll();
 
+    QRectF                          currentVisibleWindow() const;
+    void                            setZoomWindow(const QRectF& zoomWindow);
+
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event);
 

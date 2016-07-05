@@ -50,7 +50,6 @@
 #include "RimTools.h"
 #include "RimTreeViewStateSerializer.h"
 #include "RimViewWindow.h"
-#include "RimSummaryPlot.h"
 #include "RimWellPathImport.h"
 
 #include "RiuDragDrop.h"
@@ -60,7 +59,6 @@
 #include "RiuProjectPropertyView.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"

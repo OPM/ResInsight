@@ -32,6 +32,8 @@
 #include "cvfColor3.h"
 
 #include <QDateTime>
+#include <QRectF>
+
 #include "qwt_plot_renderer.h"
 
 
@@ -54,6 +56,8 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault(&m_curves, "SummaryCurves", "",  "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&m_visibleWindow, "VisibleWindow", std::vector<float>(), "Visible Display Window", "", "", "");
+    m_visibleWindow.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,6 +221,20 @@ void RimSummaryPlot::setupBeforeSave()
         {
             this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
         }
+
+        QRectF visibleWindow = m_qwtPlot->currentVisibleWindow();
+        if (!visibleWindow.isEmpty())
+        {
+            //QRectF(qreal left, qreal top, qreal width, qreal height);
+
+            std::vector<float> window;
+            window.push_back(visibleWindow.left());
+            window.push_back(visibleWindow.top());
+            window.push_back(visibleWindow.width());
+            window.push_back(visibleWindow.height());
+
+            m_visibleWindow = window;
+        }
     }
 }
 
@@ -261,7 +279,12 @@ void RimSummaryPlot::loadDataAndUpdate()
  
     this->updateYAxisUnit();
 
-    // Todo: Update zoom
+    if (m_visibleWindow().size() == 4)
+    {
+        QRectF visibleWindow(m_visibleWindow()[0], m_visibleWindow()[1], m_visibleWindow()[2], m_visibleWindow()[3]);
+
+        m_qwtPlot->setZoomWindow(visibleWindow);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
