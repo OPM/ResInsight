@@ -178,6 +178,12 @@ void RiuMainPlotWindow::createToolBars()
         toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
     }
 
+    {
+        // Snapshots
+        QToolBar* toolbar = addToolBar(tr("View"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
+    }
 
     {
         QToolBar* toolbar = addToolBar(tr("Window Management"));

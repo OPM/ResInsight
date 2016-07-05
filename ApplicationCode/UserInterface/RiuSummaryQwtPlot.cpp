@@ -29,6 +29,8 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_panner.h"
+#include "qwt_plot_zoomer.h"
 #include "qwt_scale_engine.h"
 
 #include <QEvent>
@@ -48,6 +50,17 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     m_grid->attach(this);
 
     setDefaults();
+
+    // LeftButton for the zooming
+    zoomer = new QwtPlotZoomer(canvas());
+    zoomer->setRubberBandPen(QColor(Qt::black));
+    zoomer->setTrackerMode(QwtPicker::AlwaysOff);
+    zoomer->setTrackerPen(QColor(Qt::black));
+    zoomer->initMousePattern(1);
+
+    // MidButton for the panning
+    QwtPlotPanner* panner = new QwtPlotPanner(canvas());
+    panner->setMouseButton(Qt::MidButton);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +93,17 @@ void RiuSummaryQwtPlot::setYAxisTitle(const QString& title)
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
     axisTitleY.setText(title);
     setAxisTitle(QwtPlot::yLeft, axisTitleY);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::zoomAll()
+{
+    setAxisAutoScale(yLeft, true);
+    setAxisAutoScale(xBottom, true);
+
+    zoomer->setZoomBase(true);
 }
 
 //--------------------------------------------------------------------------------------------------

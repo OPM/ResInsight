@@ -57,6 +57,9 @@ public:
 
     QWidget*                                        viewer();
 
+
+    virtual void                                    zoomAll() override;
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }

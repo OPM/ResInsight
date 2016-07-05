@@ -152,6 +152,9 @@ public:
 
     void                                    selectOverlayInfoConfig();
 
+
+    virtual void                            zoomAll() override;
+
 public:
     virtual void                            loadDataAndUpdate() = 0;
     virtual RimCase*                        ownerCase() = 0;

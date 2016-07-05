@@ -272,6 +272,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicViewZoomAllFeature";
 
             commandIds << "RicDeleteItemFeature";
         }

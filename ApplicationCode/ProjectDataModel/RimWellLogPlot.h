@@ -48,6 +48,7 @@ public:
         TRUE_VERTICAL_DEPTH
     };
 
+
 public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
@@ -83,6 +84,8 @@ public:
     void                                            calculateAvailableDepthRange();
     void                                            availableDepthRange(double* minimumDepth, double* maximumDepth) const;
     bool                                            hasAvailableDepthRange() const;
+
+    virtual void                                    zoomAll() override;
 
 protected:
 

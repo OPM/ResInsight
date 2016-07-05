@@ -9,13 +9,14 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFilterFeature.h
+${CEE_CURRENT_LIST_DIR}RicViewZoomAllFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFilterFeature.cpp
-
+${CEE_CURRENT_LIST_DIR}RicViewZoomAllFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -373,6 +373,17 @@ bool RimWellLogPlot::hasAvailableDepthRange() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::zoomAll()
+{
+    m_isAutoScaleDepthEnabled = true;
+    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
+
+    updateDepthZoom();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const
 {
     *minimumDepth = m_minVisibleDepth;

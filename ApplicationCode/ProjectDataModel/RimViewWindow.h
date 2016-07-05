@@ -44,7 +44,8 @@ public:
     void                 setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
     RimMdiWindowGeometry mdiWindowGeometry();
 
-    virtual QImage snapshotWindowContent() = 0;
+    virtual QImage      snapshotWindowContent() = 0;
+    virtual void        zoomAll() = 0;
 
 protected:
     void                 setViewWidget(QWidget* viewWidget);

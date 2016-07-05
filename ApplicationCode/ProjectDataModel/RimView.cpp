@@ -906,3 +906,14 @@ void RimView::selectOverlayInfoConfig()
     RiuMainWindow::instance()->selectAsCurrentItem(m_overlayInfoConfig);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::zoomAll()
+{
+    if (m_viewer)
+    {
+        m_viewer->zoomAll();
+    }
+}
+

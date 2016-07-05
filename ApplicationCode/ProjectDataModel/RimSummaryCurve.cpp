@@ -320,8 +320,10 @@ QString RimSummaryCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::zoomAllParentPlot()
 {
-    // Todo
+    RimSummaryPlot* plot = nullptr;
+    firstAnchestorOrThisOfType(plot);
 
+    plot->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------

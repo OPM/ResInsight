@@ -18,44 +18,19 @@
 
 #pragma once
 
-#include "qwt_plot.h"
-#include "cafPdmPointer.h"
+#include "cafCmdFeature.h"
 
-#include <QPointer>
-
-class QwtPlotCurve;
-class QwtPlotGrid;
-class QwtPlotZoomer;
-
-class RimSummaryPlot;
 
 //==================================================================================================
-//
-//
-//
+/// 
 //==================================================================================================
-class RiuSummaryQwtPlot : public QwtPlot
+class RicViewZoomAllFeature : public caf::CmdFeature
 {
-public:
-    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuSummaryQwtPlot();
-
-    RimSummaryPlot*                 ownerPlotDefinition();
-    void                            setYAxisTitle(const QString& title);
-    void                            zoomAll();
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual bool                    eventFilter(QObject* watched, QEvent* event);
-
-private:
-    void                            setDefaults();
-    void                            selectClosestCurve(const QPoint& pos);
-
-private:
-    QwtPlotGrid*                    m_grid;
-    caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
-    QPointer<QwtPlotZoomer>             zoomer;
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook(QAction* actionToSetup);
 };
-
-
-
