@@ -85,6 +85,7 @@ void caf::TrackBallBasedNavigation::initializeRotationCenter()
 {
     if (m_isRotCenterInitialized
         || m_trackball.isNull()
+        || !m_viewer->currentScene()
         || !m_viewer->currentScene()->boundingBox().isValid())
     {
         return;
