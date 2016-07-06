@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include "RigFault.h"
+
+#include "cvfCollection.h"
+
 #include <map>
 #include <memory>
 #include <string>
@@ -30,7 +34,9 @@ class RigCaseData;
 
 namespace Opm {
     class Deck;
+    class ParseContext;
 }
+
 
 //==================================================================================================
 //
@@ -43,6 +49,8 @@ public:
    
     static void importGridAndProperties(const QString& fileName, RigCaseData* eclipseCase, std::map<QString, QString>* mapFromResultNameToKeyword);
 
+    static void readFaults(const QString& fileName, cvf::Collection<RigFault>& faults);
+
 /*
     static bool                 openGridFile(const QString& fileName, bool importProperties, RigCaseData* eclipseCase, RimEclipseInputCaseOpm* RimInputCase);
     static std::map<QString, QString> copyPropertiesToCaseData(const QString& fileName, RigCaseData* eclipseCase);
@@ -51,6 +59,9 @@ public:
 private:
     static std::vector<std::string> knownPropertyKeywords();
     static std::vector<std::string> allParserConfigKeys();
+    static size_t findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
+    static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
+    static void initUsingWarnings(Opm::ParseContext* parseContext);
 };
 
 

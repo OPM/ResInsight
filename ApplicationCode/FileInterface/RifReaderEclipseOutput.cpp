@@ -24,11 +24,10 @@
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifReaderInterface.h"
+#include "RifReaderOpmParserInput.h"
 
 #include "cafProgressInfo.h"
 
@@ -385,40 +384,16 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     if (isFaultImportEnabled())
     {
-        if (this->filenamesWithFaults().size() > 0)
+        foreach (QString fname, fileSet)
         {
-            cvf::Collection<RigFault> faults;
-            std::vector< RifKeywordAndFilePos > fileKeywords;
-        
-            for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
+            if (fname.endsWith(".DATA"))
             {
-                QString faultFilename = this->filenamesWithFaults()[i];
+                cvf::Collection<RigFault> faults;
 
-                RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
-            }
-            
-            RigMainGrid* mainGrid = eclipseCase->mainGrid();
-            mainGrid->setFaults(faults);
-        }
-        else
-        {
-            foreach (QString fname, fileSet)
-            {
-                if (fname.endsWith(".DATA"))
-                {
-                    cvf::Collection<RigFault> faults;
-                    std::vector<QString> filenamesWithFaults;
-                    RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, filenamesWithFaults);
+                RifReaderOpmParserInput::readFaults(fname, faults);
 
-                    RigMainGrid* mainGrid = eclipseCase->mainGrid();
-                    mainGrid->setFaults(faults);
-
-                    std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
-                    std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
-                    filenamesWithFaults.erase(last, filenamesWithFaults.end());
-
-                    this->setFilenamesWithFaults(filenamesWithFaults);
-                }
+                RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                mainGrid->setFaults(faults);
             }
         }
     }

@@ -28,12 +28,15 @@
 #include "RiuProcessMonitor.h"
 
 #include "cafProgressInfo.h"
+#include "cvfBase.h"
 
 #include "opm/parser/eclipse/Deck/DeckItem.hpp"
+#include "opm/parser/eclipse/Deck/Section.hpp"
 #include "opm/parser/eclipse/Parser/MessageContainer.hpp"
 #include "opm/parser/eclipse/Parser/ParseContext.hpp"
 #include "opm/parser/eclipse/Parser/Parser.hpp"
 
+#include "../generated-source/include/opm/parser/eclipse/Parser/ParserKeywords/F.hpp"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,14 +57,7 @@ void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, R
 
             // A default ParseContext will set up all parsing errors to throw exceptions
             Opm::ParseContext parseContext;
-
-            for (auto state : allParserConfigKeys())
-            {
-                parseContext.addKey(state);
-            }
-
-            // Treat all parsing errors as warnings
-            parseContext.update(Opm::InputError::WARN);
+            RifReaderOpmParserInput::initUsingWarnings(&parseContext);
 
             deck = parser.parseFile(fileName.toStdString(), parseContext);
 
@@ -181,6 +177,91 @@ void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RifReaderOpmParserInput::readFaults(const QString& fileName, cvf::Collection<RigFault>& faults)
+{
+    {
+        std::string errorMessage;
+
+        try
+        {
+            Opm::Parser parser;
+
+            // A default ParseContext will set up all parsing errors to throw exceptions
+            Opm::ParseContext parseContext;
+            RifReaderOpmParserInput::initUsingWarnings(&parseContext);
+
+            auto deckptr = parser.parseFile(fileName.toStdString(), parseContext);
+            const Opm::Deck& deck = *deckptr;
+
+            std::shared_ptr<Opm::GRIDSection> gridSection(std::make_shared<Opm::GRIDSection>(deck));
+
+            RigFault* fault = NULL;
+
+            // The following is based on Opm::FaultCollection
+            // Not possible to use this class, as the logic in ResInsight handles IJK-values instead
+            // of cell indices
+            const auto& faultKeywords = gridSection->getKeywordList<Opm::ParserKeywords::FAULTS>();
+            for (auto keyword_iter = faultKeywords.begin(); keyword_iter != faultKeywords.end(); ++keyword_iter) {
+                const auto& faultsKeyword = *keyword_iter;
+                for (auto iter = faultsKeyword->begin(); iter != faultsKeyword->end(); ++iter) {
+                    const auto& faultRecord = *iter;
+                    const std::string& faultName = faultRecord.getItem(0).get< std::string >(0);
+                    int I1 = faultRecord.getItem(1).get< int >(0) - 1;
+                    int I2 = faultRecord.getItem(2).get< int >(0) - 1;
+                    int J1 = faultRecord.getItem(3).get< int >(0) - 1;
+                    int J2 = faultRecord.getItem(4).get< int >(0) - 1;
+                    int K1 = faultRecord.getItem(5).get< int >(0) - 1;
+                    int K2 = faultRecord.getItem(6).get< int >(0) - 1;
+
+                    const std::string& faceText = faultRecord.getItem(7).get< std::string >(0);
+
+                    cvf::StructGridInterface::FaceEnum cellFaceEnum = RifReaderOpmParserInput::faceEnumFromText(QString::fromStdString(faceText));
+
+                    QString name = QString::fromStdString(faultName);
+
+                    // Guard against invalid cell ranges by limiting lowest possible range value to zero
+                    cvf::CellRange cellrange(CVF_MAX(I1, 0), CVF_MAX(J1, 0), CVF_MAX(K1, 0), CVF_MAX(I2, 0), CVF_MAX(J2, 0), CVF_MAX(K2, 0));
+
+                    if (!(fault && fault->name() == name))
+                    {
+                        if (findFaultByName(faults, name) == cvf::UNDEFINED_SIZE_T)
+                        {
+                            RigFault* newFault = new RigFault;
+                            newFault->setName(name);
+
+                            faults.push_back(newFault);
+                        }
+
+                        size_t faultIndex = findFaultByName(faults, name);
+                        if (faultIndex == cvf::UNDEFINED_SIZE_T)
+                        {
+                            CVF_ASSERT(faultIndex != cvf::UNDEFINED_SIZE_T);
+                            continue;
+                        }
+
+                        fault = faults.at(faultIndex);
+                    }
+
+                    CVF_ASSERT(fault);
+
+                    fault->addCellRangeForFace(cellFaceEnum, cellrange);
+                }
+            }
+        }
+        catch (std::exception& e)
+        {
+            errorMessage = e.what();
+        }
+        catch (...)
+        {
+            errorMessage = "Unknown exception throwm from Opm::Parser";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifReaderOpmParserInput::knownPropertyKeywords()
 {
     std::vector<std::string> knownKeywords;
@@ -249,6 +330,56 @@ std::vector<std::string> RifReaderOpmParserInput::allParserConfigKeys()
     return configKeys;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RifReaderOpmParserInput::findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name)
+{
+    for (size_t i = 0; i < faults.size(); i++)
+    {
+        if (faults.at(i)->name() == name)
+        {
+            return i;
+        }
+    }
+
+    return cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::StructGridInterface::FaceEnum RifReaderOpmParserInput::faceEnumFromText(const QString& faceString)
+{
+    QString upperCaseText = faceString.toUpper().trimmed();
+
+    if (upperCaseText == "X" || upperCaseText == "X+" || upperCaseText == "I" || upperCaseText == "I+") return cvf::StructGridInterface::POS_I;
+    if (upperCaseText == "Y" || upperCaseText == "Y+" || upperCaseText == "J" || upperCaseText == "J+") return cvf::StructGridInterface::POS_J;
+    if (upperCaseText == "Z" || upperCaseText == "Z+" || upperCaseText == "K" || upperCaseText == "K+") return cvf::StructGridInterface::POS_K;
+
+    if (upperCaseText == "X-" || upperCaseText == "I-") return cvf::StructGridInterface::NEG_I;
+    if (upperCaseText == "Y-" || upperCaseText == "J-") return cvf::StructGridInterface::NEG_J;
+    if (upperCaseText == "Z-" || upperCaseText == "K-") return cvf::StructGridInterface::NEG_K;
+
+    return cvf::StructGridInterface::NO_FACE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmParserInput::initUsingWarnings(Opm::ParseContext* parseContext)
+{
+    if (!parseContext) return;
+
+    for (auto state : allParserConfigKeys())
+    {
+        parseContext->addKey(state);
+    }
+
+    // Treat all parsing errors as warnings
+    parseContext->update(Opm::InputError::WARN);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
