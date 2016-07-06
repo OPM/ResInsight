@@ -138,6 +138,23 @@ void RimSummaryPlot::updateYAxisUnit()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateCaseNameHasChanged()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->updateCurveName();
+        curve->updateConnectedEditors();
+    }
+
+    for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
+    {
+        curveFilter->updateCaseNameHasChanged();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* RimSummaryPlot::viewer()
 {
     return m_qwtPlot;

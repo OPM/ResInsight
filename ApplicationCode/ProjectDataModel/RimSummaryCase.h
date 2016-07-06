@@ -46,7 +46,16 @@ public:
 
     RigSummaryCaseData* caseData() { return m_summaryCaseData.p(); }
 
-protected:
+    caf::PdmField<QString>  curveDisplayName;
+    caf::PdmField<bool>     autoCurveDisplayName;
 
+    void updateOptionSensitivity();
+    
+protected:
     cvf::ref<RigSummaryCaseData> m_summaryCaseData;
+
+private:
+    // Overridden PDM methods
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
 };

@@ -17,9 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimSummaryCase.h"
-#include "RimEclipseCase.h"
+
 #include "RigSummaryCaseData.h"
+#include "RimEclipseCase.h"
+#include "RimSummaryCaseCollection.h"
+
 #include <QFileInfo>
+#include "RimProject.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimMainPlotCollection.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase,"SummaryCase");
 
@@ -30,6 +36,8 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitObject("Summary Case",":/Cases16x16.png","","");
 
+    CAF_PDM_InitField(&curveDisplayName, "CurveDisplayName", QString("Curve Display Name"), "Curve Display Name", "", "", "");
+    CAF_PDM_InitField(&autoCurveDisplayName, "AutoCurveDisplayName", true, "Auto Curve Display Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,5 +63,42 @@ QString RimSummaryCase::caseName()
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 
-    return  caseFileName.completeBaseName();
+    return caseFileName.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &autoCurveDisplayName)
+    {
+        if (autoCurveDisplayName)
+        {
+            RimSummaryCaseCollection* summaryCaseCollection = NULL;
+            this->firstAnchestorOrThisOfType(summaryCaseCollection);
+            if (summaryCaseCollection)
+            {
+                curveDisplayName = summaryCaseCollection->uniqueShortNameForCase(this);
+            }
+        }
+    }
+
+    RimProject* proj = NULL;
+    this->firstAnchestorOrThisOfType(proj);
+    
+    RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
+    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+
+    summaryPlotColl->updateSummaryNameHasChanged();
+
+    updateOptionSensitivity();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::updateOptionSensitivity()
+{
+    curveDisplayName.uiCapability()->setUiReadOnly(autoCurveDisplayName);
 }

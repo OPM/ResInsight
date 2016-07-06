@@ -484,3 +484,15 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
         m_curves.push_back(curve);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::updateCaseNameHasChanged()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->updateCurveName();
+        curve->updateConnectedEditors();
+    }
+}

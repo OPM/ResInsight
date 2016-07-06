@@ -119,3 +119,14 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::updateSummaryNameHasChanged()
+{
+    for (RimSummaryPlot* plot : m_summaryPlots)
+    {
+        plot->updateCaseNameHasChanged();
+    }
+}
+

@@ -85,6 +85,8 @@ QString RimGridSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::initAfterRead()
 {
+    RimSummaryCase::updateOptionSensitivity();
+
     updateUiNames();
 }
 
@@ -95,7 +97,7 @@ void RimGridSummaryCase::updateUiNames()
 {
     m_summaryHeaderFilename = summaryHeaderFilename();
 
-    m_userName = baseName();
+    m_userName = curveDisplayName() + " - " + baseName();
 }
 
 //--------------------------------------------------------------------------------------------------

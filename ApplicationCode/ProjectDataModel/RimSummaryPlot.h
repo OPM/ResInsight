@@ -54,6 +54,7 @@ public:
     void                                            loadDataAndUpdate();
     void                                            handleViewerDeletion();
     void                                            updateYAxisUnit();
+    void                                            updateCaseNameHasChanged();
 
     QWidget*                                        viewer();
 

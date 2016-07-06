@@ -40,6 +40,8 @@ public:
 
     void loadAllSummaryCaseData();
 
+    QString uniqueShortNameForCase(RimSummaryCase* summaryCase);
+
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 };

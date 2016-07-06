@@ -60,6 +60,7 @@ public:
     RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
     std::set<std::string>                   unitNames();
 
+    void updateCaseNameHasChanged();
 private:
     void                                    syncCurvesFromUiSelection();
 

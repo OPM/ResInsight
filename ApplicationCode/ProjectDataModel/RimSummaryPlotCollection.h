@@ -45,6 +45,7 @@ public:
 
     caf::PdmChildArrayField<RimSummaryPlot*> m_summaryPlots;
 
+    void updateSummaryNameHasChanged();
 private:
     RifReaderEclipseSummary* createSummaryFileReader(const QString& eclipseCaseFilePathBasename);
     RifReaderEclipseSummary* getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename);

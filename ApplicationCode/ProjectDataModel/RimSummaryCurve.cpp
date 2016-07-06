@@ -167,7 +167,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveVariable = new RimSummaryAddress;
 
     // Add some space before name to indicate these belong to the Auto Name field
-    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", false, "   Case Name", "", "", "");
+    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "");
     
     m_symbolSkipPixelDistance = 10.0f;
 
@@ -309,7 +309,7 @@ QString RimSummaryCurve::createCurveAutoName()
             generatedCurveName += ", ";
         }
 
-        generatedCurveName += m_summaryCase->caseName();
+        generatedCurveName += m_summaryCase->curveDisplayName();
     }
 
     return generatedCurveName;

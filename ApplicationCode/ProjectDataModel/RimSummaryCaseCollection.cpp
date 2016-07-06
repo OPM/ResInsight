@@ -128,9 +128,50 @@ RimGridSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipse
     {
         RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
         newSumCase->setAssociatedEclipseCase(eclResCase);
+        newSumCase->curveDisplayName = uniqueShortNameForCase(newSumCase);
+        newSumCase->updateOptionSensitivity();
         this->m_cases.push_back(newSumCase);
         return newSumCase;
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCaseCollection::uniqueShortNameForCase(RimSummaryCase* summaryCase)
+{
+    QStringList allAutoShortNames;
+
+    for (RimSummaryCase* sumCase : m_cases)
+    {
+        if (sumCase && sumCase != summaryCase)
+        {
+            allAutoShortNames.push_back(sumCase->curveDisplayName());
+        }
+    }
+
+    bool foundUnique = false;
+
+    QString caseName = summaryCase->caseName();
+    QString candidateBase = caseName.left(2);
+    QString candidate = candidateBase;
+    int autoNumber = 0;
+    while (!foundUnique)
+    {
+        bool foundExisting = false;
+        for (QString autoName : allAutoShortNames)
+        {
+            if (autoName.left(candidate.size()) == candidate)
+            {
+                candidate = candidateBase + QString::number(autoNumber++);
+                foundExisting = true;
+            }
+        }
+        
+        foundUnique = !foundExisting;
+    }
+
+    return candidate;
 }
 

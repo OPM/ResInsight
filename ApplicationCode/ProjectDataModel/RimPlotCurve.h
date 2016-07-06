@@ -68,6 +68,8 @@ public:
     void                            setColor(const cvf::Color3f& color);
     void                            setLineStyle(LineStyleEnum lineStyle);
     bool                            isCurveVisible() const;
+    
+    void                            updateCurveName();
     QString                         curveName() const { return m_curveName; }
 
 protected:
@@ -77,7 +79,6 @@ protected:
     virtual void                    onLoadDataAndUpdate() = 0;
 
     void                            updateCurvePresentation();
-    void                            updateCurveName();
     void                            updateCurveVisibility();
     void                            updateCurveAppearance();
 
