@@ -49,6 +49,12 @@ RimEclipseInputCaseOpm::RimEclipseInputCaseOpm()
 
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
     m_gridFileName.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "", "");
+    m_additionalFileNames.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "");
+    m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,6 +62,7 @@ RimEclipseInputCaseOpm::RimEclipseInputCaseOpm()
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputCaseOpm::~RimEclipseInputCaseOpm()
 {
+    delete m_inputPropertyCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,12 +80,50 @@ void RimEclipseInputCaseOpm::importNewEclipseGridAndProperties(const QString& fi
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCaseOpm::appendPropertiesFromStandaloneFiles(const QStringList& fileNames)
+{
+    for (auto filename : fileNames)
+    {
+        QFileInfo fi(filename);
+        if (!fi.exists()) continue;
+
+        RifReaderOpmParserPropertyReader propertyReader(filename);
+        std::set<std::string> fileKeywordSet = propertyReader.keywords();
+
+        std::vector<std::string> knownKeywords = RifReaderOpmParserInput::knownPropertyKeywords();
+        for (auto knownKeyword : knownKeywords)
+        {
+            if (fileKeywordSet.count(knownKeyword) > 0)
+            {
+                QString qtKnownKeyword = QString::fromStdString(knownKeyword);
+                QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(qtKnownKeyword);
+                if (propertyReader.copyPropertyToCaseData(knownKeyword, this->reservoirData(), resultName))
+                {
+                    RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
+                    inputProperty->resultName = resultName;
+                    inputProperty->eclipseKeyword = qtKnownKeyword;
+                    inputProperty->fileName = filename;
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                    m_inputPropertyCollection->inputProperties.push_back(inputProperty);
+                }
+            }
+        }
+
+        m_additionalFileNames.v().push_back(filename);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseInputCaseOpm::openEclipseGridFile()
 {
     importEclipseGridAndProperties(m_gridFileName);
     
+    loadAndSyncronizeInputProperties();
+
     return true;
  }
 
@@ -102,6 +147,11 @@ void RimEclipseInputCaseOpm::updateFilePathsFromProjectPath(const QString& newPr
     std::vector<QString> searchedPaths;
 
     m_gridFileName = RimTools::relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+
+    for (size_t i = 0; i < m_additionalFileNames().size(); i++)
+    {
+        m_additionalFileNames.v()[i] = RimTools::relocateFile(m_additionalFileNames()[i], newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +182,86 @@ void RimEclipseInputCaseOpm::importEclipseGridAndProperties(const QString& fileN
 
             matrixResults->computeDepthRelatedResults();
             fractureResults->computeDepthRelatedResults();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCaseOpm::loadAndSyncronizeInputProperties()
+{
+    // Make sure we actually have reservoir data
+
+    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->reservoirData()->mainGrid()->gridPointDimensions() != cvf::Vec3st(0, 0, 0));
+
+    // Then read the properties from all the files referenced by the InputReservoir
+
+    for (QString filename : m_additionalFileNames())
+    {
+        QFileInfo fileNameInfo(filename);
+        bool isExistingFile = fileNameInfo.exists();
+
+        // Find the input property objects referring to the file
+
+        std::vector<RimEclipseInputProperty*> ipsUsingThisFile = this->m_inputPropertyCollection()->findInputProperties(filename);
+
+        if (!isExistingFile)
+        {
+            for (auto inputProperty : ipsUsingThisFile)
+            {
+                inputProperty->resolvedState = RimEclipseInputProperty::FILE_MISSING;
+            }
+        }
+        else
+        {
+            RifReaderOpmParserPropertyReader propertyReader(filename);
+            std::set<std::string> fileKeywordSet = propertyReader.keywords();
+
+            for (auto inputProperty : ipsUsingThisFile)
+            {
+                QString kw = inputProperty->eclipseKeyword();
+                inputProperty->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
+                if (fileKeywordSet.count(kw.toStdString()))
+                {
+                    if (propertyReader.copyPropertyToCaseData(kw.toStdString(), this->reservoirData(), inputProperty->resultName))
+                    {
+                        inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                    }
+                }
+                fileKeywordSet.erase(kw.toStdString());
+            }
+
+            if (!fileKeywordSet.empty())
+            {
+                std::vector<std::string> knownKeywords = RifReaderOpmParserInput::knownPropertyKeywords();
+                for (auto knownKeyword : knownKeywords)
+                {
+                    if (fileKeywordSet.count(knownKeyword) > 0)
+                    {
+                        QString qtKnownKeyword = QString::fromStdString(knownKeyword);
+                        QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(qtKnownKeyword);
+                        if (propertyReader.copyPropertyToCaseData(knownKeyword, this->reservoirData(), resultName))
+                        {
+                            RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
+                            inputProperty->resultName = resultName;
+                            inputProperty->eclipseKeyword = qtKnownKeyword;
+                            inputProperty->fileName = filename;
+                            inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                            m_inputPropertyCollection->inputProperties.push_back(inputProperty);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for(auto inputProperty : m_inputPropertyCollection->inputProperties())
+    {
+        if (inputProperty->resolvedState() == RimEclipseInputProperty::UNKNOWN)
+        {
+            inputProperty->resolvedState = RimEclipseInputProperty::FILE_MISSING;
         }
     }
 }

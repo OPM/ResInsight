@@ -24,9 +24,9 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #include <QString>
 
@@ -49,15 +49,11 @@ public:
     static void importGridPropertiesFaults(const QString& fileName, RigCaseData* eclipseCase);
 
     static void readFaults(const QString& fileName, cvf::Collection<RigFault>& faults);
-
-/*
-    static bool                 openGridFile(const QString& fileName, bool importProperties, RigCaseData* eclipseCase, RimEclipseInputCaseOpm* RimInputCase);
-    static std::map<QString, QString> copyPropertiesToCaseData(const QString& fileName, RigCaseData* eclipseCase);
-*/
+    
+    static std::vector<std::string> knownPropertyKeywords();
 
 private:
     static void importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>& faults);
-    static std::vector<std::string> knownPropertyKeywords();
     static std::vector<std::string> allParserConfigKeys();
     static size_t findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
@@ -66,23 +62,29 @@ private:
 
 
 
-// This class is intended to be used for reading additional properties from standalone files
-// Not yet in use
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
 class RifReaderOpmParserPropertyReader
 {
 public:
-    RifReaderOpmParserPropertyReader();
-    virtual ~RifReaderOpmParserPropertyReader();
+    RifReaderOpmParserPropertyReader(std::shared_ptr< Opm::Deck > deck);
+    RifReaderOpmParserPropertyReader(const QString& fileName);
 
-    bool open(const QString& fileName);
-    std::set<QString> keywords() const;
+    std::set<std::string> keywords() const;
 
-    bool copyPropertyToCaseData(const QString& keywordName, RigCaseData* eclipseCase, const QString& resultName);
+    bool copyPropertyToCaseData(const std::string& keywordName, RigCaseData* eclipseCase, const QString& resultName);
 
-    static size_t               findOrCreateResult(const QString& newResultName, RigCaseData* reservoir);
+    static size_t findOrCreateResult(const QString& newResultName, RigCaseData* reservoir);
+
+private:
     static void readAllProperties(std::shared_ptr< Opm::Deck > deck, RigCaseData* caseData, std::map<QString, QString>* newResults);
     static void getAllValuesForKeyword(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, std::vector<double>& allValues);
     static bool isDataItemCountIdenticalToMainGridCellCount(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, RigCaseData* caseData);
+    bool open(const QString& fileName);
+
 private:
     std::shared_ptr< Opm::Deck > m_deck;
 };

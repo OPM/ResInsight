@@ -45,6 +45,8 @@ public:
 
     void                        importNewEclipseGridAndProperties(const QString& fileName);
 
+    void                        appendPropertiesFromStandaloneFiles(const QStringList& fileNames);
+
     // RimCase overrides
     virtual bool                openEclipseGridFile(); // Find grid file among file set. Read, Find read and validate property date. Syncronize child property sets.
 
@@ -56,7 +58,12 @@ public:
 
 private:
     void                        importEclipseGridAndProperties(const QString& fileName);
+    void                        loadAndSyncronizeInputProperties();
+
 
 private:
+    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
+    caf::PdmField<std::vector<QString> >       m_additionalFileNames;
+
     caf::PdmField<QString>      m_gridFileName;
 };

@@ -49,7 +49,7 @@ void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName
         std::shared_ptr<const Opm::EclipseGrid> eclipseGrid;
         std::string errorMessage;
 
-        std::shared_ptr<const Opm::Deck> deck;
+        std::shared_ptr<Opm::Deck> deck;
 
         try
         {
@@ -115,6 +115,25 @@ void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName
 
                                     newPropertyData.push_back(doubleValues);
                                 }
+                            }
+                        }
+                    }
+
+                    if (caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultCount() == 0)
+                    {
+                        // Eclipse3DProperties was not able to extract results. This is often the case when reading a GRDECL file directly
+                        // Parse for known keywords by analyzing the present keywords in the deck
+
+                        RifReaderOpmParserPropertyReader propertyReader(deck);
+
+                        std::set<std::string> keywordsOnFile = propertyReader.keywords();
+                        std::vector<std::string> predefKeywords = RifReaderOpmParserInput::knownPropertyKeywords();
+                        for (auto keyword : predefKeywords)
+                        {
+                            if (std::find(keywordsOnFile.begin(), keywordsOnFile.end(), keyword) != keywordsOnFile.end())
+                            {
+                                QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(QString::fromStdString(keyword));
+                                propertyReader.copyPropertyToCaseData(keyword, caseData, newResultName);
                             }
                         }
                     }
@@ -408,84 +427,6 @@ void RifReaderOpmParserInput::initUsingWarnings(Opm::ParseContext* parseContext)
     parseContext->update(Opm::InputError::WARN);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-/*
-bool RifReaderOpmParserInput::openGridFile(const QString& fileName, bool importProperties, RigCaseData* caseData, RimEclipseInputCaseOpm* rimInputCase)
-{
-    RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Started grid reading from file : " + fileName + "\n"));
-
-    {
-        std::shared_ptr<const Opm::EclipseGrid> eclipseGrid;
-        std::string errorMessage;
-
-        try
-        {
-            Opm::Parser parser;
-
-            // A default ParseContext will set up all parsing errors to throw exceptions
-            Opm::ParseContext parseContext;
-            parseContext.addKey("PARSE_MISSING_SECTIONS");
-
-            // Treat all parsing errors as warnings
-            parseContext.update(Opm::InputError::WARN);
-     
-            auto deck = parser.parseFile(fileName.toStdString(), parseContext);
-
-            eclipseGrid = parser.parseGrid(*deck, parseContext);
-            if (eclipseGrid && eclipseGrid->c_ptr())
-            {
-                RifReaderEclipseOutput::transferGeometry(eclipseGrid->c_ptr(), caseData);
-
-                if (importProperties)
-                {
-                    std::map<QString, QString> allPropertiesOnFile;
-                    RifReaderOpmParserPropertyReader::readAllProperties(deck, caseData, &allPropertiesOnFile);
-                    for (auto it = allPropertiesOnFile.begin(); it != allPropertiesOnFile.end(); ++it)
-                    {
-                        RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-                        inputProperty->resultName = it->first;
-                        inputProperty->eclipseKeyword = it->second;
-                        inputProperty->fileName = fileName;
-                        inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
-                        rimInputCase->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                    }
-                }
-            }
-        }
-        catch (std::exception& e)
-        {
-            errorMessage = e.what();
-        }
-        catch (...)
-        {
-            errorMessage = "Unknown exception throwm from Opm::Parser";
-        }
-
-        if (eclipseGrid)
-        {
-            const Opm::MessageContainer& messages = eclipseGrid->getMessageContainer();
-            for (auto m : messages)
-            {
-                RiuMainWindow::instance()->processMonitor()->addStringToLog("  " + QString::fromStdString(m.message) + "\n");
-            }
-        }
-
-        if (errorMessage.size() > 0)
-        {
-            RiuMainWindow::instance()->processMonitor()->addStringToLog("  " + QString::fromStdString(errorMessage) + "\n");
-            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Failed grid reading from file : " + fileName + "\n"));
-        }
-        else
-        {
-            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Completed grid reading from file : " + fileName + "\n"));
-        }
-    }
-
-    return true;
-}
-*/
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -500,70 +441,6 @@ size_t RifReaderOpmParserPropertyReader::findOrCreateResult(const QString& newRe
 
     return resultIndex;
 }
-
-
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifReaderOpmParserInput::copyPropertiesToCaseData(const QString& fileName, RigCaseData* caseData)
-{
-    RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Started reading of properties from file : " + fileName + "\n"));
-
-    std::map<QString, QString> newResults;
-    
-    {
-        std::shared_ptr<const Opm::EclipseGrid> eclipseGrid;
-        std::string errorMessage;
-
-        try
-        {
-            Opm::Parser parser;
-
-            // A default ParseContext will set up all parsing errors to throw exceptions
-            Opm::ParseContext parseContext;
-
-            // Treat all parsing errors as warnings
-            parseContext.update(Opm::InputError::WARN);
-
-            auto deck = parser.parseFile(fileName.toStdString(), parseContext);
-
-            RifReaderOpmParserPropertyReader::readAllProperties(deck, caseData, &newResults);
-        }
-        catch (std::exception& e)
-        {
-            errorMessage = e.what();
-        }
-        catch (...)
-        {
-            errorMessage = "Unknown exception throwm from Opm::Parser";
-        }
-
-        if (eclipseGrid)
-        {
-            const Opm::MessageContainer& messages = eclipseGrid->getMessageContainer();
-            for (auto m : messages)
-            {
-                RiuMainWindow::instance()->processMonitor()->addStringToLog("  " + QString::fromStdString(m.message) + "\n");
-            }
-        }
-
-        if (errorMessage.size() > 0)
-        {
-            RiuMainWindow::instance()->processMonitor()->addStringToLog("  " + QString::fromStdString(errorMessage) + "\n");
-            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Failed reading of properties from file : " + fileName + "\n"));
-        }
-        else
-        {
-            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Completed reading of properties from file : " + fileName + "\n"));
-        }
-    }
-
-    return newResults;
-}
-*/
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -603,7 +480,8 @@ void RifReaderOpmParserPropertyReader::readAllProperties(std::shared_ptr< Opm::D
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmParserPropertyReader::RifReaderOpmParserPropertyReader()
+RifReaderOpmParserPropertyReader::RifReaderOpmParserPropertyReader(std::shared_ptr< Opm::Deck > deck)
+    : m_deck(deck)
 {
 
 }
@@ -611,9 +489,9 @@ RifReaderOpmParserPropertyReader::RifReaderOpmParserPropertyReader()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmParserPropertyReader::~RifReaderOpmParserPropertyReader()
+RifReaderOpmParserPropertyReader::RifReaderOpmParserPropertyReader(const QString& fileName)
 {
-
+    open(fileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -652,15 +530,15 @@ bool RifReaderOpmParserPropertyReader::open(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RifReaderOpmParserPropertyReader::keywords() const
+std::set<std::string> RifReaderOpmParserPropertyReader::keywords() const
 {
-    std::set<QString> ids;
+    std::set<std::string> ids;
 
     if (m_deck)
     {
         for (auto it = m_deck->begin(); it != m_deck->end(); it++)
         {
-            ids.insert(QString::fromStdString(it->name()));
+            ids.insert(it->name());
         }
     }
 
@@ -670,23 +548,21 @@ std::set<QString> RifReaderOpmParserPropertyReader::keywords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmParserPropertyReader::copyPropertyToCaseData(const QString& keywordName, RigCaseData* caseData, const QString& resultName)
+bool RifReaderOpmParserPropertyReader::copyPropertyToCaseData(const std::string& keywordName, RigCaseData* caseData, const QString& resultName)
 {
     {
         std::string errorMessage;
 
         try
         {
-            std::string stdKeywordName = keywordName.toStdString();
-
-            if (m_deck->hasKeyword(stdKeywordName))
+            if (m_deck->hasKeyword(keywordName))
             {
-                bool isItemCountEqual = isDataItemCountIdenticalToMainGridCellCount(m_deck, stdKeywordName, caseData);
+                bool isItemCountEqual = isDataItemCountIdenticalToMainGridCellCount(m_deck, keywordName, caseData);
                 if (isItemCountEqual)
                 {
                     std::vector<double> allValues;
 
-                    getAllValuesForKeyword(m_deck, stdKeywordName, allValues);
+                    getAllValuesForKeyword(m_deck, keywordName, allValues);
 
                     size_t resultIndex = RifReaderOpmParserPropertyReader::findOrCreateResult(resultName, caseData);
                     if (resultIndex != cvf::UNDEFINED_SIZE_T)
@@ -711,11 +587,11 @@ bool RifReaderOpmParserPropertyReader::copyPropertyToCaseData(const QString& key
         if (errorMessage.size() > 0)
         {
             RiuMainWindow::instance()->processMonitor()->addStringToLog("  " + QString::fromStdString(errorMessage) + "\n");
-            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Error detected while reading property %1 from file : %2\n").arg(keywordName).arg(fileName));
+            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Error detected while reading property %1 from file : %2\n").arg(QString::fromStdString(keywordName)).arg(fileName));
         }
         else
         {
-            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Completed reading of property %1 from file : %2\n").arg(keywordName).arg(fileName));
+            RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("Completed reading of property %1 from file : %2\n").arg(QString::fromStdString(keywordName)).arg(fileName));
         }
     }
 
