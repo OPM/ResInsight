@@ -46,8 +46,7 @@ namespace Opm {
 class RifReaderOpmParserInput
 {
 public:
-   
-    static void importGridAndProperties(const QString& fileName, RigCaseData* eclipseCase, std::map<QString, QString>* mapFromResultNameToKeyword);
+    static void importGridPropertiesFaults(const QString& fileName, RigCaseData* eclipseCase);
 
     static void readFaults(const QString& fileName, cvf::Collection<RigFault>& faults);
 
@@ -57,6 +56,7 @@ public:
 */
 
 private:
+    static void importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>& faults);
     static std::vector<std::string> knownPropertyKeywords();
     static std::vector<std::string> allParserConfigKeys();
     static size_t findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);

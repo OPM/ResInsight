@@ -113,9 +113,7 @@ void RimEclipseInputCaseOpm::importEclipseGridAndProperties(const QString& fileN
     {
         this->setReservoirData(new RigCaseData);
 
-        std::map<QString, QString> mapUiNameToKeyword;
-
-        RifReaderOpmParserInput::importGridAndProperties(fileName, reservoirData(), &mapUiNameToKeyword);
+        RifReaderOpmParserInput::importGridPropertiesFaults(fileName, reservoirData());
 
         if (this->reservoirData()->mainGrid() == NULL)
         {

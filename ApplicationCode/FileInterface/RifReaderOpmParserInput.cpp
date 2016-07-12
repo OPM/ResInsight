@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, RigCaseData* caseData, std::map<QString, QString>* mapFromResultNameToKeyword)
+void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName, RigCaseData* caseData)
 {
     RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("\nStarted reading of grid and properties from file : " + fileName + "\n"));
 
@@ -96,8 +96,6 @@ void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, R
                                 {
                                     std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
                                     newPropertyData.push_back(allValues);
-
-                                    mapFromResultNameToKeyword->insert(std::make_pair(newResultName, QString::fromStdString(keyword)));
                                 }
                             }
                             else if (properties.hasDeckIntGridProperty(keyword))
@@ -116,11 +114,18 @@ void RifReaderOpmParserInput::importGridAndProperties(const QString& fileName, R
                                     doubleValues.insert(std::end(doubleValues), std::begin(intValues), std::end(intValues));
 
                                     newPropertyData.push_back(doubleValues);
-
-                                    mapFromResultNameToKeyword->insert(std::make_pair(newResultName, QString::fromStdString(keyword)));
                                 }
                             }
+                        }
+                    }
 
+                    if (caseData->mainGrid())
+                    {
+                        cvf::Collection<RigFault> faults;
+                        importFaults(*deck, faults);
+                        if (faults.size() > 0)
+                        {
+                            caseData->mainGrid()->setFaults(faults);
                         }
                     }
                 }
@@ -193,14 +198,36 @@ void RifReaderOpmParserInput::readFaults(const QString& fileName, cvf::Collectio
             auto deckptr = parser.parseFile(fileName.toStdString(), parseContext);
             const Opm::Deck& deck = *deckptr;
 
-            std::shared_ptr<Opm::GRIDSection> gridSection(std::make_shared<Opm::GRIDSection>(deck));
+            importFaults(deck, faults);
 
+        }
+        catch (std::exception& e)
+        {
+            errorMessage = e.what();
+        }
+        catch (...)
+        {
+            errorMessage = "Unknown exception throwm from Opm::Parser";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmParserInput::importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>& faults)
+{
+    {
+        std::string errorMessage;
+
+        try
+        {
             RigFault* fault = NULL;
 
             // The following is based on Opm::FaultCollection
             // Not possible to use this class, as the logic in ResInsight handles IJK-values instead
             // of cell indices
-            const auto& faultKeywords = gridSection->getKeywordList<Opm::ParserKeywords::FAULTS>();
+            const auto& faultKeywords = deck.getKeywordList<Opm::ParserKeywords::FAULTS>();
             for (auto keyword_iter = faultKeywords.begin(); keyword_iter != faultKeywords.end(); ++keyword_iter) {
                 const auto& faultsKeyword = *keyword_iter;
                 for (auto iter = faultsKeyword->begin(); iter != faultsKeyword->end(); ++iter) {
