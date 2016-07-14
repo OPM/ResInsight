@@ -155,15 +155,12 @@ void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::
 {
     CVF_ASSERT(timeStepCount() > 0);
 
-    openTimeStep(0);
-
-    std::vector<size_t> valueCountForOneFile;
-    RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_files[0], resultNames, &valueCountForOneFile);
-
-    for (size_t i = 0; i < valueCountForOneFile.size(); i++)
+    for (int i = 0; i < m_fileNames.size(); i++)
     {
-        resultDataItemCounts->push_back(valueCountForOneFile[i] * timeStepCount());
+        openTimeStep(i);
     }
+
+    RifEclipseOutputFileTools::findKeywordsAndItemCount(m_ecl_files, resultNames, resultDataItemCounts);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,7 +201,6 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
 
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -28,6 +28,8 @@ class RifEclipseOutputFileTools;
 
 #include "well_info.h"
 
+
+
 //==================================================================================================
 //
 // Class for access to results from a unified restart file
@@ -44,7 +46,7 @@ public:
     void                        close();
 
     size_t                      timeStepCount();
-    std::vector<QDateTime>            timeSteps();
+    std::vector<QDateTime>      timeSteps();
     std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
@@ -55,7 +57,6 @@ public:
 
 private:
     bool                        openFile();
-
 
 private:
     QString         m_filename;
