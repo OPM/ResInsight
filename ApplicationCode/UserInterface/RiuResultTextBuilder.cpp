@@ -623,7 +623,13 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
         }
         else
         {
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, resultVar);
+            size_t adjustedTimeStep = m_timeStepIndex;
+            if (resultColors->hasStaticResult())
+            {
+                adjustedTimeStep = 0;
+            }
+            
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCaseData, m_gridIndex, porosityModel, adjustedTimeStep, resultVar);
             if (resultAccessor.notNull())
             {
                 double scalarValue = resultAccessor->cellFaceScalar(m_cellIndex, m_face);
