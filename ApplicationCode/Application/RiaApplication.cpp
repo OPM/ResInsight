@@ -1088,6 +1088,9 @@ bool RiaApplication::parseArguments()
             QString gridListFile = cvfqt::Utils::toQString(o.safeValue(0));
             std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
+
+            closeProject(false);
+
             return false;
         }
     }
@@ -1172,6 +1175,8 @@ bool RiaApplication::parseArguments()
             saveSnapshotForAllViews("snapshots");
 
             mainWnd->loadWinGeoAndDockToolBarLayout();
+
+            closeProject(false);
         }
 
         // Returning false will exit the application
