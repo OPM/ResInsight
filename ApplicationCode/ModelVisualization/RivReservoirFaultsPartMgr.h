@@ -19,20 +19,24 @@
 
 #pragma once
 
+#include "cvfArray.h"
 #include "cvfBase.h"
+#include "cvfCollection.h"
 #include "cvfObject.h"
 
-#include "RigGridBase.h"
-#include "RivFaultPartMgr.h"
+#include "cafPdmPointer.h"
 
 namespace cvf
 {
     class Transform;
+    class ModelBasicList;
 }
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RimEclipseView;
+class RivFaultPartMgr;
+class RigMainGrid;
 
 //==================================================================================================
 ///

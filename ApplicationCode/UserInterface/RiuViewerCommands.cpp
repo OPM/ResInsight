@@ -39,6 +39,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimFault.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"

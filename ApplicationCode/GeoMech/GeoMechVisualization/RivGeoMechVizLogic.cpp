@@ -19,23 +19,26 @@
 
 #include "RivGeoMechVizLogic.h"
 
-#include "RimGeoMechView.h"
-#include "cvfModelBasicList.h"
-#include "RimGeoMechCellColors.h"
-#include "RivGeoMechPartMgrCache.h"
-#include "RivGeoMechPartMgr.h"
-#include "RivReservoirViewPartMgr.h"
-#include "RimGeoMechCase.h"
 #include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+
 #include "RimCellRangeFilterCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechView.h"
+#include "RimView.h"
+#include "RimViewController.h"
 
 #include "RivCellSetEnum.h"
 #include "RivFemElmVisibilityCalculator.h"
-#include "RigFemPartResultsCollection.h"
-#include "RimGeoMechPropertyFilterCollection.h"
-#include "RimView.h"
-#include "RimViewController.h"
+#include "RivGeoMechPartMgr.h"
+#include "RivGeoMechPartMgrCache.h"
+#include "RivReservoirViewPartMgr.h"
+
+#include "cvfModelBasicList.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

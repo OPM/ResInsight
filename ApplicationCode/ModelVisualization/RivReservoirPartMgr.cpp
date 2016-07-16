@@ -20,12 +20,13 @@
 
 #include "RivReservoirPartMgr.h"
 
+#include "RigCaseData.h"
+
+#include "RivGridPartMgr.h"
+#include "RivReservoirFaultsPartMgr.h"
+
 #include "cvfStructGrid.h"
 #include "cvfModelBasicList.h"
-
-#include "RigCaseData.h"
-#include "RivGridPartMgr.h"
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

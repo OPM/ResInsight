@@ -19,18 +19,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RivReservoirPartMgr.h"
-#include "cvfTransform.h"
+
+#include "RivCellSetEnum.h"
+#include "RivReservoirPartMgr.h"    // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
+
 #include "cafFixedArray.h"
 #include "cvfArray.h"
+#include "cvfBase.h"
+#include "cvfTransform.h"
+
 #include "cafPdmObject.h"
-#include "RivCellSetEnum.h"
 
 class RimEclipseView;
 class RigGridBase;
 class RimCellRangeFilterCollection;
 class RimEclipsePropertyFilterCollection;
 class RigActiveCellInfo;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
+
+namespace cvf
+{
+    class ModelBasicList;
+}
 
 class RivReservoirViewPartMgr: public cvf::Object
 {

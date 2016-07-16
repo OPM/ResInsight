@@ -21,12 +21,17 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RigCaseData.h"
+
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimFault.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
-#include "RimEclipseView.h"
+
 #include "RiuMainWindow.h"
+
 #include "RivColorTableArray.h"
 
 #include "cafAppEnum.h"

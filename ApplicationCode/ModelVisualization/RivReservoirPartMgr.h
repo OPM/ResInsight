@@ -24,9 +24,6 @@
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
-#include "RivGridPartMgr.h"
-#include "RivReservoirFaultsPartMgr.h"
-
 namespace cvf
 {
     class ModelBasicList;
@@ -37,6 +34,8 @@ class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RigCaseData;
 class RimEclipseView;
+class RivReservoirFaultsPartMgr;
+class RivGridPartMgr;
 
 //==================================================================================================
 ///

@@ -26,15 +26,18 @@
 #include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RimEclipseCase.h"
+
 #include "RimCellEdgeColors.h"
-#include "RimEclipseView.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimTernaryLegendConfig.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimTernaryLegendConfig.h"
+
 #include "RivTernaryTextureCoordsCreator.h"
 
 #include "cvfDrawableGeo.h"
+#include "cvfScalarMapper.h"
 #include "cvfVertexAttribute.h"
 
 
