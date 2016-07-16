@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "cvfArray.h"
 #include "cvfBase.h"
+#include "cvfArray.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
