@@ -64,7 +64,7 @@ public:
                                                             RimCellEdgeColors* cellEdgeResultColors);
 
     // Fault labels
-    RivCellSetEnum  geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const;
+    RivCellSetEnum              geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes, bool showFaultsOutsideFilters) const;
     void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType);
     void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex);
 

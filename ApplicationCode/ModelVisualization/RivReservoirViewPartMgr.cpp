@@ -952,19 +952,22 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::Model
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const
+RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes, bool showFaultsOutsideFilters) const
 {
     bool hasInactive = false;
     for (size_t i = 0; i < geometryTypes.size(); i++)
     {
-        if (geometryTypes[i] == PROPERTY_FILTERED)
+        if (!showFaultsOutsideFilters)
         {
-            return PROPERTY_FILTERED;
-        }
+            if (geometryTypes[i] == PROPERTY_FILTERED)
+            {
+                return PROPERTY_FILTERED;
+            }
 
-        if (geometryTypes[i] == RANGE_FILTERED)
-        {
-            return RANGE_FILTERED;
+            if (geometryTypes[i] == RANGE_FILTERED)
+            {
+                return RANGE_FILTERED;
+            }
         }
 
         if (geometryTypes[i] == INACTIVE)
