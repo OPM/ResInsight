@@ -19,20 +19,21 @@
 
 #include "RicNewScriptFeature.h"
 
+#include "RiaApplication.h"
+
+#include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
 
 #include "RimCalcScript.h"
 #include "RimScriptCollection.h"
-#include "RiaApplication.h"
- 
+
 #include "RiuMainWindow.h"
- 
+
 #include <QAction>
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QLineEdit>
 #include <QMessageBox>
-#include "RicRefreshScriptsFeature.h"
 
 CAF_CMD_SOURCE_INIT(RicNewScriptFeature, "RicNewScriptFeature");
 
