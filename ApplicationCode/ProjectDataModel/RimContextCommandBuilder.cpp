@@ -216,6 +216,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
+            commandIds << "RicNewScriptFeature";
             commandIds << "Separator";
             commandIds << "RicRefreshScriptsFeature";
         }
