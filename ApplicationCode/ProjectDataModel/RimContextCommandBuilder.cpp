@@ -216,6 +216,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
+            commandIds << "Separator";
+            commandIds << "RicRefreshScriptsFeature";
         }
         else if (dynamic_cast<RimViewController*>(uiItem))
         {

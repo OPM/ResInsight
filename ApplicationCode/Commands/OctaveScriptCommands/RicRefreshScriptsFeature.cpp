@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,62 +16,50 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicAddScriptPathFeature.h"
+#include "RicRefreshScriptsFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RicRefreshScriptsFeature.h"
-#include "RicScriptFeatureImpl.h"
-
-#include "RimScriptCollection.h"
-#include "RiuMainWindow.h"
-
-#include "cvfAssert.h"
+#include "RimProject.h"
 
 #include <QAction>
-#include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT(RicAddScriptPathFeature, "RicAddScriptPathFeature");
+CAF_CMD_SOURCE_INIT(RicRefreshScriptsFeature, "RicRefreshScriptsFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAddScriptPathFeature::isCommandEnabled()
+bool RicRefreshScriptsFeature::isCommandEnabled()
 {
-    std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
-    return selection.size() > 0;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAddScriptPathFeature::onActionTriggered(bool isChecked)
+void RicRefreshScriptsFeature::onActionTriggered(bool isChecked)
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(RiuMainWindow::instance(), "Select script folder");
-    if (!selectedFolder.isEmpty())
-    {
-        QString filePathString = RiaApplication::instance()->preferences()->scriptDirectories();
-
-        QChar separator(';');
-        if (!filePathString.isEmpty() && !filePathString.endsWith(separator, Qt::CaseInsensitive))
-        {
-            filePathString += separator;
-        }
-
-        filePathString += selectedFolder;
-
-        RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
-        RiaApplication::instance()->applyPreferences();
-
-        RicRefreshScriptsFeature::refreshScriptFolders();
-    }
+    refreshScriptFolders();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAddScriptPathFeature::setupActionLook(QAction* actionToSetup)
+void RicRefreshScriptsFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Add Script Path");
+    actionToSetup->setText("Refresh");
+    actionToSetup->setIcon(QIcon(":/Refresh-32.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicRefreshScriptsFeature::refreshScriptFolders()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+    proj->setScriptDirectories(prefs->scriptDirectories());
+    proj->updateConnectedEditors();
 }
