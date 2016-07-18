@@ -175,15 +175,14 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::cleanupGuiBeforeProjectClose()
+void RiuMainWindow::cleanupGuiCaseClose()
 {
     caf::CmdExecCommandManager::instance()->undoStack()->clear();
 
-    setPdmRoot(NULL);
     setResultInfo("");
 
     m_resultQwtPlot->deleteAllCurves();
-    
+
     if (m_pdmUiPropertyView)
     {
         m_pdmUiPropertyView->showProperties(NULL);
@@ -198,6 +197,16 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
         }
     }
     m_processMonitor->startMonitorWorkProcess(NULL);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::cleanupGuiBeforeProjectClose()
+{
+    setPdmRoot(NULL);
+
+    cleanupGuiCaseClose();
 }
 
 //--------------------------------------------------------------------------------------------------

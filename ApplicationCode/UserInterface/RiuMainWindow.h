@@ -75,6 +75,7 @@ public:
     static RiuMainWindow* instance();
     
     void            initializeGuiNewProjectLoaded();
+    void            cleanupGuiCaseClose();
     void            cleanupGuiBeforeProjectClose();
 
     void            removeViewer( QWidget* viewer );
