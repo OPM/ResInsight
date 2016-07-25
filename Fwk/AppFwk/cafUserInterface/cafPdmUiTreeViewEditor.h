@@ -58,10 +58,11 @@ class QVBoxLayout;
 namespace caf 
 {
 
-class PdmUiItem;
-class PdmUiTreeViewModel;
 class PdmChildArrayFieldHandle;
 class PdmUiDragDropInterface;
+class PdmUiItem;
+class PdmUiTreeViewModel;
+class PdmUiTreeViewWidget;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -94,6 +95,7 @@ public:
     bool                isAppendOfClassNameToUiItemTextEnabled();
 
     QTreeView*          treeView();
+    bool                isTreeItemEditWidgetActive() const;
 
     void                selectAsCurrentItem(PdmUiItem* uiItem);
     void                selectedUiItems(std::vector<PdmUiItem*>& objects);
@@ -133,7 +135,7 @@ private:
     QPointer<QWidget>               m_mainWidget;
     QVBoxLayout*                    m_layout;
 
-    QTreeView*                      m_treeView;
+    PdmUiTreeViewWidget*            m_treeView;
     PdmUiTreeViewModel*             m_treeViewModel;
 
     PdmUiTreeViewEditorAttribute    m_editorAttributes;

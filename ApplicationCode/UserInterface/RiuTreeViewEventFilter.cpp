@@ -101,17 +101,20 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
             return true;
         }
 
-        switch (keyEvent->key())
+        if (!RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
         {
-            case Qt::Key_Space:
-            case Qt::Key_Enter:
-            case Qt::Key_Return:
-            case Qt::Key_Select:
+            switch (keyEvent->key())
             {
-                RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE);
+                case Qt::Key_Space:
+                case Qt::Key_Enter:
+                case Qt::Key_Return:
+                case Qt::Key_Select:
+                {
+                    RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE);
 
-                keyEvent->setAccepted(true);
-                return true;
+                    keyEvent->setAccepted(true);
+                    return true;
+                }
             }
         }
     }
