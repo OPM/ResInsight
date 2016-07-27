@@ -20,9 +20,12 @@
 #include "RimCrossSectionCollection.h"
 
 #include "RimCrossSection.h"
-#include "RivCrossSectionPartMgr.h"
-#include "RiuMainWindow.h"
+#include "RimEclipseWell.h"
 #include "RimView.h"
+
+#include "RiuMainWindow.h"
+
+#include "RivCrossSectionPartMgr.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCrossSectionCollection, "CrossSectionCollection");
@@ -142,4 +145,26 @@ void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
             rimView->scheduleCreateDisplayModelAndRedraw();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCrossSectionCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
+{
+    if (!isActive) return false;
+
+    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    {
+        RimCrossSection* cs = m_crossSections[csIdx];
+
+        if (cs->isActive &&
+            cs->type() == RimCrossSection::CS_SIMULATION_WELL &&
+            cs->simulationWell() == eclipseWell)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

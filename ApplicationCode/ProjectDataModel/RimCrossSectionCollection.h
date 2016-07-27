@@ -25,6 +25,7 @@
 
 class RimCrossSection;
 class RimEclipseCellColors;
+class RimEclipseWell;
 
 namespace cvf {
     class ModelBasicList;
@@ -48,6 +49,7 @@ public:
 
     void appendCrossSection(RimCrossSection* crossSection);
 
+    bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 
     // Visualization interface
 
