@@ -45,6 +45,7 @@ public:
     virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
     virtual void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
     virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
+    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
     virtual size_t  timeStepCount();
 
 private:

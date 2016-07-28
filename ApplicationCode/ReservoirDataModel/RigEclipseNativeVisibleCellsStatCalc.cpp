@@ -83,6 +83,16 @@ void RigEclipseNativeVisibleCellsStatCalc::addDataToHistogramCalculator(size_t t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigEclipseNativeVisibleCellsStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
+{
+    UniqueValueAccumulator acc;
+    traverseCells(acc, timeStepIndex);
+    values = acc.uniqueValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 {
     return m_caseData->timeStepCount(m_scalarResultIndex);

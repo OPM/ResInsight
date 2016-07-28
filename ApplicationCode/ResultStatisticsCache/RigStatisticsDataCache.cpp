@@ -258,6 +258,26 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram(siz
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::set<int>& RigStatisticsDataCache::uniqueCellScalarValues()
+{
+    computeUniqueValuesIfNeeded();
+
+    return m_statsAllTimesteps.m_uniqueValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::set<int>& RigStatisticsDataCache::uniqueCellScalarValues(size_t timeStepIndex)
+{
+    computeUniqueValuesIfNeeded(timeStepIndex);
+
+    return m_statsPrTs[timeStepIndex].m_uniqueValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues(double& p10, double& p90)
 {
     computeHistogramStatisticsIfNeeded();
@@ -316,6 +336,38 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepI
 
         m_statsPrTs[timeStepIndex].m_p10 = histCalc.calculatePercentil(0.1);
         m_statsPrTs[timeStepIndex].m_p90 = histCalc.calculatePercentil(0.9);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeUniqueValuesIfNeeded(size_t timeStepIndex)
+{
+    if (timeStepIndex >= m_statsPrTs.size())
+    {
+        m_statsPrTs.resize(timeStepIndex + 1);
+    }
+
+    if (m_statsPrTs[timeStepIndex].m_uniqueValues.size() == 0)
+    {
+        m_statisticsCalculator->uniqueValues(timeStepIndex, m_statsPrTs[timeStepIndex].m_uniqueValues);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
+{
+    if (m_statsAllTimesteps.m_uniqueValues.size() == 0)
+    {
+        for (size_t tIdx = 0; tIdx < m_statisticsCalculator->timeStepCount(); tIdx++)
+        {
+            computeUniqueValuesIfNeeded(tIdx);
+
+            m_statsAllTimesteps.m_uniqueValues.insert(m_statsPrTs[tIdx].m_uniqueValues.begin(), m_statsPrTs[tIdx].m_uniqueValues.end());
+        }
     }
 }
 

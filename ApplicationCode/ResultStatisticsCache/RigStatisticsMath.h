@@ -18,6 +18,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 #include <cmath>
 #include <cstddef>
 
@@ -130,4 +131,19 @@ public:
 
     double valueSum;
     size_t sampleCount;
+};
+
+
+class UniqueValueAccumulator
+{
+public:
+    UniqueValueAccumulator()
+    {}
+
+    void addValue(double value)
+    {
+        uniqueValues.insert(static_cast<int>(value));
+    }
+
+    std::set<int> uniqueValues;
 };

@@ -55,9 +55,15 @@ public:
     const std::vector<size_t>&              cellScalarValuesHistogram();
     const std::vector<size_t>&              cellScalarValuesHistogram(size_t timeStepIndex);
 
+    const std::set<int>&                    uniqueCellScalarValues();
+    const std::set<int>&                    uniqueCellScalarValues(size_t timeStepIndex);
+
 private:
     void                                    computeHistogramStatisticsIfNeeded();
     void                                    computeHistogramStatisticsIfNeeded(size_t timeStepIndex);
+
+    void                                    computeUniqueValuesIfNeeded();
+    void                                    computeUniqueValuesIfNeeded(size_t timeStepIndex);
 
 private:
     struct StatisticsValues
@@ -96,6 +102,7 @@ private:
         bool                m_isValueSumCalculated;
 
         std::vector<size_t> m_histogram;
+        std::set<int>       m_uniqueValues;
     };
 
     StatisticsValues                        m_statsAllTimesteps;

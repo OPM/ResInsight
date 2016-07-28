@@ -100,6 +100,20 @@ void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator(size_t timeSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigEclipseMultiPropertyStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
+{
+    for (size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++)
+    {
+        if (m_nativeStatisticsCalculators.at(i))
+        {
+            m_nativeStatisticsCalculators.at(i)->uniqueValues(timeStepIndex, values);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigEclipseMultiPropertyStatCalc::timeStepCount()
 {
     if (m_nativeStatisticsCalculators.size() > 0)

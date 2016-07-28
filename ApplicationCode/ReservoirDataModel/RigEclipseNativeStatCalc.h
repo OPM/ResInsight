@@ -43,6 +43,8 @@ public:
 
     virtual void addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
 
+    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
+
     virtual size_t  timeStepCount();
 
 private:

@@ -45,6 +45,8 @@ public:
     void            addDataToHistogramCalculator(RigHistogramCalculator& histogramCalculator);
     virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator) = 0;
 
+    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values) = 0;
+
     virtual size_t  timeStepCount() = 0;
 
     static void posNegClosestToZero(const std::vector<double>& values, double& pos, double& neg);
