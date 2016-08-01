@@ -21,7 +21,6 @@
 #pragma once
 
 #include "RimDefines.h"
-#include "RimLegendConfig.h"
 #include "RimEclipseResultDefinition.h"
 
 #include "cafPdmChildArrayField.h"
@@ -29,6 +28,7 @@
 #include "cafPdmPtrField.h"
 
 class RimTernaryLegendConfig;
+class RimLegendConfig;
 
 //==================================================================================================
 ///  

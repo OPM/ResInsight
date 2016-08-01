@@ -27,9 +27,10 @@
 #include "RigResultAccessor.h"
 
 #include "RimEclipseCase.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+#include "RimFaultCollection.h"
+#include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RivResultToTextureMapper.h"

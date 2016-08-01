@@ -21,11 +21,13 @@
 #include "RimCellEdgeColors.h"
 
 #include "RigCaseCellResultsData.h"
+
+#include "RimEclipseView.h"
 #include "RimLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
 
 #include "cafPdmUiListEditor.h"
+
 #include "cvfMath.h"
 
 

@@ -20,6 +20,10 @@
 
 #include "RimLegendConfig.h"
 
+#include "RiaApplication.h"
+
+#include "RimEclipseView.h"
+
 #include "cafFactory.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -33,9 +37,6 @@
 #include "cvfScalarMapperDiscreteLog.h"
 
 #include <cmath>
-
-#include "RiaApplication.h"
-#include "RimEclipseView.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -124,7 +125,7 @@ RimLegendConfig::RimLegendConfig()
     m_currentScalarMapper = m_linDiscreteScalarMapper;
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-    m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
+    m_scalarMapperLegend = new cvf::OverlayScalarMapperLegend(standardFont);
 
     updateFieldVisibility();
     updateLegend();
@@ -358,7 +359,7 @@ void RimLegendConfig::updateLegend()
        break;
    }
 
-   m_legend->setScalarMapper(m_currentScalarMapper.p());
+   m_scalarMapperLegend->setScalarMapper(m_currentScalarMapper.p());
    double decadesInRange = 0;
 
    if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
@@ -378,7 +379,7 @@ void RimLegendConfig::updateLegend()
 
    // Using Fixed format 
    NumberFormatType nft = m_tickNumberFormat();
-   m_legend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
+   m_scalarMapperLegend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
 
    // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
    int numDecimalDigits = m_precision();
@@ -386,7 +387,7 @@ void RimLegendConfig::updateLegend()
    {
        numDecimalDigits -= static_cast<int>(decadesInRange);
    }
-   m_legend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
+   m_scalarMapperLegend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
@@ -546,7 +547,7 @@ void RimLegendConfig::recreateLegend()
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-    m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
+    m_scalarMapperLegend = new cvf::OverlayScalarMapperLegend(standardFont);
 
     updateLegend();
 }
@@ -617,6 +618,14 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 
         updateLegend();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::OverlayItem* RimLegendConfig::legend()
+{
+    return m_scalarMapperLegend.p();
 }
 
 //--------------------------------------------------------------------------------------------------

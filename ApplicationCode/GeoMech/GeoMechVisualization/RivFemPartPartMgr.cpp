@@ -25,8 +25,8 @@
 
 #include "RimEclipseView.h"
 #include "RimGeoMechCellColors.h"
-#include "RimLegendConfig.h"
 #include "RimGeoMechView.h"
+#include "RimLegendConfig.h"
 
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"

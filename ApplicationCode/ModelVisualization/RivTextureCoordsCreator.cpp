@@ -19,15 +19,19 @@
 
 #include "RivTextureCoordsCreator.h"
 
-#include "RimEclipseCellColors.h"
-#include "RigCaseData.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCase.h"
 #include "RigCaseCellResultsData.h"
-#include "RigResultAccessorFactory.h"
+#include "RigCaseData.h"
 #include "RigPipeInCellEvaluator.h"
-#include "RivResultToTextureMapper.h"
+#include "RigResultAccessorFactory.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimLegendConfig.h"
+
+#include "RivResultToTextureMapper.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

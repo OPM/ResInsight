@@ -41,6 +41,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGridCollection.h"
+#include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTernaryLegendConfig.h"
@@ -943,7 +944,12 @@ void RimEclipseView::updateLegends()
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
         m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
-        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
+
+        cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(this->cellEdgeResult()->legendConfig->legend());
+        if (scalarMapperLegend)
+        {
+            scalarMapperLegend->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
+        }
     }
     else
     {
@@ -986,7 +992,12 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-        resultColors->legendConfig()->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+
+        cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(resultColors->legendConfig()->legend());
+        if (scalarMapperLegend)
+        {
+            scalarMapperLegend->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+        }
     }
 
 

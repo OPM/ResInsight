@@ -20,9 +20,9 @@
 #include "RivScalarMapperUtils.h"
 
 #include "RimCellEdgeColors.h"
-#include "RimLegendConfig.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+#include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RivCellEdgeEffectGenerator.h"

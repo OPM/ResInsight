@@ -33,6 +33,7 @@ namespace cvf
 {
     class ScalarMapperContinuousLog;
     class ScalarMapperContinuousLinear;
+    class OverlayItem;
     class OverlayScalarMapperLegend;
     class ScalarMapperDiscreteLinear;
     class ScalarMapperDiscreteLog;
@@ -95,7 +96,7 @@ public:
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    cvf::OverlayScalarMapperLegend*             legend() { return m_legend.p(); }
+    cvf::OverlayItem*                           legend();
 
 
 protected:
@@ -118,7 +119,7 @@ private:
     cvf::ref<cvf::ScalarMapperContinuousLinear> m_linSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapper>                 m_currentScalarMapper;
 
-    cvf::ref<cvf::OverlayScalarMapperLegend>    m_legend;
+    cvf::ref<cvf::OverlayScalarMapperLegend>    m_scalarMapperLegend;
 
     double                                      m_globalAutoMax;
     double                                      m_globalAutoMin;

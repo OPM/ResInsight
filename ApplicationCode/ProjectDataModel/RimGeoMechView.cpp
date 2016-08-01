@@ -435,7 +435,11 @@ void RimGeoMechView::updateLegends()
         legendTitle += " [Bar]";
     }
 
-    cellResult()->legendConfig->legend()->setTitle(legendTitle);
+    cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(cellResult()->legendConfig->legend());
+    if (scalarMapperLegend)
+    {
+        scalarMapperLegend->setTitle(legendTitle);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
