@@ -90,11 +90,22 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
     }
     else
     {
-        RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
-            quadToCellFaceMapper, dg, gridIndex, opacityLevel);
+        bool useDefaultValueForHugeVals = false;
+        if (!cellResultColors->hasResult())
+        {
+            useDefaultValueForHugeVals = true;
+        }
 
-        cvf::ScalarMapper* cellScalarMapper = cellResultColors->legendConfig()->scalarMapper();
-        cellFaceEffectGen.setScalarMapper(cellScalarMapper);
+        RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultColors, cellEdgeResultColors,
+            quadToCellFaceMapper, dg, gridIndex, useDefaultValueForHugeVals, opacityLevel);
+
+        if (cellResultColors->hasResult())
+        {
+            // If no scalar mapper is set for the effect, a default color is used to fill the texture
+            // This is what we want when the fault colors should be visible in combination with cell edge
+            cvf::ScalarMapper* cellScalarMapper = cellResultColors->legendConfig()->scalarMapper();
+            cellFaceEffectGen.setScalarMapper(cellScalarMapper);
+        }
     }
 
     cellFaceEffectGen.setOpacityLevel(opacityLevel);

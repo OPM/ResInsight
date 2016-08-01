@@ -51,6 +51,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
     cvf::DrawableGeo* geo,
     size_t gridIndex,
+    bool useDefaultValueForHugeVals,
     float opacityLevel)
 {
     RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
@@ -117,9 +118,13 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 
             {
                 float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
-                if (scalarValue != HUGE_VAL)
+                if (useDefaultValueForHugeVals || scalarValue != HUGE_VAL)
                 {
-                    cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
+                    if (scalarValue != HUGE_VAL)
+                    {
+                        cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
+                    }
+
                     // If we are dealing with wellcells, the default is transparent.
                     // we need to make cells opaque if there are no wellpipe through them.
                     if (opacityLevel < 1.0f)
