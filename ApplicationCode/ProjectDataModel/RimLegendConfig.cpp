@@ -22,7 +22,11 @@
 
 #include "RiaApplication.h"
 
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+
+#include "cafCategoryLegend.h"
+#include "cafCategoryMapper.h"
 
 #include "cafFactory.h"
 #include "cafPdmFieldCvfColor.h"
@@ -60,10 +64,11 @@ namespace caf {
         addItem(RimLegendConfig::OPPOSITE_NORMAL,"OPPOSITE_NORMAL", "Full color, Blue on top");
         addItem(RimLegendConfig::WHITE_PINK,     "WHITE_PIMK",      "White to pink");
         addItem(RimLegendConfig::PINK_WHITE,     "PINK_WHITE",      "Pink to white");
-        addItem(RimLegendConfig::BLUE_WHITE_RED,    "BLUE_WHITE_RED",     "Blue, white, red");
-        addItem(RimLegendConfig::RED_WHITE_BLUE,    "RED_WHITE_BLUE",     "Red, white, blue");
+        addItem(RimLegendConfig::BLUE_WHITE_RED, "BLUE_WHITE_RED",  "Blue, white, red");
+        addItem(RimLegendConfig::RED_WHITE_BLUE, "RED_WHITE_BLUE",  "Red, white, blue");
         addItem(RimLegendConfig::WHITE_BLACK,    "WHITE_BLACK",     "White to black");
         addItem(RimLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
+        addItem(RimLegendConfig::CATEGORY,       "CATEGORY",        "Category colors");
         setDefault(RimLegendConfig::NORMAL);
     }
 }
@@ -76,6 +81,7 @@ namespace caf {
         addItem(RimLegendConfig::LINEAR_CONTINUOUS,  "LinearContinuous", "Continuous Linear");
         addItem(RimLegendConfig::LOG10_CONTINUOUS,   "Log10Continuous",  "Continuous Logarithmic");
         addItem(RimLegendConfig::LOG10_DISCRETE,     "Log10Discrete",    "Discrete Logarithmic");
+        addItem(RimLegendConfig::CATEGORY_INTEGER,   "Category",         "Category");
         setDefault(RimLegendConfig::LINEAR_CONTINUOUS);
     }
 }
@@ -124,8 +130,11 @@ RimLegendConfig::RimLegendConfig()
 
     m_currentScalarMapper = m_linDiscreteScalarMapper;
 
+    m_categoryMapper = new caf::CategoryMapper;
+
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_scalarMapperLegend = new cvf::OverlayScalarMapperLegend(standardFont);
+    m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
     updateFieldVisibility();
     updateLegend();
@@ -149,7 +158,8 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         int upperLimit = std::numeric_limits<int>::max();
         m_numLevels = cvf::Math::clamp(m_numLevels.v(), 1, upperLimit);
     }
-    else if (changedField == &m_rangeMode)
+    else if (changedField == &m_rangeMode ||
+             changedField == &m_mappingMode)
     {
         if (m_rangeMode == USER_DEFINED)
         {
@@ -189,6 +199,8 @@ void RimLegendConfig::updateLegend()
 
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
+
+       m_categoryMapper->setCategories(m_globalCategories);
    }
    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
    {
@@ -197,6 +209,8 @@ void RimLegendConfig::updateLegend()
 
        posClosestToZero = m_localAutoPosClosestToZero;
        negClosestToZero = m_localAutoNegClosestToZero;
+
+       m_categoryMapper->setCategories(m_localCategories);
    }
    else
    {
@@ -206,7 +220,6 @@ void RimLegendConfig::updateLegend()
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
    }
-
 
    m_linDiscreteScalarMapper->setRange(adjustedMin, adjustedMax);
    m_linSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
@@ -329,12 +342,44 @@ void RimLegendConfig::updateLegend()
        }
        break;
 
+   case CATEGORY:
+   {
+       // Based on http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
+       // and Kelly Colors
+        legendColors.reserve(20);
+        legendColors.add(cvf::Color3ub(255, 179,   0)); // vivid_yellow
+        legendColors.add(cvf::Color3ub(128,  62, 117)); // strong_purple
+        legendColors.add(cvf::Color3ub(255, 104,   0)); // vivid_orange
+        legendColors.add(cvf::Color3ub(166, 189, 215)); // very_light_blue
+        legendColors.add(cvf::Color3ub(193,   0,  32)); // vivid_red
+        legendColors.add(cvf::Color3ub(206, 162,  98)); // grayish_yellow
+        legendColors.add(cvf::Color3ub(129, 112, 102)); // medium_gray
+
+        // these aren't good for people with defective color vision
+        legendColors.add(cvf::Color3ub(  0, 125,  52)); // vivid_green
+        legendColors.add(cvf::Color3ub(246, 118, 142)); //strong_purplish_pink
+        legendColors.add(cvf::Color3ub(  0,  83, 138)); //strong_blue
+        legendColors.add(cvf::Color3ub(255, 122,  92)); //strong_yellowish_pink
+        legendColors.add(cvf::Color3ub( 83,  55, 122)); //strong_violet
+        legendColors.add(cvf::Color3ub(255, 142,   0)); //vivid_orange_yellow
+        legendColors.add(cvf::Color3ub(179,  40,  81)); //strong_purplish_red
+        legendColors.add(cvf::Color3ub(244, 200,   0)); //vivid_greenish_yellow
+        legendColors.add(cvf::Color3ub(127,  24,  13)); //strong_reddish_brown
+        legendColors.add(cvf::Color3ub(147, 170,   0)); //vivid_yellowish_green
+        legendColors.add(cvf::Color3ub( 89,  51,  21)); //deep_yellowish_brown
+        legendColors.add(cvf::Color3ub(241,  58,  19)); //vivid_reddish_orange
+        legendColors.add(cvf::Color3ub( 35,  44,  22)); //dark_olive_green
+   }
+   break;
+
    }
 
    m_linDiscreteScalarMapper->setColors(legendColors);
    m_logDiscreteScalarMapper->setColors(legendColors);
    m_logSmoothScalarMapper->setColors(legendColors);
    m_linSmoothScalarMapper->setColors(legendColors);
+
+   m_categoryMapper->setColors(legendColors);
 
    m_linDiscreteScalarMapper->setLevelCount(m_numLevels, true);
    m_logDiscreteScalarMapper->setLevelCount(m_numLevels, true);
@@ -355,11 +400,17 @@ void RimLegendConfig::updateLegend()
    case LOG10_DISCRETE:
        m_currentScalarMapper = m_logDiscreteScalarMapper.p();
        break;
+   case CATEGORY_INTEGER:
+       m_currentScalarMapper = m_categoryMapper.p();
+       break;
    default:
        break;
    }
 
-   m_scalarMapperLegend->setScalarMapper(m_currentScalarMapper.p());
+   if (m_currentScalarMapper != m_categoryMapper.p())
+   {
+        m_scalarMapperLegend->setScalarMapper(m_currentScalarMapper.p());
+   }
    double decadesInRange = 0;
 
    if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
@@ -468,7 +519,14 @@ void RimLegendConfig::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::updateFieldVisibility()
 {
-    if (m_rangeMode == USER_DEFINED)
+    bool showRangeItems = m_mappingMode == CATEGORY_INTEGER ? false : true;
+
+    m_numLevels.uiCapability()->setUiHidden(!showRangeItems);
+    m_precision.uiCapability()->setUiHidden(!showRangeItems);
+    m_tickNumberFormat.uiCapability()->setUiHidden(!showRangeItems);
+    m_rangeMode.uiCapability()->setUiHidden(!showRangeItems);
+
+    if (showRangeItems && m_rangeMode == USER_DEFINED)
     {
         m_userDefinedMaxValue.uiCapability()->setUiHidden(false);
         m_userDefinedMinValue.uiCapability()->setUiHidden(false);
@@ -537,6 +595,7 @@ cvf::ref<cvf::Color3ubArray> RimLegendConfig::interpolateColorArray(const cvf::C
 }
 */
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -548,6 +607,7 @@ void RimLegendConfig::recreateLegend()
 
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_scalarMapperLegend = new cvf::OverlayScalarMapperLegend(standardFont);
+    m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
     updateLegend();
 }
@@ -623,9 +683,50 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setCategories(const std::set<int>& globalCategories, const std::set<int>& localCategories)
+{
+    m_globalCategories.resize(globalCategories.size());
+    m_localCategories.resize(localCategories.size());
+
+    {
+        size_t i = 0;
+        for (auto val : globalCategories)
+        {
+            m_globalCategories.set(i++, val);
+        }
+    }
+
+    {
+        size_t i = 0;
+        for (auto val : localCategories)
+        {
+            m_localCategories.set(i++, val);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setTitle(const cvf::String& title)
+{
+    m_scalarMapperLegend->setTitle(title);
+    m_categoryLegend->setTitle(title);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::OverlayItem* RimLegendConfig::legend()
 {
-    return m_scalarMapperLegend.p();
+    if (m_currentScalarMapper == m_categoryMapper)
+    {
+        return m_categoryLegend.p();
+    }
+    else
+    {
+        return m_scalarMapperLegend.p();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -646,5 +747,62 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         mappingGr->add(&m_userDefinedMaxValue);
         mappingGr->add(&m_userDefinedMinValue);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QStringList optionTexts;
+
+    bool isCategoryResult = false;
+    RimEclipseCellColors* cellColors = NULL;
+    this->firstAnchestorOrThisOfType(cellColors);
+    if (cellColors && cellColors->hasCategoryResult())
+    {
+        isCategoryResult = true;
+    }
+
+    if (fieldNeedingOptions == &m_mappingMode)
+    {
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+
+        optionTexts << m_mappingMode.v().uiText(LINEAR_DISCRETE);
+        optionTexts << m_mappingMode.v().uiText(LINEAR_CONTINUOUS);
+        optionTexts << m_mappingMode.v().uiText(LOG10_CONTINUOUS);
+        optionTexts << m_mappingMode.v().uiText(LOG10_DISCRETE);
+
+        if (isCategoryResult)
+        {
+            optionTexts << m_mappingMode.v().uiText(CATEGORY_INTEGER);
+        }
+    }
+    else if (fieldNeedingOptions == &m_colorRangeMode)
+    {
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+
+        optionTexts << m_colorRangeMode.v().uiText(NORMAL);
+        optionTexts << m_colorRangeMode.v().uiText(OPPOSITE_NORMAL);
+        optionTexts << m_colorRangeMode.v().uiText(WHITE_PINK);
+        optionTexts << m_colorRangeMode.v().uiText(PINK_WHITE);
+        optionTexts << m_colorRangeMode.v().uiText(BLUE_WHITE_RED);
+        optionTexts << m_colorRangeMode.v().uiText(RED_WHITE_BLUE);
+        optionTexts << m_colorRangeMode.v().uiText(WHITE_BLACK);
+        optionTexts << m_colorRangeMode.v().uiText(BLACK_WHITE);
+
+        if (isCategoryResult)
+        {
+            optionTexts << m_colorRangeMode.v().uiText(CATEGORY);
+        }
+    }
+
+    QList<caf::PdmOptionItemInfo> optionList;
+    for (int i = 0; i < optionTexts.size(); ++i)
+    {
+        optionList.push_back(caf::PdmOptionItemInfo(optionTexts[i], static_cast<unsigned int>(i)));
+    }
+
+    return optionList;
 }
 

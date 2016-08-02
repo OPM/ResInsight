@@ -15,6 +15,10 @@ include_directories(
 )
 
 add_library( ${PROJECT_NAME}
+    cafCategoryLegend.cpp
+    cafCategoryLegend.h
+    cafCategoryMapper.cpp
+    cafCategoryMapper.h
 	cafTransparentWBRenderConfiguration.h
 	cafTransparentWBRenderConfiguration.cpp
 	TranspWB_CombinationFrag.glsl

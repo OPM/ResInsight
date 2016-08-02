@@ -312,6 +312,7 @@ add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
+add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
 #add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
@@ -331,6 +332,7 @@ list(APPEND APP_FWK_LIBRARIES
 
 	cafTensor
     CommonCode
+    cafVizExtensions
 )
 
 set_property(TARGET  

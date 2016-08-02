@@ -37,6 +37,7 @@
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
+#include "cafCategoryLegend.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
 
@@ -634,6 +635,13 @@ void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
     {
         scalarMapperLegend->setColor(contrastColor);
         scalarMapperLegend->setLineColor(contrastColor);
+    }
+
+    caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(legend);
+    if (categoryLegend)
+    {
+        categoryLegend->setColor(contrastColor);
+        categoryLegend->setLineColor(contrastColor);
     }
 }
 
