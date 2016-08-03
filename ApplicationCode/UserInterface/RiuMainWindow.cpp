@@ -493,7 +493,15 @@ void RiuMainWindow::createToolBars()
     m_snapshotToolbar->addAction(m_snapshotToFile);
     m_snapshotToolbar->addAction(m_snapshotAllViewsToFile);
 
-   // View toolbar
+    {
+        QToolBar* toolbar = addToolBar(tr("Window Management"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
+    }
+
+    // View toolbar
     m_viewToolBar = addToolBar(tr("View"));
     m_viewToolBar->setObjectName(m_viewToolBar->windowTitle());
     m_viewToolBar->addAction(m_zoomAll);
@@ -503,15 +511,6 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromWest);
     m_viewToolBar->addAction(m_viewFromAbove);
     m_viewToolBar->addAction(m_viewFromBelow);
-    m_viewToolBar->addSeparator();
-    m_viewToolBar->addAction(m_drawStyleLinesAction);
-    m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
-    m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
-    m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
-    m_viewToolBar->addAction(m_disableLightingAction);
-    m_viewToolBar->addAction(m_drawStyleHideGridCellsAction);
-    m_viewToolBar->addAction(m_toggleFaultsLabelAction);
-    m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
     scaleLabel->setText("Scale");
@@ -521,20 +520,23 @@ void RiuMainWindow::createToolBars()
     m_scaleFactor->setValue(0);
     m_viewToolBar->addWidget(m_scaleFactor);
     connect(m_scaleFactor, SIGNAL(valueChanged(int)), SLOT(slotScaleChanged(int)));
+    
+    {
+        QToolBar* dsToolBar = addToolBar(tr("Draw Style"));
+        dsToolBar->addAction(m_drawStyleLinesAction);
+        dsToolBar->addAction(m_drawStyleLinesSolidAction);
+        dsToolBar->addAction(m_drawStyleSurfOnlyAction);
+        dsToolBar->addAction(m_drawStyleFaultLinesSolidAction);
+        dsToolBar->addAction(m_disableLightingAction);
+        dsToolBar->addAction(m_drawStyleHideGridCellsAction);
+        dsToolBar->addAction(m_toggleFaultsLabelAction);
+        dsToolBar->addAction(m_addWellCellsToRangeFilterAction);
+    }
 
     // Create animation toolbar
     m_animationToolBar = new caf::AnimationToolBar("Animation", this);
     addToolBar(m_animationToolBar);
     //connect(m_animationToolBar, SIGNAL(signalFrameRateChanged(double)), SLOT(slotFramerateChanged(double)));
-
-    {
-        // Snapshots
-        QToolBar* toolbar = addToolBar(tr("Window Management"));
-        toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
-    }
 
     refreshAnimationActions();
     refreshDrawStyleActions();
@@ -573,7 +575,7 @@ void RiuMainWindow::createDockPanels()
         RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
         m_projectTreeView->treeView()->installEventFilter(treeViewEventFilter);
 
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
         connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -631,6 +633,7 @@ void RiuMainWindow::createDockPanels()
         dockPanel->setWidget(m_processMonitor);
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        dockPanel->hide();
     }
 
     {
@@ -640,7 +643,7 @@ void RiuMainWindow::createDockPanels()
         m_resultQwtPlot = new RiuResultQwtPlot(dockPanel);
         dockPanel->setWidget(m_resultQwtPlot);
 
-        addDockWidget(Qt::RightDockWidgetArea, dockPanel);
+        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
  
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);

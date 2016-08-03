@@ -60,7 +60,10 @@ public:
 
     void                        setUiConfigurationName(QString uiConfigName);
     PdmObjectHandle*            currentObject();
-public slots:
+
+    virtual QSize               sizeHint() const override;
+
+    public slots:
     void                        showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private:

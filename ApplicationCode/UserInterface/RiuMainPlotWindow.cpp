@@ -225,7 +225,7 @@ void RiuMainPlotWindow::createDockPanels()
         RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter(this);
         m_projectTreeView->treeView()->installEventFilter(treeViewEventFilter);
 
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
         connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
