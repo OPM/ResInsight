@@ -32,6 +32,8 @@ public:
     void            loadWinGeoAndDockToolBarLayout();
     void            saveWinGeoAndDockToolBarLayout();
     void            showWindow();
+private:
+    QString         registryFolderName();
 
 
 };

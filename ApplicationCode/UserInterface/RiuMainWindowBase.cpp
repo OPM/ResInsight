@@ -18,6 +18,7 @@
 
 #include "RiuMainWindowBase.h"
 #include "QSettings"
+#include "RiaVersionInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -35,8 +36,8 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
     // Company and appname set through QCoreApplication
     QSettings settings;
 
-    QVariant winGeo = settings.value(QString("%1/winGeometry").arg(mainWindowName()));
-    QVariant layout = settings.value(QString("%1/dockAndToolBarLayout").arg(mainWindowName()));
+    QVariant winGeo = settings.value(QString("%1/winGeometry").arg(registryFolderName()));
+    QVariant layout = settings.value(QString("%1/dockAndToolBarLayout").arg(registryFolderName()));
 
     if (winGeo.isValid())
     {
@@ -59,12 +60,12 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     QSettings settings;
 
     QByteArray winGeo = saveGeometry();
-    settings.setValue(QString("%1/winGeometry").arg(mainWindowName()), winGeo);
+    settings.setValue(QString("%1/winGeometry").arg(registryFolderName()), winGeo);
 
     QByteArray layout = saveState(0);
-    settings.setValue(QString("%1/dockAndToolBarLayout").arg(mainWindowName()), layout);
+    settings.setValue(QString("%1/dockAndToolBarLayout").arg(registryFolderName()), layout);
 
-    settings.setValue(QString("%1/isMaximized").arg(mainWindowName()), isMaximized());
+    settings.setValue(QString("%1/isMaximized").arg(registryFolderName()), isMaximized());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,9 +78,19 @@ void RiuMainWindowBase::showWindow()
 
     showNormal();
 
-    QVariant isMax = settings.value(QString("%1/isMaximized").arg(mainWindowName()), false);
+    QVariant isMax = settings.value(QString("%1/isMaximized").arg(registryFolderName()), false);
     if (isMax.toBool())
     {
         showMaximized();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuMainWindowBase::registryFolderName()
+{
+    QString versionName(STRPRODUCTVER);
+    QString regFolder = QString("%1/%2").arg(versionName).arg(mainWindowName());
+    return regFolder;
 }
