@@ -83,6 +83,7 @@ void RicNewSummaryCurveFilterFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryCurveFilterFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Curve Filter");
+    actionToSetup->setIcon(QIcon(":/SummaryCurveFilter16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,6 +43,7 @@
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
@@ -256,12 +257,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
             commandIds << "RicNewWellLogPlotTrackFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellLogTrack*>(uiItem))
         {
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellLogFileCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteWellLogPlotTrackFeature";
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem))
@@ -271,14 +274,25 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
-            commandIds << "RicNewSummaryCurveFeature";
             commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicViewZoomAllFeature";
-
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {
+            commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
+        {
+            commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
@@ -296,6 +310,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimCrossSection*>(uiItem))
         {
             commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
