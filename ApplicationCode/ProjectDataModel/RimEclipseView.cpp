@@ -1059,6 +1059,7 @@ void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
     cellResult()->setEclipseCase(reservoir);
     faultResultSettings()->customFaultResult()->setEclipseCase(reservoir);
     
+    cellEdgeResult()->setEclipseCase(reservoir);
 }
 
 //--------------------------------------------------------------------------------------------------

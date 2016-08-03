@@ -29,9 +29,10 @@
 #include "cafPdmObject.h"
 
 class RigCaseCellResultsData;
+class RimEclipseCase;
+class RimEclipseCellColors;
 class RimEclipseView;
 class RimLegendConfig;
-
 
 //==================================================================================================
 ///  
@@ -54,6 +55,7 @@ public:
     typedef  caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
 
     void                                  setReservoirView(RimEclipseView* ownerReservoirView);
+    void                                  setEclipseCase(RimEclipseCase* eclipseCase);
 
     caf::PdmField<QString>                resultVariable;
     caf::PdmField<bool>                   enableCellEdgeColors;
@@ -69,15 +71,20 @@ public:
     void                                  posNegClosestToZero(double& pos, double& neg);
 protected:
 
+    virtual void                          initAfterRead();
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
     QStringList                           findResultVariableNames();
 
 private:
-
+    void                                  updateFieldVisibility();
 
     void                                  resetResultIndices();
     void                                  updateIgnoredScalarValue();
+
+    static QString                        customEdgeResultUiText() { return "Custom Edge Result"; }
 
     virtual caf::PdmFieldHandle*          objectToggleField();
 
@@ -88,5 +95,7 @@ private:
     caf::FixedArray<std::pair<QString, size_t>, 6 >  m_resultNameToIndexPairs;
     caf::PdmPointer<RimEclipseView>                  m_reservoirView;
     double                                           m_ignoredResultScalar;
+
+    caf::PdmChildField<RimEclipseCellColors*>       m_customFaultResultColors;
 };
 

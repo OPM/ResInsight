@@ -20,6 +20,7 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RimCellEdgeColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimTernaryLegendConfig.h"
@@ -95,6 +96,12 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         if (faultColors)
         {
             faultColors->updateConnectedEditors();
+        }
+
+        RimCellEdgeColors* cellEdgeColors = dynamic_cast<RimCellEdgeColors*>(this->parentField()->ownerObject());
+        if (cellEdgeColors)
+        {
+            cellEdgeColors->updateConnectedEditors();
         }
     }
 

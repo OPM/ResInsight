@@ -56,6 +56,7 @@ protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     friend class RimEclipseFaultColors;
+    friend class RimCellEdgeColors;
     virtual void                                initAfterRead();
 
 private:

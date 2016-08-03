@@ -23,6 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 
+#include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -178,6 +179,12 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (faultColors)
     {
         faultColors->updateConnectedEditors();
+    }
+
+    RimCellEdgeColors* cellEdgeColors = dynamic_cast<RimCellEdgeColors*>(this->parentField()->ownerObject());
+    if (cellEdgeColors)
+    {
+        cellEdgeColors->updateConnectedEditors();
     }
 
     if (curve)
