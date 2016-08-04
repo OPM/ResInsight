@@ -155,26 +155,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
     }
     else if(fieldNeedingOptions == &m_uiFilterResultMultiSelection)
     {
-        size_t caseCount = m_selectedSummaryCases.size();
-        std::set<RifEclipseSummaryAddress> addrUnion;
-
-        for(RimSummaryCase* currCase: m_selectedSummaryCases)
-        {
-            RifReaderEclipseSummary* reader = nullptr;
-            if(currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
-
-            if(reader)
-            {
-                const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-                int addressCount = static_cast<int>(allAddresses.size());
-
-                for(int i = 0; i <addressCount; i++)
-                {
-                    if(!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
-                    addrUnion.insert(allAddresses[i]);
-                }
-            }
-        }
+        std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses();
 
         for(const auto& address: addrUnion)
         {
@@ -310,7 +291,9 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
     std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
 
     // Populate the newCurveDefinitions from the Gui
-    
+
+    std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses();
+
     for (RimSummaryCase* currentCase: m_selectedSummaryCases)
     {
         if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
@@ -320,30 +303,13 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
         for(const RifEclipseSummaryAddress& addr: m_uiFilterResultMultiSelection.v())
         {
             if(!reader->hasAddress(addr)) continue;
-
+            if (addrUnion.count(addr) == 0 ) continue; // Wash the possible "old" ui selection with new filter
+             
             newCurveDefinitions.insert(std::make_pair(currentCase, addr));
         }
     }
 
-    #if 0
-    // Delete all existing curves that is not matching
-    // Remove the entries in the search set that we already have
-    for(RimSummaryCurve* curve: m_curves)
-    {
-        auto foundIt = newCurveDefinitions.find(std::make_pair(curve->summaryCase(), curve->summaryAddress() ));
-        if (foundIt == newCurveDefinitions.end())
-        {
-            delete curve;
-        }
-        else
-        {
-            newCurveDefinitions.erase(foundIt);
-        }
-    }
-    m_curves.removeChildObject(nullptr);
-    #else
     m_curves.deleteAllChildObjects();
-    #endif
 
     createCurvesFromCurveDefinitions(newCurveDefinitions);
 }
@@ -364,11 +330,14 @@ void RimSummaryCurveFilter::syncUiSelectionFromCurves()
         referredCases.insert(curve->summaryCase());
     }
 
-    m_selectedSummaryCases.clear();
-
-    for (RimSummaryCase* currCase: referredCases)
+    if (m_curves.size()) // Only sync the selected cases if we actually have some curves. To avoid user getting an empty variable list accidentally
     {
-        m_selectedSummaryCases.push_back(currCase);
+        m_selectedSummaryCases.clear();
+
+        for(RimSummaryCase* currCase: referredCases)
+        {
+            m_selectedSummaryCases.push_back(currCase);
+        }
     }
 
     m_uiFilterResultMultiSelection.v().clear();
@@ -495,4 +464,32 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
         curve->updateCurveName();
         curve->updateConnectedEditors();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimSummaryCurveFilter::findPossibleSummaryAddresses()
+{
+    std::set<RifEclipseSummaryAddress> addrUnion;
+
+    for(RimSummaryCase* currCase: m_selectedSummaryCases)
+    {
+        RifReaderEclipseSummary* reader = nullptr;
+        if(currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
+
+        if(reader)
+        {
+            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+            int addressCount = static_cast<int>(allAddresses.size());
+
+            for(int i = 0; i <addressCount; i++)
+            {
+                if(!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
+                addrUnion.insert(allAddresses[i]);
+            }
+        }
+    }
+
+    return addrUnion;
 }

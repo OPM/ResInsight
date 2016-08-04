@@ -60,22 +60,22 @@ public:
     RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
     std::set<std::string>                   unitNames();
 
-    void updateCaseNameHasChanged();
+    void                                    updateCaseNameHasChanged();
+
 private:
     void                                    syncCurvesFromUiSelection();
-
     void                                    createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
-
     void                                    syncUiSelectionFromCurves();
+    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses();
     
-    void                             createSetOfCasesAndResultAdresses(
-        const std::vector<RimSummaryCase*>& cases,
-        const RimSummaryFilter& filter,
-        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const;
+    void                                    createSetOfCasesAndResultAdresses(
+                                                   const std::vector<RimSummaryCase*>& cases,
+                                                   const RimSummaryFilter& filter,
+                                                   std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const;
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly); 
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
