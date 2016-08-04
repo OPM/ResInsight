@@ -19,20 +19,24 @@
 
 #include "RivReservoirFaultsPartMgr.h"
 
-#include "cvfPart.h"
-#include "cvfModelBasicList.h"
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipseView.h"
+#include "RimFaultCollection.h"
+
+#include "RivFaultPartMgr.h"
+
 #include "cvfColor3.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
 #include "cvfTransform.h"
 
 #include "cafPdmFieldCvfColor.h"
 
-#include "RigMainGrid.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseCase.h"
-#include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

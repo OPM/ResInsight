@@ -84,14 +84,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicNewWellLogPlotFeature";
         commandIds << "RicNewSummaryPlotFeature";
     }
-    else if (uiItems.size() > 1)
-    {
-        caf::PdmUiItem* uiItem = uiItems[0];
-        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
-        {
-            commandIds << "RicAddWellLogToPlotFeature";
-        }
-    }
     else if (uiItems.size() == 1)
     {
         caf::PdmUiItem* uiItem = uiItems[0];
@@ -130,7 +122,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewViewFeature";
             commandIds << "RicComputeStatisticsFeature";
             commandIds << "RicCloseCaseFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
@@ -142,7 +133,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicCloseCaseFeature";
             commandIds << "RicNewViewFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
         {
@@ -233,6 +223,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicDeleteScriptPathFeature";
+            commandIds << "RicNewScriptFeature";
+            commandIds << "Separator";
+            commandIds << "RicRefreshScriptsFeature";
         }
         else if (dynamic_cast<RimViewController*>(uiItem))
         {
@@ -325,6 +318,24 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicUnLinkViewFeature";
             commandIds << "RicShowLinkOptionsFeature";
             commandIds << "RicSetMasterViewFeature";
+        }
+    }
+
+    // Command supporting multiple selected objects
+    if (uiItems.size() > 0)
+    {
+        caf::PdmUiItem* uiItem = uiItems[0];
+        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
+        {
+            commandIds << "RicAddWellLogToPlotFeature";
+        }
+        else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
+        {
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimEclipseCase*>(uiItem))
+        {
+            commandIds << "RicExecuteScriptForCasesFeature";
         }
     }
 

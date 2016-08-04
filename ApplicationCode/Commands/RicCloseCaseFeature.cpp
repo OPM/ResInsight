@@ -67,11 +67,15 @@ void RicCloseCaseFeature::onActionTriggered(bool isChecked)
         if (userConfirmedGridCaseGroupChange(casesToBeDeleted))
         {
             deleteEclipseCase(eclipseCase);
+
+            RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
     else if (geoMechCase)
     {
         deleteGeoMechCase(geoMechCase);
+
+        RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
 

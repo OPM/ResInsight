@@ -22,25 +22,26 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigCaseToCaseCellMapper.h"
 #include "RigGridBase.h"
 #include "RigResultAccessorFactory.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimEclipseCase.h"
 #include "RimCellEdgeColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseWellCollection.h"
-
-#include "RivGridPartMgr.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
-#include "RigCaseToCaseCellMapper.h"
+
+#include "RivGridPartMgr.h"
+#include "RivReservoirFaultsPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -952,19 +953,22 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::Model
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const
+RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes, bool showFaultsOutsideFilters) const
 {
     bool hasInactive = false;
     for (size_t i = 0; i < geometryTypes.size(); i++)
     {
-        if (geometryTypes[i] == PROPERTY_FILTERED)
+        if (!showFaultsOutsideFilters)
         {
-            return PROPERTY_FILTERED;
-        }
+            if (geometryTypes[i] == PROPERTY_FILTERED)
+            {
+                return PROPERTY_FILTERED;
+            }
 
-        if (geometryTypes[i] == RANGE_FILTERED)
-        {
-            return RANGE_FILTERED;
+            if (geometryTypes[i] == RANGE_FILTERED)
+            {
+                return RANGE_FILTERED;
+            }
         }
 
         if (geometryTypes[i] == INACTIVE)

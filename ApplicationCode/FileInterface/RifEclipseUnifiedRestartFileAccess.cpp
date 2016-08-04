@@ -24,6 +24,8 @@
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw_magic.h"
 
+#include <QDebug>
+
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
@@ -102,6 +104,7 @@ std::vector<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
     return timeSteps;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +112,10 @@ void RifEclipseUnifiedRestartFileAccess::resultNames(QStringList* resultNames, s
 {
     if (openFile())
     {
-        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_file, resultNames, resultDataItemCounts);
+        std::vector< ecl_file_type* > filesUsedToFindAvailableKeywords;
+        filesUsedToFindAvailableKeywords.push_back(m_ecl_file);
+
+        RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, resultNames, resultDataItemCounts);
     }
 }
 
@@ -123,23 +129,26 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
         return false;
     }
 
-    size_t numOccurrences   = ecl_file_get_num_named_kw(m_ecl_file, resultName.toAscii().data());
+    ecl_file_push_block(m_ecl_file);
 
-    size_t startIndex       = timeStep * gridCount;
-    CVF_ASSERT(startIndex + gridCount <= numOccurrences);
-
-    size_t occurrenceIdx;
-    for (occurrenceIdx = startIndex; occurrenceIdx < startIndex + gridCount; occurrenceIdx++)
+    for (size_t i = 0; i < gridCount; i++)
     {
-        std::vector<double> partValues;
-        RifEclipseOutputFileTools::keywordData(m_ecl_file, resultName, occurrenceIdx, &partValues);
+        ecl_file_select_block(m_ecl_file, INTEHEAD_KW, static_cast<int>(timeStep * gridCount + i));
 
-        values->insert(values->end(), partValues.begin(), partValues.end());
+        int namedKeywordCount = ecl_file_get_num_named_kw(m_ecl_file, resultName.toAscii().data());
+        for (int iOcc = 0; iOcc < namedKeywordCount; iOcc++)
+        {
+            std::vector<double> partValues;
+            RifEclipseOutputFileTools::keywordData(m_ecl_file, resultName, iOcc, &partValues);
+
+            values->insert(values->end(), partValues.begin(), partValues.end());
+        }
     }
+
+    ecl_file_pop_block(m_ecl_file);
 
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

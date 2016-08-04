@@ -24,10 +24,12 @@
 #include "cvfObject.h"
 #include "cvfLibCore.h"
 
+#include "RifReaderInterface.h"
+#include "RifEclipseRestartDataAccess.h"
+
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
-#include "RifReaderInterface.h"
 
 #include "ert/ecl/ecl_util.h"
 
@@ -45,7 +47,8 @@ public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    static void         findKeywordsAndDataItemCounts(ecl_file_type* ecl_file, QStringList* keywords, std::vector<size_t>* keywordDataItemCounts);
+    static void         findKeywordsAndItemCount(std::vector<ecl_file_type*> ecl_files, QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
+
     static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values);
     static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values);
 
@@ -59,4 +62,7 @@ public:
     static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
 
     static int          readUnitsType(ecl_file_type* ecl_file);
+
+private:
+    static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);
 };

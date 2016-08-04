@@ -113,6 +113,12 @@ void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
     }
 
     RiaApplication::instance()->setDefaultFileDialogDirectory("MULTICASEIMPORT", selectedFolder);
+
+    QPushButton* okButton = ui->m_dialogButtons->button(QDialogButtonBox::Ok);
+    if (okButton)
+    {
+        okButton->setFocus(Qt::OtherFocusReason);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

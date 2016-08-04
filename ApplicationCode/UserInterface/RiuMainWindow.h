@@ -79,6 +79,7 @@ public:
     virtual QString mainWindowName()        { return "RiuMainWindow";  }
     
     void            initializeGuiNewProjectLoaded();
+    void            cleanupGuiCaseClose();
     void            cleanupGuiBeforeProjectClose();
 
     void            removeViewer( QWidget* viewer );

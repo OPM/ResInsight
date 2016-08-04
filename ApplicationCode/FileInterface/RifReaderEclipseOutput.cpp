@@ -683,7 +683,10 @@ void RifReaderEclipseOutput::buildMetaData()
     {
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
-        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_init_file, &resultNames, &resultNamesDataItemCounts);
+        std::vector< ecl_file_type* > filesUsedToFindAvailableKeywords;
+        filesUsedToFindAvailableKeywords.push_back(m_ecl_init_file);
+
+        RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
         {
             QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
@@ -1565,7 +1568,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 //--------------------------------------------------------------------------------------------------
 QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, 
                                                                   const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, 
-                                                                  PorosityModelResultType matrixOrFracture, size_t timeStepCount) const
+                                                                  PorosityModelResultType porosityModel, size_t timeStepCount) const
 {
     CVF_ASSERT(activeCellInfo);
 
@@ -1574,7 +1577,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         return QStringList();
     }
 
-    if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
+    if (porosityModel == RifReaderInterface::FRACTURE_RESULTS)
     {
         if (fractureActiveCellInfo->reservoirActiveCellCount() == 0)
         {
@@ -1590,43 +1593,47 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 
         if (activeCellInfo->reservoirActiveCellCount() > 0)
         {
-            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
+            if (keywordDataItemCounts[i] < activeCellInfo->reservoirActiveCellCount()) continue;
 
-            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->reservoirActiveCellCount();
+            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
             size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->reservoirActiveCellCount();
-        
-            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
             size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
 
-            if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+            if (timeStepsAllCellsRest == 0)
             {
-                if (timeStepsMatrixRest == 0 || timeStepsMatrixAndFractureRest == 0)
+                if (keywordDataItemCounts[i] > timeStepCount * activeCellInfo->reservoirCellCount())
                 {
-                    if (timeStepCount == timeStepsMatrix || timeStepCount == timeStepsMatrixAndFracture)
-                    {
-                        keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
-                    }
-                }
-                else if (timeStepsAllCellsRest == 0)
-                {
-                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    continue;
                 }
 
+                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
             }
-            else
+            else if (porosityModel == RifReaderInterface::MATRIX_RESULTS && timeStepsMatrixRest == 0)
             {
-                if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
+                if (keywordDataItemCounts[i] > timeStepCount * activeCellInfo->reservoirActiveCellCount())
                 {
-                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    continue;
                 }
-                else if (timeStepsAllCellsRest == 0)
+
+                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+            }
+            else if (porosityModel == RifReaderInterface::FRACTURE_RESULTS && timeStepsMatrixAndFractureRest == 0)
+            {
+                if (keywordDataItemCounts[i] > timeStepCount * (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount()))
                 {
-                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    continue;
                 }
+
+                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
             }
         }
         else
         {
+            if (keywordDataItemCounts[i] > activeCellInfo->reservoirCellCount())
+            {
+                continue;
+            }
+
             keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
         }
     }

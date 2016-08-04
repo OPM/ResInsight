@@ -67,6 +67,11 @@ public:
     PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
     virtual ~PdmUiTreeViewWidget() {};
 
+    bool isTreeItemEditWidgetActive() const
+    {
+        return state() == QAbstractItemView::EditingState;
+    }
+
 protected:
     virtual void dragMoveEvent(QDragMoveEvent* event)
     {
@@ -161,6 +166,14 @@ QTreeView* PdmUiTreeViewEditor::treeView()
     return m_treeView;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewEditor::isTreeItemEditWidgetActive() const
+{
+    return m_treeView->isTreeItemEditWidgetActive();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

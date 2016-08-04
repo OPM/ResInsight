@@ -12,6 +12,7 @@ ${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewScriptFeature.h
 ${CEE_CURRENT_LIST_DIR}RicScriptFeatureImpl.h
+${CEE_CURRENT_LIST_DIR}RicRefreshScriptsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +23,7 @@ ${CEE_CURRENT_LIST_DIR}RicExecuteScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExecuteScriptForCasesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewScriptFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicScriptFeatureImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicRefreshScriptsFeature.cpp
 )
 
 set (QT_MOC_HEADERS

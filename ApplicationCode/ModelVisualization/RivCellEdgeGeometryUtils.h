@@ -44,6 +44,7 @@ public:
         const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
         cvf::DrawableGeo* geo,
         size_t gridIndex,
+        bool useDefaultValueForHugeVals,
         float opacityLevel);
 
     static void addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
