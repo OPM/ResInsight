@@ -193,6 +193,51 @@ void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::sumCellScalarValues(double& sumValue)
+{
+    if (!m_statsAllTimesteps.m_isValueSumCalculated)
+    {
+        double aggregatedSum = 0.0;
+        for (size_t i = 0; i < m_statisticsCalculator->timeStepCount(); i++)
+        {
+            double valueSum = 0.0;
+            this->sumCellScalarValues(i, valueSum);
+
+            aggregatedSum += valueSum;
+        }
+
+        m_statsAllTimesteps.m_valueSum = aggregatedSum;
+        m_statsAllTimesteps.m_isValueSumCalculated = true;
+    }
+
+    sumValue = m_statsAllTimesteps.m_valueSum;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::sumCellScalarValues(size_t timeStepIndex, double& sumValue)
+{
+    if (timeStepIndex >= m_statsPrTs.size())
+    {
+        m_statsPrTs.resize(timeStepIndex + 1);
+    }
+
+    if (!m_statsPrTs[timeStepIndex].m_isValueSumCalculated)
+    {
+        double valueSum = 0.0;
+        size_t sampleCount = 0;
+        m_statisticsCalculator->valueSumAndSampleCount(timeStepIndex, valueSum, sampleCount);
+        m_statsPrTs[timeStepIndex].m_valueSum = valueSum;
+        m_statsPrTs[timeStepIndex].m_isValueSumCalculated = true;
+    }
+
+    sumValue = m_statsPrTs[timeStepIndex].m_valueSum;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 {
     computeHistogramStatisticsIfNeeded();

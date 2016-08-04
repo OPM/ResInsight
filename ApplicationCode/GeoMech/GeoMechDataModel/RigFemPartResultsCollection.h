@@ -55,6 +55,8 @@ public:
     void                                             meanScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* meanValue);
     void                                             p10p90ScalarValues(const RigFemResultAddress& resVarAddr, double* p10, double* p90);
     void                                             p10p90ScalarValues(const RigFemResultAddress& resVarAddr, int frameIndex, double* p10, double* p90);
+    void                                             sumScalarValue(const RigFemResultAddress& resVarAddr, double* sum);
+    void                                             sumScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* sum);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex);
 

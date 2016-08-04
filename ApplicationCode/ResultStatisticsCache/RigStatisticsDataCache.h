@@ -49,6 +49,9 @@ public:
     void                                    meanCellScalarValues(double& meanValue);
     void                                    meanCellScalarValues(size_t timeStepIndex, double& meanValue);
 
+    void                                    sumCellScalarValues(double& sumValue);
+    void                                    sumCellScalarValues(size_t timeStepIndex, double& sumValue);
+
     const std::vector<size_t>&              cellScalarValuesHistogram();
     const std::vector<size_t>&              cellScalarValuesHistogram(size_t timeStepIndex);
 
@@ -71,6 +74,8 @@ private:
             m_isClosestToZeroCalculated = false;
             m_p10                       = HUGE_VAL;
             m_p90                       = HUGE_VAL;
+            m_valueSum                  = 0.0;
+            m_isValueSumCalculated      = false;
         }
 
         double              m_minValue;
@@ -86,6 +91,9 @@ private:
         
         double              m_p10;
         double              m_p90;
+
+        double              m_valueSum;
+        bool                m_isValueSumCalculated;
 
         std::vector<size_t> m_histogram;
     };
