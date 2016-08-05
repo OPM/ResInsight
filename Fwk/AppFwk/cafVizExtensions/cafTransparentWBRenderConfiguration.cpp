@@ -426,7 +426,7 @@ void WBTransparencySurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effec
 {
     if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
