@@ -44,11 +44,11 @@ public:
     RimEclipsePropertyFilter();
     virtual ~RimEclipsePropertyFilter();
 
-    caf::PdmChildField<RimEclipseResultDefinition*>     resultDefinition;
+    caf::PdmChildField<RimEclipseResultDefinition*> resultDefinition;
 
-    caf::PdmField<double>                   lowerBound;
-    caf::PdmField<double>                   upperBound;
-
+    void                                    rangeValues(double* lower, double* upper) const;
+    bool                                    isValueSelectionActive() const;
+    std::vector<int>                        selectedValues() const;
 
     RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
@@ -75,8 +75,10 @@ private:
     bool                                    isPropertyFilterControlled();
 
 private:
-    caf::PdmField< std::vector<int> >       selectedCategoryValues;
-    caf::PdmField<bool>                     useRangeInsteadOfCategories;
+    caf::PdmField<double>                   m_lowerBound;
+    caf::PdmField<double>                   m_upperBound;
+    caf::PdmField< std::vector<int> >       m_selectedValues;
+    caf::PdmField<bool>                     m_valueSelection;
 
     double                                  m_minimumResultValue;
     double                                  m_maximumResultValue;

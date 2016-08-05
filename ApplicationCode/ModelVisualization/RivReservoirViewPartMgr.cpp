@@ -781,11 +781,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
         {
             RimEclipsePropertyFilter* propertyFilter = propFilterColl->propertyFilters()[i];
 
-            if (propertyFilter->isActive()&& propertyFilter->resultDefinition->hasResult())
+            if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult())
             {
-                const double lowerBound = propertyFilter->lowerBound();
-                const double upperBound = propertyFilter->upperBound();
-
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
@@ -803,26 +800,65 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 
                 CVF_ASSERT(resultAccessor.notNull());
 
-                //#pragma omp parallel for schedule(dynamic)
-                for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
+                if (propertyFilter->isValueSelectionActive())
                 {
-                    if ( (*cellVisibility)[cellIndex] )
+                    std::vector<int> integerVector = propertyFilter->selectedValues();
+                    std::set<int> integerSet;
+                    for (auto val : integerVector)
                     {
-                        size_t resultValueIndex = cellIndex;
-                        
-                        double scalarValue = resultAccessor->cellScalar(resultValueIndex);
-                        if (lowerBound <= scalarValue && scalarValue <= upperBound)
+                        integerSet.insert(val);
+                    }
+
+                    for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
+                    {
+                        if ((*cellVisibility)[cellIndex])
                         {
-                            if (filterType == RimCellFilter::EXCLUDE)
+                            size_t resultValueIndex = cellIndex;
+
+                            double scalarValue = resultAccessor->cellScalar(resultValueIndex);
+                            if (integerSet.find(scalarValue) != integerSet.end())
                             {
-                                (*cellVisibility)[cellIndex] = false;
+                                if (filterType == RimCellFilter::EXCLUDE)
+                                {
+                                    (*cellVisibility)[cellIndex] = false;
+                                }
+                            }
+                            else
+                            {
+                                if (filterType == RimCellFilter::INCLUDE)
+                                {
+                                    (*cellVisibility)[cellIndex] = false;
+                                }
                             }
                         }
-                        else
+                    }
+                }
+                else
+                {
+                    double lowerBound = 0.0;
+                    double upperBound = 0.0;
+                    propertyFilter->rangeValues(&lowerBound, &upperBound);
+
+                    for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
+                    {
+                        if ((*cellVisibility)[cellIndex])
                         {
-                            if (filterType == RimCellFilter::INCLUDE)
+                            size_t resultValueIndex = cellIndex;
+
+                            double scalarValue = resultAccessor->cellScalar(resultValueIndex);
+                            if (lowerBound <= scalarValue && scalarValue <= upperBound)
                             {
-                                (*cellVisibility)[cellIndex] = false;
+                                if (filterType == RimCellFilter::EXCLUDE)
+                                {
+                                    (*cellVisibility)[cellIndex] = false;
+                                }
+                            }
+                            else
+                            {
+                                if (filterType == RimCellFilter::INCLUDE)
+                                {
+                                    (*cellVisibility)[cellIndex] = false;
+                                }
                             }
                         }
                     }
