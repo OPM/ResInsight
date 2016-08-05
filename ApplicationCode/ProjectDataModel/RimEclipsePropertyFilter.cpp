@@ -77,7 +77,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitFieldNoDefault(&m_selectedValues, "SelectedValues", "Values", "", "", "");
 
-    CAF_PDM_InitField(&m_valueSelection, "ValueSelection", true, "Value Selection", "", "", "");
+    CAF_PDM_InitField(&m_valueSelection, "ValueSelection", false, "Value Selection", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();

@@ -67,7 +67,8 @@ protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
-    friend RimEclipsePropertyFilterCollection;
+    friend class RimEclipsePropertyFilterCollection;
+    friend class RicEclipsePropertyFilterFeatureImpl;
 
     void                                    updateActiveState();
     void                                    updateFieldVisibility();
