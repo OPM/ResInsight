@@ -157,7 +157,8 @@ QString RimSummaryCaseCollection::uniqueShortNameForCase(RimSummaryCase* summary
 
     if (caseName.size() > 2)
     {
-        QString candidate = caseName[0];
+        QString candidate;
+        candidate += caseName[0];
 
         for (int i = 1; i < caseName.size(); ++i )
         {
