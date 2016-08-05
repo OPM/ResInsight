@@ -427,6 +427,16 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::hasCategoryResult() const
+{
+    if (!this->hasStaticResult()) return false;
+
+    return this->resultVariable().contains("NUM", Qt::CaseInsensitive);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateFieldVisibility()
 {
     if (m_eclipseCase &&

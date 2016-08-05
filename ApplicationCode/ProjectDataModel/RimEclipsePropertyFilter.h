@@ -49,6 +49,7 @@ public:
     caf::PdmField<double>                   lowerBound;
     caf::PdmField<double>                   upperBound;
 
+
     RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
     void                                    updateFilterName();
@@ -57,20 +58,27 @@ public:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();
 
-    void                                    updateActiveState();
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
+    friend RimEclipsePropertyFilterCollection;
+
+    void                                    updateActiveState();
+    void                                    updateFieldVisibility();
     void                                    updateReadOnlyStateOfAllFields();
     bool                                    isPropertyFilterControlled();
 
 private:
-    double                                  m_minimumResultValue; 
+    caf::PdmField< std::vector<int> >       selectedCategoryValues;
+    caf::PdmField<bool>                     useRangeInsteadOfCategories;
+
+    double                                  m_minimumResultValue;
     double                                  m_maximumResultValue;
 
 public:
@@ -82,6 +90,6 @@ public:
     };
 private:
     caf::PdmField< caf::AppEnum< EvaluationRegionType > > obsoleteField_evaluationRegion;
-
+    std::vector<int>                       m_uniqueCellValues;
 };
 

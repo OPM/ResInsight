@@ -75,6 +75,11 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
     upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
+    CAF_PDM_InitFieldNoDefault(&selectedCategoryValues, "SelectedCategoryValues", "Categories", "", "", "");
+
+    CAF_PDM_InitField(&useRangeInsteadOfCategories, "UseRangeInsteadOfCategories", false, "Use Range selection for Categories", "", "", "");
+    upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
     updateIconState();
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
@@ -97,8 +102,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
     if (&name == changedField)
     {
     }
-
-    if (   &lowerBound == changedField 
+    else if (   &lowerBound == changedField 
         || &upperBound == changedField
         || &obsoleteField_evaluationRegion == changedField
         || &isActive == changedField
@@ -109,6 +113,10 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         this->uiCapability()->updateConnectedEditors();
 
         parentContainer()->updateDisplayModelNotifyManagedViews();
+    }
+    else if (&useRangeInsteadOfCategories == changedField)
+    {
+        updateFieldVisibility();
     }
 }
 
@@ -131,6 +139,11 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 
     lowerBound = m_minimumResultValue;
     upperBound = m_maximumResultValue;
+
+    selectedCategoryValues = std::vector<int>();
+    useRangeInsteadOfCategories = false;
+
+    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,11 +163,13 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     // Fields declared in RimCellFilter
     uiOrdering.add(&isActive);
     uiOrdering.add(&filterMode);
+    uiOrdering.add(&useRangeInsteadOfCategories);
 
     // Fields declared in this class (RimCellPropertyFilter)
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
-    uiOrdering.add(&filterMode);
+
+    uiOrdering.add(&selectedCategoryValues);
 
     updateReadOnlyStateOfAllFields();
 }
@@ -167,6 +182,27 @@ void RimEclipsePropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
     PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
     updateActiveState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> optionList;
+
+    if (&selectedCategoryValues == fieldNeedingOptions)
+    {
+        if (useOptionsOnly) *useOptionsOnly = true;
+
+        for (auto it : m_uniqueCellValues)
+        {
+            QString str = QString::number(it);
+            optionList.push_back(caf::PdmOptionItemInfo(str, it));
+        }
+    }
+
+    return optionList;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,6 +256,38 @@ void RimEclipsePropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateFieldVisibility()
+{
+    if (resultDefinition->hasCategoryResult())
+    {
+        useRangeInsteadOfCategories.uiCapability()->setUiHidden(false);
+
+        if (useRangeInsteadOfCategories)
+        {
+            selectedCategoryValues.uiCapability()->setUiHidden(true);
+            lowerBound.uiCapability()->setUiHidden(false);
+            upperBound.uiCapability()->setUiHidden(false);
+        }
+        else
+        {
+            selectedCategoryValues.uiCapability()->setUiHidden(false);
+            lowerBound.uiCapability()->setUiHidden(true);
+            upperBound.uiCapability()->setUiHidden(true);
+        }
+    }
+    else
+    {
+        lowerBound.uiCapability()->setUiHidden(false);
+        upperBound.uiCapability()->setUiHidden(false);
+
+        selectedCategoryValues.uiCapability()->setUiHidden(true);
+        useRangeInsteadOfCategories.uiCapability()->setUiHidden(true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE)
@@ -250,6 +318,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
+    m_uniqueCellValues.clear();
+
     size_t scalarIndex = resultDefinition->scalarResultIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
@@ -257,6 +327,16 @@ void RimEclipsePropertyFilter::computeResultValueRange()
         if (results)
         {
             results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+
+            if (resultDefinition->hasCategoryResult())
+            {
+                std::set<int> vals = results->cellResults()->uniqueCellScalarValues(scalarIndex);
+
+                for (auto val : vals)
+                {
+                    m_uniqueCellValues.push_back(val);
+                }
+            }
         }
     }
 
@@ -291,5 +371,6 @@ void RimEclipsePropertyFilter::initAfterRead()
     resultDefinition->loadResult();
     updateIconState();
     computeResultValueRange();
+    updateFieldVisibility();
 }
 

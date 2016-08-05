@@ -58,6 +58,7 @@ public:
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;
     bool                            isTernarySaturationSelected() const;
+    bool                            hasCategoryResult() const;
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
