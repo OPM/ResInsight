@@ -28,6 +28,7 @@
 #include "RimViewLinker.h"
 
 #include "RiuMainWindow.h"
+
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
@@ -40,22 +41,14 @@ RimEclipseCellColors::RimEclipseCellColors()
     CAF_PDM_InitObject("Cell Result", ":/CellResult.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&obsoleteField_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
-    this->obsoleteField_legendConfig.uiCapability()->setUiHidden(true);
-    this->obsoleteField_legendConfig.uiCapability()->setUiChildrenHidden(true);
     this->obsoleteField_legendConfig.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
-    m_legendConfigData.uiCapability()->setUiHidden(true);
-    m_legendConfigData.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
     this->ternaryLegendConfig = new RimTernaryLegendConfig();
-    this->ternaryLegendConfig.uiCapability()->setUiHidden(true);
-    this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigPtrField, "LegendDefinitionPtrField", "Legend Definition PtrField", "", "", "");
-    this->m_legendConfigPtrField.uiCapability()->setUiHidden(true);
-    this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
 
     // Make sure we have a created legend for the default/undefined result variable
     changeLegendConfig(this->resultVariable());
@@ -108,15 +101,8 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
-    if (resultVarNameOfNewLegend == RimDefines::ternarySaturationResultName())
+    if (resultVarNameOfNewLegend != RimDefines::ternarySaturationResultName())
     {
-        this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(false);
-        this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(true);
-    }
-    else
-    {
-        this->ternaryLegendConfig.uiCapability()->setUiChildrenHidden(true);
-
         bool found = false;
 
         QString legendResultVariable;
@@ -149,8 +135,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
                     this->m_legendConfigPtrField = newLegend;
             }
         }
-
-        this->m_legendConfigPtrField.uiCapability()->setUiChildrenHidden(false);
     }
 }
 
@@ -188,7 +172,16 @@ void RimEclipseCellColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-   uiTreeOrdering.add(m_legendConfigPtrField());
+    if (this->resultVariable() == RimDefines::ternarySaturationResultName())
+    {
+        uiTreeOrdering.add(ternaryLegendConfig());
+    }
+    else
+    {
+        uiTreeOrdering.add(m_legendConfigPtrField());
+    }
+
+   uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,6 +200,7 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 
     this->ternaryLegendConfig()->setReservoirView(ownerReservoirView);
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -214,7 +208,6 @@ RimEclipseView* RimEclipseCellColors::reservoirView()
 {
     return m_reservoirView;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
