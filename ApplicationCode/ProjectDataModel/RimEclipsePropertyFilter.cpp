@@ -191,7 +191,6 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group1->add(&(resultDefinition->m_resultVariableUiField));
     
     // Fields declared in RimCellFilter
-    uiOrdering.add(&isActive);
     uiOrdering.add(&filterMode);
     uiOrdering.add(&m_valueSelection);
 
@@ -200,6 +199,8 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&m_upperBound);
 
     uiOrdering.add(&m_selectedValues);
+
+    uiOrdering.setForgetRemainingFields(true);
 
     updateReadOnlyStateOfAllFields();
 }
