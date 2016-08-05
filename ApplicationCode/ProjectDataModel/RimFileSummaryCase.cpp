@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFileSummaryCase.h"
+#include "QFileInfo"
 
 
 //==================================================================================================
@@ -58,4 +59,12 @@ QString RimFileSummaryCase::summaryHeaderFilename() const
     return m_summaryHeaderFilename();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFileSummaryCase::caseName() const
+{
+    QFileInfo caseFileName(this->summaryHeaderFilename());
 
+    return caseFileName.completeBaseName();
+}

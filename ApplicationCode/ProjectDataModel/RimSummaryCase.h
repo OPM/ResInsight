@@ -39,23 +39,26 @@ public:
     RimSummaryCase();
     virtual ~RimSummaryCase();
     
-    QString caseName(); 
+    virtual QString     summaryHeaderFilename() const = 0; 
+    virtual QString     caseName() const = 0; 
+    QString             shortName() const;
 
-    virtual QString summaryHeaderFilename() const = 0; 
-    void loadCase();
+    void                updateAutoShortName();
+    void                updateOptionSensitivity();
 
+    void                loadCase();
     RigSummaryCaseData* caseData() { return m_summaryCaseData.p(); }
 
-    caf::PdmField<QString>  curveDisplayName;
-    caf::PdmField<bool>     autoCurveDisplayName;
-
-    void updateOptionSensitivity();
-    
 protected:
+    void                updateTreeItemName();
+
+    caf::PdmField<QString>  m_shortName;
+    caf::PdmField<bool>     m_useAutoShortName;
+
     cvf::ref<RigSummaryCaseData> m_summaryCaseData;
 
 private:
     // Overridden PDM methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
+    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void        initAfterRead() override;
 };

@@ -309,7 +309,7 @@ QString RimSummaryCurve::createCurveAutoName()
             generatedCurveName += ", ";
         }
 
-        generatedCurveName += m_summaryCase->curveDisplayName();
+        generatedCurveName += m_summaryCase->shortName();
     }
 
     return generatedCurveName;

@@ -36,8 +36,8 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitObject("Summary Case",":/Cases16x16.png","","");
 
-    CAF_PDM_InitField(&curveDisplayName, "CurveDisplayName", QString("Curve Display Name"), "Curve Display Name", "", "", "");
-    CAF_PDM_InitField(&autoCurveDisplayName, "AutoCurveDisplayName", true, "Auto Curve Display Name", "", "", "");
+    CAF_PDM_InitField(&m_shortName, "ShortName", QString("Short Name"), "Short Name", "", "", "");
+    CAF_PDM_InitField(&m_useAutoShortName, "AutoShortyName", true, "Use Auto Short Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,32 +56,19 @@ void RimSummaryCase::loadCase()
     if (m_summaryCaseData.isNull()) m_summaryCaseData = new RigSummaryCaseData(this->summaryHeaderFilename());
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::caseName()
-{
-    QFileInfo caseFileName(this->summaryHeaderFilename());
-
-    return caseFileName.completeBaseName();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &autoCurveDisplayName)
+    if (changedField == &m_useAutoShortName)
     {
-        if (autoCurveDisplayName)
-        {
-            RimSummaryCaseCollection* summaryCaseCollection = NULL;
-            this->firstAnchestorOrThisOfType(summaryCaseCollection);
-            if (summaryCaseCollection)
-            {
-                curveDisplayName = summaryCaseCollection->uniqueShortNameForCase(this);
-            }
-        }
+        this->updateAutoShortName();
+    }
+    else if (changedField == &m_shortName)
+    {
+        updateTreeItemName();
     }
 
     RimProject* proj = NULL;
@@ -100,5 +87,47 @@ void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateOptionSensitivity()
 {
-    curveDisplayName.uiCapability()->setUiReadOnly(autoCurveDisplayName);
+    m_shortName.uiCapability()->setUiReadOnly(m_useAutoShortName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::updateTreeItemName()
+{
+    this->setUiName(caseName() + " (" + shortName() +")");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase::shortName() const
+{
+    return m_shortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::initAfterRead()
+{
+    updateOptionSensitivity();
+
+    updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::updateAutoShortName()
+{
+    if(m_useAutoShortName)
+    {
+        RimSummaryCaseCollection* summaryCaseCollection = NULL;
+        this->firstAnchestorOrThisOfType(summaryCaseCollection);
+        CVF_ASSERT(summaryCaseCollection);
+
+        m_shortName =  summaryCaseCollection->uniqueShortNameForCase(this);
+        updateTreeItemName();
+    }
 }

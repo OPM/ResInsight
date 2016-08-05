@@ -36,20 +36,10 @@ public:
     RimEclipseCase*                 associatedEclipseCase() { return m_eclipseCase(); }
 
     virtual QString                 summaryHeaderFilename() const  override;
-
-    virtual caf::PdmFieldHandle*    userDescriptionField() { return &m_userName; }
-    virtual void                    initAfterRead();
-
-private:
-    void                            updateUiNames();
-    QString                         baseName() const;
-
+    virtual QString                 caseName() const override;
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
-    
-    caf::PdmField<QString>            m_userName;
-    caf::PdmField<QString>            m_summaryHeaderFilename;
 };
 
 

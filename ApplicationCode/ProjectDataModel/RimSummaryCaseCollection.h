@@ -31,16 +31,15 @@ public:
     RimSummaryCaseCollection();
     virtual ~RimSummaryCaseCollection();
 
-    RimSummaryCase* summaryCase(size_t idx);
-    size_t summaryCaseCount();
+    RimSummaryCase*     summaryCase(size_t idx);
+    size_t              summaryCaseCount();
 
-    void createSummaryCasesFromRelevantEclipseResultCases();
-
+    void                createSummaryCasesFromRelevantEclipseResultCases();
     RimGridSummaryCase* createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
 
-    void loadAllSummaryCaseData();
+    void                loadAllSummaryCaseData();
 
-    QString uniqueShortNameForCase(RimSummaryCase* summaryCase);
+    QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

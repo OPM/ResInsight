@@ -127,10 +127,9 @@ RimGridSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipse
     if(RifEclipseSummaryTools::hasSummaryFiles(QDir::toNativeSeparators(gridFileName).toStdString()))
     {
         RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
-        newSumCase->setAssociatedEclipseCase(eclResCase);
-        newSumCase->curveDisplayName = uniqueShortNameForCase(newSumCase);
-        newSumCase->updateOptionSensitivity();
         this->m_cases.push_back(newSumCase);
+        newSumCase->setAssociatedEclipseCase(eclResCase);
+        newSumCase->updateOptionSensitivity();
         return newSumCase;
     }
     return nullptr;
@@ -141,37 +140,57 @@ RimGridSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipse
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCaseCollection::uniqueShortNameForCase(RimSummaryCase* summaryCase)
 {
-    QStringList allAutoShortNames;
+    std::set<QString> allAutoShortNames;
 
     for (RimSummaryCase* sumCase : m_cases)
     {
         if (sumCase && sumCase != summaryCase)
         {
-            allAutoShortNames.push_back(sumCase->curveDisplayName());
+            allAutoShortNames.insert(sumCase->shortName());
         }
     }
 
     bool foundUnique = false;
 
     QString caseName = summaryCase->caseName();
-    QString candidateBase = caseName.left(2);
-    QString candidate = candidateBase;
-    int autoNumber = 0;
-    while (!foundUnique)
+    QString shortName;
+
+    if (caseName.size() > 2)
     {
-        bool foundExisting = false;
-        for (QString autoName : allAutoShortNames)
+        QString candidate = caseName[0];
+
+        for (int i = 1; i < caseName.size(); ++i )
         {
-            if (autoName.left(candidate.size()) == candidate)
+            if (allAutoShortNames.count(candidate + caseName[i]) == 0) 
             {
-                candidate = candidateBase + QString::number(autoNumber++);
-                foundExisting = true;
+                shortName = candidate + caseName[i];
+                foundUnique = true;
+                break;
             }
         }
-        
-        foundUnique = !foundExisting;
+    }
+    else
+    {
+        shortName = caseName.left(2);
+        if(allAutoShortNames.count(shortName) == 0)
+        {
+            foundUnique = true;
+        }
     }
 
-    return candidate;
+    QString candidate = shortName;
+    int autoNumber = 0;
+
+    while (!foundUnique)
+    {
+        candidate = shortName + QString::number(autoNumber++);
+        if(allAutoShortNames.count(candidate) == 0)
+        {
+            shortName = candidate;
+            foundUnique = true;
+        }
+    }
+
+    return shortName;
 }
 
