@@ -44,10 +44,11 @@ public:
     RimEclipsePropertyFilter();
     virtual ~RimEclipsePropertyFilter();
 
-    caf::PdmChildField<RimEclipseResultDefinition*>     resultDefinition;
+    caf::PdmChildField<RimEclipseResultDefinition*> resultDefinition;
 
-    caf::PdmField<double>                   lowerBound;
-    caf::PdmField<double>                   upperBound;
+    void                                    rangeValues(double* lower, double* upper) const;
+    bool                                    isValueSelectionActive() const;
+    std::vector<int>                        selectedValues() const;
 
     RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
@@ -57,20 +58,30 @@ public:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();
 
-    void                                    updateActiveState();
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
+    friend class RimEclipsePropertyFilterCollection;
+    friend class RicEclipsePropertyFilterFeatureImpl;
+
+    void                                    updateActiveState();
+    void                                    updateFieldVisibility();
     void                                    updateReadOnlyStateOfAllFields();
     bool                                    isPropertyFilterControlled();
 
 private:
-    double                                  m_minimumResultValue; 
+    caf::PdmField<double>                   m_lowerBound;
+    caf::PdmField<double>                   m_upperBound;
+    caf::PdmField< std::vector<int> >       m_selectedValues;
+    caf::PdmField<bool>                     m_valueSelection;
+
+    double                                  m_minimumResultValue;
     double                                  m_maximumResultValue;
 
 public:
@@ -82,6 +93,6 @@ public:
     };
 private:
     caf::PdmField< caf::AppEnum< EvaluationRegionType > > obsoleteField_evaluationRegion;
-
+    std::vector<int>                       m_uniqueCellValues;
 };
 

@@ -808,6 +808,26 @@ void RigFemPartResultsCollection::p10p90ScalarValues(const RigFemResultAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::sumScalarValue(const RigFemResultAddress& resVarAddr, double* sum)
+{
+    CVF_ASSERT(sum);
+
+    this->statistics(resVarAddr)->sumCellScalarValues(*sum);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::sumScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* sum)
+{
+    CVF_ASSERT(sum);
+
+    this->statistics(resVarAddr)->sumCellScalarValues(frameIndex, *sum);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram(const RigFemResultAddress& resVarAddr)
 {
     return this->statistics(resVarAddr)->cellScalarValuesHistogram();

@@ -140,6 +140,22 @@ void RigFemNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemNativeStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
+{
+    for (int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx)
+    {
+        const std::vector<float>& floatValues = m_resultsData->resultValues(m_resVarAddr, pIdx, (int)timeStepIndex);
+
+        for (size_t i = 0; i < floatValues.size(); i++)
+        {
+            values.insert(static_cast<int>(std::floor(floatValues[i])));
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigFemNativeStatCalc::timeStepCount()
 {
     return m_resultsData->frameCount();

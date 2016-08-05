@@ -86,6 +86,19 @@ void RigEclipseNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigEclipseNativeStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
+{
+    std::vector<double>& doubleValues = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+
+    for (size_t cIdx = 0; cIdx < doubleValues.size(); ++cIdx)
+    {
+        values.insert(std::floor(doubleValues[cIdx]));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
     std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);

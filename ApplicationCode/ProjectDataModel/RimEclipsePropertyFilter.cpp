@@ -69,11 +69,16 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     resultDefinition.uiCapability()->setUiHidden(true);
     resultDefinition.uiCapability()->setUiChildrenHidden(true);
 
-    CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
-    lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_lowerBound, "LowerBound", 0.0, "Min", "", "", "");
+    m_lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
-    upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_upperBound, "UpperBound", 0.0, "Max", "", "", "");
+    m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedValues, "SelectedValues", "Values", "", "", "");
+
+    CAF_PDM_InitField(&m_valueSelection, "ValueSelection", false, "Value Selection", "", "", "");
+    m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
 
@@ -92,17 +97,50 @@ RimEclipsePropertyFilter::~RimEclipsePropertyFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipsePropertyFilter::rangeValues(double* lower, double* upper) const
 {
-    if (&name == changedField)
+    *lower = this->m_lowerBound;
+    *upper = this->m_upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilter::isValueSelectionActive() const
+{
+    if (resultDefinition->hasCategoryResult() && m_valueSelection)
     {
+        return true;
     }
 
-    if (   &lowerBound == changedField 
-        || &upperBound == changedField
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimEclipsePropertyFilter::selectedValues() const
+{
+    return m_selectedValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (&m_valueSelection == changedField)
+    {
+        updateFieldVisibility();
+    }
+
+    if (   &m_lowerBound == changedField 
+        || &m_upperBound == changedField
         || &obsoleteField_evaluationRegion == changedField
         || &isActive == changedField
-        || &filterMode == changedField)
+        || &filterMode == changedField
+        || &m_selectedValues == changedField
+        || &m_valueSelection == changedField)
     {
         updateFilterName();
         this->updateIconState();
@@ -129,8 +167,13 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 
     computeResultValueRange();
 
-    lowerBound = m_minimumResultValue;
-    upperBound = m_maximumResultValue;
+    m_lowerBound = m_minimumResultValue;
+    m_upperBound = m_maximumResultValue;
+
+    m_selectedValues = m_uniqueCellValues;
+    m_valueSelection = true;
+
+    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,13 +191,16 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group1->add(&(resultDefinition->m_resultVariableUiField));
     
     // Fields declared in RimCellFilter
-    uiOrdering.add(&isActive);
     uiOrdering.add(&filterMode);
+    uiOrdering.add(&m_valueSelection);
 
     // Fields declared in this class (RimCellPropertyFilter)
-    uiOrdering.add(&lowerBound);
-    uiOrdering.add(&upperBound);
-    uiOrdering.add(&filterMode);
+    uiOrdering.add(&m_lowerBound);
+    uiOrdering.add(&m_upperBound);
+
+    uiOrdering.add(&m_selectedValues);
+
+    uiOrdering.setForgetRemainingFields(true);
 
     updateReadOnlyStateOfAllFields();
 }
@@ -167,6 +213,27 @@ void RimEclipsePropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
     PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
     updateActiveState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> optionList;
+
+    if (&m_selectedValues == fieldNeedingOptions)
+    {
+        if (useOptionsOnly) *useOptionsOnly = true;
+
+        for (auto it : m_uniqueCellValues)
+        {
+            QString str = QString::number(it);
+            optionList.push_back(caf::PdmOptionItemInfo(str, it));
+        }
+    }
+
+    return optionList;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,6 +287,38 @@ void RimEclipsePropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateFieldVisibility()
+{
+    if (resultDefinition->hasCategoryResult())
+    {
+        m_valueSelection.uiCapability()->setUiHidden(false);
+
+        if (!m_valueSelection)
+        {
+            m_selectedValues.uiCapability()->setUiHidden(true);
+            m_lowerBound.uiCapability()->setUiHidden(false);
+            m_upperBound.uiCapability()->setUiHidden(false);
+        }
+        else
+        {
+            m_selectedValues.uiCapability()->setUiHidden(false);
+            m_lowerBound.uiCapability()->setUiHidden(true);
+            m_upperBound.uiCapability()->setUiHidden(true);
+        }
+    }
+    else
+    {
+        m_lowerBound.uiCapability()->setUiHidden(false);
+        m_upperBound.uiCapability()->setUiHidden(false);
+
+        m_selectedValues.uiCapability()->setUiHidden(true);
+        m_valueSelection.uiCapability()->setUiHidden(true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE)
@@ -227,7 +326,7 @@ void RimEclipsePropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* 
         return;
     }
 
-    if (field == &lowerBound || field == &upperBound)
+    if (field == &m_lowerBound || field == &m_upperBound)
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (!myAttr)
@@ -250,6 +349,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
+    m_uniqueCellValues.clear();
+
     size_t scalarIndex = resultDefinition->scalarResultIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
@@ -257,14 +358,24 @@ void RimEclipsePropertyFilter::computeResultValueRange()
         if (results)
         {
             results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+
+            if (resultDefinition->hasCategoryResult())
+            {
+                std::set<int> vals = results->cellResults()->uniqueCellScalarValues(scalarIndex);
+
+                for (auto val : vals)
+                {
+                    m_uniqueCellValues.push_back(val);
+                }
+            }
         }
     }
 
     m_maximumResultValue = max;
     m_minimumResultValue = min;
 
-    lowerBound.uiCapability()->setUiName(QString("Min (%1)").arg(min));
-    upperBound.uiCapability()->setUiName(QString("Max (%1)").arg(max));
+    m_lowerBound.uiCapability()->setUiName(QString("Min (%1)").arg(min));
+    m_upperBound.uiCapability()->setUiName(QString("Max (%1)").arg(max));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,12 +383,38 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFilterName()
 {
-    QString newFiltername;
-    newFiltername = resultDefinition->resultVariable() + " ("
-     + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
-    this->name = newFiltername;
+    QString newFiltername = resultDefinition->resultVariable() + " (";
 
-    uiCapability()->updateConnectedEditors();
+    if (isValueSelectionActive())
+    {
+        if (m_selectedValues().size() == m_uniqueCellValues.size())
+        {
+            newFiltername += QString::number(m_selectedValues()[0]);
+            newFiltername += "..";
+            newFiltername += QString::number(m_selectedValues()[m_selectedValues().size() - 1]);
+        }
+        else
+        {
+            for (size_t i = 0; i < m_selectedValues().size(); i++)
+            {
+                int val = m_selectedValues()[i];
+                newFiltername += QString::number(val);
+
+                if (i < m_selectedValues().size() - 1)
+                {
+                    newFiltername += ", ";
+                }
+            }
+        }
+
+        newFiltername += ")";
+    }
+    else
+    {
+        newFiltername += QString::number(m_lowerBound) + " .. " + QString::number(m_upperBound) + ")";
+    }
+
+    this->name = newFiltername;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,5 +428,6 @@ void RimEclipsePropertyFilter::initAfterRead()
     resultDefinition->loadResult();
     updateIconState();
     computeResultValueRange();
+    updateFieldVisibility();
 }
 

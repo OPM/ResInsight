@@ -130,6 +130,38 @@ void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::set<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex)
+{
+    return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::set<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex)
+{
+    return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues(timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, double& sumValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(sumValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(timeStepIndex, sumValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::resultCount() const
 {
     return m_cellScalarResults.size();

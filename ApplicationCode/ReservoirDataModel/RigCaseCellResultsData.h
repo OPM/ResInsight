@@ -59,6 +59,10 @@ public:
     void                                               p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90);
     void                                               meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
     void                                               meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
+    const std::set<int>&                               uniqueCellScalarValues(size_t scalarResultIndex);
+    const std::set<int>&                               uniqueCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex);
+    void                                               sumCellScalarValues(size_t scalarResultIndex, double& sumValue);
+    void                                               sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue);
 
     // Access meta-information about the results
     size_t                                             resultCount() const;

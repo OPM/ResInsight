@@ -94,7 +94,9 @@ bool PdmUiOrdering::contains(const PdmUiItem* item)
 void PdmUiOrdering::add(const PdmFieldHandle* field)
 {
     PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
-    assert(uiItem); 
+    assert(uiItem);
+    assert(!this->contains(uiItem));
+
     m_ordering.push_back(uiItem);
 }
 
@@ -105,6 +107,8 @@ void PdmUiOrdering::add(const PdmObjectHandle* obj)
 {
     PdmUiObjectHandle* uiItem = uiObj(const_cast<PdmObjectHandle*>(obj));
     assert(uiItem);
+    assert(!this->contains(uiItem));
+
     m_ordering.push_back(uiItem);
 }
 
