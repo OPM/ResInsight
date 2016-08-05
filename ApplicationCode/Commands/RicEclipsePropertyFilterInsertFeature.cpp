@@ -64,5 +64,6 @@ void RicEclipsePropertyFilterInsertFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterInsertFeature::setupActionLook(QAction* actionToSetup)
 {
+    actionToSetup->setIcon(QIcon(":/CellFilter_Values.png"));
     actionToSetup->setText("Insert Property Filter");
 }

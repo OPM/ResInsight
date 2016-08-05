@@ -77,7 +77,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitFieldNoDefault(&m_selectedValues, "SelectedValues", "Values", "", "", "");
 
-    CAF_PDM_InitField(&m_valueSelection, "Value Selection", true, "Value Selection", "", "", "");
+    CAF_PDM_InitField(&m_valueSelection, "ValueSelection", true, "Value Selection", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
@@ -382,12 +382,38 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFilterName()
 {
-    QString newFiltername;
-    newFiltername = resultDefinition->resultVariable() + " ("
-     + QString::number(m_lowerBound()) + " .. " + QString::number(m_upperBound) + ")";
-    this->name = newFiltername;
+    QString newFiltername = resultDefinition->resultVariable() + " (";
 
-    uiCapability()->updateConnectedEditors();
+    if (isValueSelectionActive())
+    {
+        if (m_selectedValues().size() == m_uniqueCellValues.size())
+        {
+            newFiltername += QString::number(m_selectedValues()[0]);
+            newFiltername += "..";
+            newFiltername += QString::number(m_selectedValues()[m_selectedValues().size() - 1]);
+        }
+        else
+        {
+            for (size_t i = 0; i < m_selectedValues().size(); i++)
+            {
+                int val = m_selectedValues()[i];
+                newFiltername += QString::number(val);
+
+                if (i < m_selectedValues().size() - 1)
+                {
+                    newFiltername += ", ";
+                }
+            }
+        }
+
+        newFiltername += ")";
+    }
+    else
+    {
+        newFiltername += QString::number(m_lowerBound) + " .. " + QString::number(m_upperBound) + ")";
+    }
+
+    this->name = newFiltername;
 }
 
 //--------------------------------------------------------------------------------------------------
