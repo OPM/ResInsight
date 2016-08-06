@@ -463,23 +463,33 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
 
     if (m_reservoirView->cellEdgeResult()->hasResult())
     {
-        size_t resultIndices[6];
-        QStringList resultNames;
-        m_reservoirView->cellEdgeResult()->gridScalarIndices(resultIndices);
-        m_reservoirView->cellEdgeResult()->gridScalarResultNames(&resultNames);
+        std::vector<RimCellEdgeMetaData> metaData;
+        m_reservoirView->cellEdgeResult()->cellEdgeMetaData(&metaData);
+
+        std::set<size_t> uniqueResultIndices;
 
         text += "-- Cell edge result data --\n";
         for (int idx = 0; idx < 6; idx++)
         {
-            if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+            size_t resultIndex = metaData[idx].m_resultIndex;
+            if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
+            
+            if (uniqueResultIndices.find(resultIndex) != uniqueResultIndices.end()) continue;
 
-            // Cell edge results are static, results are loaded for first time step only
+            size_t adjustedTimeStep = m_timeStepIndex;
+            if (metaData[idx].m_isStatic)
+            {
+                adjustedTimeStep = 0;
+            }
+
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_reservoirView->cellResult()->porosityModel());
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(m_reservoirView->eclipseCase()->reservoirData(), m_gridIndex, porosityModel, 0, resultIndices[idx]);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(m_reservoirView->eclipseCase()->reservoirData(), m_gridIndex, porosityModel, adjustedTimeStep, resultIndex);
             if (resultAccessor.notNull())
             {
                 double scalarValue = resultAccessor->cellScalar(m_cellIndex);
-                text.append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                text.append(QString("%1 : %2\n").arg(metaData[idx].m_resultVariable).arg(scalarValue));
+
+                uniqueResultIndices.insert(resultIndex);
             }
         }
     }

@@ -157,7 +157,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
     RimEclipseView* riv = new RimEclipseView();
     riv->setEclipseCase(this);
-    riv->cellEdgeResult()->resultVariable = "MULT";
+    riv->cellEdgeResult()->setResultVariable("MULT");
     riv->cellEdgeResult()->enableCellEdgeColors = false;
 
     caf::PdmDocument::updateUiIconStateRecursively(riv);
@@ -243,7 +243,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 RimCellEdgeColors* cellEdgeResult = reservoirView->cellEdgeResult;
                 CVF_ASSERT(cellEdgeResult);
 
-                cellEdgeResult->resultVariable.v() = RimDefines::undefinedResultName();
+                cellEdgeResult->setResultVariable(RimDefines::undefinedResultName());
                 cellEdgeResult->loadResult();
 
                 reservoirView->createDisplayModelAndRedraw();

@@ -132,6 +132,9 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
+    RimCellEdgeColors* cellEdgeColors = NULL;
+    this->firstAnchestorOrThisOfType(cellEdgeColors);
+
     if (&m_resultVariableUiField == changedField)
     {
         m_porosityModel  = m_porosityModelUiField;
@@ -164,6 +167,16 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             }
         }
 
+        if (cellEdgeColors)
+        {
+            cellEdgeColors->loadResult();
+
+            if (view)
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+
         if (curve) 
         {
             curve->updatePlotData();
@@ -181,7 +194,6 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         faultColors->updateConnectedEditors();
     }
 
-    RimCellEdgeColors* cellEdgeColors = dynamic_cast<RimCellEdgeColors*>(this->parentField()->ownerObject());
     if (cellEdgeColors)
     {
         cellEdgeColors->updateConnectedEditors();
@@ -210,8 +222,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
-    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
-    if (propFilter || curve)
+    RimEclipsePropertyFilter* propFilter = NULL;
+    this->firstAnchestorOrThisOfType(propFilter);
+
+    RimCellEdgeColors* cellEdge = NULL;
+    this->firstAnchestorOrThisOfType(cellEdge);
+
+    if (propFilter || curve || cellEdge)
     {
         removePerCellFaceOptionItems(optionItems);
     }
