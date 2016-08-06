@@ -63,7 +63,7 @@ private:
         RigCaseData* eclipseCase,
         const RigGridBase* grid);
 
-    static cvf::ref<RigResultAccessor> createCellEdgeCenterResultAccessor(
+    static cvf::ref<RigResultAccessor> createCellEdgeResultAccessor(
         RimEclipseCellColors* cellResultColors,
         RimCellEdgeColors* cellEdgeResultColors,
         size_t timeStepIndex,

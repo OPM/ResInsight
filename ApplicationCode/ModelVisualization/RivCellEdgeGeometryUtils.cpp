@@ -60,7 +60,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     // Create result access objects
 
     cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor(cellResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
-    cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+    cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
     size_t vertexCount = geo->vertexArray()->size();
     size_t quadCount = vertexCount / 4;
@@ -201,7 +201,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
     RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
     CVF_ASSERT(eclipseCase != NULL);
 
-    cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+    cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
     size_t vertexCount = geo->vertexArray()->size();
     size_t quadCount = vertexCount / 4;
@@ -289,7 +289,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeCenterResultAccessor(
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccessor(
     RimEclipseCellColors* cellResultColors,
     RimCellEdgeColors* cellEdgeResultColors,
     size_t timeStepIndex,
@@ -302,11 +302,19 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeCenterResult
         cellEdgeResultColors->gridScalarIndices(resultIndices);
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
+        std::vector<RimCellEdgeMetaData> metaData;
+        cellEdgeResultColors->cellEdgeMetaData(&metaData);
+
         size_t cubeFaceIdx;
         for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
         {
-            // Assuming static values to be mapped onto cell edge, always using time step zero
-            cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, 0, resultIndices[cubeFaceIdx]);
+            size_t adjustedTimeStep = timeStepIndex;
+            if (metaData[cubeFaceIdx].m_isStatic)
+            {
+                adjustedTimeStep = 0;
+            }
+
+            cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStep, resultIndices[cubeFaceIdx]);
             cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
         }
     }
