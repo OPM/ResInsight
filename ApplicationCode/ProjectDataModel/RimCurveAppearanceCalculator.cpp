@@ -61,6 +61,22 @@ RimCurveLookCalculator::RimCurveLookCalculator(const std::set<std::pair<RimSumma
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCurveLookCalculator::assignDimensions(  CurveAppearanceType caseAppearance, 
+                                                CurveAppearanceType variAppearance, 
+                                                CurveAppearanceType wellAppearance, 
+                                                CurveAppearanceType gropAppearance, 
+                                                CurveAppearanceType regiAppearance)
+{
+    m_caseAppearanceType   = caseAppearance;
+    m_varAppearanceType    = variAppearance;
+    m_wellAppearanceType   = wellAppearance;
+    m_groupAppearanceType  = gropAppearance;
+    m_regionAppearanceType = regiAppearance;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCurveLookCalculator::setupCurveLook(RimSummaryCurve* curve)
 {
     m_currentCurveBaseColor = cvf::Color3f(0, 0, 0);
@@ -72,13 +88,40 @@ void RimCurveLookCalculator::setupCurveLook(RimSummaryCurve* curve)
     int grpAppearanceIdx = m_grpToAppearanceIdxMap[curve->summaryAddress().wellGroupName()];
     int regAppearanceIdx = m_regToAppearanceIdxMap[curve->summaryAddress().regionNumber()];
 
-    setOneCurveAppearance(m_caseAppearanceType, m_caseCount, caseAppearanceIdx, curve);
-    setOneCurveAppearance(m_varAppearanceType, m_variableCount, varAppearanceIdx, curve);
-    setOneCurveAppearance(m_wellAppearanceType, m_wellCount, welAppearanceIdx, curve);
-    setOneCurveAppearance(m_groupAppearanceType, m_groupCount, grpAppearanceIdx, curve);
-    setOneCurveAppearance(m_regionAppearanceType, m_regionCount, regAppearanceIdx, curve);
+    setOneCurveAppearance(m_caseAppearanceType,   m_caseCount,     caseAppearanceIdx, curve);
+    setOneCurveAppearance(m_varAppearanceType,    m_variableCount, varAppearanceIdx,  curve);
+    setOneCurveAppearance(m_wellAppearanceType,   m_wellCount,     welAppearanceIdx,  curve);
+    setOneCurveAppearance(m_groupAppearanceType,  m_groupCount,    grpAppearanceIdx,  curve);
+    setOneCurveAppearance(m_regionAppearanceType, m_regionCount,   regAppearanceIdx,  curve);
 
     curve->setColor(gradeColor(m_currentCurveBaseColor, m_currentCurveGradient));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCurveLookCalculator::setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve)
+{
+    switch(appeaType)
+    {
+        case NONE:
+        break;
+        case COLOR:
+        m_currentCurveBaseColor = cycledPaletteColor(appeaIdx);
+        break;
+        case GRADIENT:
+        m_currentCurveGradient = gradient(totalCount, appeaIdx);
+        break;
+        case LINE_STYLE:
+        curve->setLineStyle(cycledLineStyle(appeaIdx));
+        break;
+        case SYMBOL:
+        curve->setSymbol(cycledSymbol(appeaIdx));
+        break;
+        case LINE_THICKNESS:
+        curve->setLineThickness(cycledLineThickness(appeaIdx));
+        break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,32 +193,6 @@ float RimCurveLookCalculator::gradient(size_t totalCount, int index)
     return darkLimit + (index * step);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCurveLookCalculator::setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve)
-{
-    switch(appeaType)
-    {
-        case NONE:
-        break;
-        case COLOR:
-        m_currentCurveBaseColor = cycledPaletteColor(appeaIdx);
-        break;
-        case GRADIENT:
-        m_currentCurveGradient = gradient(totalCount, appeaIdx);
-        break;
-        case LINE_STYLE:
-        curve->setLineStyle(cycledLineStyle(appeaIdx));
-        break;
-        case SYMBOL:
-        curve->setSymbol(cycledSymbol(appeaIdx));
-        break;
-        case LINE_THICKNESS:
-        curve->setLineThickness(cycledLineThickness(appeaIdx));
-        break;
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
