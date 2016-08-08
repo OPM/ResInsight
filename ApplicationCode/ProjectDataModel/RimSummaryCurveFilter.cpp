@@ -41,6 +41,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "RimCurveAppearanceCalculator.h"
 
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
@@ -250,37 +251,6 @@ RimSummaryCurve* RimSummaryCurveFilter::findRimCurveFromQwtCurve(const QwtPlotCu
 
 
 
-static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
-static const int RI_LOGPLOT_CURVECOLORS[] =
-{
-    Qt::black,
-    Qt::darkBlue,
-    Qt::darkRed,
-    Qt::darkGreen,
-    Qt::darkYellow,
-    Qt::darkMagenta,
-    Qt::darkCyan,
-    Qt::darkGray,
-    Qt::blue,
-    Qt::red,
-    Qt::green,
-    Qt::yellow,
-    Qt::magenta,
-    Qt::cyan,
-    Qt::gray
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Pick default curve color from an index based palette
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f curveColorFromTable(int colorIndex)
-{
-    QColor color = QColor(Qt::GlobalColor(RI_LOGPLOT_CURVECOLORS[colorIndex % RI_LOGPLOT_CURVECOLORSCOUNT]));
-    ++colorIndex;
-    cvf::Color3f cvfColor(color.redF(), color.greenF(), color.blueF());
-    return cvfColor;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -411,6 +381,7 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -421,6 +392,7 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
 
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
+    RimCurveLookCalculator curveLookCalc(curveDefinitions);
 
     for (auto& caseAddrPair : curveDefinitions)
     {
@@ -430,29 +402,13 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
         curve->setParentQwtPlot(m_parentQwtPlot);
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(caseAddrPair.second);
-
-        if (currentCase != prevCase)
-        {
-            prevCase = currentCase;
-            colorIndex = 2;
-            lineStyleIdx++;
-            lineStyle = caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(lineStyleIdx%caf::AppEnum<RimPlotCurve::LineStyleEnum>::size());
-            if (lineStyle == RimPlotCurve::STYLE_NONE)
-            {
-                lineStyle = RimPlotCurve::STYLE_SOLID;
-                lineStyleIdx++;
-            }
-        }
-
-        cvf::Color3f curveColor = curveColorFromTable(colorIndex);
-        colorIndex++;
-
-        curve->setColor(curveColor);
-        curve->setLineStyle(lineStyle);
-
         m_curves.push_back(curve);
+
+        curveLookCalc.setupCurveLook(curve);
     }
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

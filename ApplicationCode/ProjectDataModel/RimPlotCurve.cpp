@@ -78,7 +78,7 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1.0f, "Thickness", "", "", "");
+    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
     caf::AppEnum< RimPlotCurve::LineStyleEnum > lineStyle = STYLE_SOLID;
@@ -383,4 +383,19 @@ void RimPlotCurve::setLineStyle(LineStyleEnum lineStyle)
     m_lineStyle = lineStyle;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbol(PointSymbolEnum symbolStyle)
+{
+    m_pointSymbol = symbolStyle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setLineThickness(int thickness)
+{
+    m_curveThickness = thickness;
+}
 
