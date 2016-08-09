@@ -58,7 +58,7 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
 
-    CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
+    CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Default Z scale factor", "", "", "");
     CAF_PDM_InitField(&fontSizeInScene,                 "fontSizeInScene", QString("8"), "Font size", "", "", "");
 
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS curve without TVD warning", "", "", "");
@@ -87,7 +87,7 @@ RiaPreferences::RiaPreferences(void)
     readerSettings = new RifReaderSettings;
 
     m_tabNames << "General";
-    m_tabNames << "Appearance";
+    m_tabNames << "Octave";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,44 +137,46 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     if (uiConfigName == m_tabNames[0])
     {
-        uiOrdering.add(&navigationPolicy);
-
-        caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
-        scriptGroup->add(&scriptDirectories);
-        scriptGroup->add(&scriptEditorExecutable);
-
-        caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
-        octaveGroup->add(&octaveExecutable);
-        octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
-
-        caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Behavior when loading new case");
-        autoComputeGroup->add(&autocomputeDepthRelatedProperties);
-        autoComputeGroup->add(&loadAndShowSoil);
-    
-        caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
-        std::vector<caf::PdmFieldHandle*> readerSettingsFields;
-        readerSettings->fields(readerSettingsFields);
-        for (size_t i = 0; i < readerSettingsFields.size(); i++)
-        {
-            readerSettingsGroup->add(readerSettingsFields[i]);
-        }
-
-        uiOrdering.add(&ssihubAddress);
-        uiOrdering.add(&useShaders);
-        uiOrdering.add(&showHud);
-        uiOrdering.add(&appendClassNameToUiText);
-    }
-    else if (uiConfigName == m_tabNames[1])
-    {
         caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
-        defaultSettingsGroup->add(&defaultScaleFactorZ);
         defaultSettingsGroup->add(&defaultViewerBackgroundColor);
         defaultSettingsGroup->add(&defaultGridLines);
         defaultSettingsGroup->add(&defaultGridLineColors);
         defaultSettingsGroup->add(&defaultFaultGridLineColors);
         defaultSettingsGroup->add(&defaultWellLabelColor);
         defaultSettingsGroup->add(&fontSizeInScene);
-        defaultSettingsGroup->add(&showLasCurveWithoutTvdWarning);
+
+        caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3D views");
+        viewsGroup->add(&navigationPolicy);
+        viewsGroup->add(&useShaders);
+        viewsGroup->add(&showHud);
+
+        caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup("Behavior when loading new case");
+        newCaseBehaviourGroup->add(&defaultScaleFactorZ);
+        newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
+        newCaseBehaviourGroup->add(&loadAndShowSoil);
+        newCaseBehaviourGroup->add(&showLasCurveWithoutTvdWarning);
+    
+        std::vector<caf::PdmFieldHandle*> readerSettingsFields;
+        readerSettings->fields(readerSettingsFields);
+        for (size_t i = 0; i < readerSettingsFields.size(); i++)
+        {
+            newCaseBehaviourGroup->add(readerSettingsFields[i]);
+        }
+
+        caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup("SSIHUB");
+        ssihubGroup->add(&ssihubAddress);
+
+        uiOrdering.add(&appendClassNameToUiText);
+    }
+    else if (uiConfigName == m_tabNames[1])
+    {
+        caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
+        octaveGroup->add(&octaveExecutable);
+        octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
+
+        caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script files");
+        scriptGroup->add(&scriptDirectories);
+        scriptGroup->add(&scriptEditorExecutable);
     }
 
     uiOrdering.setForgetRemainingFields(true);

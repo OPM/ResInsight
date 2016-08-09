@@ -23,6 +23,7 @@
 
 namespace caf {
     class PdmObject;
+    class PdmUiPropertyView;
 }
 
 class QWidget;
