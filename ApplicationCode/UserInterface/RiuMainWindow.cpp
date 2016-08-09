@@ -533,6 +533,7 @@ void RiuMainWindow::createToolBars()
     
     {
         QToolBar* dsToolBar = addToolBar(tr("Draw Style"));
+        dsToolBar->setObjectName(dsToolBar->windowTitle());
         dsToolBar->addAction(m_drawStyleLinesAction);
         dsToolBar->addAction(m_drawStyleLinesSolidAction);
         dsToolBar->addAction(m_drawStyleSurfOnlyAction);
