@@ -159,6 +159,7 @@ public:
     void                applyPreferences();
 
     cvf::Font*          standardFont();
+    cvf::Font*          customFont();
 
     QString             commandLineParameterHelp() const;
     void                showFormattedTextInMessageBox(const QString& text);
@@ -225,6 +226,7 @@ private:
     QString                             m_startupDefaultDirectory;
 
     cvf::ref<cvf::Font>                 m_standardFont;
+    cvf::ref<cvf::Font>                 m_customFont;
 
     QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 

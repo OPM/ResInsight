@@ -57,6 +57,7 @@
 #include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
+#include "RiuPropertyViewTabWidget.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuToolTipMenu.h"
@@ -1429,7 +1430,9 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 void RiuMainWindow::slotEditPreferences()
 {
     RiaApplication* app = RiaApplication::instance();
-    caf::PdmUiPropertyViewDialog propertyDialog(this, app->preferences(), "Preferences", "");
+
+    QStringList tabNames = app->preferences()->tabNames();
+    RiuPropertyViewTabWidget propertyDialog(this, app->preferences(), "Preferences", tabNames);
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application

@@ -59,6 +59,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
 
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
+    CAF_PDM_InitField(&fontSizeInScene,                 "fontSizeInScene", QString("8"), "Font size", "", "", "");
+
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS curve without TVD warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
@@ -83,6 +85,9 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
     readerSettings = new RifReaderSettings;
+
+    m_tabNames << "General";
+    m_tabNames << "Appearance";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,36 +135,75 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
-    uiOrdering.add(&navigationPolicy);
-
-    caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
-    scriptGroup->add(&scriptDirectories);
-    scriptGroup->add(&scriptEditorExecutable);
-
-    caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
-    octaveGroup->add(&octaveExecutable);
-    octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
-
-    caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
-    defaultSettingsGroup->add(&defaultScaleFactorZ);
-    defaultSettingsGroup->add(&defaultViewerBackgroundColor);
-    defaultSettingsGroup->add(&defaultGridLines);
-    defaultSettingsGroup->add(&defaultGridLineColors);
-    defaultSettingsGroup->add(&defaultFaultGridLineColors);
-    defaultSettingsGroup->add(&defaultWellLabelColor);
-    defaultSettingsGroup->add(&showLasCurveWithoutTvdWarning);
-
-    caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Behavior when loading new case");
-    autoComputeGroup->add(&autocomputeDepthRelatedProperties);
-    autoComputeGroup->add(&loadAndShowSoil);
-    
-    caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
-    std::vector<caf::PdmFieldHandle*> readerSettingsFields;
-    readerSettings->fields(readerSettingsFields);
-    for (size_t i = 0; i < readerSettingsFields.size(); i++)
+    if (uiConfigName == m_tabNames[0])
     {
-        readerSettingsGroup->add(readerSettingsFields[i]);
+        uiOrdering.add(&navigationPolicy);
+
+        caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
+        scriptGroup->add(&scriptDirectories);
+        scriptGroup->add(&scriptEditorExecutable);
+
+        caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
+        octaveGroup->add(&octaveExecutable);
+        octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
+
+        caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Behavior when loading new case");
+        autoComputeGroup->add(&autocomputeDepthRelatedProperties);
+        autoComputeGroup->add(&loadAndShowSoil);
+    
+        caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
+        std::vector<caf::PdmFieldHandle*> readerSettingsFields;
+        readerSettings->fields(readerSettingsFields);
+        for (size_t i = 0; i < readerSettingsFields.size(); i++)
+        {
+            readerSettingsGroup->add(readerSettingsFields[i]);
+        }
+
+        uiOrdering.add(&ssihubAddress);
+        uiOrdering.add(&useShaders);
+        uiOrdering.add(&showHud);
+        uiOrdering.add(&appendClassNameToUiText);
     }
+    else if (uiConfigName == m_tabNames[1])
+    {
+        caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
+        defaultSettingsGroup->add(&defaultScaleFactorZ);
+        defaultSettingsGroup->add(&defaultViewerBackgroundColor);
+        defaultSettingsGroup->add(&defaultGridLines);
+        defaultSettingsGroup->add(&defaultGridLineColors);
+        defaultSettingsGroup->add(&defaultFaultGridLineColors);
+        defaultSettingsGroup->add(&defaultWellLabelColor);
+        defaultSettingsGroup->add(&fontSizeInScene);
+        defaultSettingsGroup->add(&showLasCurveWithoutTvdWarning);
+    }
+
+    uiOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+    *useOptionsOnly = true;
+
+    if (&fontSizeInScene == fieldNeedingOptions)
+    {
+        QStringList fontSizes;
+        fontSizes <<  "8";
+//        fontSizes << "12";
+        fontSizes << "16";
+//        fontSizes << "24";
+//        fontSizes << "32";
+
+        for (int oIdx = 0; oIdx < fontSizes.size(); ++oIdx)
+        {
+            options.push_back(caf::PdmOptionItemInfo(fontSizes[oIdx], fontSizes[oIdx]));
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,5 +220,13 @@ void RiaPreferences::configureForRegressionTests()
 
     CVF_ASSERT(readerSettings);
     readerSettings->importFaults = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RiaPreferences::tabNames()
+{
+    return m_tabNames;
 }
 

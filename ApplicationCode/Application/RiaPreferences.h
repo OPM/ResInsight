@@ -42,6 +42,8 @@ public:
 
     void configureForRegressionTests();
 
+    QStringList tabNames();
+
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
@@ -60,7 +62,7 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
     caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
-
+    caf::PdmField<QString>  fontSizeInScene;
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
@@ -74,7 +76,10 @@ public: // Pdm Fields
     caf::PdmChildField<RifReaderSettings*> readerSettings;
 
 protected:
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+private:
+    QStringList m_tabNames;
 };

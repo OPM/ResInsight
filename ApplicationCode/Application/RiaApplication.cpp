@@ -77,6 +77,8 @@
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
+#include "cafFixedAtlasFont.h"
+
 #include "cafAppEnum.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectCache.h"
@@ -87,7 +89,6 @@
 #include "cafProgressInfo.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
-#include "cvfFixedAtlasFont.h"
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -191,7 +192,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
-    m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
+    m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
+
     m_resViewUpdateTimer = NULL;
 
     m_runningRegressionTests = false;
@@ -1625,10 +1627,47 @@ void RiaApplication::applyPreferences()
         RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
+    caf::FixedAtlasFont::FontSize fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
+    if (m_preferences->fontSizeInScene() == "8")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_8;
+    }
+    else if (m_preferences->fontSizeInScene() == "12")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_12;
+    }
+    else if (m_preferences->fontSizeInScene() == "16")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
+    }
+    else if (m_preferences->fontSizeInScene() == "24")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_24;
+    }
+    else if (m_preferences->fontSizeInScene() == "32")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_32;
+    }
+    
+    m_customFont = new caf::FixedAtlasFont(fontSizeType);
+
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         this->project()->updateConnectedEditors();
+
+        std::vector<RimView*> visibleViews;
+        this->project()->allVisibleViews(visibleViews);
+
+        for (auto view : visibleViews)
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+            if (eclipseView)
+            {
+                eclipseView->scheduleReservoirGridGeometryRegen();
+            }
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 
@@ -2091,6 +2130,16 @@ cvf::Font* RiaApplication::standardFont()
     // instead of using the application font
 
     return m_standardFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::customFont()
+{
+    CVF_ASSERT(m_customFont.notNull());
+
+    return m_customFont.p();
 }
 
 //--------------------------------------------------------------------------------------------------

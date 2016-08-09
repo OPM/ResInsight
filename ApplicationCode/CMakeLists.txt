@@ -114,6 +114,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuMdiSubWindow.cpp
 	UserInterface/RiuMainWindowBase.h
 	UserInterface/RiuMainWindowBase.cpp
+	UserInterface/RiuPropertyViewTabWidget.h
+	UserInterface/RiuPropertyViewTabWidget.cpp
 )
 
 set( SOCKET_INTERFACE_FILES

@@ -196,10 +196,10 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     m_wellLabelPart = NULL;
     if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
-        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        cvf::Font* font = RiaApplication::instance()->customFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(standardFont);
+        drawableText->setFont(font);
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);

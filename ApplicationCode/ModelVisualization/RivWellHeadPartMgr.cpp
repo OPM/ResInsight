@@ -284,10 +284,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
     {
-        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        cvf::Font* font = RiaApplication::instance()->customFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(standardFont);
+        drawableText->setFont(font);
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
