@@ -19,6 +19,8 @@ add_library( ${PROJECT_NAME}
     cafCategoryLegend.h
     cafCategoryMapper.cpp
     cafCategoryMapper.h
+    cafFixedAtlasFont.h
+    cafFixedAtlasFont.cpp
 	cafTransparentWBRenderConfiguration.h
 	cafTransparentWBRenderConfiguration.cpp
 	TranspWB_CombinationFrag.glsl
