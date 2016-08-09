@@ -20,7 +20,7 @@
 #include "RimSummaryCurve.h"
 #include "cvfVector3.h"
 
-
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -212,7 +212,7 @@ cvf::Color3f RimCurveLookCalculator::gradeColor(const cvf::Color3f& color, float
         targetC = cvf::Vec3f(1, 1, 1);
     }
 
-    cvf::Vec3f newColor = fabs(factor) * (targetC - orgC) + orgC;
+    cvf::Vec3f newColor = ((float)fabs(factor)) * (targetC - orgC) + orgC;
 
     return cvf::Color3f(newColor[0], newColor[1], newColor[2]);
 }

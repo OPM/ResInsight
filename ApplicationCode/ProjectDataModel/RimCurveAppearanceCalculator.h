@@ -16,6 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
+#include "cvfBase.h"
 #include "cvfColor3.h"
 #include <set>
 #include "RifEclipseSummaryAddress.h"
