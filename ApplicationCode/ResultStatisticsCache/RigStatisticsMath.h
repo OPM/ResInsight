@@ -25,7 +25,7 @@
 class RigStatisticsMath
 {
 public:
-    static void calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* range, double* mean, double* dev);
+    static void calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* sum, double* range, double* mean, double* dev);
     static std::vector<double> calculateNearestRankPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions);
     static std::vector<double> calculateInterpolatedPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions);
 };

@@ -528,7 +528,7 @@ void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
 
     html += "<p><b>Statistical variables to compute:</b></p>";
     html += "<p class=indent>";
-    html += "Min, Max, Range, Mean, Std.dev"; ;
+    html += "Min, Max, Sum, Range, Mean, Std.dev"; ;
     if (m_calculatePercentiles())
     {
         html += "<br>";

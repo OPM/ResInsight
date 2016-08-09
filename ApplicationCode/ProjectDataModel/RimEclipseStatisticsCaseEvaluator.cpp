@@ -60,7 +60,8 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
 
 
 QString createResultNameMin(const QString& resultName)  { return resultName + "_MIN"; }
-QString createResultNameMax(const QString& resultName)  { return resultName + "_MAX"; }
+QString createResultNameMax(const QString& resultName) { return resultName + "_MAX"; }
+QString createResultNameSum(const QString& resultName)  { return resultName + "_SUM"; }
 QString createResultNameMean(const QString& resultName) { return resultName + "_MEAN"; }
 QString createResultNameDev(const QString& resultName)  { return resultName + "_DEV"; }
 QString createResultNameRange(const QString& resultName)  { return resultName + "_RANGE"; }
@@ -94,6 +95,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
         statisticalResultNames.push_back(createResultNameMin(resultName));
         statisticalResultNames.push_back(createResultNameMax(resultName));
+        statisticalResultNames.push_back(createResultNameSum(resultName));
         statisticalResultNames.push_back(createResultNameMean(resultName));
         statisticalResultNames.push_back(createResultNameDev(resultName));
         statisticalResultNames.push_back(createResultNameRange(resultName));
@@ -173,6 +175,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
                 statisticalResultNames[MIN] = createResultNameMin(resultName);
                 statisticalResultNames[MAX] = createResultNameMax(resultName);
+                statisticalResultNames[SUM] = createResultNameSum(resultName);
                 statisticalResultNames[RANGE] = createResultNameRange(resultName);
                 statisticalResultNames[MEAN] = createResultNameMean(resultName);
                 statisticalResultNames[STDEV] = createResultNameDev(resultName);
@@ -219,7 +222,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
                         if (foundAnyValidValues)
                         {
-                            RigStatisticsMath::calculateBasicStatistics(values, &statParams[MIN], &statParams[MAX], &statParams[RANGE], &statParams[MEAN], &statParams[STDEV]);
+                            RigStatisticsMath::calculateBasicStatistics(values, &statParams[MIN], &statParams[MAX], &statParams[SUM], &statParams[RANGE], &statParams[MEAN], &statParams[STDEV]);
 
                             // Calculate percentiles
                             if (m_statisticsConfig.m_calculatePercentiles )

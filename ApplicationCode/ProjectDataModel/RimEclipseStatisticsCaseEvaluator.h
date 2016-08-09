@@ -79,7 +79,7 @@ private:
     void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
     void buildSourceMetaData(RifReaderInterface::PorosityModelResultType poroModel, RimDefines::ResultCatType resultType, const QString& resultName);
 
-    enum StatisticsParamType { MIN, MAX, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
+    enum StatisticsParamType { MIN, MAX, SUM, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
 
 private:
     std::vector<RimEclipseCase*>  m_sourceCases;

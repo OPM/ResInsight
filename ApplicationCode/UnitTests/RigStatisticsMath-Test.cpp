@@ -47,15 +47,15 @@ TEST(RigStatisticsMath, BasicTest)
     values.push_back(HUGE_VAL);
     values.push_back(-57020.4389966513000);
 
-    double min, max, range, mean, stdev;
-    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, &range, &mean, &stdev);
+    double min, max, sum, range, mean, stdev;
+    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, &sum, &range, &mean, &stdev);
 
     EXPECT_DOUBLE_EQ(-98649.8109937874000, min   );
     EXPECT_DOUBLE_EQ(99372.9362079615000 , max   );
+    EXPECT_DOUBLE_EQ(212079.46728689762  , sum   );
     EXPECT_DOUBLE_EQ(198022.7472017490000, range );
     EXPECT_DOUBLE_EQ(16313.8051759152000 , mean  );
     EXPECT_DOUBLE_EQ(66104.391542887200  , stdev );
-
 }
 
 
@@ -125,7 +125,7 @@ TEST(RigStatisticsMath, HistogramPercentiles)
 
 
     double min, max, range, mean, stdev;
-    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, &range, &mean, &stdev);
+    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, NULL, &range, &mean, &stdev);
 
     std::vector<size_t> histogram;
     RigHistogramCalculator histCalc(min, max, 100, &histogram);
