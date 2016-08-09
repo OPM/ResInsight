@@ -41,7 +41,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "RimCurveAppearanceCalculator.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
@@ -102,6 +102,16 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+
+    CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault(&m_caseAppearanceType,     "CaseAppearanceType",     "Case",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_variableAppearanceType, "VariableAppearanceType", "Vector", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellAppearanceType,     "WellAppearanceType",     "Well",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType,    "GroupAppearanceType",    "Group",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType,   "RegionAppearanceType",   "Region", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,6 +195,24 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
 
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance settings");
+    appearanceGroup->add(&m_useAutoAppearanceAssignment);
+    appearanceGroup->add(&m_caseAppearanceType);
+    appearanceGroup->add(&m_variableAppearanceType);
+    appearanceGroup->add(&m_wellAppearanceType);
+    appearanceGroup->add(&m_groupAppearanceType);
+    appearanceGroup->add(&m_regionAppearanceType);
+
+    // Set sensitivity
+    {
+        m_caseAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
+        m_variableAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
+        m_wellAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
+        m_groupAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
+        m_regionAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
+    }
+
     uiOrdering.add(&m_applyButtonField);
     uiOrdering.setForgetRemainingFields(true);
 }
@@ -392,7 +420,36 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
 
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
-    RimCurveLookCalculator curveLookCalc(curveDefinitions);
+    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefinitions);
+
+    if (!m_useAutoAppearanceAssignment())
+    {
+        curveLookCalc.assignDimensions( m_caseAppearanceType(), 
+                                        m_variableAppearanceType(),
+                                        m_wellAppearanceType(),
+                                        m_groupAppearanceType(),
+                                        m_regionAppearanceType());
+    }
+    else
+    {
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType caseAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType variAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType wellAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType gropAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType regiAppearance;
+
+        curveLookCalc.getDimensions(&caseAppearance,
+                                    &variAppearance,
+                                    &wellAppearance,
+                                    &gropAppearance,
+                                    &regiAppearance);
+
+        m_caseAppearanceType     = caseAppearance;
+        m_variableAppearanceType = variAppearance;
+        m_wellAppearanceType     = wellAppearance;
+        m_groupAppearanceType    = gropAppearance;
+        m_regionAppearanceType   = regiAppearance;
+    }
 
     for (auto& caseAddrPair : curveDefinitions)
     {

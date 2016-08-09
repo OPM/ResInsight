@@ -87,7 +87,7 @@ ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
-${CEE_CURRENT_LIST_DIR}RimCurveAppearanceCalculator.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCurveAppearanceCalculator.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.h
 )
 
@@ -174,7 +174,7 @@ ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
-${CEE_CURRENT_LIST_DIR}RimCurveAppearanceCalculator.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCurveAppearanceCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.cpp
 )
 

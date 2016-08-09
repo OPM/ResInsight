@@ -25,17 +25,17 @@
 class RimSummaryCurve;
 class RimSummaryCase;
 
-class RimCurveLookCalculator
+class RimSummaryCurveAppearanceCalculator
 {
 public:
-    RimCurveLookCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
+    RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
     enum CurveAppearanceType
     {
         NONE,
         COLOR,
-        GRADIENT,
-        LINE_STYLE,
         SYMBOL,
+        LINE_STYLE,
+        GRADIENT,
         LINE_THICKNESS
     };
 
@@ -44,6 +44,11 @@ public:
                                                    CurveAppearanceType wellAppearance,
                                                    CurveAppearanceType gropAppearance,
                                                    CurveAppearanceType regiAppearance);
+    void                          getDimensions(CurveAppearanceType* caseAppearance,
+                                                CurveAppearanceType* variAppearance,
+                                                CurveAppearanceType* wellAppearance,
+                                                CurveAppearanceType* gropAppearance,
+                                                CurveAppearanceType* regiAppearance) const;
 
     void                          setupCurveLook(RimSummaryCurve* curve);
 
@@ -68,6 +73,7 @@ private:
     size_t                         m_wellCount;
     size_t                         m_groupCount;
     size_t                         m_regionCount;
+    int                            m_dimensionCount;
 
     CurveAppearanceType            m_caseAppearanceType;
     CurveAppearanceType            m_varAppearanceType;

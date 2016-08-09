@@ -33,6 +33,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryFilter.h"
 #include "cafPdmPtrArrayField.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 
 class RimSummaryCase;
 class RifReaderEclipseSummary;
@@ -93,5 +94,14 @@ private:
                                             m_uiFilterResultMultiSelection;
 
     caf::PdmField<bool>                     m_applyButtonField;
+
+    caf::PdmField<bool>                     m_useAutoAppearanceAssignment;
+    typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
+    caf::PdmField< AppearanceTypeAppEnum >  m_caseAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >  m_variableAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >  m_wellAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >  m_groupAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
+
 };
 

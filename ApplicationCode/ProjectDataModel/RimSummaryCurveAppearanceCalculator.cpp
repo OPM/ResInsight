@@ -16,16 +16,31 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCurveAppearanceCalculator.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryCurve.h"
 #include "cvfVector3.h"
 
 #include <cmath>
 
+namespace caf
+{
+template<>
+void caf::AppEnum< RimSummaryCurveAppearanceCalculator::CurveAppearanceType >::setUp()
+{
+    addItem(RimSummaryCurveAppearanceCalculator::NONE,           "NONE",           "None");
+    addItem(RimSummaryCurveAppearanceCalculator::COLOR,          "COLOR",          "Color");
+    addItem(RimSummaryCurveAppearanceCalculator::SYMBOL,         "SYMBOL",         "Symbols");
+    addItem(RimSummaryCurveAppearanceCalculator::LINE_STYLE,     "LINE_STYLE",     "Line Style");
+    addItem(RimSummaryCurveAppearanceCalculator::GRADIENT,       "GRADIENT",       "Gradient");
+    addItem(RimSummaryCurveAppearanceCalculator::LINE_THICKNESS, "LINE_THICKNESS", "Line Thickness");
+
+    setDefault(RimSummaryCurveAppearanceCalculator::NONE);
+}
+}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCurveLookCalculator::RimCurveLookCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
 {
     for(const std::pair<RimSummaryCase*, RifEclipseSummaryAddress>& curveDef : curveDefinitions)
     {
@@ -43,12 +58,25 @@ RimCurveLookCalculator::RimCurveLookCalculator(const std::set<std::pair<RimSumma
     m_regionCount   = m_regToAppearanceIdxMap .size();
 
     // Select the appearance type for each data "dimension"
-
-    m_caseAppearanceType   = SYMBOL;
-    m_varAppearanceType    = COLOR;
-    m_wellAppearanceType   = LINE_STYLE;
+    m_caseAppearanceType   = NONE;
+    m_varAppearanceType    = NONE;
+    m_wellAppearanceType   = NONE;
     m_groupAppearanceType  = NONE;
     m_regionAppearanceType = NONE;
+
+    std::set<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> unusedAppearTypes;
+    unusedAppearTypes.insert(COLOR);
+    unusedAppearTypes.insert(GRADIENT);
+    unusedAppearTypes.insert(LINE_STYLE);
+    unusedAppearTypes.insert(SYMBOL);
+    unusedAppearTypes.insert(LINE_THICKNESS);
+
+    m_dimensionCount = 0;
+    if(m_variableCount > 1) { m_varAppearanceType    = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_caseCount     > 1) { m_caseAppearanceType   = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_wellCount     > 1) { m_wellAppearanceType   = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_groupCount    > 1) { m_groupAppearanceType  = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_regionCount   > 1) { m_regionAppearanceType = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
 
     // Assign increasing indexes             
     { int idx = 0; for(auto& pair : m_caseToAppearanceIdxMap) pair.second = idx++; }
@@ -61,23 +89,46 @@ RimCurveLookCalculator::RimCurveLookCalculator(const std::set<std::pair<RimSumma
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCurveLookCalculator::assignDimensions(  CurveAppearanceType caseAppearance, 
+void RimSummaryCurveAppearanceCalculator::assignDimensions(  CurveAppearanceType caseAppearance, 
                                                 CurveAppearanceType variAppearance, 
                                                 CurveAppearanceType wellAppearance, 
                                                 CurveAppearanceType gropAppearance, 
                                                 CurveAppearanceType regiAppearance)
 {
+    m_dimensionCount = 0;
     m_caseAppearanceType   = caseAppearance;
     m_varAppearanceType    = variAppearance;
     m_wellAppearanceType   = wellAppearance;
     m_groupAppearanceType  = gropAppearance;
     m_regionAppearanceType = regiAppearance;
+
+    if(m_caseAppearanceType   != NONE) ++m_dimensionCount;
+    if(m_varAppearanceType    != NONE) ++m_dimensionCount;
+    if(m_wellAppearanceType   != NONE) ++m_dimensionCount;
+    if(m_groupAppearanceType  != NONE) ++m_dimensionCount;
+    if(m_regionAppearanceType != NONE) ++m_dimensionCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCurveLookCalculator::setupCurveLook(RimSummaryCurve* curve)
+void RimSummaryCurveAppearanceCalculator::getDimensions(CurveAppearanceType* caseAppearance, 
+                                                        CurveAppearanceType* variAppearance, 
+                                                        CurveAppearanceType* wellAppearance, 
+                                                        CurveAppearanceType* gropAppearance, 
+                                                        CurveAppearanceType* regiAppearance) const
+{
+    *caseAppearance =  m_caseAppearanceType  ;
+    *variAppearance =  m_varAppearanceType   ;
+    *wellAppearance =  m_wellAppearanceType  ;
+    *gropAppearance =  m_groupAppearanceType ;
+    *regiAppearance =  m_regionAppearanceType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
 {
     m_currentCurveBaseColor = cvf::Color3f(0, 0, 0);
     m_currentCurveGradient = 0.0f;
@@ -100,7 +151,7 @@ void RimCurveLookCalculator::setupCurveLook(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCurveLookCalculator::setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve)
+void RimSummaryCurveAppearanceCalculator::setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve)
 {
     switch(appeaType)
     {
@@ -127,7 +178,7 @@ void RimCurveLookCalculator::setOneCurveAppearance(CurveAppearanceType appeaType
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimCurveLookCalculator::cycledPaletteColor(int colorIndex)
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor(int colorIndex)
 {
     static const int RI_LOGPLOT_CURVECOLORSCOUNT = 11;
     static const cvf::ubyte RI_LOGPLOT_CURVECOLORS[][3] =
@@ -155,7 +206,7 @@ cvf::Color3f RimCurveLookCalculator::cycledPaletteColor(int colorIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::LineStyleEnum RimCurveLookCalculator::cycledLineStyle(int index)
+RimPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle(int index)
 {
     return caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1)));
 }
@@ -163,7 +214,7 @@ RimPlotCurve::LineStyleEnum RimCurveLookCalculator::cycledLineStyle(int index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum RimCurveLookCalculator::cycledSymbol(int index)
+RimPlotCurve::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(int index)
 {
     return caf::AppEnum<RimPlotCurve::PointSymbolEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1)));
 }
@@ -171,10 +222,10 @@ RimPlotCurve::PointSymbolEnum RimCurveLookCalculator::cycledSymbol(int index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimCurveLookCalculator::cycledLineThickness(int index)
+int RimSummaryCurveAppearanceCalculator::cycledLineThickness(int index)
 {
     static const int thicknessCount = 3;
-    static const int thicknesses[] ={ 1, 2, 4 };
+    static const int thicknesses[] ={ 1, 3, 5 };
 
     return (thicknesses[(index) % 3]);
 }
@@ -182,12 +233,12 @@ int RimCurveLookCalculator::cycledLineThickness(int index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-float RimCurveLookCalculator::gradient(size_t totalCount, int index)
+float RimSummaryCurveAppearanceCalculator::gradient(size_t totalCount, int index)
 {
     if(totalCount == 1) return 0.0f;
 
-    const float darkLimit = -1.0f;
-    const float lightLimit = 0.9f;
+    const float darkLimit = -0.45f;
+    const float lightLimit = 0.7f;
     float totalSpan = lightLimit - darkLimit;
     float step = totalSpan / (totalCount -1);
     return darkLimit + (index * step);
@@ -197,7 +248,7 @@ float RimCurveLookCalculator::gradient(size_t totalCount, int index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimCurveLookCalculator::gradeColor(const cvf::Color3f& color, float factor)
+cvf::Color3f RimSummaryCurveAppearanceCalculator::gradeColor(const cvf::Color3f& color, float factor)
 {
     CVF_ASSERT(-1.0 <= factor && factor <= 1.0);
 
