@@ -413,6 +413,8 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
 
         if (m_cellResults->mustBeCalculated(soilScalarResultIndex))
         {
+            m_cellResults->cellScalarResults(soilScalarResultIndex).resize(m_cellResults->maxTimeStepCount());
+
             std::vector<double>& values = m_cellResults->cellScalarResults(soilScalarResultIndex)[timeStepIndex];
             if (values.size() == 0)
             {
