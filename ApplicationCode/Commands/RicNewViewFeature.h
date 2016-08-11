@@ -21,11 +21,11 @@
 
 #include "cafCmdFeature.h"
 
-class RimView;
 class RimEclipseCase;
 class RimEclipseView;
 class RimGeoMechCase;
 class RimGeoMechView;
+class RimView;
 
 //==================================================================================================
 /// 
@@ -34,6 +34,9 @@ class RicNewViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void addReservoirView();
+
 protected:
     // Overrides
     virtual bool isCommandEnabled();
@@ -41,10 +44,10 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimView*        addReservoirView();
+    static RimView*        createReservoirView();
 
-    RimEclipseCase* selectedEclipseCase() const;
-    RimGeoMechCase* selectedGeoMechCase() const;
-    RimEclipseView* selectedEclipseView() const;
-    RimGeoMechView* selectedGeoMechView() const;
+    static RimEclipseCase* selectedEclipseCase();
+    static RimGeoMechCase* selectedGeoMechCase();
+    static RimEclipseView* selectedEclipseView();
+    static RimGeoMechView* selectedGeoMechView();
 };

@@ -20,15 +20,19 @@
 
 #include "RimEclipseStatisticsCase.h"
 
+#include "RicNewViewFeature.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+
 #include "RimCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimReservoirCellResultsStorage.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPushButtonEditor.h"
@@ -441,9 +445,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
         }
         else
         {
-            computeStatistics();
-            scheduleACTIVEGeometryRegenOnReservoirViews();
-            updateConnectedEditorsAndReservoirViews();
+            computeStatisticsAndUpdateViews();
         }
         m_calculateEditCommand = false;
     }
@@ -651,6 +653,21 @@ void RimEclipseStatisticsCase::clearComputedStatistics()
     reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
 
     updateConnectedEditorsAndReservoirViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
+{
+    computeStatistics();
+    scheduleACTIVEGeometryRegenOnReservoirViews();
+    updateConnectedEditorsAndReservoirViews();
+
+    if (reservoirViews.size() == 0)
+    {
+        RicNewViewFeature::addReservoirView();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

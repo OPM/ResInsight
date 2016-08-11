@@ -64,17 +64,7 @@ void RicComputeStatisticsFeature::onActionTriggered(bool isChecked)
     {
         RimEclipseStatisticsCase* statisticsCase = selection[0];
 
-        statisticsCase->computeStatistics();
-        statisticsCase->scheduleACTIVEGeometryRegenOnReservoirViews();
-        statisticsCase->updateConnectedEditorsAndReservoirViews();
-
-        if (statisticsCase->reservoirViews.size() == 0)
-        {
-            QAction* action = caf::CmdFeatureManager::instance()->action("RicNewViewFeature");
-            CVF_ASSERT(action);
-
-            action->trigger();
-        }
+        statisticsCase->computeStatisticsAndUpdateViews();
     }
 }
 

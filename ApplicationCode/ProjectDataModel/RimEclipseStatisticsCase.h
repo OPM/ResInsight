@@ -54,8 +54,8 @@ public:
     void computeStatistics();
     bool hasComputedStatistics() const;
     void clearComputedStatistics();
+    void computeStatisticsAndUpdateViews();
 
-    void scheduleACTIVEGeometryRegenOnReservoirViews();
     void updateConnectedEditorsAndReservoirViews();
 
     virtual bool openEclipseGridFile();
@@ -73,6 +73,8 @@ public:
     virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
  
 private:
+    void scheduleACTIVEGeometryRegenOnReservoirViews();
+
     RimIdenticalGridCaseGroup* caseGroup();
 
     void getSourceCases(std::vector<RimEclipseCase*>& sourceCases);
