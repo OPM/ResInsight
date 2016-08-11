@@ -32,7 +32,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
-#include "cafPdmUiTreeView.h"
 
 #include <QAction>
 #include <QTreeView>
@@ -171,7 +170,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimView*>& views)
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->updateConnectedEditors();
 
-    RiuMainWindow::instance()->projectTreeView()->setExpanded(proj->viewLinkerCollection(), true);
+    RiuMainWindow::instance()->setExpanded(proj->viewLinkerCollection(), true);
 
 }
 

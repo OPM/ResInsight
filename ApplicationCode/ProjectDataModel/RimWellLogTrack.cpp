@@ -28,8 +28,6 @@
 #include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
 
-#include "cafPdmUiTreeView.h"
-
 #include "cvfAssert.h"
 #include "cvfMath.h"
 

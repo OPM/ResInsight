@@ -2024,7 +2024,6 @@ void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
-   
     m_projectTreeView->setExpanded(uiItem, expanded);
 }
 

@@ -23,11 +23,9 @@
 
 #include "RimWellLogTrack.h"
 
+#include "RiuMainPlotWindow.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
-#include "RiuMainPlotWindow.h"
-
-#include "cafPdmUiTreeView.h"
 
 #include "cvfAssert.h"
 

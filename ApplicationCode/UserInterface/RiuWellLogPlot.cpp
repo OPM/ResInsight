@@ -19,23 +19,22 @@
 
 #include "RiuWellLogPlot.h"
 
-#include "RiuWellLogTrack.h"
-#include "RiuMainWindow.h"
-
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RiuMainWindow.h"
+#include "RiuWellLogTrack.h"
 
-#include "cafPdmUiTreeView.h"
+#include "qwt_legend.h"
+
 #include "cvfAssert.h"
 
-#include <QHBoxLayout>
-#include <QScrollBar>
 #include <QFocusEvent>
+#include <QHBoxLayout>
 #include <QMdiSubWindow>
+#include <QScrollBar>
 #include <QTimer>
 
 #include <math.h>
-#include "qwt_legend.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

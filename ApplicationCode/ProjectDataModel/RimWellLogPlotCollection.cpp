@@ -19,17 +19,16 @@
 
 #include "RimWellLogPlotCollection.h"
 
-#include "RimWellLogPlot.h"
-
-#include "cafPdmUiTreeView.h"
 #include "RigCaseData.h"
-#include "RigGeoMechCaseData.h"
-#include "RimWellPath.h"
-#include "RimEclipseCase.h"
 #include "RigEclipseWellLogExtractor.h"
-#include "RimWellPathCollection.h"
-#include "RimGeoMechCase.h"
+#include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"
+
+#include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
+#include "RimWellLogPlot.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cvfAssert.h"
 

@@ -18,14 +18,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimMainPlotCollection.h"
-#include "RimWellLogPlotCollection.h"
+
+#include "RimProject.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
-
-#include "cafPdmUiTreeView.h"
 #include "RiuProjectPropertyView.h"
-#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT(RimMainPlotCollection, "MainPlotCollection");
 

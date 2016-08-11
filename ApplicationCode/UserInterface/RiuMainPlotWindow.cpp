@@ -652,7 +652,6 @@ void RiuMainPlotWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
-   
     m_projectTreeView->setExpanded(uiItem, expanded);
 }
 

@@ -27,7 +27,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -43,7 +42,7 @@ void RicNewViewFeature::addReservoirView()
 
     if (newView)
     {
-        RiuMainWindow::instance()->projectTreeView()->setExpanded(newView, true);
+        RiuMainWindow::instance()->setExpanded(newView, true);
     }
 }
 

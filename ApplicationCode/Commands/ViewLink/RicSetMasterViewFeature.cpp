@@ -20,14 +20,14 @@
 #include "RicSetMasterViewFeature.h"
 
 #include "RiaApplication.h"
+
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
-#include "RiuMainWindow.h"
 
-#include "cafPdmUiTreeView.h"
+#include "RiuMainWindow.h"
 
 #include <QAction>
 #include <QTreeView>
@@ -81,9 +81,8 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
     proj->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
-    caf::PdmUiTreeView* projTreeView = RiuMainWindow::instance()->projectTreeView();
-    projTreeView->selectAsCurrentItem(viewLinker);
-    projTreeView->setExpanded(viewLinker, true);
+    RiuMainWindow::instance()->selectAsCurrentItem(viewLinker);
+    RiuMainWindow::instance()->setExpanded(viewLinker, true);
 }
 
 //--------------------------------------------------------------------------------------------------
