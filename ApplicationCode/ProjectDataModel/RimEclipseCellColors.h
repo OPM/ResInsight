@@ -57,6 +57,7 @@ protected:
     virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     friend class RimEclipseFaultColors;
+    friend class RimCellEdgeColors;
     virtual void                                initAfterRead();
 
 private:

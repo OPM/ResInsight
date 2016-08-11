@@ -29,9 +29,18 @@
 #include "cafPdmObject.h"
 
 class RigCaseCellResultsData;
+class RimEclipseCase;
+class RimEclipseCellColors;
 class RimEclipseView;
 class RimLegendConfig;
 
+class RimCellEdgeMetaData
+{
+public:
+    size_t  m_resultIndex;
+    QString m_resultVariable;
+    bool    m_isStatic;
+};
 
 //==================================================================================================
 ///  
@@ -54,14 +63,18 @@ public:
     typedef  caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
 
     void                                  setReservoirView(RimEclipseView* ownerReservoirView);
+    void                                  setEclipseCase(RimEclipseCase* eclipseCase);
 
-    caf::PdmField<QString>                resultVariable;
+    void                                  setResultVariable(const QString& variableName);
+    QString                               resultVariable() const;
+
     caf::PdmField<bool>                   enableCellEdgeColors;
 
     caf::PdmChildField<RimLegendConfig*>  legendConfig;
     double                                ignoredScalarValue() { return m_ignoredResultScalar; }
     void                                  gridScalarIndices(size_t resultIndices[6]);
-    void                                  gridScalarResultNames(QStringList* resultNames);
+    void                                  cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaData);
+
     void                                  loadResult();
     bool                                  hasResult() const; 
 
@@ -69,18 +82,26 @@ public:
     void                                  posNegClosestToZero(double& pos, double& neg);
 protected:
 
+    virtual void                          initAfterRead();
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+
     QStringList                           findResultVariableNames();
 
 private:
-
+    void                                  updateFieldVisibility();
 
     void                                  resetResultIndices();
     void                                  updateIgnoredScalarValue();
 
+    void                                  gridScalarResultNames(std::vector<QString>* resultNames);
+    static QString                        customEdgeResultUiText() { return "Custom Edge Result"; }
+
     virtual caf::PdmFieldHandle*          objectToggleField();
 
+    caf::PdmField<QString>                m_resultVariable;
     caf::PdmField<bool>                   useXVariable;
     caf::PdmField<bool>                   useYVariable;
     caf::PdmField<bool>                   useZVariable;
@@ -88,5 +109,7 @@ private:
     caf::FixedArray<std::pair<QString, size_t>, 6 >  m_resultNameToIndexPairs;
     caf::PdmPointer<RimEclipseView>                  m_reservoirView;
     double                                           m_ignoredResultScalar;
+
+    caf::PdmChildField<RimEclipseCellColors*>       m_customFaultResultColors;
 };
 

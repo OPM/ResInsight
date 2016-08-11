@@ -428,7 +428,7 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         {
             RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
             rimReservoirView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
-            rimReservoirView->cellEdgeResult()->resultVariable = RimDefines::undefinedResultName();
+            rimReservoirView->cellEdgeResult()->setResultVariable(RimDefines::undefinedResultName());
             rimReservoirView->loadDataAndUpdate();
         }
     }

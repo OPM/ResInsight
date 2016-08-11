@@ -23,6 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 
+#include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -131,6 +132,9 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
+    RimCellEdgeColors* cellEdgeColors = NULL;
+    this->firstAnchestorOrThisOfType(cellEdgeColors);
+
     if (&m_resultVariableUiField == changedField)
     {
         m_porosityModel  = m_porosityModelUiField;
@@ -163,6 +167,16 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             }
         }
 
+        if (cellEdgeColors)
+        {
+            cellEdgeColors->loadResult();
+
+            if (view)
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+
         if (curve) 
         {
             curve->loadDataAndUpdate();
@@ -178,6 +192,11 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (faultColors)
     {
         faultColors->updateConnectedEditors();
+    }
+
+    if (cellEdgeColors)
+    {
+        cellEdgeColors->updateConnectedEditors();
     }
 
     if (curve)
@@ -203,8 +222,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     RimWellLogCurve* curve = NULL;
     this->firstAnchestorOrThisOfType(curve);
 
-    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
-    if (propFilter || curve)
+    RimEclipsePropertyFilter* propFilter = NULL;
+    this->firstAnchestorOrThisOfType(propFilter);
+
+    RimCellEdgeColors* cellEdge = NULL;
+    this->firstAnchestorOrThisOfType(cellEdge);
+
+    if (propFilter || curve || cellEdge)
     {
         removePerCellFaceOptionItems(optionItems);
     }
