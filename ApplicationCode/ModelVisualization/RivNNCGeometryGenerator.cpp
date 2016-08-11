@@ -159,14 +159,11 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
         return;
     }
 
-    double cellScalarValue;
-    cvf::Vec2f texCoord;
-
-#pragma omp parallel for private(texCoord, cellScalarValue)
+#pragma omp parallel for
     for (int tIdx = 0; tIdx < static_cast<int>(m_triangleIndexToNNCIndex->size()); tIdx++)
     {
-        cellScalarValue = (*nncResultVals)[(*m_triangleIndexToNNCIndex)[tIdx]];
-        texCoord = mapper->mapToTextureCoord(cellScalarValue);
+        double cellScalarValue = (*nncResultVals)[(*m_triangleIndexToNNCIndex)[tIdx]];
+        cvf::Vec2f texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {
             texCoord[1] = 1.0f;
