@@ -319,6 +319,7 @@ void PdmUiTreeViewEditor::setExpanded(const PdmUiItem* uiItem, bool doExpand) co
 {
     QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
     m_treeView->setExpanded(index, doExpand);
+    m_treeView->scrollTo(index);
 }
 
 //--------------------------------------------------------------------------------------------------
