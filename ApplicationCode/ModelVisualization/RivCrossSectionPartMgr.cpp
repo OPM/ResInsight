@@ -251,16 +251,13 @@ void RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray*
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
 
-    double cellScalarValue;
-    cvf::Vec2f texCoord;
-    
     int triangleCount = static_cast<int>(triangleToCellIdxMap.size());
 
-#pragma omp parallel for private(texCoord, cellScalarValue)
+#pragma omp parallel for
     for (int tIdx = 0; tIdx < triangleCount; tIdx++)
     {
-        cellScalarValue = resultAccessor->cellScalarGlobIdx(triangleToCellIdxMap[tIdx]);
-        texCoord = mapper->mapToTextureCoord(cellScalarValue);
+        double cellScalarValue = resultAccessor->cellScalarGlobIdx(triangleToCellIdxMap[tIdx]);
+        cvf::Vec2f texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {
             texCoord[1] = 1.0f;

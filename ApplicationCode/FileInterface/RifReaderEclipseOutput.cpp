@@ -1567,10 +1567,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 /// 
 //--------------------------------------------------------------------------------------------------
 QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, 
-                                                                  const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, 
+                                                                  const RigActiveCellInfo* matrixActiveCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, 
                                                                   PorosityModelResultType porosityModel, size_t timeStepCount) const
 {
-    CVF_ASSERT(activeCellInfo);
+    CVF_ASSERT(matrixActiveCellInfo);
 
     if (keywords.size() != static_cast<int>(keywordDataItemCounts.size()))
     {
@@ -1590,51 +1590,55 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
     for (int i = 0; i < keywords.size(); i++)
     {
         QString keyword = keywords[i];
+        size_t keywordDataItemCount = keywordDataItemCounts[i];
 
-        if (activeCellInfo->reservoirActiveCellCount() > 0)
+        bool validKeyword = false;
+
+        size_t timeStepsAllCellsRest = keywordDataItemCount % matrixActiveCellInfo->reservoirCellCount();
+        if (timeStepsAllCellsRest == 0 && keywordDataItemCount <= timeStepCount * matrixActiveCellInfo->reservoirCellCount())
         {
-            if (keywordDataItemCounts[i] < activeCellInfo->reservoirActiveCellCount()) continue;
+            // Found result for all cells for N time steps, usually a static dataset for one time step
+            validKeyword = true;
+        }
+        else 
+        {
+            size_t timeStepsMatrixRest = keywordDataItemCount % matrixActiveCellInfo->reservoirActiveCellCount();
 
-            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
-            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->reservoirActiveCellCount();
-            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
-
-            if (timeStepsAllCellsRest == 0)
+            size_t timeStepsFractureRest = 0;
+            if (fractureActiveCellInfo->reservoirActiveCellCount() > 0)
             {
-                if (keywordDataItemCounts[i] > timeStepCount * activeCellInfo->reservoirCellCount())
-                {
-                    continue;
-                }
-
-                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                timeStepsFractureRest = keywordDataItemCount % fractureActiveCellInfo->reservoirActiveCellCount();
             }
-            else if (porosityModel == RifReaderInterface::MATRIX_RESULTS && timeStepsMatrixRest == 0)
-            {
-                if (keywordDataItemCounts[i] > timeStepCount * activeCellInfo->reservoirActiveCellCount())
-                {
-                    continue;
-                }
 
-                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+            size_t sumFractureMatrixActiveCellCount = matrixActiveCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount();
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCount % sumFractureMatrixActiveCellCount;
+
+            if (porosityModel == RifReaderInterface::MATRIX_RESULTS && timeStepsMatrixRest == 0)
+            {
+                if (keywordDataItemCount <= timeStepCount * std::max(matrixActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount))
+                {
+                    validKeyword = true;
+                }
             }
-            else if (porosityModel == RifReaderInterface::FRACTURE_RESULTS && timeStepsMatrixAndFractureRest == 0)
+            else if (porosityModel == RifReaderInterface::FRACTURE_RESULTS && fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0)
             {
-                if (keywordDataItemCounts[i] > timeStepCount * (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount()))
+                if (keywordDataItemCount <= timeStepCount * std::max(fractureActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount))
                 {
-                    continue;
+                    validKeyword = true;
                 }
-
-                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+            }
+            else if (timeStepsMatrixAndFractureRest == 0)
+            {
+                if (keywordDataItemCount <= timeStepCount * sumFractureMatrixActiveCellCount)
+                {
+                    validKeyword = true;
+                }
             }
         }
-        else
-        {
-            if (keywordDataItemCounts[i] > activeCellInfo->reservoirCellCount())
-            {
-                continue;
-            }
 
-            keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+        if (validKeyword)
+        {
+            keywordsWithCorrectNumberOfDataItems.push_back(keyword);
         }
     }
 
@@ -1647,8 +1651,9 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* destinationResultValues, const std::vector<double>& sourceResultValues)
 {
-    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
+    if (sourceResultValues.size() == 0) return;
 
+    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
 
     if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->reservoirActiveCellCount() == 0)
     {
