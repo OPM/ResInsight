@@ -87,17 +87,14 @@ void RivTextureCoordsCreator::createTextureCoords(
     quadTextureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = quadTextureCoords->ptr();
 
-    double resultValue;
-    cvf::Vec2f texCoord;
-
-#pragma omp parallel for private(texCoord, resultValue)
+#pragma omp parallel for
     for (int i = 0; i < static_cast<int>(quadMapper->quadCount()); i++)
     {
         cvf::StructGridInterface::FaceType faceId = quadMapper->cellFace(i);
         size_t cellIdx = quadMapper->cellIndex(i);
 
-        resultValue = resultAccessor->cellFaceScalar(cellIdx, faceId);
-        texCoord = texMapper->getTexCoord(resultValue, cellIdx);
+        double resultValue = resultAccessor->cellFaceScalar(cellIdx, faceId);
+        cvf::Vec2f texCoord = texMapper->getTexCoord(resultValue, cellIdx);
 
         size_t j;
         for (j = 0; j < 4; j++)
