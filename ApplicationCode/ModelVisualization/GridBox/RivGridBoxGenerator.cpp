@@ -135,12 +135,24 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
     std::vector<bool> faceVisibility(6, false);
     for (size_t i = POS_X; i <= NEG_Z; i++)
     {
+        bool isFaceVisible = false;
         cvf::Vec3f sideNorm = sideNormalOutwards((FaceType)i);
 
-        cvf::Vec3d camToSide = camera->position() - pointOnSide((FaceType)i);
-        camToSide.normalize();
+        if (camera->projection() == cvf::Camera::PERSPECTIVE)
+        {
 
-        if (sideNorm.dot(cvf::Vec3f(camToSide)) < 0.0)
+            cvf::Vec3d camToSide = camera->position() - pointOnSide((FaceType)i);
+            camToSide.normalize();
+
+            isFaceVisible = sideNorm.dot(cvf::Vec3f(camToSide)) < 0.0;
+        }
+        else
+        {
+            cvf::Vec3d camToSide = camera->direction();
+            isFaceVisible = sideNorm.dot(cvf::Vec3f(camToSide)) > 0.0;
+        }
+
+        if (isFaceVisible)
         {
             m_gridBoxModel->addPart(m_gridBoxFaceParts[i].p());
             faceVisibility[i] = true;
