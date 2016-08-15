@@ -101,6 +101,8 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_mainCamera = new cvf::Camera;
     m_mainCamera->setFromLookAt(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,0,0), cvf::Vec3d(0,1,0));
     m_renderingSequence = new cvf::RenderSequence();
+    m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+
     m_mainRendering = new cvf::Rendering();
 
     m_animationControl = new caf::FrameAnimationControl(this);
@@ -978,6 +980,8 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         }
         m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
         this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
+        
+        this->m_renderingSequence->setDefaultFFLightDirectional(cvf::Vec3f(0,0,-1));
 
         this->update();
     }
@@ -990,6 +994,9 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         // Set a dummy near plane to be > 0 and < farPlane. These wll be updated by the optimize clipping planes
         double dummyNearPlane = m_mainCamera->farPlane() *0.1;
         m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, dummyNearPlane, m_mainCamera->farPlane());
+
+        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+
         this->update();
     }
 }
