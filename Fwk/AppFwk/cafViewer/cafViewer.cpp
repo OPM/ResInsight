@@ -566,7 +566,10 @@ void caf::Viewer::zoomAll()
     cvf::Vec3d eye, vrp, up;
     m_mainCamera->toLookAt(&eye, &vrp, &up);
 
-    m_mainCamera->fitView(bb, vrp-eye, up);
+    cvf::Vec3d newEye = m_mainCamera->computeFitViewEyePosition(bb, vrp-eye, up, 0.9, m_cameraFieldOfViewYDeg, m_mainCamera->viewport()->aspectRatio());
+    m_mainCamera->setFromLookAt(newEye, bb.center(), up);
+
+    updateParallelProjectionHeightFromMoveZoom(bb.center());
 
     navigationPolicyUpdate();
 }
