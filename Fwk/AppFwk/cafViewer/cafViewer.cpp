@@ -270,42 +270,64 @@ void caf::Viewer::optimizeClippingPlanes()
     cvf::Vec3d eye = m_mainCamera->position();
     cvf::Vec3d viewdir = m_mainCamera->direction();
 
-    cvf::Vec3d bboxCorners[8]; 
+    cvf::Vec3d bboxCorners[8];
     bb.cornerVertices(bboxCorners);
+
+    // Find the distance to the bbox corners most behind and most in front of camera
 
     double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
     double minDistEyeToCornerAlongViewDir = HUGE_VAL;
     for (int bcIdx = 0; bcIdx < 8; ++bcIdx )
     {
         double distEyeBoxCornerAlongViewDir = (bboxCorners[bcIdx] - eye)*viewdir;
+
         if (distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir)
+        {
             maxDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+        }
+
         if (distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir)
-            minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+        {
+            minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir; // Sometimes negative-> behind camera
+        }
     }
 
-    double farPlaneDist = CVF_MIN(maxDistEyeToCornerAlongViewDir, m_maxFarPlaneDistance);
-    double nearPlaneDist = minDistEyeToCornerAlongViewDir;
-    
+    double farPlaneDist  = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxFarPlaneDistance);
+
+    // Near-plane:
+
     bool isOrthoNearPlaneFollowingCamera = false;
+    double nearPlaneDist = HUGE_VAL;
+
+    // If we have perspective projection, set the near plane just in front of camera, and not behind
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera)
     {
-        if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
+        nearPlaneDist = CVF_MAX( m_minNearPlaneDistance, minDistEyeToCornerAlongViewDir);
         if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
         {
             double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
             nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
         }
-
+    }
+    else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
+    {
+        if(minDistEyeToCornerAlongViewDir >= 0) 
+        {
+            nearPlaneDist = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir,  m_maxFarPlaneDistance); 
+        }
+        else
+        {
+            nearPlaneDist = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxFarPlaneDistance);
+        }
     }
 
-    #if 0
+#if 0
     double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
 
     double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
     farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
- 
+
     double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
     if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
     if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
