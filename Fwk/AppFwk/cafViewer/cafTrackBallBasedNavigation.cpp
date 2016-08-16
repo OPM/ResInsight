@@ -159,6 +159,8 @@ void caf::TrackBallBasedNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
 
         m_viewer->mainCamera()->setFromLookAt(newPos, newVrp, up );
         m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
+        m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+
         m_viewer->navigationPolicyUpdate();
     }
 }

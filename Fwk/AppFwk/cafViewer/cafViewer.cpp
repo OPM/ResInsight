@@ -1050,9 +1050,8 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
         // We assume the camera is in a sensible position.
 
-        // Set a dummy near plane to be > 0 and < farPlane. These wll be updated by the optimize clipping planes
-        double dummyNearPlane = m_mainCamera->farPlane() *0.1;
-        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, dummyNearPlane, m_mainCamera->farPlane());
+        // Set dummy near and far plane. These wll be updated by the optimize clipping planes
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, 0.1, 1.0);
 
         this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
         m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0.5, 5.0, 7.0));
@@ -1073,7 +1072,7 @@ double calculateOrthoHeight(double perspectiveViewAngleYDeg, double focusPlaneDi
 /// 
 //--------------------------------------------------------------------------------------------------
 
-double calculateDistToPlaneOfInterest(double perspectiveViewAngleYDeg, double orthoHeight)
+double calculateDistToPlaneOfOrthoHeight(double perspectiveViewAngleYDeg, double orthoHeight)
 {
    return orthoHeight / (2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) )));
 }
@@ -1097,7 +1096,7 @@ double distToPlaneOfInterest(const cvf::Camera* camera, const cvf::Vec3d& pointO
     Vec3d eyeToFocus = pointOfInterest - eye;
     double distToFocusPlane = eyeToFocus*camDir;
 
-    return cvf::Math::abs(distToFocusPlane);
+    return distToFocusPlane;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1111,8 +1110,9 @@ void caf::Viewer::updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& p
 
     if (!camera || camera->projection() != Camera::ORTHO) return;
 
+    // Negative distance can occur. If so, do not set a negative ortho.
 
-    double distToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
+    double distToFocusPlane = cvf::Math::abs( distToPlaneOfInterest(camera, pointOfInterest));    
 
     double orthoHeight = calculateOrthoHeight(m_cameraFieldOfViewYDeg, distToFocusPlane);
 
@@ -1134,7 +1134,7 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
     double orthoHeight = camera->frontPlaneFrustumHeight();
     //Trace::show(String::number(orthoHeight));
 
-    double neededDistToFocusPlane = calculateDistToPlaneOfInterest(m_cameraFieldOfViewYDeg, orthoHeight);
+    double neededDistToFocusPlane = calculateDistToPlaneOfOrthoHeight(m_cameraFieldOfViewYDeg, orthoHeight);
 
     Vec3d eye, vrp, up;
     camera->toLookAt(&eye, &vrp, &up);
