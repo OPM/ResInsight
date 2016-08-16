@@ -32,6 +32,7 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfTexture.h"
 #include "cvfTexture2D_FF.h"
+#include "cvfUniform.h"
 
 
 
@@ -80,6 +81,8 @@ void RivTernaryScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::E
 
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     eff->setShaderProgram(prog.p());
+
+    if(!m_disableLighting) prog->setDefaultUniform(new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0)));
 
     // Result mapping texture
 

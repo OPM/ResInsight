@@ -70,17 +70,21 @@ public:
 
     BoundingBox             boundingBox() const;
 
+    void                    setDefaultFFLightPositional(const Vec3f& position);
+    void                    setDefaultFFLightDirectional(const Vec3f& direction);
+
     void                    render(OpenGLContext* oglContext);
     const PerformanceInfo&  performanceInfo() const;
 
     void                    deleteOrReleaseOpenGLResources(OpenGLContext* oglContext);
 
 private:
-    static void             preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext);
+    void                    preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext) const;
 
 private:
     Collection<Rendering>   m_renderings;       // One rendering per render pass
     PerformanceInfo         m_performanceInfo;  // Performance summary for this view
+    Vec4f                   m_defaultGlLightPosition; // Fixed function default setting for glLightfv(GL_LIGHT0, GL_POSITION, m_defaultGlLightPosition.ptr());
 };
 
 }

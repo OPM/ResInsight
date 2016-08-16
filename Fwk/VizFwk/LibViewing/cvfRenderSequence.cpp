@@ -59,8 +59,10 @@ namespace cvf {
 //------------------------------------------------------------------------------------------------
 /// 
 //------------------------------------------------------------------------------------------------
-RenderSequence::RenderSequence()
+RenderSequence::RenderSequence() 
+    : m_defaultGlLightPosition(0.5, 5.0, 7.0, 1.0) // Positional Headlight right, up, back from camera
 {
+    
 }
 
 
@@ -235,6 +237,25 @@ BoundingBox RenderSequence::boundingBox() const
 
 
 //--------------------------------------------------------------------------------------------------
+/// Todo: Replace with some renderstate object etc.
+//--------------------------------------------------------------------------------------------------
+void RenderSequence::setDefaultFFLightPositional(const Vec3f& position)
+{
+    m_defaultGlLightPosition = Vec4f(position, 1.0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Todo: Replace with some renderstate object etc.
+//--------------------------------------------------------------------------------------------------
+void RenderSequence::setDefaultFFLightDirectional(const Vec3f& direction)
+{
+    // The fourth value= 0.0 makes the light become a directional one, 
+    // with direction from the position towards origo.
+
+    m_defaultGlLightPosition = Vec4f(-direction, 0.0);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Get the performance info for the last rendering (last call to render()).
 //--------------------------------------------------------------------------------------------------
 const PerformanceInfo&RenderSequence::performanceInfo() const
@@ -291,7 +312,7 @@ void RenderSequence::deleteOrReleaseOpenGLResources(OpenGLContext* oglContext)
 /// in this function, but rather the ones that are likely to have been set by our caller and that
 /// are likely to affect our rendering.
 //--------------------------------------------------------------------------------------------------
-void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext)
+void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext) const
 {
     CVF_CALLSITE_OPENGL(oglContext);
     CVF_CHECK_OGL(oglContext);
@@ -341,8 +362,8 @@ void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext
 
         // TODO Work out a proper solution for this
         // Should probably add some RenderState that encapsulates a light source
-        const Vec4f lightPosition(0.5f, 5.0f, 7.0f, 1.0f);
-        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition.ptr());
+
+        glLightfv(GL_LIGHT0, GL_POSITION, m_defaultGlLightPosition.ptr());
 
         const Vec3f spotDirection(0.0f, 0.0f, -1.0f);
         glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION,	spotDirection.ptr());

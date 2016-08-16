@@ -75,11 +75,14 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
     
+    CAF_PDM_InitField(&cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "");
+    cameraPointOfInterest.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "");
-    isPerspectiveView.uiCapability()->setUiHidden(true); // For now as this is experimental
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
@@ -216,7 +219,12 @@ void RimView::updateViewerWidget()
 
         RiuMainWindow::instance()->setActiveViewer(m_viewer->layoutWidget());
 
-        if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+        if(isViewerCreated)
+        {
+            m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+            m_viewer->setPointOfInterest(cameraPointOfInterest());
+            m_viewer->enableParallelProjection(!isPerspectiveView());
+        }
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
 
         this->updateGridBoxData();
@@ -322,6 +330,7 @@ void RimView::createDisplayModelAndRedraw()
         {
             setDefaultView();
             cameraPosition = m_viewer->mainCamera()->viewMatrix();
+            cameraPointOfInterest = m_viewer->pointOfInterest();
         }
     }
 
@@ -360,6 +369,7 @@ void RimView::setupBeforeSave()
     {
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
+        cameraPointOfInterest = m_viewer->pointOfInterest();
 
        setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
     }

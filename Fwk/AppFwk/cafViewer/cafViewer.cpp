@@ -45,6 +45,7 @@
 #include "cvfDebugTimer.h"
 #include "cvfDrawable.h"
 #include "cvfDrawableGeo.h"
+#include "cvfDynamicUniformSet.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
 #include "cvfModel.h"
@@ -59,6 +60,8 @@
 #include "cvfScene.h"
 #include "cvfTextureImage.h"
 #include "cvfTransform.h"
+#include "cvfUniform.h"
+#include "cvfUniformSet.h"
 
 #include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
@@ -67,6 +70,34 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
+
+namespace caf
+{
+
+class GlobalViewerDynUniformSet: public cvf::DynamicUniformSet
+{
+public:
+    GlobalViewerDynUniformSet()
+    {
+        m_headlightPosition = new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0));
+        m_uniformSet = new cvf::UniformSet();
+        m_uniformSet->setUniform(m_headlightPosition.p());
+    }
+
+    virtual ~GlobalViewerDynUniformSet() {}
+
+    void setHeadLightPosition(const cvf::Vec3f posRelativeToCamera) { m_headlightPosition->set(posRelativeToCamera);}
+
+
+    virtual cvf::UniformSet* uniformSet() { return m_uniformSet.p(); }
+    virtual void        update(cvf::Rendering* rendering){};      
+
+private:
+    cvf::ref<cvf::UniformSet>   m_uniformSet;
+    cvf::ref<cvf::UniformFloat> m_headlightPosition;
+};
+
+}
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -98,9 +129,13 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     // Needed to get keystrokes
     setFocusPolicy(Qt::ClickFocus);
 
+    m_globalUniformSet = new GlobalViewerDynUniformSet();
+
     m_mainCamera = new cvf::Camera;
     m_mainCamera->setFromLookAt(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,0,0), cvf::Vec3d(0,1,0));
     m_renderingSequence = new cvf::RenderSequence();
+    m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+
     m_mainRendering = new cvf::Rendering();
 
     m_animationControl = new caf::FrameAnimationControl(this);
@@ -141,6 +176,7 @@ void caf::Viewer::setupMainRendering()
 {
     m_mainRendering->setCamera(m_mainCamera.p());
     m_mainRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+    m_mainRendering->addGlobalDynamicUniformSet(m_globalUniformSet.p());
 
     // Set fixed function rendering if QGLFormat does not support directRendering
     if (!this->format().directRendering())
@@ -265,11 +301,62 @@ void caf::Viewer::optimizeClippingPlanes()
     cvf::BoundingBox bb = m_renderingSequence->boundingBox();
     if (!bb.isValid()) return;
 
-    cvf::Vec3d eye, vrp, up;
-    m_mainCamera->toLookAt(&eye, &vrp, &up);
+    cvf::Vec3d eye = m_mainCamera->position();
+    cvf::Vec3d viewdir = m_mainCamera->direction();
 
-    cvf::Vec3d viewdir = (vrp - eye).getNormalized();
+    cvf::Vec3d bboxCorners[8];
+    bb.cornerVertices(bboxCorners);
 
+    // Find the distance to the bbox corners most behind and most in front of camera
+
+    double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
+    double minDistEyeToCornerAlongViewDir = HUGE_VAL;
+    for (int bcIdx = 0; bcIdx < 8; ++bcIdx )
+    {
+        double distEyeBoxCornerAlongViewDir = (bboxCorners[bcIdx] - eye)*viewdir;
+
+        if (distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir)
+        {
+            maxDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+        }
+
+        if (distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir)
+        {
+            minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir; // Sometimes negative-> behind camera
+        }
+    }
+
+    double farPlaneDist  = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxFarPlaneDistance);
+
+    // Near-plane:
+
+    bool isOrthoNearPlaneFollowingCamera = false;
+    double nearPlaneDist = HUGE_VAL;
+
+    // If we have perspective projection, set the near plane just in front of camera, and not behind
+
+    if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera)
+    {
+        nearPlaneDist = CVF_MAX( m_minNearPlaneDistance, minDistEyeToCornerAlongViewDir);
+        if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+        {
+            double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
+            nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+        }
+    }
+    else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
+    {
+        if(minDistEyeToCornerAlongViewDir >= 0) 
+        {
+            nearPlaneDist = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir,  m_maxFarPlaneDistance); 
+        }
+        else
+        {
+            nearPlaneDist = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxFarPlaneDistance);
+        }
+    }
+
+#if 0
     double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
 
     double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
@@ -282,6 +369,7 @@ void caf::Viewer::optimizeClippingPlanes()
         double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
         nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
     }
+#endif
 
     if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
 
@@ -536,7 +624,10 @@ void caf::Viewer::zoomAll()
     cvf::Vec3d eye, vrp, up;
     m_mainCamera->toLookAt(&eye, &vrp, &up);
 
-    m_mainCamera->fitView(bb, vrp-eye, up);
+    cvf::Vec3d newEye = m_mainCamera->computeFitViewEyePosition(bb, vrp-eye, up, 0.9, m_cameraFieldOfViewYDeg, m_mainCamera->viewport()->aspectRatio());
+    m_mainCamera->setFromLookAt(newEye, bb.center(), up);
+
+    updateParallelProjectionHeightFromMoveZoom(bb.center());
 
     navigationPolicyUpdate();
 }
@@ -946,6 +1037,11 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
         this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
 
+        // Set the light position behind us, far away from the scene
+        float sceneDepth = m_mainCamera->farPlane() -  m_mainCamera->nearPlane();
+        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0,0, 2 * sceneDepth));
+        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0,0, 2 * sceneDepth));
+
         this->update();
     }
     else if (!enableOrtho && m_mainCamera->projection() == cvf::Camera::ORTHO)
@@ -954,7 +1050,12 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
         // We assume the camera is in a sensible position.
 
-        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        // Set dummy near and far plane. These wll be updated by the optimize clipping planes
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, 0.1, 1.0);
+
+        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0.5, 5.0, 7.0));
+
         this->update();
     }
 }
@@ -971,7 +1072,7 @@ double calculateOrthoHeight(double perspectiveViewAngleYDeg, double focusPlaneDi
 /// 
 //--------------------------------------------------------------------------------------------------
 
-double calculateDistToPlaneOfInterest(double perspectiveViewAngleYDeg, double orthoHeight)
+double calculateDistToPlaneOfOrthoHeight(double perspectiveViewAngleYDeg, double orthoHeight)
 {
    return orthoHeight / (2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) )));
 }
@@ -1009,8 +1110,9 @@ void caf::Viewer::updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& p
 
     if (!camera || camera->projection() != Camera::ORTHO) return;
 
+    // Negative distance can occur. If so, do not set a negative ortho.
 
-    double distToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
+    double distToFocusPlane = cvf::Math::abs( distToPlaneOfInterest(camera, pointOfInterest));    
 
     double orthoHeight = calculateOrthoHeight(m_cameraFieldOfViewYDeg, distToFocusPlane);
 
@@ -1032,7 +1134,7 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
     double orthoHeight = camera->frontPlaneFrustumHeight();
     //Trace::show(String::number(orthoHeight));
 
-    double neededDistToFocusPlane = calculateDistToPlaneOfInterest(m_cameraFieldOfViewYDeg, orthoHeight);
+    double neededDistToFocusPlane = calculateDistToPlaneOfOrthoHeight(m_cameraFieldOfViewYDeg, orthoHeight);
 
     Vec3d eye, vrp, up;
     camera->toLookAt(&eye, &vrp, &up);
