@@ -67,18 +67,18 @@ static const char light_AmbientDiffuse_inl[] =
     "                                                                                                      \n"
     "varying vec3 v_ecPosition;                                                                            \n"
     "varying vec3 v_ecNormal;                                                                              \n"
+    "uniform vec3 u_ecLightPosition;                                                                       \n"
     "                                                                                                      \n"
     "//--------------------------------------------------------------------------------------------------  \n"
-    "/// lightFragment() - Simple Headlight without Phong/specular component                               \n"
+    "/// lightFragment() - Simple Positional Headlight without Phong/specular component                    \n"
     "///                                                                                                   \n"
     "//--------------------------------------------------------------------------------------------------  \n"
     "vec4 lightFragment(vec4 srcFragColor, float not_in_use_shadowFactor)                                  \n"
     "{                                                                                                     \n"
-    "    const vec3  ecLightPosition = vec3(0.5, 5.0, 7.0);                                                \n"
     "    const float ambientIntensity = 0.2;                                                               \n"
     "                                                                                                      \n"
     "    // Light vector (from point to light source)                                                      \n"
-    "    vec3 L = normalize(ecLightPosition - v_ecPosition);                                               \n"
+    "    vec3 L = normalize(u_ecLightPosition - v_ecPosition);                                             \n"
     "                                                                                                      \n"
     "    // Viewing vector (from point to eye)                                                             \n"
     "    // Since we are in eye space, the eye pos is at (0, 0, 0)                                         \n"
@@ -100,7 +100,6 @@ cvf::String CommonShaderSources::light_AmbientDiffuse()
 {
     return cvf::String(light_AmbientDiffuse_inl);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Static helper to configure polygon offset render state from enum
@@ -283,11 +282,12 @@ void SurfaceEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) 
     }
 
     cvf::ref<cvf::ShaderProgram> shaderProg = gen.generate();
+    if (m_enableLighting) shaderProg->setDefaultUniform(new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0)));
 
     cvf::ref<cvf::Effect> eff = effect;
     eff->setShaderProgram(shaderProg.p());
     eff->setUniform(new cvf::UniformFloat("u_color", m_color));
-    
+
  
     this->updateCommonEffect(effect);
 }
@@ -442,6 +442,8 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
 
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     eff->setShaderProgram(prog.p());
+
+    if(!m_disableLighting) prog->setDefaultUniform(new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0)));
 
     // Result mapping texture
 

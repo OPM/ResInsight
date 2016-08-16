@@ -45,6 +45,7 @@
 #include "cvfDebugTimer.h"
 #include "cvfDrawable.h"
 #include "cvfDrawableGeo.h"
+#include "cvfDynamicUniformSet.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
 #include "cvfModel.h"
@@ -59,6 +60,8 @@
 #include "cvfScene.h"
 #include "cvfTextureImage.h"
 #include "cvfTransform.h"
+#include "cvfUniform.h"
+#include "cvfUniformSet.h"
 
 #include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
@@ -67,6 +70,34 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
+
+namespace caf
+{
+
+class GlobalViewerDynUniformSet: public cvf::DynamicUniformSet
+{
+public:
+    GlobalViewerDynUniformSet()
+    {
+        m_headlightPosition = new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0));
+        m_uniformSet = new cvf::UniformSet();
+        m_uniformSet->setUniform(m_headlightPosition.p());
+    }
+
+    virtual ~GlobalViewerDynUniformSet() {}
+
+    void setHeadLightPosition(const cvf::Vec3f posRelativeToCamera) { m_headlightPosition->set(posRelativeToCamera);}
+
+
+    virtual cvf::UniformSet* uniformSet() { return m_uniformSet.p(); }
+    virtual void        update(cvf::Rendering* rendering){};      
+
+private:
+    cvf::ref<cvf::UniformSet>   m_uniformSet;
+    cvf::ref<cvf::UniformFloat> m_headlightPosition;
+};
+
+}
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -97,6 +128,8 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
 
     // Needed to get keystrokes
     setFocusPolicy(Qt::ClickFocus);
+
+    m_globalUniformSet = new GlobalViewerDynUniformSet();
 
     m_mainCamera = new cvf::Camera;
     m_mainCamera->setFromLookAt(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,0,0), cvf::Vec3d(0,1,0));
@@ -143,6 +176,7 @@ void caf::Viewer::setupMainRendering()
 {
     m_mainRendering->setCamera(m_mainCamera.p());
     m_mainRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+    m_mainRendering->addGlobalDynamicUniformSet(m_globalUniformSet.p());
 
     // Set fixed function rendering if QGLFormat does not support directRendering
     if (!this->format().directRendering())
@@ -1002,8 +1036,11 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         }
         m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
         this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
-        
-        this->m_renderingSequence->setDefaultFFLightDirectional(cvf::Vec3f(0,0,-1));
+
+        // Set the light position behind us, far away from the scene
+        float sceneDepth = m_mainCamera->farPlane() -  m_mainCamera->nearPlane();
+        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0,0, 2 * sceneDepth));
+        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0,0, 2 * sceneDepth));
 
         this->update();
     }
@@ -1018,6 +1055,7 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, dummyNearPlane, m_mainCamera->farPlane());
 
         this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0.5, 5.0, 7.0));
 
         this->update();
     }

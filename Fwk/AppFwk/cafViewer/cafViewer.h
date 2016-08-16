@@ -73,6 +73,7 @@ class QInputEvent;
 namespace caf
 {
 
+class GlobalViewerDynUniformSet;
 
 class Viewer : public caf::OpenGLWidget
 {
@@ -219,6 +220,10 @@ private:
     caf::FrameAnimationControl*         m_animationControl;
     cvf::Collection<cvf::Scene>         m_frameScenes;
     cvf::Collection<cvf::Model>         m_staticModels;
+
+    // Parallel projection light modification
+
+    cvf::ref<GlobalViewerDynUniformSet> m_globalUniformSet;
 };
 
 } // End namespace caf
