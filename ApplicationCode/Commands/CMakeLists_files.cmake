@@ -41,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 
+${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.h
@@ -92,6 +93,7 @@ ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
 
+${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.cpp

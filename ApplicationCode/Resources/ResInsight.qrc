@@ -61,6 +61,8 @@
       <file>SummaryPlots16x16.png</file>
       <file>SummaryCurve16x16.png</file>
       <file>SummaryCurveFilter16x16.png</file>
+      <file>Parallel16x16.png</file>
+      <file>Perspective16x16.png</file>
 
     </qresource>
     <qresource prefix="/Shader/">

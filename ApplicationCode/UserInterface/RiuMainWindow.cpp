@@ -513,6 +513,7 @@ void RiuMainWindow::createToolBars()
     // View toolbar
     m_viewToolBar = addToolBar(tr("View"));
     m_viewToolBar->setObjectName(m_viewToolBar->windowTitle());
+    m_viewToolBar->addAction(cmdFeatureMgr->action("RicTogglePerspectiveViewFeature"));
     m_viewToolBar->addAction(m_zoomAll);
     m_viewToolBar->addAction(m_viewFromNorth);
     m_viewToolBar->addAction(m_viewFromSouth);
@@ -721,7 +722,7 @@ void RiuMainWindow::slotRefreshViewActions()
 
     updateScaleValue();
 
-    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature");
+    caf::CmdFeatureManager::instance()->refreshEnabledState(QStringList() << "RicLinkVisibleViewsFeature" << "RicTileWindowsFeature" << "RicTogglePerspectiveViewFeature");
 }
 
 //--------------------------------------------------------------------------------------------------
