@@ -25,6 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 
 #include "RivCellSetEnum.h"
@@ -79,6 +80,7 @@ public:
 
     caf::PdmField<bool>                     showWindow;
     caf::PdmField<cvf::Mat4d>               cameraPosition;
+    caf::PdmField<cvf::Vec3d>               cameraPointOfInterest;
     caf::PdmField<bool>                     isPerspectiveView;
     caf::PdmField< cvf::Color3f >           backgroundColor;
 

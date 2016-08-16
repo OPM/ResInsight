@@ -183,6 +183,7 @@ RiuViewer::~RiuViewer()
         m_rimView->uiCapability()->updateUiIconFromToggleField();
 
         m_rimView->cameraPosition = m_mainCamera->viewMatrix();
+        m_rimView->cameraPointOfInterest = pointOfInterest();
     }
     delete m_infoLabel;
     delete m_animationProgress;
