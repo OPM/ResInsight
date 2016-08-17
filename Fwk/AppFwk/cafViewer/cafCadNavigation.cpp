@@ -44,6 +44,7 @@
 #include "cvfManipulatorTrackball.h"
 
 #include <QInputEvent>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -63,61 +64,45 @@ caf::CadNavigation::~CadNavigation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::CadNavigation::init()
-{
-    caf::TrackBallBasedNavigation::init();
-    m_navigationUpdated = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
 {
     if (! inputEvent) return false;
     bool isEventHandled = false;
-
     switch (inputEvent->type())
     {
     case QEvent::MouseButtonPress:
         {
             QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-            int translatedMousePosX = me->x();
-            int translatedMousePosY = m_viewer->height() - me->y();
 
-            if (me->button() == Qt::MidButton)
+            int translatedMousePosX, translatedMousePosY;
+            cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
+
+           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier)
             {
-                if (me->modifiers() & Qt::ShiftModifier)
-                {
-                     m_trackball->startNavigation(cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY);
-                     m_isNavigating = true;
-                     isEventHandled = true;
-                }
-                else if (me->modifiers() == Qt::NoModifier)
-                {
-                    cvf::HitItemCollection hic;
-                    bool hitSomething = m_viewer->rayPick( me->x(),  me->y(), &hic);
+                cvf::HitItemCollection hic;
+                bool hitSomething = m_viewer->rayPick( me->x(),  me->y(), &hic);
 
-                    if (hitSomething)
-                    { 
-                        cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
-                        this->setPointOfInterest(pointOfInterest);
-                    }
-                    else
-                    {
-                        initializeRotationCenter();
-                    }
-
-                    m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
-                    //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));
-                    m_isNavigating = true;
-                    isEventHandled = true;
+                if (hitSomething)
+                { 
+                    cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
+                    this->setPointOfInterest(pointOfInterest);
                 }
+                else
+                {
+                    initializeRotationCenter();
+                }
+
+                m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
+                m_isNavigating = true;
+                m_hasMovedMouseDuringNavigation = false;
+                isEventHandled = true;
             }
-
-            if (isEventHandled)
+            else if (me->button() == Qt::MidButton && (me->modifiers() & Qt::ShiftModifier))
             {
-                m_navigationUpdated = false;
+                m_trackball->startNavigation(cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY);
+                m_isNavigating = true;
+                m_hasMovedMouseDuringNavigation = false;
+                isEventHandled = true;
             }
         }
         break;
@@ -129,11 +114,11 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 if (me->button() == Qt::MidButton)
                 {
                     m_trackball->endNavigation();
-                    //m_viewer->setCursor(RiuCursors::get(RiuCursors::PICK));
+
                     m_isNavigating = false;
+					if (m_hasMovedMouseDuringNavigation) isEventHandled = true;
+                    m_hasMovedMouseDuringNavigation = false;
                     
-                    isEventHandled = m_navigationUpdated;
-                    m_navigationUpdated = false;
                 }
             }
         }
@@ -143,19 +128,21 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
             initializeRotationCenter();
             if (m_isRotCenterInitialized)
             {
-                QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-                int translatedMousePosX = me->x();
-                int translatedMousePosY = m_viewer->height() - me->y();
+                QMouseEvent * me = static_cast<QMouseEvent*>(inputEvent);
+
+                int translatedMousePosX, translatedMousePosY;
+                cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
                 if (m_isNavigating)
                 {
                     bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
-                    if (needRedraw)
+                    if(needRedraw)
                     {
                         m_viewer->navigationPolicyUpdate();
-                        m_navigationUpdated = true;
+
                     }
                     isEventHandled = true;
+                    m_hasMovedMouseDuringNavigation = true;
                 }
             }
         }
@@ -167,15 +154,12 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 initializeRotationCenter();
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
-                    int translatedMousePosX = we->x();
-                    int translatedMousePosY = m_viewer->height() - we->y();
+                    QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
 
-                    cvf::ref<cvf::Ray> ray;
-                    if (we->delta() > 0)
-                        ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
-                    else
-                        ray = m_viewer->mainCamera()->rayFromWindowCoordinates((int)(1.0*translatedMousePosX), (int)(1.0*translatedMousePosY));
+                    int translatedMousePosX, translatedMousePosY;
+                    cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
+
+                    cvf::ref<cvf::Ray> ray = createZoomRay(translatedMousePosX, translatedMousePosY);
 
                     zoomAlongRay(ray.p(), -we->delta());
                 }
