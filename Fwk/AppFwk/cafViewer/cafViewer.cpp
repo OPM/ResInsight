@@ -1155,17 +1155,18 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
 //--------------------------------------------------------------------------------------------------
 int caf::Viewer::clampFrameIndex(int frameIndex) const
 {
-    size_t clampedFrameIndex = static_cast<size_t>(frameIndex);
+    int clampedFrameIndex = frameIndex;
+    int frameCountInt = static_cast<int>(frameCount());
 
-    if (clampedFrameIndex >= frameCount())
+    if (clampedFrameIndex >= frameCountInt)
     {
-        clampedFrameIndex = frameCount() - 1;
+        clampedFrameIndex = frameCountInt - 1;
     }
     else if (clampedFrameIndex < 0)
     {
         clampedFrameIndex = 0;
     }
 
-    return static_cast<int>(clampedFrameIndex);
+    return clampedFrameIndex;
 }
 
