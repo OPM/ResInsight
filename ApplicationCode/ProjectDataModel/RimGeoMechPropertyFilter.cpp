@@ -136,7 +136,6 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
-    uiOrdering.add(&filterMode);
 
     updateReadOnlyStateOfAllFields();
 }
