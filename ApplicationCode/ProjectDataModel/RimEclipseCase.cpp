@@ -299,11 +299,12 @@ void RimEclipseCase::computeCachedData()
         pInf.incrementProgress();
 
         pInf.setNextProgressIncrement(10);
+        pInf.setProgressDescription("Calculating Cell Search Tree");
         rigEclipseCase->mainGrid()->computeCachedData();
         pInf.incrementProgress();
 
         pInf.setProgressDescription("Calculating faults");
-        rigEclipseCase->mainGrid()->calculateFaults();
+        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
         pInf.incrementProgress();
     }
 }

@@ -198,19 +198,33 @@ void RimFaultCollection::syncronizeFaults()
         std::sort(sortedFaults.begin(), sortedFaults.end(), faultComparator);
 
         cvf::ref<RigFault> undefinedFaults;
+        cvf::ref<RigFault> undefinedFaultsWInactive;
+
         for (size_t i = 0; i < sortedFaults.size(); i++)
         {
-            if (sortedFaults[i]->name().compare(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
+            QString faultName = sortedFaults[i]->name();
+            if (faultName.compare(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
             {
                 undefinedFaults = sortedFaults[i];
+            }
+
+            if(faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
+               && faultName.contains("Inactive"))
+            {
+                undefinedFaultsWInactive = sortedFaults[i];
             }
         }
 
         if (undefinedFaults.notNull())
         {
             sortedFaults.erase(undefinedFaults.p());
-
             rigFaults.push_back(undefinedFaults.p());
+        }
+
+        if(undefinedFaultsWInactive.notNull())
+        {
+            sortedFaults.erase(undefinedFaultsWInactive.p());
+            rigFaults.push_back(undefinedFaultsWInactive.p());
         }
 
         for (size_t i = 0; i < sortedFaults.size(); i++)

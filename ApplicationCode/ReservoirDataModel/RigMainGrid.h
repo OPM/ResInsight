@@ -30,10 +30,13 @@
 #include <QtGlobal>
 #include "RigNNCData.h"
 
+class RigActiveCellInfo;
+
 namespace cvf
 {
     class BoundingBoxTree;
 }
+
 
 class RigMainGrid : public RigGridBase
 {
@@ -57,7 +60,7 @@ public:
     RigNNCData*                             nncData();
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults() { return m_faults; }
-    void                                    calculateFaults();
+    void                                    calculateFaults(const RigActiveCellInfo* activeCellInfo);
     const RigFault*                         findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;
     bool                                    isFaceNormalsOutwards() const;
 

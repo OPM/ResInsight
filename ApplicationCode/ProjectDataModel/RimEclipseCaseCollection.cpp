@@ -167,7 +167,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigCaseData*
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        rigEclipseCase->mainGrid()->calculateFaults();
+        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
   
         equalGrid = rigEclipseCase->mainGrid();
     }

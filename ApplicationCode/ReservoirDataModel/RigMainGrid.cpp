@@ -24,6 +24,7 @@
 #include "RimDefines.h"
 #include "RigFault.h"
 #include "cvfBoundingBoxTree.h"
+#include "RigActiveCellInfo.h"
 
 
 RigMainGrid::RigMainGrid(void)
@@ -218,8 +219,9 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::calculateFaults()
+void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
 {
+    {
     m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
     // Spread fault idx'es on the cells from the faults
@@ -233,6 +235,9 @@ void RigMainGrid::calculateFaults()
 
     RigFault * unNamedFault = new RigFault;
     int unNamedFaultIdx = static_cast<int>(m_faults.size());
+
+    RigFault * unNamedFaultWithInactive = new RigFault;
+    int unNamedFaultWithInactiveIdx = static_cast<int>(m_faults.size());
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
@@ -248,6 +253,7 @@ void RigMainGrid::calculateFaults()
         size_t i, j, k;
         RigGridBase* hostGrid = NULL; 
         bool firstNO_FAULTFaceForCell = true;
+        bool isCellActive = true;
 
         for (char faceIdx = 0; faceIdx < 6; ++faceIdx)
         {
@@ -262,6 +268,8 @@ void RigMainGrid::calculateFaults()
                 {
                     hostGrid = m_cells[gcIdx].hostGrid();
                     hostGrid->ijkFromCellIndex(m_cells[gcIdx].gridLocalCellIndex(), &i,&j, &k);
+                    isCellActive = activeCellInfo->isActive(gcIdx);
+
                     firstNO_FAULTFaceForCell = false;
                 }
 
@@ -276,8 +284,9 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
+                bool isNeighborCellActive = activeCellInfo->isActive(neighborReservoirCellIdx);
+
                 double tolerance = 1e-6;
-               
 
                 caf::SizeTArray4 faceIdxs;
                 m_cells[gcIdx].faceIndices(face, &faceIdxs);
@@ -296,10 +305,12 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
-                // To avoid doing this calculation for the opposite face
+                // To avoid doing this calculation for the opposite face 
+                int faultIdx = unNamedFaultIdx;
+                if (!(isCellActive && isNeighborCellActive)) faultIdx = unNamedFaultWithInactiveIdx;
 
-                m_faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
-                m_faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
+                m_faultsPrCellAcc->setFaultIdx(gcIdx, face, faultIdx);
+                m_faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), faultIdx);
 
                 // Add as fault face only if the grid index is less than the neighbors
 
@@ -307,7 +318,14 @@ void RigMainGrid::calculateFaults()
                 {
                     {
                         RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborReservoirCellIdx);
-                        unNamedFault->faultFaces().push_back(ff);
+                        if(isCellActive && isNeighborCellActive)
+                        {
+                            unNamedFault->faultFaces().push_back(ff);
+                        }
+                        else
+                        {
+                            unNamedFaultWithInactive->faultFaces().push_back(ff);
+                        }
                     }
 
                 }
@@ -325,6 +343,12 @@ void RigMainGrid::calculateFaults()
         m_faults.push_back(unNamedFault);
     }
 
+    if(unNamedFaultWithInactive->faultFaces().size())
+    {
+        unNamedFaultWithInactive->setName(RimDefines::undefinedGridFaultWithInactiveName());
+        m_faults.push_back(unNamedFaultWithInactive);
+    }
+    }
     // Distribute nnc's to the faults
 
     const std::vector<RigConnection>& nncs = this->nncData()->connections();
