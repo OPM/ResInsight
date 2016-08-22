@@ -228,10 +228,13 @@ void RigMainGrid::calculateFaults()
         m_faults[fIdx]->accumulateFaultsPrCell(m_faultsPrCellAcc.p(), static_cast<int>(fIdx));
     }
 
-    // Find the geometrical faults that is in addition
+    // Find the geometrical faults that is in addition: Has no user defined (eclipse) fault assigned.
+    // Separate the grid faults that has an inactive cell as member
 
     RigFault * unNamedFault = new RigFault;
     int unNamedFaultIdx = static_cast<int>(m_faults.size());
+
+    const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
     for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
     {
@@ -249,6 +252,8 @@ void RigMainGrid::calculateFaults()
         for (char faceIdx = 0; faceIdx < 6; ++faceIdx)
         {
             cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType(faceIdx);
+
+            // For faces that has no used defined Fault assigned:
 
             if (m_faultsPrCellAcc->faultIdx(gcIdx, face) == RigFaultsPrCellAccumulator::NO_FAULT)
             {
@@ -279,7 +284,6 @@ void RigMainGrid::calculateFaults()
                 caf::SizeTArray4 nbFaceIdxs;
                 m_cells[neighborReservoirCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
 
-                const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
                 bool sharedFaceVertices = true;
                 if (sharedFaceVertices && vxs[faceIdxs[0]].pointDistance(vxs[nbFaceIdxs[0]]) > tolerance ) sharedFaceVertices = false;

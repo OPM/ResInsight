@@ -74,7 +74,6 @@ public:
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
-    void                                    computeActiveAndValidCellRanges();
     void                                    buildCellSearchTree();
 
 private:
