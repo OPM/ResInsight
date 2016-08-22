@@ -1566,9 +1566,12 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, 
-                                                                  const RigActiveCellInfo* matrixActiveCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, 
-                                                                  PorosityModelResultType porosityModel, size_t timeStepCount) const
+QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, 
+                                                                  const std::vector<size_t>& keywordDataItemCounts, 
+                                                                  const RigActiveCellInfo* matrixActiveCellInfo, 
+                                                                  const RigActiveCellInfo* fractureActiveCellInfo, 
+                                                                  PorosityModelResultType porosityModel, 
+                                                                  size_t timeStepCount) const
 {
     CVF_ASSERT(matrixActiveCellInfo);
 
@@ -1630,6 +1633,23 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
             else if (timeStepsMatrixAndFractureRest == 0)
             {
                 if (keywordDataItemCount <= timeStepCount * sumFractureMatrixActiveCellCount)
+                {
+                    validKeyword = true;
+                }
+            }
+        }
+
+        // Check for INIT values that has only values for main grid active cells
+        if (!validKeyword)
+        {
+            if (timeStepCount == 1)
+            {
+                size_t mainGridMatrixActiveCellCount;   matrixActiveCellInfo->gridActiveCellCounts(0, mainGridMatrixActiveCellCount);
+                size_t mainGridFractureActiveCellCount; fractureActiveCellInfo->gridActiveCellCounts(0, mainGridFractureActiveCellCount);
+
+                if (   keywordDataItemCount == mainGridMatrixActiveCellCount 
+                    || keywordDataItemCount == mainGridFractureActiveCellCount 
+                    || keywordDataItemCount == mainGridMatrixActiveCellCount + mainGridFractureActiveCellCount )
                 {
                     validKeyword = true;
                 }
