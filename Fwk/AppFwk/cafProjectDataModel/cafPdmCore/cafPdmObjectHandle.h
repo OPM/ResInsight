@@ -46,7 +46,7 @@ public:
     void                    addCapability(PdmObjectCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
 
     template <typename CapabilityType>
-    CapabilityType* capability() 
+    CapabilityType* capability() const
     {
         for (size_t i = 0; i < m_capabilities.size(); ++i)
         {
@@ -56,8 +56,8 @@ public:
         return NULL;
     }
 
-    PdmUiObjectHandle*  uiCapability();     // Implementation is in cafPdmUiObjectHandle.cpp
-    PdmXmlObjectHandle* xmlCapability();    // Implementation is in cafPdmXmlObjectHandle.cpp
+    PdmUiObjectHandle*  uiCapability() const;     // Implementation is in cafPdmUiObjectHandle.cpp
+    PdmXmlObjectHandle* xmlCapability() const;    // Implementation is in cafPdmXmlObjectHandle.cpp
 
 protected: 
     void addField(PdmFieldHandle* field, const QString& keyword);

@@ -228,7 +228,7 @@ void PdmUiObjectHandle::updateUiIconFromToggleField()
 //--------------------------------------------------------------------------------------------------
 /// Implementation of uiCapability() defined in cafPdmObjectHandle.h
 //--------------------------------------------------------------------------------------------------
-PdmUiObjectHandle* PdmObjectHandle::uiCapability()
+PdmUiObjectHandle* PdmObjectHandle::uiCapability() const
 {
     PdmUiObjectHandle* uiField = capability<PdmUiObjectHandle>();
     assert(uiField);
