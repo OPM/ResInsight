@@ -35,6 +35,8 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -310,7 +312,18 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewSimWellCrossSectionFeature";
         }
-
+        else if(dynamic_cast<RimFormationNames*>(uiItem))
+        {
+            commandIds << "RicImportFormationNamesFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if(dynamic_cast<RimFormationNamesCollection*>(uiItem))
+        {
+            commandIds << "RicImportFormationNamesFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
         if (dynamic_cast<RimView*>(uiItem))
         {
             commandIds << "RicLinkVisibleViewsFeature";

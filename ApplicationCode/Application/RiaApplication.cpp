@@ -68,6 +68,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimFormationNamesCollection.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -384,6 +385,18 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
             igcg->loadMainCaseAndActiveCellInfo(); // VL is this supposed to be done for each RimOilField?
         }
     }
+
+    // Load the formation names
+
+    for(RimOilField* oilField: m_project->oilFields)
+    {
+        if (oilField == NULL) continue; 
+        if(oilField->formationNamesCollection() != NULL)
+        {
+            oilField->formationNamesCollection()->readAllFormationNames();
+        }
+    }
+
 
     // Add well paths for each oil field
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)

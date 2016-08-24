@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,33 +18,20 @@
 
 #pragma once
 
-#include "cafPdmChildField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-
-class RimEclipseCaseCollection;
-class RimGeoMechModels;
-class RimWellPathCollection;
-class RimSummaryCaseCollection;
-class RimFormationNamesCollection;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimOilField : public caf::PdmObject
+class RicImportFormationNamesFeature : public caf::CmdFeature
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimOilField(void);
-    virtual ~RimOilField(void);
-
-    caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
-    caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
-    caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
-    caf::PdmChildField<RimSummaryCaseCollection*> summaryCaseCollection;
-    caf::PdmChildField<RimFormationNamesCollection*> formationNamesCollection;
-
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 };
+
+

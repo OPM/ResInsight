@@ -32,6 +32,7 @@
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimIdenticalGridCaseGroup.h"
@@ -392,6 +393,16 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
         if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
         oilField->wellPathCollection->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
+
+    for(RimOilField* oilField: oilFields)
+    {
+        if(oilField == NULL) continue;
+        if(oilField->formationNamesCollection() != NULL)
+        {
+            oilField->formationNamesCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+    }
+
 
     wellPathImport->updateFilePaths();
 }
@@ -773,6 +784,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
             if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
             if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
+            if (oilField->formationNamesCollection()) uiTreeOrdering.add(oilField->formationNamesCollection());
         }
 
         uiTreeOrdering.add(scriptCollection());
