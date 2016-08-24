@@ -34,6 +34,8 @@ public:
     void                        setFileName(const QString& fileName);
     const QString&              fileName();
 
+    RigFormationNames*          formationNamesData() { return m_formationNamesData.p();}
+
     void                        readFormationNamesFile(QString * errorMessage);
     void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
@@ -51,5 +53,37 @@ private:
 
 class RigFormationNames: public cvf::Object
 {
-    
+public:
+    int formationIndexFromKLayerIdx(size_t Kidx) 
+    {
+        if(Kidx >= m_nameIndexPrKLayer.size()) return -1;
+        return m_nameIndexPrKLayer[Kidx];
+    }
+
+    QString formationNameFromKLayerIdx(size_t Kidx)
+    {
+        int idx = formationIndexFromKLayerIdx(Kidx);
+        if (idx >= m_formationNames.size()) return "";
+        if (idx == -1) return "";
+
+        return m_formationNames[idx];
+    }
+
+    void appendFormationRange(const QString& name, int kStartIdx, int kEndIdx)
+    {
+        CVF_ASSERT(kStartIdx <= kEndIdx);
+        int nameIdx = static_cast<int>(m_formationNames.size());
+        m_formationNames.push_back(name);
+        if (kEndIdx >= static_cast<int>(m_nameIndexPrKLayer.size())) m_nameIndexPrKLayer.resize(kEndIdx + 1, -1);
+
+        for (int kIdx = kStartIdx; kIdx <= kEndIdx; ++kIdx)
+        {
+            m_nameIndexPrKLayer[kIdx] = nameIdx;
+        }
+    }
+
+private:
+
+    std::vector<int> m_nameIndexPrKLayer;
+    std::vector<QString> m_formationNames;
 };

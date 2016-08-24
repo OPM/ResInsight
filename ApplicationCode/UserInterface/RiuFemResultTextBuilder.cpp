@@ -27,6 +27,7 @@
 #include "RigFemPartGrid.h"
 #include "RimGeoMechCellColors.h"
 #include "RigFemPartResultsCollection.h"
+#include "RimFormationNames.h"
 
 
 
@@ -75,6 +76,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 
     QString topoText = this->topologyText("\n");
     text += topoText;
+    appendDetails(text, formationDetails());
     text += "\n";
 
     appendDetails(text, gridResultDetails());
@@ -152,6 +154,46 @@ QString RiuFemResultTextBuilder::gridResultDetails()
     return text;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuFemResultTextBuilder::formationDetails()
+{
+
+    QString text;
+    RimCase* rimCase = m_reservoirView->ownerCase();
+    if(rimCase)
+    {
+        if(rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData())
+        {
+            RigFormationNames* formNames = rimCase->activeFormationNames()->formationNamesData();
+
+            size_t k =  cvf::UNDEFINED_SIZE_T;
+            {
+                RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
+                if(geomData)
+                {
+                    size_t i = 0;
+                    size_t j = 0;
+                    geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                }
+            }
+
+            if(k != cvf::UNDEFINED_SIZE_T)
+            {
+                QString formName = formNames->formationNameFromKLayerIdx(k);
+                if(!formName.isEmpty())
+                {
+                    //text += "-- Formation details --\n";
+
+                    text += QString("Formation Name: %1\n").arg(formName);
+                }
+            }
+        }
+    }
+    return text;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

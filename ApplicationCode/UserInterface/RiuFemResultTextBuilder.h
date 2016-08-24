@@ -52,6 +52,7 @@ private:
     void appendDetails(QString& text, const QString& details);
 
     QString gridResultDetails();
+    QString formationDetails();
 
     QString closestNodeResultText(RimGeoMechCellColors* resultColors);
 

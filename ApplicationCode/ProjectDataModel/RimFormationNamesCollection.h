@@ -30,6 +30,8 @@ public:
     RimFormationNamesCollection();
     ~RimFormationNamesCollection();
 
+    const caf::PdmChildArrayField<RimFormationNames*>& formationNamesList() const { return m_formationNamesList;}
+
     void readAllFormationNames();
     
     void importFiles(const QStringList& fileNames);

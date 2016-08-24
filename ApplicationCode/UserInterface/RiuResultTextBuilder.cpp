@@ -31,6 +31,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimFormationNames.h"
 
 
 
@@ -109,6 +110,7 @@ QString RiuResultTextBuilder::mainResultText()
 
     QString topoText = this->topologyText("\n");
     text += topoText;
+    appendDetails(text, formationDetails());
     text += "\n";
 
     appendDetails(text, nncDetails());
@@ -220,6 +222,51 @@ QString RiuResultTextBuilder::faultResultDetails()
             {
                 text += "Fault result data:\n";
                 this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->currentFaultResultColors(), &text);
+            }
+        }
+    }
+
+    return text;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuResultTextBuilder::formationDetails()
+{
+    QString text;
+    RimCase* rimCase = m_reservoirView->eclipseCase();
+    if(rimCase)
+    {
+        if(rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData())
+        {
+            RigFormationNames* formNames = rimCase->activeFormationNames()->formationNamesData();
+
+            size_t k =  cvf::UNDEFINED_SIZE_T;
+            {
+                const RigCaseData* eclipseData = m_reservoirView->eclipseCase()->reservoirData();
+                if(eclipseData)
+                {
+                    if(m_cellIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        size_t i = cvf::UNDEFINED_SIZE_T;
+                        size_t j = cvf::UNDEFINED_SIZE_T;
+     
+                        eclipseData->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                    }
+                }
+            }
+
+            if (k != cvf::UNDEFINED_SIZE_T)
+            {
+                QString formName = formNames->formationNameFromKLayerIdx(k);
+                if(!formName.isEmpty())
+                {
+                    //text += "-- Formation details --\n";
+
+                    text += QString("Formation Name: %1\n").arg(formName);
+                }
             }
         }
     }

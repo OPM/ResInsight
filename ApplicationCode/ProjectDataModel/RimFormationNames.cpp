@@ -21,6 +21,7 @@
 #include "RimTools.h"
 
 #include "cafPdmUiFilePathEditor.h"
+#include "QFile"
 
 CAF_PDM_SOURCE_INIT(RimFormationNames, "FormationNames");
 
@@ -34,6 +35,7 @@ RimFormationNames::RimFormationNames()
     CAF_PDM_InitField(&m_formationNamesFileName, "FormationNamesFileName", QString(""), "File Name", "", "", "");
 
     m_formationNamesFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +98,61 @@ const QString& RimFormationNames::fileName()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::readFormationNamesFile(QString * errorMessage)
 {
+    QFile dataFile(m_formationNamesFileName());
+    if (!dataFile.open(QFile::ReadOnly)){ if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_formationNamesFileName()) + "\n"; return;}
 
+    m_formationNamesData = new RigFormationNames;
+
+    QTextStream stream(&dataFile);
+    int lineNumber = 1;
+    while (!stream.atEnd())
+    {
+        QString line = stream.readLine();
+        QStringList lineSegs = line.split("'", QString::KeepEmptyParts);
+
+        if(lineSegs.size() == 0) continue; // Empty line
+        if(lineSegs.size() == 1) continue; // No name present. Comment line ?
+        if(lineSegs.size() == 2) 
+        { 
+            if (errorMessage) (*errorMessage) += "Missing quote on line : " + QString::number(lineNumber) + "\n";
+            continue; // One quote present 
+        }
+
+        if (lineSegs.size() == 3) // Normal case
+        {
+            if ( lineSegs[0].contains("--")) continue; // Comment line
+            QString formationName = lineSegs[1];
+            int commentMarkPos = lineSegs[2].indexOf("--");
+            QString numberString = lineSegs[2];
+            if (commentMarkPos >= 0) numberString.truncate(commentMarkPos);
+
+            QStringList numberWords = numberString.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+            if (numberWords.size() == 3)
+            {
+                bool isNumber1 = false;
+                bool isNumber2 = false;
+                int startK = numberWords[0].toInt(&isNumber1);
+                int endK = numberWords[2].toInt(&isNumber2);
+
+                if (!(isNumber2 && isNumber1))
+                {
+                    if (errorMessage) (*errorMessage) += "Format error on line: " + QString::number(lineNumber) + "\n";
+                    continue;
+                }
+
+                int tmp = startK; startK  = tmp < endK ? tmp : endK;
+                endK = tmp > endK ? tmp: endK;
+
+                m_formationNamesData->appendFormationRange(formationName, startK-1, endK-1);
+            }
+            else
+            {
+                if (errorMessage) (*errorMessage) += "Format error on line: " + QString::number(lineNumber) + "\n";
+            }
+        }
+
+        ++lineNumber;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

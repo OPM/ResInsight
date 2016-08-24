@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "cafPdmPtrField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -28,6 +29,7 @@
 #include <vector>
 
 class RimView;
+class RimFormationNames;
 
 namespace cvf {
     class BoundingBox;
@@ -43,6 +45,8 @@ public:
     caf::PdmField<int>                          caseId;
     caf::PdmField<QString>                      caseUserDescription;
 
+    caf::PdmPtrField<RimFormationNames*>        activeFormationNames;
+
     virtual std::vector<RimView*>               views() = 0;
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
@@ -56,6 +60,7 @@ public:
     virtual cvf::Vec3d                          displayModelOffset() const;
 
 private:
+    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 };
 

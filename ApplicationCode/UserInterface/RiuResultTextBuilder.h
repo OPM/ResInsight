@@ -54,6 +54,7 @@ private:
 
     QString gridResultDetails();
     QString faultResultDetails();
+    QString formationDetails();
     QString cellEdgeResultDetails();
     QString nncDetails();
 
