@@ -315,12 +315,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {
             commandIds << "RicImportFormationNamesFeature";
+            commandIds << "RicReloadFormationNamesFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if(dynamic_cast<RimFormationNamesCollection*>(uiItem))
         {
             commandIds << "RicImportFormationNamesFeature";
+            commandIds << "RicReloadFormationNamesFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }

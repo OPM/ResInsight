@@ -36,6 +36,7 @@ ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportFormationNamesFeature.h
+${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
@@ -92,6 +93,7 @@ ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportFormationNamesFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
