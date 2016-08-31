@@ -154,6 +154,7 @@ public:
 
     void                                    selectOverlayInfoConfig();
 
+    virtual QImage                          snapshotWindowContent() override;
 
     virtual void                            zoomAll() override;
 
@@ -196,9 +197,6 @@ protected:
 
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
-
-    virtual QImage                          snapshotWindowContent() override;
-
 
     QPointer<RiuViewer>                     m_viewer;
 

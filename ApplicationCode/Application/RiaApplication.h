@@ -48,6 +48,7 @@ class RimEclipseView;
 class RimProject;
 class RimSummaryPlot;
 class RimView;
+class RimViewWindow;
 class RimWellLogPlot;
 
 class RiuMainPlotWindow;
@@ -177,6 +178,8 @@ public:
 
     RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
     RiuMainPlotWindow*  mainPlotWindow();
+
+    static RimViewWindow* activeViewWindow();
 
 private:
     enum ProjectLoadAction

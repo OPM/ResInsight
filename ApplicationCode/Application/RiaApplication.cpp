@@ -108,6 +108,8 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+#include "RiuSummaryQwtPlot.h"
+#include "RiuWellLogPlot.h"
 
 namespace caf
 {
@@ -1395,6 +1397,43 @@ RiuMainPlotWindow* RiaApplication::mainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiaApplication::activeViewWindow()
+{
+    RimViewWindow* viewWindow = NULL;
+
+    QWidget* topLevelWidget = RiaApplication::activeWindow();
+
+    if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
+    {
+        viewWindow = RiaApplication::instance()->activeReservoirView();
+    }
+
+    if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
+    {
+        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+        QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
+        if (subwindows.size() > 0)
+        {
+            RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
+            if (summaryQwtPlot)
+            {
+                viewWindow = summaryQwtPlot->ownerPlotDefinition();
+            }
+
+            RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
+            if (wellLogPlot)
+            {
+                viewWindow = wellLogPlot->ownerPlotDefinition();
+            }
+        }
+    }
+
+    return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileName)
 {
     std::vector<QString> fileList;
@@ -1777,9 +1816,9 @@ void RiaApplication::saveSnapshotAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::copySnapshotToClipboard()
 {
-        QClipboard* clipboard = QApplication::clipboard();
-        if (clipboard)
-        {
+    QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard)
+    {
         QImage image = grabFrameBufferImage();
         if (!image.isNull())
         {
@@ -2160,21 +2199,26 @@ cvf::Font* RiaApplication::customFont()
 //--------------------------------------------------------------------------------------------------
 QImage RiaApplication::grabFrameBufferImage()
 {
+    // TODO: Create a general solution that also works with well log plots and summary plots
+    // For now, only reservoir views are supported by this solution
+    /*
+        RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
+        if (viewWindow)
+        {
+            return viewWindow->snapshotWindowContent();
+        }
+
+        return QImage();
+    */
+    
     QImage image;
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
-        m_activeReservoirView->viewer()->repaint();
-
-        GLint currentReadBuffer;
-        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
-
-        glReadBuffer(GL_FRONT);
-        image = m_activeReservoirView->viewer()->grabFrameBuffer();
-
-        glReadBuffer(currentReadBuffer);
+        return m_activeReservoirView->snapshotWindowContent();
     }
 
     return image;
+    
 }
 
 //--------------------------------------------------------------------------------------------------

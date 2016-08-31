@@ -46,9 +46,11 @@
 #include "cvfDrawable.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDynamicUniformSet.h"
+#include "cvfFramebufferObject.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
 #include "cvfModel.h"
+#include "cvfOpenGLCapabilities.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayImage.h"
 #include "cvfPart.h"
@@ -56,8 +58,11 @@
 #include "cvfRayIntersectSpec.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
+#include "cvfRenderbufferObject.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
+#include "cvfShaderSourceProvider.h"
+#include "cvfSingleQuadRenderingGenerator.h"
 #include "cvfTextureImage.h"
 #include "cvfTransform.h"
 #include "cvfUniform.h"
@@ -184,6 +189,20 @@ void caf::Viewer::setupMainRendering()
         m_mainRendering->renderEngine()->enableForcedImmediateMode(true);
     }
 
+    if (contextGroup()->capabilities() &&
+        contextGroup()->capabilities()->hasCapability(cvf::OpenGLCapabilities::FRAMEBUFFER_OBJECT))
+    {
+        m_offscreenFbo = new cvf::FramebufferObject;
+        m_mainRendering->setTargetFramebuffer(m_offscreenFbo.p());
+
+        cvf::ref<cvf::RenderbufferObject> rbo = new cvf::RenderbufferObject(cvf::RenderbufferObject::DEPTH_COMPONENT24, 1, 1);
+        m_offscreenFbo->attachDepthRenderbuffer(rbo.p());
+
+        m_offscreenTexture = new cvf::Texture(cvf::Texture::TEXTURE_2D, cvf::Texture::RGBA);
+        m_offscreenTexture->setSize(1, 1);
+        m_offscreenFbo->attachColorTexture2d(0, m_offscreenTexture.p());
+    }
+
     updateOverlayImagePresence();
 }
 
@@ -192,7 +211,25 @@ void caf::Viewer::setupMainRendering()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setupRenderingSequence()
 {
-    m_renderingSequence->addRendering(m_mainRendering.p());  
+    m_renderingSequence->addRendering(m_mainRendering.p());
+
+    if (m_offscreenFbo.notNull())
+    {
+        // Setup second rendering drawing the texture on the screen
+        // -------------------------------------------------------------------------
+        cvf::SingleQuadRenderingGenerator quadRenderGen;
+        cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
+        sampler->setWrapMode(cvf::Sampler::CLAMP_TO_EDGE);
+        sampler->setMinFilter(cvf::Sampler::NEAREST);
+        sampler->setMagFilter(cvf::Sampler::NEAREST);
+
+        quadRenderGen.addTexture(m_offscreenTexture.p(), sampler.p(), "u_texture2D");
+        quadRenderGen.addFragmentShaderCode(cvf::ShaderSourceProvider::instance()->getSourceFromRepository(cvf::ShaderSourceRepository::fs_Unlit));
+        quadRenderGen.addFragmentShaderCode(cvf::ShaderSourceProvider::instance()->getSourceFromRepository(cvf::ShaderSourceRepository::src_Texture));
+
+        cvf::ref<cvf::Rendering> quadRendering = quadRenderGen.generate();
+        m_renderingSequence->addRendering(quadRendering.p());
+    }
 
     updateCamera(width(), height());
 }
@@ -276,7 +313,6 @@ void caf::Viewer::updateCamera(int width, int height)
         m_mainCamera->setProjectionAsOrtho(m_mainCamera->frontPlaneFrustumHeight(), m_mainCamera->nearPlane(), m_mainCamera->farPlane());
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -464,6 +500,16 @@ void caf::Viewer::resizeGL(int width, int height)
 {
     if (width < 1 || height < 1) return;
 
+    if (m_offscreenFbo.notNull())
+    {
+        m_offscreenFbo->resizeAttachedBuffers(width, height);
+    
+        CVF_ASSERT(m_renderingSequence->renderingCount() > 1);
+
+        cvf::ref<cvf::Rendering> quadRendering = m_renderingSequence->rendering(1);
+        quadRendering->camera()->viewport()->set(0, 0, width, height);
+    }
+
     updateCamera(width, height);
 }
 
@@ -476,7 +522,6 @@ void caf::Viewer::enablePerfInfoHud(bool enable)
     updateOverlayImagePresence();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -484,8 +529,6 @@ bool caf::Viewer::isPerfInfoHudEnabled()
 {
     return m_showPerfInfoHud;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///  
@@ -770,6 +813,32 @@ bool caf::Viewer::isShadersSupported()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage caf::Viewer::snapshotImage()
+{
+    QImage image;
+    if (m_offscreenTexture.notNull() && m_offscreenTexture->image())
+    {
+        image = cvfqt::Utils::toQImage(*(m_offscreenTexture->image()));
+    }
+    else
+    {
+        // Code moved from RimView::snapshotWindowContent()
+
+        GLint currentReadBuffer;
+        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
+
+        glReadBuffer(GL_FRONT);
+        image = this->grabFrameBuffer();
+
+        glReadBuffer(currentReadBuffer);
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------

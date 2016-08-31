@@ -255,21 +255,14 @@ void RimView::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 QImage RimView::snapshotWindowContent()
 {
-    QImage image;
     if (m_viewer)
     {
         m_viewer->repaint();
 
-        GLint currentReadBuffer;
-        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
-
-        glReadBuffer(GL_FRONT);
-        image = m_viewer->grabFrameBuffer();
-
-        glReadBuffer(currentReadBuffer);
+        return m_viewer->snapshotImage();
     }
 
-    return image;
+    return QImage();
 }
 
 //--------------------------------------------------------------------------------------------------

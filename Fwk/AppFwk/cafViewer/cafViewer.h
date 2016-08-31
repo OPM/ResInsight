@@ -49,15 +49,17 @@
 
 namespace cvf {
     class Camera;
+    class FramebufferObject;
     class HitItemCollection;
     class Model;
     class OverlayImage;
+    class OverlayItem;
     class OverlayScalarMapperLegend;
     class RenderSequence;
     class Rendering;
     class Scene;
+    class Texture;
     class TextureImage;
-    class OverlayItem;
 }
 
 namespace caf {
@@ -150,6 +152,7 @@ public:
     // Find out whether the system supports shaders
     static bool             isShadersSupported();
 
+    QImage                  snapshotImage();
 
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
@@ -224,6 +227,10 @@ private:
     // Parallel projection light modification
 
     cvf::ref<GlobalViewerDynUniformSet> m_globalUniformSet;
+
+    // Offscreen render objects
+    cvf::ref<cvf::FramebufferObject>    m_offscreenFbo;
+    cvf::ref<cvf::Texture>              m_offscreenTexture;
 };
 
 } // End namespace caf

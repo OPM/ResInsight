@@ -20,15 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimSummaryPlot.h"
-#include "RimView.h"
 #include "RimViewWindow.h"
-#include "RimWellLogPlot.h"
-
-#include "RiuMainPlotWindow.h"
-#include "RiuMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RiuWellLogPlot.h"
 
 #include <QAction>
 #include <QClipboard>
@@ -49,34 +41,7 @@ bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 {
-    RimViewWindow* viewWindow = NULL;
-
-    QWidget* topLevelWidget = RiaApplication::activeWindow();
-
-    if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
-    {
-        viewWindow = RiaApplication::instance()->activeReservoirView();
-    }
-
-    if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
-    {
-        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
-        QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
-        if (subwindows.size() > 0)
-        {
-            RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
-            if (summaryQwtPlot)
-            {
-                viewWindow = summaryQwtPlot->ownerPlotDefinition();
-            }
-
-            RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
-            if (wellLogPlot)
-            {
-                viewWindow = wellLogPlot->ownerPlotDefinition();
-            }
-        }
-    }
+    RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
 
     if (viewWindow)
     {
