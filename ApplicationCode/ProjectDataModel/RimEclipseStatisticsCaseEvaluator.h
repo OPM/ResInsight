@@ -73,6 +73,8 @@ public:
         QString                                     m_resVarName;
     };
 
+    void useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells(RimIdenticalGridCaseGroup* identicalGridCaseGroup);
+
     void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
 private:
@@ -88,5 +90,6 @@ private:
     size_t                 m_reservoirCellCount;
     RimStatisticsConfig    m_statisticsConfig;
     RigCaseData*           m_destinationCase;
+    RimIdenticalGridCaseGroup* m_identicalGridCaseGroup;
 };
 

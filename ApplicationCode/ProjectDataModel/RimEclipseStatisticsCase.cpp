@@ -109,6 +109,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitField(&m_highPercentile, "HighPercentile", 90.0, "High", "", "", "");
 
     CAF_PDM_InitField(&m_wellDataSourceCase, "WellDataSourceCase", RimDefines::undefinedResultName(), "Well Data Source Case", "", "", "" );
+
+    CAF_PDM_InitField(&m_useZeroAsInactiveCellValue, "UseZeroAsInactiveCellValue", false, "Use Zero as Inactive Cell Value", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,6 +257,12 @@ void RimEclipseStatisticsCase::computeStatistics()
     }
 
     RimEclipseStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
+
+    if (m_useZeroAsInactiveCellValue)
+    {
+        stat.useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells(gridCaseGroup);
+    }
+
     stat.evaluateForResults(resultSpecification);
   
 }
@@ -341,6 +349,8 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_lowPercentile);
     group->add(&m_midPercentile);
     group->add(&m_highPercentile);
+
+    uiOrdering.add(&m_useZeroAsInactiveCellValue);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)

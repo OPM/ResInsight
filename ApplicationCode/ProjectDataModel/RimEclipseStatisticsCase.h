@@ -119,4 +119,6 @@ private:
     caf::PdmField<double >                                          m_highPercentile;
 
     caf::PdmField<QString>                                          m_wellDataSourceCase;
+
+    caf::PdmField< bool >                                           m_useZeroAsInactiveCellValue;
 };

@@ -27,6 +27,7 @@
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
 
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"
@@ -203,12 +204,19 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 
-                        
-
                         bool foundAnyValidValues = false;
                         for (size_t caseIdx = 0; caseIdx < sourceDataAccessList.size(); caseIdx++)
                         {
                             double val = sourceDataAccessList.at(caseIdx)->cellScalar(cellIdx);
+
+                            // If identical grid case group is set, treat huge_val as zero in the statistical computation
+                            if (m_identicalGridCaseGroup && m_identicalGridCaseGroup->unionOfActiveCells(poroModel)->isActive(reservoirCellIndex))
+                            {
+                                if (val == HUGE_VAL)
+                                {
+                                    val = 0.0;
+                                }
+                            }
                             values[caseIdx] = val;
 
                             if (val != HUGE_VAL)
@@ -216,6 +224,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                                 foundAnyValidValues = true;
                             }
                         }
+
 
                         // Do the real statistics calculations
                        
@@ -311,7 +320,8 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
     m_reservoirCellCount(0),
-    m_timeStepIndices(timeStepIndices)
+    m_timeStepIndices(timeStepIndices),
+    m_identicalGridCaseGroup(NULL)
 {
     if (sourceCases.size() > 0)
     {
@@ -319,5 +329,13 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::
     }
 
     CVF_ASSERT(m_destinationCase);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCaseEvaluator::useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells(RimIdenticalGridCaseGroup* identicalGridCaseGroup)
+{
+    m_identicalGridCaseGroup = identicalGridCaseGroup;
 }
 
