@@ -209,10 +209,11 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                         {
                             double val = sourceDataAccessList.at(caseIdx)->cellScalar(cellIdx);
 
-                            // If identical grid case group is set, treat huge_val as zero in the statistical computation
-                            if (m_identicalGridCaseGroup && m_identicalGridCaseGroup->unionOfActiveCells(poroModel)->isActive(reservoirCellIndex))
+                            // Replace huge_val with zero in the statistical computation for the following case
+                            if (m_useZeroAsInactiveCellValue || resultName.toUpper() == "ACTNUM")
                             {
-                                if (val == HUGE_VAL)
+                                if (m_identicalGridCaseGroup->unionOfActiveCells(poroModel)->isActive(reservoirCellIndex) &&
+                                    val == HUGE_VAL)
                                 {
                                     val = 0.0;
                                 }
@@ -315,13 +316,14 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
+RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase, RimIdenticalGridCaseGroup* identicalGridCaseGroup)
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
     m_reservoirCellCount(0),
     m_timeStepIndices(timeStepIndices),
-    m_identicalGridCaseGroup(NULL)
+    m_identicalGridCaseGroup(identicalGridCaseGroup),
+    m_useZeroAsInactiveCellValue(false)
 {
     if (sourceCases.size() > 0)
     {
@@ -334,8 +336,8 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCaseEvaluator::useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells(RimIdenticalGridCaseGroup* identicalGridCaseGroup)
+void RimEclipseStatisticsCaseEvaluator::useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells()
 {
-    m_identicalGridCaseGroup = identicalGridCaseGroup;
+    m_useZeroAsInactiveCellValue = true;
 }
 

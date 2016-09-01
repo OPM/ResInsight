@@ -256,11 +256,11 @@ void RimEclipseStatisticsCase::computeStatistics()
         resultSpecification.append(RimEclipseStatisticsCaseEvaluator::ResSpec(RifReaderInterface::FRACTURE_RESULTS, RimDefines::INPUT_PROPERTY, m_selectedFractureInputProperties()[pIdx]));
     }
 
-    RimEclipseStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
+    RimEclipseStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup);
 
     if (m_useZeroAsInactiveCellValue)
     {
-        stat.useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells(gridCaseGroup);
+        stat.useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells();
     }
 
     stat.evaluateForResults(resultSpecification);

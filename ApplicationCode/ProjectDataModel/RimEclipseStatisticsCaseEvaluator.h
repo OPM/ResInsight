@@ -59,7 +59,8 @@ public:
     RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases,
                                const std::vector<size_t>& timeStepIndices,
                                const RimStatisticsConfig& statisticsConfig,
-                               RigCaseData* destinationCase);
+                               RigCaseData* destinationCase,
+                               RimIdenticalGridCaseGroup* identicalGridCaseGroup);
 
     struct ResSpec 
     {
@@ -73,7 +74,7 @@ public:
         QString                                     m_resVarName;
     };
 
-    void useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells(RimIdenticalGridCaseGroup* identicalGridCaseGroup);
+    void useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells();
 
     void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
@@ -91,5 +92,6 @@ private:
     RimStatisticsConfig    m_statisticsConfig;
     RigCaseData*           m_destinationCase;
     RimIdenticalGridCaseGroup* m_identicalGridCaseGroup;
+    bool                    m_useZeroAsInactiveCellValue;
 };
 
