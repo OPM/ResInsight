@@ -74,7 +74,9 @@
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RiuSelectionManager.h"
+#include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
+#include "RiuWellLogPlot.h"
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
@@ -108,8 +110,6 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
-#include "RiuSummaryQwtPlot.h"
-#include "RiuWellLogPlot.h"
 
 namespace caf
 {
