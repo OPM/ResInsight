@@ -228,6 +228,7 @@ void RimView::updateViewerWidget()
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
 
         this->updateGridBoxData();
+        this->createHighlightAndGridBoxDisplayModel();
 
         m_viewer->update();
     }
