@@ -40,6 +40,7 @@ TEST(RigReservoirTest, BasicTest)
 {
     RifEclipseUnifiedRestartFileAccess unrstAccess;
 
+/*
     QStringList filenames;
     //filenames << "d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST";
     filenames << "d:/Models/MRST/simple/SIMPLE.UNRST";
@@ -62,6 +63,7 @@ TEST(RigReservoirTest, BasicTest)
     {
         qDebug() << reportNum;
     }
+*/
 
 /*
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
