@@ -227,8 +227,8 @@ void caf::Viewer::setupRenderingSequence()
         quadRenderGen.addFragmentShaderCode(cvf::ShaderSourceProvider::instance()->getSourceFromRepository(cvf::ShaderSourceRepository::fs_Unlit));
         quadRenderGen.addFragmentShaderCode(cvf::ShaderSourceProvider::instance()->getSourceFromRepository(cvf::ShaderSourceRepository::src_Texture));
 
-        cvf::ref<cvf::Rendering> quadRendering = quadRenderGen.generate();
-        m_renderingSequence->addRendering(quadRendering.p());
+        m_quadRendering = quadRenderGen.generate();
+        m_renderingSequence->addRendering(m_quadRendering.p());
     }
 
     updateCamera(width(), height());
@@ -508,10 +508,7 @@ void caf::Viewer::resizeGL(int width, int height)
     {
         m_offscreenFbo->resizeAttachedBuffers(width, height);
     
-        CVF_ASSERT(m_renderingSequence->renderingCount() > 1);
-
-        cvf::ref<cvf::Rendering> quadRendering = m_renderingSequence->rendering(1);
-        quadRendering->camera()->viewport()->set(0, 0, width, height);
+        m_quadRendering->camera()->viewport()->set(0, 0, width, height);
     }
 
     updateCamera(width, height);
