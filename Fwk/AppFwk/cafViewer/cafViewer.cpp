@@ -407,14 +407,15 @@ void caf::Viewer::optimizeClippingPlanes()
     }
 #endif
 
-    // TODO: Investigate why this is needed on Linux
-    // When loading grid files on Linux, the nearPlaneDist results in 0 at this point
-    nearPlaneDist = CVF_MAX(m_minNearPlaneDistance, nearPlaneDist);
 
     if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
+        // TODO: Investigate why this is needed on Linux
+        // When loading grid files on Linux, the nearPlaneDist results in 0 at this point
+        nearPlaneDist = CVF_MAX(m_minNearPlaneDistance, nearPlaneDist);
+
         m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
     }
     else
