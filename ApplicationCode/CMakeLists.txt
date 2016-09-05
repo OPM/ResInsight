@@ -31,6 +31,7 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     ${ResInsight_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common/
     ${custom-opm-parser_SOURCE_DIR}/opm-parser/
+    ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
@@ -333,7 +334,8 @@ endif()
 
 set( LINK_LIBRARIES
     custom-opm-parser
-    
+    custom-opm-flowdiagnostics
+        
     WellPathImportSsihub
 
 	ResultStatisticsCache
