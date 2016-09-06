@@ -381,7 +381,7 @@ void RimLegendConfig::updateLegend()
    m_logSmoothScalarMapper->setColors(legendColors);
    m_linSmoothScalarMapper->setColors(legendColors);
 
-   m_categoryMapper->setColors(legendColors);
+   m_categoryMapper->setCycleColors(legendColors);
 
    m_linDiscreteScalarMapper->setLevelCount(m_numLevels, true);
    m_logDiscreteScalarMapper->setLevelCount(m_numLevels, true);
@@ -696,24 +696,16 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setCategories(const std::set<int>& globalCategories, const std::set<int>& localCategories)
 {
-    m_globalCategories.resize(globalCategories.size());
-    m_localCategories.resize(localCategories.size());
-
+    for (auto val : globalCategories)
     {
-        size_t i = 0;
-        for (auto val : globalCategories)
-        {
-            m_globalCategories.set(i++, val);
-        }
+        m_globalCategories.push_back(val);
     }
 
+    for (auto val : localCategories)
     {
-        size_t i = 0;
-        for (auto val : localCategories)
-        {
-            m_localCategories.set(i++, val);
-        }
+        m_localCategories.push_back(val);
     }
+
     updateLegend();
 }
 

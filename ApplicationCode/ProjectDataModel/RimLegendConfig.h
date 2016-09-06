@@ -149,8 +149,8 @@ private:
     double                                      m_localAutoPosClosestToZero;
     double                                      m_localAutoNegClosestToZero;
 
-    cvf::IntArray                               m_globalCategories;
-    cvf::IntArray                               m_localCategories;
+    std::vector<int>                            m_globalCategories;
+    std::vector<int>                            m_localCategories;
 
     // Fields
     caf::PdmField<int>                          m_numLevels;

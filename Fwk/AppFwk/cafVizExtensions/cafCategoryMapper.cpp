@@ -22,32 +22,32 @@ CategoryMapper::CategoryMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryMapper::setCategories(const IntArray& categoryValues)
+void CategoryMapper::setCategories(const std::vector<int>& categoryValues)
 {
     m_categoryValues = categoryValues;
 
     ref<Color3ubArray> colorArr = ScalarMapper::colorTableArray(ColorTable::NORMAL);
 
-    setColors(*(colorArr.p()));
+    setCycleColors(*(colorArr.p()));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryMapper::setCategories(const cvf::IntArray& categoryValues, const std::vector<cvf::String>& categoryNames)
+void CategoryMapper::setCategoriesWithNames(const std::vector<int>& categoryValues, const std::vector<cvf::String>& categoryNames)
 {
     m_categoryValues = categoryValues;
     m_categoryNames = categoryNames;
 
     ref<Color3ubArray> colorArr = ScalarMapper::colorTableArray(ColorTable::NORMAL);
 
-    setColors(*(colorArr.p()));
+    setCycleColors(*(colorArr.p()));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryMapper::setColors(const Color3ubArray& colorArray)
+void CategoryMapper::setCycleColors(const Color3ubArray& colorArray)
 {
     m_colors.resize(m_categoryValues.size());
 
