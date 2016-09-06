@@ -483,6 +483,7 @@ void RigCaseCellResultsData::clearAllResults()
 {
     m_cellScalarResults.clear();
     m_resultInfos.clear();
+    m_statisticsDataCache.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
