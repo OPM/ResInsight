@@ -63,7 +63,8 @@ public:
     bool                       hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
 protected:
-   
+    virtual void               updateLegendCategorySettings() {};
+
 private:
     virtual QList<caf::PdmOptionItemInfo>            calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                            bool * useOptionsOnly);
@@ -82,6 +83,7 @@ private:
 
     friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
     friend class RimWellLogExtractionCurve; // Curve needs the ui fields
+    friend class RimGeoMechCellColors; // Needs the ui fields
  
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
     caf::PdmField<QString>                           m_resultVariableUiField;

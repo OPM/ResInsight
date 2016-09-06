@@ -187,6 +187,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (dynamic_cast<RimGeoMechCellColors*>(this))
             {
+                this->updateLegendCategorySettings();
+
                 if (view)
                 {
                     RimViewLinker* viewLinker = view->assosiatedViewLinker();

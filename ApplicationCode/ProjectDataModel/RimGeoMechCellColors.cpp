@@ -75,3 +75,27 @@ void RimGeoMechCellColors::initAfterRead()
 {
     updateIconState();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCellColors::updateLegendCategorySettings()
+{
+    if(this->hasCategoryResult())
+    {
+        legendConfig->setMappingMode(RimLegendConfig::CATEGORY_INTEGER);
+        legendConfig->setColorRangeMode(RimLegendConfig::CATEGORY);
+    }
+    else
+    {
+        if(legendConfig->mappingMode() == RimLegendConfig::CATEGORY_INTEGER)
+        {
+            legendConfig->setMappingMode(RimLegendConfig::LINEAR_CONTINUOUS);
+        }
+
+        if(legendConfig->colorRangeMode() == RimLegendConfig::CATEGORY)
+        {
+            legendConfig->setColorRangeMode(RimLegendConfig::NORMAL);
+        }
+    }
+}

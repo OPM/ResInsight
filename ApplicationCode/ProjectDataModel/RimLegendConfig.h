@@ -97,7 +97,12 @@ public:
 
     typedef caf::AppEnum<MappingType> MappingEnum;
     void                                        recreateLegend();
+
     void                                        setColorRangeMode(ColorRangesType colorMode);
+    ColorRangesType                             colorRangeMode()    { return m_colorRangeMode();}
+    void                                        setMappingMode(MappingType mappingType);
+    MappingType                                 mappingMode()       { return m_mappingMode();}
+        
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
     void                                        setCategories(const std::set<int>& globalCategories, const std::set<int>& localCategories);
@@ -106,7 +111,6 @@ public:
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     cvf::OverlayItem*                           legend();
-
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

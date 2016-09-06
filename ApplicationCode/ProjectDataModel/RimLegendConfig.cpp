@@ -549,6 +549,15 @@ void RimLegendConfig::setColorRangeMode(ColorRangesType colorMode)
     updateLegend();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setMappingMode(MappingType mappingType)
+{
+    m_mappingMode = mappingType;
+    updateLegend();
+}
+
 /*
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -705,6 +714,7 @@ void RimLegendConfig::setCategories(const std::set<int>& globalCategories, const
             m_localCategories.set(i++, val);
         }
     }
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -749,6 +759,8 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         mappingGr->add(&m_userDefinedMaxValue);
         mappingGr->add(&m_userDefinedMinValue);
     }
+
+    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------

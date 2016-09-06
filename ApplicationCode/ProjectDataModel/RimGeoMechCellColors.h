@@ -43,4 +43,7 @@ public:
 
     void            updateIconState();
     virtual void    initAfterRead();
+
+protected:
+    void updateLegendCategorySettings() override; 
 };
