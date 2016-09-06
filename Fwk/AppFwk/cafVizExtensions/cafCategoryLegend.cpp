@@ -233,7 +233,7 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
     float lastVisibleTextY = 0.0;
 
     CVF_ASSERT(m_categoryMapper.notNull());
-    size_t numLabels = m_categoryMapper->categories().size();
+    size_t numLabels = m_categoryMapper->categoryCount();
 
     float categoryHeight = static_cast<float>(layout->legendRect.height() / numLabels);
 
@@ -261,11 +261,10 @@ void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendL
             }
         }
 
-        double tickValue = m_categoryMapper->categories()[it];
-        String valueString = String::number(tickValue);
+        String displayText = m_categoryMapper->textForCategoryIndex(it);
 
         Vec2f pos(textX, textY);
-        textDrawer->addText(valueString, pos);
+        textDrawer->addText(displayText, pos);
 
         lastVisibleTextY = textY;
         m_visibleCategoryLabels.push_back(true);
