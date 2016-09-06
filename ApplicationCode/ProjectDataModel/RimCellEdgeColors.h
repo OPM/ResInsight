@@ -77,6 +77,8 @@ public:
 
     void                                  loadResult();
     bool                                  hasResult() const; 
+    bool                                  hasCategoryResult() const;
+    RimEclipseCellColors*                 singleVarEdgeResultColors();
 
     void                                  minMaxCellEdgeValues(double& min, double& max);
     void                                  posNegClosestToZero(double& pos, double& neg);
@@ -97,7 +99,6 @@ private:
     void                                  updateIgnoredScalarValue();
 
     void                                  gridScalarResultNames(std::vector<QString>* resultNames);
-    static QString                        customEdgeResultUiText() { return "Custom Edge Result"; }
 
     virtual caf::PdmFieldHandle*          objectToggleField();
 
@@ -106,10 +107,13 @@ private:
     caf::PdmField<bool>                   useYVariable;
     caf::PdmField<bool>                   useZVariable;
 
-    caf::FixedArray<std::pair<QString, size_t>, 6 >  m_resultNameToIndexPairs;
-    caf::PdmPointer<RimEclipseView>                  m_reservoirView;
-    double                                           m_ignoredResultScalar;
+    caf::FixedArray<std::pair<QString, size_t>, 6 > m_resultNameToIndexPairs;
+    caf::PdmPointer<RimEclipseView>                 m_reservoirView;
+    double                                          m_ignoredResultScalar;
 
-    caf::PdmChildField<RimEclipseCellColors*>       m_customFaultResultColors;
+    bool                                            isUsingSingleVariable() const;
+    static QString                                  singleVarEdgeResultUiText() { return "Custom Edge Result"; }
+    caf::PdmChildField<RimEclipseCellColors*>       m_singleVarEdgeResultColors;
+
 };
 

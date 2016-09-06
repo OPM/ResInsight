@@ -42,6 +42,7 @@
 
 #include <cmath>
 #include "RimGeoMechCellColors.h"
+#include "RimCellEdgeColors.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -763,9 +764,12 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         this->firstAnchestorOrThisOfType(eclCellColors);
         RimGeoMechCellColors* gmCellColors = nullptr;
         this->firstAnchestorOrThisOfType(gmCellColors);
+        RimCellEdgeColors* eclCellEdgColors = nullptr;
+        this->firstAnchestorOrThisOfType(eclCellEdgColors);
 
-        if (    ( eclCellColors && eclCellColors->hasCategoryResult()) 
-            || ( gmCellColors && gmCellColors->hasCategoryResult()) )
+        if (   ( eclCellColors && eclCellColors->hasCategoryResult()) 
+            || ( gmCellColors && gmCellColors->hasCategoryResult()) 
+            || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult()) )
         {
             isCategoryResult = true;
         }

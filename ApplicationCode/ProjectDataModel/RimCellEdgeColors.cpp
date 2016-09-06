@@ -51,8 +51,8 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomEdgeResult", "Custom Edge Result", ":/CellResult.png", "", "");
-    m_customFaultResultColors = new RimEclipseCellColors();
+    CAF_PDM_InitFieldNoDefault(&m_singleVarEdgeResultColors, "CustomEdgeResult", "Custom Edge Result", ":/CellResult.png", "", "");
+    m_singleVarEdgeResultColors = new RimEclipseCellColors();
 
     m_resultVariable.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
@@ -68,7 +68,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 RimCellEdgeColors::~RimCellEdgeColors()
 {
     delete legendConfig();
-    delete m_customFaultResultColors;
+    delete m_singleVarEdgeResultColors;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
     this->legendConfig()->setReservoirView(ownerReservoirView);
-    m_customFaultResultColors->setReservoirView(ownerReservoirView);
+    m_singleVarEdgeResultColors->setReservoirView(ownerReservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,13 +88,14 @@ void RimCellEdgeColors::loadResult()
 {
     CVF_ASSERT(m_reservoirView && m_reservoirView->currentGridCellResults());
 
-    if (m_resultVariable == RimCellEdgeColors::customEdgeResultUiText())
+    if (isUsingSingleVariable())
     {
-        size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(m_customFaultResultColors->resultType(), m_customFaultResultColors->resultVariable());
+        size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(m_singleVarEdgeResultColors->resultType(), 
+                                                                                               m_singleVarEdgeResultColors->resultVariable());
 
         for (int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
         {
-            m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_customFaultResultColors->resultVariable(), resultindex);
+            m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultindex);
         }
     }
     else
@@ -135,7 +136,7 @@ void RimCellEdgeColors::loadResult()
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::initAfterRead()
 {
-    m_customFaultResultColors->initAfterRead();
+    m_singleVarEdgeResultColors->initAfterRead();
 
     updateFieldVisibility();
 }
@@ -234,7 +235,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
 
             optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
             
-            optionList.push_back(caf::PdmOptionItemInfo(RimCellEdgeColors::customEdgeResultUiText(), RimCellEdgeColors::customEdgeResultUiText()));
+            optionList.push_back(caf::PdmOptionItemInfo(RimCellEdgeColors::singleVarEdgeResultUiText(), RimCellEdgeColors::singleVarEdgeResultUiText()));
 
             if (useOptionsOnly) *useOptionsOnly = true;
 
@@ -252,12 +253,12 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add(&m_resultVariable);
 
-    if (m_resultVariable().compare(RimCellEdgeColors::customEdgeResultUiText()) == 0)
+    if (isUsingSingleVariable())
     {
         caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Custom Edge Result");
-        group1->add(&(m_customFaultResultColors->m_resultTypeUiField));
-        group1->add(&(m_customFaultResultColors->m_porosityModelUiField));
-        group1->add(&(m_customFaultResultColors->m_resultVariableUiField));
+        group1->add(&(m_singleVarEdgeResultColors->m_resultTypeUiField));
+        group1->add(&(m_singleVarEdgeResultColors->m_porosityModelUiField));
+        group1->add(&(m_singleVarEdgeResultColors->m_resultVariableUiField));
     }
     else
     {
@@ -333,6 +334,15 @@ void RimCellEdgeColors::gridScalarResultNames(std::vector<QString>* resultNames)
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCellEdgeColors::isUsingSingleVariable() const
+{
+    return (m_resultVariable == singleVarEdgeResultUiText());
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -347,9 +357,9 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
     this->gridScalarResultNames(&resultNames);
 
     bool isStatic = true;
-    if (m_resultVariable == RimCellEdgeColors::customEdgeResultUiText())
+    if (isUsingSingleVariable())
     {
-        isStatic = m_customFaultResultColors->resultType() == RimDefines::STATIC_NATIVE;
+        isStatic = m_singleVarEdgeResultColors->resultType() == RimDefines::STATIC_NATIVE;
     }
 
     for (size_t i = 0; i < 6; i++)
@@ -368,7 +378,7 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::updateFieldVisibility()
 {
-    m_customFaultResultColors->updateFieldVisibility();
+    m_singleVarEdgeResultColors->updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,7 +487,7 @@ void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::setEclipseCase(RimEclipseCase* eclipseCase)
 {
-    m_customFaultResultColors->setEclipseCase(eclipseCase);
+    m_singleVarEdgeResultColors->setEclipseCase(eclipseCase);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -493,9 +503,9 @@ void RimCellEdgeColors::setResultVariable(const QString& variableName)
 //--------------------------------------------------------------------------------------------------
 QString RimCellEdgeColors::resultVariable() const
 {
-    if (m_resultVariable == RimCellEdgeColors::customEdgeResultUiText())
+    if (isUsingSingleVariable())
     {
-        return m_customFaultResultColors->resultVariable();
+        return m_singleVarEdgeResultColors->resultVariable();
     }
     else
     {
@@ -509,5 +519,21 @@ QString RimCellEdgeColors::resultVariable() const
 caf::PdmFieldHandle* RimCellEdgeColors::objectToggleField()
 {
    return &enableCellEdgeColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCellEdgeColors::hasCategoryResult() const
+{
+   return isUsingSingleVariable() && m_singleVarEdgeResultColors->hasCategoryResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseCellColors* RimCellEdgeColors::singleVarEdgeResultColors()
+{
+    return m_singleVarEdgeResultColors;
 }
 

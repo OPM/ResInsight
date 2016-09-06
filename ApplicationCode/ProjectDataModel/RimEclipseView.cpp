@@ -944,6 +944,23 @@ void RimEclipseView::updateLegends()
         this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
+        if (this->cellEdgeResult()->hasCategoryResult())
+        {
+            if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
+            {
+                cellEdgeResult()->legendConfig()->setCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()),
+                                                                results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex(), 0));
+            }
+            else
+            {
+                const std::vector<QString>& fnVector =
+                    eclipseCase->activeFormationNames()->formationNames();
+                std::set<int> nameIndices;
+                for(int i = 0; i < fnVector.size(); ++i) nameIndices.insert(i);
+                cellEdgeResult()->legendConfig()->setCategories(nameIndices, nameIndices);
+            }
+        }
+
         m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
         this->cellEdgeResult()->legendConfig->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable()));
     }
