@@ -231,6 +231,7 @@ private:
     // Offscreen render objects
     cvf::ref<cvf::FramebufferObject>    m_offscreenFbo;
     cvf::ref<cvf::Texture>              m_offscreenTexture;
+    cvf::ref<cvf::Rendering>            m_quadRendering;
 };
 
 } // End namespace caf

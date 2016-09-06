@@ -22,9 +22,22 @@ CategoryMapper::CategoryMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CategoryMapper::setCategories(const IntArray& categories)
+void CategoryMapper::setCategories(const IntArray& categoryValues)
 {
-    m_categories = categories;
+    m_categoryValues = categoryValues;
+
+    ref<Color3ubArray> colorArr = ScalarMapper::colorTableArray(ColorTable::NORMAL);
+
+    setColors(*(colorArr.p()));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CategoryMapper::setCategories(const cvf::IntArray& categoryValues, const std::vector<cvf::String>& categoryNames)
+{
+    m_categoryValues = categoryValues;
+    m_categoryNames = categoryNames;
 
     ref<Color3ubArray> colorArr = ScalarMapper::colorTableArray(ColorTable::NORMAL);
 
@@ -36,9 +49,9 @@ void CategoryMapper::setCategories(const IntArray& categories)
 //--------------------------------------------------------------------------------------------------
 void CategoryMapper::setColors(const Color3ubArray& colorArray)
 {
-    m_colors.resize(m_categories.size());
+    m_colors.resize(m_categoryValues.size());
 
-    for (size_t i = 0; i < m_categories.size(); i++)
+    for (size_t i = 0; i < m_categoryValues.size(); i++)
     {
         size_t colIdx = i % colorArray.size();
         m_colors[i] = colorArray[colIdx];
@@ -48,9 +61,41 @@ void CategoryMapper::setColors(const Color3ubArray& colorArray)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::IntArray CategoryMapper::categories() const
+void CategoryMapper::setInterpolateColors(const cvf::Color3ubArray& colorArray)
 {
-    return m_categories;
+    if (m_categoryValues.size() > 0)
+    {
+        m_colors = *interpolateColorArray(colorArray, static_cast<cvf::uint>(m_categoryValues.size()));
+    }
+    else
+    {
+        m_colors.clear();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t CategoryMapper::categoryCount() const
+{
+    return m_categoryValues.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const cvf::String CategoryMapper::textForCategoryIndex(size_t index) const
+{
+    CVF_ASSERT(index < m_categoryValues.size());
+    if (index < m_categoryNames.size())
+    {
+        return m_categoryNames[index];
+    }
+    else
+    {
+        double tickValue = m_categoryValues[index];
+        return String::number(tickValue);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,9 +146,9 @@ double CategoryMapper::normalizedValue(double categoryValue) const
 
     if (catIndex != -1)
     {
-        double halfLevelHeight = 1.0 / (m_categories.size() * 2);
+        double halfLevelHeight = 1.0 / (m_categoryValues.size() * 2);
 
-        double normVal = static_cast<double>(catIndex) / static_cast<double>(m_categories.size());
+        double normVal = static_cast<double>(catIndex) / static_cast<double>(m_categoryValues.size());
 
         return normVal + halfLevelHeight;
     }
@@ -120,13 +165,13 @@ double CategoryMapper::domainValue(double normalizedValue) const
 {
     double clampedValue = cvf::Math::clamp(normalizedValue, 0.0, 1.0);
 
-    if (m_categories.size() == 0)
+    if (m_categoryValues.size() == 0)
     {
         return 0.0;
     }
 
-    size_t catIndex = static_cast<size_t>(clampedValue * m_categories.size());
-    return m_categories[catIndex];
+    size_t catIndex = static_cast<size_t>(clampedValue * m_categoryValues.size());
+    return m_categoryValues[catIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,9 +182,9 @@ int CategoryMapper::categoryIndexForCategory(double domainValue) const
     int catIndex = -1;
 
     size_t i = 0;
-    while (i < m_categories.size() && catIndex == -1)
+    while (i < m_categoryValues.size() && catIndex == -1)
     {
-        if (m_categories[i] == domainValue)
+        if (m_categoryValues[i] == domainValue)
         {
             catIndex = static_cast<int>(i);
         }
