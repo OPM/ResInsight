@@ -28,6 +28,7 @@
 #include "RigStatisticsDataCache.h"
 #include "RigFemPartResults.h"
 #include "RigFemPartCollection.h"
+#include "RigFormationNames.h"
 
 #include "cafProgressInfo.h"
 #include "cvfBoundingBox.h"
@@ -38,6 +39,7 @@
 #include "RigFemNativeStatCalc.h"
 #include "cafTensor3.h"
 #include "cafProgressInfo.h"
+#include "RigFemPartGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +68,21 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setActiveFormationNames(RigFormationNames* activeFormationNames)
+{
+    m_activeFormationNamesData  = activeFormationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
+{
+    return m_activeFormationNamesData.p();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Will always return a valid object, but it can be empty
@@ -150,6 +167,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
 std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::scalarFieldAndComponentNames(RigFemResultPosEnum resPos)
 {
     std::map<std::string, std::vector<std::string> >  fieldCompNames;
+
+    if (resPos == RIG_FORMATION_NAMES)
+    {
+        if (activeFormationNames()) fieldCompNames["Active Formation Names"];
+    }
 
     if (m_readerInterface.notNull())
     {
@@ -619,6 +641,38 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return m_femPartResults[partIndex]->createScalarResult(resVarAddr);
     }
 
+    if (resVarAddr.resultPosType == RIG_FORMATION_NAMES)
+    {
+        RigFemScalarResultFrames* resFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+        const RigFemPart * femPart = m_femParts->part(partIndex);
+        std::vector<float>& dstFrameData = resFrames->frameData(0);
+
+        size_t valCount = femPart->elementNodeResultCount();
+        float inf       = std::numeric_limits<float>::infinity();
+        dstFrameData.resize(valCount, inf);
+
+        RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
+
+        int elementCount = femPart->elementCount();
+        for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+
+            size_t i, j, k;
+            femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
+            int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
+
+            for(int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+            {
+                size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                dstFrameData[elmNodResIdx] = formNameIdx;
+            }
+        }
+
+        return resFrames;
+    }
     return NULL;
 }
 

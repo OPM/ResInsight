@@ -32,6 +32,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
 #include "RimFormationNames.h"
+#include "RigFormationNames.h"
 
 
 

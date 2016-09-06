@@ -74,6 +74,7 @@
 #include <QMessageBox>
 
 #include <limits.h>
+#include "RigFormationNames.h"
 
 
 
@@ -990,7 +991,20 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         {
             size_t adjustedTimeStep = m_currentTimeStep;
             if (resultColors->hasStaticResult()) adjustedTimeStep = 0;
-            resultColors->legendConfig()->setCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()), cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex(), adjustedTimeStep));
+
+            if(resultColors->resultType() != RimDefines::FORMATION_NAMES)
+            {
+                resultColors->legendConfig()->setCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()),
+                                                            cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex(), adjustedTimeStep));
+            }
+            else
+            {
+                const std::vector<QString>& fnVector =
+                    eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
+                std::set<int> nameIndices;
+                for(int i = 0; i < fnVector.size(); ++i) nameIndices.insert(i);
+                resultColors->legendConfig()->setCategories(nameIndices, nameIndices);
+            }
         }
 
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());

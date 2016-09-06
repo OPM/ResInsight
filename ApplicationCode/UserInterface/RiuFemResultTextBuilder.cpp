@@ -28,6 +28,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RigFemPartResultsCollection.h"
 #include "RimFormationNames.h"
+#include "RigFormationNames.h"
 
 
 

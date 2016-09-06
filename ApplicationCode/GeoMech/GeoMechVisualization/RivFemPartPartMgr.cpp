@@ -244,7 +244,8 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
         }
         else if (   resVarAddress.resultPosType == RIG_ELEMENT_NODAL 
-                 || resVarAddress.resultPosType == RIG_INTEGRATION_POINT)
+                 || resVarAddress.resultPosType == RIG_INTEGRATION_POINT
+                 || resVarAddress.resultPosType == RIG_FORMATION_NAMES)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }

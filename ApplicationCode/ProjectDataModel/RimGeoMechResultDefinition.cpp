@@ -43,6 +43,7 @@ void caf::AppEnum< RigFemResultPosEnum >::setUp()
     addItem(RIG_NODAL,            "NODAL",            "Nodal");
     addItem(RIG_ELEMENT_NODAL,    "ELEMENT_NODAL",    "Element Nodal");
     addItem(RIG_INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
+    addItem(RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
     setDefault(RIG_NODAL);
 }
 }
@@ -143,7 +144,6 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_resultVariableUiField = "";
         }
-
     }
 
     // Get the possible property filter owner

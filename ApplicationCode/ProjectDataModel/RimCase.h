@@ -59,6 +59,8 @@ public:
 
     virtual cvf::Vec3d                          displayModelOffset() const;
 
+    virtual void                                updateFormationNamesData() = 0;
+
 private:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }

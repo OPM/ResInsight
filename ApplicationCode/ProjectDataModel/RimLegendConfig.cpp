@@ -41,6 +41,7 @@
 #include "cvfScalarMapperDiscreteLog.h"
 
 #include <cmath>
+#include "RimGeoMechCellColors.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -757,11 +758,17 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
     QStringList optionTexts;
 
     bool isCategoryResult = false;
-    RimEclipseCellColors* cellColors = NULL;
-    this->firstAnchestorOrThisOfType(cellColors);
-    if (cellColors && cellColors->hasCategoryResult())
     {
-        isCategoryResult = true;
+        RimEclipseCellColors* eclCellColors = nullptr;
+        this->firstAnchestorOrThisOfType(eclCellColors);
+        RimGeoMechCellColors* gmCellColors = nullptr;
+        this->firstAnchestorOrThisOfType(gmCellColors);
+
+        if (    ( eclCellColors && eclCellColors->hasCategoryResult()) 
+            || ( gmCellColors && gmCellColors->hasCategoryResult()) )
+        {
+            isCategoryResult = true;
+        }
     }
 
     if (fieldNeedingOptions == &m_mappingMode)

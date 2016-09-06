@@ -247,6 +247,11 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
         scalarResultIndex = this->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
     }
 
+    if(scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::FORMATION_NAMES, resultName);
+    }
+
     return scalarResultIndex;
 }
 

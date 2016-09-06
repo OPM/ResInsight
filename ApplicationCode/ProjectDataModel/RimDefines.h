@@ -32,6 +32,7 @@ public:
         STATIC_NATIVE,
         GENERATED,
         INPUT_PROPERTY,
+        FORMATION_NAMES,
         REMOVED
     };
 

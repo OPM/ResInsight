@@ -27,12 +27,14 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFormationNames.h"
 
 #include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimFormationNames.h"
 
 #include <QFile>
 
@@ -114,7 +116,10 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
         // Also, several places is checked for this data to validate availability of data
         m_geoMechCaseData = NULL;
     }
-
+    else
+    {
+        this->updateFormationNamesData();
+    }
     return fileOpenSuccess;
 }
 
@@ -238,6 +243,36 @@ std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const Q
     }
 
     return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if(changedField == &activeFormationNames)
+    {
+        updateFormationNamesData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::updateFormationNamesData()
+{
+    RigGeoMechCaseData* rigCaseData = geoMechData();
+    if(rigCaseData && rigCaseData->femPartResults())
+    {
+        if(activeFormationNames())
+        {
+            rigCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            rigCaseData->femPartResults()->setActiveFormationNames(nullptr);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

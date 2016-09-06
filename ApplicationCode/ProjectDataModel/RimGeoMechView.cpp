@@ -61,6 +61,7 @@
 #include "cvfqtUtils.h"
 
 #include <QMessageBox>
+#include "RigFormationNames.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechView, "GeoMechView");
@@ -418,7 +419,17 @@ void RimGeoMechView::updateLegends()
 
     cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
     cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+    
+    if (cellResult()->hasCategoryResult())
+    {
+        const std::vector<QString>& fnVector = 
+        gmCase->femPartResults()->activeFormationNames()->formationNames(); 
+        std::set<int> nameIndices;
+        for (int i = 0; i < fnVector.size(); ++i) nameIndices.insert(i);
 
+        cellResult()->legendConfig->setCategories(nameIndices, nameIndices);
+    }
+    
     m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
 
     cvf::String legendTitle = cvfqt::Utils::toString(

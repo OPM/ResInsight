@@ -22,6 +22,7 @@
 #include "RigMainGrid.h"
 #include "RigCaseCellResultsData.h"
 #include "RigResultAccessorFactory.h"
+#include "RigFormationNames.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -466,6 +467,56 @@ void RigCaseData::computeActiveCellsGeometryBoundingBox()
     }
 
     m_mainGrid->setDisplayModelOffset(bb.min());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseData::setActiveFormationNames(RigFormationNames* activeFormationNames)
+{
+    m_activeFormationNamesData  = activeFormationNames;
+    if (!activeFormationNames) return;
+
+    size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
+    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RimDefines::FORMATION_NAMES, 
+                                                                  "Active Formation Names", 
+                                                                  false, 
+                                                                  totalGlobCellCount);
+
+    std::vector<double>& fnData =  m_matrixModelResults->cellScalarResults(resIndex,0);
+    size_t localCellCount = m_mainGrid->cellCount();
+    for (size_t cIdx = 0; cIdx < localCellCount; ++cIdx)
+    {
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_mainGrid->ijkFromCellIndex(cIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+
+        fnData[cIdx] = formNameIdx;
+    }
+
+    for (size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx)
+    {
+        size_t mgrdCellIdx =  m_mainGrid->globalCellArray()[cIdx].mainGridCellIndex();
+
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_mainGrid->ijkFromCellIndex(mgrdCellIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+
+        fnData[cIdx] = formNameIdx;
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFormationNames* RigCaseData::activeFormationNames()
+{
+    return m_activeFormationNamesData.p();
 }
 
 //--------------------------------------------------------------------------------------------------

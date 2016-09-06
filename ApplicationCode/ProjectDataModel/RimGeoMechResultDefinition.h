@@ -60,6 +60,8 @@ public:
     QString                    resultFieldUiName();
     QString                    resultComponentUiName();
 
+    bool                       hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
+
 protected:
    
 private:

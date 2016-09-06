@@ -18,6 +18,8 @@
 
 #include "RimFormationNames.h"
 
+#include "RigFormationNames.h"
+
 #include "RimTools.h"
 
 #include "cafPdmUiFilePathEditor.h"

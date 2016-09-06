@@ -43,7 +43,8 @@ RigFemResultAddress(RigFemResultPosEnum resPosType,
     {
         bool isTypeValid =     resultPosType == RIG_NODAL 
                             || resultPosType == RIG_ELEMENT_NODAL 
-                            || resultPosType == RIG_INTEGRATION_POINT;
+                            || resultPosType == RIG_INTEGRATION_POINT
+                            || resultPosType == RIG_FORMATION_NAMES;
         bool isFieldValid = fieldName != "";
         return isTypeValid && isFieldValid;
     }

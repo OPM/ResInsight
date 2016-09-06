@@ -33,6 +33,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimFormationNames.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
@@ -283,6 +284,30 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             }
         }
     }
+    else if(changedField == &activeFormationNames)
+    {
+        updateFormationNamesData();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::updateFormationNamesData()
+{
+    RigCaseData* rigEclipseCase = reservoirData();
+    if(rigEclipseCase)
+    {
+        if(activeFormationNames())
+        {
+            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            rigEclipseCase->setActiveFormationNames(nullptr);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,8 +328,13 @@ void RimEclipseCase::computeCachedData()
         rigEclipseCase->mainGrid()->computeCachedData();
         pInf.incrementProgress();
 
+        pInf.setNextProgressIncrement(17);
         pInf.setProgressDescription("Calculating faults");
         rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        pInf.incrementProgress();
+        
+        pInf.setProgressDescription("Calculating Formation Names Result");
+        this->updateFormationNamesData();
         pInf.incrementProgress();
     }
 }

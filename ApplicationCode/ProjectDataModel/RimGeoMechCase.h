@@ -69,7 +69,13 @@ public:
 
     static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
 
+
+
 private:
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    virtual void                            updateFormationNamesData() override;
+
     virtual void                            initAfterRead();
     static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
 

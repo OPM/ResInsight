@@ -31,7 +31,7 @@ namespace caf
         addItem(RimDefines::STATIC_NATIVE,  "STATIC_NATIVE",    "Static");
         addItem(RimDefines::GENERATED,      "GENERATED",        "Generated");
         addItem(RimDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
-
+        addItem(RimDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
         setDefault(RimDefines::DYNAMIC_NATIVE);
     }
 

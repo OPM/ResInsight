@@ -453,6 +453,11 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
+    if (this->m_resultType() == RimDefines::FORMATION_NAMES
+        && m_eclipseCase 
+        && m_eclipseCase->reservoirData() 
+        && m_eclipseCase->reservoirData()->activeFormationNames() ) return true;
+
     if (!this->hasStaticResult()) return false;
 
     return this->resultVariable().contains("NUM", Qt::CaseInsensitive);
