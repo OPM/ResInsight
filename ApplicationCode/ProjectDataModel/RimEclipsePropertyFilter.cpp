@@ -361,12 +361,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
             if (resultDefinition->hasCategoryResult())
             {
-                std::set<int> vals = results->cellResults()->uniqueCellScalarValues(scalarIndex);
-
-                for (auto val : vals)
-                {
-                    m_uniqueCellValues.push_back(val);
-                }
+                m_uniqueCellValues = results->cellResults()->uniqueCellScalarValues(scalarIndex);
             }
         }
     }

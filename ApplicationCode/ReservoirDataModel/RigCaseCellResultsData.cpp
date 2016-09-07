@@ -130,17 +130,9 @@ void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::set<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex)
+const std::vector<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex)
 {
     return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::set<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex)
-{
-    return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues(timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

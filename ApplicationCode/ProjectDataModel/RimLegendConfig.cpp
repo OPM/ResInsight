@@ -201,8 +201,6 @@ void RimLegendConfig::updateLegend()
 
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
-
-       m_categoryMapper->setCategories(m_globalCategories);
    }
    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
    {
@@ -211,8 +209,6 @@ void RimLegendConfig::updateLegend()
 
        posClosestToZero = m_localAutoPosClosestToZero;
        negClosestToZero = m_localAutoNegClosestToZero;
-
-       m_categoryMapper->setCategories(m_localCategories);
    }
    else
    {
@@ -381,7 +377,6 @@ void RimLegendConfig::updateLegend()
    m_logSmoothScalarMapper->setColors(legendColors);
    m_linSmoothScalarMapper->setColors(legendColors);
 
-   m_categoryMapper->setCycleColors(legendColors);
 
    m_linDiscreteScalarMapper->setLevelCount(m_numLevels, true);
    m_logDiscreteScalarMapper->setLevelCount(m_numLevels, true);
@@ -403,6 +398,8 @@ void RimLegendConfig::updateLegend()
        m_currentScalarMapper = m_logDiscreteScalarMapper.p();
        break;
    case CATEGORY_INTEGER:
+       m_categoryMapper->setCategoriesWithNames(m_categories, m_categoryNames);
+       m_categoryMapper->setCycleColors(legendColors);
        m_currentScalarMapper = m_categoryMapper.p();
        break;
    default:
@@ -694,17 +691,21 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setCategories(const std::set<int>& globalCategories, const std::set<int>& localCategories)
+void RimLegendConfig::setCategories(const std::vector<int>& categories)
 {
-    for (auto val : globalCategories)
-    {
-        m_globalCategories.push_back(val);
-    }
+    m_categories = categories;
+    m_categoryNames.clear();
 
-    for (auto val : localCategories)
-    {
-        m_localCategories.push_back(val);
-    }
+    updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setCategoriesWithNames(const std::vector<int>& categories, const std::vector<cvf::String>& categoryNames)
+{
+    m_categories = categories;
+    m_categoryNames = categoryNames;
 
     updateLegend();
 }

@@ -105,7 +105,8 @@ public:
         
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
-    void                                        setCategories(const std::set<int>& globalCategories, const std::set<int>& localCategories);
+    void                                        setCategories(const std::vector<int>& categories);
+    void                                        setCategoriesWithNames(const std::vector<int>& categories, const std::vector<cvf::String>& categoryNames);
 
     void                                        setTitle(const cvf::String& title);
 
@@ -149,8 +150,8 @@ private:
     double                                      m_localAutoPosClosestToZero;
     double                                      m_localAutoNegClosestToZero;
 
-    std::vector<int>                            m_globalCategories;
-    std::vector<int>                            m_localCategories;
+    std::vector<int>                            m_categories;
+    std::vector<cvf::String>                    m_categoryNames;
 
     // Fields
     caf::PdmField<int>                          m_numLevels;

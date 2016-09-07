@@ -422,12 +422,16 @@ void RimGeoMechView::updateLegends()
     
     if (cellResult()->hasCategoryResult())
     {
-        const std::vector<QString>& fnVector = 
-        gmCase->femPartResults()->activeFormationNames()->formationNames(); 
-        std::set<int> nameIndices;
-        for (int i = 0; i < fnVector.size(); ++i) nameIndices.insert(i);
+        const std::vector<QString>& fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames(); 
+        std::vector<int> nameIndices;
+        std::vector<cvf::String> names;
+        for (int i = 0; i < fnVector.size(); ++i)
+        {
+            nameIndices.push_back(i);
+            names.push_back(cvfqt::Utils::toString(fnVector[i]));
+        }
 
-        cellResult()->legendConfig->setCategories(nameIndices, nameIndices);
+        cellResult()->legendConfig->setCategoriesWithNames(nameIndices, names);
     }
     
     m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
