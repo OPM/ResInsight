@@ -51,6 +51,8 @@ public:
     
     void                                        updateIconState();
 
+    virtual void                                updateLegendCategorySettings() override;
+
 protected:
     // Overridden methods
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

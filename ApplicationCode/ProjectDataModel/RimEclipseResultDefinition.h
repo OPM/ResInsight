@@ -65,6 +65,11 @@ public:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void initAfterRead();
+    
+    virtual void updateLegendCategorySettings() {};
+
+protected:
+    void            updateFieldVisibility();
 
 protected:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
@@ -81,9 +86,6 @@ protected:
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
-
-protected:
-    void updateFieldVisibility();
 
 private:
     QList<caf::PdmOptionItemInfo>   calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);

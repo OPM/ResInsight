@@ -157,6 +157,8 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
         if (dynamic_cast<RimEclipseCellColors*>(this))
         {
+            this->updateLegendCategorySettings();
+
             if (view)
             {
                 RimViewLinker* viewLinker = view->assosiatedViewLinker();
@@ -169,6 +171,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
         if (cellEdgeColors)
         {
+            cellEdgeColors->singleVarEdgeResultColors()->updateLegendCategorySettings();
             cellEdgeColors->loadResult();
 
             if (view)
