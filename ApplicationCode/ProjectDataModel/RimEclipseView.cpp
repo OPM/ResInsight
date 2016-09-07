@@ -941,8 +941,8 @@ void RimEclipseView::updateLegends()
         this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
         this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
 
-        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
-        this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
+        this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
+        this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
         if (this->cellEdgeResult()->hasCategoryResult())
         {
@@ -965,13 +965,13 @@ void RimEclipseView::updateLegends()
             }
         }
 
-        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
-        this->cellEdgeResult()->legendConfig->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable()));
+        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
+        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable()));
     }
     else
     {
-        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+        this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
+        this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 }
 
@@ -1554,13 +1554,13 @@ void RimEclipseView::resetLegendsInViewer()
     if (cellResultNormalLegendConfig) cellResultNormalLegendConfig->recreateLegend();
 
     this->cellResult()->ternaryLegendConfig->recreateLegend();
-    this->cellEdgeResult()->legendConfig->recreateLegend();
+    this->cellEdgeResult()->legendConfig()->recreateLegend();
 
     m_viewer->removeAllColorLegends();
     
     if (cellResultNormalLegendConfig) m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend());
 
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
 }
 
 //--------------------------------------------------------------------------------------------------

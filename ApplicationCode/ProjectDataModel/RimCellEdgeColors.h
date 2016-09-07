@@ -70,7 +70,6 @@ public:
 
     caf::PdmField<bool>                   enableCellEdgeColors;
 
-    caf::PdmChildField<RimLegendConfig*>  legendConfig;
     double                                ignoredScalarValue() { return m_ignoredResultScalar; }
     void                                  gridScalarIndices(size_t resultIndices[6]);
     void                                  cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaData);
@@ -79,6 +78,7 @@ public:
     bool                                  hasResult() const; 
     bool                                  hasCategoryResult() const;
     RimEclipseCellColors*                 singleVarEdgeResultColors();
+    RimLegendConfig*                      legendConfig();
 
     void                                  minMaxCellEdgeValues(double& min, double& max);
     void                                  posNegClosestToZero(double& pos, double& neg);
@@ -113,6 +113,8 @@ private:
 
     bool                                            isUsingSingleVariable() const;
     static QString                                  singleVarEdgeResultUiText() { return "Custom Edge Result"; }
+
+    caf::PdmChildField<RimLegendConfig*>            m_legendConfig;
     caf::PdmChildField<RimEclipseCellColors*>       m_singleVarEdgeResultColors;
 
 };

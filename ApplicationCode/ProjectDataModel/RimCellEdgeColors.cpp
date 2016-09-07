@@ -49,14 +49,14 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y values", "", "", "");
     CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z values", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_singleVarEdgeResultColors, "CustomEdgeResult", "Custom Edge Result", ":/CellResult.png", "", "");
     m_singleVarEdgeResultColors = new RimEclipseCellColors();
 
     m_resultVariable.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
-    legendConfig = new RimLegendConfig();
+    m_legendConfig = new RimLegendConfig();
 
     m_ignoredResultScalar = cvf::UNDEFINED_DOUBLE;
     resetResultIndices();
@@ -67,7 +67,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 //--------------------------------------------------------------------------------------------------
 RimCellEdgeColors::~RimCellEdgeColors()
 {
-    delete legendConfig();
+    delete m_legendConfig();
     delete m_singleVarEdgeResultColors;
 }
 
@@ -77,7 +77,7 @@ RimCellEdgeColors::~RimCellEdgeColors()
 void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
-    this->legendConfig()->setReservoirView(ownerReservoirView);
+    this->m_legendConfig()->setReservoirView(ownerReservoirView);
     m_singleVarEdgeResultColors->setReservoirView(ownerReservoirView);
 }
 
@@ -535,5 +535,20 @@ bool RimCellEdgeColors::hasCategoryResult() const
 RimEclipseCellColors* RimCellEdgeColors::singleVarEdgeResultColors()
 {
     return m_singleVarEdgeResultColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig* RimCellEdgeColors::legendConfig()
+{
+    if (isUsingSingleVariable())
+    {
+        return m_singleVarEdgeResultColors->legendConfig();
+    }
+    else
+    {
+        return m_legendConfig;
+    }
 }
 
