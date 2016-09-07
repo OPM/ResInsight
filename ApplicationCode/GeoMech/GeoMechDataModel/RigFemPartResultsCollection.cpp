@@ -667,7 +667,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             for(int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
             {
                 size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                dstFrameData[elmNodResIdx] = formNameIdx;
+
+                if (formNameIdx != -1)
+                {
+                    dstFrameData[elmNodResIdx] = formNameIdx;
+                }
+                else
+                {
+                    dstFrameData[elmNodResIdx] = HUGE_VAL;
+                }
             }
         }
 

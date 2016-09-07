@@ -492,8 +492,14 @@ void RigCaseData::setActiveFormationNames(RigFormationNames* activeFormationName
         if(!m_mainGrid->ijkFromCellIndex(cIdx, &i, &j, &k)) continue;
 
         int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
-
-        fnData[cIdx] = formNameIdx;
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
     }
 
     for (size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx)
@@ -505,8 +511,14 @@ void RigCaseData::setActiveFormationNames(RigFormationNames* activeFormationName
         if(!m_mainGrid->ijkFromCellIndex(mgrdCellIdx, &i, &j, &k)) continue;
 
         int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
-
-        fnData[cIdx] = formNameIdx;
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
     }
 
 }
