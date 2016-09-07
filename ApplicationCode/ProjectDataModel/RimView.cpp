@@ -207,7 +207,7 @@ void RimView::updateViewerWidget()
             m_viewer->setOwnerReservoirView(this);
 
             RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), mdiWindowGeometry());
-            m_viewer->setMinNearPlaneDistance(10);
+            m_viewer->setDefaultPerspectiveNearPlaneDistance(10);
            
             this->resetLegendsInViewer();
 

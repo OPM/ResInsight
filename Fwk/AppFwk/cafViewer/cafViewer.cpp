@@ -113,8 +113,8 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     :   caf::OpenGLWidget(contextGroup(), format, new QWidget(parent), sharedWidget()),
     m_navigationPolicy(NULL),
-    m_minNearPlaneDistance(0.05),
-    m_maxFarPlaneDistance(cvf::UNDEFINED_DOUBLE),
+    m_defaultPerspectiveNearPlaneDistance(0.05),
+    m_maxClipPlaneDistance(cvf::UNDEFINED_DOUBLE),
     m_cameraFieldOfViewYDeg(40.0),
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
@@ -334,10 +334,10 @@ bool caf::Viewer::canRender() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::optimizeClippingPlanes()
 {
-    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if (!bb.isValid()) return;
 
-    cvf::Vec3d eye = m_mainCamera->position();
+    cvf::Vec3d eye     = m_mainCamera->position();
     cvf::Vec3d viewdir = m_mainCamera->direction();
 
     cvf::Vec3d bboxCorners[8];
@@ -362,7 +362,7 @@ void caf::Viewer::optimizeClippingPlanes()
         }
     }
 
-    double farPlaneDist  = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxFarPlaneDistance);
+    double farPlaneDist  = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxClipPlaneDistance);
 
     // Near-plane:
 
@@ -373,49 +373,36 @@ void caf::Viewer::optimizeClippingPlanes()
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera)
     {
-        nearPlaneDist = CVF_MAX( m_minNearPlaneDistance, minDistEyeToCornerAlongViewDir);
-        if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+        // Choose the one furthest from the camera of: 0.8*bbox distance, m_minPerspectiveNearPlaneDistance.
+        nearPlaneDist = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, 0.8*minDistEyeToCornerAlongViewDir);
+
+        // If we are zooming into a detail, allow the near-plane to move towards camera beyond the m_minPerspectiveNearPlaneDistance
+        if (   nearPlaneDist == m_defaultPerspectiveNearPlaneDistance // We are inside the bounding box
+            && m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
         {
             double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
             nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
         }
+
+        // Guard against the zero nearplane possibility
+        if (nearPlaneDist <= 0) nearPlaneDist = m_defaultPerspectiveNearPlaneDistance;
     }
     else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
     {
         if(minDistEyeToCornerAlongViewDir >= 0) 
         {
-            nearPlaneDist = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir,  m_maxFarPlaneDistance); 
+            nearPlaneDist = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir,  m_maxClipPlaneDistance); 
         }
         else
         {
-            nearPlaneDist = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxFarPlaneDistance);
+            nearPlaneDist = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxClipPlaneDistance);
         }
     }
-
-#if 0
-    double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
-
-    double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
-    farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
-
-    double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
-    if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
-    if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
-    {
-        double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
-        nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
-    }
-#endif
-
 
     if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
 
     if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE)
     {
-        // TODO: Investigate why this is needed on Linux
-        // When loading grid files on Linux, the nearPlaneDist results in 0 at this point
-        nearPlaneDist = CVF_MAX(m_minNearPlaneDistance, nearPlaneDist);
-
         m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, nearPlaneDist, farPlaneDist);
     }
     else
@@ -629,17 +616,17 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::setMinNearPlaneDistance(double dist)
+void caf::Viewer::setDefaultPerspectiveNearPlaneDistance(double dist)
 {
-    m_minNearPlaneDistance = dist;
+    m_defaultPerspectiveNearPlaneDistance = dist;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::setMaxFarPlaneDistance(double dist)
+void caf::Viewer::setMaxClipPlaneDistance(double dist)
 {
-    m_maxFarPlaneDistance = dist;
+    m_maxClipPlaneDistance = dist;
 }
 
 //--------------------------------------------------------------------------------------------------

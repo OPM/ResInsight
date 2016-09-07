@@ -129,8 +129,8 @@ public:
     virtual void            navigationPolicyUpdate();
 
     // Min max near far plane. 
-    void                    setMinNearPlaneDistance(double dist);
-    void                    setMaxFarPlaneDistance(double dist);
+    void                    setDefaultPerspectiveNearPlaneDistance(double dist);
+    void                    setMaxClipPlaneDistance(double dist);
 
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
@@ -183,8 +183,8 @@ protected:
     cvf::ref<cvf::Camera>               m_mainCamera;
     cvf::ref<cvf::Rendering>            m_mainRendering;
 
-    double                              m_minNearPlaneDistance;
-    double                              m_maxFarPlaneDistance;
+    double                              m_defaultPerspectiveNearPlaneDistance;
+    double                              m_maxClipPlaneDistance; //< Max far plane distance and max negative near plane distance in orthographic projection 
     double                              m_cameraFieldOfViewYDeg;
 
 private:

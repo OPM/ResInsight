@@ -198,7 +198,7 @@ RiuViewer::~RiuViewer()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setDefaultView()
 {
-    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if (!bb.isValid())
     {
         bb.add(cvf::Vec3d(-1, -1, -1));
