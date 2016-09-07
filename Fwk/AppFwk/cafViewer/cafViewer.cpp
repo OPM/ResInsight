@@ -292,7 +292,7 @@ cvf::Scene* caf::Viewer::mainScene()
 //--------------------------------------------------------------------------------------------------
 cvf::Scene* caf::Viewer::currentScene()
 {
-    return m_renderingSequence->firstRendering()->scene();
+    return m_mainRendering->scene();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -647,7 +647,7 @@ void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& up
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::zoomAll()
 {
-    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if (!bb.isValid())
     {
       return;
@@ -682,7 +682,7 @@ void caf::Viewer::removeAllFrames()
 {
     m_frameScenes.clear();
     m_animationControl->setNumFrames(0);
-    m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
+    m_mainRendering->setScene(m_mainScene.p());
 }
 
 
@@ -691,7 +691,7 @@ void caf::Viewer::removeAllFrames()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::isAnimationActive()
 {
-    cvf::Scene* currentScene = m_renderingSequence->firstRendering()->scene();
+    cvf::Scene* currentScene = m_mainRendering->scene();
 
     if (!currentScene)
     {
@@ -722,7 +722,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(clampedFrameIndex));
+    m_mainRendering->setScene(m_frameScenes.at(clampedFrameIndex));
 
     update();
 }
@@ -731,7 +731,7 @@ void caf::Viewer::releaseOGlResourcesForCurrentFrame()
 {
     if (isAnimationActive())
     {
-        cvf::Scene* currentScene = m_renderingSequence->firstRendering()->scene();
+        cvf::Scene* currentScene = m_mainRendering->scene();
         makeCurrent();
         cvf::uint modelCount = currentScene->modelCount();
         for (cvf::uint i = 0; i < modelCount; ++i)
@@ -759,7 +759,7 @@ void caf::Viewer::slotEndAnimation()
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
+    m_mainRendering->setScene(m_mainScene.p());
 
     update();
 }

@@ -271,7 +271,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotEndAnimation()
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
     if (m_rimView) m_rimView->endAnimation();
@@ -486,7 +486,7 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
     if (legend)
@@ -551,7 +551,7 @@ void RiuViewer::navigationPolicyUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setCurrentFrame(int frameIndex)
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
     if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
