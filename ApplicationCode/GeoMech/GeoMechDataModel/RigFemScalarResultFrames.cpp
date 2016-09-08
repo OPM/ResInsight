@@ -28,6 +28,7 @@
 RigFemScalarResultFrames::RigFemScalarResultFrames(int frameCount)
 {
     m_dataForEachFrame.resize(frameCount);
+    m_singleFrameResultData = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,6 +37,14 @@ RigFemScalarResultFrames::RigFemScalarResultFrames(int frameCount)
 RigFemScalarResultFrames::~RigFemScalarResultFrames()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemScalarResultFrames::setSingleFrameResultData()
+{
+    m_singleFrameResultData = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,5 +61,12 @@ int RigFemScalarResultFrames::frameCount()
 //--------------------------------------------------------------------------------------------------
 std::vector<float>& RigFemScalarResultFrames::frameData(size_t frameIndex)
 {
-    return m_dataForEachFrame[frameIndex];
+    if (m_singleFrameResultData)
+    {
+        return m_dataForEachFrame[0];
+    }
+    else
+    {
+        return m_dataForEachFrame[frameIndex];
+    }
 }
