@@ -857,7 +857,7 @@ struct SegmentPositionContribution
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId)
+RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName)
 {
     CVF_ASSERT(ert_connection);
     CVF_ASSERT(grid);
@@ -875,10 +875,40 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         cellK -= static_cast<int>(grid->cellCountK());
     }
 
+    // See description for keyword ICON at page 54/55 of Rile Formats Reference Manual 2010.2
+    /*
+        Integer completion data array
+        ICON(NICONZ,NCWMAX,NWELLS) with dimensions
+        defined by INTEHEAD. The following items are required for each completion in each well:
+        Item 1 - Well connection index ICON(1,IC,IWELL) = IC (set to -IC if connection is not in current LGR)
+        Item 2 - I-coordinate (<= 0 if not in this LGR)
+        Item 3 - J-coordinate (<= 0 if not in this LGR)
+        Item 4 - K-coordinate (<= 0 if not in this LGR)
+        Item 6 - Connection status > 0 open, <= 0 shut
+        Item 14 - Penetration direction (1=x, 2=y, 3=z, 4=fractured in x-direction, 5=fractured in y-direction)
+        If undefined or zero, assume Z
+        Item 15 - Segment number containing connection (for multi-segment wells, =0 for ordinary wells)
+        Undefined items in this array may be set to zero.
+    */
+
     // The K value might also be -1. It is not yet known why, or what it is supposed to mean, 
     // but for now we will interpret as 0.
     // TODO: Ask Joakim Haave regarding this.
-    if (cellK < 0) cellK = 0;
+    if (cellK < 0)
+    {
+        //cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected negative K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to 0");
+
+        cellK = 0;
+    }
+
+    // Introduced based on discussion with Håkon Høgstøl 08.09.2016
+    if (cellK >= grid->cellCountK())
+    {
+        int maxCellKIndex = static_cast<int>(grid->cellCountK() - 1);
+        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to " + cvf::String(maxCellKIndex));
+
+        cellK = maxCellKIndex;
+    }
 
     resultPoint.m_gridIndex = grid->gridIndex();
     resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
@@ -1154,7 +1184,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                     if (ert_wellhead)
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
 
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
@@ -1214,7 +1244,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 {
                                     well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
                                     wellResultBranch.m_branchResultPoints.push_back(
-                                        createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment)));
+                                        createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment), wellName));
                                 }
 
                                 segmentHasConnections = true;
@@ -1222,7 +1252,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 // Prepare data for segment position calculation
 
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, 0);
-                                RigWellResultPoint point       = createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment));
+                                RigWellResultPoint point       = createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment), wellName);
                                 lastConnectionPos              = grids[gridNr]->cell(point.m_gridCellIndex).center();
                                 cvf::Vec3d cellVxes[8];
                                 grids[gridNr]->cellCornerVertices(point.m_gridCellIndex, cellVxes);
@@ -1294,7 +1324,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 // Select the deepest connection 
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, connectionCount-1);
                                 wellResultBranch.m_branchResultPoints.push_back(
-                                    createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(outletSegment)));
+                                    createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(outletSegment), wellName));
 
                                 outletSegmentHasConnections = true;
                                 break; // Stop looping over grids
@@ -1507,7 +1537,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                     if (ert_wellhead)
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
                         wellResFrame.m_wellHead.m_isOpen = false; 
@@ -1541,7 +1571,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                             {
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
                                 wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = 
-                                    createWellResultPoint(grids[gridNr], ert_connection, -1, -1);
+                                    createWellResultPoint(grids[gridNr], ert_connection, -1, -1, wellName);
                             }
                         }
                     }
