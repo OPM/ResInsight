@@ -33,12 +33,12 @@ public:
     RigFemScalarResultFrames(int frameCount);
     virtual ~RigFemScalarResultFrames();
 
-    void setSingleFrameResultData();
+    void enableAsSingleFrameResult();
 
     std::vector<float>& frameData(size_t frameIndex);
     int frameCount();
 
 private:
     std::vector< std::vector<float> > m_dataForEachFrame;
-    bool                              m_singleFrameResultData;
+    bool                              m_isSingleFrameResult;
 };

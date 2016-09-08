@@ -644,7 +644,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     if (resVarAddr.resultPosType == RIG_FORMATION_NAMES)
     {
         RigFemScalarResultFrames* resFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-        resFrames->setSingleFrameResultData();
+        resFrames->enableAsSingleFrameResult();
 
         const RigFemPart * femPart = m_femParts->part(partIndex);
         std::vector<float>& dstFrameData = resFrames->frameData(0);
