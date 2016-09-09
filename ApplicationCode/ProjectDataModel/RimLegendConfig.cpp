@@ -355,16 +355,16 @@ void RimLegendConfig::updateLegend()
         legendColors.add(cvf::Color3ub( 89,  51,  21)); // hwb( 26,  8%, 65%) deep_yellowish_brown
         legendColors.add(cvf::Color3ub(255, 142,   0)); // hwb( 33,  0%,  0%) vivid_orange_yellow
         legendColors.add(cvf::Color3ub(206, 162,  98)); // hwb( 36, 38%, 19%) grayish_yellow
-        legendColors.add(cvf::Color3ub(255, 179,   0)); // hwb( 42,  0%,  0%) vivid_yellow
         legendColors.add(cvf::Color3ub(244, 200,   0)); // hwb( 49,  0%,  4%) vivid_greenish_yellow
         legendColors.add(cvf::Color3ub(147, 170,   0)); // hwb( 68,  0%, 33%) vivid_yellowish_green
-        legendColors.add(cvf::Color3ub( 35,  44,  22)); // hwb( 85,  9%, 83%) dark_olive_green
+        legendColors.add(cvf::Color3ub( 59,  84,  23)); // hwb( 85,  9%, 67%) dark_olive_green
         legendColors.add(cvf::Color3ub(  0, 125,  52)); // hwb(145,  0%, 51%) vivid_green
+        legendColors.add(cvf::Color3ub( 54, 125, 123)); // hwb(178, 21%, 51%) vivid_blueish_green
         legendColors.add(cvf::Color3ub(  0,  83, 138)); // hwb(204,  0%, 46%) strong_blue
         legendColors.add(cvf::Color3ub(166, 189, 215)); // hwb(212, 65%, 16%) very_light_blue
-        legendColors.add(cvf::Color3ub( 83,  55, 122)); // hwb(265, 22%, 52%) strong_violet
-        legendColors.add(cvf::Color3ub(179,  40,  81)); // hwb(342, 16%, 30%) strong_purplish_red
+        legendColors.add(cvf::Color3ub( 67,  56, 122)); // hwb(250, 22%, 52%) strong_violet_blue
         legendColors.add(cvf::Color3ub(128,  62, 117)); // hwb(310, 24%, 50%) strong_purple
+        legendColors.add(cvf::Color3ub(212,  28, 132)); // hwb(326, 11%, 17%) strong_purplish_red
         legendColors.add(cvf::Color3ub(246, 118, 142)); // hwb(349, 46%,  4%) strong_purplish_pink
         legendColors.add(cvf::Color3ub(193,   0,  32)); // hwb(350,  0%, 24%) vivid_red 
    }
