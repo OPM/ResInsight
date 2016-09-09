@@ -344,6 +344,7 @@ void RimLegendConfig::updateLegend()
    {
        // Based on http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
        // and Kelly Colors and sorted by hue
+       // See also http://www.w3schools.com/colors/ for palettes etc.
         legendColors.reserve(20);
         legendColors.add(cvf::Color3ub(127,  24,  13)); // hwb(  6,  5%, 50%) strong_reddish_brown
         legendColors.add(cvf::Color3ub(241,  58,  19)); // hwb( 11,  7%,  5%) vivid_reddish_orange 
