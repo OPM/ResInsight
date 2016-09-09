@@ -180,11 +180,13 @@ double CategoryMapper::domainValue(double normalizedValue) const
 int CategoryMapper::categoryIndexForCategory(double domainValue) const
 {
     int catIndex = -1;
+    
+    int intDomainValue = static_cast<int>(nearbyint(domainValue));
 
     size_t i = 0;
     while (i < m_categoryValues.size() && catIndex == -1)
     {
-        if (m_categoryValues[i] == domainValue)
+        if (m_categoryValues[i] == intDomainValue)
         {
             catIndex = static_cast<int>(i);
         }
