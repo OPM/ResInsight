@@ -39,6 +39,7 @@
 #include "cvfScalarMapperContinuousLog.h"
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfScalarMapperDiscreteLog.h"
+#include "cvfqtUtils.h"
 
 #include <cmath>
 #include "RimGeoMechCellColors.h"
@@ -690,7 +691,7 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setCategories(const std::vector<int>& categories)
+void RimLegendConfig::setIntegerCategories(const std::vector<int>& categories)
 {
     m_categories = categories;
     m_categoryNames.clear();
@@ -701,10 +702,18 @@ void RimLegendConfig::setCategories(const std::vector<int>& categories)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setCategoriesWithNames(const std::vector<int>& categories, const std::vector<cvf::String>& categoryNames)
+void RimLegendConfig::setNamedCategoriesInverse(const std::vector<QString>& categoryNames)
 {
-    m_categories = categories;
-    m_categoryNames = categoryNames;
+    std::vector<int> nameIndices;
+    std::vector<cvf::String> names;
+    for(int i =  static_cast<int>(categoryNames.size()) - 1; i >= 0; --i)
+    {
+        nameIndices.push_back(i);
+        names.push_back(cvfqt::Utils::toString(categoryNames[i]));
+    }
+    
+    m_categories = nameIndices;
+    m_categoryNames = names;
 
     updateLegend();
 }

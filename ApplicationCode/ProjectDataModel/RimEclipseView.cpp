@@ -948,20 +948,12 @@ void RimEclipseView::updateLegends()
         {
             if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
             {
-                cellEdgeResult()->legendConfig()->setCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
+                cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
             }
             else
             {
                 const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
-                std::vector<int> nameIndices;
-                std::vector<cvf::String> names;
-                for (int i = 0; i < fnVector.size(); ++i)
-                {
-                    nameIndices.push_back(i);
-                    names.push_back(cvfqt::Utils::toString(fnVector[i]));
-                }
-
-                cellEdgeResult()->legendConfig()->setCategoriesWithNames(nameIndices, names);
+                cellEdgeResult()->legendConfig()->setNamedCategoriesInverse(fnVector);
             }
         }
 
@@ -1012,20 +1004,12 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         {
             if(resultColors->resultType() != RimDefines::FORMATION_NAMES)
             {
-                resultColors->legendConfig()->setCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()));
+                resultColors->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()));
             }
             else
             {
                 const std::vector<QString>& fnVector = eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
-                std::vector<int> nameIndices;
-                std::vector<cvf::String> names;
-                for (int i = 0; i < fnVector.size(); ++i)
-                {
-                    nameIndices.push_back(i);
-                    names.push_back(cvfqt::Utils::toString(fnVector[i]));
-                }
-
-                resultColors->legendConfig()->setCategoriesWithNames(nameIndices, names);
+                resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
             }
         }
 

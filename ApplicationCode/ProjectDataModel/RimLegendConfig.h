@@ -105,8 +105,8 @@ public:
         
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
-    void                                        setCategories(const std::vector<int>& categories);
-    void                                        setCategoriesWithNames(const std::vector<int>& categories, const std::vector<cvf::String>& categoryNames);
+    void                                        setIntegerCategories(const std::vector<int>& categories);
+    void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
 
     void                                        setTitle(const cvf::String& title);
 
