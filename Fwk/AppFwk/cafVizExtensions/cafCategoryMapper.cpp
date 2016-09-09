@@ -41,7 +41,7 @@ void CategoryMapper::setCategoriesWithNames(const std::vector<int>& categoryValu
 
     ref<Color3ubArray> colorArr = ScalarMapper::colorTableArray(ColorTable::NORMAL);
 
-    setCycleColors(*(colorArr.p()));
+    setInterpolateColors(*(colorArr.p()));
 }
 
 //--------------------------------------------------------------------------------------------------

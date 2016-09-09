@@ -398,7 +398,7 @@ void RimLegendConfig::updateLegend()
        break;
    case CATEGORY_INTEGER:
        m_categoryMapper->setCategoriesWithNames(m_categories, m_categoryNames);
-       m_categoryMapper->setCycleColors(legendColors);
+       m_categoryMapper->setInterpolateColors(legendColors);
        m_currentScalarMapper = m_categoryMapper.p();
        break;
    default:
