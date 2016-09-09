@@ -32,6 +32,17 @@
 
 #include "cvfMath.h"
 
+namespace caf
+{
+    template<>
+    void AppEnum< RimCellEdgeColors::ResultType >::setUp()
+    {
+        addItem(RimCellEdgeColors::PREDEFINED_RESULT,   "PREDEFINED_RESULT", "Predefined");
+        addItem(RimCellEdgeColors::CUSTOM_RESULT,       "CUSTOM_RESULT",     "Custom");
+        setDefault(RimCellEdgeColors::PREDEFINED_RESULT);
+    }
+}
+
 
 CAF_PDM_SOURCE_INIT(RimCellEdgeColors, "CellEdgeResultSlot");
 
@@ -43,6 +54,8 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitObject("Cell Edge Result", ":/EdgeResult_1.png", "", "");
 
     CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable cell edge results", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_resultType, "resultType", "Result mapping", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
@@ -235,8 +248,6 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
 
             optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
             
-            optionList.push_back(caf::PdmOptionItemInfo(RimCellEdgeColors::singleVarEdgeResultUiText(), RimCellEdgeColors::singleVarEdgeResultUiText()));
-
             if (useOptionsOnly) *useOptionsOnly = true;
 
             return optionList;
@@ -251,7 +262,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_resultVariable);
+    uiOrdering.add(&m_resultType);
 
     if (isUsingSingleVariable())
     {
@@ -262,6 +273,8 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     }
     else
     {
+        uiOrdering.add(&m_resultVariable);
+
         uiOrdering.add(&useXVariable);
         uiOrdering.add(&useYVariable);
         uiOrdering.add(&useZVariable);
@@ -340,7 +353,7 @@ void RimCellEdgeColors::gridScalarResultNames(std::vector<QString>* resultNames)
 //--------------------------------------------------------------------------------------------------
 bool RimCellEdgeColors::isUsingSingleVariable() const
 {
-    return (m_resultVariable == singleVarEdgeResultUiText());
+    return (m_resultType == CUSTOM_RESULT);
 }
 
 //--------------------------------------------------------------------------------------------------

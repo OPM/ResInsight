@@ -60,6 +60,12 @@ public:
         Z, NEG_Z
     };
 
+    enum ResultType
+    {
+        PREDEFINED_RESULT,
+        CUSTOM_RESULT
+    };
+
     typedef  caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
 
     void                                  setReservoirView(RimEclipseView* ownerReservoirView);
@@ -114,6 +120,7 @@ private:
     bool                                            isUsingSingleVariable() const;
     static QString                                  singleVarEdgeResultUiText() { return "Custom Edge Result"; }
 
+    caf::PdmField<caf::AppEnum< ResultType > >      m_resultType;
     caf::PdmChildField<RimLegendConfig*>            m_legendConfig;
     caf::PdmChildField<RimEclipseCellColors*>       m_singleVarEdgeResultColors;
 
