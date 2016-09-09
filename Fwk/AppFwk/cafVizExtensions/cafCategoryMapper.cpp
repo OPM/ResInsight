@@ -5,6 +5,7 @@
 #include "cvfMath.h"
 #include "cvfOverlayColorLegend.h"
 #include "cvfTextureImage.h"
+#include <cmath>
 
 using namespace cvf;
 
