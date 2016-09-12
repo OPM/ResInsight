@@ -170,7 +170,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "");
     
     m_symbolSkipPixelDistance = 10.0f;
-
+    m_curveThickness = 2;
     updateOptionSensitivity();
 }
 
