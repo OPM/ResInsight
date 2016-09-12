@@ -93,6 +93,5 @@ public:
     };
 private:
     caf::PdmField< caf::AppEnum< EvaluationRegionType > > obsoleteField_evaluationRegion;
-    std::vector<int>                       m_uniqueCellValues;
 };
 

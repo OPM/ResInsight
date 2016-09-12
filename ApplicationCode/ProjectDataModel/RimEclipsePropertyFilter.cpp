@@ -21,7 +21,10 @@
 #include "RimEclipsePropertyFilter.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigFormationNames.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
@@ -170,7 +173,7 @@ void RimEclipsePropertyFilter::setToDefaultValues()
     m_lowerBound = m_minimumResultValue;
     m_upperBound = m_maximumResultValue;
 
-    m_selectedValues = m_uniqueCellValues;
+    m_selectedValues = m_categoryValues;
     m_valueSelection = true;
 
     updateFieldVisibility();
@@ -226,10 +229,23 @@ QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(co
     {
         if (useOptionsOnly) *useOptionsOnly = true;
 
-        for (auto it : m_uniqueCellValues)
+        if (m_categoryValues.size() == m_categoryNames.size())
         {
-            QString str = QString::number(it);
-            optionList.push_back(caf::PdmOptionItemInfo(str, it));
+            for (size_t i = 0; i < m_categoryValues.size(); i++)
+            {
+                int categoryValue = m_categoryValues[i];
+                QString categoryName = m_categoryNames[i];
+
+                optionList.push_back(caf::PdmOptionItemInfo(categoryName, categoryValue));
+            }
+        }
+        else
+        {
+            for (auto it : m_categoryValues)
+            {
+                QString str = QString::number(it);
+                optionList.push_back(caf::PdmOptionItemInfo(str, it));
+            }
         }
     }
 
@@ -349,7 +365,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
-    m_uniqueCellValues.clear();
+    m_categoryValues.clear();
+    m_categoryNames.clear();
 
     size_t scalarIndex = resultDefinition->scalarResultIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
@@ -361,7 +378,18 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
             if (resultDefinition->hasCategoryResult())
             {
-                m_uniqueCellValues = results->cellResults()->uniqueCellScalarValues(scalarIndex);
+                if (resultDefinition->resultType() != RimDefines::FORMATION_NAMES)
+                {
+                    setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
+                }
+                else
+                {
+                    CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData());
+                    CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames());
+
+                    const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
+                    setCategoryNames(fnVector);
+                }
             }
         }
     }
@@ -382,22 +410,29 @@ void RimEclipsePropertyFilter::updateFilterName()
 
     if (isValueSelectionActive())
     {
-        if (m_selectedValues().size() == m_uniqueCellValues.size())
+        if (m_categoryNames.size() > 0)
         {
-            newFiltername += QString::number(m_selectedValues()[0]);
-            newFiltername += "..";
-            newFiltername += QString::number(m_selectedValues()[m_selectedValues().size() - 1]);
+            newFiltername += "...";
         }
         else
         {
-            for (size_t i = 0; i < m_selectedValues().size(); i++)
+            if (m_selectedValues().size() == m_categoryValues.size())
             {
-                int val = m_selectedValues()[i];
-                newFiltername += QString::number(val);
-
-                if (i < m_selectedValues().size() - 1)
+                newFiltername += QString::number(m_selectedValues()[0]);
+                newFiltername += "..";
+                newFiltername += QString::number(m_selectedValues()[m_selectedValues().size() - 1]);
+            }
+            else
+            {
+                for (size_t i = 0; i < m_selectedValues().size(); i++)
                 {
-                    newFiltername += ", ";
+                    int val = m_selectedValues()[i];
+                    newFiltername += QString::number(val);
+
+                    if (i < m_selectedValues().size() - 1)
+                    {
+                        newFiltername += ", ";
+                    }
                 }
             }
         }

@@ -50,4 +50,11 @@ public:
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField();
     virtual caf::PdmFieldHandle* objectToggleField();
+
+    void                        setCategoryValues(const std::vector<int>& categoryValues);
+    void                        setCategoryNames(const std::vector<QString>& categoryNames);
+
+protected:
+    std::vector<int>        m_categoryValues;
+    std::vector<QString>    m_categoryNames;
 };

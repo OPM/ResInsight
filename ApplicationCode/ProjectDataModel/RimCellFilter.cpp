@@ -112,3 +112,25 @@ caf::PdmFieldHandle* RimCellFilter::objectToggleField()
 {
     return &isActive;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::setCategoryValues(const std::vector<int>& categoryValues)
+{
+    m_categoryValues = categoryValues;
+    m_categoryNames.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::setCategoryNames(const std::vector<QString>& categoryNames)
+{
+    m_categoryNames = categoryNames;
+
+    for (size_t i = 0; i < m_categoryNames.size(); i++)
+    {
+        m_categoryValues.push_back(static_cast<int>(i));
+    }
+}
