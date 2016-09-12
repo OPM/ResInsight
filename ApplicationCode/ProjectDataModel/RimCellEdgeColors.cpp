@@ -35,11 +35,11 @@
 namespace caf
 {
     template<>
-    void AppEnum< RimCellEdgeColors::ResultType >::setUp()
+    void AppEnum< RimCellEdgeColors::PropertyType >::setUp()
     {
-        addItem(RimCellEdgeColors::PREDEFINED_RESULT,   "PREDEFINED_RESULT", "Predefined");
-        addItem(RimCellEdgeColors::CUSTOM_RESULT,       "CUSTOM_RESULT",     "Custom");
-        setDefault(RimCellEdgeColors::PREDEFINED_RESULT);
+        addItem(RimCellEdgeColors::MULTI_AXIS_STATIC_PROPERTY,  "MULTI_AXIS_STATIC_PROPERTY",   "Multi Axis Static Property");
+        addItem(RimCellEdgeColors::ANY_SINGLE_PROPERTY,         "ANY_SINGLE_PROPERTY",          "Any Single Property");
+        setDefault(RimCellEdgeColors::MULTI_AXIS_STATIC_PROPERTY);
     }
 }
 
@@ -55,7 +55,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable cell edge results", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_resultType, "resultType", "Result mapping", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_propertyType, "propertyType", "Property Type", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
@@ -64,7 +64,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_singleVarEdgeResultColors, "CustomEdgeResult", "Custom Edge Result", ":/CellResult.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_singleVarEdgeResultColors, "SingleVarEdgeResult", "Result Property", ":/CellResult.png", "", "");
     m_singleVarEdgeResultColors = new RimEclipseCellColors();
 
     m_resultVariable.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -262,14 +262,13 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_resultType);
+    uiOrdering.add(&m_propertyType);
 
     if (isUsingSingleVariable())
     {
-        caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Custom Edge Result");
-        group1->add(&(m_singleVarEdgeResultColors->m_resultTypeUiField));
-        group1->add(&(m_singleVarEdgeResultColors->m_porosityModelUiField));
-        group1->add(&(m_singleVarEdgeResultColors->m_resultVariableUiField));
+        uiOrdering.add(&(m_singleVarEdgeResultColors->m_resultTypeUiField));
+        uiOrdering.add(&(m_singleVarEdgeResultColors->m_porosityModelUiField));
+        uiOrdering.add(&(m_singleVarEdgeResultColors->m_resultVariableUiField));
     }
     else
     {
@@ -353,7 +352,7 @@ void RimCellEdgeColors::gridScalarResultNames(std::vector<QString>* resultNames)
 //--------------------------------------------------------------------------------------------------
 bool RimCellEdgeColors::isUsingSingleVariable() const
 {
-    return (m_resultType == CUSTOM_RESULT);
+    return (m_propertyType == ANY_SINGLE_PROPERTY);
 }
 
 //--------------------------------------------------------------------------------------------------

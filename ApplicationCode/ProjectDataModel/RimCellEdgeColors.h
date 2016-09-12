@@ -60,10 +60,10 @@ public:
         Z, NEG_Z
     };
 
-    enum ResultType
+    enum PropertyType
     {
-        PREDEFINED_RESULT,
-        CUSTOM_RESULT
+        MULTI_AXIS_STATIC_PROPERTY,
+        ANY_SINGLE_PROPERTY
     };
 
     typedef  caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
@@ -118,9 +118,8 @@ private:
     double                                          m_ignoredResultScalar;
 
     bool                                            isUsingSingleVariable() const;
-    static QString                                  singleVarEdgeResultUiText() { return "Custom Edge Result"; }
 
-    caf::PdmField<caf::AppEnum< ResultType > >      m_resultType;
+    caf::PdmField<caf::AppEnum< PropertyType > >    m_propertyType;
     caf::PdmChildField<RimLegendConfig*>            m_legendConfig;
     caf::PdmChildField<RimEclipseCellColors*>       m_singleVarEdgeResultColors;
 
