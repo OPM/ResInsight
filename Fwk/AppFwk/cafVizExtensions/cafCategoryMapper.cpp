@@ -64,13 +64,21 @@ void CategoryMapper::setCycleColors(const Color3ubArray& colorArray)
 //--------------------------------------------------------------------------------------------------
 void CategoryMapper::setInterpolateColors(const cvf::Color3ubArray& colorArray)
 {
-    if (m_categoryValues.size() > 0)
+    CVF_ASSERT(colorArray.size());
+
+    if (m_categoryValues.size() > 1 && colorArray.size() > 1)
     {
         m_colors = *interpolateColorArray(colorArray, static_cast<cvf::uint>(m_categoryValues.size()));
+        return;
     }
-    else
+
+    // Either we are requesting one output color, or we have only one input color
+
+    m_colors.clear();
+    m_colors.reserve(m_categoryValues.size());
+    for (size_t cIdx = 0;  cIdx < m_categoryValues.size(); ++cIdx)
     {
-        m_colors.clear();
+        m_colors.add(colorArray[0]);
     }
 }
 
