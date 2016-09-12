@@ -454,7 +454,7 @@ int calculatePrecision(double value)
 {
   double absVal = fabs(value);
   if (1e-16 < absVal && absVal < 1.0e3){
-      int logVal = static_cast<int>(log(absVal));
+      int logVal = static_cast<int>(log10(absVal));
       int numDigitsAfterPoint = abs(logVal - 6);
       return numDigitsAfterPoint;
   }
