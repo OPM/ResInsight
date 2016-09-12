@@ -35,6 +35,7 @@ public:
     const QString&              fileName();
 
     RigFormationNames*          formationNamesData() { return m_formationNamesData.p();}
+    void                        updateConnectedViews();
 
     void                        readFormationNamesFile(QString * errorMessage);
     void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);

@@ -272,6 +272,15 @@ void RimGeoMechCase::updateFormationNamesData()
         {
             rigCaseData->femPartResults()->setActiveFormationNames(nullptr);
         }
+
+        std::vector<RimView*> views = this->views();
+        for(RimView* view : views)
+        {
+            if(view && view->isUsingFormationNames())
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
     }
 }
 

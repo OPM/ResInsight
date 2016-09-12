@@ -147,6 +147,7 @@ public:
     bool                                    isMasterView() const;
     RimViewLinker*                          assosiatedViewLinker() const;
 
+    virtual bool                            isUsingFormationNames() const = 0;
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
     virtual bool                            showActiveCellsOnly();

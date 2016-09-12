@@ -80,6 +80,8 @@ public:
 
     virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
 
+    virtual bool                                        isUsingFormationNames() const override;
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     

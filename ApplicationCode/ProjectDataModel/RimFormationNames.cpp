@@ -20,7 +20,9 @@
 
 #include "RigFormationNames.h"
 
+#include "RimCase.h"
 #include "RimTools.h"
+#include "RimView.h"
 
 #include "cafPdmUiFilePathEditor.h"
 #include "QFile"
@@ -93,6 +95,23 @@ void RimFormationNames::setFileName(const QString& fileName)
 const QString& RimFormationNames::fileName()
 {
     return m_formationNamesFileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFormationNames::updateConnectedViews()
+{
+    std::vector<caf::PdmObjectHandle*> usingObjs;
+    this->objectsWithReferringPtrFields(usingObjs);
+    for (caf::PdmObjectHandle* obj: usingObjs)
+    {
+        RimCase* caseObj = dynamic_cast<RimCase*>(obj);
+        if (caseObj)
+        {
+            caseObj->updateFormationNamesData();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

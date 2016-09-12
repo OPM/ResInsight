@@ -50,6 +50,11 @@ void RicReloadFormationNamesFeature::onActionTriggered(bool isChecked)
     if (selectedFormationNamesCollObjs.size())
     {
         selectedFormationNamesCollObjs[0]->readAllFormationNames();
+        for(RimFormationNames* fnames: selectedFormationNamesCollObjs[0]->formationNamesList())
+        {
+            fnames->updateConnectedViews();
+        }
+
         return;
     }
 
@@ -58,6 +63,7 @@ void RicReloadFormationNamesFeature::onActionTriggered(bool isChecked)
     for (RimFormationNames* fnames:  selectedFormationNamesObjs)
     {
         fnames->readFormationNamesFile(nullptr);
+        fnames->updateConnectedViews();
     }
 }
 

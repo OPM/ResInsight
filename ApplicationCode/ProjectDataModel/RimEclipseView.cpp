@@ -1698,6 +1698,14 @@ void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseView::isUsingFormationNames() const
+{
+    return (cellResult()->resultType() == RimDefines::FORMATION_NAMES) ;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RimPropertyFilterCollection* RimEclipseView::propertyFilterCollection() const
 {
     return eclipsePropertyFilterCollection();
