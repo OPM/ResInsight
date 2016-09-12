@@ -498,6 +498,50 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
 
         m_visibleLegends.push_back(legend);
     }
+
+    std::vector<caf::CategoryLegend*> categoryLegends;
+    std::vector<cvf::OverlayItem*> overlayItems;
+    for (auto legend : m_visibleLegends)
+    {
+        caf::CategoryLegend* catLegend = dynamic_cast<caf::CategoryLegend*>(legend.p());
+        if (catLegend)
+        {
+            categoryLegends.push_back(catLegend);
+        }
+        else
+        {
+            overlayItems.push_back(legend.p());
+        }
+    }
+
+    if (categoryLegends.size() > 0)
+    {
+        const int border = 3;
+        const int categoryWidth = 120;
+
+        // This value is taken from OverlayAxisCross, as the axis cross is always shown in the lower left corner
+        const int axisCrossHeight = 120;
+
+        int height = static_cast<int>(m_mainCamera->viewport()->height());
+        int xPos = border;
+
+        int yPos = axisCrossHeight + 2*border;
+
+        for (auto catLegend : categoryLegends)
+        {
+            catLegend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+            catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2*border - axisCrossHeight));
+
+            xPos += categoryWidth + border;
+        }
+
+        for (auto item : overlayItems)
+        {
+            item->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+
+            yPos += item->sizeHint().y() + border;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,6 +619,29 @@ void RiuViewer::optimizeClippingPlanes()
     m_gridBoxGenerator->updateFromCamera(mainCamera());
 
     caf::Viewer::optimizeClippingPlanes();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::resizeGL(int width, int height)
+{
+    caf::Viewer::resizeGL(width, height);
+
+    bool hasCategoryLegend = false;
+    for (size_t i = 0; i < m_visibleLegends.size(); i++)
+    {
+        caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(m_visibleLegends.at(i));
+        if (categoryLegend)
+        {
+            hasCategoryLegend = true;
+        }
+    }
+
+    if (hasCategoryLegend)
+    {
+        m_rimView->updateCurrentTimeStepAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

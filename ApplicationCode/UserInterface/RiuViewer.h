@@ -95,6 +95,7 @@ public slots:
 
 protected:
     virtual void    optimizeClippingPlanes();
+    virtual void    resizeGL(int width, int height);
 
 private:
     void            updateTextAndTickMarkColorForOverlayItems();
