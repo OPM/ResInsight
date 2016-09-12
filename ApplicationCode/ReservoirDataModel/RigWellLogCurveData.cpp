@@ -105,6 +105,14 @@ const std::vector<double>& RigWellLogCurveData::measuredDepths() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigWellLogCurveData::tvDepths() const
+{
+    return m_tvDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogCurveData::xPlotValues() const
 {
     std::vector<double> filteredValues;
@@ -116,12 +124,12 @@ std::vector<double> RigWellLogCurveData::xPlotValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::depthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const
+std::vector<double> RigWellLogCurveData::trueDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const
 {
     std::vector<double> filteredValues;
-    if (m_tvDepths.size())
+    if(m_tvDepths.size())
     {
-        if (destinationDepthUnit == m_depthUnit)
+        if(destinationDepthUnit == m_depthUnit)
         {
             RigCurveDataTools::getValuesByIntervals(m_tvDepths, m_intervalsOfContinousValidValues, &filteredValues);
         }
@@ -131,17 +139,25 @@ std::vector<double> RigWellLogCurveData::depthPlotValues(RimDefines::DepthUnitTy
             RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
         }
     }
+
+    return filteredValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::measuredDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const
+{
+    std::vector<double> filteredValues;
+
+    if(destinationDepthUnit == m_depthUnit)
+    {
+        RigCurveDataTools::getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
+    }
     else
     {
-        if (destinationDepthUnit == m_depthUnit)
-        {
-            RigCurveDataTools::getValuesByIntervals(m_measuredDepths, m_intervalsOfContinousValidValues, &filteredValues);
-        }
-        else
-        {
-            std::vector<double> convertedValues = convertDepthValues(destinationDepthUnit, m_measuredDepths);
-            RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
-        }
+        std::vector<double> convertedValues = convertDepthValues(destinationDepthUnit, m_measuredDepths);
+        RigCurveDataTools::getValuesByIntervals(convertedValues, m_intervalsOfContinousValidValues, &filteredValues);
     }
 
     return filteredValues;

@@ -218,15 +218,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
         if (eclExtractor.notNull())
         {
-            RimWellLogPlot* wellLogPlot;
-            firstAnchestorOrThisOfType(wellLogPlot);
-            CVF_ASSERT(wellLogPlot);
-
             measuredDepthValues = eclExtractor->measuredDepth();
-            if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
-            {
-                tvDepthValues = eclExtractor->trueVerticalDepth();
-            }
+            tvDepthValues = eclExtractor->trueVerticalDepth();
 
             m_eclipseResultDefinition->loadResult();
 
@@ -251,15 +244,9 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         }
         else if (geomExtractor.notNull()) // geomExtractor
         {
-            RimWellLogPlot* wellLogPlot;
-            firstAnchestorOrThisOfType(wellLogPlot);
-            CVF_ASSERT(wellLogPlot);
 
             measuredDepthValues =  geomExtractor->measuredDepth();
-            if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
-            {
-                tvDepthValues = geomExtractor->trueVerticalDepth();
-            }
+            tvDepthValues = geomExtractor->trueVerticalDepth();
 
             m_geomResultDefinition->loadResult();
 
@@ -283,12 +270,19 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
         RimWellLogPlot* wellLogPlot;
         firstAnchestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
+        CVF_ASSERT(wellLogPlot);
+
+        displayUnit = wellLogPlot->depthUnit();
+
+        if(wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
         {
-            displayUnit = wellLogPlot->depthUnit();
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        }
+        else
+        {
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         }
 
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         zoomAllParentPlot();

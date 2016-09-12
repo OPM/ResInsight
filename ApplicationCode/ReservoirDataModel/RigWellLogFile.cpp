@@ -279,6 +279,12 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
     {
         lasFile.AddLog("DEPTH", "FT", "Depth in feet", curveData->measuredDepths());
+
+    }
+
+    if(curveData->tvDepths().size())
+    {
+        lasFile.AddLog("TVD", "M", "True vertical depth in meters", curveData->tvDepths());
     }
 
     lasFile.AddLog(wellLogChannelName.trimmed().toStdString(), "NO_UNIT", "", wellLogValues);
