@@ -78,8 +78,6 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitField(&m_upperBound, "UpperBound", 0.0, "Max", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedValues, "SelectedValues", "Values", "", "", "");
-
     CAF_PDM_InitField(&m_valueSelection, "ValueSelection", false, "Value Selection", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
@@ -122,14 +120,6 @@ bool RimEclipsePropertyFilter::isValueSelectionActive() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RimEclipsePropertyFilter::selectedValues() const
-{
-    return m_selectedValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (&m_valueSelection == changedField)
@@ -142,7 +132,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &obsoleteField_evaluationRegion == changedField
         || &isActive == changedField
         || &filterMode == changedField
-        || &m_selectedValues == changedField
+        || &m_selectedCategoryValues == changedField
         || &m_valueSelection == changedField)
     {
         updateFilterName();
@@ -173,7 +163,7 @@ void RimEclipsePropertyFilter::setToDefaultValues()
     m_lowerBound = m_minimumResultValue;
     m_upperBound = m_maximumResultValue;
 
-    m_selectedValues = m_categoryValues;
+    m_selectedCategoryValues = m_categoryValues;
     m_valueSelection = true;
 
     updateFieldVisibility();
@@ -201,7 +191,7 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&m_lowerBound);
     uiOrdering.add(&m_upperBound);
 
-    uiOrdering.add(&m_selectedValues);
+    uiOrdering.add(&m_selectedCategoryValues);
 
     uiOrdering.setForgetRemainingFields(true);
 
@@ -216,40 +206,6 @@ void RimEclipsePropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
     PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
     updateActiveState();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipsePropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> optionList;
-
-    if (&m_selectedValues == fieldNeedingOptions)
-    {
-        if (useOptionsOnly) *useOptionsOnly = true;
-
-        if (m_categoryValues.size() == m_categoryNames.size())
-        {
-            for (size_t i = 0; i < m_categoryValues.size(); i++)
-            {
-                int categoryValue = m_categoryValues[i];
-                QString categoryName = m_categoryNames[i];
-
-                optionList.push_back(caf::PdmOptionItemInfo(categoryName, categoryValue));
-            }
-        }
-        else
-        {
-            for (auto it : m_categoryValues)
-            {
-                QString str = QString::number(it);
-                optionList.push_back(caf::PdmOptionItemInfo(str, it));
-            }
-        }
-    }
-
-    return optionList;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,13 +267,13 @@ void RimEclipsePropertyFilter::updateFieldVisibility()
 
         if (!m_valueSelection)
         {
-            m_selectedValues.uiCapability()->setUiHidden(true);
+            m_selectedCategoryValues.uiCapability()->setUiHidden(true);
             m_lowerBound.uiCapability()->setUiHidden(false);
             m_upperBound.uiCapability()->setUiHidden(false);
         }
         else
         {
-            m_selectedValues.uiCapability()->setUiHidden(false);
+            m_selectedCategoryValues.uiCapability()->setUiHidden(false);
             m_lowerBound.uiCapability()->setUiHidden(true);
             m_upperBound.uiCapability()->setUiHidden(true);
         }
@@ -327,7 +283,7 @@ void RimEclipsePropertyFilter::updateFieldVisibility()
         m_lowerBound.uiCapability()->setUiHidden(false);
         m_upperBound.uiCapability()->setUiHidden(false);
 
-        m_selectedValues.uiCapability()->setUiHidden(true);
+        m_selectedCategoryValues.uiCapability()->setUiHidden(true);
         m_valueSelection.uiCapability()->setUiHidden(true);
     }
 }
@@ -365,8 +321,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
-    m_categoryValues.clear();
-    m_categoryNames.clear();
+    clearCategories();
 
     size_t scalarIndex = resultDefinition->scalarResultIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
@@ -416,20 +371,20 @@ void RimEclipsePropertyFilter::updateFilterName()
         }
         else
         {
-            if (m_selectedValues().size() == m_categoryValues.size())
+            if (m_selectedCategoryValues().size() == m_categoryValues.size())
             {
-                newFiltername += QString::number(m_selectedValues()[0]);
+                newFiltername += QString::number(m_selectedCategoryValues()[0]);
                 newFiltername += "..";
-                newFiltername += QString::number(m_selectedValues()[m_selectedValues().size() - 1]);
+                newFiltername += QString::number(m_selectedCategoryValues()[m_selectedCategoryValues().size() - 1]);
             }
             else
             {
-                for (size_t i = 0; i < m_selectedValues().size(); i++)
+                for (size_t i = 0; i < m_selectedCategoryValues().size(); i++)
                 {
-                    int val = m_selectedValues()[i];
+                    int val = m_selectedCategoryValues()[i];
                     newFiltername += QString::number(val);
 
-                    if (i < m_selectedValues().size() - 1)
+                    if (i < m_selectedCategoryValues().size() - 1)
                     {
                         newFiltername += ", ";
                     }

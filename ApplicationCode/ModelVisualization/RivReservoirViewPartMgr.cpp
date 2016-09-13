@@ -802,7 +802,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 
                 if (propertyFilter->isValueSelectionActive())
                 {
-                    std::vector<int> integerVector = propertyFilter->selectedValues();
+                    std::vector<int> integerVector = propertyFilter->selectedCategoryValues();
                     std::set<int> integerSet;
                     for (auto val : integerVector)
                     {

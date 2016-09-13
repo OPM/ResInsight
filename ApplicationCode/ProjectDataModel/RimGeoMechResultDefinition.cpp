@@ -160,16 +160,24 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (fieldComponentNames.size() > 0)
         {
             m_resultPositionType = m_resultPositionTypeUiField;
-            m_resultFieldName = fieldComponentNames[0];
-            if (fieldComponentNames.size() > 1)
+            if (m_resultPositionType() == RIG_FORMATION_NAMES)
             {
-                m_resultComponentName = fieldComponentNames[1];
+                // Complete string of selected formation is stored in m_resultFieldName
+                m_resultFieldName = m_resultVariableUiField();
+                m_resultComponentName = "";
             }
             else
             {
-                m_resultComponentName = "";
+                m_resultFieldName = fieldComponentNames[0];
+                if (fieldComponentNames.size() > 1)
+                {
+                    m_resultComponentName = fieldComponentNames[1];
+                }
+                else
+                {
+                    m_resultComponentName = "";
+                }
             }
-
 
             if (m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
             {

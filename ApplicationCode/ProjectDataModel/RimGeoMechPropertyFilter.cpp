@@ -21,6 +21,7 @@
 
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFormationNames.h"
 
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechResultDefinition.h"
@@ -77,10 +78,11 @@ RimGeoMechPropertyFilter::~RimGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (   &lowerBound == changedField 
+    if (   &lowerBound == changedField
         || &upperBound == changedField
         || &isActive == changedField
-        || &filterMode == changedField)
+        || &filterMode == changedField
+        || &m_selectedCategoryValues == changedField)
     {
         this->updateIconState();
         this->updateFilterName();
@@ -117,6 +119,10 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 
     lowerBound = m_minimumResultValue;
     upperBound = m_maximumResultValue;
+
+    m_selectedCategoryValues = m_categoryValues;
+
+    this->updateFieldVisibility();
     this->updateFilterName();
 }
 
@@ -136,6 +142,8 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
+
+    uiOrdering.add(&m_selectedCategoryValues);
 
     updateReadOnlyStateOfAllFields();
 }
@@ -192,6 +200,25 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechPropertyFilter::updateFieldVisibility()
+{
+    if (resultDefinition->hasCategoryResult())
+    {
+        m_selectedCategoryValues.uiCapability()->setUiHidden(false);
+        lowerBound.uiCapability()->setUiHidden(true);
+        upperBound.uiCapability()->setUiHidden(true);
+    }
+    else
+    {
+        m_selectedCategoryValues.uiCapability()->setUiHidden(true);
+        lowerBound.uiCapability()->setUiHidden(false);
+        upperBound.uiCapability()->setUiHidden(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::updateActiveState()
 {
     isActive.uiCapability()->setUiReadOnly(isPropertyFilterControlled());
@@ -230,10 +257,20 @@ void RimGeoMechPropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
+    clearCategories();
+
     RigFemResultAddress resultAddress = resultDefinition->resultAddress();
     if (resultAddress.isValid() && resultDefinition->ownerCaseData())
     {
-        resultDefinition->ownerCaseData()->femPartResults()->minMaxScalarValues(resultAddress, &min, &max);
+        if (resultDefinition->hasCategoryResult())
+        {
+            const std::vector<QString>& fnVector = resultDefinition->ownerCaseData()->femPartResults()->activeFormationNames()->formationNames();
+            setCategoryNames(fnVector);
+        }
+        else
+        {
+            resultDefinition->ownerCaseData()->femPartResults()->minMaxScalarValues(resultAddress, &min, &max);
+        }
     }
 
     m_maximumResultValue = max;
@@ -250,21 +287,29 @@ void RimGeoMechPropertyFilter::updateFilterName()
 {
     RigFemResultAddress resultAddress = resultDefinition->resultAddress();
     QString newFiltername;
-    QString posName;
 
-    switch (resultAddress.resultPosType)
+    if (resultAddress.resultPosType == RIG_FORMATION_NAMES)
     {
-        case RIG_NODAL: posName = "N"; break;
-        case RIG_ELEMENT_NODAL: posName = "EN"; break;
-        case RIG_INTEGRATION_POINT: posName = "IP"; break;
+        newFiltername = "Formation Names";
+    }
+    else
+    {
+        QString posName;
+
+        switch (resultAddress.resultPosType)
+        {
+            case RIG_NODAL: posName = "N"; break;
+            case RIG_ELEMENT_NODAL: posName = "EN"; break;
+            case RIG_INTEGRATION_POINT: posName = "IP"; break;
+        }
+
+        QString fieldUiName = resultDefinition->resultFieldUiName();
+        QString compoUiName = resultDefinition->resultComponentUiName();
+
+        newFiltername =  posName + ", " + fieldUiName + ", " + compoUiName + " ("
+         + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     }
 
-    QString fieldUiName = resultDefinition->resultFieldUiName();
-    QString compoUiName = resultDefinition->resultComponentUiName();
-
-
-    newFiltername =  posName + ", " + fieldUiName + ", " + compoUiName + " ("
-     + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
     this->name = newFiltername;
 
     uiCapability()->updateConnectedEditors();

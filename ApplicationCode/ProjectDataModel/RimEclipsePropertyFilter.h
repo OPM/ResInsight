@@ -48,7 +48,6 @@ public:
 
     void                                    rangeValues(double* lower, double* upper) const;
     bool                                    isValueSelectionActive() const;
-    std::vector<int>                        selectedValues() const;
 
     RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
@@ -62,7 +61,6 @@ public:
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
@@ -78,7 +76,7 @@ private:
 private:
     caf::PdmField<double>                   m_lowerBound;
     caf::PdmField<double>                   m_upperBound;
-    caf::PdmField< std::vector<int> >       m_selectedValues;
+
     caf::PdmField<bool>                     m_valueSelection;
 
     double                                  m_minimumResultValue;
