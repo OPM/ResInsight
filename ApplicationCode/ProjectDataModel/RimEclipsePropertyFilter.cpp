@@ -78,7 +78,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitField(&m_upperBound, "UpperBound", 0.0, "Max", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_valueSelection, "ValueSelection", false, "Value Selection", "", "", "");
+    CAF_PDM_InitField(&m_categorySelection, "CategorySelection", false, "Category Selection", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
@@ -107,9 +107,9 @@ void RimEclipsePropertyFilter::rangeValues(double* lower, double* upper) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipsePropertyFilter::isValueSelectionActive() const
+bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 {
-    if (resultDefinition->hasCategoryResult() && m_valueSelection)
+    if (resultDefinition->hasCategoryResult() && m_categorySelection)
     {
         return true;
     }
@@ -122,7 +122,7 @@ bool RimEclipsePropertyFilter::isValueSelectionActive() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&m_valueSelection == changedField)
+    if (&m_categorySelection == changedField)
     {
         updateFieldVisibility();
     }
@@ -133,7 +133,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &isActive == changedField
         || &filterMode == changedField
         || &m_selectedCategoryValues == changedField
-        || &m_valueSelection == changedField)
+        || &m_categorySelection == changedField)
     {
         updateFilterName();
         this->updateIconState();
@@ -164,7 +164,7 @@ void RimEclipsePropertyFilter::setToDefaultValues()
     m_upperBound = m_maximumResultValue;
 
     m_selectedCategoryValues = m_categoryValues;
-    m_valueSelection = true;
+    m_categorySelection = true;
 
     updateFieldVisibility();
 }
@@ -185,7 +185,7 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     
     // Fields declared in RimCellFilter
     uiOrdering.add(&filterMode);
-    uiOrdering.add(&m_valueSelection);
+    uiOrdering.add(&m_categorySelection);
 
     // Fields declared in this class (RimCellPropertyFilter)
     uiOrdering.add(&m_lowerBound);
@@ -263,9 +263,9 @@ void RimEclipsePropertyFilter::updateFieldVisibility()
 {
     if (resultDefinition->hasCategoryResult())
     {
-        m_valueSelection.uiCapability()->setUiHidden(false);
+        m_categorySelection.uiCapability()->setUiHidden(false);
 
-        if (!m_valueSelection)
+        if (!m_categorySelection)
         {
             m_selectedCategoryValues.uiCapability()->setUiHidden(true);
             m_lowerBound.uiCapability()->setUiHidden(false);
@@ -284,7 +284,7 @@ void RimEclipsePropertyFilter::updateFieldVisibility()
         m_upperBound.uiCapability()->setUiHidden(false);
 
         m_selectedCategoryValues.uiCapability()->setUiHidden(true);
-        m_valueSelection.uiCapability()->setUiHidden(true);
+        m_categorySelection.uiCapability()->setUiHidden(true);
     }
 }
 
@@ -361,16 +361,14 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFilterName()
 {
-    QString newFiltername = resultDefinition->resultVariable() + " (";
+    QString newFiltername = resultDefinition->resultVariable();
 
-    if (isValueSelectionActive())
+    if (isCategorySelectionActive())
     {
-        if (m_categoryNames.size() > 0)
+        if (m_categoryNames.size() == 0)
         {
-            newFiltername += "...";
-        }
-        else
-        {
+            newFiltername += " (";
+
             if (m_selectedCategoryValues().size() == m_categoryValues.size())
             {
                 newFiltername += QString::number(m_selectedCategoryValues()[0]);
@@ -390,13 +388,14 @@ void RimEclipsePropertyFilter::updateFilterName()
                     }
                 }
             }
+            
+            newFiltername += ")";
         }
 
-        newFiltername += ")";
     }
     else
     {
-        newFiltername += QString::number(m_lowerBound) + " .. " + QString::number(m_upperBound) + ")";
+        newFiltername += " (" + QString::number(m_lowerBound) + " .. " + QString::number(m_upperBound) + ")";
     }
 
     this->name = newFiltername;

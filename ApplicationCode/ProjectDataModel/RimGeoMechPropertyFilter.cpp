@@ -290,7 +290,7 @@ void RimGeoMechPropertyFilter::updateFilterName()
 
     if (resultAddress.resultPosType == RIG_FORMATION_NAMES)
     {
-        newFiltername = "Formation Names";
+        newFiltername = resultDefinition->resultFieldName();
     }
     else
     {

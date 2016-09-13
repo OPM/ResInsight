@@ -47,7 +47,7 @@ public:
     caf::PdmChildField<RimEclipseResultDefinition*> resultDefinition;
 
     void                                    rangeValues(double* lower, double* upper) const;
-    bool                                    isValueSelectionActive() const;
+    bool                                    isCategorySelectionActive() const;
 
     RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
@@ -77,7 +77,7 @@ private:
     caf::PdmField<double>                   m_lowerBound;
     caf::PdmField<double>                   m_upperBound;
 
-    caf::PdmField<bool>                     m_valueSelection;
+    caf::PdmField<bool>                     m_categorySelection;
 
     double                                  m_minimumResultValue;
     double                                  m_maximumResultValue;
