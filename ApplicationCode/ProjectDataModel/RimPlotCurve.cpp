@@ -164,7 +164,7 @@ void RimPlotCurve::updateCurveVisibility()
         m_qwtPlotCurve->detach();
     }
 
-    zoomAllParentPlot();
+    updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -114,7 +114,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         if (m_isAutoScaleXEnabled())
         { 
-            this->zoomAllXAxisIfAutoScale();
+            this->updateXZoom();
             computeAndSetXRangeMinForLogarithmicScale();
 
             if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->replot();
@@ -124,7 +124,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         updateAxisScaleEngine();
 
-        this->zoomAllXAxisIfAutoScale();
+        this->updateXZoom();
         computeAndSetXRangeMinForLogarithmicScale();
 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
@@ -282,7 +282,7 @@ void RimWellLogTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
+void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
 {
     if (m_wellLogTrackPlotWidget)
     {
@@ -293,7 +293,7 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
            wellLogPlot->updateDepthZoom();
         }
 
-        zoomAllXAxisIfAutoScale();
+        updateXZoom();
 
         m_wellLogTrackPlotWidget->replot();
     }
@@ -302,9 +302,14 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::zoomAllXAxisIfAutoScale()
+void RimWellLogTrack::updateXZoom()
 {
-    if (!m_isAutoScaleXEnabled()) return;
+    if (!m_isAutoScaleXEnabled())
+    {
+        m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+        m_wellLogTrackPlotWidget->replot();
+        return;
+    }
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;

@@ -106,7 +106,7 @@ bool RimWellLogCurve::valueRange(double* minimumValue, double* maximumValue) con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::zoomAllParentPlot()
+void RimWellLogCurve::updateZoomInParentPlot()
 {
     RimWellLogPlot* wellLogPlot;
     firstAnchestorOrThisOfType(wellLogPlot);
@@ -120,7 +120,7 @@ void RimWellLogCurve::zoomAllParentPlot()
     firstAnchestorOrThisOfType(plotTrack);
     if (plotTrack)
     {
-        plotTrack->zoomAllXAndZoomAllDepthOnOwnerPlot();
+        plotTrack->updateXZoomAndParentPlotDepthZoom();
     }
 }
 

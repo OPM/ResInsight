@@ -83,7 +83,7 @@ protected:
     // RimPlotCurve overrides
 
     virtual QString                         createCurveAutoName() override;
-    virtual void                            zoomAllParentPlot()   override;
+    virtual void                            updateZoomInParentPlot()   override;
     virtual void                            onLoadDataAndUpdate() override;
 
 private:

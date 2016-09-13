@@ -80,7 +80,7 @@ public:
 protected:
 
     virtual QString                 createCurveAutoName() = 0;
-    virtual void                    zoomAllParentPlot() = 0;
+    virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate() = 0;
 
     void                            updateCurvePresentation();

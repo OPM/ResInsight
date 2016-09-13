@@ -296,7 +296,17 @@ void RimSummaryPlot::loadDataAndUpdate()
  
     this->updateYAxisUnit();
 
-    if (m_visibleWindow().size() == 4)
+    updateZoom();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateZoom()
+{
+    // Todo: introduce autoscale
+
+    if(m_visibleWindow().size() == 4)
     {
         QRectF visibleWindow(m_visibleWindow()[0], m_visibleWindow()[1], m_visibleWindow()[2], m_visibleWindow()[3]);
 

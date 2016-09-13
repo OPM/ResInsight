@@ -47,7 +47,7 @@ public:
     virtual QString                 wellDate() const  { return ""; };
 
 protected:
-    virtual void                    zoomAllParentPlot();
+    virtual void                    updateZoomInParentPlot();
 
     cvf::ref<RigWellLogCurveData>   m_curveData;
 };

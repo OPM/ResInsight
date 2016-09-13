@@ -318,12 +318,12 @@ QString RimSummaryCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::zoomAllParentPlot()
+void RimSummaryCurve::updateZoomInParentPlot()
 {
     RimSummaryPlot* plot = nullptr;
     firstAnchestorOrThisOfType(plot);
 
-    plot->zoomAll();
+    plot->updateZoom(); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,7 +349,7 @@ void RimSummaryCurve::onLoadDataAndUpdate()
             m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>());
         }
 
-        zoomAllParentPlot();
+        updateZoomInParentPlot();
 
         if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }

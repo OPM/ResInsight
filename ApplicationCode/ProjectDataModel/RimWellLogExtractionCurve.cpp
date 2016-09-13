@@ -285,7 +285,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        zoomAllParentPlot();
+        updateZoomInParentPlot();
 
         setLogScaleFromSelectedResult();
 

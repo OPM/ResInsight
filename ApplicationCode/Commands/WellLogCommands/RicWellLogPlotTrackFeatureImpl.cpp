@@ -70,11 +70,11 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
 
     for (std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt)
     {
-        (*tIt)->zoomAllXAndZoomAllDepthOnOwnerPlot();
+        (*tIt)->updateXZoomAndParentPlotDepthZoom();
     }
 
     destTrack->loadDataAndUpdate();
-    destTrack->zoomAllXAndZoomAllDepthOnOwnerPlot();
+    destTrack->updateXZoomAndParentPlotDepthZoom();
     destTrack->updateConnectedEditors();
 }
 

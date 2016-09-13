@@ -52,6 +52,9 @@ public:
     RimSummaryCurve*                                findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
     
     void                                            loadDataAndUpdate();
+
+    void updateZoom();
+
     void                                            handleViewerDeletion();
     void                                            updateYAxisUnit();
     void                                            updateCaseNameHasChanged();
