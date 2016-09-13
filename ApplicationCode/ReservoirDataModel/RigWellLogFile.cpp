@@ -284,7 +284,7 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
 
     if(curveData->tvDepths().size())
     {
-        lasFile.AddLog("TVD", "M", "True vertical depth in meters", curveData->tvDepths());
+        lasFile.AddLog("TVDMSL", "M", "True vertical depth in meters", curveData->tvDepths());
     }
 
     lasFile.AddLog(wellLogChannelName.trimmed().toStdString(), "NO_UNIT", "", wellLogValues);
