@@ -178,6 +178,55 @@ std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateReSampeledCurveData(double newMeasuredDepthStepSize)
+{
+    std::vector<double> xValues;
+    std::vector<double> measuredDepths;
+    std::vector<double> tvDepths;
+
+    size_t segmentStartIdx = 0;
+
+    if(m_measuredDepths.size() > 0)
+    {
+        double currentMd = m_measuredDepths[0];
+
+        while(segmentStartIdx < m_measuredDepths.size() - 1)
+        {
+            double segmentStartMd = m_measuredDepths[segmentStartIdx];
+            double segmentEndMd = m_measuredDepths[segmentStartIdx + 1];
+            double segmentStartX = m_xValues[segmentStartIdx];
+            double segmentEndX = m_xValues[segmentStartIdx +1];
+            double segmentStartTvd = tvDepths[segmentStartIdx];
+            double segmentEndTvd = tvDepths[segmentStartIdx +1];
+
+            while(currentMd <= segmentEndMd)
+            {
+                measuredDepths.push_back(currentMd);
+                double endWeight = (currentMd - segmentStartMd)/ (segmentEndMd - segmentStartMd);
+                xValues.push_back((1.0-endWeight) * segmentStartX + endWeight*segmentEndX);
+
+                // The tvd calculation is a simplification. We should use the wellpath, as it might have a better resolution, and have a none-linear shape
+                // This is much simpler, and possibly accurate enough ?
+
+                tvDepths.push_back((1.0-endWeight) * segmentStartTvd + endWeight*segmentEndTvd);
+
+                currentMd += newMeasuredDepthStepSize;
+            }
+
+            segmentStartIdx++;
+        }
+    }
+
+    cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
+
+    reSampledData->setValuesWithTVD(xValues, measuredDepths, tvDepths, m_depthUnit);
+
+    return reSampledData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
     std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
