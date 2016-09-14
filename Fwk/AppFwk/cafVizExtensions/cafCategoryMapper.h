@@ -45,10 +45,12 @@ private:
     const cvf::String   textForCategoryIndex(size_t index) const;
 
     int                 categoryIndexForCategory(double domainValue) const;
+    void                recomputeMaxTexCoord();
 
 private:
-    cvf::Color3ubArray   m_colors;
-    cvf::uint            m_textureSize;      // The size of texture that updateTexture() is will produce. 
+    cvf::Color3ubArray  m_colors;
+    cvf::uint           m_textureSize;      // The size of texture that updateTexture() is will produce. 
+    double              m_maxTexCoord;      // The largest allowable s texture coordinate, scalar values >= m_rangeMax will get mapped to this coordinate
 
     std::vector<int>         m_categoryValues;
     std::vector<cvf::String> m_categoryNames;

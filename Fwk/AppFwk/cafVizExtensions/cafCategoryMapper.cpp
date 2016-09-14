@@ -57,6 +57,8 @@ void CategoryMapper::setCycleColors(const Color3ubArray& colorArray)
         size_t colIdx = i % colorArray.size();
         m_colors[i] = colorArray[colIdx];
     }
+
+    recomputeMaxTexCoord();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +71,8 @@ void CategoryMapper::setInterpolateColors(const cvf::Color3ubArray& colorArray)
     if (m_categoryValues.size() > 1 && colorArray.size() > 1)
     {
         m_colors = *interpolateColorArray(colorArray, static_cast<cvf::uint>(m_categoryValues.size()));
+
+        recomputeMaxTexCoord();
         return;
     }
 
@@ -80,6 +84,8 @@ void CategoryMapper::setInterpolateColors(const cvf::Color3ubArray& colorArray)
     {
         m_colors.add(colorArray[0]);
     }
+
+    recomputeMaxTexCoord();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +120,17 @@ Vec2f CategoryMapper::mapToTextureCoord(double categoryValue) const
 {
     double normVal = normalizedValue(categoryValue);
 
-    return Vec2f(static_cast<float>(normVal), 0.5f);
+    double s = normVal*m_maxTexCoord;
+
+    // Clamp to the currently legal texture coord range
+    // Might need to add code to correct for float precision, but that is probably not the main enemy.
+    // Our real problem is the fact that in most cases the texture coords get treated with even less precision
+    // on the graphics hardware. What we would really like is to guess at the HW precision and then correct for that.
+    // Currently the workaround is done in updateTexture() which pads the upper end of the texture when we're not filling
+    // all the texture pixels.
+    s = Math::clamp(s, 0.0, m_maxTexCoord);
+
+    return Vec2f(static_cast<float>(s), 0.5f);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,6 +220,31 @@ int CategoryMapper::categoryIndexForCategory(double domainValue) const
     }
 
     return catIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CategoryMapper::recomputeMaxTexCoord()
+{
+    const uint numColors = static_cast<uint>(m_colors.size());
+    if (numColors == 0)
+    {
+        m_maxTexCoord = 1.0;
+        return;
+    }
+
+    const uint numPixelsPerColor = m_textureSize / numColors;
+    if (numPixelsPerColor == 0)
+    {
+        m_maxTexCoord = 1.0;
+        return;
+    }
+
+    uint texturePixelsInUse = numColors*numPixelsPerColor;
+    CVF_ASSERT(texturePixelsInUse <= m_textureSize);
+
+    m_maxTexCoord = static_cast<double>(texturePixelsInUse) / static_cast<double>(m_textureSize);
 }
 
 //--------------------------------------------------------------------------------------------------
