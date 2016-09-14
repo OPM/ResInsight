@@ -57,13 +57,17 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
         defaultFileName.replace(":", "_");
         defaultFileName.replace(";", "_");
         defaultFileName.replace(" ", "_");
+        defaultFileName.replace("/", "_");
         defaultFileName.replace(QRegExp("_+"), "_");
         defaultFileName.append(".las");
 
-        QString fileName = QFileDialog::getSaveFileName(RiuMainWindow::instance(), tr("Export Curve Data To LAS File"), QDir(defaultDir).absoluteFilePath(defaultFileName), tr("LAS Files (*.las);;All files(*.*)"));
+        QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export Curve Data To LAS File"), QDir(defaultDir).absoluteFilePath(defaultFileName), tr("LAS Files (*.las);;All files(*.*)"));
         if (!fileName.isEmpty())
         {
             RigWellLogFile::exportToLasFile(curve, fileName);
+
+            // Remember the path to next time
+            RiaApplication::instance()->setDefaultFileDialogDirectory("WELL_LOGS_DIR", QFileInfo(fileName).absolutePath());
         }
     }
 }
