@@ -517,7 +517,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
     if (categoryLegends.size() > 0)
     {
         const int border = 3;
-        const int categoryWidth = 120;
+        const int categoryWidth = 150;
 
         // This value is taken from OverlayAxisCross, as the axis cross is always shown in the lower left corner
         const int axisCrossHeight = 120;
