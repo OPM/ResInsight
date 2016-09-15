@@ -114,6 +114,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     if (changedField == &m_showCurve)
     {
         this->updateCurveVisibility();
+        if (m_showCurve()) loadDataAndUpdate();
     }
     else if (changedField == &m_curveName)
     {
