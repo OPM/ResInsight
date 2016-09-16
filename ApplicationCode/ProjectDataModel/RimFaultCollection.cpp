@@ -247,6 +247,13 @@ void RimFaultCollection::syncronizeFaults()
         {
             rimFault = new RimFault();
             rimFault->faultColor = partColors->get(fIdx % partColors->size());
+            QString faultName = rigFaults[fIdx]->name();
+
+            if (faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
+                && faultName.contains("Inactive"))
+            {
+                rimFault->showFault = false; // Turn fault against inactive cells off by default
+            }
         }
 
         rimFault->setFaultGeometry(rigFaults[fIdx].p());
