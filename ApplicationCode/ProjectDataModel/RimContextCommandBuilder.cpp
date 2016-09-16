@@ -264,7 +264,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem))
         {
-            commandIds << "RicExportToLasFileFeature";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
@@ -351,6 +350,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
             commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimWellLogCurve*>(uiItem))
+        {
+            commandIds << "RicExportToLasFileFeature";
         }
     }
 

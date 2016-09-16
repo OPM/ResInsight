@@ -19,26 +19,25 @@
 
 #include "RicExportToLasFileFeature.h"
 
-#include "RimWellLogCurve.h"
-#include "RigWellLogFile.h"
-
-#include "RiuMainWindow.h"
 #include "RiaApplication.h"
+#include "RigLasFileExporter.h"
+#include "RimWellLogCurve.h"
 
 #include "cafSelectionManager.h"
   
 #include <QAction>
 #include <QFileDialog>
-#include <QRegExp>
 
 CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicExportToLasFileFeature::isCommandEnabled()
 {
-    return selectedWellLogPlotCurve() != NULL;
+    return selectedWellLogPlotCurves().size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,29 +45,18 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogCurve* curve = selectedWellLogPlotCurve();
-    if (curve)
+    std::vector<RimWellLogCurve*> curves = selectedWellLogPlotCurves();
+    if (curves.size() == 0) return;
+
+    QString defaultDir = RiaApplication::instance()->defaultFileDialogDirectory("WELL_LOGS_DIR");
+    QString exportFolder = QFileDialog::getExistingDirectory(NULL, "Select destination folder for LAS export");
+    if (!exportFolder.isEmpty())
     {
-        QString defaultDir = RiaApplication::instance()->defaultFileDialogDirectory("WELL_LOGS_DIR");
- 
-        QString defaultFileName = curve->curveName().trimmed();
-        defaultFileName.replace(".", "_");
-        defaultFileName.replace(",", "_");
-        defaultFileName.replace(":", "_");
-        defaultFileName.replace(";", "_");
-        defaultFileName.replace(" ", "_");
-        defaultFileName.replace("/", "_");
-        defaultFileName.replace(QRegExp("_+"), "_");
-        defaultFileName.append(".las");
+        RigLasFileExporter lasExporter(curves);
+        lasExporter.writeToFolder(exportFolder);
 
-        QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export Curve Data To LAS File"), QDir(defaultDir).absoluteFilePath(defaultFileName), tr("LAS Files (*.las);;All files(*.*)"));
-        if (!fileName.isEmpty())
-        {
-            RigWellLogFile::exportToLasFile(curve, fileName);
-
-            // Remember the path to next time
-            RiaApplication::instance()->setDefaultFileDialogDirectory("WELL_LOGS_DIR", QFileInfo(fileName).absolutePath());
-        }
+        // Remember the path to next time
+        RiaApplication::instance()->setDefaultFileDialogDirectory("WELL_LOGS_DIR", exportFolder);
     }
 }
 
@@ -83,15 +71,11 @@ void RicExportToLasFileFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogCurve* RicExportToLasFileFeature::selectedWellLogPlotCurve() const
+std::vector<RimWellLogCurve*> RicExportToLasFileFeature::selectedWellLogPlotCurves() const
 {
     std::vector<RimWellLogCurve*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return NULL;
+    return selection;
 }
+

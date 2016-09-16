@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,26 +18,26 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <QString>
 
 #include <vector>
 
 class RimWellLogCurve;
+class SingleLasFileMetaData;
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicExportToLasFileFeature : public caf::CmdFeature
+class RigLasFileExporter
 {
-    CAF_CMD_HEADER_INIT;
+public:
+    RigLasFileExporter(const std::vector<RimWellLogCurve*>& curves);
 
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool writeToFolder(const QString& exportFolder);
 
 private:
-    std::vector<RimWellLogCurve*> selectedWellLogPlotCurves() const;
-};
+    std::vector<SingleLasFileMetaData>  createLasFileDescriptions(const std::vector<RimWellLogCurve*>& curves);
+    void                                appendLasFileDescriptions(const std::vector<RimWellLogCurve*>& curves, 
+                                                                  std::vector<SingleLasFileMetaData>* lasFileDescriptions);
+    QString                             caseNameFromCurve(RimWellLogCurve* curve);
 
+private:
+    std::vector<RimWellLogCurve*> m_curves;
+};

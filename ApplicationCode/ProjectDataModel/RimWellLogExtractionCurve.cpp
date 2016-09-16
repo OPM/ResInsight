@@ -607,3 +607,30 @@ QString RimWellLogExtractionCurve::wellDate() const
 
     return (m_timeStep < timeStepNames.size()) ? timeStepNames[m_timeStep] : "";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogExtractionCurve::isEclipseCurve() const
+{
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    if (eclipseCase)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::caseName() const
+{
+    if (m_case)
+    {
+        return m_case->caseUserDescription();
+    }
+
+    return QString();
+}

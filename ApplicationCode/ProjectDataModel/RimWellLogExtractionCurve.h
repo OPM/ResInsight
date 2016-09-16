@@ -49,6 +49,9 @@ public:
     virtual QString wellLogChannelName() const;
     virtual QString wellDate() const;
 
+    bool isEclipseCurve() const;
+    QString caseName() const;
+
 protected:
     virtual QString createCurveAutoName();
     virtual void onLoadDataAndUpdate();

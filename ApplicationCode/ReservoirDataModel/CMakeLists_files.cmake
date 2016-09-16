@@ -41,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
+${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -77,6 +78,7 @@ ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
+${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
