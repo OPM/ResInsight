@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfCollection.h"
+
 #include <QString>
+
 #include <vector>
 
 class RimWellLogCurve;
