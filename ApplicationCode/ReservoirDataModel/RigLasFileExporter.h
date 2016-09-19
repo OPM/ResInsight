@@ -18,17 +18,20 @@
 
 #pragma once
 
+#include "cvfCollection.h"
 #include <QString>
-
 #include <vector>
 
 class RimWellLogCurve;
+class RigWellLogCurveData;
 class SingleLasFileMetaData;
 
 class RigLasFileExporter
 {
 public:
     RigLasFileExporter(const std::vector<RimWellLogCurve*>& curves);
+
+    void setResamplingInterval(double interval);
 
     bool writeToFolder(const QString& exportFolder);
 
@@ -40,4 +43,8 @@ private:
 
 private:
     std::vector<RimWellLogCurve*> m_curves;
+
+    bool                                 m_isResampleActive;
+    double                               m_resamplingInterval;
+    cvf::Collection<RigWellLogCurveData> m_resampledCurveDatas;
 };

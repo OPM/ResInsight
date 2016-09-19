@@ -178,13 +178,17 @@ std::vector< std::pair<size_t, size_t> > RigWellLogCurveData::polylineStartStopI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateReSampeledCurveData(double newMeasuredDepthStepSize)
+cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData(double newMeasuredDepthStepSize) const
 {
     std::vector<double> xValues;
     std::vector<double> measuredDepths;
+
+    bool                isTvDepthsAvailable = false;
     std::vector<double> tvDepths;
 
     size_t segmentStartIdx = 0;
+
+    if (m_tvDepths.size() > 0) isTvDepthsAvailable = true;
 
     if(m_measuredDepths.size() > 0)
     {
@@ -196,8 +200,14 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateReSampeledCurveData(
             double segmentEndMd = m_measuredDepths[segmentStartIdx + 1];
             double segmentStartX = m_xValues[segmentStartIdx];
             double segmentEndX = m_xValues[segmentStartIdx +1];
-            double segmentStartTvd = tvDepths[segmentStartIdx];
-            double segmentEndTvd = tvDepths[segmentStartIdx +1];
+
+            double segmentStartTvd = 0.0;
+            double segmentEndTvd = 0.0;
+            if (isTvDepthsAvailable)
+            {
+                segmentStartTvd = m_tvDepths[segmentStartIdx];
+                segmentEndTvd = m_tvDepths[segmentStartIdx +1];
+            }
 
             while(currentMd <= segmentEndMd)
             {
@@ -208,7 +218,10 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateReSampeledCurveData(
                 // The tvd calculation is a simplification. We should use the wellpath, as it might have a better resolution, and have a none-linear shape
                 // This is much simpler, and possibly accurate enough ?
 
-                tvDepths.push_back((1.0-endWeight) * segmentStartTvd + endWeight*segmentEndTvd);
+                if (isTvDepthsAvailable)
+                {
+                    tvDepths.push_back((1.0-endWeight) * segmentStartTvd + endWeight*segmentEndTvd);
+                }
 
                 currentMd += newMeasuredDepthStepSize;
             }
@@ -219,7 +232,14 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateReSampeledCurveData(
 
     cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
 
-    reSampledData->setValuesWithTVD(xValues, measuredDepths, tvDepths, m_depthUnit);
+    if (isTvDepthsAvailable)
+    {
+        reSampledData->setValuesWithTVD(xValues, measuredDepths, tvDepths, m_depthUnit);
+    }
+    else
+    {
+        reSampledData->setValuesAndMD(xValues, measuredDepths, m_depthUnit, m_isExtractionCurve);
+    }
 
     return reSampledData;
 }

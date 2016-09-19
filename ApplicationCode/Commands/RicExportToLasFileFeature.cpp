@@ -20,9 +20,11 @@
 #include "RicExportToLasFileFeature.h"
 
 #include "RiaApplication.h"
+#include "RicExportToLasFileResampleUi.h"
 #include "RigLasFileExporter.h"
 #include "RimWellLogCurve.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
   
 #include <QAction>
@@ -49,14 +51,25 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     if (curves.size() == 0) return;
 
     QString defaultDir = RiaApplication::instance()->defaultFileDialogDirectory("WELL_LOGS_DIR");
-    QString exportFolder = QFileDialog::getExistingDirectory(NULL, "Select destination folder for LAS export");
-    if (!exportFolder.isEmpty())
+
+    RicExportToLasFileResampleUi featureUi;
+    featureUi.exportFolder = defaultDir;
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    
+    if (propertyDialog.exec() == QDialog::Accepted &&
+        !featureUi.exportFolder().isEmpty())
     {
         RigLasFileExporter lasExporter(curves);
-        lasExporter.writeToFolder(exportFolder);
+
+        if (featureUi.activateResample)
+        {
+            lasExporter.setResamplingInterval(featureUi.resampleInterval());
+        }
+
+        lasExporter.writeToFolder(featureUi.exportFolder());
 
         // Remember the path to next time
-        RiaApplication::instance()->setDefaultFileDialogDirectory("WELL_LOGS_DIR", exportFolder);
+        RiaApplication::instance()->setDefaultFileDialogDirectory("WELL_LOGS_DIR", featureUi.exportFolder());
     }
 }
 

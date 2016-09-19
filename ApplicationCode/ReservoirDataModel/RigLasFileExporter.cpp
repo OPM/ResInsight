@@ -435,8 +435,20 @@ const RigWellLogCurveData* SingleLasFileMetaData::curveDataForFirstCurve() const
 /// 
 //--------------------------------------------------------------------------------------------------
 RigLasFileExporter::RigLasFileExporter(const std::vector<RimWellLogCurve*>& curves)
-    : m_curves(curves)
+    : m_curves(curves),
+    m_isResampleActive(false),
+    m_resamplingInterval(1.0)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigLasFileExporter::setResamplingInterval(double interval)
+{
+    m_isResampleActive = true;
+    m_resamplingInterval = interval;
+    m_resampledCurveDatas.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -577,7 +589,19 @@ void RigLasFileExporter::appendLasFileDescriptions(const std::vector<RimWellLogC
         {
             if (curveDef.isEqual(curve, caseNameFromCurve(curve)))
             {
-                singleLasFileMeta.addLogData(curve->wellLogChannelName().toStdString(), "NO_UNIT", "", curve->curveData());
+                const RigWellLogCurveData* curveData = nullptr;
+                if (m_isResampleActive)
+                {
+                    cvf::ref<RigWellLogCurveData> resampledData = curve->curveData()->calculateResampledCurveData(m_resamplingInterval);
+                    m_resampledCurveDatas.push_back(resampledData.p());
+
+                    curveData = resampledData.p();
+                }
+                else
+                {
+                    curveData = curve->curveData();
+                }
+                singleLasFileMeta.addLogData(curve->wellLogChannelName().toStdString(), "NO_UNIT", "", curveData);
             }
         }
 

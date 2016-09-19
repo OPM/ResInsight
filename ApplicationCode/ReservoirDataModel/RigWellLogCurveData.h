@@ -59,7 +59,8 @@ public:
     std::vector<double>                       measuredDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const;
     std::vector< std::pair<size_t, size_t> >  polylineStartStopIndices() const;
 
-    cvf::ref<RigWellLogCurveData>             calculateReSampeledCurveData(double newMeasuredDepthStepSize);
+    cvf::ref<RigWellLogCurveData>             calculateResampledCurveData(double newMeasuredDepthStepSize) const;
+
 private:
     void                                      calculateIntervalsOfContinousValidValues();
 
