@@ -26,4 +26,7 @@ add_library( ${PROJECT_NAME}
 	TranspWB_CombinationFrag.glsl
 	TranspWB_PartlyTranspPartsFrag.glsl
 	TranspWB_TransparentPartsFrag.glsl
+  
+    cafHexGridIntersectionTools/cafHexGridIntersectionTools.h
+    cafHexGridIntersectionTools/cafHexGridIntersectionTools.cpp
 )
