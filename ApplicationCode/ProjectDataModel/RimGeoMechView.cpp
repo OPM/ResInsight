@@ -25,6 +25,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
@@ -35,6 +36,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
+#include "RimIntersectionBoxCollection.h"
 #include "RimLegendConfig.h"
 #include "RimViewLinker.h"
 
@@ -61,7 +63,6 @@
 #include "cvfqtUtils.h"
 
 #include <QMessageBox>
-#include "RigFormationNames.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechView, "GeoMechView");
@@ -677,7 +678,9 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-    
+
+    uiTreeOrdering.add(intersectionBoxCollection());
+
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 

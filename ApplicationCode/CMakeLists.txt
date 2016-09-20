@@ -156,6 +156,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
+    Commands/IntersectionBoxCommands/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)

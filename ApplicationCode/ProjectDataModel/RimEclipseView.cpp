@@ -25,6 +25,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigFormationNames.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
@@ -41,6 +42,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGridCollection.h"
+#include "RimIntersectionBoxCollection.h"
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -74,7 +76,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "RigFormationNames.h"
 
 
 
@@ -1342,6 +1343,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
+    uiTreeOrdering.add(intersectionBoxCollection());
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }

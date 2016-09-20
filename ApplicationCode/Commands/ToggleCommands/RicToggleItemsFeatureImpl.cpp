@@ -18,16 +18,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicToggleItemsFeatureImpl.h"
-#include <vector>
-#include "cafPdmUiObjectHandle.h"
-#include "cafSelectionManager.h"
-#include "cafPdmUiItem.h"
-#include <QModelIndex>
-#include "RiuMainWindow.h"
-#include "cafPdmUiTreeView.h"
-#include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiFieldHandle.h"
 
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiItem.h"
+#include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
+
+#include <QModelIndex>
+
+#include <vector>
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
@@ -72,6 +79,9 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
@@ -82,7 +92,6 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
     }
     return false;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Set toggle state for list of model indices. 

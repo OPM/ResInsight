@@ -11,6 +11,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
+#include "RimIntersectionBoxCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -126,6 +127,10 @@ RimView::RimView(void)
     crossSectionCollection.uiCapability()->setUiHidden(true);
     crossSectionCollection = new RimCrossSectionCollection();
 
+    CAF_PDM_InitFieldNoDefault(&intersectionBoxCollection, "IntersectionBoxes", "Intersection Boxes", "", "", "");
+    intersectionBoxCollection.uiCapability()->setUiHidden(true);
+    intersectionBoxCollection = new RimIntersectionBoxCollection();
+
     CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
     m_gridCollection.uiCapability()->setUiHidden(true);
     m_gridCollection = new RimGridCollection();
@@ -178,6 +183,7 @@ RimView::~RimView(void)
 
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
+    delete intersectionBoxCollection;
     delete crossSectionCollection;
     delete m_gridCollection;
 }
