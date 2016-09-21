@@ -51,13 +51,9 @@ public:
     {
     }
 
-    void appendDataToLasFile(NRLib::LasWell* lasFile) const
+    void appendDataToLasFile(NRLib::LasWell* lasFile, double absentValue) const
     {
         CVF_ASSERT(lasFile);
-
-        double minX = HUGE_VAL;
-
-        double absentValue = SingleChannelData::createAbsentValue(minX);
 
         std::vector<double> wellLogValues = m_curveData->xValues();
         for (size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++)
@@ -83,20 +79,6 @@ public:
     }
 
 private:
-    static double createAbsentValue(double lowestDataValue)
-    {
-        double absentValue = -999.0;
-
-        while (absentValue > lowestDataValue)
-        {
-            absentValue *= 10;
-            absentValue -= 9;
-        }
-
-        return absentValue - 0.25;
-    }
-
-private:
     std::string m_channelName;
     std::string m_unit;
     std::string m_comment;
@@ -108,6 +90,7 @@ class SingleLasFileMetaData
 {
 public:
     SingleLasFileMetaData()
+        : m_minimumCurveValue(HUGE_VAL)
     {
     }
 
@@ -135,6 +118,14 @@ public:
     void addLogData(const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData)
     {
         m_logCurveData.push_back(SingleChannelData(channelName, unit, comment, curveData));
+
+        for (double xValue : curveData->xValues())
+        {
+            if (xValue < m_minimumCurveValue)
+            {
+                m_minimumCurveValue = xValue;
+            }
+        }
     }
 
     std::string generateFilename() const
@@ -224,9 +215,12 @@ public:
             lasFile->setDepthUnit("FT");
         }
 
+        double absentValue = SingleLasFileMetaData::createAbsentValue(m_minimumCurveValue);
+        lasFile->SetMissing(absentValue);
+
         for (auto curveData : m_logCurveData)
         {
-            curveData.appendDataToLasFile(lasFile);
+            curveData.appendDataToLasFile(lasFile, absentValue);
         }
     }
 
@@ -239,6 +233,19 @@ private:
         return m_logCurveData[0].curveData();
     }
 
+    static double createAbsentValue(double lowestDataValue)
+    {
+        double absentValue = -999.0;
+
+        while (absentValue > lowestDataValue)
+        {
+            absentValue *= 10;
+            absentValue -= 9;
+        }
+
+        return absentValue - 0.25;
+    }
+
 private:
     QString m_wellName;
     QString m_caseName;
@@ -248,188 +255,8 @@ private:
     std::vector<double> m_depthValues;
 
     std::vector<SingleChannelData> m_logCurveData;
+    double m_minimumCurveValue;
 };
-
-
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-SingleChannelData::SingleChannelData(const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData)
-    : m_channelName(channelName),
-    m_unit(unit),
-    m_comment(comment),
-    m_curveData(curveData)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void SingleChannelData::appendDataToLasFile(NRLib::LasWell* lasFile) const
-{
-    CVF_ASSERT(lasFile);
-
-    double minX = HUGE_VAL;
-
-    double absentValue = SingleChannelData::createAbsentValue(minX);
-
-    std::vector<double> wellLogValues = m_curveData->xValues();
-    for (size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++)
-    {
-        double value = wellLogValues[vIdx];
-        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
-        {
-            wellLogValues[vIdx] = absentValue;
-        }
-    }
-
-    lasFile->AddLog(m_channelName, m_unit, m_comment, wellLogValues);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string SingleChannelData::channelName() const
-{
-    return m_channelName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RigWellLogCurveData* SingleChannelData::curveData() const
-{
-    return m_curveData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double SingleChannelData::createAbsentValue(double lowestDataValue)
-{
-    double absentValue = -999.0;
-
-    while (absentValue > lowestDataValue)
-    {
-        absentValue *= 10;
-        absentValue -= 9;
-    }
-
-    return absentValue - 0.25;
-}
-*/
-
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::string SingleLasFileMetaData::generateFilename() const
-{
-    QString f;
-    QString separator("-");
-
-    if (!m_wellName.isEmpty())
-    {
-        f += m_wellName;
-    }
-
-    if (!m_caseName.isEmpty())
-    {
-        if (!f.isEmpty()) f += separator;
-        f += m_caseName;
-    }
-
-    // Add property name if only one curve is exported
-    if (m_logCurveData.size() == 1)
-    {
-        if (!f.isEmpty()) f += separator;
-        f += QString::fromStdString(m_logCurveData[0].channelName());
-    }
-
-    if (!m_date.isEmpty())
-    {
-        if (!f.isEmpty()) f += separator;
-        f += m_date;
-    }
-
-    QString cleanFileName = f.trimmed();
-    cleanFileName.replace(".", "_");
-    cleanFileName.replace(",", "_");
-    cleanFileName.replace(":", "_");
-    cleanFileName.replace(";", "_");
-    cleanFileName.replace(" ", "_");
-    cleanFileName.replace("/", "_");
-    cleanFileName.replace(QRegExp("_+"), "_");
-
-    cleanFileName += ".las";
-
-    return cleanFileName.toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void SingleLasFileMetaData::appendDataToLasFile(NRLib::LasWell* lasFile) const
-{
-    if (m_logCurveData.size() == 0) return;
-
-    lasFile->addWellInfo("WELL", m_wellName.toStdString());
-
-    QString wellLogDate = m_date;
-    wellLogDate.replace(".", "_");
-    wellLogDate.replace(" ", "_");
-
-    lasFile->addWellInfo("DATE", wellLogDate.toStdString());
-
-    const RigWellLogCurveData* firstCurveData = curveDataForFirstCurve();
-
-    if (firstCurveData->depthUnit() == RimDefines::UNIT_METER)
-    {
-        lasFile->AddLog("DEPTH", "M", "Depth in meters", firstCurveData->measuredDepths());
-    }
-    else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
-    {
-        lasFile->AddLog("DEPTH", "FT", "Depth in feet", firstCurveData->measuredDepths());
-    }
-
-    if (firstCurveData->tvDepths().size())
-    {
-        lasFile->AddLog("TVDMSL", "M", "True vertical depth in meters", firstCurveData->tvDepths());
-    }
-
-    double minDepth = 0.0;
-    double maxDepth = 0.0;
-    firstCurveData->calculateMDRange(&minDepth, &maxDepth);
-
-    lasFile->setStartDepth(minDepth);
-    lasFile->setStopDepth(maxDepth);
-
-    if (firstCurveData->depthUnit() == RimDefines::UNIT_METER)
-    {
-        lasFile->setDepthUnit("M");
-    }
-    else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
-    {
-        lasFile->setDepthUnit("FT");
-    }
-
-    for (auto curveData : m_logCurveData)
-    {
-        curveData.appendDataToLasFile(lasFile);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RigWellLogCurveData* SingleLasFileMetaData::curveDataForFirstCurve() const
-{
-    CVF_ASSERT(m_logCurveData.size() > 0);
-
-    return m_logCurveData[0].curveData();
-}
-*/
 
 //--------------------------------------------------------------------------------------------------
 /// 
