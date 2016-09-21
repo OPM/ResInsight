@@ -45,10 +45,10 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
 
-    QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
+    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
     QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
     if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-    app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
+    app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
 
     int i;
     for (i = 0; i < fileNames.size(); i++)

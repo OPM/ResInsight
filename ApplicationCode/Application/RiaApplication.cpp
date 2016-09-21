@@ -191,7 +191,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_startupDefaultDirectory = QDir::currentPath();
 #endif
 
-    setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
+    setLastUsedDialogDirectory("MULTICASEIMPORT", "/");
 
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
@@ -630,7 +630,7 @@ bool RiaApplication::saveProjectPromptForFileName()
     }
     else
     {
-        startPath = app->defaultFileDialogDirectory("BINARY_GRID");
+        startPath = app->lastUsedDialogDirectory("BINARY_GRID");
         startPath += "/ResInsightProject.rsp";
     }
 
@@ -641,7 +641,7 @@ bool RiaApplication::saveProjectPromptForFileName()
     }
 
     // Remember the directory to next time
-    app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
+    app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
 
     bool bSaveOk = saveProjectAs(fileName);
 
@@ -746,16 +746,25 @@ void RiaApplication::onProjectOpenedOrClosed()
     setWindowCaptionFromAppState();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::currentProjectFileName() const
+QString RiaApplication::currentProjectPath() const
 {
-    return m_project->fileName();
+    QString projectFolder;
+    if (m_project)
+    {
+        QString projectFileName = m_project->fileName();
+
+        if (!projectFileName.isEmpty())
+        {
+            QFileInfo fi(projectFileName);
+            projectFolder = fi.absolutePath();
+        }
+    }
+
+    return projectFolder;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// Create an absolute path from a path that is specified relative to the project directory
@@ -1739,26 +1748,45 @@ void RiaApplication::terminateProcess()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::defaultFileDialogDirectory(const QString& dialogName)
+QString RiaApplication::lastUsedDialogDirectory(const QString& dialogName)
 {
-    QString defaultDirectory = m_startupDefaultDirectory;
-    std::map<QString, QString>::iterator it;
-    it = m_fileDialogDefaultDirectories.find(dialogName);
-    
-    if ( it != m_fileDialogDefaultDirectories.end())
+    QString lastUsedDirectory = m_startupDefaultDirectory;
+
+    auto it = m_fileDialogDefaultDirectories.find(dialogName);
+    if (it != m_fileDialogDefaultDirectories.end())
     {
-        defaultDirectory = it->second;
+        lastUsedDirectory = it->second;
     }
 
-    return defaultDirectory;
+    return lastUsedDirectory;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory)
+QString RiaApplication::lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory)
 {
-    m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
+    QString lastUsedDirectory = m_startupDefaultDirectory;
+    if (!fallbackDirectory.isEmpty())
+    {
+        lastUsedDirectory = fallbackDirectory;
+    }
+
+    auto it = m_fileDialogDefaultDirectories.find(dialogName);
+    if (it != m_fileDialogDefaultDirectories.end())
+    {
+        lastUsedDirectory = it->second;
+    }
+
+    return lastUsedDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const QString& directory)
+{
+    m_fileDialogDefaultDirectories[dialogName] = directory;
 }
 
 
@@ -1775,7 +1803,7 @@ void RiaApplication::saveSnapshotPromtpForFilename()
     }
     else
     {
-        startPath = defaultFileDialogDirectory("IMAGE_SNAPSHOT");
+        startPath = lastUsedDialogDirectory("IMAGE_SNAPSHOT");
     }
 
     startPath += "/image.png";
@@ -1787,7 +1815,7 @@ void RiaApplication::saveSnapshotPromtpForFilename()
     }
 
     // Remember the directory to next time
-    setDefaultFileDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
+    setLastUsedDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
 
     saveSnapshotAs(fileName);
 }

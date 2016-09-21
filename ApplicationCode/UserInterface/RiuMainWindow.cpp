@@ -840,10 +840,10 @@ void RiuMainWindow::slotImportGeoMechModel()
     {
         RiaApplication* app = RiaApplication::instance();
 
-        QString defaultDir = app->defaultFileDialogDirectory("GEOMECH_MODEL");
+        QString defaultDir = app->lastUsedDialogDirectory("GEOMECH_MODEL");
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)");
         if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-        app->setDefaultFileDialogDirectory("GEOMECH_MODEL", defaultDir);
+        app->setLastUsedDialogDirectory("GEOMECH_MODEL", defaultDir);
 
         int i;
         for (i = 0; i < fileNames.size(); i++)
@@ -870,13 +870,13 @@ void RiuMainWindow::slotOpenProject()
     if (checkForDocumentModifications())
     {
         RiaApplication* app = RiaApplication::instance();
-        QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
+        QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
         QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
 
         if (fileName.isEmpty()) return;
 
         // Remember the path to next time
-        app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
+        app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
 
         if (app->loadProject(fileName))
         {

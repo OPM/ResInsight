@@ -61,14 +61,14 @@ bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 void RicAddEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
+    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
     QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Select Eclipse Input Property Files", defaultDir, "All Files (*.* *)");
 
     if (fileNames.isEmpty()) return;
 
     // Remember the directory to next time
     defaultDir = QFileInfo(fileNames.last()).absolutePath();
-    app->setDefaultFileDialogDirectory("INPUT_FILES", defaultDir);
+    app->setLastUsedDialogDirectory("INPUT_FILES", defaultDir);
 
     RimEclipseInputPropertyCollection* inputPropertyCollection = selectedInputPropertyCollection();
     if (inputPropertyCollection)

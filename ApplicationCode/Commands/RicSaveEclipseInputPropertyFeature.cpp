@@ -84,17 +84,10 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
     if (!inputReservoir) return;
 
     {
-        QString projectFolder;
-
         RiaApplication* app = RiaApplication::instance();
-        QString projectFileName = app->currentProjectFileName();
-        if (!projectFileName.isEmpty())
+        QString projectFolder = app->currentProjectPath();
+        if (projectFolder.isEmpty())
         {   
-            QFileInfo fi(projectFileName);
-            projectFolder = fi.absolutePath();
-        }
-        else
-        {
             projectFolder = inputReservoir->locationOnDisc();
         }
 

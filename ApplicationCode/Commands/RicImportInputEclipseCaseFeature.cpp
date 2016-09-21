@@ -44,13 +44,13 @@ bool RicImportInputEclipseCaseFeature::isCommandEnabled()
 void RicImportInputEclipseCaseFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
+    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
     QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties Eclipse Input Files (*.GRDECL);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
     // Remember the path to next time
-    app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
+    app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
 
     app->openInputEclipseCaseFromFileNames(fileNames);
 

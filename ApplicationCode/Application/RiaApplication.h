@@ -106,8 +106,9 @@ public:
     void                createMockModelCustomized();
     void                createInputMockModel();
 
-    QString             defaultFileDialogDirectory(const QString& dialogName);
-    void                setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory);
+    QString             lastUsedDialogDirectory(const QString& dialogName);
+    QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
+    void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openEclipseCaseFromFile(const QString& fileName);
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
@@ -116,7 +117,7 @@ public:
 
     bool                openOdbCaseFromFile(const QString& fileName);
 
-    QString             currentProjectFileName() const;
+    QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool                loadProject(const QString& projectFileName);
     bool                saveProject();

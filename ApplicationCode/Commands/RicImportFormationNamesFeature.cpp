@@ -43,13 +43,13 @@ bool RicImportFormationNamesFeature::isCommandEnabled()
 void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
+    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
     QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Formation Names", defaultDir, "Formation Names description File (*.lyr);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
     // Remember the path to next time
-    app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileNames.last()).absolutePath());
+    app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileNames.last()).absolutePath());
 
     // Find or create the FomationNamesCollection
 

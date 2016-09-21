@@ -77,16 +77,9 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
     RimBinaryExportSettings exportSettings;
     exportSettings.eclipseKeyword = m_cellColors->resultVariable();
     {
-        QString projectFolder;
-
         RiaApplication* app = RiaApplication::instance();
-        QString projectFileName = app->currentProjectFileName();
-        if (!projectFileName.isEmpty())
-        {   
-            QFileInfo fi(projectFileName);
-            projectFolder = fi.absolutePath();
-        }
-        else
+        QString projectFolder = app->currentProjectPath();
+        if (projectFolder.isEmpty())
         {
             projectFolder = m_cellColors->reservoirView()->eclipseCase()->locationOnDisc();
         }

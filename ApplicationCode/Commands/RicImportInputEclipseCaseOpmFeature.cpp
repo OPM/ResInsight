@@ -51,13 +51,13 @@ bool RicImportInputEclipseCaseOpmFeature::isCommandEnabled()
 void RicImportInputEclipseCaseOpmFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
+    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
     QString fileName = QFileDialog::getOpenFileName(RiuMainWindow::instance(), "Import Eclipse Input file", defaultDir, "Eclipse Input Files (*.GRDECL);;All Files (*.*)");
 
     if (fileName.isEmpty()) return;
 
     // Remember the path to next time
-    app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileName).absolutePath());
+    app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileName).absolutePath());
 
     RimProject* proj = app->project();
     RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;

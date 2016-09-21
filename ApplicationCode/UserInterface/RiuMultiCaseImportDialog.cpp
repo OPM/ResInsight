@@ -102,7 +102,7 @@ RiuMultiCaseImportDialog::~RiuMultiCaseImportDialog()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select an Eclipse case search folder", RiaApplication::instance()->defaultFileDialogDirectory("MULTICASEIMPORT"));
+    QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select an Eclipse case search folder", RiaApplication::instance()->lastUsedDialogDirectory("MULTICASEIMPORT"));
     QStringList folderNames = m_searchFolders->stringList();
 
     if (!folderNames.contains(selectedFolder))
@@ -112,7 +112,7 @@ void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
         updateGridFileList();
     }
 
-    RiaApplication::instance()->setDefaultFileDialogDirectory("MULTICASEIMPORT", selectedFolder);
+    RiaApplication::instance()->setLastUsedDialogDirectory("MULTICASEIMPORT", selectedFolder);
 
     QPushButton* okButton = ui->m_dialogButtons->button(QDialogButtonBox::Ok);
     if (okButton)
