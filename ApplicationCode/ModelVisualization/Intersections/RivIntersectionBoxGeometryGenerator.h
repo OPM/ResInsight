@@ -18,3 +18,57 @@
 
 #pragma once
 
+#include "RivHexGridIntersectionTools.h"
+
+#include "cafPdmPointer.h"
+
+#include "cvfArray.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
+#include <vector>
+
+class RimIntersectionBox;
+
+namespace cvf
+{
+    class ScalarMapper;
+    class DrawableGeo;
+}
+
+
+class RivIntersectionBoxGeometryGenerator : public cvf::Object
+{
+public:
+    RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox,
+        const RivCrossSectionHexGridIntf* grid);
+
+    ~RivIntersectionBoxGeometryGenerator();
+
+    bool                        isAnyGeometryPresent() const;
+
+    // Generate geometry
+    cvf::ref<cvf::DrawableGeo>  generateSurface();
+    cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
+
+    // Mapping between cells and geometry
+    const std::vector<size_t>&           triangleToCellIndex() const;
+    const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
+
+    //const RimCrossSection* crossSection() const;
+
+private:
+    void                        calculateArrays();
+
+    cvf::cref<RivCrossSectionHexGridIntf>      m_hexGrid;
+
+    // Output arrays
+    cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
+    cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
+    std::vector<size_t>         m_triangleToCellIdxMap;
+    std::vector<RivVertexWeights> m_triVxToCellCornerWeights;
+
+    const RimIntersectionBox*      m_crossSection;
+};
+

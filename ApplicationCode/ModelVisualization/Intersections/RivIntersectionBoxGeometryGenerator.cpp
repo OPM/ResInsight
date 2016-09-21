@@ -18,3 +18,100 @@
 
 #include "RivIntersectionBoxGeometryGenerator.h"
 
+#include "cvfDrawableGeo.h"
+#include "cvfPrimitiveSetDirect.h"
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox, const RivCrossSectionHexGridIntf* grid)
+    : m_crossSection(intersectionBox),
+    m_hexGrid(grid)
+{
+    m_triangleVxes = new cvf::Vec3fArray;
+    m_cellBorderLineVxes = new cvf::Vec3fArray;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivIntersectionBoxGeometryGenerator::~RivIntersectionBoxGeometryGenerator()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivIntersectionBoxGeometryGenerator::isAnyGeometryPresent() const
+{
+    if (m_triangleVxes->size() == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::generateSurface()
+{
+    calculateArrays();
+
+    CVF_ASSERT(m_triangleVxes.notNull());
+
+    if (m_triangleVxes->size() == 0) return NULL;
+
+    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+    geo->setFromTriangleVertexArray(m_triangleVxes.p());
+
+    return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionBoxGeometryGenerator::createMeshDrawable()
+{
+    if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return NULL;
+
+    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+    geo->setVertexArray(m_cellBorderLineVxes.p());
+
+
+    cvf::ref<cvf::PrimitiveSetDirect> prim = new cvf::PrimitiveSetDirect(cvf::PT_LINES);
+    prim->setIndexCount(m_cellBorderLineVxes->size());
+
+    geo->addPrimitiveSet(prim.p());
+    return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RivIntersectionBoxGeometryGenerator::triangleToCellIndex() const
+{
+    CVF_ASSERT(m_triangleVxes->size());
+    return m_triangleToCellIdxMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RivVertexWeights>& RivIntersectionBoxGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+{
+    CVF_ASSERT(m_triangleVxes->size());
+    return m_triVxToCellCornerWeights;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivIntersectionBoxGeometryGenerator::calculateArrays()
+{
+
+}
