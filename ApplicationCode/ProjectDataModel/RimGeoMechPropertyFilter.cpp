@@ -184,7 +184,7 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
     RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
+    firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
 
     bool isPropertyFilterControlled = false;

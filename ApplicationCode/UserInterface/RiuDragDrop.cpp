@@ -235,28 +235,28 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
         }
 
         RimIdenticalGridCaseGroup* gridCaseGroup;
-        dropTarget->firstAnchestorOrThisOfType(gridCaseGroup);
+        dropTarget->firstAncestorOrThisOfType(gridCaseGroup);
         if (gridCaseGroup)
         {
             return handleGridCaseGroupDrop(action, draggedObjects, gridCaseGroup);
         }
 
         RimWellLogCurve* wellLogPlotCurve;
-        dropTarget->firstAnchestorOrThisOfType(wellLogPlotCurve);
+        dropTarget->firstAncestorOrThisOfType(wellLogPlotCurve);
         if (wellLogPlotCurve)
         {
             return handleWellLogPlotCurveDrop(action, draggedObjects, wellLogPlotCurve);
         }
 
         RimWellLogTrack* wellLogPlotTrack;
-        dropTarget->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        dropTarget->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
             return handleWellLogPlotTrackDrop(action, draggedObjects, wellLogPlotTrack);
         }
 
         RimWellLogPlot* wellLogPlot;
-        dropTarget->firstAnchestorOrThisOfType(wellLogPlot);
+        dropTarget->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             return handleWellLogPlotDrop(action, draggedObjects, wellLogPlot);
@@ -361,7 +361,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
         if (action == Qt::MoveAction)
         {
             RimWellLogPlot* wellLogPlot;
-            trackTarget->firstAnchestorOrThisOfType(wellLogPlot);
+            trackTarget->firstAncestorOrThisOfType(wellLogPlot);
             RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks, trackTarget); 
             return true;
         }
@@ -381,7 +381,7 @@ bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObje
         if (action == Qt::MoveAction)
         {
             RimWellLogTrack* wellLogPlotTrack;
-            curveDropTarget->firstAnchestorOrThisOfType(wellLogPlotTrack);
+            curveDropTarget->firstAncestorOrThisOfType(wellLogPlotTrack);
 
             RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(wellLogPlotTrack, wellLogPlotCurves, curveDropTarget);
             return true;

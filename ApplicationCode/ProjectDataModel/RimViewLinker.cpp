@@ -275,7 +275,7 @@ QString RimViewLinker::displayNameForView(RimView* view)
     if (view)
     {
         RimCase* rimCase = NULL;
-        view->firstAnchestorOrThisOfType(rimCase);
+        view->firstAncestorOrThisOfType(rimCase);
 
         displayName = rimCase->caseUserDescription() + ": " + view->name;
     }
@@ -370,7 +370,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 bool RimViewLinker::isActive()
 {
     RimViewLinkerCollection* viewLinkerCollection = NULL;
-    this->firstAnchestorOrThisOfType(viewLinkerCollection);
+    this->firstAncestorOrThisOfType(viewLinkerCollection);
     
     if (!viewLinkerCollection)
     {
@@ -446,7 +446,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
     if (view)
     {
         RimCase* rimCase = NULL;
-        view->firstAnchestorOrThisOfType(rimCase);
+        view->firstAncestorOrThisOfType(rimCase);
 
         if (dynamic_cast<RimGeoMechCase*>(rimCase))
         {

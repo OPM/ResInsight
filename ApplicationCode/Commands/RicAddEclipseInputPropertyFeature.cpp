@@ -45,7 +45,7 @@ bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
     {
         RimEclipseInputCaseOpm* inputCaseOpm = NULL;
 
-        inputProp->firstAnchestorOrThisOfType(inputCaseOpm);
+        inputProp->firstAncestorOrThisOfType(inputCaseOpm);
         if (inputCaseOpm)
         {
             return false;

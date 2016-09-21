@@ -77,7 +77,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
         m_curveData = new RigWellLogCurveData;
 
         RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
+        firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
         if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
@@ -267,7 +267,7 @@ QString RimWellLogFileCurve::createCurveAutoName()
         if (wellLogFile)
         {
             RimWellLogPlot* wellLogPlot;
-            firstAnchestorOrThisOfType(wellLogPlot);
+            firstAncestorOrThisOfType(wellLogPlot);
             CVF_ASSERT(wellLogPlot);
 
             QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());

@@ -43,14 +43,14 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
         RimWellLogCurve* curve = curves[cIdx];
 
         RimWellLogTrack* wellLogPlotTrack;
-        curve->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        curve->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
             wellLogPlotTrack->removeCurve(curve);
             wellLogPlotTrack->updateConnectedEditors();
             srcTracks.insert(wellLogPlotTrack);
             RimWellLogPlot* plot;
-            wellLogPlotTrack->firstAnchestorOrThisOfType(plot);
+            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot) srcPlots.insert(plot);
         }
     }
@@ -94,7 +94,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
         RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* srcPlot;
-        track->firstAnchestorOrThisOfType(srcPlot);
+        track->firstAncestorOrThisOfType(srcPlot);
         if (srcPlot)
         {
             srcPlot->removeTrack(track);

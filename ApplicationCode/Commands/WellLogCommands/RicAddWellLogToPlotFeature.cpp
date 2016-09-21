@@ -78,10 +78,10 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         RimWellLogFileChannel* wellLog = selection[wlIdx];
 
         RimWellPath* wellPath = NULL;
-        wellLog->firstAnchestorOrThisOfType(wellPath);
+        wellLog->firstAncestorOrThisOfType(wellPath);
 
         RimWellLogFile* wellLogFile = NULL;
-        wellLog->firstAnchestorOrThisOfType(wellLogFile);
+        wellLog->firstAncestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;

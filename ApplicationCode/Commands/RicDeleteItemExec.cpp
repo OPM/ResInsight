@@ -81,10 +81,10 @@ void RicDeleteItemExec::redo()
         parentObj->uiCapability()->updateConnectedEditors();
         
         RimView* view = NULL;
-        parentObj->firstAnchestorOrThisOfType(view);
+        parentObj->firstAncestorOrThisOfType(view);
 
         RimCellRangeFilterCollection* rangeFilterColl;
-        parentObj->firstAnchestorOrThisOfType(rangeFilterColl);
+        parentObj->firstAncestorOrThisOfType(rangeFilterColl);
 
         if (rangeFilterColl)
         {
@@ -92,10 +92,10 @@ void RicDeleteItemExec::redo()
         }
 
         RimEclipsePropertyFilterCollection* eclipsePropColl;
-        parentObj->firstAnchestorOrThisOfType(eclipsePropColl);
+        parentObj->firstAncestorOrThisOfType(eclipsePropColl);
         
         RimGeoMechPropertyFilterCollection* geoMechPropColl;
-        parentObj->firstAnchestorOrThisOfType(geoMechPropColl);
+        parentObj->firstAncestorOrThisOfType(geoMechPropColl);
 
         if (view && (eclipsePropColl || geoMechPropColl))
         {
@@ -104,14 +104,14 @@ void RicDeleteItemExec::redo()
         }
 
         RimCrossSectionCollection* crossSectionColl;
-        parentObj->firstAnchestorOrThisOfType(crossSectionColl);
+        parentObj->firstAncestorOrThisOfType(crossSectionColl);
         if (view && crossSectionColl)
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
         RimWellPathCollection* wellPathColl;
-        parentObj->firstAnchestorOrThisOfType(wellPathColl);
+        parentObj->firstAncestorOrThisOfType(wellPathColl);
 
         if (wellPathColl)
         {
@@ -121,7 +121,7 @@ void RicDeleteItemExec::redo()
         // Update due to deletion of curves (not tracks, handled separatly)
 
         RimWellLogPlot* wellLogPlot;
-        parentObj->firstAnchestorOrThisOfType(wellLogPlot);
+        parentObj->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
@@ -129,7 +129,7 @@ void RicDeleteItemExec::redo()
         }
 
         RimWellLogTrack* wellLogPlotTrack;
-        parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        parentObj->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
             wellLogPlotTrack->updateXZoom();
@@ -144,7 +144,7 @@ void RicDeleteItemExec::redo()
             if (wellLogPlotCollection->wellLogPlots.empty())
             {
                 RimProject* project = NULL;
-                parentObj->firstAnchestorOrThisOfType(project);
+                parentObj->firstAncestorOrThisOfType(project);
                 if (project)
                 {
                     project->updateConnectedEditors();
@@ -153,13 +153,13 @@ void RicDeleteItemExec::redo()
         }
         
         RimViewLinkerCollection* viewLinkerCollection = NULL;
-        parentObj->firstAnchestorOrThisOfType(viewLinkerCollection);
+        parentObj->firstAncestorOrThisOfType(viewLinkerCollection);
         if (viewLinkerCollection)
         {
             viewLinkerCollection->uiCapability()->updateConnectedEditors();
 
             RimProject* project = NULL;
-            parentObj->firstAnchestorOrThisOfType(project);
+            parentObj->firstAncestorOrThisOfType(project);
             if (project)
             {
                 // Update visibility of top level Linked Views item in the project tree

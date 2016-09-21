@@ -105,7 +105,7 @@ RimWellPath::~RimWellPath()
     }
 
     RimProject* project;
-    firstAnchestorOrThisOfType(project);
+    firstAncestorOrThisOfType(project);
     if (project)
     {
         if (project->mainPlotCollection())
@@ -149,7 +149,7 @@ RivWellPathPartMgr* RimWellPath::partMgr()
     if (m_wellPathPartMgr.isNull()) 
     {
         RimWellPathCollection* wpColl;
-        this->firstAnchestorOrThisOfType(wpColl);
+        this->firstAncestorOrThisOfType(wpColl);
         if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(this);
     }
 
@@ -164,7 +164,7 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     partMgr()->scheduleGeometryRegen();
 
     RimProject* proj;
-    this->firstAnchestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 

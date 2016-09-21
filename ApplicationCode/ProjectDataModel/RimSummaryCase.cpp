@@ -72,7 +72,7 @@ void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
 
     RimProject* proj = NULL;
-    this->firstAnchestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType(proj);
     
     RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
     RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
@@ -124,7 +124,7 @@ void RimSummaryCase::updateAutoShortName()
     if(m_useAutoShortName)
     {
         RimSummaryCaseCollection* summaryCaseCollection = NULL;
-        this->firstAnchestorOrThisOfType(summaryCaseCollection);
+        this->firstAncestorOrThisOfType(summaryCaseCollection);
         CVF_ASSERT(summaryCaseCollection);
 
         m_shortName =  summaryCaseCollection->uniqueShortNameForCase(this);

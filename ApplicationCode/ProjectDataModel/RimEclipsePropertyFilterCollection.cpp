@@ -56,7 +56,7 @@ RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
     RimEclipseView* eclipseView = NULL;
-    firstAnchestorOrThisOfType(eclipseView);
+    firstAncestorOrThisOfType(eclipseView);
 
     return eclipseView;
 }
@@ -122,7 +122,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
     bool activeIcon = true;
 
     RimEclipseView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimViewController* viewController = view->viewController();
     if (viewController && (viewController->isPropertyFilterOveridden() 
                            || viewController->isVisibleCellsOveridden()))

@@ -44,7 +44,7 @@ bool RicComputeStatisticsFeature::isCommandEnabled()
         if (statisticsCase)
         {
             RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-            statisticsCase->firstAnchestorOrThisOfType(gridCaseGroup);
+            statisticsCase->firstAncestorOrThisOfType(gridCaseGroup);
 
             RimCaseCollection* caseCollection = gridCaseGroup ? gridCaseGroup->caseCollection() : NULL;
             return caseCollection ? caseCollection->reservoirs.size() > 0 : false;

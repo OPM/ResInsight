@@ -303,7 +303,7 @@ void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
 {
     m_wellPathCollectionPartManager->scheduleGeometryRegen();
     RimProject* proj;
-    this->firstAnchestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 

@@ -82,7 +82,7 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
         for (size_t i = 0; i < m_allViews.size(); i++)
         {
             RimCase* rimCase = NULL;
-            m_allViews[i]->firstAnchestorOrThisOfType(rimCase);
+            m_allViews[i]->firstAncestorOrThisOfType(rimCase);
 
             QIcon icon;
             if (rimCase)

@@ -275,7 +275,7 @@ caf::PdmFieldHandle* RimCrossSection::objectToggleField()
 RimEclipseWellCollection* RimCrossSection::simulationWellCollection()
 {
     RimEclipseView* eclipseView = NULL;
-    firstAnchestorOrThisOfType(eclipseView);
+    firstAncestorOrThisOfType(eclipseView);
 
     if (eclipseView)
     {
@@ -425,7 +425,7 @@ void RimCrossSection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 void RimCrossSection::updateWellExtentDefaultValue()
 {
     RimCase* ownerCase = NULL;
-    firstAnchestorOrThisOfType(ownerCase);
+    firstAncestorOrThisOfType(ownerCase);
 
     if (ownerCase)
     {
@@ -463,7 +463,7 @@ void RimCrossSection::updateName()
 void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 {
     RimCase* ownerCase = NULL;
-    firstAnchestorOrThisOfType(ownerCase);
+    firstAncestorOrThisOfType(ownerCase);
     
     std::vector<cvf::Vec3d> clippedPolyLine;
 
@@ -551,7 +551,7 @@ void RimCrossSection::rebuildGeometryAndScheduleCreateDisplayModel()
     m_crossSectionPartMgr = NULL;
 
     RimView* rimView = NULL;
-    this->firstAnchestorOrThisOfType(rimView);
+    this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();

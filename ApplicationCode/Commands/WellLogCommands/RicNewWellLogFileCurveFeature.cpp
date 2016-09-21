@@ -168,7 +168,7 @@ void RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(RimWellLogTrac
         RimWellLogFileCurve* plotCurve = addCurve(plotTrack);
     
         RimWellPath* wellPath;
-        wellLogFileChannels[cIdx]->firstAnchestorOrThisOfType(wellPath);
+        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType(wellPath);
         if (wellPath)
         {
             plotCurve->setWellPath(wellPath);

@@ -47,7 +47,7 @@ RimPropertyFilterCollection::~RimPropertyFilterCollection()
 void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews() const
 {
     RimView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     CVF_ASSERT(view);
 
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
@@ -83,7 +83,7 @@ void RimPropertyFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& u
     PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
     RimView* rimView = NULL;
-    this->firstAnchestorOrThisOfType(rimView);
+    this->firstAncestorOrThisOfType(rimView);
     RimViewController* viewController = rimView->viewController();
     if (viewController && (viewController->isPropertyFilterOveridden() 
                            || viewController->isVisibleCellsOveridden()))

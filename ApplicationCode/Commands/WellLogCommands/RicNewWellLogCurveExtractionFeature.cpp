@@ -71,7 +71,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
             plotCurve->loadDataAndUpdate();
 
             RimWellLogPlot* plot = NULL;
-            wellLogPlotTrack->firstAnchestorOrThisOfType(plot);
+            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
                 plot->setDepthUnit(plotCurve->curveData()->depthUnit());

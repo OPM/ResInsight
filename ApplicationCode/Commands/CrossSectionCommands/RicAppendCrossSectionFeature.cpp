@@ -49,7 +49,7 @@ void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(collection.size() == 1);
 
     RimCrossSectionCollection* crossSectionCollection = NULL;
-    collection[0]->firstAnchestorOrThisOfType(crossSectionCollection);
+    collection[0]->firstAncestorOrThisOfType(crossSectionCollection);
 
     CVF_ASSERT(crossSectionCollection);
 

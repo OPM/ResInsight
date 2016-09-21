@@ -92,7 +92,7 @@ bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
             if (crossSection->inputFromViewerEnabled())
             {
                 RimCase* rimCase = NULL;
-                crossSection->firstAnchestorOrThisOfType(rimCase);
+                crossSection->firstAncestorOrThisOfType(rimCase);
                 CVF_ASSERT(rimCase);
 
                 crossSection->appendPointToPolyLine(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);

@@ -50,7 +50,7 @@ void RicShowAllLinkedViewsFeature::onActionTriggered(bool isChecked)
     for (size_t i = 0; i < managedViews.size(); i++)
     {
         RimViewLinker* rimLinked = NULL;
-        managedViews[i]->firstAnchestorOrThisOfType(rimLinked);
+        managedViews[i]->firstAncestorOrThisOfType(rimLinked);
         CVF_ASSERT(rimLinked);
 
         linkedViews.push_back(rimLinked);

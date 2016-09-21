@@ -88,7 +88,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
                                             cvf::BoundingBox wellPathClipBoundingBox)
 {
     RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
 
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
@@ -234,7 +234,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
                                                           double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
     RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
 
     if (m_rimWellPath.isNull()) return;

@@ -149,9 +149,9 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimWellLogCurve* curve = NULL;
-    this->firstAnchestorOrThisOfType(curve);
+    this->firstAncestorOrThisOfType(curve);
 
 
     if (&m_resultVariableUiField == changedField)

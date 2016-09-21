@@ -53,7 +53,7 @@ void RicNewSimWellCrossSectionFeature::onActionTriggered(bool isChecked)
     RimEclipseWell* eclWell = collection[0];
     
     RimEclipseView* eclView = NULL;
-    eclWell->firstAnchestorOrThisOfType(eclView);
+    eclWell->firstAncestorOrThisOfType(eclView);
     CVF_ASSERT(eclView);
 
     RicNewSimWellCrossSectionCmd* cmd = new RicNewSimWellCrossSectionCmd(eclView->crossSectionCollection, eclWell);

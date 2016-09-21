@@ -220,7 +220,7 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<Rim
     for (size_t i = 0; i < casesToBeDeleted.size(); i++)
     {
         RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-        casesToBeDeleted[i]->firstAnchestorOrThisOfType(gridCaseGroup);
+        casesToBeDeleted[i]->firstAncestorOrThisOfType(gridCaseGroup);
 
         if (gridCaseGroup && hasAnyStatisticsResults(gridCaseGroup))
         {

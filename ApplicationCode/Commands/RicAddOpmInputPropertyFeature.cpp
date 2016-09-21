@@ -42,7 +42,7 @@ bool RicAddOpmInputPropertyFeature::isCommandEnabled()
     {
         RimEclipseInputCaseOpm* inputCaseOpm = NULL;
 
-        inputProp->firstAnchestorOrThisOfType(inputCaseOpm);
+        inputProp->firstAncestorOrThisOfType(inputCaseOpm);
         if (inputCaseOpm)
         {
             return true;
@@ -103,7 +103,7 @@ void RicAddOpmInputPropertyFeature::addEclipseInputProperty(const QStringList& f
 
     RimEclipseInputCaseOpm* inputCaseOpm = NULL;
 
-    inputPropertyCollection->firstAnchestorOrThisOfType(inputCaseOpm);
+    inputPropertyCollection->firstAncestorOrThisOfType(inputCaseOpm);
     if (inputCaseOpm)
     {
         inputCaseOpm->appendPropertiesFromStandaloneFiles(fileNames);

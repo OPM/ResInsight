@@ -248,7 +248,7 @@ void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::ve
         RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* wellLogPlot;
-        track->firstAnchestorOrThisOfType(wellLogPlot);
+        track->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->removeTrack(track);

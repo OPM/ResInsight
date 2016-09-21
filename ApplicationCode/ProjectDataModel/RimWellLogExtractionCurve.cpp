@@ -204,7 +204,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         m_geomResultDefinition->setGeoMechCase(geomCase);
 
         RimWellLogPlotCollection* wellLogCollection = NULL;
-        this->firstAnchestorOrThisOfType(wellLogCollection);
+        this->firstAncestorOrThisOfType(wellLogCollection);
         CVF_ASSERT(wellLogCollection);
 
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
@@ -269,7 +269,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
 
         RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
+        firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
         displayUnit = wellLogPlot->depthUnit();
@@ -442,7 +442,7 @@ void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
     if (resVar.toUpper().contains("PERM"))
     {
         RimWellLogTrack* track = NULL;
-        this->firstAnchestorOrThisOfType(track);
+        this->firstAncestorOrThisOfType(track);
         if (track)
         {
             if (track->curveCount() == 1)

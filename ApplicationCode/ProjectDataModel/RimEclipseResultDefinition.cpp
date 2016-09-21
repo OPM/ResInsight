@@ -128,12 +128,12 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimWellLogCurve* curve = NULL;
-    this->firstAnchestorOrThisOfType(curve);
+    this->firstAncestorOrThisOfType(curve);
 
     RimCellEdgeColors* cellEdgeColors = NULL;
-    this->firstAnchestorOrThisOfType(cellEdgeColors);
+    this->firstAncestorOrThisOfType(cellEdgeColors);
 
     if (&m_resultVariableUiField == changedField)
     {
@@ -217,19 +217,19 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     bool showPerFaceResultsFirst = false;
 
     RimEclipseFaultColors* rimEclipseFaultColors = NULL;
-    this->firstAnchestorOrThisOfType(rimEclipseFaultColors);
+    this->firstAncestorOrThisOfType(rimEclipseFaultColors);
     if (rimEclipseFaultColors) showPerFaceResultsFirst = true;
 
     QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(showPerFaceResultsFirst, fieldNeedingOptions, useOptionsOnly);
 
     RimWellLogCurve* curve = NULL;
-    this->firstAnchestorOrThisOfType(curve);
+    this->firstAncestorOrThisOfType(curve);
 
     RimEclipsePropertyFilter* propFilter = NULL;
-    this->firstAnchestorOrThisOfType(propFilter);
+    this->firstAncestorOrThisOfType(propFilter);
 
     RimCellEdgeColors* cellEdge = NULL;
-    this->firstAnchestorOrThisOfType(cellEdge);
+    this->firstAncestorOrThisOfType(cellEdge);
 
     if (propFilter || curve || cellEdge)
     {

@@ -1549,7 +1549,7 @@ void RiuMainWindow::selectedObjectsChanged()
         RimView* selectedReservoirView = dynamic_cast<RimView*>(firstSelectedObject);
         if (!selectedReservoirView)
         {
-            firstSelectedObject->firstAnchestorOrThisOfType(selectedReservoirView);
+            firstSelectedObject->firstAncestorOrThisOfType(selectedReservoirView);
         }
 
         bool isActiveViewChanged = false;

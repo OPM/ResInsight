@@ -143,7 +143,7 @@ bool RimWellLogFile::readFile(QString* errorMessage)
     }
 
     RimWellPath* wellPath;
-    firstAnchestorOrThisOfType(wellPath);
+    firstAncestorOrThisOfType(wellPath);
     if (wellPath)
     {
         if (wellPath->filepath().isEmpty())

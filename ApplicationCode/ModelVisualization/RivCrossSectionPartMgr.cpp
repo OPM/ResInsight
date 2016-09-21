@@ -87,7 +87,7 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
     if (!m_crossSectionGenerator->isAnyGeometryPresent()) return;
 
     RimEclipseView* eclipseView;
-    m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
+    m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
 
     if (eclipseView)
     {
@@ -150,7 +150,7 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
     }
 
     RimGeoMechView* geoView;
-    m_rimCrossSection->firstAnchestorOrThisOfType(geoView);
+    m_rimCrossSection->firstAncestorOrThisOfType(geoView);
 
     if (geoView)
     {
@@ -518,7 +518,7 @@ cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterf
 {
 
     RimEclipseView* eclipseView;
-    m_rimCrossSection->firstAnchestorOrThisOfType(eclipseView);
+    m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
     if (eclipseView)
     {
         RigMainGrid* grid = NULL;
@@ -527,7 +527,7 @@ cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterf
     }
 
     RimGeoMechView* geoView;
-    m_rimCrossSection->firstAnchestorOrThisOfType(geoView);
+    m_rimCrossSection->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
         RigFemPart* femPart = geoView->geoMechCase()->geoMechData()->femParts()->part(0);

@@ -490,7 +490,7 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         if (!selectedWellLogPlot)
         {
-            firstSelectedObject->firstAnchestorOrThisOfType(selectedWellLogPlot);
+            firstSelectedObject->firstAncestorOrThisOfType(selectedWellLogPlot);
         }
 
         if (selectedWellLogPlot)
@@ -516,7 +516,7 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         if (!selectedSummaryPlot)
         {
-            firstSelectedObject->firstAnchestorOrThisOfType(selectedSummaryPlot);
+            firstSelectedObject->firstAncestorOrThisOfType(selectedSummaryPlot);
         }
 
         if (selectedSummaryPlot)

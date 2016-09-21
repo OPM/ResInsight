@@ -774,11 +774,11 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
     bool isCategoryResult = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
-        this->firstAnchestorOrThisOfType(eclCellColors);
+        this->firstAncestorOrThisOfType(eclCellColors);
         RimGeoMechCellColors* gmCellColors = nullptr;
-        this->firstAnchestorOrThisOfType(gmCellColors);
+        this->firstAncestorOrThisOfType(gmCellColors);
         RimCellEdgeColors* eclCellEdgColors = nullptr;
-        this->firstAnchestorOrThisOfType(eclCellEdgColors);
+        this->firstAncestorOrThisOfType(eclCellEdgColors);
 
         if (   ( eclCellColors && eclCellColors->hasCategoryResult()) 
             || ( gmCellColors && gmCellColors->hasCategoryResult()) 

@@ -60,7 +60,7 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
             if (!activeView) return false;
 
             RimCase* rimCase = NULL;
-            activeView->firstAnchestorOrThisOfType(rimCase);
+            activeView->firstAncestorOrThisOfType(rimCase);
             if (rimCase)
             {
                 displayModelOffset = rimCase->displayModelOffset();

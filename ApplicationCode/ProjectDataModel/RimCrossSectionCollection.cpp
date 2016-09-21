@@ -124,7 +124,7 @@ void RimCrossSectionCollection::appendCrossSection(RimCrossSection* crossSection
     RiuMainWindow::instance()->selectAsCurrentItem(crossSection);
 
     RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
+    firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
@@ -139,7 +139,7 @@ void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
     if (changedField == &isActive)
     {
         RimView* rimView = NULL;
-        firstAnchestorOrThisOfType(rimView);
+        firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
             rimView->scheduleCreateDisplayModelAndRedraw();

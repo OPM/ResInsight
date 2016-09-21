@@ -108,14 +108,14 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
         }
 
         RimViewLinker* linkedViews = NULL;
-        this->firstAnchestorOrThisOfType(linkedViews);
+        this->firstAncestorOrThisOfType(linkedViews);
 
         for (size_t i = 0; i< views.size(); i++)
         {
             if (views[i] != linkedViews->masterView())
             {
                 RimCase* rimCase = NULL;
-                views[i]->firstAnchestorOrThisOfType(rimCase);
+                views[i]->firstAncestorOrThisOfType(rimCase);
                 QIcon icon;
                 if (rimCase)
                 {
@@ -351,7 +351,7 @@ void RimViewController::removeOverrides(RimView* view)
 void RimViewController::updateOptionSensitivity()
 {
     RimViewLinker* linkedViews = NULL;
-    firstAnchestorOrThisOfType(linkedViews);
+    firstAncestorOrThisOfType(linkedViews);
     CVF_ASSERT(linkedViews);
 
     RimView* mainView = linkedViews->masterView();
@@ -504,7 +504,7 @@ void RimViewController::updateResultColorsControl()
 RimViewLinker* RimViewController::ownerViewLinker()
 {
     RimViewLinker* viewLinker = NULL;
-    this->firstAnchestorOrThisOfType(viewLinker);
+    this->firstAncestorOrThisOfType(viewLinker);
 
     return viewLinker;
 }

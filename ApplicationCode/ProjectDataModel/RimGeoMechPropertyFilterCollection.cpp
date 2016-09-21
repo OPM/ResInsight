@@ -56,7 +56,7 @@ RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
     RimGeoMechView* geoMechView = NULL;
-    firstAnchestorOrThisOfType(geoMechView);
+    firstAncestorOrThisOfType(geoMechView);
     
     return geoMechView;
 }
@@ -126,7 +126,7 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
     bool activeIcon = true;
 
     RimGeoMechView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimViewController* viewController = view->viewController();
     if (viewController && ( viewController->isPropertyFilterOveridden() 
                             || viewController->isVisibleCellsOveridden()))

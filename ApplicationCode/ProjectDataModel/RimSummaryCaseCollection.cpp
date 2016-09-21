@@ -53,7 +53,7 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 void RimSummaryCaseCollection::createSummaryCasesFromRelevantEclipseResultCases()
 {
     RimProject* proj = nullptr;
-    firstAnchestorOrThisOfType(proj);
+    firstAncestorOrThisOfType(proj);
     if (proj)
     {
         std::vector<RimCase*> all3DCases;

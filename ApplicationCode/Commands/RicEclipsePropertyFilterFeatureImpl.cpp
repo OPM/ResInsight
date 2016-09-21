@@ -90,7 +90,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropert
 bool RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object)
 {
     RimView* rimView = NULL;
-    object->firstAnchestorOrThisOfType(rimView);
+    object->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
         RimViewController* vc = rimView->viewController();

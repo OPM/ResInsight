@@ -61,7 +61,7 @@ void RicWellPathDeleteFeature::onActionTriggered(bool isChecked)
     RimWellPath* wellPath = objects[0];
 
     RimWellPathCollection* wellPathCollection = NULL;
-    wellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    wellPath->firstAncestorOrThisOfType(wellPathCollection);
 
     wellPathCollection->removeWellPath(wellPath);;
     delete wellPath;

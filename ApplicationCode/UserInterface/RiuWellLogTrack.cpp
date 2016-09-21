@@ -170,7 +170,7 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
             }
 
             RimWellLogPlot* plotDefinition;
-            m_plotTrackDefinition->firstAnchestorOrThisOfType(plotDefinition);
+            m_plotTrackDefinition->firstAncestorOrThisOfType(plotDefinition);
             if (!plotDefinition)
             {
                 return QwtPlot::eventFilter(watched, event);

@@ -41,7 +41,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(RimEclip
     {
         CVF_ASSERT(rimWell);
         RimEclipseView* eclipseView;
-        rimWell->firstAnchestorOrThisOfType(eclipseView);
+        rimWell->firstAncestorOrThisOfType(eclipseView);
         CVF_ASSERT(eclipseView);
 
         isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();

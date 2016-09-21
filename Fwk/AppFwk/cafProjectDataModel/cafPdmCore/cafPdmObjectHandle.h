@@ -31,9 +31,11 @@ public:
 
     /// The field referencing this object as a child
     PdmFieldHandle*         parentField() const;
-    /// Convenience function. Traverses from parent to parents parent to find first object of the requested type.
+
+    /// Returns _this_ if _this_ is of requested type
+    /// Traverses parents recursively and returns first parent of the requested type.
     template <typename T>
-    void                    firstAnchestorOrThisOfType(T*& ancestor) const;
+    void                    firstAncestorOrThisOfType(T*& ancestor) const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is also 
     /// included if it is of the requested type.
@@ -111,7 +113,7 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
+void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 {
     ancestor = NULL;
 
@@ -124,7 +126,7 @@ void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
         return;
     }
 
-    // Search anchestors
+    // Search parents for first type match
 
     PdmObjectHandle* parent = NULL;
     PdmFieldHandle* parentField = this->parentField();

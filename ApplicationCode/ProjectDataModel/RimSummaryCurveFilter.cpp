@@ -233,7 +233,7 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         m_applyButtonField = false;
 
         RimSummaryPlot* plot = nullptr;
-        firstAnchestorOrThisOfType(plot);
+        firstAncestorOrThisOfType(plot);
         plot->updateYAxisUnit();
     }
 }

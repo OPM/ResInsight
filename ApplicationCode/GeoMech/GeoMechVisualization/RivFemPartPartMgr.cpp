@@ -291,7 +291,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         }
 
         RimView* view = NULL;
-        cellResultColors->firstAnchestorOrThisOfType(view);
+        cellResultColors->firstAncestorOrThisOfType(view);
         CVF_ASSERT(view);
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), 

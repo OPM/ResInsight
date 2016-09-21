@@ -321,7 +321,7 @@ QString RimSummaryCurve::createCurveAutoName()
 void RimSummaryCurve::updateZoomInParentPlot()
 {
     RimSummaryPlot* plot = nullptr;
-    firstAnchestorOrThisOfType(plot);
+    firstAncestorOrThisOfType(plot);
 
     plot->updateZoom(); 
 }
@@ -407,13 +407,13 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         this->loadDataAndUpdate();
 
         RimSummaryPlot* plot = nullptr;
-        firstAnchestorOrThisOfType(plot);
+        firstAncestorOrThisOfType(plot);
         plot->updateYAxisUnit();
     } 
     else if (&m_showCurve == changedField)
     {
         RimSummaryPlot* plot = nullptr;
-        firstAnchestorOrThisOfType(plot);
+        firstAncestorOrThisOfType(plot);
         plot->updateYAxisUnit();
     }
     else if (changedField == &m_addCaseNameToCurveName)

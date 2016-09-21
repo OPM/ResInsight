@@ -150,7 +150,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
     RimView* view = NULL;
-    firstAnchestorOrThisOfType(view);
+    firstAncestorOrThisOfType(view);
 
     if (view->isMasterView())
     {
@@ -306,7 +306,7 @@ RigFemPartCollection* RimCellRangeFilterCollection::femPartColl() const
 RimView* RimCellRangeFilterCollection::baseView() const
 {
     RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
+    firstAncestorOrThisOfType(rimView);
 
     return rimView;
 }

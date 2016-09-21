@@ -96,7 +96,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         }
 
         RimWellLogPlot* wellLogPlot;
-        this->firstAnchestorOrThisOfType(wellLogPlot);
+        this->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
@@ -239,7 +239,7 @@ void RimWellLogTrack::loadDataAndUpdate()
     CVF_ASSERT(m_wellLogTrackPlotWidget);
 
     RimWellLogPlot* wellLogPlot;
-    firstAnchestorOrThisOfType(wellLogPlot);
+    firstAncestorOrThisOfType(wellLogPlot);
     if (wellLogPlot)
     {
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
@@ -287,7 +287,7 @@ void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
     if (m_wellLogTrackPlotWidget)
     {
         RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
+        firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
            wellLogPlot->updateDepthZoom();
