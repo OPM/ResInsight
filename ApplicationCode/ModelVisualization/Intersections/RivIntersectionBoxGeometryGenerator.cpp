@@ -195,6 +195,14 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimIntersectionBox* RivIntersectionBoxGeometryGenerator::intersectionBox() const
+{
+    return m_intersectionBoxDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxGeometryGenerator::calculateArrays()
 {
     if(m_triangleVxes->size()) return;

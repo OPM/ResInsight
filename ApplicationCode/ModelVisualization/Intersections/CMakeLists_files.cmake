@@ -10,6 +10,8 @@ ${CEE_CURRENT_LIST_DIR}RivIntersectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivIntersectionSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivHexGridIntersectionTools.h
 ${CEE_CURRENT_LIST_DIR}RivIntersectionBoxGeometryGenerator.h
+${CEE_CURRENT_LIST_DIR}RivIntersectionBoxPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivIntersectionBoxSourceInfo.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +20,8 @@ ${CEE_CURRENT_LIST_DIR}RivIntersectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivIntersectionSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivHexGridIntersectionTools.cpp
 ${CEE_CURRENT_LIST_DIR}RivIntersectionBoxGeometryGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivIntersectionBoxPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivIntersectionBoxSourceInfo.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

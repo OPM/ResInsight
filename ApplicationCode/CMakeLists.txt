@@ -392,8 +392,10 @@ if(RESINSIGHT_ENABLE_COTIRE)
     set_source_files_properties (UnitTests/opm-parser-Test.cpp                              PROPERTIES COTIRE_EXCLUDED TRUE)
  
     # variables at global file scope
-    set_source_files_properties (ModelVisualization/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ModelVisualization/RivIntersectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionBoxPartMgr.cpp           PROPERTIES COTIRE_EXCLUDED TRUE)
+    
     set_source_files_properties (ModelVisualization/GridBox/RivGridBoxGenerator.cpp         PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (Commands/WellLogCommands/RicWellLogPlotCurveFeatureImpl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
 

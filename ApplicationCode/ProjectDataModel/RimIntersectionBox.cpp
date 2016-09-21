@@ -19,6 +19,7 @@
 #include "RimIntersectionBox.h"
 
 #include "RimView.h"
+#include "RivIntersectionBoxPartMgr.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -102,6 +103,16 @@ void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RivIntersectionBoxPartMgr* RimIntersectionBox::intersectionBoxPartMgr()
+{
+    if (m_intersectionBoxPartMgr.isNull()) m_intersectionBoxPartMgr = new RivIntersectionBoxPartMgr(this);
+
+    return m_intersectionBoxPartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &isActive)
@@ -173,6 +184,8 @@ caf::PdmFieldHandle* RimIntersectionBox::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
 {
+    m_intersectionBoxPartMgr = nullptr;
+
     RimView* rimView = NULL;
     this->firstAnchestorOrThisOfType(rimView);
     if (rimView)

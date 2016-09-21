@@ -23,6 +23,7 @@
 
 #include "cvfBoundingBox.h"
 
+class RivIntersectionBoxPartMgr;
 
 //==================================================================================================
 //
@@ -43,6 +44,9 @@ public:
 
     cvf::Mat4d                      boxOrigin() const;
     cvf::Vec3d                      boxSize()   const;
+
+    RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
+
 
     void                            setModelBoundingBox(cvf::BoundingBox& boundingBox);
 
@@ -67,5 +71,7 @@ private:
     caf::PdmField<double>           maxZCoord;
 
 
-    cvf::BoundingBox                m_boundingBox;
+    cvf::BoundingBox                        m_boundingBox;
+
+    cvf::ref<RivIntersectionBoxPartMgr>     m_intersectionBoxPartMgr;
 };

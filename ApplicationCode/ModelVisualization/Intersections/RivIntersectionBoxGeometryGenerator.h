@@ -56,7 +56,7 @@ public:
     const std::vector<size_t>&                       triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
-    //const RimCrossSection* crossSection() const;
+    const RimIntersectionBox* intersectionBox() const;
 
 private:
     void                                            calculateArrays();
