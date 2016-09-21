@@ -8,12 +8,16 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RivCrossSectionGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivCrossSectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivCrossSectionSourceInfo.h
+${CEE_CURRENT_LIST_DIR}RivHexGridIntersectionTools.h
+${CEE_CURRENT_LIST_DIR}RivIntersectionBoxGeometryGenerator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RivCrossSectionGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivCrossSectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivCrossSectionSourceInfo.cpp
+${CEE_CURRENT_LIST_DIR}RivHexGridIntersectionTools.cpp
+${CEE_CURRENT_LIST_DIR}RivIntersectionBoxGeometryGenerator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
