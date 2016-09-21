@@ -255,7 +255,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 commandIds << "RicNewWellLogFileCurveFeature";
                 commandIds << "RicNewWellLogCurveExtractionFeature";
-                commandIds << "RicNewWellPathCrossSectionFeature";
+                commandIds << "RicNewWellPathIntersectionFeature";
             }
         }
 

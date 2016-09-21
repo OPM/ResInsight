@@ -213,7 +213,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
-            commandIds << "RicNewWellPathCrossSectionFeature";
+            commandIds << "RicNewWellPathIntersectionFeature";
             commandIds << "RicWellPathDeleteFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))

@@ -30,11 +30,11 @@ class RimWellPath;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellPathCrossSectionFeatureCmd : public caf::CmdExecuteCommand
+class RicNewWellPathIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewWellPathCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath);
-    virtual ~RicNewWellPathCrossSectionFeatureCmd();
+    RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath);
+    virtual ~RicNewWellPathIntersectionFeatureCmd();
 
     virtual QString name();
     virtual void redo();
@@ -50,12 +50,12 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellPathCrossSectionFeature : public caf::CmdFeature
+class RicNewWellPathIntersectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
-    RicNewWellPathCrossSectionFeature();
+    RicNewWellPathIntersectionFeature();
 
 protected:
     // Overrides

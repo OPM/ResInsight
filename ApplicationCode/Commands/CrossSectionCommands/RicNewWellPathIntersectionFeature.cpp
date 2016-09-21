@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellPathCrossSectionFeature.h"
+#include "RicNewWellPathIntersectionFeature.h"
 
 #include "RiaApplication.h"
 
@@ -33,12 +33,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewWellPathCrossSectionFeature, "RicNewWellPathCrossSectionFeature");
+CAF_CMD_SOURCE_INIT(RicNewWellPathIntersectionFeature, "RicNewWellPathIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathCrossSectionFeature::RicNewWellPathCrossSectionFeature()
+RicNewWellPathIntersectionFeature::RicNewWellPathIntersectionFeature()
 {
 }
 
@@ -46,7 +46,7 @@ RicNewWellPathCrossSectionFeature::RicNewWellPathCrossSectionFeature()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathCrossSectionFeature::isCommandEnabled()
+bool RicNewWellPathIntersectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -54,7 +54,7 @@ bool RicNewWellPathCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathCrossSectionFeature::onActionTriggered(bool isChecked)
+void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 {
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
@@ -65,14 +65,14 @@ void RicNewWellPathCrossSectionFeature::onActionTriggered(bool isChecked)
 
     RimWellPath* wellPath = collection[0];
     
-    RicNewWellPathCrossSectionFeatureCmd* cmd = new RicNewWellPathCrossSectionFeatureCmd(activeView->crossSectionCollection, wellPath);
+    RicNewWellPathIntersectionFeatureCmd* cmd = new RicNewWellPathIntersectionFeatureCmd(activeView->crossSectionCollection, wellPath);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathCrossSectionFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellPathIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Intersection");
@@ -81,7 +81,7 @@ void RicNewWellPathCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathCrossSectionFeatureCmd::RicNewWellPathCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath)
+RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection),
     m_wellPath(wellPath)
@@ -91,14 +91,14 @@ RicNewWellPathCrossSectionFeatureCmd::RicNewWellPathCrossSectionFeatureCmd(RimIn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathCrossSectionFeatureCmd::~RicNewWellPathCrossSectionFeatureCmd()
+RicNewWellPathIntersectionFeatureCmd::~RicNewWellPathIntersectionFeatureCmd()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicNewWellPathCrossSectionFeatureCmd::name()
+QString RicNewWellPathIntersectionFeatureCmd::name()
 {
     return "Create Intersection From Well Path";
 }
@@ -106,7 +106,7 @@ QString RicNewWellPathCrossSectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathCrossSectionFeatureCmd::redo()
+void RicNewWellPathIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_crossSectionCollection);
     CVF_ASSERT(m_wellPath);
@@ -122,6 +122,6 @@ void RicNewWellPathCrossSectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathCrossSectionFeatureCmd::undo()
+void RicNewWellPathIntersectionFeatureCmd::undo()
 {
 }
