@@ -79,11 +79,11 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 //--------------------------------------------------------------------------------------------------
 
 bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane,
-    const cvf::Vec3d& p1, size_t p1Id,
-    const cvf::Vec3d& p2, size_t p2Id,
-    const cvf::Vec3d& p3, size_t p3Id,
-    ClipVx* newVx1, ClipVx* newVx2,
-    bool * isMostVxesOnPositiveSide)
+                                                         const cvf::Vec3d& p1, size_t p1Id,
+                                                         const cvf::Vec3d& p2, size_t p2Id,
+                                                         const cvf::Vec3d& p3, size_t p3Id,
+                                                         ClipVx* newVx1, ClipVx* newVx2,
+                                                         bool * isMostVxesOnPositiveSide)
 {
     int onPosSide[3];
     onPosSide[0] = plane.distanceSquared(p1) >= 0;
@@ -198,11 +198,12 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
 // The isTriangleEdgeCellContour bits refer to the edge after the corresponding triangle vertex.
 //--------------------------------------------------------------------------------------------------
 
-void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVxes,
-    const std::vector<bool> &isTriangleEdgeCellContour,
-    const cvf::Plane& p1Plane, const cvf::Plane& p2Plane,
-    std::vector<ClipVx> *clippedTriangleVxes,
-    std::vector<bool> *isClippedTriEdgeCellContour)
+void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx>& triangleVxes,
+                                                                     const std::vector<bool>&   isTriangleEdgeCellContour,
+                                                                     const cvf::Plane&          p1Plane, 
+                                                                     const cvf::Plane&          p2Plane,
+                                                                     std::vector<ClipVx>*       clippedTriangleVxes,
+                                                                     std::vector<bool>*         isClippedTriEdgeCellContour)
 {
     size_t triangleCount = triangleVxes.size() / 3;
 
@@ -217,11 +218,12 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
         newVx2OnP1.isVxIdsNative = false;
 
         bool isMostVxesOnPositiveSideOfP1 = false;
+
         bool isIntersectingP1 = planeTriangleIntersection(p1Plane,
-            triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
-            triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
-            triangleVxes[triVxIdx + 2].vx, triVxIdx + 2,
-            &newVx1OnP1, &newVx2OnP1, &isMostVxesOnPositiveSideOfP1);
+                                                          triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
+                                                          triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
+                                                          triangleVxes[triVxIdx + 2].vx, triVxIdx + 2,
+                                                          &newVx1OnP1, &newVx2OnP1, &isMostVxesOnPositiveSideOfP1);
 
         if (!isIntersectingP1 && !isMostVxesOnPositiveSideOfP1)
         {
@@ -233,24 +235,26 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
         newVx1OnP2.isVxIdsNative = false;
         ClipVx newVx2OnP2;
         newVx2OnP2.isVxIdsNative = false;
+
         bool isMostVxesOnPositiveSideOfP2 = false;
+
         bool isIntersectingP2 = planeTriangleIntersection(p2Plane,
-            triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
-            triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
-            triangleVxes[triVxIdx + 2].vx, triVxIdx + 2,
-            &newVx1OnP2, &newVx2OnP2, &isMostVxesOnPositiveSideOfP2);
+                                                          triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
+                                                          triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
+                                                          triangleVxes[triVxIdx + 2].vx, triVxIdx + 2,
+                                                          &newVx1OnP2, &newVx2OnP2, &isMostVxesOnPositiveSideOfP2);
 
         if (!isIntersectingP2 && !isMostVxesOnPositiveSideOfP2)
         {
             continue; // Discard triangle
         }
 
-        bool p1KeepAll = (!isIntersectingP1 && isMostVxesOnPositiveSideOfP1);
-        bool p2KeepAll = (!isIntersectingP2 && isMostVxesOnPositiveSideOfP2);
-        bool p1KeepQuad = (isIntersectingP1 && isMostVxesOnPositiveSideOfP1);
-        bool p2KeepQuad = (isIntersectingP2 && isMostVxesOnPositiveSideOfP2);
-        bool p1KeepTop = (isIntersectingP1 && !isMostVxesOnPositiveSideOfP1);
-        bool p2KeepTop = (isIntersectingP2 && !isMostVxesOnPositiveSideOfP2);
+        bool p1KeepAll  = (!isIntersectingP1 &&  isMostVxesOnPositiveSideOfP1);
+        bool p2KeepAll  = (!isIntersectingP2 &&  isMostVxesOnPositiveSideOfP2);
+        bool p1KeepQuad = ( isIntersectingP1 &&  isMostVxesOnPositiveSideOfP1);
+        bool p2KeepQuad = ( isIntersectingP2 &&  isMostVxesOnPositiveSideOfP2);
+        bool p1KeepTop  = ( isIntersectingP1 && !isMostVxesOnPositiveSideOfP1);
+        bool p2KeepTop  = ( isIntersectingP2 && !isMostVxesOnPositiveSideOfP2);
 
         if (p1KeepAll && p2KeepAll)
         {
