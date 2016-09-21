@@ -58,7 +58,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     RicExportToLasFileResampleUi featureUi;
     featureUi.exportFolder = defaultDir;
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    propertyDialog.resize(QSize(350, 200));
+    propertyDialog.resize(QSize(400, 200));
     
     if (propertyDialog.exec() == QDialog::Accepted &&
         !featureUi.exportFolder().isEmpty())

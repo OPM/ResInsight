@@ -31,7 +31,7 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi(void)
     CAF_PDM_InitField(&exportFolder,     "ExportFolder",     QString(), "Export Folder", "", "", "");
     exportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&activateResample, "ActivateResample", false,     "Resample Curve Data for Export", "", "", "");
+    CAF_PDM_InitField(&activateResample, "ActivateResample", false,     "Resample Curve Data", "", "", "");
     CAF_PDM_InitField(&resampleInterval, "ResampleInterval", 1.0,       "Resample Interval [m]", "", "", "");
 
     updateFieldVisibility();
