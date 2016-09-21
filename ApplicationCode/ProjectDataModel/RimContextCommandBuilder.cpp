@@ -351,7 +351,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExecuteScriptForCasesFeature";
         }
-        else if (dynamic_cast<RimWellLogCurve*>(uiItem))
+        else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
+                 dynamic_cast<RimWellLogTrack*>(uiItem) ||
+                 dynamic_cast<RimWellLogPlot*>(uiItem) ||
+                 dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
             commandIds << "RicExportToLasFileFeature";
         }

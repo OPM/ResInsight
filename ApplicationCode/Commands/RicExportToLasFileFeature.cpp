@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicExportToLasFileFeature::isCommandEnabled()
 {
-    return selectedWellLogPlotCurves().size() > 0;
+    return selectedWellLogCurves().size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellLogCurve*> curves = selectedWellLogPlotCurves();
+    std::vector<RimWellLogCurve*> curves = selectedWellLogCurves();
     if (curves.size() == 0) return;
 
     RiaApplication* app = RiaApplication::instance();
@@ -82,17 +82,42 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export To LAS File...");
+    actionToSetup->setText("Export To LAS Files...");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogCurve*> RicExportToLasFileFeature::selectedWellLogPlotCurves() const
+std::vector<RimWellLogCurve*> RicExportToLasFileFeature::selectedWellLogCurves() const
 {
-    std::vector<RimWellLogCurve*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    std::set<RimWellLogCurve*> curveSet;
 
-    return selection;
+    {
+        std::vector<caf::PdmUiItem*> selectedItems;
+        caf::SelectionManager::instance()->selectedItems(selectedItems);
+
+        for (auto selectedItem : selectedItems)
+        {
+            caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(selectedItem);
+            if (objHandle)
+            {
+                std::vector<RimWellLogCurve*> childCurves;
+                objHandle->descendantsIncludingThisOfType(childCurves);
+
+                for (auto curve : childCurves)
+                {
+                    curveSet.insert(curve);
+                }
+            }
+        }
+    }
+
+    std::vector<RimWellLogCurve*> allCurves;
+    for (auto curve : curveSet)
+    {
+        allCurves.push_back(curve);
+    }
+
+    return allCurves;
 }
 
