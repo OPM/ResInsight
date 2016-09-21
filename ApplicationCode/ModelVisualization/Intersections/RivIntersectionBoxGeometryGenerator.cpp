@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox, const RivCrossSectionHexGridIntf* grid)
+RivIntersectionBoxGeometryGenerator::RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox, const RivIntersectionHexGridInterface* grid)
     : m_crossSection(intersectionBox),
     m_hexGrid(grid)
 {
@@ -102,7 +102,7 @@ const std::vector<size_t>& RivIntersectionBoxGeometryGenerator::triangleToCellIn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RivVertexWeights>& RivIntersectionBoxGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+const std::vector<RivIntersectionVertexWeights>& RivIntersectionBoxGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
     CVF_ASSERT(m_triangleVxes->size());
     return m_triVxToCellCornerWeights;

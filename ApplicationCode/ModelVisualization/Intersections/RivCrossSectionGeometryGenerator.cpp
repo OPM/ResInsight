@@ -38,7 +38,7 @@
 RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
                                                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                                                     const cvf::Vec3d& extrusionDirection, 
-                                                                    const RivCrossSectionHexGridIntf* grid)
+                                                                    const RivIntersectionHexGridInterface* grid)
                                                                    : m_crossSection(crossSection),
                                                                    m_polyLines(polylines), 
                                                                    m_extrusionDirection(extrusionDirection), 
@@ -180,7 +180,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                         if (cvx.isVxIdsNative)
                         {
                             m_triVxToCellCornerWeights.push_back(
-                                RivVertexWeights(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1));
+                                RivIntersectionVertexWeights(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1));
                         }
                         else
                         {
@@ -188,7 +188,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
                             caf::HexGridIntersectionTools::ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
 
                             m_triVxToCellCornerWeights.push_back(
-                                RivVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
+                                RivIntersectionVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
                                 cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
                                 cvx.normDistFromEdgeVx1));
 
@@ -356,7 +356,7 @@ const std::vector<size_t>& RivCrossSectionGeometryGenerator::triangleToCellIndex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RivVertexWeights>& RivCrossSectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+const std::vector<RivIntersectionVertexWeights>& RivCrossSectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
     CVF_ASSERT(m_triangleVxes->size());
     return m_triVxToCellCornerWeights;

@@ -49,7 +49,7 @@ public:
     RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
                                      std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
-                                     const RivCrossSectionHexGridIntf* grid );
+                                     const RivIntersectionHexGridInterface* grid );
 
     ~RivCrossSectionGeometryGenerator();
 
@@ -63,7 +63,7 @@ public:
 
     // Mapping between cells and geometry
     const std::vector<size_t>&           triangleToCellIndex() const;
-    const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
+    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
     const RimCrossSection* crossSection() const;
 
@@ -73,7 +73,7 @@ private:
                                                const cvf::Vec3d extrDir,
                                                std::vector<cvf::Vec3d>* adjustedPolyline);
 
-    cvf::cref<RivCrossSectionHexGridIntf>      m_hexGrid;
+    cvf::cref<RivIntersectionHexGridInterface>      m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d> >     m_polyLines;
     cvf::Vec3d                  m_extrusionDirection;
 
@@ -81,7 +81,7 @@ private:
     cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
     cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
     std::vector<size_t>         m_triangleToCellIdxMap;
-    std::vector<RivVertexWeights> m_triVxToCellCornerWeights;
+    std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
 
     const RimCrossSection*      m_crossSection;
 };

@@ -42,7 +42,7 @@ class RivIntersectionBoxGeometryGenerator : public cvf::Object
 {
 public:
     RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox,
-        const RivCrossSectionHexGridIntf* grid);
+        const RivIntersectionHexGridInterface* grid);
 
     ~RivIntersectionBoxGeometryGenerator();
 
@@ -54,20 +54,20 @@ public:
 
     // Mapping between cells and geometry
     const std::vector<size_t>&           triangleToCellIndex() const;
-    const std::vector<RivVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
+    const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
     //const RimCrossSection* crossSection() const;
 
 private:
     void                        calculateArrays();
 
-    cvf::cref<RivCrossSectionHexGridIntf>      m_hexGrid;
+    cvf::cref<RivIntersectionHexGridInterface>      m_hexGrid;
 
     // Output arrays
     cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
     cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
     std::vector<size_t>         m_triangleToCellIdxMap;
-    std::vector<RivVertexWeights> m_triVxToCellCornerWeights;
+    std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
 
     const RimIntersectionBox*      m_crossSection;
 };

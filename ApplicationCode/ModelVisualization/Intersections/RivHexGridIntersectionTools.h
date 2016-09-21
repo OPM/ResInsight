@@ -32,7 +32,7 @@ class RigMainGrid;
 //--------------------------------------------------------------------------------------------------
 /// Interface definition used to compute the geometry for planes intersecting a grid
 //--------------------------------------------------------------------------------------------------
-class RivCrossSectionHexGridIntf : public cvf::Object
+class RivIntersectionHexGridInterface : public cvf::Object
 {
 public:
     virtual cvf::Vec3d displayOffset() const = 0;
@@ -46,10 +46,10 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RivEclipseCrossSectionGrid : public RivCrossSectionHexGridIntf
+class RivEclipseIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells);
+    RivEclipseIntersectionGrid(const RigMainGrid * mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells);
 
     virtual cvf::Vec3d displayOffset() const;
     virtual cvf::BoundingBox boundingBox() const;
@@ -67,10 +67,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RivFemCrossSectionGrid : public RivCrossSectionHexGridIntf
+class RivFemIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    RivFemCrossSectionGrid(const RigFemPart * femPart);
+    RivFemIntersectionGrid(const RigFemPart * femPart);
 
     virtual cvf::Vec3d displayOffset() const;
     virtual cvf::BoundingBox boundingBox() const;
@@ -87,10 +87,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RivVertexWeights
+class RivIntersectionVertexWeights
 {
 public:
-    explicit RivVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1,
+    explicit RivIntersectionVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1,
         size_t edge2Vx1, size_t edge2Vx2, double normDistFromE2V1,
         double normDistFromE1Cut) : m_count(4)
     {
@@ -105,7 +105,7 @@ public:
         m_weights[3] = ((float)(normDistFromE2V1*normDistFromE1Cut));
     }
 
-    explicit RivVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1) : m_count(2)
+    explicit RivIntersectionVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1) : m_count(2)
     {
         m_vxIds[0] = (edge1Vx1);
         m_vxIds[1] = (edge1Vx2);
