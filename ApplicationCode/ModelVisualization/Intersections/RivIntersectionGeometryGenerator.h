@@ -43,15 +43,15 @@ namespace cvf
 }
 
 
-class RivCrossSectionGeometryGenerator : public cvf::Object
+class RivIntersectionGeometryGenerator : public cvf::Object
 {
 public:
-    RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
+    RivIntersectionGeometryGenerator(const RimCrossSection* crossSection,
                                      std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
                                      const RivIntersectionHexGridInterface* grid );
 
-    ~RivCrossSectionGeometryGenerator();
+    ~RivIntersectionGeometryGenerator();
 
     bool                        isAnyGeometryPresent() const;
  

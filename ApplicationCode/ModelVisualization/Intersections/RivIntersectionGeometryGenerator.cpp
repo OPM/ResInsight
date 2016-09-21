@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivCrossSectionGeometryGenerator.h"
+#include "RivIntersectionGeometryGenerator.h"
 
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
+RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator(const RimCrossSection* crossSection,
                                                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                                                     const cvf::Vec3d& extrusionDirection, 
                                                                     const RivIntersectionHexGridInterface* grid)
@@ -51,7 +51,7 @@ RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const RimCros
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::~RivCrossSectionGeometryGenerator()
+RivIntersectionGeometryGenerator::~RivIntersectionGeometryGenerator()
 {
 
 }
@@ -59,7 +59,7 @@ RivCrossSectionGeometryGenerator::~RivCrossSectionGeometryGenerator()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionGeometryGenerator::calculateArrays()
+void RivIntersectionGeometryGenerator::calculateArrays()
 {
     if (m_triangleVxes->size()) return;
 
@@ -207,7 +207,7 @@ void RivCrossSectionGeometryGenerator::calculateArrays()
 /// Generate surface drawable geo from the specified region
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::generateSurface()
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::generateSurface()
 {
     calculateArrays();
 
@@ -225,7 +225,7 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::generateSurface()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createMeshDrawable()
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createMeshDrawable()
 {
     if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return NULL;
 
@@ -244,7 +244,7 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createMeshDrawable(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createLineAlongPolylineDrawable()
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPolylineDrawable()
 {
     std::vector<cvf::uint> lineIndices;
     std::vector<cvf::Vec3f> vertices;
@@ -287,7 +287,7 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createLineAlongPoly
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createPointsFromPolylineDrawable()
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPolylineDrawable()
 {
     std::vector<cvf::Vec3f> vertices;
 
@@ -321,7 +321,7 @@ cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createPointsFromPol
 //--------------------------------------------------------------------------------------------------
 /// Remove the lines from the polyline that is nearly parallel to the extrusion direction
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionGeometryGenerator::adjustPolyline(const std::vector<cvf::Vec3d>& polyLine, 
+void RivIntersectionGeometryGenerator::adjustPolyline(const std::vector<cvf::Vec3d>& polyLine, 
                                                       const cvf::Vec3d extrDir,
                                                       std::vector<cvf::Vec3d>* adjustedPolyline)
 {
@@ -347,7 +347,7 @@ void RivCrossSectionGeometryGenerator::adjustPolyline(const std::vector<cvf::Vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivCrossSectionGeometryGenerator::triangleToCellIndex() const
+const std::vector<size_t>& RivIntersectionGeometryGenerator::triangleToCellIndex() const
 {
     CVF_ASSERT(m_triangleVxes->size());
     return m_triangleToCellIdxMap;
@@ -356,7 +356,7 @@ const std::vector<size_t>& RivCrossSectionGeometryGenerator::triangleToCellIndex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RivIntersectionVertexWeights>& RivCrossSectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+const std::vector<RivIntersectionVertexWeights>& RivIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
     CVF_ASSERT(m_triangleVxes->size());
     return m_triVxToCellCornerWeights;
@@ -365,7 +365,7 @@ const std::vector<RivIntersectionVertexWeights>& RivCrossSectionGeometryGenerato
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimCrossSection* RivCrossSectionGeometryGenerator::crossSection() const
+const RimCrossSection* RivIntersectionGeometryGenerator::crossSection() const
 {
     return m_crossSection;
 }
@@ -373,7 +373,7 @@ const RimCrossSection* RivCrossSectionGeometryGenerator::crossSection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RivCrossSectionGeometryGenerator::isAnyGeometryPresent() const
+bool RivIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
     if (m_triangleVxes->size() == 0)
     {

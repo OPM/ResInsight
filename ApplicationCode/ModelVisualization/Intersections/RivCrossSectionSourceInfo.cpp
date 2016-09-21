@@ -19,13 +19,13 @@
 
 #include "RivCrossSectionSourceInfo.h"
 
-#include "RivCrossSectionGeometryGenerator.h"
+#include "RivIntersectionGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionSourceInfo::RivCrossSectionSourceInfo(RivCrossSectionGeometryGenerator* geometryGenerator)
+RivCrossSectionSourceInfo::RivCrossSectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator)
     : m_crossSectionGeometryGenerator(geometryGenerator)
 {
     CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());

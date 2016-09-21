@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RivCrossSectionGeometryGenerator.h"
+#include "RivIntersectionGeometryGenerator.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -80,7 +80,7 @@ private:
 
     cvf::Color3f                m_defaultColor;
 
-    cvf::ref<RivCrossSectionGeometryGenerator>   m_crossSectionGenerator;
+    cvf::ref<RivIntersectionGeometryGenerator>   m_crossSectionGenerator;
     cvf::ref<cvf::Part>         m_crossSectionFaces;
     cvf::ref<cvf::Part>         m_crossSectionGridLines;
     cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
