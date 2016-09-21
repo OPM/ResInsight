@@ -42,33 +42,33 @@ class RivIntersectionBoxGeometryGenerator : public cvf::Object
 {
 public:
     RivIntersectionBoxGeometryGenerator(const RimIntersectionBox* intersectionBox,
-        const RivIntersectionHexGridInterface* grid);
+                                        const RivIntersectionHexGridInterface* grid);
 
     ~RivIntersectionBoxGeometryGenerator();
 
-    bool                        isAnyGeometryPresent() const;
-
-    // Generate geometry
-    cvf::ref<cvf::DrawableGeo>  generateSurface();
-    cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
+    bool                                             isAnyGeometryPresent() const;
+                                                     
+    // Generate geometry                             
+    cvf::ref<cvf::DrawableGeo>                       generateSurface();
+    cvf::ref<cvf::DrawableGeo>                       createMeshDrawable();
 
     // Mapping between cells and geometry
-    const std::vector<size_t>&           triangleToCellIndex() const;
+    const std::vector<size_t>&                       triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
     //const RimCrossSection* crossSection() const;
 
 private:
-    void                        calculateArrays();
+    void                                            calculateArrays();
 
     cvf::cref<RivIntersectionHexGridInterface>      m_hexGrid;
 
     // Output arrays
-    cvf::ref<cvf::Vec3fArray>   m_triangleVxes;
-    cvf::ref<cvf::Vec3fArray>   m_cellBorderLineVxes;
-    std::vector<size_t>         m_triangleToCellIdxMap;
-    std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
+    cvf::ref<cvf::Vec3fArray>                       m_triangleVxes;
+    cvf::ref<cvf::Vec3fArray>                       m_cellBorderLineVxes;
+    std::vector<size_t>                             m_triangleToCellIdxMap;
+    std::vector<RivIntersectionVertexWeights>       m_triVxToCellCornerWeights;
 
-    const RimIntersectionBox*      m_crossSection;
+    const RimIntersectionBox*                       m_intersectionBoxDefinition;
 };
 

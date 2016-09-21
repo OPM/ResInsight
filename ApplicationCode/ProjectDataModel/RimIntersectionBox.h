@@ -38,10 +38,13 @@ public:
     ~RimIntersectionBox();
 
     // Fields
-    caf::PdmField<QString>                               name;
-    caf::PdmField<bool>                                  isActive;
+    caf::PdmField<QString>          name;
+    caf::PdmField<bool>             isActive;
 
-    void setModelBoundingBox(cvf::BoundingBox& boundingBox);
+    cvf::Mat4d                      boxOrigin() const;
+    cvf::Vec3d                      boxSize()   const;
+
+    void                            setModelBoundingBox(cvf::BoundingBox& boundingBox);
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
@@ -55,14 +58,14 @@ private:
     void                            rebuildGeometryAndScheduleCreateDisplayModel();
 
 private:
-    caf::PdmField<double>                                minXCoord;
-    caf::PdmField<double>                                minYCoord;
-    caf::PdmField<double>                                minZCoord;
+    caf::PdmField<double>           minXCoord;
+    caf::PdmField<double>           minYCoord;
+    caf::PdmField<double>           minZCoord;
 
-    caf::PdmField<double>                                maxXCoord;
-    caf::PdmField<double>                                maxYCoord;
-    caf::PdmField<double>                                maxZCoord;
+    caf::PdmField<double>           maxXCoord;
+    caf::PdmField<double>           maxYCoord;
+    caf::PdmField<double>           maxZCoord;
 
 
-    cvf::BoundingBox                        m_boundingBox;
+    cvf::BoundingBox                m_boundingBox;
 };

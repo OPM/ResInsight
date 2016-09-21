@@ -67,6 +67,24 @@ RimIntersectionBox::~RimIntersectionBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Mat4d RimIntersectionBox::boxOrigin() const
+{
+    cvf::Mat4d mx(cvf::Mat4d::IDENTITY);
+    mx.setTranslation(cvf::Vec3d(minXCoord, minYCoord, minZCoord));
+    return mx;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimIntersectionBox::boxSize() const
+{
+    return cvf::Vec3d(maxXCoord, maxYCoord, maxZCoord) - cvf::Vec3d(minXCoord, minYCoord, minZCoord);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
 {
     m_boundingBox = boundingBox;
