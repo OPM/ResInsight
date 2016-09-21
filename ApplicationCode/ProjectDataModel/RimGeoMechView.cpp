@@ -30,7 +30,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"

@@ -20,7 +20,7 @@
 #include "RicAppendCrossSectionFeature.h"
 
 #include "RimIntersection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -48,7 +48,7 @@ void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimCrossSectionCollection* crossSectionCollection = NULL;
+    RimIntersectionCollection* crossSectionCollection = NULL;
     collection[0]->firstAnchestorOrThisOfType(crossSectionCollection);
 
     CVF_ASSERT(crossSectionCollection);
@@ -69,7 +69,7 @@ void RicAppendCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicAppendCrossSectionFeatureCmd::RicAppendCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection)
+RicAppendCrossSectionFeatureCmd::RicAppendCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection)
 {

@@ -37,13 +37,13 @@ namespace cvf {
 // 
 //
 //==================================================================================================
-class RimCrossSectionCollection : public caf::PdmObject
+class RimIntersectionCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCrossSectionCollection();
-    ~RimCrossSectionCollection();
+    RimIntersectionCollection();
+    ~RimIntersectionCollection();
 
     caf::PdmField<bool> isActive;
 

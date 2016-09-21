@@ -23,7 +23,7 @@
 
 #include "RimCase.h"
 #include "RimIntersection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimView.h"
 
 #include "RiuMainWindow.h"
@@ -109,7 +109,7 @@ bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineCrossSectionFeatureCmd::RicNewPolylineCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection)
+RicNewPolylineCrossSectionFeatureCmd::RicNewPolylineCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection)
 {

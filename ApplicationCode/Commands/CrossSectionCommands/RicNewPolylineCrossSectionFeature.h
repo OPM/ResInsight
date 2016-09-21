@@ -28,7 +28,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-class RimCrossSectionCollection;
+class RimIntersectionCollection;
 
 
 //==================================================================================================
@@ -37,7 +37,7 @@ class RimCrossSectionCollection;
 class RicNewPolylineCrossSectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewPolylineCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection);
+    RicNewPolylineCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
     virtual ~RicNewPolylineCrossSectionFeatureCmd();
 
     virtual QString name();
@@ -45,7 +45,7 @@ public:
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimCrossSectionCollection> m_crossSectionCollection;
+    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
 };
 
 

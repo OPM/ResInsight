@@ -7,7 +7,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
@@ -125,7 +125,7 @@ RimView::RimView(void)
 
     CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
     crossSectionCollection.uiCapability()->setUiHidden(true);
-    crossSectionCollection = new RimCrossSectionCollection();
+    crossSectionCollection = new RimIntersectionCollection();
 
     CAF_PDM_InitFieldNoDefault(&intersectionBoxCollection, "IntersectionBoxes", "Intersection Boxes", "", "", "");
     intersectionBoxCollection.uiCapability()->setUiHidden(true);

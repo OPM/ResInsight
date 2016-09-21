@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RimIntersection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimWellPath.h"
 #include "RimView.h"
 
@@ -81,7 +81,7 @@ void RicNewWellPathCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathCrossSectionFeatureCmd::RicNewWellPathCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection, RimWellPath* wellPath)
+RicNewWellPathCrossSectionFeatureCmd::RicNewWellPathCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection),
     m_wellPath(wellPath)

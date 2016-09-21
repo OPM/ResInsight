@@ -33,7 +33,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimIntersection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"

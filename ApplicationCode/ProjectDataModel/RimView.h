@@ -44,7 +44,7 @@ class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
-class RimCrossSectionCollection;
+class RimIntersectionCollection;
 class RimGridCollection;
 class RimIntersectionBoxCollection;
 class RimPropertyFilterCollection;
@@ -97,7 +97,7 @@ public:
     void                                    replaceRangeFilterCollectionWithOverride();
 
 
-    caf::PdmChildField<RimCrossSectionCollection*>      crossSectionCollection;
+    caf::PdmChildField<RimIntersectionCollection*>      crossSectionCollection;
     caf::PdmChildField<RimIntersectionBoxCollection*>   intersectionBoxCollection;
 
     // Draw style 

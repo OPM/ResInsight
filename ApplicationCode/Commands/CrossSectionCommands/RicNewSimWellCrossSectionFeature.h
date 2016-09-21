@@ -23,7 +23,7 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-class RimCrossSectionCollection;
+class RimIntersectionCollection;
 class RimEclipseWell;
 
 
@@ -33,7 +33,7 @@ class RimEclipseWell;
 class RicNewSimWellCrossSectionCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewSimWellCrossSectionCmd(RimCrossSectionCollection* crossSectionCollection, RimEclipseWell* simWell);
+    RicNewSimWellCrossSectionCmd(RimIntersectionCollection* crossSectionCollection, RimEclipseWell* simWell);
     virtual ~RicNewSimWellCrossSectionCmd();
 
     virtual QString name();
@@ -41,7 +41,7 @@ public:
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimCrossSectionCollection> m_crossSectionCollection;
+    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
     caf::PdmPointer<RimEclipseWell> m_wellPath;
 };
 

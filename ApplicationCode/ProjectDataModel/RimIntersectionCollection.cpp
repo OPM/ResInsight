@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 
 #include "RimIntersection.h"
 #include "RimEclipseWell.h"
@@ -28,12 +28,12 @@
 #include "RivIntersectionPartMgr.h"
 
 
-CAF_PDM_SOURCE_INIT(RimCrossSectionCollection, "CrossSectionCollection");
+CAF_PDM_SOURCE_INIT(RimIntersectionCollection, "CrossSectionCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCrossSectionCollection::RimCrossSectionCollection()
+RimIntersectionCollection::RimIntersectionCollection()
 {
     CAF_PDM_InitObject("Intersections", ":/CrossSections16x16.png", "", "");
 
@@ -47,7 +47,7 @@ RimCrossSectionCollection::RimCrossSectionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCrossSectionCollection::~RimCrossSectionCollection()
+RimIntersectionCollection::~RimIntersectionCollection()
 {
     m_crossSections.deleteAllChildObjects();
 }
@@ -55,7 +55,7 @@ RimCrossSectionCollection::~RimCrossSectionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCrossSectionCollection::objectToggleField()
+caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 {
     return &isActive;
 }
@@ -63,7 +63,7 @@ caf::PdmFieldHandle* RimCrossSectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::applySingleColorEffect()
+void RimIntersectionCollection::applySingleColorEffect()
 {
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
@@ -78,7 +78,7 @@ void RimCrossSectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex)
+void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex)
 {
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
@@ -93,7 +93,7 @@ void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (!isActive) return;
 
@@ -116,7 +116,7 @@ void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::appendCrossSection(RimIntersection* crossSection)
+void RimIntersectionCollection::appendCrossSection(RimIntersection* crossSection)
 {
     m_crossSections.push_back(crossSection);
 
@@ -134,7 +134,7 @@ void RimCrossSectionCollection::appendCrossSection(RimIntersection* crossSection
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &isActive)
     {
@@ -150,7 +150,7 @@ void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCrossSectionCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
+bool RimIntersectionCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
 {
     if (!isActive) return false;
 

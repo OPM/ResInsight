@@ -20,7 +20,7 @@
 #include "RicNewSimWellCrossSectionFeature.h"
 
 #include "RimIntersection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 
@@ -72,7 +72,7 @@ void RicNewSimWellCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellCrossSectionCmd::RicNewSimWellCrossSectionCmd(RimCrossSectionCollection* crossSectionCollection, RimEclipseWell* simWell)
+RicNewSimWellCrossSectionCmd::RicNewSimWellCrossSectionCmd(RimIntersectionCollection* crossSectionCollection, RimEclipseWell* simWell)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection),
     m_wellPath(simWell)
