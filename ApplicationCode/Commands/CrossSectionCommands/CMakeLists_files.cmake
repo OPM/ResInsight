@@ -6,16 +6,16 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicAppendIntersectionFeature.h
-${CEE_CURRENT_LIST_DIR}RicNewSimWellCrossSectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewSimWellIntersectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathIntersectionFeature.h
-${CEE_CURRENT_LIST_DIR}RicNewPolylineCrossSectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewPolylineIntersectionFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicAppendIntersectionFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicNewSimWellCrossSectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewSimWellIntersectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathIntersectionFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicNewPolylineCrossSectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewPolylineIntersectionFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -95,7 +95,7 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
       m_currentCellIndex(-1)  
 {
     {
-        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineCrossSectionFeature");
+        caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineIntersectionFeature");
         CVF_ASSERT(cmdFeature);
 
         m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(cmdFeature));
@@ -267,7 +267,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
-                commandIds << "RicNewSimWellCrossSectionFeature";
+                commandIds << "RicNewSimWellIntersectionFeature";
             }
         }
 
@@ -282,7 +282,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         commandIds << "RicSetMasterViewFeature";
     }
 
-    commandIds << "RicNewPolylineCrossSectionFeature";
+    commandIds << "RicNewPolylineIntersectionFeature";
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 

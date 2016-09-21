@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolylineCrossSectionFeature.h"
+#include "RicNewPolylineIntersectionFeature.h"
 
 #include "RiaApplication.h"
 
@@ -36,12 +36,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewPolylineCrossSectionFeature, "RicNewPolylineCrossSectionFeature");
+CAF_CMD_SOURCE_INIT(RicNewPolylineIntersectionFeature, "RicNewPolylineIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineCrossSectionFeature::RicNewPolylineCrossSectionFeature()
+RicNewPolylineIntersectionFeature::RicNewPolylineIntersectionFeature()
 {
 }
 
@@ -49,7 +49,7 @@ RicNewPolylineCrossSectionFeature::RicNewPolylineCrossSectionFeature()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineCrossSectionFeature::isCommandEnabled()
+bool RicNewPolylineIntersectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -57,19 +57,19 @@ bool RicNewPolylineCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineCrossSectionFeature::onActionTriggered(bool isChecked)
+void RicNewPolylineIntersectionFeature::onActionTriggered(bool isChecked)
 {
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
    
-    RicNewPolylineCrossSectionFeatureCmd* cmd = new RicNewPolylineCrossSectionFeatureCmd(activeView->crossSectionCollection);
+    RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(activeView->crossSectionCollection);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineCrossSectionFeature::setupActionLook(QAction* actionToSetup)
+void RicNewPolylineIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Polyline Intersection");
@@ -78,7 +78,7 @@ void RicNewPolylineCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
+bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
 {
     std::vector<RimIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -109,7 +109,7 @@ bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineCrossSectionFeatureCmd::RicNewPolylineCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
+RicNewPolylineIntersectionFeatureCmd::RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection)
 {
@@ -118,14 +118,14 @@ RicNewPolylineCrossSectionFeatureCmd::RicNewPolylineCrossSectionFeatureCmd(RimIn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineCrossSectionFeatureCmd::~RicNewPolylineCrossSectionFeatureCmd()
+RicNewPolylineIntersectionFeatureCmd::~RicNewPolylineIntersectionFeatureCmd()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicNewPolylineCrossSectionFeatureCmd::name()
+QString RicNewPolylineIntersectionFeatureCmd::name()
 {
     return "Start Polyline Intersection";
 }
@@ -133,7 +133,7 @@ QString RicNewPolylineCrossSectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineCrossSectionFeatureCmd::redo()
+void RicNewPolylineIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_crossSectionCollection);
 
@@ -152,6 +152,6 @@ void RicNewPolylineCrossSectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineCrossSectionFeatureCmd::undo()
+void RicNewPolylineIntersectionFeatureCmd::undo()
 {
 }

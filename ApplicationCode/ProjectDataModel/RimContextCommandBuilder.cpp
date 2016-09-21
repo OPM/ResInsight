@@ -321,7 +321,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
-            commandIds << "RicNewSimWellCrossSectionFeature";
+            commandIds << "RicNewSimWellIntersectionFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {

@@ -19,22 +19,26 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RicViewerEventInterface.h"
+
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
 class RimIntersectionCollection;
-class RimEclipseWell;
 
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSimWellCrossSectionCmd : public caf::CmdExecuteCommand
+class RicNewPolylineIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewSimWellCrossSectionCmd(RimIntersectionCollection* crossSectionCollection, RimEclipseWell* simWell);
-    virtual ~RicNewSimWellCrossSectionCmd();
+    RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
+    virtual ~RicNewPolylineIntersectionFeatureCmd();
 
     virtual QString name();
     virtual void redo();
@@ -42,7 +46,6 @@ public:
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
-    caf::PdmPointer<RimEclipseWell> m_wellPath;
 };
 
 
@@ -50,15 +53,20 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSimWellCrossSectionFeature : public caf::CmdFeature
+class RicNewPolylineIntersectionFeature : public caf::CmdFeature, public RicViewerEventInterface
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    RicNewPolylineIntersectionFeature();
 
 protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
+
+    virtual bool handleEvent(cvf::Object* eventObject);
 };
 
 
