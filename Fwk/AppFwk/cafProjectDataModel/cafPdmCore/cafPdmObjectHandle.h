@@ -35,6 +35,11 @@ public:
     template <typename T>
     void                    firstAnchestorOrThisOfType(T*& ancestor) const;
 
+    /// Traverses all children recursively to find objects of the requested type. This object is also 
+    /// included if it is of the requested type.
+    template <typename T>
+    void                    descendantsIncludingThisOfType(std::vector<T*>& descendants) const;
+
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle 
@@ -145,6 +150,30 @@ void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
         else
         {
             parent = NULL;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::descendantsIncludingThisOfType(std::vector<T*>& descendants) const
+{
+    const T* objectOfType = dynamic_cast<const T*>(this);
+    if (objectOfType)
+    {
+        descendants.push_back(const_cast<T*>(objectOfType));
+    }
+
+    for (auto f : m_fields)
+    {
+        std::vector<PdmObjectHandle*> childObjects;
+        f->childObjects(&childObjects);
+
+        for (auto childObject : childObjects)
+        {
+            childObject->descendantsIncludingThisOfType(descendants);
         }
     }
 }
