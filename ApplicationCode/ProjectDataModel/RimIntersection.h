@@ -39,7 +39,7 @@ class RivIntersectionPartMgr;
 // 
 //
 //==================================================================================================
-class RimCrossSection : public caf::PdmObject
+class RimIntersection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -58,8 +58,8 @@ public:
     };
 
 public:
-    RimCrossSection();
-    ~RimCrossSection();
+    RimIntersection();
+    ~RimIntersection();
 
     caf::PdmField<QString>                               name;
     caf::PdmField<bool>                                  isActive;

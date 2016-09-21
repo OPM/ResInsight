@@ -34,7 +34,7 @@
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigResultAccessor;
-class RimCrossSection;
+class RimIntersection;
 
 namespace cvf
 {
@@ -46,7 +46,7 @@ namespace cvf
 class RivIntersectionGeometryGenerator : public cvf::Object
 {
 public:
-    RivIntersectionGeometryGenerator(const RimCrossSection* crossSection,
+    RivIntersectionGeometryGenerator(const RimIntersection* crossSection,
                                      std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                      const cvf::Vec3d& extrusionDirection, 
                                      const RivIntersectionHexGridInterface* grid );
@@ -65,7 +65,7 @@ public:
     const std::vector<size_t>&           triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
-    const RimCrossSection* crossSection() const;
+    const RimIntersection* crossSection() const;
 
 private:
     void                        calculateArrays();
@@ -83,6 +83,6 @@ private:
     std::vector<size_t>         m_triangleToCellIdxMap;
     std::vector<RivIntersectionVertexWeights> m_triVxToCellCornerWeights;
 
-    const RimCrossSection*      m_crossSection;
+    const RimIntersection*      m_crossSection;
 };
 

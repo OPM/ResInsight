@@ -37,7 +37,7 @@ namespace cvf
 class RigMainGrid;
 class RimEclipseCellColors;
 class RimCellEdgeColors;
-class RimCrossSection;
+class RimIntersection;
 
 //==================================================================================================
 ///
@@ -47,7 +47,7 @@ class RimCrossSection;
 class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    RivIntersectionPartMgr(const RimCrossSection* rimCrossSection);
+    RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
@@ -76,7 +76,7 @@ private:
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
 
-    const RimCrossSection*      m_rimCrossSection;
+    const RimIntersection*      m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
 

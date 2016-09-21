@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimCrossSectionCollection.h"
 #include "RimView.h"
 
@@ -80,7 +80,7 @@ void RicNewPolylineCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
 {
-    std::vector<RimCrossSection*> selection;
+    std::vector<RimIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     if (selection.size() == 1)
@@ -88,7 +88,7 @@ bool RicNewPolylineCrossSectionFeature::handleEvent(cvf::Object* eventObject)
         RicViewerEventObject* polylineUiEvent = dynamic_cast<RicViewerEventObject*>(eventObject);
         if (polylineUiEvent)
         {
-            RimCrossSection* crossSection = selection[0];
+            RimIntersection* crossSection = selection[0];
             if (crossSection->inputFromViewerEnabled())
             {
                 RimCase* rimCase = NULL;
@@ -137,9 +137,9 @@ void RicNewPolylineCrossSectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_crossSectionCollection);
 
-    RimCrossSection* crossSection = new RimCrossSection();
+    RimIntersection* crossSection = new RimIntersection();
     crossSection->name = "Polyline";
-    crossSection->type = RimCrossSection::CS_POLYLINE;
+    crossSection->type = RimIntersection::CS_POLYLINE;
     crossSection->inputFromViewerEnabled = true;
 
     m_crossSectionCollection->appendCrossSection(crossSection);

@@ -19,7 +19,7 @@
 
 #include "RicNewSimWellCrossSectionFeature.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimCrossSectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
@@ -102,9 +102,9 @@ void RicNewSimWellCrossSectionCmd::redo()
     CVF_ASSERT(m_crossSectionCollection);
     CVF_ASSERT(m_wellPath);
 
-    RimCrossSection* crossSection = new RimCrossSection();
+    RimIntersection* crossSection = new RimIntersection();
     crossSection->name = m_wellPath->name;
-    crossSection->type = RimCrossSection::CS_SIMULATION_WELL;
+    crossSection->type = RimIntersection::CS_SIMULATION_WELL;
     crossSection->simulationWell = m_wellPath;
 
     m_crossSectionCollection->appendCrossSection(crossSection);

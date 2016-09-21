@@ -19,7 +19,7 @@
 
 #include "RicAppendCrossSectionFeature.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimCrossSectionCollection.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -97,7 +97,7 @@ void RicAppendCrossSectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_crossSectionCollection);
 
-    RimCrossSection* crossSection = new RimCrossSection();
+    RimIntersection* crossSection = new RimIntersection();
     crossSection->name = QString("Intersection");
     m_crossSectionCollection->appendCrossSection(crossSection);
 }

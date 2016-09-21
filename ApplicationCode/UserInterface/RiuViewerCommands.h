@@ -25,7 +25,7 @@
 #include <QObject>
 #include <QPointer>
 
-class RimCrossSection;
+class RimIntersection;
 class RimEclipseView;
 class RimGeoMechView;
 class RimView;
@@ -76,7 +76,7 @@ private:
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
 
     caf::PdmPointer<RimView> m_reservoirView;
-    caf::PdmPointer<RimCrossSection> m_currentCrossSection;
+    caf::PdmPointer<RimIntersection> m_currentCrossSection;
 
     QPointer<RiuViewer> m_viewer;
 

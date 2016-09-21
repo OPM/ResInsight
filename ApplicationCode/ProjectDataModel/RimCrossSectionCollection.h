@@ -23,7 +23,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
-class RimCrossSection;
+class RimIntersection;
 class RimEclipseCellColors;
 class RimEclipseWell;
 
@@ -47,7 +47,7 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendCrossSection(RimCrossSection* crossSection);
+    void appendCrossSection(RimIntersection* crossSection);
 
     bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 
@@ -62,5 +62,5 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
 
 private:
-    caf::PdmChildArrayField<RimCrossSection*> m_crossSections;
+    caf::PdmChildArrayField<RimIntersection*> m_crossSections;
 };

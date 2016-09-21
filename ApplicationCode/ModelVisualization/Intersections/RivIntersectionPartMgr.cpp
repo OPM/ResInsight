@@ -27,7 +27,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr::RivIntersectionPartMgr(const RimCrossSection* rimCrossSection)
+RivIntersectionPartMgr::RivIntersectionPartMgr(const RimIntersection* rimCrossSection)
     : m_rimCrossSection(rimCrossSection),
     m_defaultColor(cvf::Color3::WHITE)
 {
@@ -338,7 +338,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
     m_highlightLineAlongPolyline = NULL;
     m_highlightPointsForPolyline = NULL;
 
-    if (m_rimCrossSection->type == RimCrossSection::CS_POLYLINE)
+    if (m_rimCrossSection->type == RimIntersection::CS_POLYLINE)
     {
         {
             cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable();
@@ -546,7 +546,7 @@ cvf::Vec3d RivIntersectionPartMgr::extrusionDirection(const std::vector<cvf::Vec
 
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
 
-    if (m_rimCrossSection->direction == RimCrossSection::CS_HORIZONTAL &&
+    if (m_rimCrossSection->direction == RimIntersection::CS_HORIZONTAL &&
         polyline.size() > 1)
     {
         // Use first and last point of polyline to approximate orientation of polyline

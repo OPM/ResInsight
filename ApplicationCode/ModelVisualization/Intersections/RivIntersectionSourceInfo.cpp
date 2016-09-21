@@ -44,7 +44,7 @@ const std::vector<size_t>& RivIntersectionSourceInfo::triangleToCellIndex() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimCrossSection* RivIntersectionSourceInfo::crossSection() const
+const RimIntersection* RivIntersectionSourceInfo::crossSection() const
 {
     return m_crossSectionGeometryGenerator->crossSection();
 }

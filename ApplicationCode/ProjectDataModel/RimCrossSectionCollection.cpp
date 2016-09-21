@@ -19,7 +19,7 @@
 
 #include "RimCrossSectionCollection.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimEclipseWell.h"
 #include "RimView.h"
 
@@ -67,7 +67,7 @@ void RimCrossSectionCollection::applySingleColorEffect()
 {
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
-        RimCrossSection* cs = m_crossSections[csIdx];
+        RimIntersection* cs = m_crossSections[csIdx];
         if (cs->isActive)
         {
             cs->crossSectionPartMgr()->applySingleColorEffect();
@@ -82,7 +82,7 @@ void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex)
 {
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
-        RimCrossSection* cs = m_crossSections[csIdx];
+        RimIntersection* cs = m_crossSections[csIdx];
         if (cs->isActive)
         {
             cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
@@ -99,7 +99,7 @@ void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
-        RimCrossSection* cs = m_crossSections[csIdx];
+        RimIntersection* cs = m_crossSections[csIdx];
         if (cs->isActive)
         {
             cs->crossSectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
@@ -116,7 +116,7 @@ void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::appendCrossSection(RimCrossSection* crossSection)
+void RimCrossSectionCollection::appendCrossSection(RimIntersection* crossSection)
 {
     m_crossSections.push_back(crossSection);
 
@@ -156,10 +156,10 @@ bool RimCrossSectionCollection::hasActiveCrossSectionForSimulationWell(RimEclips
 
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
-        RimCrossSection* cs = m_crossSections[csIdx];
+        RimIntersection* cs = m_crossSections[csIdx];
 
         if (cs->isActive &&
-            cs->type() == RimCrossSection::CS_SIMULATION_WELL &&
+            cs->type() == RimIntersection::CS_SIMULATION_WELL &&
             cs->simulationWell() == eclipseWell)
         {
             return true;

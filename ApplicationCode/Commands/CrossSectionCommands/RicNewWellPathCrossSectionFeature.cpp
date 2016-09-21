@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimCrossSectionCollection.h"
 #include "RimWellPath.h"
 #include "RimView.h"
@@ -111,9 +111,9 @@ void RicNewWellPathCrossSectionFeatureCmd::redo()
     CVF_ASSERT(m_crossSectionCollection);
     CVF_ASSERT(m_wellPath);
 
-    RimCrossSection* crossSection = new RimCrossSection();
+    RimIntersection* crossSection = new RimIntersection();
     crossSection->name = m_wellPath->name;
-    crossSection->type = RimCrossSection::CS_WELL_PATH;
+    crossSection->type = RimIntersection::CS_WELL_PATH;
     crossSection->wellPath = m_wellPath;
 
     m_crossSectionCollection->appendCrossSection(crossSection);

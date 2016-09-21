@@ -32,7 +32,7 @@
 
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -175,7 +175,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
-                m_currentCrossSection = const_cast<RimCrossSection*>(crossSectionSourceInfo->crossSection());
+                m_currentCrossSection = const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection());
 
                 menu.addAction(QString("Hide intersection"), this, SLOT(slotHideIntersection()));
             }

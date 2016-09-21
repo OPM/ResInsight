@@ -23,7 +23,7 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -303,7 +303,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAppendCrossSectionFeature";
         }
-        else if (dynamic_cast<RimCrossSection*>(uiItem))
+        else if (dynamic_cast<RimIntersection*>(uiItem))
         {
             commandIds << "RicAppendCrossSectionFeature";
             commandIds << "Separator";

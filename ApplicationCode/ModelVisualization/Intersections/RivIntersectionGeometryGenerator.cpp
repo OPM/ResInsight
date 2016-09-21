@@ -22,7 +22,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator(const RimCrossSection* crossSection,
+RivIntersectionGeometryGenerator::RivIntersectionGeometryGenerator(const RimIntersection* crossSection,
                                                                     std::vector<std::vector<cvf::Vec3d> > &polylines, 
                                                                     const cvf::Vec3d& extrusionDirection, 
                                                                     const RivIntersectionHexGridInterface* grid)
@@ -365,7 +365,7 @@ const std::vector<RivIntersectionVertexWeights>& RivIntersectionGeometryGenerato
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimCrossSection* RivIntersectionGeometryGenerator::crossSection() const
+const RimIntersection* RivIntersectionGeometryGenerator::crossSection() const
 {
     return m_crossSection;
 }
