@@ -54,7 +54,7 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
-#include "RivCrossSectionSourceInfo.h"
+#include "RivIntersectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
 #include "RivSourceInfo.h"
@@ -152,7 +152,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     {
         const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
         const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
-        const RivCrossSectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivCrossSectionSourceInfo*>(firstHitPart->sourceInfo());
+        const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
 
         if (rivSourceInfo || femSourceInfo || crossSectionSourceInfo)
         {
@@ -464,7 +464,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         {
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
-            const RivCrossSectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivCrossSectionSourceInfo*>(firstHitPart->sourceInfo());
+            const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -548,7 +548,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex(const RivCrossSectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex)
+void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex)
 {
     CVF_ASSERT(cellIndex && gridIndex);
 

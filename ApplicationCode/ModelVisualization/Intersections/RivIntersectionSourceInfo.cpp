@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivCrossSectionSourceInfo.h"
+#include "RivIntersectionSourceInfo.h"
 
 #include "RivIntersectionGeometryGenerator.h"
 
@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionSourceInfo::RivCrossSectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator)
+RivIntersectionSourceInfo::RivIntersectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator)
     : m_crossSectionGeometryGenerator(geometryGenerator)
 {
     CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());
@@ -34,7 +34,7 @@ RivCrossSectionSourceInfo::RivCrossSectionSourceInfo(RivIntersectionGeometryGene
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivCrossSectionSourceInfo::triangleToCellIndex() const
+const std::vector<size_t>& RivIntersectionSourceInfo::triangleToCellIndex() const
 {
     CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());
 
@@ -44,7 +44,7 @@ const std::vector<size_t>& RivCrossSectionSourceInfo::triangleToCellIndex() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimCrossSection* RivCrossSectionSourceInfo::crossSection() const
+const RimCrossSection* RivIntersectionSourceInfo::crossSection() const
 {
     return m_crossSectionGeometryGenerator->crossSection();
 }

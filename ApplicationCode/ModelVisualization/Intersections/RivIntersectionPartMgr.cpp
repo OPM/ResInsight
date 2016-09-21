@@ -37,7 +37,7 @@
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
-#include "RivCrossSectionSourceInfo.h"
+#include "RivIntersectionSourceInfo.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
@@ -300,7 +300,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivCrossSectionSourceInfo> si = new RivCrossSectionSourceInfo(m_crossSectionGenerator.p());
+            cvf::ref<RivIntersectionSourceInfo> si = new RivIntersectionSourceInfo(m_crossSectionGenerator.p());
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();

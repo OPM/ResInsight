@@ -26,10 +26,10 @@
 class RivIntersectionGeometryGenerator;
 class RimCrossSection;
 
-class RivCrossSectionSourceInfo : public cvf::Object
+class RivIntersectionSourceInfo : public cvf::Object
 {
 public:
-    RivCrossSectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator);
+    RivIntersectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator);
 
     const std::vector<size_t>& triangleToCellIndex() const;
 

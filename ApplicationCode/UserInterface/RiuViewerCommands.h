@@ -30,7 +30,7 @@ class RimEclipseView;
 class RimGeoMechView;
 class RimView;
 class RiuViewer;
-class RivCrossSectionSourceInfo;
+class RivIntersectionSourceInfo;
 class RicViewerEventInterface;
 
 class QMouseEvent;
@@ -53,7 +53,7 @@ public:
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
 
-    void            findCellAndGridIndex(const RivCrossSectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
+    void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
 private slots:
     void            slotRangeFilterI();
