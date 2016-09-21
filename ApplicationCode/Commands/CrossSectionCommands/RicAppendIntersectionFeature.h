@@ -29,11 +29,11 @@ class RimIntersectionCollection;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAppendCrossSectionFeatureCmd : public caf::CmdExecuteCommand
+class RicAppendIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicAppendCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
-    virtual ~RicAppendCrossSectionFeatureCmd();
+    RicAppendIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
+    virtual ~RicAppendIntersectionFeatureCmd();
 
     virtual QString name();
     virtual void redo();
@@ -48,7 +48,7 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAppendCrossSectionFeature : public caf::CmdFeature
+class RicAppendIntersectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

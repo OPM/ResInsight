@@ -5,14 +5,14 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RicAppendCrossSectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicAppendIntersectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellCrossSectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCrossSectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPolylineCrossSectionFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RicAppendCrossSectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicAppendIntersectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellCrossSectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCrossSectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPolylineCrossSectionFeature.cpp

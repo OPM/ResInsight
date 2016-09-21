@@ -301,11 +301,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimIntersectionCollection*>(uiItem))
         {
-            commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "RicAppendIntersectionFeature";
         }
         else if (dynamic_cast<RimIntersection*>(uiItem))
         {
-            commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "RicAppendIntersectionFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }

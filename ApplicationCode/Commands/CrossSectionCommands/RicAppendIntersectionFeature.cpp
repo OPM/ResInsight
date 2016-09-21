@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicAppendCrossSectionFeature.h"
+#include "RicAppendIntersectionFeature.h"
 
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
@@ -29,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicAppendCrossSectionFeature, "RicAppendCrossSectionFeature");
+CAF_CMD_SOURCE_INIT(RicAppendIntersectionFeature, "RicAppendIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAppendCrossSectionFeature::isCommandEnabled()
+bool RicAppendIntersectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -42,7 +42,7 @@ bool RicAppendCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
+void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
 {
     std::vector<caf::PdmObjectHandle*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
@@ -53,14 +53,14 @@ void RicAppendCrossSectionFeature::onActionTriggered(bool isChecked)
 
     CVF_ASSERT(crossSectionCollection);
 
-    RicAppendCrossSectionFeatureCmd* cmd = new RicAppendCrossSectionFeatureCmd(crossSectionCollection);
+    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd(crossSectionCollection);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAppendCrossSectionFeature::setupActionLook(QAction* actionToSetup)
+void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Intersection");
@@ -69,7 +69,7 @@ void RicAppendCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicAppendCrossSectionFeatureCmd::RicAppendCrossSectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
+RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
     : CmdExecuteCommand(NULL),
     m_crossSectionCollection(crossSectionCollection)
 {
@@ -78,14 +78,14 @@ RicAppendCrossSectionFeatureCmd::RicAppendCrossSectionFeatureCmd(RimIntersection
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicAppendCrossSectionFeatureCmd::~RicAppendCrossSectionFeatureCmd()
+RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicAppendCrossSectionFeatureCmd::name()
+QString RicAppendIntersectionFeatureCmd::name()
 {
     return "New Intersection";
 }
@@ -93,7 +93,7 @@ QString RicAppendCrossSectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAppendCrossSectionFeatureCmd::redo()
+void RicAppendIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_crossSectionCollection);
 
@@ -105,6 +105,6 @@ void RicAppendCrossSectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAppendCrossSectionFeatureCmd::undo()
+void RicAppendIntersectionFeatureCmd::undo()
 {
 }
