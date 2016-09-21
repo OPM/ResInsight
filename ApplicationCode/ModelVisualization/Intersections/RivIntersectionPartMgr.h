@@ -44,10 +44,10 @@ class RimCrossSection;
 ///
 //==================================================================================================
 
-class RivCrossSectionPartMgr : public cvf::Object
+class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection);
+    RivIntersectionPartMgr(const RimCrossSection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);

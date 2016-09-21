@@ -32,7 +32,7 @@
 class RimEclipseWell;
 class RimEclipseWellCollection;
 class RimWellPath;
-class RivCrossSectionPartMgr;
+class RivIntersectionPartMgr;
 
 //==================================================================================================
 //
@@ -74,7 +74,7 @@ public:
     caf::PdmField< bool >                                inputFromViewerEnabled;
 
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
-    RivCrossSectionPartMgr*                              crossSectionPartMgr();
+    RivIntersectionPartMgr*                              crossSectionPartMgr();
 
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
 
@@ -104,7 +104,7 @@ private:
     void                                    updateName();
     void                                    rebuildGeometryAndScheduleCreateDisplayModel();
 private:                                    
-    cvf::ref<RivCrossSectionPartMgr>        m_crossSectionPartMgr;
+    cvf::ref<RivIntersectionPartMgr>        m_crossSectionPartMgr;
     
     mutable 
     std::vector< std::vector <cvf::Vec3d> > m_wellBranchCenterlines;

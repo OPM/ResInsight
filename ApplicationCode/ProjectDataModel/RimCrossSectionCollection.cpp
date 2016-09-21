@@ -25,7 +25,7 @@
 
 #include "RiuMainWindow.h"
 
-#include "RivCrossSectionPartMgr.h"
+#include "RivIntersectionPartMgr.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCrossSectionCollection, "CrossSectionCollection");

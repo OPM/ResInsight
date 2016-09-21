@@ -393,7 +393,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
  
     # variables at global file scope
     set_source_files_properties (ModelVisualization/RivCrossSectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ModelVisualization/RivCrossSectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/RivIntersectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (ModelVisualization/GridBox/RivGridBoxGenerator.cpp         PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (Commands/WellLogCommands/RicWellLogPlotCurveFeatureImpl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
 

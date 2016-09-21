@@ -33,7 +33,7 @@
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
-#include "RivCrossSectionPartMgr.h"
+#include "RivIntersectionPartMgr.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -336,9 +336,9 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionPartMgr* RimCrossSection::crossSectionPartMgr()
+RivIntersectionPartMgr* RimCrossSection::crossSectionPartMgr()
 {
-    if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivCrossSectionPartMgr(this);
+    if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivIntersectionPartMgr(this);
 
     return m_crossSectionPartMgr.p();
 }
