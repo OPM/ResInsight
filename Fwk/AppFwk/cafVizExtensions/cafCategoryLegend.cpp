@@ -128,6 +128,19 @@ String CategoryLegend::title() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t CategoryLegend::categoryCount() const
+{
+    if (m_categoryMapper.notNull())
+    {
+        return m_categoryMapper->categoryCount();
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Hardware rendering using shader programs
 //--------------------------------------------------------------------------------------------------
 void CategoryLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)

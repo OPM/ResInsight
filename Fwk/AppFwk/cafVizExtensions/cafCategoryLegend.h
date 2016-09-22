@@ -49,6 +49,8 @@ public:
     void            setTitle(const cvf::String& title);
     cvf::String          title() const;
 
+    size_t          categoryCount() const;
+
 protected:
 
     //==================================================================================================

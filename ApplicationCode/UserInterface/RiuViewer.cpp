@@ -493,20 +493,31 @@ void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
     {
         updateLegendTextAndTickMarkColor(legend);
 
-        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
         firstRendering->addOverlayItem(legend);
 
         m_visibleLegends.push_back(legend);
     }
 
+    // Category count used to switch between standard height and full height of legend
+    const size_t categoryThreshold = 13;
+
     std::vector<caf::CategoryLegend*> categoryLegends;
     std::vector<cvf::OverlayItem*> overlayItems;
     for (auto legend : m_visibleLegends)
     {
+        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+
         caf::CategoryLegend* catLegend = dynamic_cast<caf::CategoryLegend*>(legend.p());
         if (catLegend)
         {
-            categoryLegends.push_back(catLegend);
+            if (catLegend->categoryCount() > categoryThreshold)
+            {
+                categoryLegends.push_back(catLegend);
+            }
+            else
+            {
+                catLegend->setSizeHint(cvf::Vec2ui(200, 200));
+            }
         }
         else
         {
