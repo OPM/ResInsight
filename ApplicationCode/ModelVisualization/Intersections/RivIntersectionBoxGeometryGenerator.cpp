@@ -125,12 +125,12 @@ public:
     {
         std::array<cvf::Plane, 6> boxPlanes;
 
-        boxPlanes[FaceType::POS_I].setFromPointAndNormal(cvf::Vec3d(m_origin.col(0)), m_origin.translation() + m_size);
-        boxPlanes[FaceType::NEG_I].setFromPointAndNormal(-cvf::Vec3d(m_origin.col(0)), m_origin.translation());
-        boxPlanes[FaceType::POS_J].setFromPointAndNormal(cvf::Vec3d(m_origin.col(1)), m_origin.translation() + m_size);
-        boxPlanes[FaceType::NEG_J].setFromPointAndNormal(-cvf::Vec3d(m_origin.col(1)), m_origin.translation());
-        boxPlanes[FaceType::POS_K].setFromPointAndNormal(cvf::Vec3d(m_origin.col(2)), m_origin.translation() + m_size);
-        boxPlanes[FaceType::NEG_K].setFromPointAndNormal(-cvf::Vec3d(m_origin.col(2)), m_origin.translation());
+        boxPlanes[FaceType::POS_I].setFromPointAndNormal( m_origin.translation() + m_size, cvf::Vec3d(m_origin.col(0)));
+        boxPlanes[FaceType::NEG_I].setFromPointAndNormal( m_origin.translation()         , -cvf::Vec3d(m_origin.col(0)));
+        boxPlanes[FaceType::POS_J].setFromPointAndNormal( m_origin.translation() + m_size, cvf::Vec3d(m_origin.col(1)));
+        boxPlanes[FaceType::NEG_J].setFromPointAndNormal( m_origin.translation()         , -cvf::Vec3d(m_origin.col(1)));
+        boxPlanes[FaceType::POS_K].setFromPointAndNormal( m_origin.translation() + m_size, cvf::Vec3d(m_origin.col(2)));
+        boxPlanes[FaceType::NEG_K].setFromPointAndNormal( m_origin.translation()         , -cvf::Vec3d(m_origin.col(2)));
 
         return boxPlanes;
     }
