@@ -252,6 +252,7 @@ void RimGeoMechView::createDisplayModel()
 
    m_crossSectionVizModel->removeAllParts();
    crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
+   intersectionBoxCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
    m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
    // If the animation was active before recreating everything, make viewer view current frame
@@ -300,10 +301,15 @@ void RimGeoMechView::updateCurrentTimeStep()
             m_vizLogic->updateStaticCellColors(m_currentTimeStep());
 
         if (this->cellResult()->hasResult())
+        {
             crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+            intersectionBoxCollection->updateCellResultColor(m_currentTimeStep);
+        }
         else
+        {
             crossSectionCollection->applySingleColorEffect();
-
+            intersectionBoxCollection->applySingleColorEffect();
+        }
     }
     else
     {

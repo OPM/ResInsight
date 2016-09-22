@@ -22,8 +22,6 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfColor4.h"
-#include "cvfVector3.h"
 
 
 namespace cvf
@@ -34,10 +32,10 @@ namespace cvf
 }
 
 class RigMainGrid;
-class RimEclipseCellColors;
-class RimCellEdgeColors;
-class RimIntersectionBox;
 class RigResultAccessor;
+class RimCellEdgeColors;
+class RimEclipseCellColors;
+class RimIntersectionBox;
 
 //==================================================================================================
 ///
@@ -47,7 +45,7 @@ class RigResultAccessor;
 class RivIntersectionBoxPartMgr : public cvf::Object
 {
 public:
-    RivIntersectionBoxPartMgr(const RimIntersectionBox* rimCrossSection);
+    RivIntersectionBoxPartMgr(const RimIntersectionBox* intersectionBox);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
@@ -75,12 +73,13 @@ private:
 
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
-    const RimIntersectionBox*      m_rimCrossSection;
+    const RimIntersectionBox*   m_rimIntersectionBox;
 
     cvf::Color3f                m_defaultColor;
 
-    cvf::ref<RivIntersectionBoxGeometryGenerator>   m_crossSectionGenerator;
-    cvf::ref<cvf::Part>         m_crossSectionFaces;
-    cvf::ref<cvf::Part>         m_crossSectionGridLines;
-    cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;
+    cvf::ref<cvf::Part>         m_intersectionBoxFaces;
+    cvf::ref<cvf::Part>         m_intersectionBoxGridLines;
+    cvf::ref<cvf::Vec2fArray>   m_intersectionBoxFacesTextureCoords;
+
+    cvf::ref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGenerator;
 };

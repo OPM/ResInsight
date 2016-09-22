@@ -32,8 +32,8 @@ public:
 
     const std::vector<size_t>& triangleToCellIndex() const;
 
-    const RimIntersectionBox* crossSection() const;
+    const RimIntersectionBox* intersectionBox() const;
 
 private:
-    cvf::cref<RivIntersectionBoxGeometryGenerator> m_crossSectionGeometryGenerator;
+    cvf::cref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGeometryGenerator;
 };

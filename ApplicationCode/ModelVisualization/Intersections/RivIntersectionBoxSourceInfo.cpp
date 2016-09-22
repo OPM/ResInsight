@@ -25,9 +25,9 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivIntersectionBoxSourceInfo::RivIntersectionBoxSourceInfo(RivIntersectionBoxGeometryGenerator* geometryGenerator)
-    : m_crossSectionGeometryGenerator(geometryGenerator)
+    : m_intersectionBoxGeometryGenerator(geometryGenerator)
 {
-    CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());
+    CVF_ASSERT(m_intersectionBoxGeometryGenerator.notNull());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,15 +35,15 @@ RivIntersectionBoxSourceInfo::RivIntersectionBoxSourceInfo(RivIntersectionBoxGeo
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RivIntersectionBoxSourceInfo::triangleToCellIndex() const
 {
-    CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());
+    CVF_ASSERT(m_intersectionBoxGeometryGenerator.notNull());
 
-    return m_crossSectionGeometryGenerator->triangleToCellIndex();
+    return m_intersectionBoxGeometryGenerator->triangleToCellIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimIntersectionBox* RivIntersectionBoxSourceInfo::crossSection() const
+const RimIntersectionBox* RivIntersectionBoxSourceInfo::intersectionBox() const
 {
-    return m_crossSectionGeometryGenerator->intersectionBox();
+    return m_intersectionBoxGeometryGenerator->intersectionBox();
 }

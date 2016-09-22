@@ -22,6 +22,8 @@
 #include "RimIntersectionBox.h"
 #include "RimView.h"
 
+#include "RivIntersectionBoxPartMgr.h"
+
 #include "RiuMainWindow.h"
 
 #include "cvfBoundingBox.h"
@@ -69,7 +71,7 @@ void RimIntersectionBoxCollection::applySingleColorEffect()
         RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if (cs->isActive)
         {
-//            cs->crossSectionPartMgr()->applySingleColorEffect();
+            cs->intersectionBoxPartMgr()->applySingleColorEffect();
         }
     }
 }
@@ -84,7 +86,7 @@ void RimIntersectionBoxCollection::updateCellResultColor(size_t timeStepIndex)
         RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if (cs->isActive)
         {
-//            cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
+            cs->intersectionBoxPartMgr()->updateCellResultColor(timeStepIndex);
         }
     }
 }
@@ -101,13 +103,8 @@ void RimIntersectionBoxCollection::appendPartsToModel(cvf::ModelBasicList* model
         RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if (cs->isActive)
         {
-//             cs->crossSectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
-//             cs->crossSectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
-
-//             if (cs->inputFromViewerEnabled)
-//             {
-// //                cs->crossSectionPartMgr()->appendPolylinePartsToModel(model, scaleTransform);
-//             }
+             cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
+             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
         }
     }
 }
