@@ -111,19 +111,19 @@ void RimIntersectionBox::updateLabelsFromBoundingBox()
     {
         QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().x()).arg(m_boundingBox.max().x());
         minXCoord.uiCapability()->setUiName(QString("Min X") + range);
-        maxXCoord.uiCapability()->setUiName(QString("Min X") + range);
+        maxXCoord.uiCapability()->setUiName(QString("Max X") + range);
     }
 
     {
         QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().y()).arg(m_boundingBox.max().y());
         minYCoord.uiCapability()->setUiName(QString("Min Y") + range);
-        maxYCoord.uiCapability()->setUiName(QString("Min Y") + range);
+        maxYCoord.uiCapability()->setUiName(QString("Max Y") + range);
     }
 
     {
         QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().z()).arg(m_boundingBox.max().z());
         minZCoord.uiCapability()->setUiName(QString("Min Z") + range);
-        maxZCoord.uiCapability()->setUiName(QString("Min Z") + range);
+        maxZCoord.uiCapability()->setUiName(QString("Max Z") + range);
     }
 }
 
@@ -157,7 +157,7 @@ void RimIntersectionBox::initialize()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &isActive)
+    if (changedField != &name)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
