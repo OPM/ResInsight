@@ -151,7 +151,7 @@ private:
     QAction*            m_exitAction;
 
     // Recent files
-    enum { MaxRecentFiles = 5 };
+    enum { MaxRecentFiles = 9 };
     QAction*            m_recentFilesSeparatorAction;
     QMenu*              m_recentFilesMenu;
     QAction*            m_recentFileActions[MaxRecentFiles];
