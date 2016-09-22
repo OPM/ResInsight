@@ -163,6 +163,8 @@ void RimGeoMechView::loadDataAndUpdate()
     updateViewerWidget();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+    
+    this->intersectionBoxCollection()->initialize();
 
     this->scheduleCreateDisplayModelAndRedraw();
 

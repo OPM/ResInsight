@@ -176,3 +176,14 @@ bool RimIntersectionBoxCollection::hasActiveCrossSectionForSimulationWell(RimEcl
 */
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBoxCollection::initialize()
+{
+    for (auto intersectionBox : m_intersectionBoxes())
+    {
+        intersectionBox->initialize();
+    }
+}

@@ -47,8 +47,10 @@ public:
 
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
 
-
+    void                            initialize();
     void                            setModelBoundingBox(cvf::BoundingBox& boundingBox);
+
+    void updateLabelsFromBoundingBox();
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;

@@ -50,6 +50,8 @@ public:
 
     bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 
+    void initialize();
+
     // Visualization interface
 
     void applySingleColorEffect();

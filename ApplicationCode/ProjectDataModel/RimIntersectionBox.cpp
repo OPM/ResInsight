@@ -22,6 +22,7 @@
 #include "RivIntersectionBoxPartMgr.h"
 
 #include "cafPdmUiSliderEditor.h"
+#include "RimCase.h"
 
 
 
@@ -97,8 +98,34 @@ void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
     maxXCoord = cvf::Math::ceil(boundingBox.max().x());
     maxYCoord = cvf::Math::ceil(boundingBox.max().y());
     maxZCoord = cvf::Math::ceil(boundingBox.max().z());
+
+    updateLabelsFromBoundingBox();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::updateLabelsFromBoundingBox()
+{
+    {
+        QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().x()).arg(m_boundingBox.max().x());
+        minXCoord.uiCapability()->setUiName(QString("Min X") + range);
+        maxXCoord.uiCapability()->setUiName(QString("Min X") + range);
+    }
+
+    {
+        QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().y()).arg(m_boundingBox.max().y());
+        minYCoord.uiCapability()->setUiName(QString("Min Y") + range);
+        maxYCoord.uiCapability()->setUiName(QString("Min Y") + range);
+    }
+
+    {
+        QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().z()).arg(m_boundingBox.max().z());
+        minZCoord.uiCapability()->setUiName(QString("Min Z") + range);
+        maxZCoord.uiCapability()->setUiName(QString("Min Z") + range);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -108,6 +135,21 @@ RivIntersectionBoxPartMgr* RimIntersectionBox::intersectionBoxPartMgr()
     if (m_intersectionBoxPartMgr.isNull()) m_intersectionBoxPartMgr = new RivIntersectionBoxPartMgr(this);
 
     return m_intersectionBoxPartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::initialize()
+{
+    RimCase* rimCase = NULL;
+    firstAnchestorOrThisOfType(rimCase);
+    if (rimCase)
+    {
+        m_boundingBox = rimCase->activeCellsBoundingBox();
+    }
+
+    updateLabelsFromBoundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,12 +197,23 @@ void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 {
     uiOrdering.add(&name);
 
-/*
-    uiOrdering.add(&minXCoord);
-    uiOrdering.add(&maxXCoord);
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("X Coordinates");
+        group->add(&minXCoord);
+        group->add(&maxXCoord);
+    }
 
-    uiOrdering.setForgetRemainingFields(true);
-*/
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Y Coordinates");
+        group->add(&minYCoord);
+        group->add(&maxYCoord);
+    }
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Z Coordinates");
+        group->add(&minZCoord);
+        group->add(&maxZCoord);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
