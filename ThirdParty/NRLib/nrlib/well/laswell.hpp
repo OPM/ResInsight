@@ -61,6 +61,7 @@ public:
   void setVersionInfo(const std::string& logName);
   void setStartDepth(double startDepth);
   void setStopDepth(double stopDepth);
+  void setDepthStep(double depthStep);
   
   void addWellInfo(const std::string& parameter, const std::string& value);
 

@@ -597,6 +597,11 @@ void NRLib::LasWell::setStopDepth(double stopDepth)
     stop_depth_ = stopDepth;
 }
 
+void NRLib::LasWell::setDepthStep(double depthStep)
+{
+    depth_increment_ = depthStep;
+}
+
 void NRLib::LasWell::addWellInfo(const std::string& parameter, const std::string& value)
 {
     // Example of line formatting taken from the documentation

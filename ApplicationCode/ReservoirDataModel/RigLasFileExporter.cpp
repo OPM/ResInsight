@@ -311,6 +311,10 @@ bool RigLasFileExporter::writeToFolder(const QString& exportFolder)
         lasFile.setVersionInfo("2.0");
 
         lasFileDescr.appendDataToLasFile(&lasFile);
+        if (m_isResampleActive)
+        {
+            lasFile.setDepthStep(m_resamplingInterval);
+        }
 
         QDir dir(exportFolder);
         QString fileName = dir.absoluteFilePath(QString::fromStdString(lasFileDescr.generateFilename()));
@@ -402,7 +406,6 @@ void RigLasFileExporter::appendLasFileDescriptions(const std::vector<RimWellLogC
         QString m_wellName;
         QString m_caseName;
         QString m_date;
-        double datumElevation;
     };
 
     std::vector<CurveCollectionDefinition> curveDefinitions;
