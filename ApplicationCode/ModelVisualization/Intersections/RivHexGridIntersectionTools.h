@@ -90,6 +90,8 @@ private:
 class RivIntersectionVertexWeights
 {
 public:
+    explicit RivIntersectionVertexWeights(): m_count(0) {}
+
     explicit RivIntersectionVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1,
                                           size_t edge2Vx1, size_t edge2Vx2, double normDistFromE2V1,
                                           double normDistFromE1Cut) : m_count(4)

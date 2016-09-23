@@ -186,6 +186,25 @@ public:
         return corners;
     }
 
+    // Returns the four adjacent faces in the Pos, Neg, Pos, Neg order
+
+    std::array<FaceType, 4> adjacentFaces(FaceType face) 
+    {
+        std::array<FaceType, 4> clipFaces;
+        FaceType oppFace = cvf::StructGridInterface::oppositeFace(face);
+        int clipFaceCount = 0;
+        for (int faceCand = 0; faceCand < 6; ++faceCand )
+        {
+            if (faceCand != face && faceCand != oppFace)
+            {
+                clipFaces[clipFaceCount] = (FaceType) faceCand;
+                clipFaceCount++;
+            }
+        }
+
+        return clipFaces;
+    }
+
 private:
 
     cvf::Mat4d m_origin;
@@ -218,28 +237,29 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
     for (int faceIdx = 0; faceIdx < 6; ++faceIdx)    
     {
         cvf::Plane plane = boxPlanes[faceIdx];
-        int clipPlaneIdx = faceIdx;
-        clipPlaneIdx++; if (clipPlaneIdx >= 6) clipPlaneIdx = 0; // Skip the opposite face
-        clipPlaneIdx++; if (clipPlaneIdx >= 6) clipPlaneIdx = 0;
-        cvf::Plane p1Plane = boxPlanes[faceIdx + 2];
-        clipPlaneIdx++; if (clipPlaneIdx >= 6) clipPlaneIdx = 0;
-        cvf::Plane p2Plane = boxPlanes[faceIdx + 3];
-        clipPlaneIdx++; if (clipPlaneIdx >= 6) clipPlaneIdx = 0;
-        cvf::Plane p3Plane = boxPlanes[faceIdx + 4];
-        clipPlaneIdx++; if (clipPlaneIdx >= 6) clipPlaneIdx = 0;
-        cvf::Plane p4Plane = boxPlanes[faceIdx + 5];
+        
+        std::array<Box::FaceType, 4> clipFaces = box.adjacentFaces((Box::FaceType)faceIdx);
+
+        cvf::Plane p1Plane = boxPlanes[clipFaces[1]];
+        cvf::Plane p2Plane = boxPlanes[clipFaces[0]];
+        cvf::Plane p3Plane = boxPlanes[clipFaces[3]];
+        cvf::Plane p4Plane = boxPlanes[clipFaces[2]];
+
+        p1Plane.flip();
+        p2Plane.flip();
+        p3Plane.flip();
+        p4Plane.flip();
 
         std::array<cvf::Vec3d, 4> faceCorners = box.faceCorners((Box::FaceType)faceIdx);
-        cvf::BoundingBox sideBBox;
+
+        cvf::BoundingBox sectionBBox;
         
-        for (cvf::Vec3d& corner : faceCorners) sideBBox.add(corner);
+        for (cvf::Vec3d& corner : faceCorners) sectionBBox.add(corner);
 
-
+        // Nearly same code as IntersectionGenerator :
 
         std::vector<size_t> columnCellCandidates;
-        m_hexGrid->findIntersectingCells(sideBBox, &columnCellCandidates);
-
-        // Same code as IntersectionGenerator :
+        m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
 
         std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
         hexPlaneCutTriangleVxes.reserve(5*3);
@@ -264,11 +284,17 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
                                                                   &hexPlaneCutTriangleVxes,
                                                                   &isTriangleEdgeCellContour);
 
+            std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes_once;
+            std::vector<bool> isClippedTriEdgeCellContour_once;
+            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
+                                                                                 &clippedTriangleVxes_once, &isClippedTriEdgeCellContour_once);
+
             std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
             std::vector<bool> isClippedTriEdgeCellContour;
 
-            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
+            caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(clippedTriangleVxes_once, isClippedTriEdgeCellContour_once, p3Plane, p4Plane,
                                                                                  &clippedTriangleVxes, &isClippedTriEdgeCellContour);
+
 
             size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
 
@@ -320,13 +346,18 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
                     }
                     else
                     {
+                        #if 0
                         caf::HexGridIntersectionTools::ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
                         caf::HexGridIntersectionTools::ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
-
+                        
                         m_triVxToCellCornerWeights.push_back(
                             RivIntersectionVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
                                                          cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
                                                          cvx.normDistFromEdgeVx1));
+                        #else
+                        m_triVxToCellCornerWeights.push_back(RivIntersectionVertexWeights());
+                        #endif
+
 
                     }
                 }
