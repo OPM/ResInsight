@@ -126,6 +126,8 @@ void RimIntersectionBox::setXSlice(double xValue)
     singlePlaneState = PLANE_STATE_X;
     minXCoord = xValue;
     maxXCoord = xValue;
+
+    updateVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,6 +138,8 @@ void RimIntersectionBox::setYSlice(double yValue)
     singlePlaneState = PLANE_STATE_Y;
     minYCoord = yValue;
     maxYCoord = yValue;
+
+    updateVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,6 +150,8 @@ void RimIntersectionBox::setZSlice(double zValue)
     singlePlaneState = PLANE_STATE_Z;
     minZCoord = zValue;
     maxZCoord = zValue;
+
+    updateVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
