@@ -43,6 +43,7 @@ private:
     void                                appendLasFileDescriptions(const std::vector<RimWellLogCurve*>& curves, 
                                                                   std::vector<SingleLasFileMetaData>* lasFileDescriptions);
     QString                             caseNameFromCurve(RimWellLogCurve* curve);
+    double                              rkbDiff(RimWellLogCurve* curve);
 
 private:
     std::vector<RimWellLogCurve*> m_curves;

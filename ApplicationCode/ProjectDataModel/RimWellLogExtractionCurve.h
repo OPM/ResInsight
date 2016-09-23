@@ -51,6 +51,7 @@ public:
 
     bool isEclipseCurve() const;
     QString caseName() const;
+    double rkbDiff() const;
 
 protected:
     virtual QString createCurveAutoName();

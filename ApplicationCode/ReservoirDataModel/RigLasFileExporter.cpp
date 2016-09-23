@@ -90,7 +90,8 @@ class SingleLasFileMetaData
 {
 public:
     SingleLasFileMetaData()
-        : m_minimumCurveValue(HUGE_VAL)
+        : m_minimumCurveValue(HUGE_VAL),
+        m_rkbDiff(HUGE_VAL)
     {
     }
 
@@ -109,10 +110,9 @@ public:
         m_date = date;
     }
 
-    void setDepthValues(RimDefines::DepthUnitType depthUnit, const std::vector<double>& depthValues)
+    void setRkbDiff(double rkbDiff)
     {
-        m_depthUnit = depthUnit;
-        m_depthValues = depthValues;
+        m_rkbDiff = rkbDiff;
     }
 
     void addLogData(const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData)
@@ -197,6 +197,25 @@ public:
         if (firstCurveData->tvDepths().size())
         {
             lasFile->AddLog("TVDMSL", "M", "True vertical depth in meters", firstCurveData->tvDepths());
+
+            if (m_rkbDiff != HUGE_VAL)
+            {
+                // Export True Vertical Depth Rotary Kelly Bushing - TVDRKB
+                std::vector<double> tvdrkbValues = firstCurveData->tvDepths();
+                for (auto& value : tvdrkbValues)
+                {
+                    value += m_rkbDiff;
+                }
+
+                if (firstCurveData->depthUnit() == RimDefines::UNIT_METER)
+                {
+                    lasFile->AddLog("TVDRKB", "M", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues);
+                }
+                else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
+                {
+                    lasFile->AddLog("TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues);
+                }
+            }
         }
 
         double minDepth = 0.0;
@@ -250,6 +269,7 @@ private:
     QString m_wellName;
     QString m_caseName;
     QString m_date;
+    double m_rkbDiff;
 
     RimDefines::DepthUnitType m_depthUnit;
     std::vector<double> m_depthValues;
@@ -382,6 +402,7 @@ void RigLasFileExporter::appendLasFileDescriptions(const std::vector<RimWellLogC
         QString m_wellName;
         QString m_caseName;
         QString m_date;
+        double datumElevation;
     };
 
     std::vector<CurveCollectionDefinition> curveDefinitions;
@@ -414,8 +435,11 @@ void RigLasFileExporter::appendLasFileDescriptions(const std::vector<RimWellLogC
 
         for (auto curve : curves)
         {
+
             if (curveDef.isEqual(curve, caseNameFromCurve(curve)))
             {
+                singleLasFileMeta.setRkbDiff(rkbDiff(curve));
+
                 const RigWellLogCurveData* curveData = nullptr;
                 if (m_isResampleActive)
                 {
@@ -454,5 +478,19 @@ QString RigLasFileExporter::caseNameFromCurve(RimWellLogCurve* curve)
     }
 
     return caseName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigLasFileExporter::rkbDiff(RimWellLogCurve* curve)
+{
+    RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
+    if (extractionCurve)
+    {
+        return extractionCurve->rkbDiff();
+    }
+
+    return HUGE_VAL;
 }
 

@@ -634,3 +634,16 @@ QString RimWellLogExtractionCurve::caseName() const
 
     return QString();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimWellLogExtractionCurve::rkbDiff() const
+{
+    if (m_wellPath && m_wellPath->wellPathGeometry())
+    {
+        return cvf::Math::abs(m_wellPath->wellPathGeometry()->m_measuredDepths[0] - m_wellPath->wellPathGeometry()->m_wellPathPoints[0].z());
+    }
+
+    return HUGE_VAL;
+}
