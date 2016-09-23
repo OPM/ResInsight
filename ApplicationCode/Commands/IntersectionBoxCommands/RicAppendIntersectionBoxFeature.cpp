@@ -18,8 +18,11 @@
 
 #include "RicAppendIntersectionBoxFeature.h"
 
+#include "RimCase.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionBoxCollection.h"
+#include "RimView.h"
+#include "RiuMainWindow.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -35,7 +38,10 @@ CAF_CMD_SOURCE_INIT(RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxFe
 //--------------------------------------------------------------------------------------------------
 bool RicAppendIntersectionBoxFeature::isCommandEnabled()
 {
-    return true;
+    RimIntersectionBoxCollection* coll = RicAppendIntersectionBoxFeature::intersectionBoxCollection();
+    if (coll) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,16 +49,33 @@ bool RicAppendIntersectionBoxFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<caf::PdmObjectHandle*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
-    CVF_ASSERT(collection.size() == 1);
+    RimIntersectionBoxCollection* coll = RicAppendIntersectionBoxFeature::intersectionBoxCollection();
 
-    RimIntersectionBoxCollection* crossSectionCollection = NULL;
-    collection[0]->firstAnchestorOrThisOfType(crossSectionCollection);
+    if (coll)
+    {
+        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
+        intersectionBox->name = QString("Intersection Box");
 
-    CVF_ASSERT(crossSectionCollection);
+        RimCase* rimCase = NULL;
+        coll->firstAnchestorOrThisOfType(rimCase);
+        if (rimCase)
+        {
+            intersectionBox->setModelBoundingBox(rimCase->activeCellsBoundingBox());
+        }
 
-    crossSectionCollection->appendIntersectionBox();
+        coll->appendIntersectionBox(intersectionBox);
+
+        coll->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
+
+        RimView* rimView = NULL;
+        coll->firstAnchestorOrThisOfType(rimView);
+        if (rimView)
+        {
+            rimView->showGridCells(false);
+            rimView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,5 +85,22 @@ void RicAppendIntersectionBoxFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/IntersectionBox16x16.png"));
     actionToSetup->setText("New Intersection Box");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIntersectionBoxCollection* RicAppendIntersectionBoxFeature::intersectionBoxCollection()
+{
+    RimIntersectionBoxCollection* intersectionBoxColl = nullptr;
+
+    std::vector<caf::PdmObjectHandle*> selectedObjects;
+    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+    if (selectedObjects.size() == 1)
+    {
+        selectedObjects[0]->firstAnchestorOrThisOfType(intersectionBoxColl);
+    }
+
+    return intersectionBoxColl;
 }
 

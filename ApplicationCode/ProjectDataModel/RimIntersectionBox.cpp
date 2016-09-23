@@ -106,13 +106,13 @@ void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
 {
     m_boundingBox = boundingBox;
 
-    minXCoord = cvf::Math::floor(boundingBox.min().x());
-    minYCoord = cvf::Math::floor(boundingBox.min().y());
-    minZCoord = cvf::Math::floor(boundingBox.min().z());
+    minXCoord = boundingBox.min().x() + boundingBox.extent().x() / 4.0;
+    minYCoord = boundingBox.min().y() + boundingBox.extent().y() / 4.0;
+    minZCoord = boundingBox.min().z() + boundingBox.extent().z() / 4.0;
 
-    maxXCoord = cvf::Math::ceil(boundingBox.max().x());
-    maxYCoord = cvf::Math::ceil(boundingBox.max().y());
-    maxZCoord = cvf::Math::ceil(boundingBox.max().z());
+    maxXCoord = boundingBox.max().x() - boundingBox.extent().x() / 4.0;
+    maxYCoord = boundingBox.max().y() - boundingBox.extent().y() / 4.0;
+    maxZCoord = boundingBox.max().z() - boundingBox.extent().z() / 4.0;
 
     updateLabelsFromBoundingBox();
 }

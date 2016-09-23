@@ -112,29 +112,9 @@ void RimIntersectionBoxCollection::appendPartsToModel(cvf::ModelBasicList* model
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionBoxCollection::appendIntersectionBox()
+void RimIntersectionBoxCollection::appendIntersectionBox(RimIntersectionBox* intersectionBox)
 {
-    RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-    intersectionBox->name = QString("Intersection Box");
-
-    RimCase* rimCase = NULL;
-    firstAnchestorOrThisOfType(rimCase);
-    if (rimCase)
-    {
-        intersectionBox->setModelBoundingBox(rimCase->activeCellsBoundingBox());
-    }
-
     m_intersectionBoxes.push_back(intersectionBox);
-
-    updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
-
-    RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
-    if (rimView)
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

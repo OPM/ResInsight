@@ -46,7 +46,7 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendIntersectionBox();
+    void appendIntersectionBox(RimIntersectionBox* intersectionBox);
 
     bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 

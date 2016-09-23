@@ -35,5 +35,8 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
+
+private:
+    static RimIntersectionBoxCollection* intersectionBoxCollection();
 };
 
