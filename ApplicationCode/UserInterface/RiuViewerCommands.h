@@ -52,6 +52,7 @@ public:
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
+    cvf::Vec3d      lastPickPositionInDomainCoords() const;
 
     void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
@@ -74,6 +75,7 @@ private:
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;
     cvf::StructGridInterface::FaceType m_currentFaceIndex;
+    cvf::Vec3d  m_currentPickPositionInDomainCoords;
 
     caf::PdmPointer<RimView> m_reservoirView;
     caf::PdmPointer<RimIntersection> m_currentCrossSection;

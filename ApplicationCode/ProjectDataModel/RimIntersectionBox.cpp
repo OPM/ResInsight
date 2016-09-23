@@ -23,6 +23,7 @@
 
 #include "cafPdmUiSliderEditor.h"
 #include "RimCase.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 
 namespace caf
@@ -55,22 +56,22 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField(&singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Collapse box to plane", "", "", "");
 
     CAF_PDM_InitField(&minXCoord,    "MinXCoord",           0.0, "MinXCoord", "", "", "");
-    minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&maxXCoord,    "MaxXCoord",           0.0, "MaxXCoord", "", "", "");
-    maxXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    maxXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&minYCoord,    "MinYCoord",           0.0, "MinYCoord", "", "", "");
-    minYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    minYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&maxYCoord,    "MaxYCoord",           0.0, "MaxYCoord", "", "", "");
-    maxYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    maxYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&minZCoord,    "MinZCoord",           0.0, "MinZCoord", "", "", "");
-    minZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    minZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&maxZCoord,    "MaxZCoord",           0.0, "MaxZCoord", "", "", "");
-    maxZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    maxZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +118,35 @@ void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
     updateLabelsFromBoundingBox();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::setXSlice(double xValue)
+{
+    singlePlaneState = PLANE_STATE_X;
+    minXCoord = xValue;
+    maxXCoord = xValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::setYSlice(double yValue)
+{
+    singlePlaneState = PLANE_STATE_Y;
+    minYCoord = yValue;
+    maxYCoord = yValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::setZSlice(double zValue)
+{
+    singlePlaneState = PLANE_STATE_Z;
+    minZCoord = zValue;
+    maxZCoord = zValue;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -217,24 +247,24 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    caf::PdmUiSliderEditorAttribute* myAttr = static_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
+    caf::PdmUiDoubleSliderEditorAttribute* myAttr = static_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
 
     if (myAttr)
     {
         if (field == &minXCoord || field == &maxXCoord)
         {
-            myAttr->m_minimum = cvf::Math::floor(m_boundingBox.min().x());
-            myAttr->m_maximum = cvf::Math::ceil(m_boundingBox.max().x());
+            myAttr->m_minimum = m_boundingBox.min().x();
+            myAttr->m_maximum = m_boundingBox.max().x();
         }
         else if (field == &minYCoord || field == &maxYCoord)
         {
-            myAttr->m_minimum = cvf::Math::floor(m_boundingBox.min().y());
-            myAttr->m_maximum = cvf::Math::ceil(m_boundingBox.max().y());
+            myAttr->m_minimum = m_boundingBox.min().y();
+            myAttr->m_maximum = m_boundingBox.max().y();
         }
         else if (field == &minZCoord || field == &maxZCoord)
         {
-            myAttr->m_minimum = cvf::Math::floor(m_boundingBox.min().z());
-            myAttr->m_maximum = cvf::Math::ceil(m_boundingBox.max().z());
+            myAttr->m_minimum = m_boundingBox.min().z();
+            myAttr->m_maximum = m_boundingBox.max().z();
         }
     }
 }

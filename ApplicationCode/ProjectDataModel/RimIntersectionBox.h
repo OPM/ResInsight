@@ -59,6 +59,10 @@ public:
     void                            initialize();
     void                            setModelBoundingBox(cvf::BoundingBox& boundingBox);
 
+    void                            setXSlice(double xValue);
+    void                            setYSlice(double yValue);
+    void                            setZSlice(double zValue);
+
     void updateLabelsFromBoundingBox();
 
 protected:

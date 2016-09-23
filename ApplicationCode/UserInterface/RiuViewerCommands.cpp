@@ -77,6 +77,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
+#include "RiaApplication.h"
 
 
 //==================================================================================================
@@ -92,7 +93,8 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
     : QObject(ownerViewer), 
       m_viewer(ownerViewer), 
       m_currentGridIdx(-1),
-      m_currentCellIndex(-1)  
+      m_currentCellIndex(-1),
+      m_currentPickPositionInDomainCoords(cvf::Vec3d::UNDEFINED)
 {
     {
         caf::CmdFeature* cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature("RicNewPolylineIntersectionFeature");
@@ -141,11 +143,26 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     cvf::Part* firstHitPart = NULL;
     cvf::Part* nncFirstHitPart = NULL;
 
-    cvf::HitItemCollection hitItems;
+    m_currentPickPositionInDomainCoords = cvf::Vec3d::UNDEFINED;
 
+    cvf::HitItemCollection hitItems;
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
         extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &nncFirstHitPart, NULL);
+
+        cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
+
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        CVF_ASSERT(activeView);
+
+        RimCase* rimCase = NULL;
+        activeView->firstAnchestorOrThisOfType(rimCase);
+        if (rimCase)
+        {
+            displayModelOffset = rimCase->displayModelOffset();
+        }
+
+        m_currentPickPositionInDomainCoords = localIntersectionPoint + displayModelOffset;
     }
 
     if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
@@ -190,6 +207,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menu.addAction(QIcon(":/CellFilter_Range.png"), QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
                 menu.addAction(QIcon(":/CellFilter_Range.png"), QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
                 menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+
+                menu.addSeparator();
+
+                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
+                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
+                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxZSliceFeature"));
+            
+                menu.addSeparator();
             }
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
@@ -543,6 +568,14 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             RiuSelectionManager::instance()->setSelectedItem(selItem);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RiuViewerCommands::lastPickPositionInDomainCoords() const
+{
+    return m_currentPickPositionInDomainCoords;
 }
 
 //--------------------------------------------------------------------------------------------------

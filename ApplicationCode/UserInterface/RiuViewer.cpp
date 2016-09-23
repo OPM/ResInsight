@@ -692,6 +692,16 @@ void RiuViewer::setAxisLabels(const cvf::String& xLabel, const cvf::String& yLab
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RiuViewer::lastPickPositionInDomainCoords() const
+{
+    CVF_ASSERT(m_viewerCommands);
+
+    return m_viewerCommands->lastPickPositionInDomainCoords();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 {
     if (m_rimView.isNull()) return;
