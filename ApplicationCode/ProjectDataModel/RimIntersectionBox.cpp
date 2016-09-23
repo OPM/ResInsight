@@ -25,6 +25,19 @@
 #include "RimCase.h"
 
 
+namespace caf
+{
+    template<>
+    void AppEnum< RimIntersectionBox::SinglePlaneState >::setUp()
+    {
+        addItem(RimIntersectionBox::PLANE_STATE_NONE,   "PLANE_STATE_NONE", "None");
+        addItem(RimIntersectionBox::PLANE_STATE_X,      "PLANE_STATE_X",    "X Plane");
+        addItem(RimIntersectionBox::PLANE_STATE_Y,      "PLANE_STATE_Y",    "Y Plane");
+        addItem(RimIntersectionBox::PLANE_STATE_Z,      "PLANE_STATE_Z",    "Z Plane");
+        setDefault(RimIntersectionBox::PLANE_STATE_NONE);
+    }
+}
+
 
 CAF_PDM_SOURCE_INIT(RimIntersectionBox, "IntersectionBox");
 
@@ -38,6 +51,8 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Intersection Name"), "Name", "", "", "");
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Collapse box to plane", "", "", "");
 
     CAF_PDM_InitField(&minXCoord,    "MinXCoord",           0.0, "MinXCoord", "", "", "");
     minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
@@ -157,6 +172,40 @@ void RimIntersectionBox::initialize()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &singlePlaneState)
+    {
+        updateVisibility();
+        clampSinglePlaneValues();
+    }
+    else if (changedField == &minXCoord)
+    {
+        clampSinglePlaneValues();
+        minXCoord = CVF_MIN(maxXCoord, minXCoord);
+    }
+    else if (changedField == &minYCoord)
+    {
+        clampSinglePlaneValues();
+        minYCoord = CVF_MIN(maxYCoord, minYCoord);
+    }
+    else if (changedField == &minZCoord)
+    {
+        clampSinglePlaneValues();
+        minZCoord = CVF_MIN(maxZCoord, minZCoord);
+    }
+    else if (changedField == &maxXCoord)
+    {
+        maxXCoord = CVF_MAX(maxXCoord, minXCoord);
+    }
+    else if (changedField == &maxYCoord)
+    {
+        maxYCoord = CVF_MAX(maxYCoord, minYCoord);
+    }
+    else if (changedField == &maxZCoord)
+    {
+        maxZCoord = CVF_MAX(maxZCoord, minZCoord);
+    }
+
+
     if (changedField != &name)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
@@ -196,6 +245,7 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
 void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
+    uiOrdering.add(&singlePlaneState);
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("X Coordinates");
@@ -214,6 +264,14 @@ void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
         group->add(&minZCoord);
         group->add(&maxZCoord);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::initAfterRead()
+{
+    updateVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,6 +302,48 @@ void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::updateVisibility()
+{
+    maxXCoord.uiCapability()->setUiReadOnly(false);
+    maxYCoord.uiCapability()->setUiReadOnly(false);
+    maxZCoord.uiCapability()->setUiReadOnly(false);
+
+    if (singlePlaneState == PLANE_STATE_X)
+    {
+        maxXCoord.uiCapability()->setUiReadOnly(true);
+    }
+    else if (singlePlaneState == PLANE_STATE_Y)
+    {
+        maxYCoord.uiCapability()->setUiReadOnly(true);
+    }
+    else if (singlePlaneState == PLANE_STATE_Z)
+    {
+        maxZCoord.uiCapability()->setUiReadOnly(true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::clampSinglePlaneValues()
+{
+    if (singlePlaneState == PLANE_STATE_X)
+    {
+        maxXCoord = minXCoord;
+    }
+    else if (singlePlaneState == PLANE_STATE_Y)
+    {
+        maxYCoord = minYCoord;
+    }
+    else if (singlePlaneState == PLANE_STATE_Z)
+    {
+        maxZCoord = minZCoord;
     }
 }
 

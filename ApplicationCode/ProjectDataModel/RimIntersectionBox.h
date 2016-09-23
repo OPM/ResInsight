@@ -35,6 +35,15 @@ class RimIntersectionBox : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum SinglePlaneState
+    {
+        PLANE_STATE_NONE,
+        PLANE_STATE_X,
+        PLANE_STATE_Y,
+        PLANE_STATE_Z
+    };
+
+public:
     RimIntersectionBox();
     ~RimIntersectionBox();
 
@@ -59,11 +68,16 @@ protected:
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                    initAfterRead() override;
 
 private:
     void                            rebuildGeometryAndScheduleCreateDisplayModel();
+    void                            updateVisibility();
+    void                            clampSinglePlaneValues();
 
 private:
+    caf::PdmField<caf::AppEnum< SinglePlaneState > > singlePlaneState;
+    
     caf::PdmField<double>           minXCoord;
     caf::PdmField<double>           minYCoord;
     caf::PdmField<double>           minZCoord;
