@@ -25,13 +25,14 @@
 #include <QObject>
 #include <QPointer>
 
-class RimIntersection;
+class RicViewerEventInterface;
 class RimEclipseView;
 class RimGeoMechView;
+class RimIntersection;
 class RimView;
 class RiuViewer;
+class RivIntersectionBoxSourceInfo;
 class RivIntersectionSourceInfo;
-class RicViewerEventInterface;
 
 class QMouseEvent;
 
@@ -54,8 +55,6 @@ public:
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
 
-    void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
-
 private slots:
     void            slotRangeFilterI();
     void            slotRangeFilterJ();
@@ -66,6 +65,9 @@ private slots:
     void            slotHideIntersection();
 
 private:
+    void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
+    void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
+
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
     void            createSliceRangeFilter(int ijOrk);
     void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);

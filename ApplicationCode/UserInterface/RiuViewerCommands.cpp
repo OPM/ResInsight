@@ -19,10 +19,13 @@
 
 #include "RiuViewerCommands.h"
 
+#include "RiaApplication.h"
+
 #include "RicViewerEventInterface.h"
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicRangeFilterNewExec.h"
+#include "WellPathCommands/RicWellPathViewerEventHandler.h"
 
 #include "RigCaseData.h"
 #include "RigFault.h"
@@ -54,9 +57,10 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
-#include "RivIntersectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
+#include "RivIntersectionBoxSourceInfo.h"
+#include "RivIntersectionSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
@@ -72,12 +76,10 @@
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 
-#include "WellPathCommands/RicWellPathViewerEventHandler.h"
-
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
-#include "RiaApplication.h"
+
 
 
 //==================================================================================================
@@ -170,8 +172,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
         const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
         const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
+        const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
 
-        if (rivSourceInfo || femSourceInfo || crossSectionSourceInfo)
+        if (rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo)
         {
             if (rivSourceInfo)
             {
@@ -195,6 +198,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 m_currentCrossSection = const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection());
 
                 menu.addAction(QString("Hide intersection"), this, SLOT(slotHideIntersection()));
+            }
+            else if (intersectionBoxSourceInfo)
+            {
+                findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
+                m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
             }
 
             // IJK -slice commands
@@ -490,6 +498,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
+            const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -510,6 +519,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             else if (crossSectionSourceInfo)
             {
                 findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
+            }
+            else if (intersectionBoxSourceInfo)
+            {
+                findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
             }
         }
 
@@ -598,6 +611,30 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionSourceInfo* cr
     else if (geomView)
     {
         *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+        *gridIndex = 0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex)
+{
+    CVF_ASSERT(cellIndex && gridIndex);
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
+    if (eclipseView)
+    {
+        size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
+
+        const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
+        *cellIndex = cell.gridLocalCellIndex();
+        *gridIndex = cell.hostGrid()->gridIndex();
+    }
+    else if (geomView)
+    {
+        *cellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
         *gridIndex = 0;
     }
 }
