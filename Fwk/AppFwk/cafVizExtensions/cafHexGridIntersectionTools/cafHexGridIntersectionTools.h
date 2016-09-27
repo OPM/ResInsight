@@ -36,7 +36,8 @@ public:
         size_t      clippedEdgeVx1Id;
         size_t      clippedEdgeVx2Id;
 
-        bool        isVxIdsNative;
+        bool        isVxIdsNative;  //< Pointing to real vertices, or indices to ClipVx's in the supplied triangle vertices array
+        int         derivedVxLevel; //< Helper data to make it possible to track what set of ClipVx's the indices is reffering to in case of consecutive clips
     };
 
     static bool planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf::Vec3d& b, cvf::Vec3d* intersection, double* normalizedDistFromA);

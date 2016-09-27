@@ -256,7 +256,7 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
         
         for (cvf::Vec3d& corner : faceCorners) sectionBBox.add(corner);
 
-        // Nearly same code as IntersectionGenerator :
+        // Similar code as IntersectionGenerator :
 
         std::vector<size_t> columnCellCandidates;
         m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
@@ -289,12 +289,14 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
             caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
                                                                                  &clippedTriangleVxes_once, &isClippedTriEdgeCellContour_once);
 
+            for (caf::HexGridIntersectionTools::ClipVx& clvx : clippedTriangleVxes_once) if (!clvx.isVxIdsNative) clvx.derivedVxLevel = 0;
+
             std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
             std::vector<bool> isClippedTriEdgeCellContour;
 
             caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(clippedTriangleVxes_once, isClippedTriEdgeCellContour_once, p3Plane, p4Plane,
                                                                                  &clippedTriangleVxes, &isClippedTriEdgeCellContour);
-
+            for (caf::HexGridIntersectionTools::ClipVx& clvx : clippedTriangleVxes) if (!clvx.isVxIdsNative && clvx.derivedVxLevel == -1) clvx.derivedVxLevel = 1;
 
             size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
 
@@ -346,19 +348,92 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
                     }
                     else
                     {
-                        #if 0
-                        caf::HexGridIntersectionTools::ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
-                        caf::HexGridIntersectionTools::ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
+                        caf::HexGridIntersectionTools::ClipVx cvx1;
+                        caf::HexGridIntersectionTools::ClipVx cvx2;
                         
-                        m_triVxToCellCornerWeights.push_back(
-                            RivIntersectionVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
-                                                         cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
-                                                         cvx.normDistFromEdgeVx1));
-                        #else
-                        m_triVxToCellCornerWeights.push_back(RivIntersectionVertexWeights());
-                        #endif
+                        if (cvx.derivedVxLevel == 0)
+                        {
+                            cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
+                            cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
+                        }
+                        else if(cvx.derivedVxLevel == 1)
+                        {
+                            cvx1 = clippedTriangleVxes_once[cvx.clippedEdgeVx1Id];
+                            cvx2 = clippedTriangleVxes_once[cvx.clippedEdgeVx2Id];
+                        }
+                        else
+                        {
+                            CVF_ASSERT(false);
+                        }
+
+                        if(cvx1.isVxIdsNative && cvx2.isVxIdsNative)
+                        {
+                            m_triVxToCellCornerWeights.push_back(
+                                RivIntersectionVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
+                                                             cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
+                                                             cvx.normDistFromEdgeVx1));
+                        }
+                        else
+                        {
+                            caf::HexGridIntersectionTools::ClipVx cvx11;
+                            caf::HexGridIntersectionTools::ClipVx cvx12;
+                            caf::HexGridIntersectionTools::ClipVx cvx21;
+                            caf::HexGridIntersectionTools::ClipVx cvx22;
+
+                            if(cvx1.isVxIdsNative)
+                            {
+                                cvx11 = cvx1;
+                                cvx12 = cvx1;
+                            }
+                            else if(cvx1.derivedVxLevel == 0)
+                            {
+                                cvx11 = hexPlaneCutTriangleVxes[cvx1.clippedEdgeVx1Id];
+                                cvx12 = hexPlaneCutTriangleVxes[cvx1.clippedEdgeVx2Id];
+                            }
+                            else if(cvx2.derivedVxLevel == 1)
+                            {
+                                cvx11 = clippedTriangleVxes_once[cvx1.clippedEdgeVx1Id];
+                                cvx12 = clippedTriangleVxes_once[cvx1.clippedEdgeVx2Id];
+                            }
+                            else
+                            {
+                                CVF_ASSERT(false);
+                            }
 
 
+                            if(cvx2.isVxIdsNative)
+                            {
+                                cvx21 = cvx2;
+                                cvx22 = cvx2;
+                            }
+                            else if(cvx2.derivedVxLevel == 0)
+                            {
+                                cvx21 = hexPlaneCutTriangleVxes[cvx2.clippedEdgeVx1Id];
+                                cvx22 = hexPlaneCutTriangleVxes[cvx2.clippedEdgeVx2Id];
+                            }
+                            else if(cvx2.derivedVxLevel == 1)
+                            {
+                                cvx21 = clippedTriangleVxes_once[cvx2.clippedEdgeVx1Id];
+                                cvx22 = clippedTriangleVxes_once[cvx2.clippedEdgeVx2Id];
+                             
+                            }
+                            else
+                            {
+                                CVF_ASSERT(false);
+                            }
+
+                            CVF_TIGHT_ASSERT(cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative && cvx22.isVxIdsNative);
+
+                            m_triVxToCellCornerWeights.push_back(
+                                RivIntersectionVertexWeights(cvx11.clippedEdgeVx1Id, cvx11.clippedEdgeVx2Id, cvx11.normDistFromEdgeVx1,
+                                                             cvx12.clippedEdgeVx1Id, cvx12.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
+                                                             cvx21.clippedEdgeVx1Id, cvx21.clippedEdgeVx2Id, cvx21.normDistFromEdgeVx1,
+                                                             cvx22.clippedEdgeVx1Id, cvx22.clippedEdgeVx2Id, cvx22.normDistFromEdgeVx1,
+                                                             cvx1.normDistFromEdgeVx1,
+                                                             cvx2.normDistFromEdgeVx1,
+                                                             cvx.normDistFromEdgeVx1));
+                        
+                        }
                     }
                 }
             }

@@ -10,7 +10,13 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-HexGridIntersectionTools::ClipVx::ClipVx() : vx(cvf::Vec3d::ZERO), normDistFromEdgeVx1(HUGE_VAL), clippedEdgeVx1Id(-1), clippedEdgeVx2Id(-1), isVxIdsNative(true)
+HexGridIntersectionTools::ClipVx::ClipVx() 
+    : vx(cvf::Vec3d::ZERO), 
+      normDistFromEdgeVx1(HUGE_VAL), 
+      clippedEdgeVx1Id(-1), 
+      clippedEdgeVx2Id(-1),
+      isVxIdsNative(true),
+      derivedVxLevel(-1)
 {
 }
 

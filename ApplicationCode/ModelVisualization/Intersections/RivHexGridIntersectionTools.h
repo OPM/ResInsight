@@ -92,6 +92,64 @@ class RivIntersectionVertexWeights
 public:
     explicit RivIntersectionVertexWeights(): m_count(0) {}
 
+/*    
+v111 k11 v11   v112  v211 k21  v21    v212
+  +------+-----+      +--------+------+
+         |                     |        
+         |k1                   |k2 
+         |   k                 |
+       v1+--------+------------+v2
+         |                     |
+         |                     | 
+         |                     |
+  +------+----+       +--------+-------+
+v121 k12 v12  v122   v221 k22  v22   v222
+
+Where the k's are normalized distances along the edge, from the edge start vertex .
+
+This is the interpolation sceme:
+
+v   = (1 - k  )* v1   + k *v2;
+
+v1  = (1 - k1 )* v11  + k1*v12;
+v2  = (1 - k2 )* v21  + k2*v22;
+
+v11 = (1 - k11)* v111 + k11*v112;
+v12 = (1 - k12)* v121 + k12*v122;
+v21 = (1 - k21)* v211 + k21*v212;
+v22 = (1 - k22)* v221 + k22*v222;
+
+Substitution and reorganizing gives the expressions seen below.
+
+*/
+
+    explicit RivIntersectionVertexWeights( size_t edgeVx111, size_t edgeVx112, double k11,
+                                           size_t edgeVx121, size_t edgeVx122, double k12,
+                                           size_t edgeVx211, size_t edgeVx212, double k21,
+                                           size_t edgeVx221, size_t edgeVx222, double k22,
+                                           double k1,
+                                           double k2,
+                                           double k) : m_count(8)
+    {
+        m_vxIds[0] = (edgeVx111);
+        m_vxIds[1] = (edgeVx112);
+        m_vxIds[2] = (edgeVx121);
+        m_vxIds[3] = (edgeVx122);
+        m_vxIds[4] = (edgeVx211);
+        m_vxIds[5] = (edgeVx212);
+        m_vxIds[6] = (edgeVx221);
+        m_vxIds[7] = (edgeVx222);
+
+        m_weights[7] = ((float)(k * k2 * k22));
+        m_weights[6] = ((float)(k * k2 - k * k2 * k22));
+        m_weights[5] = ((float)(( k - k * k2 ) * k21));
+        m_weights[4] = ((float)((k * k2 - k ) * k21 - k * k2 + k));
+        m_weights[3] = ((float)((1-k) * k1 * k12));
+        m_weights[2] = ((float)((k-1) * k1 * k12 + ( 1 - k ) * k1));
+        m_weights[1] = ((float)(( (k-1) * k1 - k + 1 ) * k11));
+        m_weights[0] = ((float)(( (1-k) * k1 + k - 1 ) * k11 + ( k - 1 ) * k1 - k + 1));
+    }
+
     explicit RivIntersectionVertexWeights(size_t edge1Vx1, size_t edge1Vx2, double normDistFromE1V1,
                                           size_t edge2Vx1, size_t edge2Vx2, double normDistFromE2V1,
                                           double normDistFromE1Cut) : m_count(4)
@@ -122,7 +180,7 @@ public:
 
 private:
 
-    size_t m_vxIds[4];
-    float  m_weights[4];
+    size_t m_vxIds[8];
+    float  m_weights[8];
     int    m_count;
 };
