@@ -53,25 +53,25 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Collapse box to plane", "", "", "");
+    CAF_PDM_InitField(&m_singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Collapse box to plane", "", "", "");
 
-    CAF_PDM_InitField(&minXCoord,    "MinXCoord",           0.0, "MinXCoord", "", "", "");
-    minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_minXCoord,    "MinXCoord",           0.0, "MinXCoord", "", "", "");
+    m_minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&maxXCoord,    "MaxXCoord",           0.0, "MaxXCoord", "", "", "");
-    maxXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_maxXCoord,    "MaxXCoord",           0.0, "MaxXCoord", "", "", "");
+    m_maxXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&minYCoord,    "MinYCoord",           0.0, "MinYCoord", "", "", "");
-    minYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_minYCoord,    "MinYCoord",           0.0, "MinYCoord", "", "", "");
+    m_minYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&maxYCoord,    "MaxYCoord",           0.0, "MaxYCoord", "", "", "");
-    maxYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_maxYCoord,    "MaxYCoord",           0.0, "MaxYCoord", "", "", "");
+    m_maxYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&minZCoord,    "MinZCoord",           0.0, "MinZCoord", "", "", "");
-    minZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_minZCoord,    "MinZCoord",           0.0, "MinZCoord", "", "", "");
+    m_minZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&maxZCoord,    "MaxZCoord",           0.0, "MaxZCoord", "", "", "");
-    maxZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_maxZCoord,    "MaxZCoord",           0.0, "MaxZCoord", "", "", "");
+    m_maxZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ RimIntersectionBox::~RimIntersectionBox()
 cvf::Mat4d RimIntersectionBox::boxOrigin() const
 {
     cvf::Mat4d mx(cvf::Mat4d::IDENTITY);
-    mx.setTranslation(cvf::Vec3d(minXCoord, minYCoord, minZCoord));
+    mx.setTranslation(cvf::Vec3d(m_minXCoord, m_minYCoord, m_minZCoord));
     return mx;
 }
 
@@ -97,7 +97,15 @@ cvf::Mat4d RimIntersectionBox::boxOrigin() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimIntersectionBox::boxSize() const
 {
-    return cvf::Vec3d(maxXCoord, maxYCoord, maxZCoord) - cvf::Vec3d(minXCoord, minYCoord, minZCoord);
+    return cvf::Vec3d(m_maxXCoord, m_maxYCoord, m_maxZCoord) - cvf::Vec3d(m_minXCoord, m_minYCoord, m_minZCoord);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIntersectionBox::SinglePlaneState RimIntersectionBox::singlePlaneState() const
+{
+    return m_singlePlaneState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,13 +115,13 @@ void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
 {
     m_boundingBox = boundingBox;
 
-    minXCoord = boundingBox.min().x() + boundingBox.extent().x() / 4.0;
-    minYCoord = boundingBox.min().y() + boundingBox.extent().y() / 4.0;
-    minZCoord = boundingBox.min().z() + boundingBox.extent().z() / 4.0;
+    m_minXCoord = boundingBox.min().x() + boundingBox.extent().x() / 4.0;
+    m_minYCoord = boundingBox.min().y() + boundingBox.extent().y() / 4.0;
+    m_minZCoord = boundingBox.min().z() + boundingBox.extent().z() / 4.0;
 
-    maxXCoord = boundingBox.max().x() - boundingBox.extent().x() / 4.0;
-    maxYCoord = boundingBox.max().y() - boundingBox.extent().y() / 4.0;
-    maxZCoord = boundingBox.max().z() - boundingBox.extent().z() / 4.0;
+    m_maxXCoord = boundingBox.max().x() - boundingBox.extent().x() / 4.0;
+    m_maxYCoord = boundingBox.max().y() - boundingBox.extent().y() / 4.0;
+    m_maxZCoord = boundingBox.max().z() - boundingBox.extent().z() / 4.0;
 
     updateLabelsFromBoundingBox();
 }
@@ -123,9 +131,9 @@ void RimIntersectionBox::setModelBoundingBox(cvf::BoundingBox& boundingBox)
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::setXSlice(double xValue)
 {
-    singlePlaneState = PLANE_STATE_X;
-    minXCoord = xValue;
-    maxXCoord = xValue;
+    m_singlePlaneState = PLANE_STATE_X;
+    m_minXCoord = xValue;
+    m_maxXCoord = xValue;
 
     updateVisibility();
 }
@@ -135,9 +143,9 @@ void RimIntersectionBox::setXSlice(double xValue)
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::setYSlice(double yValue)
 {
-    singlePlaneState = PLANE_STATE_Y;
-    minYCoord = yValue;
-    maxYCoord = yValue;
+    m_singlePlaneState = PLANE_STATE_Y;
+    m_minYCoord = yValue;
+    m_maxYCoord = yValue;
 
     updateVisibility();
 }
@@ -147,9 +155,9 @@ void RimIntersectionBox::setYSlice(double yValue)
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::setZSlice(double zValue)
 {
-    singlePlaneState = PLANE_STATE_Z;
-    minZCoord = zValue;
-    maxZCoord = zValue;
+    m_singlePlaneState = PLANE_STATE_Z;
+    m_minZCoord = zValue;
+    m_maxZCoord = zValue;
 
     updateVisibility();
 }
@@ -161,20 +169,20 @@ void RimIntersectionBox::updateLabelsFromBoundingBox()
 {
     {
         QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().x()).arg(m_boundingBox.max().x());
-        minXCoord.uiCapability()->setUiName(QString("Min X") + range);
-        maxXCoord.uiCapability()->setUiName(QString("Max X") + range);
+        m_minXCoord.uiCapability()->setUiName(QString("Min X") + range);
+        m_maxXCoord.uiCapability()->setUiName(QString("Max X") + range);
     }
 
     {
         QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().y()).arg(m_boundingBox.max().y());
-        minYCoord.uiCapability()->setUiName(QString("Min Y") + range);
-        maxYCoord.uiCapability()->setUiName(QString("Max Y") + range);
+        m_minYCoord.uiCapability()->setUiName(QString("Min Y") + range);
+        m_maxYCoord.uiCapability()->setUiName(QString("Max Y") + range);
     }
 
     {
         QString range = QString(" [%1 - %2]").arg(m_boundingBox.min().z()).arg(m_boundingBox.max().z());
-        minZCoord.uiCapability()->setUiName(QString("Min Z") + range);
-        maxZCoord.uiCapability()->setUiName(QString("Max Z") + range);
+        m_minZCoord.uiCapability()->setUiName(QString("Min Z") + range);
+        m_maxZCoord.uiCapability()->setUiName(QString("Max Z") + range);
     }
 }
 
@@ -208,37 +216,37 @@ void RimIntersectionBox::initialize()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &singlePlaneState)
+    if (changedField == &m_singlePlaneState)
     {
         updateVisibility();
         clampSinglePlaneValues();
     }
-    else if (changedField == &minXCoord)
+    else if (changedField == &m_minXCoord)
     {
         clampSinglePlaneValues();
-        minXCoord = CVF_MIN(maxXCoord, minXCoord);
+        m_minXCoord = CVF_MIN(m_maxXCoord, m_minXCoord);
     }
-    else if (changedField == &minYCoord)
+    else if (changedField == &m_minYCoord)
     {
         clampSinglePlaneValues();
-        minYCoord = CVF_MIN(maxYCoord, minYCoord);
+        m_minYCoord = CVF_MIN(m_maxYCoord, m_minYCoord);
     }
-    else if (changedField == &minZCoord)
+    else if (changedField == &m_minZCoord)
     {
         clampSinglePlaneValues();
-        minZCoord = CVF_MIN(maxZCoord, minZCoord);
+        m_minZCoord = CVF_MIN(m_maxZCoord, m_minZCoord);
     }
-    else if (changedField == &maxXCoord)
+    else if (changedField == &m_maxXCoord)
     {
-        maxXCoord = CVF_MAX(maxXCoord, minXCoord);
+        m_maxXCoord = CVF_MAX(m_maxXCoord, m_minXCoord);
     }
-    else if (changedField == &maxYCoord)
+    else if (changedField == &m_maxYCoord)
     {
-        maxYCoord = CVF_MAX(maxYCoord, minYCoord);
+        m_maxYCoord = CVF_MAX(m_maxYCoord, m_minYCoord);
     }
-    else if (changedField == &maxZCoord)
+    else if (changedField == &m_maxZCoord)
     {
-        maxZCoord = CVF_MAX(maxZCoord, minZCoord);
+        m_maxZCoord = CVF_MAX(m_maxZCoord, m_minZCoord);
     }
 
 
@@ -257,17 +265,17 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
 
     if (myAttr)
     {
-        if (field == &minXCoord || field == &maxXCoord)
+        if (field == &m_minXCoord || field == &m_maxXCoord)
         {
             myAttr->m_minimum = m_boundingBox.min().x();
             myAttr->m_maximum = m_boundingBox.max().x();
         }
-        else if (field == &minYCoord || field == &maxYCoord)
+        else if (field == &m_minYCoord || field == &m_maxYCoord)
         {
             myAttr->m_minimum = m_boundingBox.min().y();
             myAttr->m_maximum = m_boundingBox.max().y();
         }
-        else if (field == &minZCoord || field == &maxZCoord)
+        else if (field == &m_minZCoord || field == &m_maxZCoord)
         {
             myAttr->m_minimum = m_boundingBox.min().z();
             myAttr->m_maximum = m_boundingBox.max().z();
@@ -281,24 +289,24 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
 void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
-    uiOrdering.add(&singlePlaneState);
+    uiOrdering.add(&m_singlePlaneState);
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("X Coordinates");
-        group->add(&minXCoord);
-        group->add(&maxXCoord);
+        group->add(&m_minXCoord);
+        group->add(&m_maxXCoord);
     }
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Y Coordinates");
-        group->add(&minYCoord);
-        group->add(&maxYCoord);
+        group->add(&m_minYCoord);
+        group->add(&m_maxYCoord);
     }
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Z Coordinates");
-        group->add(&minZCoord);
-        group->add(&maxZCoord);
+        group->add(&m_minZCoord);
+        group->add(&m_maxZCoord);
     }
 }
 
@@ -346,21 +354,21 @@ void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::updateVisibility()
 {
-    maxXCoord.uiCapability()->setUiReadOnly(false);
-    maxYCoord.uiCapability()->setUiReadOnly(false);
-    maxZCoord.uiCapability()->setUiReadOnly(false);
+    m_maxXCoord.uiCapability()->setUiReadOnly(false);
+    m_maxYCoord.uiCapability()->setUiReadOnly(false);
+    m_maxZCoord.uiCapability()->setUiReadOnly(false);
 
-    if (singlePlaneState == PLANE_STATE_X)
+    if (m_singlePlaneState == PLANE_STATE_X)
     {
-        maxXCoord.uiCapability()->setUiReadOnly(true);
+        m_maxXCoord.uiCapability()->setUiReadOnly(true);
     }
-    else if (singlePlaneState == PLANE_STATE_Y)
+    else if (m_singlePlaneState == PLANE_STATE_Y)
     {
-        maxYCoord.uiCapability()->setUiReadOnly(true);
+        m_maxYCoord.uiCapability()->setUiReadOnly(true);
     }
-    else if (singlePlaneState == PLANE_STATE_Z)
+    else if (m_singlePlaneState == PLANE_STATE_Z)
     {
-        maxZCoord.uiCapability()->setUiReadOnly(true);
+        m_maxZCoord.uiCapability()->setUiReadOnly(true);
     }
 }
 
@@ -369,17 +377,17 @@ void RimIntersectionBox::updateVisibility()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::clampSinglePlaneValues()
 {
-    if (singlePlaneState == PLANE_STATE_X)
+    if (m_singlePlaneState == PLANE_STATE_X)
     {
-        maxXCoord = minXCoord;
+        m_maxXCoord = m_minXCoord;
     }
-    else if (singlePlaneState == PLANE_STATE_Y)
+    else if (m_singlePlaneState == PLANE_STATE_Y)
     {
-        maxYCoord = minYCoord;
+        m_maxYCoord = m_minYCoord;
     }
-    else if (singlePlaneState == PLANE_STATE_Z)
+    else if (m_singlePlaneState == PLANE_STATE_Z)
     {
-        maxZCoord = minZCoord;
+        m_maxZCoord = m_minZCoord;
     }
 }
 

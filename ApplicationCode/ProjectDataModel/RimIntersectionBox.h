@@ -53,6 +53,7 @@ public:
 
     cvf::Mat4d                      boxOrigin() const;
     cvf::Vec3d                      boxSize()   const;
+    SinglePlaneState                singlePlaneState() const; 
 
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
 
@@ -62,8 +63,7 @@ public:
     void                            setXSlice(double xValue);
     void                            setYSlice(double yValue);
     void                            setZSlice(double zValue);
-
-    void updateLabelsFromBoundingBox();
+    void                            updateLabelsFromBoundingBox();
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
@@ -80,15 +80,15 @@ private:
     void                            clampSinglePlaneValues();
 
 private:
-    caf::PdmField<caf::AppEnum< SinglePlaneState > > singlePlaneState;
+    caf::PdmField<caf::AppEnum< SinglePlaneState > > m_singlePlaneState;
     
-    caf::PdmField<double>           minXCoord;
-    caf::PdmField<double>           minYCoord;
-    caf::PdmField<double>           minZCoord;
+    caf::PdmField<double>           m_minXCoord;
+    caf::PdmField<double>           m_minYCoord;
+    caf::PdmField<double>           m_minZCoord;
 
-    caf::PdmField<double>           maxXCoord;
-    caf::PdmField<double>           maxYCoord;
-    caf::PdmField<double>           maxZCoord;
+    caf::PdmField<double>           m_maxXCoord;
+    caf::PdmField<double>           m_maxYCoord;
+    caf::PdmField<double>           m_maxZCoord;
 
 
     cvf::BoundingBox                        m_boundingBox;

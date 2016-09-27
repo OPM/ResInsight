@@ -234,7 +234,14 @@ void RivIntersectionBoxGeometryGenerator::calculateArrays()
     Box box(m_intersectionBoxDefinition->boxOrigin(), m_intersectionBoxDefinition->boxSize());
     std::array<cvf::Plane, 6> boxPlanes = box.planes();
 
-    for (int faceIdx = 0; faceIdx < 6; ++faceIdx)    
+    RimIntersectionBox::SinglePlaneState singlePlane = m_intersectionBoxDefinition->singlePlaneState();
+
+    int startFace = 0; int endFace = 5;
+    if (singlePlane == RimIntersectionBox::PLANE_STATE_X) startFace = endFace = Box::FaceType::POS_I;
+    if (singlePlane == RimIntersectionBox::PLANE_STATE_Y) startFace = endFace = Box::FaceType::POS_J;
+    if (singlePlane == RimIntersectionBox::PLANE_STATE_Z) startFace = endFace = Box::FaceType::POS_K;
+
+    for (int faceIdx = startFace; faceIdx <= endFace; ++faceIdx)    
     {
         cvf::Plane plane = boxPlanes[faceIdx];
         
