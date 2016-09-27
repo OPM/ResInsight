@@ -36,6 +36,10 @@ class RivIntersectionSourceInfo;
 
 class QMouseEvent;
 
+namespace caf {
+    class PdmObject;
+}
+
 namespace cvf {
     class HitItemCollection;
     class Part;
@@ -54,6 +58,8 @@ public:
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
+
+    caf::PdmObject* currentPickedObject() const;
 
 private slots:
     void            slotRangeFilterI();
@@ -80,7 +86,7 @@ private:
     cvf::Vec3d  m_currentPickPositionInDomainCoords;
 
     caf::PdmPointer<RimView> m_reservoirView;
-    caf::PdmPointer<RimIntersection> m_currentCrossSection;
+    caf::PdmPointer<caf::PdmObject> m_currentPickedObject;
 
     QPointer<RiuViewer> m_viewer;
 

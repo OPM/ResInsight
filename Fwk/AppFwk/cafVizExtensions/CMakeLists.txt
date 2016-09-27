@@ -15,6 +15,10 @@ include_directories(
 )
 
 add_library( ${PROJECT_NAME}
+    cafBoxManipulatorPartManager.cpp
+    cafBoxManipulatorPartManager.h
+    cafBoxManipulatorGeometryGenerator.cpp
+    cafBoxManipulatorGeometryGenerator.h
     cafCategoryLegend.cpp
     cafCategoryLegend.h
     cafCategoryMapper.cpp

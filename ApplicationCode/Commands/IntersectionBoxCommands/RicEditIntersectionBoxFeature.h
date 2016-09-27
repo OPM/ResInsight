@@ -22,23 +22,34 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-class RimIntersectionBoxCollection;
+#include "cvfBase.h"
+#include "cvfObject.h"
 
+
+namespace caf {
+    class BoxManipulatorGeometryGenerator;
+};
+
+namespace cvf {
+    class ModelBasicList;
+};
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAppendIntersectionBoxFeature : public caf::CmdFeature
+class RicEditIntersectionBoxFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
+    virtual bool isCommandChecked() override;
 
 private:
-    static RimIntersectionBoxCollection* intersectionBoxCollection();
+//    cvf::ref<caf::BoxManipulatorGeometryGenerator> m_boxManipulatorGeometryGenerator;
+    cvf::ref<cvf::ModelBasicList> m_model;
 };
 

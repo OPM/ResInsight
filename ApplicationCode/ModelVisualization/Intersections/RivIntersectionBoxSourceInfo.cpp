@@ -40,3 +40,11 @@ const std::vector<size_t>& RivIntersectionBoxSourceInfo::triangleToCellIndex() c
     return m_intersectionBoxGeometryGenerator->triangleToCellIndex();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimIntersectionBox* RivIntersectionBoxSourceInfo::intersectionBox() const
+{
+    return m_intersectionBoxGeometryGenerator->intersectionBox();
+}
+

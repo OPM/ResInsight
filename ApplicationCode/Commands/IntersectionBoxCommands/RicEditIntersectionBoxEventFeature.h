@@ -19,26 +19,34 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "cafCmdExecuteCommand.h"
-#include "cafPdmPointer.h"
 
-class RimIntersectionBoxCollection;
+
+class RicBoxManipulatorEventHandler;
 
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAppendIntersectionBoxFeature : public caf::CmdFeature
+class RicEditIntersectionBoxEventFeature : public caf::CmdFeature
 {
+    Q_OBJECT;
+
     CAF_CMD_HEADER_INIT;
+
+public:
+    RicEditIntersectionBoxEventFeature();
+
+public slots:
+    void updateGeometry();
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
+    virtual bool isCommandChecked() override;
 
 private:
-    static RimIntersectionBoxCollection* intersectionBoxCollection();
+    RicBoxManipulatorEventHandler* m_eventHandler;
 };
 
