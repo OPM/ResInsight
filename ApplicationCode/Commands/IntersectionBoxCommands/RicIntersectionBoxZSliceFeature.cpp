@@ -59,25 +59,9 @@ void RicIntersectionBoxZSliceFeature::onActionTriggered(bool isChecked)
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
         intersectionBox->name = QString("Z-slice (Intersection box)");
 
-        RimCase* rimCase = NULL;
-        coll->firstAnchestorOrThisOfType(rimCase);
-        if (rimCase)
-        {
-            intersectionBox->setModelBoundingBox(rimCase->activeCellsBoundingBox());
-
-            cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
-
-            if (!domainCoord.isUndefined())
-            {
-                intersectionBox->setZSlice(domainCoord.z());
-            }
-            else
-            {
-                intersectionBox->setZSlice(rimCase->activeCellsBoundingBox().center().z());
-            }
-        }
-
         coll->appendIntersectionBox(intersectionBox);
+        cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
+        intersectionBox->setToDefaultSizeSlice(RimIntersectionBox::PLANE_STATE_Z, domainCoord);
 
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);

@@ -56,14 +56,9 @@ void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();
         intersectionBox->name = QString("Intersection Box");
 
-        RimCase* rimCase = NULL;
-        coll->firstAnchestorOrThisOfType(rimCase);
-        if (rimCase)
-        {
-            intersectionBox->setModelBoundingBox(rimCase->activeCellsBoundingBox());
-        }
-
         coll->appendIntersectionBox(intersectionBox);
+
+        intersectionBox->setToDefaultSizeBox();
 
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);

@@ -57,13 +57,8 @@ public:
 
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
 
-    void                            initialize();
-    void                            setModelBoundingBox(cvf::BoundingBox& boundingBox);
-
-    void                            setXSlice(double xValue);
-    void                            setYSlice(double yValue);
-    void                            setZSlice(double zValue);
-    void                            updateLabelsFromBoundingBox();
+    void                            setToDefaultSizeBox();
+    void                            setToDefaultSizeSlice(SinglePlaneState plane, const cvf::Vec3d& position);
 
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
@@ -77,6 +72,7 @@ protected:
 private:
     void                            rebuildGeometryAndScheduleCreateDisplayModel();
     void                            updateVisibility();
+    void                            updateLabelsFromBoundingBox();
     void                            clampSinglePlaneValues();
 
 private:
@@ -91,7 +87,7 @@ private:
     caf::PdmField<double>           m_maxZCoord;
 
 
-    cvf::BoundingBox                        m_boundingBox;
+    cvf::BoundingBox                        currentCellBoundingBox();
 
     cvf::ref<RivIntersectionBoxPartMgr>     m_intersectionBoxPartMgr;
 };

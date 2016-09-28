@@ -706,8 +706,6 @@ void RimEclipseView::loadDataAndUpdate()
     this->faultCollection()->setReservoirView(this);
     this->faultCollection()->syncronizeFaults();
 
-    this->intersectionBoxCollection()->initialize();
-
     m_reservoirGridPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();

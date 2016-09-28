@@ -164,8 +164,6 @@ void RimGeoMechView::loadDataAndUpdate()
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     
-    this->intersectionBoxCollection()->initialize();
-
     this->scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();
