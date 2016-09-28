@@ -2,6 +2,7 @@
 #include "cafHexGridIntersectionTools.h"
 
 #include "cvfPlane.h"
+#include <math.h>
 
 
 

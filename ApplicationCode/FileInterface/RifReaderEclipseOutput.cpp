@@ -902,7 +902,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     }
 
     // Introduced based on discussion with Håkon Høgstøl 08.09.2016
-    if (cellK >= grid->cellCountK())
+    if (cellK >= static_cast<int>(grid->cellCountK()))
     {
         int maxCellKIndex = static_cast<int>(grid->cellCountK() - 1);
         cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to " + cvf::String(maxCellKIndex));

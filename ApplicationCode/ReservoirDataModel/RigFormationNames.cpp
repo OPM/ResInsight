@@ -40,7 +40,7 @@ RigFormationNames::~RigFormationNames()
 QString RigFormationNames::formationNameFromKLayerIdx(size_t Kidx)
 {
     int idx = formationIndexFromKLayerIdx(Kidx);
-    if(idx >= m_formationNames.size()) return "";
+    if(idx >= static_cast<int>(m_formationNames.size())) return "";
     if(idx == -1) return "";
 
     return m_formationNames[idx];
