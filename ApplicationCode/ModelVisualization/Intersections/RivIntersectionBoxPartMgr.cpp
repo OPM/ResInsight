@@ -368,7 +368,7 @@ void RivIntersectionBoxPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_intersectionBoxFaces.isNull())
+    if (m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull())
     {
         generatePartGeometry();
     }
@@ -385,7 +385,7 @@ void RivIntersectionBoxPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelB
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_intersectionBoxGridLines.isNull())
+    if (m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull())
     {
         generatePartGeometry();
     }
