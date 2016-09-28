@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,23 +18,25 @@
 
 #pragma once
 
+#include "cafCmdFeature.h"
+#include "cafCmdExecuteCommand.h"
+#include "cafPdmPointer.h"
+
+
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicToggleItemsFeatureImpl 
+class RicAppendIntersectionBoxFeature : public caf::CmdFeature
 {
-public:
-  enum SelectionToggleType
-  {
-      TOGGLE_ON,
-      TOGGLE_OFF,
-      TOGGLE_SUBITEMS,
-      TOGGLE,
-      TOGGLE_UNDEFINED
-  };
+    CAF_CMD_HEADER_INIT;
 
-  static bool isToggleCommandsAvailable();
-  static bool isToggleCommandsForSubItems();
-  static void setObjectToggleStateForSelection(SelectionToggleType state);
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
+
+private:
+    static RimIntersectionBoxCollection* intersectionBoxCollection();
 };
 

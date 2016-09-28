@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,54 +18,22 @@
 
 #pragma once
 
-#include "RicViewerEventInterface.h"
-
+#include "cafCmdFeature.h"
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
-class RimCrossSectionCollection;
-
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewPolylineCrossSectionFeatureCmd : public caf::CmdExecuteCommand
-{
-public:
-    RicNewPolylineCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection);
-    virtual ~RicNewPolylineCrossSectionFeatureCmd();
-
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
-
-private:
-    caf::PdmPointer<RimCrossSectionCollection> m_crossSectionCollection;
-};
-
-
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicNewPolylineCrossSectionFeature : public caf::CmdFeature, public RicViewerEventInterface
+class RicIntersectionBoxZSliceFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    RicNewPolylineCrossSectionFeature();
 
 protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
-
-    virtual bool handleEvent(cvf::Object* eventObject);
 };
-
 

@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,23 +18,20 @@
 
 #pragma once
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicToggleItemsFeatureImpl 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfArray.h"
+
+class RivIntersectionBoxGeometryGenerator;
+class RimIntersectionBox;
+
+class RivIntersectionBoxSourceInfo : public cvf::Object
 {
 public:
-  enum SelectionToggleType
-  {
-      TOGGLE_ON,
-      TOGGLE_OFF,
-      TOGGLE_SUBITEMS,
-      TOGGLE,
-      TOGGLE_UNDEFINED
-  };
+    RivIntersectionBoxSourceInfo(RivIntersectionBoxGeometryGenerator* geometryGenerator);
 
-  static bool isToggleCommandsAvailable();
-  static bool isToggleCommandsForSubItems();
-  static void setObjectToggleStateForSelection(SelectionToggleType state);
+    const std::vector<size_t>& triangleToCellIndex() const;
+
+private:
+    cvf::cref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGeometryGenerator;
 };
-

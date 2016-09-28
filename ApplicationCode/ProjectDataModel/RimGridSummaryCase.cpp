@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGridSummaryCase.h"
-#include "RimEclipseCase.h"
-#include <QFileInfo>
+
 #include "RigSummaryCaseData.h"
+#include "RimEclipseCase.h"
+
+#include <QFileInfo>
 
 //==================================================================================================
 //
@@ -76,6 +78,8 @@ QString RimGridSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::caseName() const
 {
+    if (!m_eclipseCase()) return QString();
+
     return m_eclipseCase()->caseUserDescription();
 }
 

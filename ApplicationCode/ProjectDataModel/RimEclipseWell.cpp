@@ -20,7 +20,7 @@
 
 #include "RimEclipseWell.h"
 
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 

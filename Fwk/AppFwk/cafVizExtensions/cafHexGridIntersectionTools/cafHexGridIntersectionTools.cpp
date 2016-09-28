@@ -1,57 +1,23 @@
-/////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
-// 
-//  ResInsight is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-//  for more details.
-//
-/////////////////////////////////////////////////////////////////////////////////
 
-#include "RivCrossSectionGeometryGenerator.h"
+#include "cafHexGridIntersectionTools.h"
 
-#include "RigMainGrid.h"
-#include "RigResultAccessor.h"
+#include "cvfPlane.h"
 
-#include "RimCrossSection.h"
 
-#include "cvfDrawableGeo.h"
-#include "cvfPrimitiveSetDirect.h"
-#include "cvfPrimitiveSetIndexedUInt.h"
-#include "cvfScalarMapper.h"
 
+namespace caf {
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::RivCrossSectionGeometryGenerator(const RimCrossSection* crossSection,
-                                                                    std::vector<std::vector<cvf::Vec3d> > &polylines, 
-                                                                    const cvf::Vec3d& extrusionDirection, 
-                                                                    const RivCrossSectionHexGridIntf* grid)
-                                                                   : m_crossSection(crossSection),
-                                                                   m_polyLines(polylines), 
-                                                                   m_extrusionDirection(extrusionDirection), 
-                                                                   m_hexGrid(grid)
+HexGridIntersectionTools::ClipVx::ClipVx() 
+    : vx(cvf::Vec3d::ZERO), 
+      normDistFromEdgeVx1(HUGE_VAL), 
+      clippedEdgeVx1Id(-1), 
+      clippedEdgeVx2Id(-1),
+      isVxIdsNative(true),
+      derivedVxLevel(-1)
 {
-    m_triangleVxes = new cvf::Vec3fArray;
-    m_cellBorderLineVxes = new cvf::Vec3fArray;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivCrossSectionGeometryGenerator::~RivCrossSectionGeometryGenerator()
-{
-
 }
 
 
@@ -67,7 +33,7 @@ RivCrossSectionGeometryGenerator::~RivCrossSectionGeometryGenerator()
 ///
 /// \return True if line segment intersects the plane
 //--------------------------------------------------------------------------------------------------
-bool planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf::Vec3d& b, cvf::Vec3d* intersection, double* normalizedDistFromA)
+bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf::Vec3d& b, cvf::Vec3d* intersection, double* normalizedDistFromA)
 {
     // From Real-Time Collision Detection by Christer Eriscon, published by Morgen Kaufmann Publishers, (c) 2005 Elsevier Inc
 
@@ -89,19 +55,6 @@ bool planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf:
     return (interpolationParameter >= 0.0 && interpolationParameter <= 1.0);
 }
 
-
-struct ClipVx 
-{
-    ClipVx() : vx(cvf::Vec3d::ZERO), normDistFromEdgeVx1(HUGE_VAL), clippedEdgeVx1Id(-1), clippedEdgeVx2Id(-1), isVxIdsNative(true)  {}
-    
-    cvf::Vec3d  vx;
-
-    double      normDistFromEdgeVx1;
-    size_t      clippedEdgeVx1Id;
-    size_t      clippedEdgeVx2Id;
-
-    bool        isVxIdsNative;
-};
 
 //--------------------------------------------------------------------------------------------------
 /// Returns whether the triangle was hit by the plane.
@@ -131,20 +84,20 @@ struct ClipVx
 //          \+               +/                       
 //--------------------------------------------------------------------------------------------------
 
-bool planeTriangleIntersection(const cvf::Plane& plane, 
-                               const cvf::Vec3d& p1, size_t p1Id, 
-                               const cvf::Vec3d& p2, size_t p2Id,  
-                               const cvf::Vec3d& p3, size_t p3Id, 
-                               ClipVx* newVx1, ClipVx* newVx2, 
-                               bool * isMostVxesOnPositiveSide)
+bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane,
+                                                         const cvf::Vec3d& p1, size_t p1Id,
+                                                         const cvf::Vec3d& p2, size_t p2Id,
+                                                         const cvf::Vec3d& p3, size_t p3Id,
+                                                         ClipVx* newVx1, ClipVx* newVx2,
+                                                         bool * isMostVxesOnPositiveSide)
 {
     int onPosSide[3];
-    onPosSide[0] = plane.distanceSquared(p1) >= 0 ;
-    onPosSide[1] = plane.distanceSquared(p2) >= 0 ;
-    onPosSide[2] = plane.distanceSquared(p3) >= 0 ;
+    onPosSide[0] = plane.distanceSquared(p1) >= 0;
+    onPosSide[1] = plane.distanceSquared(p2) >= 0;
+    onPosSide[2] = plane.distanceSquared(p3) >= 0;
 
     const int numPositiveVertices = onPosSide[0] + onPosSide[1] + onPosSide[2];
-    
+
     // The entire triangle is on the negative side
     // Clip everything
     if (numPositiveVertices == 0)
@@ -154,7 +107,7 @@ bool planeTriangleIntersection(const cvf::Plane& plane,
     }
 
     // All triangle vertices are on the positive side
-    if (numPositiveVertices == 3) 
+    if (numPositiveVertices == 3)
     {
         (*isMostVxesOnPositiveSide) = true;
         return false;
@@ -215,8 +168,8 @@ bool planeTriangleIntersection(const cvf::Plane& plane,
     }
 
     CVF_TIGHT_ASSERT(ok1 && ok2);
-    
-    return true;  
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,18 +204,19 @@ bool planeTriangleIntersection(const cvf::Plane& plane,
 // The isTriangleEdgeCellContour bits refer to the edge after the corresponding triangle vertex.
 //--------------------------------------------------------------------------------------------------
 
-void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVxes,
-                                           const std::vector<bool> &isTriangleEdgeCellContour,
-                                           const cvf::Plane& p1Plane, const cvf::Plane& p2Plane,
-                                           std::vector<ClipVx> *clippedTriangleVxes, 
-                                           std::vector<bool> *isClippedTriEdgeCellContour)
+void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx>& triangleVxes,
+                                                                     const std::vector<bool>&   isTriangleEdgeCellContour,
+                                                                     const cvf::Plane&          p1Plane, 
+                                                                     const cvf::Plane&          p2Plane,
+                                                                     std::vector<ClipVx>*       clippedTriangleVxes,
+                                                                     std::vector<bool>*         isClippedTriEdgeCellContour)
 {
-    size_t triangleCount = triangleVxes.size()/3;
+    size_t triangleCount = triangleVxes.size() / 3;
 
     for (size_t tIdx = 0; tIdx < triangleCount; ++tIdx)
     {
 
-        size_t triVxIdx = tIdx*3;
+        size_t triVxIdx = tIdx * 3;
 
         ClipVx newVx1OnP1;
         newVx1OnP1.isVxIdsNative = false;
@@ -270,6 +224,7 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
         newVx2OnP1.isVxIdsNative = false;
 
         bool isMostVxesOnPositiveSideOfP1 = false;
+
         bool isIntersectingP1 = planeTriangleIntersection(p1Plane,
                                                           triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
                                                           triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
@@ -286,7 +241,9 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
         newVx1OnP2.isVxIdsNative = false;
         ClipVx newVx2OnP2;
         newVx2OnP2.isVxIdsNative = false;
+
         bool isMostVxesOnPositiveSideOfP2 = false;
+
         bool isIntersectingP2 = planeTriangleIntersection(p2Plane,
                                                           triangleVxes[triVxIdx + 0].vx, triVxIdx + 0,
                                                           triangleVxes[triVxIdx + 1].vx, triVxIdx + 1,
@@ -298,12 +255,12 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
             continue; // Discard triangle
         }
 
-        bool p1KeepAll = (!isIntersectingP1 && isMostVxesOnPositiveSideOfP1);
-        bool p2KeepAll = (!isIntersectingP2 && isMostVxesOnPositiveSideOfP2);
-        bool p1KeepQuad = (isIntersectingP1 && isMostVxesOnPositiveSideOfP1);
-        bool p2KeepQuad = (isIntersectingP2 && isMostVxesOnPositiveSideOfP2);
-        bool p1KeepTop = (isIntersectingP1 && !isMostVxesOnPositiveSideOfP1);
-        bool p2KeepTop = (isIntersectingP2 && !isMostVxesOnPositiveSideOfP2);
+        bool p1KeepAll  = (!isIntersectingP1 &&  isMostVxesOnPositiveSideOfP1);
+        bool p2KeepAll  = (!isIntersectingP2 &&  isMostVxesOnPositiveSideOfP2);
+        bool p1KeepQuad = ( isIntersectingP1 &&  isMostVxesOnPositiveSideOfP1);
+        bool p2KeepQuad = ( isIntersectingP2 &&  isMostVxesOnPositiveSideOfP2);
+        bool p1KeepTop  = ( isIntersectingP1 && !isMostVxesOnPositiveSideOfP1);
+        bool p2KeepTop  = ( isIntersectingP2 && !isMostVxesOnPositiveSideOfP2);
 
         if (p1KeepAll && p2KeepAll)
         {
@@ -496,7 +453,7 @@ void clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx> &triangleVx
 //--------------------------------------------------------------------------------------------------
 /// Will return the intersection point. If the plane is outside the line, it returns the closest line endpoint
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d planeLineIntersectionForMC(const cvf::Plane& plane, const cvf::Vec3d& p1, const cvf::Vec3d& p2, double* normalizedDistFromP1)
+cvf::Vec3d HexGridIntersectionTools::planeLineIntersectionForMC(const cvf::Plane& plane, const cvf::Vec3d& p1, const cvf::Vec3d& p2, double* normalizedDistFromP1)
 {
     // From http://local.wasp.uwa.edu.au/~pbourke/geometry/planeline/
     //
@@ -517,7 +474,7 @@ cvf::Vec3d planeLineIntersectionForMC(const cvf::Plane& plane, const cvf::Vec3d&
     double denominator = -(plane.A()*v.x() + plane.B()*v.y() + plane.C()*v.z());
     if (denominator != 0)
     {
-        double u = (plane.A()*p1.x() + plane.B()*p1.y() + plane.C()*p1.z() + plane.D())/denominator;
+        double u = (plane.A()*p1.x() + plane.B()*p1.y() + plane.C()*p1.z() + plane.D()) / denominator;
         (*normalizedDistFromP1) = u;
         if (u > 0.0 && u < 1.0)
         {
@@ -544,17 +501,17 @@ cvf::Vec3d planeLineIntersectionForMC(const cvf::Plane& plane, const cvf::Vec3d&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int planeHexIntersectionMC(const cvf::Plane& plane, 
-                            const cvf::Vec3d cell[8], 
-                            const size_t hexCornersIds[8], 
-                            std::vector<ClipVx>* triangleVxes,
-                            std::vector<bool>* isTriEdgeCellContour)
+int HexGridIntersectionTools::planeHexIntersectionMC(const cvf::Plane& plane,
+    const cvf::Vec3d cell[8],
+    const size_t hexCornersIds[8],
+    std::vector<ClipVx>* triangleVxes,
+    std::vector<bool>* isTriEdgeCellContour)
 {
 
-// Based on description and implementation from Paul Bourke:
-//   http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/
+    // Based on description and implementation from Paul Bourke:
+    //   http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/
 
-    static const uint cubeIdxToCutEdgeBitfield[256] =
+    static const cvf::uint cubeIdxToCutEdgeBitfield[256] =
     {
         0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
         0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -886,24 +843,24 @@ int planeHexIntersectionMC(const cvf::Plane& plane,
 
 
     // Compute vertex coordinates on the edges where we have intersections
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 1)    edgeIntersections[0] =   planeLineIntersectionForMC(plane, cell[0], cell[1],  &normDistAlongEdge[0] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 2)    edgeIntersections[1] =   planeLineIntersectionForMC(plane, cell[1], cell[2],  &normDistAlongEdge[1] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 4)    edgeIntersections[2] =   planeLineIntersectionForMC(plane, cell[2], cell[3],  &normDistAlongEdge[2] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 8)    edgeIntersections[3] =   planeLineIntersectionForMC(plane, cell[3], cell[0],  &normDistAlongEdge[3] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 16)   edgeIntersections[4] =   planeLineIntersectionForMC(plane, cell[4], cell[5],  &normDistAlongEdge[4] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 32)   edgeIntersections[5] =   planeLineIntersectionForMC(plane, cell[5], cell[6],  &normDistAlongEdge[5] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 64)   edgeIntersections[6] =   planeLineIntersectionForMC(plane, cell[6], cell[7],  &normDistAlongEdge[6] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 128)  edgeIntersections[7] =   planeLineIntersectionForMC(plane, cell[7], cell[4],  &normDistAlongEdge[7] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 256)  edgeIntersections[8] =   planeLineIntersectionForMC(plane, cell[0], cell[4],  &normDistAlongEdge[8] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 512)  edgeIntersections[9] =   planeLineIntersectionForMC(plane, cell[1], cell[5],  &normDistAlongEdge[9] );
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 1024) edgeIntersections[10] =  planeLineIntersectionForMC(plane, cell[2], cell[6],  &normDistAlongEdge[10]);
-    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 2048) edgeIntersections[11] =  planeLineIntersectionForMC(plane, cell[3], cell[7],  &normDistAlongEdge[11]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 1)    edgeIntersections[0] = planeLineIntersectionForMC(plane, cell[0], cell[1], &normDistAlongEdge[0]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 2)    edgeIntersections[1] = planeLineIntersectionForMC(plane, cell[1], cell[2], &normDistAlongEdge[1]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 4)    edgeIntersections[2] = planeLineIntersectionForMC(plane, cell[2], cell[3], &normDistAlongEdge[2]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 8)    edgeIntersections[3] = planeLineIntersectionForMC(plane, cell[3], cell[0], &normDistAlongEdge[3]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 16)   edgeIntersections[4] = planeLineIntersectionForMC(plane, cell[4], cell[5], &normDistAlongEdge[4]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 32)   edgeIntersections[5] = planeLineIntersectionForMC(plane, cell[5], cell[6], &normDistAlongEdge[5]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 64)   edgeIntersections[6] = planeLineIntersectionForMC(plane, cell[6], cell[7], &normDistAlongEdge[6]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 128)  edgeIntersections[7] = planeLineIntersectionForMC(plane, cell[7], cell[4], &normDistAlongEdge[7]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 256)  edgeIntersections[8] = planeLineIntersectionForMC(plane, cell[0], cell[4], &normDistAlongEdge[8]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 512)  edgeIntersections[9] = planeLineIntersectionForMC(plane, cell[1], cell[5], &normDistAlongEdge[9]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 1024) edgeIntersections[10] = planeLineIntersectionForMC(plane, cell[2], cell[6], &normDistAlongEdge[10]);
+    if (cubeIdxToCutEdgeBitfield[cubeIndex] & 2048) edgeIntersections[11] = planeLineIntersectionForMC(plane, cell[3], cell[7], &normDistAlongEdge[11]);
 
 
     // Create the triangles
 
     const int* triangleIndicesToCubeEdges = cubeIdxToTriangleIndices[cubeIndex];
-    uint triangleVxIdx = 0;
+    cvf::uint triangleVxIdx = 0;
     int cubeEdgeIdx = triangleIndicesToCubeEdges[triangleVxIdx];
 
 
@@ -920,9 +877,9 @@ int planeHexIntersectionMC(const cvf::Plane& plane,
         cubeEdgeIdx = triangleIndicesToCubeEdges[triangleVxIdx];
     }
 
-    uint triangleCount = triangleVxIdx/3;
+    cvf::uint triangleCount = triangleVxIdx / 3;
 
-    int triangleEdgeCount[12][12] ={
+    int triangleEdgeCount[12][12] = {
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -940,516 +897,36 @@ int planeHexIntersectionMC(const cvf::Plane& plane,
     (*isTriEdgeCellContour).clear();
     (*isTriEdgeCellContour).resize(triangleVxIdx, false);
 
-    for (uint tIdx = 0; tIdx < triangleCount; ++tIdx)
+    for (cvf::uint tIdx = 0; tIdx < triangleCount; ++tIdx)
     {
-        uint triVxIdx = 3*tIdx;
+        cvf::uint triVxIdx = 3 * tIdx;
         int cubeEdgeIdx1 = triangleIndicesToCubeEdges[triVxIdx];
         int cubeEdgeIdx2 = triangleIndicesToCubeEdges[triVxIdx + 1];
-        int cubeEdgeIdx3 = triangleIndicesToCubeEdges[triVxIdx + 2 ];
+        int cubeEdgeIdx3 = triangleIndicesToCubeEdges[triVxIdx + 2];
 
-        cubeEdgeIdx1 < cubeEdgeIdx2 ?  ++triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx2]: ++triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx1];
-        cubeEdgeIdx2 < cubeEdgeIdx3 ?  ++triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx3]: ++triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx2];
-        cubeEdgeIdx3 < cubeEdgeIdx1 ?  ++triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx1]: ++triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx3];
+        cubeEdgeIdx1 < cubeEdgeIdx2 ? ++triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx2] : ++triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx1];
+        cubeEdgeIdx2 < cubeEdgeIdx3 ? ++triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx3] : ++triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx2];
+        cubeEdgeIdx3 < cubeEdgeIdx1 ? ++triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx1] : ++triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx3];
     }
 
-    for (uint tIdx = 0; tIdx < triangleCount; ++tIdx)
+    for (cvf::uint tIdx = 0; tIdx < triangleCount; ++tIdx)
     {
-        uint triVxIdx = 3*tIdx;
+        cvf::uint triVxIdx = 3 * tIdx;
 
         int cubeEdgeIdx1 = triangleIndicesToCubeEdges[triVxIdx];
         int cubeEdgeIdx2 = triangleIndicesToCubeEdges[triVxIdx + 1];
-        int cubeEdgeIdx3 = triangleIndicesToCubeEdges[triVxIdx + 2 ];
+        int cubeEdgeIdx3 = triangleIndicesToCubeEdges[triVxIdx + 2];
 
-        (*isTriEdgeCellContour)[triVxIdx+0] = (1 == (cubeEdgeIdx1 < cubeEdgeIdx2 ?  triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx2]: triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx1]));
-        (*isTriEdgeCellContour)[triVxIdx+1] = (1 == (cubeEdgeIdx2 < cubeEdgeIdx3 ?  triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx3]: triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx2]));
-        (*isTriEdgeCellContour)[triVxIdx+2] = (1 == (cubeEdgeIdx3 < cubeEdgeIdx1 ?  triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx1]: triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx3]));
+        (*isTriEdgeCellContour)[triVxIdx + 0] = (1 == (cubeEdgeIdx1 < cubeEdgeIdx2 ? triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx2] : triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx1]));
+        (*isTriEdgeCellContour)[triVxIdx + 1] = (1 == (cubeEdgeIdx2 < cubeEdgeIdx3 ? triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx3] : triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx2]));
+        (*isTriEdgeCellContour)[triVxIdx + 2] = (1 == (cubeEdgeIdx3 < cubeEdgeIdx1 ? triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx1] : triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx3]));
     }
 
     return triangleCount;
 }
 
 
-void RivCrossSectionGeometryGenerator::calculateArrays()
-{
-    if (m_triangleVxes->size()) return;
 
-    m_extrusionDirection.normalize();
-    std::vector<cvf::Vec3f> triangleVertices;
-    std::vector<cvf::Vec3f> cellBorderLineVxes;
-    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
-    cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
 
-    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
-    {
-        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
-
-        if (m_polyLine.size() < 2) continue;
-
-        std::vector<cvf::Vec3d>     m_adjustedPolyline;
-        adjustPolyline(m_polyLine, m_extrusionDirection, &m_adjustedPolyline);
-
-        size_t lineCount = m_adjustedPolyline.size();
-        for (size_t lIdx = 0; lIdx < lineCount - 1; ++lIdx)
-        {
-            cvf::Vec3d p1 = m_adjustedPolyline[lIdx];
-            cvf::Vec3d p2 = m_adjustedPolyline[lIdx+1];
-
-            cvf::BoundingBox sectionBBox;
-            sectionBBox.add(p1);
-            sectionBBox.add(p2);
-            double maxSectionHeight = gridBBox.radius();
-            sectionBBox.add(p1 + m_extrusionDirection*maxSectionHeight);
-            sectionBBox.add(p1 - m_extrusionDirection*maxSectionHeight);
-            sectionBBox.add(p2 + m_extrusionDirection*maxSectionHeight);
-            sectionBBox.add(p2 - m_extrusionDirection*maxSectionHeight);
-
-            std::vector<size_t> columnCellCandidates;
-            m_hexGrid->findIntersectingCells(sectionBBox, &columnCellCandidates);
-
-            cvf::Plane plane;
-            plane.setFromPoints(p1, p2, p2 + m_extrusionDirection*maxSectionHeight);
-
-            cvf::Plane p1Plane;
-            p1Plane.setFromPoints(p1, p1 + m_extrusionDirection*maxSectionHeight, p1 + plane.normal());
-            cvf::Plane p2Plane;
-            p2Plane.setFromPoints(p2, p2 + m_extrusionDirection*maxSectionHeight, p2 - plane.normal());
-
-
-            std::vector<ClipVx> hexPlaneCutTriangleVxes;
-            hexPlaneCutTriangleVxes.reserve(5*3);
-            std::vector<bool> isTriangleEdgeCellContour;
-            isTriangleEdgeCellContour.reserve(5*3);
-            cvf::Vec3d cellCorners[8];
-            size_t cornerIndices[8];
-
-            for (size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx)
-            {
-                size_t globalCellIdx = columnCellCandidates[cccIdx];
-
-                if (!m_hexGrid->useCell(globalCellIdx)) continue;
-
-                hexPlaneCutTriangleVxes.clear();
-                m_hexGrid->cellCornerVertices(globalCellIdx, cellCorners);
-                m_hexGrid->cellCornerIndices(globalCellIdx, cornerIndices);
-
-                planeHexIntersectionMC(plane,
-                                       cellCorners,
-                                       cornerIndices,
-                                       &hexPlaneCutTriangleVxes,
-                                       &isTriangleEdgeCellContour);
-
-                std::vector<ClipVx> clippedTriangleVxes;
-                std::vector<bool> isClippedTriEdgeCellContour;
-
-                clipTrianglesBetweenTwoParallelPlanes(hexPlaneCutTriangleVxes, isTriangleEdgeCellContour, p1Plane, p2Plane,
-                                                      &clippedTriangleVxes, &isClippedTriEdgeCellContour);
-
-                size_t clippedTriangleCount = clippedTriangleVxes.size()/3;
-
-                for (uint tIdx = 0; tIdx < clippedTriangleCount; ++tIdx)
-                {
-                    uint triVxIdx = tIdx*3;
-
-                    // Accumulate triangle vertices
-
-                    cvf::Vec3f p0(clippedTriangleVxes[triVxIdx+0].vx - displayOffset);
-                    cvf::Vec3f p1(clippedTriangleVxes[triVxIdx+1].vx - displayOffset);
-                    cvf::Vec3f p2(clippedTriangleVxes[triVxIdx+2].vx - displayOffset);
-
-                    triangleVertices.push_back(p0);
-                    triangleVertices.push_back(p1);
-                    triangleVertices.push_back(p2);
-
-
-                    // Accumulate mesh lines
-
-                    if (isClippedTriEdgeCellContour[triVxIdx])
-                    {
-                        cellBorderLineVxes.push_back(p0);
-                        cellBorderLineVxes.push_back(p1);
-                    }
-                    if (isClippedTriEdgeCellContour[triVxIdx+1])
-                    {
-                        cellBorderLineVxes.push_back(p1);
-                        cellBorderLineVxes.push_back(p2);
-                    }
-                    if (isClippedTriEdgeCellContour[triVxIdx+2])
-                    {
-                        cellBorderLineVxes.push_back(p2);
-                        cellBorderLineVxes.push_back(p0);
-                    }
-
-                    // Mapping to cell index
-
-                    m_triangleToCellIdxMap.push_back(globalCellIdx);
-
-                    // Interpolation from nodes
-                    for (int i = 0; i < 3; ++i)
-                    {
-                        ClipVx cvx = clippedTriangleVxes[triVxIdx+i];
-                        if (cvx.isVxIdsNative)
-                        {
-                            m_triVxToCellCornerWeights.push_back(
-                                RivVertexWeights(cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1));
-                        }
-                        else
-                        {
-                            ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
-                            ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
-
-                            m_triVxToCellCornerWeights.push_back(
-                                RivVertexWeights(cvx1.clippedEdgeVx1Id, cvx1.clippedEdgeVx2Id, cvx1.normDistFromEdgeVx1,
-                                cvx2.clippedEdgeVx1Id, cvx2.clippedEdgeVx2Id, cvx2.normDistFromEdgeVx1,
-                                cvx.normDistFromEdgeVx1));
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-    m_triangleVxes->assign(triangleVertices);
-    m_cellBorderLineVxes->assign(cellBorderLineVxes);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Generate surface drawable geo from the specified region
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::generateSurface()
-{
-    calculateArrays();
-
-    CVF_ASSERT(m_triangleVxes.notNull());
-
-    if (m_triangleVxes->size() == 0) return NULL;
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-    geo->setFromTriangleVertexArray(m_triangleVxes.p());
-
-    return geo;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createMeshDrawable()
-{
-    if (!(m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0)) return NULL;
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-    geo->setVertexArray(m_cellBorderLineVxes.p());
-
-    
-    cvf::ref<cvf::PrimitiveSetDirect> prim = new cvf::PrimitiveSetDirect(cvf::PT_LINES);
-    prim->setIndexCount(m_cellBorderLineVxes->size());
-
-    geo->addPrimitiveSet(prim.p());
-    return geo;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createLineAlongPolylineDrawable()
-{
-    std::vector<cvf::uint> lineIndices;
-    std::vector<cvf::Vec3f> vertices;
-
-    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
-
-    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
-    {
-        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
-        if (m_polyLine.size() < 2) continue;
-
-        for (size_t i = 0; i < m_polyLine.size(); ++i)
-        {
-            vertices.push_back(cvf::Vec3f(m_polyLine[i] - displayOffset));
-            if (i < m_polyLine.size() - 1)
-            {
-                lineIndices.push_back(static_cast<cvf::uint>(i));
-                lineIndices.push_back(static_cast<cvf::uint>(i + 1));
-            }
-        }
-    }
-
-    if (vertices.size() == 0) return NULL;
-
-    cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray;
-    vx->assign(vertices);
-    cvf::ref<cvf::UIntArray> idxes = new cvf::UIntArray;
-    idxes->assign(lineIndices);
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);
-    prim->setIndices(idxes.p());
-
-    cvf::ref<cvf::DrawableGeo> polylineGeo = new cvf::DrawableGeo;
-    polylineGeo->setVertexArray(vx.p());
-    polylineGeo->addPrimitiveSet(prim.p());
-
-    return polylineGeo;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivCrossSectionGeometryGenerator::createPointsFromPolylineDrawable()
-{
-    std::vector<cvf::Vec3f> vertices;
-
-    cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
-
-    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
-    {
-        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
-        for (size_t i = 0; i < m_polyLine.size(); ++i)
-        {
-            vertices.push_back(cvf::Vec3f(m_polyLine[i] - displayOffset));
-        }
-    }
-
-    if (vertices.size() == 0) return NULL;
-
-    cvf::ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_POINTS);
-    primSet->setStartIndex(0);
-    primSet->setIndexCount(vertices.size());
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-
-    cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray(vertices);
-    geo->setVertexArray(vx.p());
-    geo->addPrimitiveSet(primSet.p());
-
-    return geo;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Remove the lines from the polyline that is nearly parallel to the extrusion direction
-//--------------------------------------------------------------------------------------------------
-void RivCrossSectionGeometryGenerator::adjustPolyline(const std::vector<cvf::Vec3d>& polyLine, 
-                                                      const cvf::Vec3d extrDir,
-                                                      std::vector<cvf::Vec3d>* adjustedPolyline)
-{
-    size_t lineCount = polyLine.size();
-    if (!polyLine.size()) return;
-
-    adjustedPolyline->push_back(polyLine[0]);
-    cvf::Vec3d p1 = polyLine[0];
-
-    for (size_t lIdx = 1; lIdx < lineCount; ++lIdx)
-    {
-        cvf::Vec3d p2 = polyLine[lIdx];
-        cvf::Vec3d p1p2 = p2 - p1;
-
-        if ((p1p2 - (p1p2 * extrDir)*extrDir).length() > 0.1 )
-        {
-            adjustedPolyline->push_back(p2);
-            p1 = p2;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivCrossSectionGeometryGenerator::triangleToCellIndex() const
-{
-    CVF_ASSERT(m_triangleVxes->size());
-    return m_triangleToCellIdxMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<RivVertexWeights>& RivCrossSectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
-{
-    CVF_ASSERT(m_triangleVxes->size());
-    return m_triVxToCellCornerWeights;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RimCrossSection* RivCrossSectionGeometryGenerator::crossSection() const
-{
-    return m_crossSection;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RivCrossSectionGeometryGenerator::isAnyGeometryPresent() const
-{
-    if (m_triangleVxes->size() == 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-#include "RigActiveCellInfo.h"
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivEclipseCrossSectionGrid::RivEclipseCrossSectionGrid(const RigMainGrid * mainGrid, 
-                                                       const RigActiveCellInfo* activeCellInfo, 
-                                                       bool showInactiveCells) 
-                                                       : m_mainGrid(mainGrid), 
-                                                       m_activeCellInfo(activeCellInfo),
-                                                       m_showInactiveCells(showInactiveCells)
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivEclipseCrossSectionGrid::displayOffset() const
-{
-    return m_mainGrid->displayModelOffset();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RivEclipseCrossSectionGrid::boundingBox() const
-{
-    return m_mainGrid->boundingBox();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivEclipseCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const
-{
-    m_mainGrid->findIntersectingCells(intersectingBB, intersectedCells);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RivEclipseCrossSectionGrid::useCell(size_t cellIndex) const
-{
-    const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex]; 
-    if (m_showInactiveCells)
-        return !(cell.isInvalid() || (cell.subGrid() != NULL));
-    else
-        return m_activeCellInfo->isActive(cellIndex) && (cell.subGrid() == NULL);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivEclipseCrossSectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const
-{
-    m_mainGrid->cellCornerVertices(cellIndex, cellCorners);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivEclipseCrossSectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
-{
-    const caf::SizeTArray8& cornerIndicesSource = m_mainGrid->globalCellArray()[cellIndex].cornerIndices();
-    memcpy(cornerIndices, cornerIndicesSource.data(), 8);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-#include "RigFemPart.h"
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RivFemCrossSectionGrid::RivFemCrossSectionGrid(const RigFemPart * femPart): m_femPart(femPart)
-{
-   
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivFemCrossSectionGrid::displayOffset() const
-{
-    return cvf::Vec3d::ZERO;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RivFemCrossSectionGrid::boundingBox() const
-{
-    return m_femPart->boundingBox();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFemCrossSectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const
-{
-    m_femPart->findIntersectingCells(intersectingBB, intersectedCells);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RivFemCrossSectionGrid::useCell(size_t cellIndex) const
-{
-    RigElementType elmType = m_femPart->elementType(cellIndex);
-    
-    if (!(elmType == HEX8 || elmType == HEX8P)) return false;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFemCrossSectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const
-{
-    RigElementType elmType = m_femPart->elementType(cellIndex);
-    if (!(elmType == HEX8 || elmType == HEX8P)) return ;
-
-    const std::vector<cvf::Vec3f>& nodeCoords =  m_femPart->nodes().coordinates;
-    const int* cornerIndices = m_femPart->connectivities(cellIndex);
-
-    cellCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
-    cellCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
-    cellCorners[2] = cvf::Vec3d(nodeCoords[cornerIndices[2]]);
-    cellCorners[3] = cvf::Vec3d(nodeCoords[cornerIndices[3]]);
-    cellCorners[4] = cvf::Vec3d(nodeCoords[cornerIndices[4]]);
-    cellCorners[5] = cvf::Vec3d(nodeCoords[cornerIndices[5]]);
-    cellCorners[6] = cvf::Vec3d(nodeCoords[cornerIndices[6]]);
-    cellCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFemCrossSectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
-{
-    RigElementType elmType = m_femPart->elementType(cellIndex);
-    if (!(elmType == HEX8 || elmType == HEX8P)) return ;
-    int elmIdx = static_cast<int>(cellIndex);
-    cornerIndices[0] = m_femPart->elementNodeResultIdx(elmIdx, 0);
-    cornerIndices[1] = m_femPart->elementNodeResultIdx(elmIdx, 1);
-    cornerIndices[2] = m_femPart->elementNodeResultIdx(elmIdx, 2);
-    cornerIndices[3] = m_femPart->elementNodeResultIdx(elmIdx, 3);
-    cornerIndices[4] = m_femPart->elementNodeResultIdx(elmIdx, 4);
-    cornerIndices[5] = m_femPart->elementNodeResultIdx(elmIdx, 5);
-    cornerIndices[6] = m_femPart->elementNodeResultIdx(elmIdx, 6);
-    cornerIndices[7] = m_femPart->elementNodeResultIdx(elmIdx, 7);
-}
+} // namespace cvf
 

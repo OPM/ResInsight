@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,28 +16,30 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionBoxCollection.h"
 
-#include "RimCrossSection.h"
-#include "RimEclipseWell.h"
+#include "RimCase.h"
+#include "RimIntersectionBox.h"
 #include "RimView.h"
+
+#include "RivIntersectionBoxPartMgr.h"
 
 #include "RiuMainWindow.h"
 
-#include "RivCrossSectionPartMgr.h"
+#include "cvfBoundingBox.h"
 
 
-CAF_PDM_SOURCE_INIT(RimCrossSectionCollection, "CrossSectionCollection");
+CAF_PDM_SOURCE_INIT(RimIntersectionBoxCollection, "IntersectionBoxCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCrossSectionCollection::RimCrossSectionCollection()
+RimIntersectionBoxCollection::RimIntersectionBoxCollection()
 {
-    CAF_PDM_InitObject("Intersections", ":/CrossSections16x16.png", "", "");
+    CAF_PDM_InitObject("Intersection Boxes", ":/IntersectionBoxes16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_crossSections, "CrossSections", "Intersections", "", "", "");
-    m_crossSections.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes", "", "", "");
+    m_intersectionBoxes.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
@@ -47,15 +48,15 @@ RimCrossSectionCollection::RimCrossSectionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCrossSectionCollection::~RimCrossSectionCollection()
+RimIntersectionBoxCollection::~RimIntersectionBoxCollection()
 {
-    m_crossSections.deleteAllChildObjects();
+    m_intersectionBoxes.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCrossSectionCollection::objectToggleField()
+caf::PdmFieldHandle* RimIntersectionBoxCollection::objectToggleField()
 {
     return &isActive;
 }
@@ -63,52 +64,16 @@ caf::PdmFieldHandle* RimCrossSectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::applySingleColorEffect()
-{
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
-    {
-        RimCrossSection* cs = m_crossSections[csIdx];
-        if (cs->isActive)
-        {
-            cs->crossSectionPartMgr()->applySingleColorEffect();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::updateCellResultColor(size_t timeStepIndex)
-{
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
-    {
-        RimCrossSection* cs = m_crossSections[csIdx];
-        if (cs->isActive)
-        {
-            cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RimIntersectionBoxCollection::applySingleColorEffect()
 {
     if (!isActive) return;
 
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    for (size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
     {
-        RimCrossSection* cs = m_crossSections[csIdx];
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if (cs->isActive)
         {
-            cs->crossSectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
-            cs->crossSectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
-
-            if (cs->inputFromViewerEnabled)
-            {
-                cs->crossSectionPartMgr()->appendPolylinePartsToModel(model, scaleTransform);
-            }
+            cs->intersectionBoxPartMgr()->applySingleColorEffect();
         }
     }
 }
@@ -116,30 +81,55 @@ void RimCrossSectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::appendCrossSection(RimCrossSection* crossSection)
+void RimIntersectionBoxCollection::updateCellResultColor(size_t timeStepIndex)
 {
-    m_crossSections.push_back(crossSection);
+    if (!isActive) return;
 
-    updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(crossSection);
-
-    RimView* rimView = NULL;
-    firstAncestorOrThisOfType(rimView);
-    if (rimView)
+    for (size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
     {
-        rimView->scheduleCreateDisplayModelAndRedraw();
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
+        if (cs->isActive)
+        {
+            cs->intersectionBoxPartMgr()->updateCellResultColor(timeStepIndex);
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimIntersectionBoxCollection::appendPartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+{
+    if (!isActive) return;
+
+    for (size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    {
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
+        if (cs->isActive)
+        {
+             cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
+             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBoxCollection::appendIntersectionBox(RimIntersectionBox* intersectionBox)
+{
+    m_intersectionBoxes.push_back(intersectionBox);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBoxCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &isActive)
     {
         RimView* rimView = NULL;
-        firstAncestorOrThisOfType(rimView);
+        firstAnchestorOrThisOfType(rimView);
         if (rimView)
         {
             rimView->scheduleCreateDisplayModelAndRedraw();
@@ -150,21 +140,24 @@ void RimCrossSectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCrossSectionCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
+bool RimIntersectionBoxCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
 {
     if (!isActive) return false;
 
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+/*
+    for (size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
     {
-        RimCrossSection* cs = m_crossSections[csIdx];
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
 
         if (cs->isActive &&
-            cs->type() == RimCrossSection::CS_SIMULATION_WELL &&
+            cs->type() == RimIntersectionBox::CS_SIMULATION_WELL &&
             cs->simulationWell() == eclipseWell)
         {
             return true;
         }
     }
 
-    return false;
+*/
+    return true;
 }
+

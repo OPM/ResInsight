@@ -17,12 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSimWellCrossSectionFeature.h"
+#include "RicAppendIntersectionFeature.h"
 
-#include "RimCrossSection.h"
-#include "RimCrossSectionCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseWell.h"
+#include "RimIntersection.h"
+#include "RimIntersectionCollection.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafSelectionManager.h"
@@ -31,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellCrossSectionFeature, "RicNewSimWellCrossSectionFeature");
+CAF_CMD_SOURCE_INIT(RicAppendIntersectionFeature, "RicAppendIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellCrossSectionFeature::isCommandEnabled()
+bool RicAppendIntersectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -44,26 +42,25 @@ bool RicNewSimWellCrossSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellCrossSectionFeature::onActionTriggered(bool isChecked)
+void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<caf::PdmObjectHandle*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimEclipseWell* eclWell = collection[0];
-    
-    RimEclipseView* eclView = NULL;
-    eclWell->firstAncestorOrThisOfType(eclView);
-    CVF_ASSERT(eclView);
+    RimIntersectionCollection* crossSectionCollection = NULL;
+    collection[0]->firstAncestorOrThisOfType(crossSectionCollection);
 
-    RicNewSimWellCrossSectionCmd* cmd = new RicNewSimWellCrossSectionCmd(eclView->crossSectionCollection, eclWell);
+    CVF_ASSERT(crossSectionCollection);
+
+    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd(crossSectionCollection);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellCrossSectionFeature::setupActionLook(QAction* actionToSetup)
+void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Intersection");
@@ -72,47 +69,42 @@ void RicNewSimWellCrossSectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellCrossSectionCmd::RicNewSimWellCrossSectionCmd(RimCrossSectionCollection* crossSectionCollection, RimEclipseWell* simWell)
+RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
     : CmdExecuteCommand(NULL),
-    m_crossSectionCollection(crossSectionCollection),
-    m_wellPath(simWell)
+    m_crossSectionCollection(crossSectionCollection)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellCrossSectionCmd::~RicNewSimWellCrossSectionCmd()
+RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicNewSimWellCrossSectionCmd::name()
+QString RicAppendIntersectionFeatureCmd::name()
 {
-    return "Create Intersection From Well";
+    return "New Intersection";
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellCrossSectionCmd::redo()
+void RicAppendIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_crossSectionCollection);
-    CVF_ASSERT(m_wellPath);
 
-    RimCrossSection* crossSection = new RimCrossSection();
-    crossSection->name = m_wellPath->name;
-    crossSection->type = RimCrossSection::CS_SIMULATION_WELL;
-    crossSection->simulationWell = m_wellPath;
-
+    RimIntersection* crossSection = new RimIntersection();
+    crossSection->name = QString("Intersection");
     m_crossSectionCollection->appendCrossSection(crossSection);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellCrossSectionCmd::undo()
+void RicAppendIntersectionFeatureCmd::undo()
 {
 }

@@ -23,26 +23,24 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-class RimCrossSectionCollection;
-class RimEclipseWell;
+class RimIntersectionCollection;
 
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSimWellCrossSectionCmd : public caf::CmdExecuteCommand
+class RicAppendIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewSimWellCrossSectionCmd(RimCrossSectionCollection* crossSectionCollection, RimEclipseWell* simWell);
-    virtual ~RicNewSimWellCrossSectionCmd();
+    RicAppendIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
+    virtual ~RicAppendIntersectionFeatureCmd();
 
     virtual QString name();
     virtual void redo();
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimCrossSectionCollection> m_crossSectionCollection;
-    caf::PdmPointer<RimEclipseWell> m_wellPath;
+    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
 };
 
 
@@ -50,7 +48,7 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSimWellCrossSectionFeature : public caf::CmdFeature
+class RicAppendIntersectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

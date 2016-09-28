@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 
 #include "RiaApplication.h"
 
@@ -33,7 +33,7 @@
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
-#include "RivCrossSectionPartMgr.h"
+#include "RivIntersectionPartMgr.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -44,31 +44,31 @@
 namespace caf {
 
 template<>
-void caf::AppEnum< RimCrossSection::CrossSectionEnum >::setUp()
+void caf::AppEnum< RimIntersection::CrossSectionEnum >::setUp()
 {
-    addItem(RimCrossSection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
-    addItem(RimCrossSection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
-    addItem(RimCrossSection::CS_POLYLINE,        "CS_POLYLINE",        "Polyline");
-    setDefault(RimCrossSection::CS_WELL_PATH);
+    addItem(RimIntersection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
+    addItem(RimIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
+    addItem(RimIntersection::CS_POLYLINE,        "CS_POLYLINE",        "Polyline");
+    setDefault(RimIntersection::CS_WELL_PATH);
 }
 
 template<>
-void caf::AppEnum< RimCrossSection::CrossSectionDirEnum >::setUp()
+void caf::AppEnum< RimIntersection::CrossSectionDirEnum >::setUp()
 {
-    addItem(RimCrossSection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
-    addItem(RimCrossSection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
-    setDefault(RimCrossSection::CS_VERTICAL);
+    addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
+    addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
+    setDefault(RimIntersection::CS_VERTICAL);
 }
 
 } 
 
 
-CAF_PDM_SOURCE_INIT(RimCrossSection, "CrossSection");
+CAF_PDM_SOURCE_INIT(RimIntersection, "CrossSection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCrossSection::RimCrossSection()
+RimIntersection::RimIntersection()
 {
     CAF_PDM_InitObject("Intersection", ":/CrossSection16x16.png", "", "");
 
@@ -98,7 +98,7 @@ RimCrossSection::RimCrossSection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCrossSection::~RimCrossSection()
+RimIntersection::~RimIntersection()
 {
 
 }
@@ -106,7 +106,7 @@ RimCrossSection::~RimCrossSection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &isActive ||
         changedField == &type ||
@@ -147,7 +147,7 @@ void RimCrossSection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Intersecting Geometry");
@@ -195,7 +195,7 @@ void RimCrossSection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -256,7 +256,7 @@ QList<caf::PdmOptionItemInfo> RimCrossSection::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCrossSection::userDescriptionField()
+caf::PdmFieldHandle* RimIntersection::userDescriptionField()
 {
     return &name;
 }
@@ -264,7 +264,7 @@ caf::PdmFieldHandle* RimCrossSection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCrossSection::objectToggleField()
+caf::PdmFieldHandle* RimIntersection::objectToggleField()
 {
     return &isActive;
 }
@@ -272,7 +272,7 @@ caf::PdmFieldHandle* RimCrossSection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWellCollection* RimCrossSection::simulationWellCollection()
+RimEclipseWellCollection* RimIntersection::simulationWellCollection()
 {
     RimEclipseView* eclipseView = NULL;
     firstAncestorOrThisOfType(eclipseView);
@@ -288,7 +288,7 @@ RimEclipseWellCollection* RimCrossSection::simulationWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
+std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
 {
     std::vector< std::vector <cvf::Vec3d> > lines;
     if (type == CS_WELL_PATH)
@@ -336,9 +336,9 @@ std::vector< std::vector <cvf::Vec3d> > RimCrossSection::polyLines() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionPartMgr* RimCrossSection::crossSectionPartMgr()
+RivIntersectionPartMgr* RimIntersection::crossSectionPartMgr()
 {
-    if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivCrossSectionPartMgr(this);
+    if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivIntersectionPartMgr(this);
 
     return m_crossSectionPartMgr.p();
 }
@@ -346,7 +346,7 @@ RivCrossSectionPartMgr* RimCrossSection::crossSectionPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::updateWellCenterline() const
+void RimIntersection::updateWellCenterline() const
 {
     if (isActive() && type == CS_SIMULATION_WELL && simulationWell())
     {
@@ -366,7 +366,7 @@ void RimCrossSection::updateWellCenterline() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
+void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 {
     size_t lineVxCount = polyLine.size();
     
@@ -422,7 +422,7 @@ void RimCrossSection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::updateWellExtentDefaultValue()
+void RimIntersection::updateWellExtentDefaultValue()
 {
     RimCase* ownerCase = NULL;
     firstAncestorOrThisOfType(ownerCase);
@@ -440,7 +440,7 @@ void RimCrossSection::updateWellExtentDefaultValue()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::updateName()
+void RimIntersection::updateName()
 {
     if (type == CS_SIMULATION_WELL && simulationWell())
     {
@@ -460,7 +460,7 @@ void RimCrossSection::updateName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
+void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 {
     RimCase* ownerCase = NULL;
     firstAncestorOrThisOfType(ownerCase);
@@ -506,7 +506,7 @@ void RimCrossSection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &inputFromViewerEnabled)
     {
@@ -534,7 +534,7 @@ void RimCrossSection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::appendPointToPolyLine(const cvf::Vec3d& point)
+void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 {
     m_userPolyline.v().push_back(point);
 
@@ -546,7 +546,7 @@ void RimCrossSection::appendPointToPolyLine(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCrossSection::rebuildGeometryAndScheduleCreateDisplayModel()
+void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_crossSectionPartMgr = NULL;
 

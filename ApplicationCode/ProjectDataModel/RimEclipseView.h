@@ -55,7 +55,7 @@ class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
 class RivReservoirPipesPartMgr;
-class RivCrossSectionPartMgr;
+class RivIntersectionPartMgr;
 
 namespace cvf
 {

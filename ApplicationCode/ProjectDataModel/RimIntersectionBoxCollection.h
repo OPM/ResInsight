@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
-class RimCrossSection;
+class RimIntersectionBox;
 class RimEclipseCellColors;
 class RimEclipseWell;
 
@@ -37,17 +36,17 @@ namespace cvf {
 // 
 //
 //==================================================================================================
-class RimCrossSectionCollection : public caf::PdmObject
+class RimIntersectionBoxCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCrossSectionCollection();
-    ~RimCrossSectionCollection();
+    RimIntersectionBoxCollection();
+    ~RimIntersectionBoxCollection();
 
     caf::PdmField<bool> isActive;
 
-    void appendCrossSection(RimCrossSection* crossSection);
+    void appendIntersectionBox(RimIntersectionBox* intersectionBox);
 
     bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 
@@ -62,5 +61,5 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
 
 private:
-    caf::PdmChildArrayField<RimCrossSection*> m_crossSections;
+    caf::PdmChildArrayField<RimIntersectionBox*> m_intersectionBoxes;
 };

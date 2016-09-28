@@ -22,9 +22,10 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSectionCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimIntersectionBoxCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
@@ -103,9 +104,16 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-        RimCrossSectionCollection* crossSectionColl;
+        RimIntersectionCollection* crossSectionColl;
         parentObj->firstAncestorOrThisOfType(crossSectionColl);
         if (view && crossSectionColl)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        RimIntersectionBoxCollection* intersectionBoxColl;
+        parentObj->firstAnchestorOrThisOfType(intersectionBoxColl);
+        if (view && intersectionBoxColl)
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }

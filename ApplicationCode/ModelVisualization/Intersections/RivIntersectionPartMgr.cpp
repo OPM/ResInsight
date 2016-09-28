@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivCrossSectionPartMgr.h"
+#include "RivIntersectionPartMgr.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
@@ -27,7 +27,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
-#include "RimCrossSection.h"
+#include "RimIntersection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -37,7 +37,7 @@
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
-#include "RivCrossSectionSourceInfo.h"
+#include "RivIntersectionSourceInfo.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionPartMgr::RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection)
+RivIntersectionPartMgr::RivIntersectionPartMgr(const RimIntersection* rimCrossSection)
     : m_rimCrossSection(rimCrossSection),
     m_defaultColor(cvf::Color3::WHITE)
 {
@@ -69,7 +69,7 @@ RivCrossSectionPartMgr::RivCrossSectionPartMgr(const RimCrossSection* rimCrossSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::applySingleColorEffect()
+void RivIntersectionPartMgr::applySingleColorEffect()
 {
     if (m_crossSectionGenerator.isNull()) return;
 
@@ -80,7 +80,7 @@ void RivCrossSectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
+void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 {
     if (m_crossSectionGenerator.isNull()) return;
 
@@ -133,7 +133,7 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                                                                                     cellResultColors);
                 }
 
-                RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
+                RivIntersectionPartMgr::calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
                                                                             m_crossSectionGenerator->triangleToCellIndex(),
                                                                             resultAccessor.p(),
                                                                             mapper);
@@ -164,13 +164,13 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         // Do a "Hack" to show elm nodal and not nodal POR results
         if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-        const std::vector<RivVertexWeights> &vertexWeights = m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
+        const std::vector<RivIntersectionVertexWeights> &vertexWeights = m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
         const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
         bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
         RigFemPart* femPart                                = caseData->femParts()->part(0);
         const cvf::ScalarMapper* mapper                    = cellResultColors->legendConfig()->scalarMapper();
 
-        RivCrossSectionPartMgr::calculateGeoMechTextureCoords(m_crossSectionFacesTextureCoords.p(), 
+        RivIntersectionPartMgr::calculateGeoMechTextureCoords(m_crossSectionFacesTextureCoords.p(), 
                                                               vertexWeights, 
                                                               resultValues, 
                                                               isElementNodalResult, 
@@ -190,8 +190,8 @@ void RivCrossSectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
-                                                           const std::vector<RivVertexWeights> &vertexWeights, 
+void RivIntersectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                           const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
                                                            const std::vector<float> &resultValues, 
                                                            bool isElementNodalResult, 
                                                            const RigFemPart* femPart, 
@@ -239,7 +239,7 @@ void RivCrossSectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* text
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 
 /// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
+void RivIntersectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
                                                           const std::vector<size_t>& triangleToCellIdxMap,
                                                           const RigResultAccessor* resultAccessor, 
                                                           const cvf::ScalarMapper* mapper) 
@@ -278,7 +278,7 @@ const int priMesh = 3;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::generatePartGeometry()
+void RivIntersectionPartMgr::generatePartGeometry()
 {
     if (m_crossSectionGenerator.isNull()) return;
 
@@ -300,7 +300,7 @@ void RivCrossSectionPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivCrossSectionSourceInfo> si = new RivCrossSectionSourceInfo(m_crossSectionGenerator.p());
+            cvf::ref<RivIntersectionSourceInfo> si = new RivIntersectionSourceInfo(m_crossSectionGenerator.p());
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
@@ -338,7 +338,7 @@ void RivCrossSectionPartMgr::generatePartGeometry()
     m_highlightLineAlongPolyline = NULL;
     m_highlightPointsForPolyline = NULL;
 
-    if (m_rimCrossSection->type == RimCrossSection::CS_POLYLINE)
+    if (m_rimCrossSection->type == RimIntersection::CS_POLYLINE)
     {
         {
             cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable();
@@ -416,7 +416,7 @@ void RivCrossSectionPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::updatePartEffect()
+void RivIntersectionPartMgr::updatePartEffect()
 {
     if (m_crossSectionGenerator.isNull()) return;
 
@@ -447,7 +447,7 @@ void RivCrossSectionPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RivIntersectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (m_crossSectionFaces.isNull())
     {
@@ -465,7 +465,7 @@ void RivCrossSectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RivIntersectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (m_crossSectionGridLines.isNull())
     {
@@ -483,7 +483,7 @@ void RivCrossSectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
+void RivIntersectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (m_highlightLineAlongPolyline.notNull())
     {
@@ -500,21 +500,21 @@ void RivCrossSectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivCrossSectionPartMgr::computeData()
+void RivIntersectionPartMgr::computeData()
 {
     std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines();
     if (polyLines.size() > 0)
     {
         cvf::Vec3d direction = extrusionDirection(polyLines[0]);
-        cvf::ref<RivCrossSectionHexGridIntf> hexGrid = createHexGridInterface();
-        m_crossSectionGenerator = new RivCrossSectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p());
+        cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
+        m_crossSectionGenerator = new RivIntersectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterface()
+cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridInterface()
 {
 
     RimEclipseView* eclipseView;
@@ -523,7 +523,7 @@ cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterf
     {
         RigMainGrid* grid = NULL;
         grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
-        return new RivEclipseCrossSectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
+        return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
     }
 
     RimGeoMechView* geoView;
@@ -531,7 +531,7 @@ cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterf
     if (geoView)
     {
         RigFemPart* femPart = geoView->geoMechCase()->geoMechData()->femParts()->part(0);
-        return new RivFemCrossSectionGrid(femPart);
+        return new RivFemIntersectionGrid(femPart);
     }
 
     return NULL;
@@ -540,13 +540,13 @@ cvf::ref<RivCrossSectionHexGridIntf> RivCrossSectionPartMgr::createHexGridInterf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivCrossSectionPartMgr::extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const
+cvf::Vec3d RivIntersectionPartMgr::extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const
 {
     CVF_ASSERT(m_rimCrossSection);
 
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
 
-    if (m_rimCrossSection->direction == RimCrossSection::CS_HORIZONTAL &&
+    if (m_rimCrossSection->direction == RimIntersection::CS_HORIZONTAL &&
         polyline.size() > 1)
     {
         // Use first and last point of polyline to approximate orientation of polyline

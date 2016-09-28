@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RivCrossSectionGeometryGenerator.h"
+#include "RivIntersectionGeometryGenerator.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -37,17 +37,17 @@ namespace cvf
 class RigMainGrid;
 class RimEclipseCellColors;
 class RimCellEdgeColors;
-class RimCrossSection;
+class RimIntersection;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
 
-class RivCrossSectionPartMgr : public cvf::Object
+class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    RivCrossSectionPartMgr(const RimCrossSection* rimCrossSection);
+    RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);
@@ -68,19 +68,19 @@ private:
                                                    const RigResultAccessor* resultAccessor, 
                                                    const cvf::ScalarMapper* mapper);
     static void calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
-                                              const std::vector<RivVertexWeights> &vertexWeights, 
+                                              const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
                                               const std::vector<float> &resultValues, 
                                               bool isElementNodalResult, 
                                               const RigFemPart* femPart, 
                                               const cvf::ScalarMapper* mapper);
-    cvf::ref<RivCrossSectionHexGridIntf> createHexGridInterface();
+    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
 
-    const RimCrossSection*      m_rimCrossSection;
+    const RimIntersection*      m_rimCrossSection;
 
     cvf::Color3f                m_defaultColor;
 
-    cvf::ref<RivCrossSectionGeometryGenerator>   m_crossSectionGenerator;
+    cvf::ref<RivIntersectionGeometryGenerator>   m_crossSectionGenerator;
     cvf::ref<cvf::Part>         m_crossSectionFaces;
     cvf::ref<cvf::Part>         m_crossSectionGridLines;
     cvf::ref<cvf::Vec2fArray>   m_crossSectionFacesTextureCoords;

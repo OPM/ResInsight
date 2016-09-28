@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,34 +16,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivCrossSectionSourceInfo.h"
+#include "RivIntersectionBoxSourceInfo.h"
 
-#include "RivCrossSectionGeometryGenerator.h"
+#include "RivIntersectionBoxGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivCrossSectionSourceInfo::RivCrossSectionSourceInfo(RivCrossSectionGeometryGenerator* geometryGenerator)
-    : m_crossSectionGeometryGenerator(geometryGenerator)
+RivIntersectionBoxSourceInfo::RivIntersectionBoxSourceInfo(RivIntersectionBoxGeometryGenerator* geometryGenerator)
+    : m_intersectionBoxGeometryGenerator(geometryGenerator)
 {
-    CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());
+    CVF_ASSERT(m_intersectionBoxGeometryGenerator.notNull());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivCrossSectionSourceInfo::triangleToCellIndex() const
+const std::vector<size_t>& RivIntersectionBoxSourceInfo::triangleToCellIndex() const
 {
-    CVF_ASSERT(m_crossSectionGeometryGenerator.notNull());
+    CVF_ASSERT(m_intersectionBoxGeometryGenerator.notNull());
 
-    return m_crossSectionGeometryGenerator->triangleToCellIndex();
+    return m_intersectionBoxGeometryGenerator->triangleToCellIndex();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RimCrossSection* RivCrossSectionSourceInfo::crossSection() const
-{
-    return m_crossSectionGeometryGenerator->crossSection();
-}

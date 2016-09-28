@@ -23,8 +23,8 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -42,6 +42,8 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersectionBox.h"
+#include "RimIntersectionBoxCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -211,7 +213,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
-            commandIds << "RicNewWellPathCrossSectionFeature";
+            commandIds << "RicNewWellPathIntersectionFeature";
             commandIds << "RicWellPathDeleteFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
@@ -297,19 +299,29 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddWellLogToPlotFeature";
         }
-        else if (dynamic_cast<RimCrossSectionCollection*>(uiItem))
+        else if (dynamic_cast<RimIntersectionCollection*>(uiItem))
         {
-            commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "RicAppendIntersectionFeature";
         }
-        else if (dynamic_cast<RimCrossSection*>(uiItem))
+        else if (dynamic_cast<RimIntersection*>(uiItem))
         {
-            commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "RicAppendIntersectionFeature";
+            commandIds << "Separator";
+            commandIds << "RicDeleteItemFeature";
+        }
+        else if (dynamic_cast<RimIntersectionBoxCollection*>(uiItem))
+        {
+            commandIds << "RicAppendIntersectionBoxFeature";
+        }
+        else if (dynamic_cast<RimIntersectionBox*>(uiItem))
+        {
+            commandIds << "RicAppendIntersectionBoxFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
-            commandIds << "RicNewSimWellCrossSectionFeature";
+            commandIds << "RicNewSimWellIntersectionFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {

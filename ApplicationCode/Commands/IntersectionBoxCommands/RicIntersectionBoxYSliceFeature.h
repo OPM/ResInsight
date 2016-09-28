@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,39 +22,13 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-class RimCrossSectionCollection;
-class RimWellPath;
-
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellPathCrossSectionFeatureCmd : public caf::CmdExecuteCommand
-{
-public:
-    RicNewWellPathCrossSectionFeatureCmd(RimCrossSectionCollection* crossSectionCollection, RimWellPath* wellPath);
-    virtual ~RicNewWellPathCrossSectionFeatureCmd();
-
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
-
-private:
-    caf::PdmPointer<RimCrossSectionCollection> m_crossSectionCollection;
-    caf::PdmPointer<RimWellPath> m_wellPath;
-};
-
-
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicNewWellPathCrossSectionFeature : public caf::CmdFeature
+class RicIntersectionBoxYSliceFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    RicNewWellPathCrossSectionFeature();
 
 protected:
     // Overrides
@@ -63,5 +36,4 @@ protected:
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
 };
-
 

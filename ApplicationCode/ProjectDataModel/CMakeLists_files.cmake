@@ -75,8 +75,8 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFile.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.h
-${CEE_CURRENT_LIST_DIR}RimCrossSection.h
-${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.h
+${CEE_CURRENT_LIST_DIR}RimIntersection.h
+${CEE_CURRENT_LIST_DIR}RimIntersectionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.h
 ${CEE_CURRENT_LIST_DIR}RimGridCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
@@ -91,6 +91,8 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAppearanceCalculator.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.h
+${CEE_CURRENT_LIST_DIR}RimIntersectionBox.h
+${CEE_CURRENT_LIST_DIR}RimIntersectionBoxCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -164,8 +166,8 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFile.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.cpp
-${CEE_CURRENT_LIST_DIR}RimCrossSection.cpp
-${CEE_CURRENT_LIST_DIR}RimCrossSectionCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimIntersection.cpp
+${CEE_CURRENT_LIST_DIR}RimIntersectionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
@@ -180,6 +182,8 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAppearanceCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.cpp
+${CEE_CURRENT_LIST_DIR}RimIntersectionBox.cpp
+${CEE_CURRENT_LIST_DIR}RimIntersectionBoxCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
