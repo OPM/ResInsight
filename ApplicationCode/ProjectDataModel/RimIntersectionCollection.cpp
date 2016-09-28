@@ -65,6 +65,8 @@ caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::applySingleColorEffect()
 {
+    if(!this->isActive()) return;
+
     for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
         RimIntersection* cs = m_crossSections[csIdx];
@@ -80,10 +82,12 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex)
 {
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    if(!this->isActive()) return;
+
+    for(size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
     {
         RimIntersection* cs = m_crossSections[csIdx];
-        if (cs->isActive)
+        if(cs->isActive)
         {
             cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
         }

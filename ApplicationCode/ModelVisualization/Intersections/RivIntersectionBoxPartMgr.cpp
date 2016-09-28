@@ -63,7 +63,8 @@ RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr(const RimIntersectionBox* i
 
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 
-    computeData();
+    cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
+    m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator(m_rimIntersectionBox, hexGrid.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,8 +72,6 @@ RivIntersectionBoxPartMgr::RivIntersectionBoxPartMgr(const RimIntersectionBox* i
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::applySingleColorEffect()
 {
-    if (m_intersectionBoxGenerator.isNull()) return;
-
     m_defaultColor = cvf::Color3f::OLIVE;//m_rimCrossSection->CrossSectionColor();
     this->updatePartEffect();
 }
@@ -82,7 +81,6 @@ void RivIntersectionBoxPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
 {
-    if (m_intersectionBoxGenerator.isNull()) return;
 
     if (!m_intersectionBoxGenerator->isAnyGeometryPresent()) return;
 
@@ -280,7 +278,6 @@ const int priMesh = 3;
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::generatePartGeometry()
 {
-    if (m_intersectionBoxGenerator.isNull()) return;
 
     bool useBufferObjects = true;
     // Surface geometry
@@ -296,7 +293,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Cross Section");
+            part->setName("Intersection Box");
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
@@ -322,7 +319,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("Cross Section mesh");
+            part->setName("Intersection box mesh");
             part->setDrawable(geoMesh.p());
 
             part->updateBoundingBox();
@@ -342,8 +339,6 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionBoxPartMgr::updatePartEffect()
 {
-    if (m_intersectionBoxGenerator.isNull()) return;
-
     // Set deCrossSection effect
     caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
   
@@ -402,14 +397,6 @@ void RivIntersectionBoxPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* 
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::computeData()
-{
-    cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
-    m_intersectionBoxGenerator = new RivIntersectionBoxGeometryGenerator(m_rimIntersectionBox, hexGrid.p());
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

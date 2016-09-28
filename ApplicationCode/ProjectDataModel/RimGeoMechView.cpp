@@ -268,6 +268,9 @@ void RimGeoMechView::createDisplayModel()
    {
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
+       crossSectionCollection->applySingleColorEffect();
+       intersectionBoxCollection->applySingleColorEffect();
+
        m_overlayInfoConfig()->update3DInfo();
    }
 }
@@ -316,6 +319,9 @@ void RimGeoMechView::updateCurrentTimeStep()
     else
     {
         m_vizLogic->updateStaticCellColors(-1);
+        crossSectionCollection->applySingleColorEffect();
+        intersectionBoxCollection->applySingleColorEffect();
+
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 

@@ -57,7 +57,6 @@ public:
 private:
     void updatePartEffect();
     void generatePartGeometry();
-    void computeData();
 
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
                                                    const std::vector<size_t>& triangleToCellIdxMap, 
