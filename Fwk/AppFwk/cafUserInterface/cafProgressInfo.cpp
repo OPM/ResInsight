@@ -170,6 +170,8 @@ namespace caf {
             progDialog = new QProgressDialog();
 
             progDialog->hide();
+            progDialog->setAutoClose(false);
+            progDialog->setAutoReset(false);
         }
         return progDialog;
     }
@@ -420,7 +422,6 @@ namespace caf {
             if (progressDialog() != NULL)
             {
                 progressDialog()->hide();
-                delete progressDialog();
             }
         }
 
