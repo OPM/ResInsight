@@ -109,7 +109,7 @@ void RimMainPlotCollection::showPlotWindow()
             dockWidget->setWidget(projPropView);
 
             RimProject* proj = NULL;
-            this->firstAnchestorOrThisOfType(proj);
+            this->firstAncestorOrThisOfType(proj);
 
             projPropView->setPdmItem(this);
 

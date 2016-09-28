@@ -64,7 +64,7 @@ void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
         RimView* rimView = NULL;
-        coll->firstAnchestorOrThisOfType(rimView);
+        coll->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
             rimView->showGridCells(false);
@@ -93,7 +93,7 @@ RimIntersectionBoxCollection* RicAppendIntersectionBoxFeature::intersectionBoxCo
     caf::SelectionManager::instance()->objectsByType(&selectedObjects);
     if (selectedObjects.size() == 1)
     {
-        selectedObjects[0]->firstAnchestorOrThisOfType(intersectionBoxColl);
+        selectedObjects[0]->firstAncestorOrThisOfType(intersectionBoxColl);
     }
 
     return intersectionBoxColl;

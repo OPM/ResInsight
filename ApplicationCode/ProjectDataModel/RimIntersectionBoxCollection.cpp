@@ -129,7 +129,7 @@ void RimIntersectionBoxCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
     if (changedField == &isActive)
     {
         RimView* rimView = NULL;
-        firstAnchestorOrThisOfType(rimView);
+        firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
             rimView->scheduleCreateDisplayModelAndRedraw();

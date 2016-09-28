@@ -85,7 +85,7 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
     if (!m_intersectionBoxGenerator->isAnyGeometryPresent()) return;
 
     RimEclipseView* eclipseView;
-    m_rimIntersectionBox->firstAnchestorOrThisOfType(eclipseView);
+    m_rimIntersectionBox->firstAncestorOrThisOfType(eclipseView);
 
     if (eclipseView)
     {
@@ -148,7 +148,7 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
     }
 
     RimGeoMechView* geoView;
-    m_rimIntersectionBox->firstAnchestorOrThisOfType(geoView);
+    m_rimIntersectionBox->firstAncestorOrThisOfType(geoView);
 
     if (geoView)
     {
@@ -405,7 +405,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGr
 {
 
     RimEclipseView* eclipseView;
-    m_rimIntersectionBox->firstAnchestorOrThisOfType(eclipseView);
+    m_rimIntersectionBox->firstAncestorOrThisOfType(eclipseView);
     if (eclipseView)
     {
         RigMainGrid* grid = NULL;
@@ -416,7 +416,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGr
     }
 
     RimGeoMechView* geoView;
-    m_rimIntersectionBox->firstAnchestorOrThisOfType(geoView);
+    m_rimIntersectionBox->firstAncestorOrThisOfType(geoView);
     if (geoView)
     {
         RigFemPart* femPart = geoView->geoMechCase()->geoMechData()->femParts()->part(0);

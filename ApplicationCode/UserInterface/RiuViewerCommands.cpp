@@ -158,7 +158,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         CVF_ASSERT(activeView);
 
         RimCase* rimCase = NULL;
-        activeView->firstAnchestorOrThisOfType(rimCase);
+        activeView->firstAncestorOrThisOfType(rimCase);
         if (rimCase)
         {
             displayModelOffset = rimCase->displayModelOffset();

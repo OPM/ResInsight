@@ -67,7 +67,7 @@ void RicIntersectionBoxZSliceFeature::onActionTriggered(bool isChecked)
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
         RimView* rimView = NULL;
-        coll->firstAnchestorOrThisOfType(rimView);
+        coll->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
             rimView->showGridCells(false);

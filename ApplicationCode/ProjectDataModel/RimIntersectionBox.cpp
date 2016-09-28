@@ -329,7 +329,7 @@ void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
     m_intersectionBoxPartMgr = nullptr;
 
     RimView* rimView = NULL;
-    this->firstAnchestorOrThisOfType(rimView);
+    this->firstAncestorOrThisOfType(rimView);
     if (rimView)
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
@@ -384,12 +384,12 @@ void RimIntersectionBox::clampSinglePlaneValues()
 cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox() 
 {
     RimCase* rimCase = NULL;
-    this->firstAnchestorOrThisOfType(rimCase);
+    this->firstAncestorOrThisOfType(rimCase);
     
     CVF_ASSERT(rimCase);
 
     RimEclipseView* eclView = nullptr;
-    this->firstAnchestorOrThisOfType(eclView);
+    this->firstAncestorOrThisOfType(eclView);
 
     bool useAllCells = true;
     if (eclView)

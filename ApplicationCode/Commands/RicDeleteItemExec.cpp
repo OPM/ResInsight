@@ -112,7 +112,7 @@ void RicDeleteItemExec::redo()
         }
 
         RimIntersectionBoxCollection* intersectionBoxColl;
-        parentObj->firstAnchestorOrThisOfType(intersectionBoxColl);
+        parentObj->firstAncestorOrThisOfType(intersectionBoxColl);
         if (view && intersectionBoxColl)
         {
             view->scheduleCreateDisplayModelAndRedraw();
