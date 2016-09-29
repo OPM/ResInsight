@@ -15,6 +15,8 @@ include_directories(
 )
 
 add_library( ${PROJECT_NAME}
+    cafDisplayCoordTransform.cpp
+    cafDisplayCoordTransform.h
     cafBoxManipulatorPartManager.cpp
     cafBoxManipulatorPartManager.h
     cafBoxManipulatorGeometryGenerator.cpp
