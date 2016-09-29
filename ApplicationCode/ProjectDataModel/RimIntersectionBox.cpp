@@ -73,6 +73,9 @@ RimIntersectionBox::RimIntersectionBox()
 
     CAF_PDM_InitField(&m_maxDepth,    "MaxDepth",           0.0, "Max", "", "", "");
     m_maxDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,12 +122,12 @@ void RimIntersectionBox::setToDefaultSizeBox()
     
     double defaultWidthFactor = 0.5;
 
-    m_minXCoord = center.x() - 0.5 * boundingBox.extent().x() *  defaultWidthFactor;
-    m_minYCoord = center.y() - 0.5 * boundingBox.extent().y() *  defaultWidthFactor;
-    m_minDepth = center.z() - 0.5 * boundingBox.extent().z() *  defaultWidthFactor;
-    m_maxXCoord = center.x() + 0.5 * boundingBox.extent().x() *  defaultWidthFactor;
-    m_maxYCoord = center.y() + 0.5 * boundingBox.extent().y() *  defaultWidthFactor;
-    m_maxDepth = center.z() + 0.5 * boundingBox.extent().z() *  defaultWidthFactor;
+    m_minXCoord =   center.x() - 0.5 * boundingBox.extent().x() *  defaultWidthFactor;
+    m_minYCoord =   center.y() - 0.5 * boundingBox.extent().y() *  defaultWidthFactor;
+    m_minDepth  = -(center.z() + 0.5 * boundingBox.extent().z() *  defaultWidthFactor);
+    m_maxXCoord =   center.x() + 0.5 * boundingBox.extent().x() *  defaultWidthFactor;
+    m_maxYCoord =   center.y() + 0.5 * boundingBox.extent().y() *  defaultWidthFactor;
+    m_maxDepth  = -(center.z() - 0.5 * boundingBox.extent().z() *  defaultWidthFactor);
     
 }
 
@@ -142,18 +145,18 @@ void RimIntersectionBox::setToDefaultSizeSlice(SinglePlaneState plane, const cvf
 
     double defaultWidthFactor = 0.5;
 
-    m_minXCoord = center[0] - 0.5 * boundingBox.extent().x() * defaultWidthFactor;
-    m_minYCoord = center[1] - 0.5 * boundingBox.extent().y() * defaultWidthFactor;
-    m_minDepth = center[2] - 0.5 * boundingBox.extent().z() * defaultWidthFactor;
-    m_maxXCoord = center[0] + 0.5 * boundingBox.extent().x() * defaultWidthFactor;
-    m_maxYCoord = center[1] + 0.5 * boundingBox.extent().y() * defaultWidthFactor;
-    m_maxDepth = center[2] + 0.5 * boundingBox.extent().z() * defaultWidthFactor;
+    m_minXCoord =   center[0] - 0.5 * boundingBox.extent().x() * defaultWidthFactor;
+    m_minYCoord =   center[1] - 0.5 * boundingBox.extent().y() * defaultWidthFactor;
+    m_minDepth  = -(center[2] + 0.5 * boundingBox.extent().z() * defaultWidthFactor);
+    m_maxXCoord =   center[0] + 0.5 * boundingBox.extent().x() * defaultWidthFactor;
+    m_maxYCoord =   center[1] + 0.5 * boundingBox.extent().y() * defaultWidthFactor;
+    m_maxDepth  = -(center[2] - 0.5 * boundingBox.extent().z() * defaultWidthFactor);
 
     switch (plane) 
     {
         case PLANE_STATE_X: m_minXCoord = m_maxXCoord = center[0]; break;
         case PLANE_STATE_Y: m_minYCoord = m_maxYCoord = center[1]; break;
-        case PLANE_STATE_Z: m_minDepth = m_maxDepth = center[2]; break;
+        case PLANE_STATE_Z: m_minDepth = m_maxDepth = -center[2]; break;
     }
 
     updateVisibility();

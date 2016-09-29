@@ -411,8 +411,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGr
         RigMainGrid* grid = NULL;
         grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
 
-        // TODO: Should flag for inactive cells be available at a centralized object?
-        return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), false);
+        return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimIntersectionBox->showInactiveCells());
     }
 
     RimGeoMechView* geoView;

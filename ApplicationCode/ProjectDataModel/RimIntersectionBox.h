@@ -50,6 +50,7 @@ public:
     // Fields
     caf::PdmField<QString>          name;
     caf::PdmField<bool>             isActive;
+    caf::PdmField< bool >           showInactiveCells;
 
     cvf::Mat4d                      boxOrigin() const;
     cvf::Vec3d                      boxSize()   const;
