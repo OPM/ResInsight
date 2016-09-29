@@ -74,6 +74,7 @@ private:
     void                            updateVisibility();
     void                            updateLabelsFromBoundingBox();
     void                            clampSinglePlaneValues();
+    void                            switchSingelPlaneState();
 
 private:
     caf::PdmField<caf::AppEnum< SinglePlaneState > > m_singlePlaneState;

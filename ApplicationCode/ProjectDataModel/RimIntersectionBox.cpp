@@ -202,8 +202,8 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 {
     if (changedField == &m_singlePlaneState)
     {
+        switchSingelPlaneState();
         updateVisibility();
-        clampSinglePlaneValues();
     }
     else if (changedField == &m_minXCoord)
     {
@@ -366,17 +366,68 @@ void RimIntersectionBox::clampSinglePlaneValues()
 {
     if (m_singlePlaneState == PLANE_STATE_X)
     {
-        m_maxXCoord = m_minXCoord;
+        m_maxXCoord = m_minXCoord = 0.5*(m_minXCoord + m_maxXCoord);
     }
     else if (m_singlePlaneState == PLANE_STATE_Y)
     {
-        m_maxYCoord = m_minYCoord;
+        m_maxYCoord = m_minYCoord = 0.5*(m_minYCoord + m_maxYCoord);
     }
     else if (m_singlePlaneState == PLANE_STATE_Z)
     {
-        m_maxZCoord = m_minZCoord;
+        m_maxZCoord = m_minZCoord = 0.5*(m_minZCoord + m_maxZCoord);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::switchSingelPlaneState()
+{
+    cvf::Vec3d orgSize = boxSize();
+    double orgWidth = orgSize.length();
+
+    switch( m_singlePlaneState()) // New collapsed direction
+    {
+        case PLANE_STATE_X:
+        orgWidth =  orgSize[0];
+        break;
+        case PLANE_STATE_Y:
+        orgWidth =  orgSize[1];
+        break;
+        case PLANE_STATE_Z:
+        orgWidth =  orgSize[2];
+        break;
+        case PLANE_STATE_NONE:
+        orgWidth =  orgSize.length() *0.3;
+        break;
+    }
+
+    // For the originally collapsed direction, set a new width
+
+    if(m_minXCoord() == m_maxXCoord()) 
+    {
+        double center = m_minXCoord;
+        m_minXCoord =  center - 0.5*orgWidth;
+        m_maxXCoord =  center + 0.5*orgWidth;
+    }
+
+    if(m_minYCoord() == m_maxYCoord()) 
+    {
+        double center = m_minYCoord;
+        m_minYCoord =  center - 0.5*orgWidth;
+        m_maxYCoord =  center + 0.5*orgWidth;
+    }
+
+    if(m_minZCoord() == m_maxZCoord()) 
+    {
+        double center = m_minZCoord;
+        m_minZCoord =  center - 0.5*orgWidth;
+        m_maxZCoord =  center + 0.5*orgWidth;
+    }
+
+    clampSinglePlaneValues();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -403,4 +454,3 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
         return rimCase->activeCellsBoundingBox();
 
 }
-
