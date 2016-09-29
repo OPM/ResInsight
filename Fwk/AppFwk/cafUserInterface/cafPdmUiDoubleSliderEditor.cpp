@@ -115,6 +115,8 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
     }
+    
+    m_slider->setMaximum(m_attributes.m_sliderResolution);
 
     PdmDoubleValidator* pdmValidator = new PdmDoubleValidator(m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this);
     m_lineEdit->setValidator(pdmValidator);
@@ -142,6 +144,8 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget(QWidget * parent)
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
 
     m_slider = new QSlider(Qt::Horizontal, containerWidget);
+    
+
     layout->addWidget(m_lineEdit);
     layout->addWidget(m_slider);
 
@@ -218,7 +222,7 @@ int PdmUiDoubleSliderEditor::convertToSliderValue(double value)
 {
     double exactSliderValue = m_slider->maximum() * (value - m_attributes.m_minimum) / (m_attributes.m_maximum - m_attributes.m_minimum);
 
-    int sliderValue = static_cast<int>(exactSliderValue);
+    int sliderValue = static_cast<int>(nearbyint( exactSliderValue));
     sliderValue = qBound(m_slider->minimum(), sliderValue, m_slider->maximum());
 
     return sliderValue;

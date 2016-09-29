@@ -62,12 +62,14 @@ public:
         m_minimum = 0;
         m_maximum = 10;
         m_decimals = 6;
+        m_sliderResolution = 2000;
     }
 
 public:
     double  m_minimum;
     double  m_maximum;
     int     m_decimals;
+    int     m_sliderResolution;
 };
 
 
