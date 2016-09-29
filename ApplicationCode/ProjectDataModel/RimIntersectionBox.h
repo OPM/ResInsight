@@ -81,11 +81,11 @@ private:
     
     caf::PdmField<double>           m_minXCoord;
     caf::PdmField<double>           m_minYCoord;
-    caf::PdmField<double>           m_minZCoord;
+    caf::PdmField<double>           m_minDepth;
 
     caf::PdmField<double>           m_maxXCoord;
     caf::PdmField<double>           m_maxYCoord;
-    caf::PdmField<double>           m_maxZCoord;
+    caf::PdmField<double>           m_maxDepth;
 
 
     cvf::BoundingBox                        currentCellBoundingBox();
