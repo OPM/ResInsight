@@ -1755,6 +1755,9 @@ void RiuMainWindow::refreshDrawStyleActions()
     if (enable)
     {
         m_drawStyleHideGridCellsAction->setEnabled(true);
+        m_drawStyleHideGridCellsAction->blockSignals(true);
+        m_drawStyleHideGridCellsAction->setChecked(!view->isGridVisualizationMode());
+        m_drawStyleHideGridCellsAction->blockSignals(false);
     }
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
@@ -1765,10 +1768,6 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     if (enable) 
     {   
-        m_drawStyleHideGridCellsAction->blockSignals(true);
-        m_drawStyleHideGridCellsAction->setChecked(!eclView->isGridVisualizationMode());
-        m_drawStyleHideGridCellsAction->blockSignals(false);
-
         m_toggleFaultsLabelAction->blockSignals(true);
         m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
         m_toggleFaultsLabelAction->blockSignals(false);
