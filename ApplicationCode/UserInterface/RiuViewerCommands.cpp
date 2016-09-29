@@ -208,12 +208,10 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 m_currentPickedObject = const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox());
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicEditIntersectionBoxFeature"));
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicEditIntersectionBoxEventFeature"));
                 menu.addSeparator();
 
                 QStringList commandIdList;
                 commandIdList << "RicEditIntersectionBoxFeature";
-                commandIdList << "RicEditIntersectionBoxEventFeature";
                 caf::CmdFeatureManager::instance()->refreshCheckedState(commandIdList);
             }
 

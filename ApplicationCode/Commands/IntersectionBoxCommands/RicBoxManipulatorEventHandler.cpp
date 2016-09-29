@@ -1,17 +1,18 @@
 
 #include "RicBoxManipulatorEventHandler.h"
 
+#include "cafBoxManipulatorPartManager.h"
+#include "cafEffectGenerator.h"
+#include "cafViewer.h"
+
+#include "cvfCamera.h"
+#include "cvfDrawableGeo.h"
+#include "cvfHitItemCollection.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfDrawableGeo.h"
-#include "cafEffectGenerator.h"
+#include "cvfRay.h"
 
-
-#include "cvfHitItemCollection.h"
-
-#include "cafViewer.h"
-#include "cafBoxManipulatorPartManager.h"
-
+#include <QDebug>
 #include <QMouseEvent>
 
 //--------------------------------------------------------------------------------------------------
@@ -19,11 +20,12 @@
 //--------------------------------------------------------------------------------------------------
 RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer)
     : m_viewer(viewer),
-    m_scaleZ(1.0),
-    m_isGeometryCreated(false)
+    m_currentPartIndex(cvf::UNDEFINED_SIZE_T)
 {
     m_partManager = new caf::BoxManipulatorPartManager;
     m_model = new cvf::ModelBasicList;
+
+    m_viewer->installEventFilter(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -31,36 +33,21 @@ RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer
 //--------------------------------------------------------------------------------------------------
 RicBoxManipulatorEventHandler::~RicBoxManipulatorEventHandler()
 {
+    m_viewer->removeEventFilter(this);
+
+    // Make sure the model owned by this manipulator is not used anywhere else
+    CVF_ASSERT(m_model->refCount() == 1);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::setScaleZ(double scaleZ)
+void RicBoxManipulatorEventHandler::setOrigin(const cvf::Vec3d& origin)
 {
-    m_scaleZ = scaleZ;
+    m_partManager->setOrigin(origin);
 
-    updatePartManagerCoords();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::setDisplayModelOffset(cvf::Vec3d offset)
-{
-    m_displayModelOffset = offset;
-
-    updatePartManagerCoords();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::setOrigin(const cvf::Mat4d& origin)
-{
-    m_domainCoordOrigin = origin;
-
-    updatePartManagerCoords();
+    updateParts();
+    emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,9 +55,10 @@ void RicBoxManipulatorEventHandler::setOrigin(const cvf::Mat4d& origin)
 //--------------------------------------------------------------------------------------------------
 void RicBoxManipulatorEventHandler::setSize(const cvf::Vec3d& size)
 {
-    m_domainCoordSize = size;
-
-    updatePartManagerCoords();
+    m_partManager->setSize(size);
+    
+    updateParts();
+    emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,93 +74,79 @@ cvf::Model* RicBoxManipulatorEventHandler::model()
 //--------------------------------------------------------------------------------------------------
 bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent)
 {
-    if (!m_isGeometryCreated)
-    {
-        updateParts();
-
-        emit geometryUpdated();
-
-        inputEvent->setAccepted(true);
-
-        m_isGeometryCreated = true;
-
-        return true;
-    }
-
-    return false;
-
-/*
     if (inputEvent->type() == QEvent::MouseButtonPress)
     {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(inputEvent);
 
-        cvf::HitItemCollection hitItems;
-        if (m_viewer->rayPick(mouseEvent->x(), mouseEvent->y(), &hitItems))
+        if (mouseEvent->button() == Qt::LeftButton)
         {
-            // TODO: Test if the first hit item is part of the manipulator
-/ *
-            if (hitItems.firstItem() && hitItems.firstItem()->part())
+            cvf::HitItemCollection hitItems;
+            if (m_viewer->rayPick(mouseEvent->x(), mouseEvent->y(), &hitItems))
             {
-                const cvf::Object* siConstObj = hitItems.firstItem()->part()->sourceInfo();
-                cvf::Object* siObj = const_cast<cvf::Object*>(siConstObj);
-
-                caf::BoxManipulatorSourceInfo* sourceInfo = dynamic_cast<caf::BoxManipulatorSourceInfo*>(siObj);
-                if (sourceInfo)
+                if (hitItems.firstItem() && hitItems.firstItem()->part())
                 {
+                    m_currentPartIndex = m_partManager->partIndexFromSourceInfo(hitItems.firstItem()->part(), hitItems.firstItem()->intersectionPoint());
 
+                    if (m_currentPartIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        updateParts();
+                        emit notifyRedraw();
+                        
+                        return true;
+                    }
                 }
             }
-* /
+        }
+    }
+    else if (inputEvent->type() == QEvent::MouseMove)
+    {
+        if (m_currentPartIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(inputEvent);
 
-            switch (inputEvent->type())
+            //qDebug() << "Inside mouse move";
+            //qDebug() << mouseEvent->pos();
+
+            int translatedMousePosX = mouseEvent->pos().x();
+            int translatedMousePosY = m_viewer->height() - mouseEvent->pos().y();
+
+            cvf::ref<cvf::Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
             {
-            case QEvent::MouseButtonPress:
-                mouseMoveEvent(static_cast<QMouseEvent*>(inputEvent));
-                break;
-            case QEvent::MouseButtonRelease:
-                mouseReleaseEvent(static_cast<QMouseEvent*>(inputEvent));
-                break;
-            case QEvent::MouseMove:
-                mouseMoveEvent(static_cast<QMouseEvent*>(inputEvent));
-                break;
+                m_partManager->updateFromPartIndexAndRay(m_currentPartIndex, ray.p());
+
+                updateParts();
+
+                cvf::Vec3d origin;
+                cvf::Vec3d size;
+                m_partManager->originAndSize(&origin, &size);
+
+                emit notifyUpdate(origin, size);
+
+                emit notifyRedraw();
+
+                return true;
             }
+        }
+    }
+    else if (inputEvent->type() == QEvent::MouseButtonRelease)
+    {
+        if (m_currentPartIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            m_currentPartIndex = cvf::UNDEFINED_SIZE_T;
 
-            updateParts();
+            cvf::Vec3d origin;
+            cvf::Vec3d size;
+            m_partManager->originAndSize(&origin, &size);
 
-            emit geometryUpdated();
+            emit notifyUpdate(origin, size);
 
-            inputEvent->setAccepted(true);
             return true;
         }
     }
 
     return false;
-*/
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::mouseMoveEvent(QMouseEvent* event)
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::mousePressEvent(QMouseEvent* event)
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::mouseReleaseEvent(QMouseEvent* event)
-{
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -184,29 +158,3 @@ void RicBoxManipulatorEventHandler::updateParts()
     m_partManager->appendPartsToModel(m_model.p());
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::updatePartManagerCoords()
-{
-    cvf::Mat4d displayCoordOrigin = m_domainCoordOrigin;
-    cvf::Vec3d domainCoordTrans = m_domainCoordOrigin.translation();
-    displayCoordOrigin.setTranslation(displayModelCoordFromDomainCoord(domainCoordTrans));
-
-    m_partManager->setOrigin(displayCoordOrigin);
-
-    cvf::Vec3d domainCoordSize = m_domainCoordSize;
-    domainCoordSize.z() *= m_scaleZ;
-    m_partManager->setSize(domainCoordSize);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RicBoxManipulatorEventHandler::displayModelCoordFromDomainCoord(const cvf::Vec3d& domainCoord) const
-{
-    cvf::Vec3d coord = domainCoord - m_displayModelOffset;
-    coord.z() *= m_scaleZ;
-
-    return coord;
-}

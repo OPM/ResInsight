@@ -52,3 +52,31 @@ cvf::Vec3d caf::DisplayCoordTransform::scaleToDisplaySize(const cvf::Vec3d& doma
 
     return coord;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d caf::DisplayCoordTransform::transformToDomainCoord(const cvf::Vec3d& displayCoord) const
+{
+    cvf::Vec3d coord = displayCoord;
+    coord.x() /= m_scale.x();
+    coord.y() /= m_scale.y();
+    coord.z() /= m_scale.z();
+
+    coord += m_translation;
+
+    return coord;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d caf::DisplayCoordTransform::scaleToDomainSize(const cvf::Vec3d& displaySize) const
+{
+    cvf::Vec3d coord = displaySize;
+    coord.x() /= m_scale.x();
+    coord.y() /= m_scale.y();
+    coord.z() /= m_scale.z();
+
+    return coord;
+}

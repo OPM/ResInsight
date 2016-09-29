@@ -25,7 +25,7 @@ public:
     BoxManipulatorGeometryGenerator();
     ~BoxManipulatorGeometryGenerator();
 
-    void setOrigin(const cvf::Mat4d& origin);
+    void setOrigin(const cvf::Vec3d& origin);
     void setSize(const cvf::Vec3d& size);
 
     cvf::ref<cvf::DrawableGeo>  createBoundingBoxMeshDrawable();
@@ -36,7 +36,7 @@ private:
     static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray(const cvf::Vec3fArray* vertexArray);
 
 private:
-    cvf::Mat4d          m_origin;
+    cvf::Vec3d          m_origin;
     cvf::Vec3d          m_size;
 
     cvf::ref<cvf::Vec3fArray>   m_vertices;

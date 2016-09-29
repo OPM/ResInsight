@@ -19,27 +19,27 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "cafCmdExecuteCommand.h"
-#include "cafPdmPointer.h"
-
-#include "cvfBase.h"
-#include "cvfObject.h"
 
 
-namespace caf {
-    class BoxManipulatorGeometryGenerator;
-};
+class RicBoxManipulatorEventHandler;
+class RimIntersectionBox;
 
-namespace cvf {
-    class ModelBasicList;
-};
 
 //==================================================================================================
 /// 
 //==================================================================================================
 class RicEditIntersectionBoxFeature : public caf::CmdFeature
 {
+    Q_OBJECT;
+
     CAF_CMD_HEADER_INIT;
+
+public:
+    RicEditIntersectionBoxFeature();
+
+public slots:
+    void slotScheduleRedraw();
+    void slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
 protected:
     // Overrides
@@ -49,7 +49,7 @@ protected:
     virtual bool isCommandChecked() override;
 
 private:
-//    cvf::ref<caf::BoxManipulatorGeometryGenerator> m_boxManipulatorGeometryGenerator;
-    cvf::ref<cvf::ModelBasicList> m_model;
+    RicBoxManipulatorEventHandler* m_eventHandler;
+    RimIntersectionBox* m_intersectionBox;
 };
 

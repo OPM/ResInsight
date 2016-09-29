@@ -1,15 +1,17 @@
 
 #include "cafBoxManipulatorPartManager.h"
 
+#include "cafBoxManipulatorGeometryGenerator.h"
+#include "cafEffectGenerator.h"
+
 #include "cvfBoxGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfGeometryBuilderFaceList.h"
+#include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfPrimitiveSetIndexedUShort.h"
-#include "cafBoxManipulatorGeometryGenerator.h"
-#include "cafEffectGenerator.h"
-#include "cvfModelBasicList.h"
+#include "cvfRay.h"
 
 
 using namespace cvf;
@@ -22,17 +24,14 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 BoxManipulatorPartManager::BoxManipulatorPartManager()
 {
-    m_geometryGenerator = new caf::BoxManipulatorGeometryGenerator;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BoxManipulatorPartManager::setOrigin(const cvf::Mat4d& origin)
+void BoxManipulatorPartManager::setOrigin(const cvf::Vec3d& origin)
 {
     m_origin = origin;
-
-    m_geometryGenerator->setOrigin(origin);
 
     clearAllGeometryAndParts();
 }
@@ -44,9 +43,16 @@ void BoxManipulatorPartManager::setSize(const cvf::Vec3d& size)
 {
     m_size = size;
 
-    m_geometryGenerator->setSize(size);
-
     clearAllGeometryAndParts();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void BoxManipulatorPartManager::originAndSize(cvf::Vec3d* origin, cvf::Vec3d* size)
+{
+    *origin = m_origin;
+    *size = m_size;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,11 +77,14 @@ void BoxManipulatorPartManager::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t BoxManipulatorPartManager::partIndexFromSourceInfo(cvf::Part* candidatePart)
+size_t BoxManipulatorPartManager::partIndexFromSourceInfo(const cvf::Part* candidatePart, const cvf::Vec3d& intersectionPoint)
 {
     if (!candidatePart) return cvf::UNDEFINED_SIZE_T;
 
-    BoxManipulatorSourceInfo* candidateSourceInfo = dynamic_cast<BoxManipulatorSourceInfo*>(candidatePart->sourceInfo());
+    const cvf::Object* siConstObj = candidatePart->sourceInfo();
+    cvf::Object* siObj = const_cast<cvf::Object*>(siConstObj);
+
+    BoxManipulatorSourceInfo* candidateSourceInfo = dynamic_cast<BoxManipulatorSourceInfo*>(siObj);
     if (!candidateSourceInfo) return cvf::UNDEFINED_SIZE_T;
 
     for (size_t i = 0; i < m_cubeParts.size(); i++)
@@ -86,11 +95,117 @@ size_t BoxManipulatorPartManager::partIndexFromSourceInfo(cvf::Part* candidatePa
         if (si->m_cubeFace == candidateSourceInfo->m_cubeFace &&
             si->m_cubeFaceItem == candidateSourceInfo->m_cubeFaceItem)
         {
+            m_initialPickPoint = intersectionPoint;
+            
             return i;
         }
     }
 
     return cvf::UNDEFINED_SIZE_T;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void BoxManipulatorPartManager::updateFromPartIndexAndRay(size_t partIndex, const cvf::Ray* ray)
+{
+    BoxCubeFace face = m_cubeItemType[partIndex].first;
+    cvf::Vec3d faceDir = normalFromFace(face);
+
+    cvf::Vec3d closestPoint1;
+    cvf::Vec3d closestPoint2;
+    BoxManipulatorPartManager::closestPointOfTwoLines(ray->origin(), ray->origin() + ray->direction(), m_initialPickPoint, m_initialPickPoint + faceDir, &closestPoint1, &closestPoint2);
+
+    cvf::Vec3d newOrigin = m_origin;
+    cvf::Vec3d newSize = m_size;
+
+    switch (face)
+    {
+    case caf::BoxManipulatorPartManager::BCF_X_POS:
+        newSize.x() = CVF_MAX(0.0, closestPoint2.x() - m_origin.x());
+        break;
+    case caf::BoxManipulatorPartManager::BCF_X_NEG:
+        if (m_size.x() - (closestPoint2.x() - m_origin.x()) > 0.0)
+        {
+            newOrigin.x() = closestPoint2.x();
+            newSize.x() = m_size.x() - (closestPoint2.x() - m_origin.x());
+        }
+        else
+        {
+            newOrigin.x() = m_origin.x() + m_size.x();
+            newSize.x() = 0.0;
+        }
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Y_POS:
+        newSize.y() = CVF_MAX(0.0, closestPoint2.y() - m_origin.y());
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Y_NEG:
+        if (m_size.y() - (closestPoint2.y() - m_origin.y()) > 0.0)
+        {
+            newOrigin.y() = closestPoint2.y();
+            newSize.y() = m_size.y() - (closestPoint2.y() - m_origin.y());
+        }
+        else
+        {
+            newOrigin.y() = m_origin.y() + m_size.y();
+            newSize.y() = 0.0;
+        }
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Z_POS:
+        newSize.z() = CVF_MAX(0.0, closestPoint2.z() - m_origin.z());
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Z_NEG:
+        if (m_size.z() - (closestPoint2.z() - m_origin.z()) > 0.0)
+        {
+            newOrigin.z() = closestPoint2.z();
+            newSize.z() = m_size.z() - (closestPoint2.z() - m_origin.z());
+        }
+        else
+        {
+            newOrigin.z() = m_origin.z() + m_size.z();
+            newSize.z() = 0.0;
+        }
+        break;
+    default:
+        break;
+    }
+
+    setOrigin(newOrigin);
+    setSize(newSize);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d BoxManipulatorPartManager::normalFromFace(BoxCubeFace face)
+{
+    switch (face)
+    {
+    case caf::BoxManipulatorPartManager::BCF_X_POS:
+        return cvf::Vec3d::X_AXIS;
+        break;
+    case caf::BoxManipulatorPartManager::BCF_X_NEG:
+        return -cvf::Vec3d::X_AXIS;
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Y_POS:
+        return cvf::Vec3d::Y_AXIS;
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Y_NEG:
+        return -cvf::Vec3d::Y_AXIS;
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Z_POS:
+        return cvf::Vec3d::Z_AXIS;
+        break;
+    case caf::BoxManipulatorPartManager::BCF_Z_NEG:
+        return -cvf::Vec3d::Z_AXIS;
+        break;
+    default:
+        CVF_ASSERT(false);
+        break;
+    }
+
+    return cvf::Vec3d::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,96 +216,49 @@ void BoxManipulatorPartManager::createCubeGeos()
     Vec3f cp[8];
     navCubeCornerPoints(cp);
 
-    createCubeFaceGeos(NCF_Y_NEG, cp[0], cp[1], cp[5], cp[4]);
-    createCubeFaceGeos(NCF_Y_POS, cp[2], cp[3], cp[7], cp[6]);
+    createCubeFaceGeos(BCF_Y_NEG, cp[0], cp[1], cp[5], cp[4]);
+    createCubeFaceGeos(BCF_Y_POS, cp[2], cp[3], cp[7], cp[6]);
 
-    createCubeFaceGeos(NCF_Z_POS, cp[4], cp[5], cp[6], cp[7]);
-    createCubeFaceGeos(NCF_Z_NEG, cp[3], cp[2], cp[1], cp[0]);
+    createCubeFaceGeos(BCF_Z_POS, cp[4], cp[5], cp[6], cp[7]);
+    createCubeFaceGeos(BCF_Z_NEG, cp[3], cp[2], cp[1], cp[0]);
 
-    createCubeFaceGeos(NCF_X_NEG, cp[3], cp[0], cp[4], cp[7]);
-    createCubeFaceGeos(NCF_X_POS, cp[1], cp[2], cp[6], cp[5]);
+    createCubeFaceGeos(BCF_X_NEG, cp[3], cp[0], cp[4], cp[7]);
+    createCubeFaceGeos(BCF_X_POS, cp[1], cp[2], cp[6], cp[5]);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BoxManipulatorPartManager::createCubeFaceGeos(NavCubeFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4)
+void BoxManipulatorPartManager::createCubeFaceGeos(BoxCubeFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4)
 {
-    Vec2f t1(0, 0);
-    Vec2f t2(1, 0);
-    Vec2f t3(1, 1);
-    Vec2f t4(0, 1);
+    float centerItemHeight = (p1 - p2).length();
+    if ((p2 - p3).length() < centerItemHeight)
+    {
+        centerItemHeight = (p2 - p3).length();
+    }
+    
+    float centerItemFactor = 0.1f;
+    centerItemHeight *= centerItemFactor;
 
-    float fCornerFactor = 0.175f;
-    float fOneMinusCF = 1.0f - fCornerFactor;
-    Vec3f p12 = p1 + (p2 - p1)*fCornerFactor;   Vec2f t12(fCornerFactor, 0);
-    Vec3f p14 = p1 + (p4 - p1)*fCornerFactor;   Vec2f t14(0, fCornerFactor);
-    Vec3f pi1 = p1 + (p12 - p1) + (p14 - p1);   Vec2f ti1(fCornerFactor, fCornerFactor);
+    Vec3f center = (p1 + p3) / 2.0f;
+    Vec3f u = (p2 - p1).getNormalized() * centerItemHeight;
+    Vec3f v = (p4 - p1).getNormalized() * centerItemHeight;
 
-    Vec3f p21 = p2 + (p1 - p2)*fCornerFactor;   Vec2f t21(fOneMinusCF, 0);
-    Vec3f p23 = p2 + (p3 - p2)*fCornerFactor;   Vec2f t23(1.0, fCornerFactor);
-    Vec3f pi2 = p2 + (p21 - p2) + (p23 - p2);   Vec2f ti2(fOneMinusCF, fCornerFactor);
+    Vec3f pi1 = center - u / 2.0 - v / 2.0;
 
-    Vec3f p32 = p3 + (p2 - p3)*fCornerFactor;   Vec2f t32(1.0, fOneMinusCF);
-    Vec3f p34 = p3 + (p4 - p3)*fCornerFactor;   Vec2f t34(fOneMinusCF, 1.0);
-    Vec3f pi3 = p3 + (p32 - p3) + (p34 - p3);   Vec2f ti3(fOneMinusCF, fOneMinusCF);
-
-    Vec3f p41 = p4 + (p1 - p4)*fCornerFactor;   Vec2f t41(0, fOneMinusCF);
-    Vec3f p43 = p4 + (p3 - p4)*fCornerFactor;   Vec2f t43(fCornerFactor, 1.0);
-    Vec3f pi4 = p4 + (p41 - p4) + (p43 - p4);   Vec2f ti4(fCornerFactor, fOneMinusCF);
-
-/*
-    // Bottom left
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_BOTTOM_LEFT));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p1, p12, pi1, p14, t1, t12, ti1, t14).p());
-
-    // Bottom right
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_BOTTOM_RIGHT));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p2, p23, pi2, p21, t2, t23, ti2, t21).p());
-
-    // Top right
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_TOP_RIGHT));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p3, p34, pi3, p32, t3, t34, ti3, t32).p());
-
-    // Top left
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_TOP_LEFT));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p4, p41, pi4, p43, t4, t41, ti4, t43).p());
-
-    // Bottom
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_BOTTOM));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p12, p21, pi2, pi1, t12, t21, ti2, ti1).p());
-
-    // Top
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_TOP));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p34, p43, pi4, pi3, t34, t43, ti4, ti3).p());
-
-    // Right
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_RIGHT));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p23, p32, pi3, pi2, t23, t32, ti3, ti2).p());
-
-    // Left
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_LEFT));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(p41, p14, pi1, pi4, t41, t14, ti1, ti4).p());
-*/
+    Vec3f pi2 = pi1 + u;
+    Vec3f pi3 = pi2 + v;
+    Vec3f pi4 = pi1 + v;
 
     // Inner part
-    m_cubeItemType.push_back(navCubeItem(face, NCFI_CENTER));
-    m_cubeGeoFace.push_back(face);
-    m_cubeGeos.push_back(createQuadGeo(pi1, pi2, pi3, pi4, ti1, ti2, ti3, ti4).p());
+    m_cubeItemType.push_back(navCubeItem(face, BCFI_CENTER));
+    m_cubeGeos.push_back(createQuadGeo(pi1, pi2, pi3, pi4).p());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> BoxManipulatorPartManager::createQuadGeo(const cvf::Vec3f& v1, const cvf::Vec3f& v2, const cvf::Vec3f& v3, const cvf::Vec3f& v4, const cvf::Vec2f& t1, const cvf::Vec2f& t2, const cvf::Vec2f& t3, const cvf::Vec2f& t4)
+cvf::ref<cvf::DrawableGeo> BoxManipulatorPartManager::createQuadGeo(const cvf::Vec3f& v1, const cvf::Vec3f& v2, const cvf::Vec3f& v3, const cvf::Vec3f& v4)
 {
     ref<DrawableGeo> geo = new DrawableGeo;
 
@@ -200,14 +268,7 @@ cvf::ref<cvf::DrawableGeo> BoxManipulatorPartManager::createQuadGeo(const cvf::V
     vertexArray->set(2, v3);
     vertexArray->set(3, v4);
 
-    ref<Vec2fArray> textureCoordArray = new Vec2fArray(4);
-    textureCoordArray->set(0, t1);
-    textureCoordArray->set(1, t2);
-    textureCoordArray->set(2, t3);
-    textureCoordArray->set(3, t4);
-
     geo->setVertexArray(vertexArray.p());
-    geo->setTextureCoordArray(textureCoordArray.p());
 
     ref<cvf::UShortArray> indices = new cvf::UShortArray(6);
     indices->set(0, 0);
@@ -230,8 +291,13 @@ cvf::ref<cvf::DrawableGeo> BoxManipulatorPartManager::createQuadGeo(const cvf::V
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::navCubeCornerPoints(cvf::Vec3f points[8])
 {
-    Vec3f min(m_origin.translation());
-    Vec3f max(m_origin.translation() + m_size);
+    Vec3f offset(1.0, 1.0, 1.0);
+
+    Vec3f min(m_origin);
+    min -= offset;
+
+    Vec3f max(m_origin + m_size);
+    max += offset;
 
     points[0].set(min.x(), min.y(), min.z());
     points[1].set(max.x(), min.y(), min.z());
@@ -246,7 +312,7 @@ void BoxManipulatorPartManager::navCubeCornerPoints(cvf::Vec3f points[8])
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::pair<BoxManipulatorPartManager::NavCubeFace, BoxManipulatorPartManager::NavCubeFaceItem> BoxManipulatorPartManager::navCubeItem(NavCubeFace face, NavCubeFaceItem faceItem) const
+std::pair<BoxManipulatorPartManager::BoxCubeFace, BoxManipulatorPartManager::NavCubeFaceItem> BoxManipulatorPartManager::navCubeItem(BoxCubeFace face, NavCubeFaceItem faceItem) const
 {
     return std::make_pair(face, faceItem);
 }
@@ -258,7 +324,6 @@ void BoxManipulatorPartManager::clearAllGeometryAndParts()
 {
     m_boundingBoxPart = nullptr;
     m_cubeGeos.clear();
-    m_cubeGeoFace.clear();
     m_cubeItemType.clear();
     m_cubeParts.clear();
 }
@@ -280,7 +345,11 @@ void BoxManipulatorPartManager::createBoundingBoxPart()
 {
     m_boundingBoxPart = nullptr;
 
-    cvf::ref<cvf::DrawableGeo> geoMesh = m_geometryGenerator->createBoundingBoxMeshDrawable();
+    cvf::ref<caf::BoxManipulatorGeometryGenerator> geometryGenerator = new caf::BoxManipulatorGeometryGenerator;
+    geometryGenerator->setOrigin(m_origin);
+    geometryGenerator->setSize(m_size);
+
+    cvf::ref<cvf::DrawableGeo> geoMesh = geometryGenerator->createBoundingBoxMeshDrawable();
     if (geoMesh.notNull())
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
@@ -329,6 +398,71 @@ void BoxManipulatorPartManager::createCubeParts()
 
             m_cubeParts.push_back(part.p());
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool BoxManipulatorPartManager::closestPointOfTwoLines(const cvf::Vec3d& p1, const cvf::Vec3d& q1, const cvf::Vec3d& p2, const cvf::Vec3d& q2, cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2)
+{
+    //    qDebug() << p1 << " " << q1 << " " << p2 << " " << q2;
+
+        // Taken from Real-Time Collistion Detection, Christer Ericson, 2005, p146-147
+
+        // L1(s) = P1 + sd1
+        // L2(t) = P2 + td2
+
+        // d1 = Q1-P1
+        // d2 = Q2-P2
+
+        // r = P1-P2
+
+        // a = d1*d1
+        // b = d1*d2
+        // c = d1*r
+        // e = d2*d2;
+        // d = ae-b^2
+        // f = d2*r
+
+        // s = (bf-ce)/d
+        // t = (af-bc)/d
+
+
+    cvf::Vec3d d1 = q1 - p1;
+    cvf::Vec3d d2 = q2 - p2;
+
+    double a = d1.dot(d1);
+    double b = d1.dot(d2);
+    double e = d2.dot(d2);
+
+    double d = a*e - b*b;
+
+    if (d < std::numeric_limits<double>::epsilon())
+    {
+        // Parallel lines
+        if (closestPoint1) *closestPoint1 = p1;
+        if (closestPoint2) *closestPoint2 = p2;
+        return false;
+    }
+
+    cvf::Vec3d r = p1 - p2;
+    double c = d1.dot(r);
+    double f = d2.dot(r);
+
+    double s = (b*f - c*e) / d;
+    double t = (a*f - b*c) / d;
+
+    if (closestPoint1) *closestPoint1 = p1 + s*d1;
+    if (closestPoint2) *closestPoint2 = p2 + t*d2;
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 

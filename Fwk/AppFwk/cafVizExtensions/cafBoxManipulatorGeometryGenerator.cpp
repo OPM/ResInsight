@@ -28,7 +28,7 @@ BoxManipulatorGeometryGenerator::~BoxManipulatorGeometryGenerator()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BoxManipulatorGeometryGenerator::setOrigin(const cvf::Mat4d& origin)
+void BoxManipulatorGeometryGenerator::setOrigin(const cvf::Vec3d& origin)
 {
     m_origin = origin;
 
@@ -76,8 +76,8 @@ void BoxManipulatorGeometryGenerator::calculateArrays()
 {
     BoxGenerator gen;
 
-    cvf::Vec3d min = m_origin.translation();
-    cvf::Vec3d max = m_origin.translation() + m_size;
+    cvf::Vec3d min = m_origin;
+    cvf::Vec3d max = m_origin + m_size;
 
     gen.setMinMax(min, max);
     gen.setSubdivisions(1, 1, 1);

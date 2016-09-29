@@ -20,24 +20,62 @@
 
 #include "RiaApplication.h"
 
+#include "RicBoxManipulatorEventHandler.h"
+
 #include "RimCase.h"
 #include "RimIntersectionBox.h"
 #include "RimView.h"
 
 #include "RiuViewer.h"
 
-#include "cafBoxManipulatorGeometryGenerator.h"
-#include "cafEffectGenerator.h"
-
-#include "cvfDrawableGeo.h"
-#include "cvfModelBasicList.h"
-#include "cvfModelBasicList.h"
-#include "cvfPart.h"
-#include "cvfTransform.h"
+#include "cafDisplayCoordTransform.h"
 
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicEditIntersectionBoxFeature, "RicEditIntersectionBoxFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicEditIntersectionBoxFeature::RicEditIntersectionBoxFeature()
+    : m_eventHandler(nullptr),
+    m_intersectionBox(nullptr)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicEditIntersectionBoxFeature::slotScheduleRedraw()
+{
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (activeView && activeView->viewer())
+    {
+        activeView->viewer()->addStaticModelOnce(m_eventHandler->model());
+
+        activeView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicEditIntersectionBoxFeature::slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size)
+{
+    if (m_intersectionBox)
+    {
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        if (activeView)
+        {
+            cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+
+            cvf::Vec3d domainOrigin = transForm->transformToDomainCoord(origin);
+            cvf::Vec3d domainSize   = transForm->scaleToDomainSize(size);
+
+            m_intersectionBox->setFromOriginAndSize(domainOrigin, domainSize);
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -60,42 +98,31 @@ void RicEditIntersectionBoxFeature::onActionTriggered(bool isChecked)
         viewer = activeView->viewer();
     }
 
-    if (isCommandChecked() && m_model.notNull())
+    if (isCommandChecked() && m_eventHandler)
     {
-        if (viewer) viewer->removeStaticModel(m_model.p());
-        m_model = nullptr;
+        if (viewer)
+        {
+            viewer->removeStaticModel(m_eventHandler->model());
+        }
+
+        m_eventHandler->deleteLater();
+        m_eventHandler = nullptr;
+
+        m_intersectionBox = nullptr;
     }
     else if (viewer)
     {
-        RimIntersectionBox* intersectionBox = dynamic_cast<RimIntersectionBox*>(viewer->lastPickedObject());
-        if (intersectionBox)
+        m_intersectionBox = dynamic_cast<RimIntersectionBox*>(viewer->lastPickedObject());
+        if (m_intersectionBox)
         {
-            caf::BoxManipulatorGeometryGenerator boxGen;
+            m_eventHandler = new RicBoxManipulatorEventHandler(viewer);
+            connect(m_eventHandler, SIGNAL(notifyRedraw()), this, SLOT(slotScheduleRedraw()));
+            connect(m_eventHandler, SIGNAL(notifyUpdate(const cvf::Vec3d&, const cvf::Vec3d&)), this, SLOT(slotUpdateGeometry(const cvf::Vec3d&, const cvf::Vec3d&)));
 
-            // TODO: boxGen operates in display coordinates, conversion is missing
-            boxGen.setOrigin(intersectionBox->boxOrigin());
-            boxGen.setSize(intersectionBox->boxSize());
+            cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
 
-            cvf::ref<cvf::DrawableGeo> geoMesh = boxGen.createBoundingBoxMeshDrawable();
-            if (geoMesh.notNull())
-            {
-                cvf::ref<cvf::Part> part = new cvf::Part;
-                part->setName("Cross Section mesh");
-                part->setDrawable(geoMesh.p());
-
-                part->updateBoundingBox();
-//                     part->setEnableMask(meshFaultBit);
-//                     part->setPriority(priMesh);
-
-                cvf::ref<cvf::Effect> eff;
-                caf::MeshEffectGenerator CrossSectionEffGen(cvf::Color3::WHITE);
-                eff = CrossSectionEffGen.generateCachedEffect();
-                part->setEffect(eff.p());
-
-                m_model = new cvf::ModelBasicList;
-                m_model->addPart(part.p());
-                viewer->addStaticModelOnce(m_model.p());
-            }
+            m_eventHandler->setOrigin(transForm->transformToDisplayCoord(m_intersectionBox->boxOrigin().translation()));
+            m_eventHandler->setSize(transForm->scaleToDisplaySize(m_intersectionBox->boxSize()));
         }
     }
 }
@@ -115,5 +142,5 @@ void RicEditIntersectionBoxFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEditIntersectionBoxFeature::isCommandChecked()
 {
-    return m_model.notNull();
+    return m_eventHandler != NULL;
 }
