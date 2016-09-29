@@ -136,28 +136,3 @@ void RimIntersectionBoxCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
         }
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimIntersectionBoxCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
-{
-    if (!isActive) return false;
-
-/*
-    for (size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
-    {
-        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
-
-        if (cs->isActive &&
-            cs->type() == RimIntersectionBox::CS_SIMULATION_WELL &&
-            cs->simulationWell() == eclipseWell)
-        {
-            return true;
-        }
-    }
-
-*/
-    return true;
-}
-

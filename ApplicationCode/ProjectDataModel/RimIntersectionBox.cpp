@@ -156,7 +156,7 @@ void RimIntersectionBox::setToDefaultSizeSlice(SinglePlaneState plane, const cvf
     {
         case PLANE_STATE_X: m_minXCoord = m_maxXCoord = center[0]; break;
         case PLANE_STATE_Y: m_minYCoord = m_maxYCoord = center[1]; break;
-        case PLANE_STATE_Z: m_minDepth = m_maxDepth = -center[2]; break;
+        case PLANE_STATE_Z: m_minDepth  = m_maxDepth  = -center[2]; break;
     }
 
     updateVisibility();

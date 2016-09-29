@@ -48,8 +48,6 @@ public:
 
     void appendIntersectionBox(RimIntersectionBox* intersectionBox);
 
-    bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
-
     // Visualization interface
 
     void applySingleColorEffect();
