@@ -56,22 +56,22 @@ RimIntersectionBox::RimIntersectionBox()
 
     CAF_PDM_InitField(&m_singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Collapse box to plane", "", "", "");
 
-    CAF_PDM_InitField(&m_minXCoord,    "MinXCoord",           0.0, "MinXCoord", "", "", "");
+    CAF_PDM_InitField(&m_minXCoord,    "MinXCoord",           0.0, "Min", "", "", "");
     m_minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_maxXCoord,    "MaxXCoord",           0.0, "MaxXCoord", "", "", "");
+    CAF_PDM_InitField(&m_maxXCoord,    "MaxXCoord",           0.0, "Max", "", "", "");
     m_maxXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_minYCoord,    "MinYCoord",           0.0, "MinYCoord", "", "", "");
+    CAF_PDM_InitField(&m_minYCoord,    "MinYCoord",           0.0, "Min", "", "", "");
     m_minYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_maxYCoord,    "MaxYCoord",           0.0, "MaxYCoord", "", "", "");
+    CAF_PDM_InitField(&m_maxYCoord,    "MaxYCoord",           0.0, "Max", "", "", "");
     m_maxYCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_minZCoord,    "MinZCoord",           0.0, "MinZCoord", "", "", "");
+    CAF_PDM_InitField(&m_minZCoord,    "MinZCoord",           0.0, "Min", "", "", "");
     m_minZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_maxZCoord,    "MaxZCoord",           0.0, "MaxZCoord", "", "", "");
+    CAF_PDM_InitField(&m_maxZCoord,    "MaxZCoord",           0.0, "Max", "", "", "");
     m_maxZCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
@@ -159,31 +159,6 @@ void RimIntersectionBox::setToDefaultSizeSlice(SinglePlaneState plane, const cvf
     updateVisibility();
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimIntersectionBox::updateLabelsFromBoundingBox()
-{
-    cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
-    {
-        QString range = QString(" [%1 - %2]").arg(cellsBoundingBox.min().x()).arg(cellsBoundingBox.max().x());
-        m_minXCoord.uiCapability()->setUiName(QString("Min X") + range);
-        m_maxXCoord.uiCapability()->setUiName(QString("Max X") + range);
-    }
-
-    {
-        QString range = QString(" [%1 - %2]").arg(cellsBoundingBox.min().y()).arg(cellsBoundingBox.max().y());
-        m_minYCoord.uiCapability()->setUiName(QString("Min Y") + range);
-        m_maxYCoord.uiCapability()->setUiName(QString("Max Y") + range);
-    }
-
-    {
-        QString range = QString(" [%1 - %2]").arg(cellsBoundingBox.min().z()).arg(cellsBoundingBox.max().z());
-        m_minZCoord.uiCapability()->setUiName(QString("Min Z") + range);
-        m_maxZCoord.uiCapability()->setUiName(QString("Max Z") + range);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -276,26 +251,27 @@ void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add(&name);
     uiOrdering.add(&m_singlePlaneState);
 
+    cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("X Coordinates");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("X Coordinates " +  QString(" [%1  %2]").arg(cellsBoundingBox.min().x()).arg(cellsBoundingBox.max().x()));
         group->add(&m_minXCoord);
         group->add(&m_maxXCoord);
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Y Coordinates");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Y Coordinates" + QString(" [%1  %2]").arg(cellsBoundingBox.min().y()).arg(cellsBoundingBox.max().y()));
         group->add(&m_minYCoord);
         group->add(&m_maxYCoord);
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Z Coordinates");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Z Coordinates" + QString(" [%1  %2]").arg(cellsBoundingBox.min().z()).arg(cellsBoundingBox.max().z()));
         group->add(&m_minZCoord);
         group->add(&m_maxZCoord);
     }
 
-    updateLabelsFromBoundingBox();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
