@@ -55,8 +55,6 @@ private:
     cvf::ref<cvf::ModelBasicList>   m_model;
     QPointer<caf::Viewer>           m_viewer;
 
-    size_t                          m_currentPartIndex;
-
     cvf::ref<caf::BoxManipulatorPartManager> m_partManager;
 };
 

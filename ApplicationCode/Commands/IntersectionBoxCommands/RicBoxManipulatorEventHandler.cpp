@@ -19,8 +19,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer)
-    : m_viewer(viewer),
-    m_currentPartIndex(cvf::UNDEFINED_SIZE_T)
+    : m_viewer(viewer)
 {
     m_partManager = new caf::BoxManipulatorPartManager;
     m_model = new cvf::ModelBasicList;
@@ -85,9 +84,9 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
             {
                 if (hitItems.firstItem() && hitItems.firstItem()->part())
                 {
-                    m_currentPartIndex = m_partManager->partIndexFromSourceInfo(hitItems.firstItem()->part(), hitItems.firstItem()->intersectionPoint());
+                    m_partManager->activateManipulator(hitItems.firstItem()->part(), hitItems.firstItem()->intersectionPoint());
 
-                    if (m_currentPartIndex != cvf::UNDEFINED_SIZE_T)
+                    if (m_partManager->isManipulatorActive())
                     {
                         updateParts();
                         emit notifyRedraw();
@@ -100,7 +99,7 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
     }
     else if (inputEvent->type() == QEvent::MouseMove)
     {
-        if (m_currentPartIndex != cvf::UNDEFINED_SIZE_T)
+        if (m_partManager->isManipulatorActive())
         {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(inputEvent);
 
@@ -112,7 +111,7 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
 
             cvf::ref<cvf::Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
             {
-                m_partManager->updateFromPartIndexAndRay(m_currentPartIndex, ray.p());
+                m_partManager->updateManipulatorFromRay(ray.p());
 
                 updateParts();
 
@@ -130,9 +129,9 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
     }
     else if (inputEvent->type() == QEvent::MouseButtonRelease)
     {
-        if (m_currentPartIndex != cvf::UNDEFINED_SIZE_T)
+        if (m_partManager->isManipulatorActive())
         {
-            m_currentPartIndex = cvf::UNDEFINED_SIZE_T;
+            m_partManager->endManipulator();
 
             cvf::Vec3d origin;
             cvf::Vec3d size;

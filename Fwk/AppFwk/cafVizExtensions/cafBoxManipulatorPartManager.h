@@ -53,8 +53,10 @@ public:
     void    setSize(const cvf::Vec3d& size);
     void    originAndSize(cvf::Vec3d* origin, cvf::Vec3d* size);
 
-    size_t  partIndexFromSourceInfo(const cvf::Part* part, const cvf::Vec3d& intersectionPoint);
-    void    updateFromPartIndexAndRay(size_t partIndex, const cvf::Ray* ray);
+    bool    isManipulatorActive() const;
+    void    activateManipulator(const cvf::Part* part, const cvf::Vec3d& intersectionPoint);
+    void    updateManipulatorFromRay(const cvf::Ray* ray);
+    void    endManipulator();
 
     void    appendPartsToModel(cvf::ModelBasicList* model);
 
@@ -80,17 +82,18 @@ private:
                                        cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2);
 
 private:
-    //cvf::Collection<cvf::DrawableGeo>                       m_handleGeos;                 // These arrays have the same length
-    std::vector< std::pair<BoxFace, HandleType> >  m_handleIds;             // These arrays have the same length
-    cvf::Collection<cvf::Part>                              m_handleParts;                // These arrays have the same length
+    std::vector< std::pair<BoxFace, HandleType> >   m_handleIds;             // These arrays have the same length
+    cvf::Collection<cvf::Part>                      m_handleParts;           // These arrays have the same length
     
-    cvf::ref<cvf::Part>             m_boundingBoxPart;
+    cvf::ref<cvf::Part> m_boundingBoxPart;
 
     cvf::Vec3d          m_origin;
     cvf::Vec3d          m_size;
 
     cvf::Vec3d          m_initialPickPoint;
     cvf::Vec3d          m_sizeOnStartManipulation;
+
+    size_t              m_currentHandleIndex;
 };
 
 

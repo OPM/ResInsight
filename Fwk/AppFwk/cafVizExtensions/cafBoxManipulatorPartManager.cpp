@@ -23,7 +23,9 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-BoxManipulatorPartManager::BoxManipulatorPartManager() : m_sizeOnStartManipulation(cvf::Vec3d::UNDEFINED)
+BoxManipulatorPartManager::BoxManipulatorPartManager() 
+    : m_sizeOnStartManipulation(cvf::Vec3d::UNDEFINED),
+      m_currentHandleIndex(cvf::UNDEFINED_SIZE_T)
 {
 }
 
@@ -59,6 +61,14 @@ void BoxManipulatorPartManager::originAndSize(cvf::Vec3d* origin, cvf::Vec3d* si
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool BoxManipulatorPartManager::isManipulatorActive() const
+{
+    return m_currentHandleIndex != cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::appendPartsToModel(cvf::ModelBasicList* model)
 {
     if (m_boundingBoxPart.isNull())
@@ -78,15 +88,17 @@ void BoxManipulatorPartManager::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t BoxManipulatorPartManager::partIndexFromSourceInfo(const cvf::Part* candidatePart, const cvf::Vec3d& intersectionPoint)
+void BoxManipulatorPartManager::activateManipulator(const cvf::Part* candidatePart, const cvf::Vec3d& intersectionPoint)
 {
-    if (!candidatePart) return cvf::UNDEFINED_SIZE_T;
+    endManipulator();
+
+    if (!candidatePart) return;
 
     const cvf::Object* siConstObj = candidatePart->sourceInfo();
     cvf::Object* siObj = const_cast<cvf::Object*>(siConstObj);
 
     BoxManipulatorSourceInfo* candidateSourceInfo = dynamic_cast<BoxManipulatorSourceInfo*>(siObj);
-    if (!candidateSourceInfo) return cvf::UNDEFINED_SIZE_T;
+    if (!candidateSourceInfo) return;
 
     for (size_t i = 0; i < m_handleParts.size(); i++)
     {
@@ -98,21 +110,20 @@ size_t BoxManipulatorPartManager::partIndexFromSourceInfo(const cvf::Part* candi
         {
             m_initialPickPoint = intersectionPoint;
             m_sizeOnStartManipulation = m_size;
-
-            return i;
+            m_currentHandleIndex = i;
         }
     }
-
-    return cvf::UNDEFINED_SIZE_T;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BoxManipulatorPartManager::updateFromPartIndexAndRay(size_t partIndex, const cvf::Ray* ray)
+void BoxManipulatorPartManager::updateManipulatorFromRay(const cvf::Ray* ray)
 {
-    BoxFace face = m_handleIds[partIndex].first;
+    if (!isManipulatorActive()) return;
+
+    BoxFace face = m_handleIds[m_currentHandleIndex].first;
     cvf::Vec3d faceDir = normalFromFace(face);
 
     cvf::Vec3d closestPoint1;
@@ -180,6 +191,14 @@ void BoxManipulatorPartManager::updateFromPartIndexAndRay(size_t partIndex, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void BoxManipulatorPartManager::endManipulator()
+{
+    m_currentHandleIndex = cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d BoxManipulatorPartManager::normalFromFace(BoxFace face)
 {
     switch (face)
@@ -233,7 +252,7 @@ void BoxManipulatorPartManager::createAllHandleParts()
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4)
 {
-    float handleSize = m_sizeOnStartManipulation.length() * 0.04;
+    float handleSize = static_cast<float>(m_sizeOnStartManipulation.length() * 0.04);
 
     Vec3f center = (p1 + p2 + p3 + p4) / 4.0f;
 
@@ -245,12 +264,12 @@ void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3
     Vec3f v = nv * handleSize;
     Vec3f w = nw * handleSize;
 
-    Vec3f pi1 = center - u / 2.0 - v / 2.0 + w*0.1;
+    Vec3f pi1 = center - u / 2.0f - v / 2.0f + w*0.1f;
 
     Vec3f pi2 = pi1 + u;
     Vec3f pi3 = pi2 + v;
     Vec3f pi4 = pi1 + v;
-    Vec3f pi5 = center + w * 0.3;
+    Vec3f pi5 = center + w * 0.3f;
 
     ref<DrawableGeo> geo = createHandleGeo(pi1, pi2, pi3, pi4, pi5);
 
