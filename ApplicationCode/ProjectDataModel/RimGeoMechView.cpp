@@ -36,7 +36,6 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
-#include "RimIntersectionBoxCollection.h"
 #include "RimLegendConfig.h"
 #include "RimViewLinker.h"
 
@@ -252,7 +251,6 @@ void RimGeoMechView::createDisplayModel()
 
    m_crossSectionVizModel->removeAllParts();
    crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
-   intersectionBoxCollection->appendPartsToModel(m_crossSectionVizModel.p(), scaleTransform());
    m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
    // If the animation was active before recreating everything, make viewer view current frame
@@ -267,7 +265,6 @@ void RimGeoMechView::createDisplayModel()
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
        crossSectionCollection->applySingleColorEffect();
-       intersectionBoxCollection->applySingleColorEffect();
 
        m_overlayInfoConfig()->update3DInfo();
    }
@@ -306,19 +303,16 @@ void RimGeoMechView::updateCurrentTimeStep()
         if (this->cellResult()->hasResult())
         {
             crossSectionCollection->updateCellResultColor(m_currentTimeStep);
-            intersectionBoxCollection->updateCellResultColor(m_currentTimeStep);
         }
         else
         {
             crossSectionCollection->applySingleColorEffect();
-            intersectionBoxCollection->applySingleColorEffect();
         }
     }
     else
     {
         m_vizLogic->updateStaticCellColors(-1);
         crossSectionCollection->applySingleColorEffect();
-        intersectionBoxCollection->applySingleColorEffect();
 
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -690,8 +684,6 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-
-    uiTreeOrdering.add(intersectionBoxCollection());
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }

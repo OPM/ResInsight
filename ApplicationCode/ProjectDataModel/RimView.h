@@ -46,7 +46,6 @@ class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
 class RimIntersectionCollection;
 class RimGridCollection;
-class RimIntersectionBoxCollection;
 class RimPropertyFilterCollection;
 class RimViewController;
 class RimViewLinker;
@@ -98,7 +97,6 @@ public:
 
 
     caf::PdmChildField<RimIntersectionCollection*>      crossSectionCollection;
-    caf::PdmChildField<RimIntersectionBoxCollection*>   intersectionBoxCollection;
 
     // Draw style 
 

@@ -22,7 +22,7 @@
 
 #include "RimCase.h"
 #include "RimIntersectionBox.h"
-#include "RimIntersectionBoxCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimView.h"
 
 #include "RiuMainWindow.h"
@@ -53,7 +53,7 @@ void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView)
     {
-        RimIntersectionBoxCollection* coll = activeView->intersectionBoxCollection();
+        RimIntersectionCollection* coll = activeView->crossSectionCollection();
         CVF_ASSERT(coll);
 
         RimIntersectionBox* intersectionBox = new RimIntersectionBox();

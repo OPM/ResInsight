@@ -42,7 +42,6 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGridCollection.h"
-#include "RimIntersectionBoxCollection.h"
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -429,7 +428,6 @@ void RimEclipseView::createDisplayModel()
 
     m_crossSectionVizModel->removeAllParts();
     crossSectionCollection->appendPartsToModel(m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
-    intersectionBoxCollection->appendPartsToModel(m_crossSectionVizModel.p(), m_reservoirGridPartManager->scaleTransform());
     m_viewer->addStaticModelOnce(m_crossSectionVizModel.p());
 
 
@@ -638,12 +636,10 @@ void RimEclipseView::updateCurrentTimeStep()
     if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
     {
         crossSectionCollection->updateCellResultColor(m_currentTimeStep);
-        intersectionBoxCollection->updateCellResultColor(m_currentTimeStep);
     }
     else
     {
         crossSectionCollection->applySingleColorEffect();
-        intersectionBoxCollection->applySingleColorEffect();
     }
 
     // Simulation Well pipes
@@ -1346,7 +1342,6 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-    uiTreeOrdering.add(intersectionBoxCollection());
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }

@@ -24,7 +24,6 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
-#include "RimIntersectionBoxCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
@@ -111,12 +110,6 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-        RimIntersectionBoxCollection* intersectionBoxColl;
-        parentObj->firstAncestorOrThisOfType(intersectionBoxColl);
-        if (view && intersectionBoxColl)
-        {
-            view->scheduleCreateDisplayModelAndRedraw();
-        }
 
         RimWellPathCollection* wellPathColl;
         parentObj->firstAncestorOrThisOfType(wellPathColl);

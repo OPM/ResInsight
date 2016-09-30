@@ -22,7 +22,7 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
-class RimIntersectionBoxCollection;
+class RimIntersectionCollection;
 
 //==================================================================================================
 /// 
@@ -38,6 +38,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    static RimIntersectionBoxCollection* intersectionBoxCollection();
+    static RimIntersectionCollection* intersectionCollection();
 };
 

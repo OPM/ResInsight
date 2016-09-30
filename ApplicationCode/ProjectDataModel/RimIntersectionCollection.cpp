@@ -26,6 +26,8 @@
 #include "RiuMainWindow.h"
 
 #include "RivIntersectionPartMgr.h"
+#include "RimIntersectionBox.h"
+#include "RivIntersectionBoxPartMgr.h"
 
 
 CAF_PDM_SOURCE_INIT(RimIntersectionCollection, "CrossSectionCollection");
@@ -40,6 +42,9 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitFieldNoDefault(&m_crossSections, "CrossSections", "Intersections", "", "", "");
     m_crossSections.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes", "", "", "");
+    m_intersectionBoxes.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 }
@@ -50,6 +55,7 @@ RimIntersectionCollection::RimIntersectionCollection()
 RimIntersectionCollection::~RimIntersectionCollection()
 {
     m_crossSections.deleteAllChildObjects();
+    m_intersectionBoxes.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +81,15 @@ void RimIntersectionCollection::applySingleColorEffect()
             cs->crossSectionPartMgr()->applySingleColorEffect();
         }
     }
+
+    for(size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    {
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
+        if(cs->isActive)
+        {
+            cs->intersectionBoxPartMgr()->applySingleColorEffect();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,6 +105,15 @@ void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex)
         if(cs->isActive)
         {
             cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
+        }
+    }
+
+    for(size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    {
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
+        if(cs->isActive)
+        {
+            cs->intersectionBoxPartMgr()->updateCellResultColor(timeStepIndex);
         }
     }
 }
@@ -115,6 +139,16 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
             }
         }
     }
+
+    for(size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    {
+        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
+        if(cs->isActive)
+        {
+            cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
+            cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,6 +167,14 @@ void RimIntersectionCollection::appendCrossSection(RimIntersection* crossSection
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendIntersectionBox(RimIntersectionBox* intersectionBox)
+{
+    m_intersectionBoxes.push_back(intersectionBox);
 }
 
 //--------------------------------------------------------------------------------------------------

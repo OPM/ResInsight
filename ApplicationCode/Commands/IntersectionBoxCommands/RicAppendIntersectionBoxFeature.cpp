@@ -20,7 +20,7 @@
 
 #include "RimCase.h"
 #include "RimIntersectionBox.h"
-#include "RimIntersectionBoxCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimView.h"
 #include "RiuMainWindow.h"
 
@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT(RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxFe
 //--------------------------------------------------------------------------------------------------
 bool RicAppendIntersectionBoxFeature::isCommandEnabled()
 {
-    RimIntersectionBoxCollection* coll = RicAppendIntersectionBoxFeature::intersectionBoxCollection();
+    RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
     if (coll) return true;
 
     return false;
@@ -49,7 +49,7 @@ bool RicAppendIntersectionBoxFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
 {
-    RimIntersectionBoxCollection* coll = RicAppendIntersectionBoxFeature::intersectionBoxCollection();
+    RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
 
     if (coll)
     {
@@ -85,9 +85,9 @@ void RicAppendIntersectionBoxFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIntersectionBoxCollection* RicAppendIntersectionBoxFeature::intersectionBoxCollection()
+RimIntersectionCollection* RicAppendIntersectionBoxFeature::intersectionCollection()
 {
-    RimIntersectionBoxCollection* intersectionBoxColl = nullptr;
+    RimIntersectionCollection* intersectionBoxColl = nullptr;
 
     std::vector<caf::PdmObjectHandle*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType(&selectedObjects);

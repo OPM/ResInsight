@@ -43,7 +43,6 @@
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersectionBox.h"
-#include "RimIntersectionBoxCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -302,19 +301,18 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimIntersectionCollection*>(uiItem))
         {
             commandIds << "RicAppendIntersectionFeature";
+            commandIds << "RicAppendIntersectionBoxFeature";
         }
         else if (dynamic_cast<RimIntersection*>(uiItem))
         {
             commandIds << "RicAppendIntersectionFeature";
+            commandIds << "RicAppendIntersectionBoxFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
-        else if (dynamic_cast<RimIntersectionBoxCollection*>(uiItem))
-        {
-            commandIds << "RicAppendIntersectionBoxFeature";
-        }
         else if (dynamic_cast<RimIntersectionBox*>(uiItem))
         {
+            commandIds << "RicAppendIntersectionFeature";
             commandIds << "RicAppendIntersectionBoxFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
