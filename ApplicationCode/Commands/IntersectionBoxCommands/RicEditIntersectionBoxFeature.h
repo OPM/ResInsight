@@ -20,6 +20,7 @@
 
 #include "cafCmdFeature.h"
 
+#include "cvfBase.h"
 #include "cvfVector3.h"
 
 class RicBoxManipulatorEventHandler;
