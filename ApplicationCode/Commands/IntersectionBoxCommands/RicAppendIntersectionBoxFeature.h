@@ -22,6 +22,7 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
 
+class RimIntersectionCollection;
 
 //==================================================================================================
 /// 
