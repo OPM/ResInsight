@@ -218,6 +218,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 menu.addSeparator();
 
+                menu.addAction(caf::CmdFeatureManager::instance()->action("RicAppendIntersectionBoxFeature"));
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxZSliceFeature"));
