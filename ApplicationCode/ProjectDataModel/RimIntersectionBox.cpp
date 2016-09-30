@@ -109,13 +109,13 @@ cvf::Vec3d RimIntersectionBox::boxSize() const
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::setFromOriginAndSize(const cvf::Vec3d& origin, const cvf::Vec3d& size)
 {
-    m_minXCoord = origin.x();
-    m_minYCoord = origin.y();
-    m_minZCoord = origin.z();
+    m_minXCoord =  origin.x();
+    m_minYCoord =  origin.y();
+    m_minDepth  = -(origin.z() + size.z());
 
-    m_maxXCoord = origin.x() + size.x();
-    m_maxYCoord = origin.y() + size.y();
-    m_maxZCoord = origin.z() + size.z();
+    m_maxXCoord =  origin.x() + size.x();
+    m_maxYCoord =  origin.y() + size.y();
+    m_maxDepth  = -origin.z();
 
     updateConnectedEditors();
 
