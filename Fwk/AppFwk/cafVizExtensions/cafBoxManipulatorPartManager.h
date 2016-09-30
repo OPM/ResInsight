@@ -30,7 +30,7 @@ namespace caf {
 class BoxManipulatorPartManager : public cvf::Object
 {
 public:
-    enum BoxCubeFace
+    enum BoxFace
     {
         BCF_X_POS,
         BCF_X_NEG,
@@ -40,7 +40,7 @@ public:
         BCF_Z_NEG
     };
 
-    enum NavCubeFaceItem
+    enum HandleType
     {
         BCFI_NONE,
         BCFI_CENTER
@@ -59,28 +59,26 @@ public:
     void    appendPartsToModel(cvf::ModelBasicList* model);
 
 private:
-    cvf::Vec3d  normalFromFace(BoxCubeFace face);
-
-    void        createCubeGeos();
-    void        createCubeFaceGeos(BoxCubeFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4);
+    cvf::Vec3d  normalFromFace(BoxFace face);
     void        navCubeCornerPoints(cvf::Vec3f points[8]);
-    
+
+    void        createBoundingBoxPart();
+    //void        createAllHandleParts();
+
+    void        createAllHandleParts();
+    void        createCubeFaceHandlePart(BoxFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4);
 
     void        clearAllGeometryAndParts();
     void        recreateAllGeometryAndParts();
 
-    void        createBoundingBoxPart();
-    void        createCubeParts();
 
-    cvf::ref<cvf::DrawableGeo>              createQuadGeo(const cvf::Vec3f& v1, const cvf::Vec3f& v2, const cvf::Vec3f& v3, const cvf::Vec3f& v4);
-    std::pair<BoxCubeFace, NavCubeFaceItem> navCubeItem(BoxCubeFace face, NavCubeFaceItem item) const;
-
+    static cvf::ref<cvf::DrawableGeo>              createHandleGeo(const cvf::Vec3f& v1, const cvf::Vec3f& v2, const cvf::Vec3f& v3, const cvf::Vec3f& v4);
     static bool closestPointOfTwoLines(const cvf::Vec3d& p1, const cvf::Vec3d& q1, const cvf::Vec3d& p2, const cvf::Vec3d& q2, cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2);
 
 private:
-    cvf::Collection<cvf::DrawableGeo>                       m_cubeGeos;                 // These arrays have the same length
-    std::vector< std::pair<BoxCubeFace, NavCubeFaceItem> >  m_cubeItemType;             // These arrays have the same length
-    cvf::Collection<cvf::Part>                              m_cubeParts;                // These arrays have the same length
+    //cvf::Collection<cvf::DrawableGeo>                       m_handleGeos;                 // These arrays have the same length
+    std::vector< std::pair<BoxFace, HandleType> >  m_handleIds;             // These arrays have the same length
+    cvf::Collection<cvf::Part>                              m_handleParts;                // These arrays have the same length
     
     cvf::ref<cvf::Part>             m_boundingBoxPart;
 
@@ -97,14 +95,14 @@ private:
 class BoxManipulatorSourceInfo : public cvf::Object
 {
 public:
-    BoxManipulatorSourceInfo(BoxManipulatorPartManager::BoxCubeFace cubeFace, BoxManipulatorPartManager::NavCubeFaceItem cubeFaceItem)
+    BoxManipulatorSourceInfo(BoxManipulatorPartManager::BoxFace cubeFace, BoxManipulatorPartManager::HandleType cubeFaceItem)
         : m_cubeFace(cubeFace),
-        m_cubeFaceItem(cubeFaceItem)
+        m_cubeHandle(cubeFaceItem)
     {
     }
 
-    BoxManipulatorPartManager::BoxCubeFace m_cubeFace;
-    BoxManipulatorPartManager::NavCubeFaceItem m_cubeFaceItem;
+    BoxManipulatorPartManager::BoxFace m_cubeFace;
+    BoxManipulatorPartManager::HandleType m_cubeHandle;
 };
 
 
