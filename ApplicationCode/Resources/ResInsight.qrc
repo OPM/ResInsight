@@ -66,7 +66,6 @@
         <file>Parallel16x16.png</file>
         <file>Perspective16x16.png</file>
         <file>IntersectionBox16x16.png</file>
-        <file>IntersectionBoxes16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
