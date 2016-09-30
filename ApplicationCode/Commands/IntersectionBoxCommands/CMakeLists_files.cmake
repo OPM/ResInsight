@@ -11,6 +11,7 @@ ${CEE_CURRENT_LIST_DIR}RicAppendIntersectionBoxFeature.h
 ${CEE_CURRENT_LIST_DIR}RicIntersectionBoxXSliceFeature.h
 ${CEE_CURRENT_LIST_DIR}RicIntersectionBoxYSliceFeature.h
 ${CEE_CURRENT_LIST_DIR}RicIntersectionBoxZSliceFeature.h
+${CEE_CURRENT_LIST_DIR}RicIntersectionBoxAtPosFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -20,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RicAppendIntersectionBoxFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicIntersectionBoxXSliceFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicIntersectionBoxYSliceFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicIntersectionBoxZSliceFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicIntersectionBoxAtPosFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
