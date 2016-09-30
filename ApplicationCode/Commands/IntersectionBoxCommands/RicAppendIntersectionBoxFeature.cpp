@@ -30,8 +30,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include "RiaApplication.h"
-#include "RiuViewer.h"
 
 CAF_CMD_SOURCE_INIT(RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxFeature");
 
@@ -40,10 +38,10 @@ CAF_CMD_SOURCE_INIT(RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxFe
 //--------------------------------------------------------------------------------------------------
 bool RicAppendIntersectionBoxFeature::isCommandEnabled()
 {
-    //RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
-    //if (coll) return true;
+    RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
+    if (coll) return true;
 
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,16 +58,7 @@ void RicAppendIntersectionBoxFeature::onActionTriggered(bool isChecked)
 
         coll->appendIntersectionBox(intersectionBox);
 
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
-        if(activeView)
-        {
-            cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
-            intersectionBox->setToDefaultSizeSlice(RimIntersectionBox::PLANE_STATE_NONE, domainCoord);
-        }
-        else
-        {
-            intersectionBox->setToDefaultSizeBox();
-        }
+        intersectionBox->setToDefaultSizeBox();
 
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
