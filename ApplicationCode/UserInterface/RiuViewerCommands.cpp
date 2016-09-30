@@ -47,6 +47,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
+#include "RimIntersectionBox.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -133,6 +134,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 {
     m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
     m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
+    m_currentPickedObject = nullptr;
 
     int winPosX = event->x();
     int winPosY = event->y();
@@ -195,7 +197,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
-                m_currentCrossSection = const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection());
+                m_currentPickedObject = const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection());
 
                 menu.addAction(QString("Hide intersection"), this, SLOT(slotHideIntersection()));
             }
@@ -203,6 +205,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &m_currentCellIndex, &m_currentGridIdx);
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
+
+                m_currentPickedObject = const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox());
+                menu.addAction(caf::CmdFeatureManager::instance()->action("RicEditIntersectionBoxFeature"));
+                menu.addSeparator();
+
+                QStringList commandIdList;
+                commandIdList << "RicEditIntersectionBoxFeature";
+                caf::CmdFeatureManager::instance()->refreshCheckedState(commandIdList);
             }
 
             // IJK -slice commands
@@ -442,10 +452,11 @@ void RiuViewerCommands::slotAddGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::slotHideIntersection()
 {
-    if (m_currentCrossSection)
+    RimIntersection* rimIntersection = dynamic_cast<RimIntersection*>(currentPickedObject());
+    if (rimIntersection)
     {
-        m_currentCrossSection->isActive = false;
-        m_currentCrossSection->updateConnectedEditors();
+        rimIntersection->isActive = false;
+        rimIntersection->updateConnectedEditors();
 
         if (m_reservoirView)
         {
@@ -589,6 +600,14 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 cvf::Vec3d RiuViewerCommands::lastPickPositionInDomainCoords() const
 {
     return m_currentPickPositionInDomainCoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* RiuViewerCommands::currentPickedObject() const
+{
+    return m_currentPickedObject;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -55,6 +55,7 @@ public:
     cvf::Mat4d                      boxOrigin() const;
     cvf::Vec3d                      boxSize()   const;
     SinglePlaneState                singlePlaneState() const; 
+    void                            setFromOriginAndSize(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
 

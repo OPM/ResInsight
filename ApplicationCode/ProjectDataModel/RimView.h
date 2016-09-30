@@ -61,6 +61,10 @@ namespace cvf
     class Part;
 }
 
+namespace caf
+{
+    class DisplayCoordTransform;
+}
 //==================================================================================================
 ///  
 ///  
@@ -158,6 +162,8 @@ public:
     virtual QImage                          snapshotWindowContent() override;
 
     virtual void                            zoomAll() override;
+
+    cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;

@@ -24,8 +24,10 @@
 
 #include "RivWellPathCollectionPartMgr.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmObjectFactory.h"
+
 #include "cvfCamera.h"
 #include "cvfModel.h"
 #include "cvfModelBasicList.h"
@@ -919,5 +921,24 @@ void RimView::zoomAll()
     {
         m_viewer->zoomAll();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform()
+{
+    cvf::ref<caf::DisplayCoordTransform> coordTrans = new caf::DisplayCoordTransform;
+
+    cvf::Vec3d scale(1.0, 1.0, scaleZ);
+    coordTrans->setScale(scale);
+
+    RimCase* rimCase = ownerCase();
+    if (rimCase)
+    {
+        coordTrans->setTranslation(rimCase->displayModelOffset());
+    }
+
+    return coordTrans;
 }
 

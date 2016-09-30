@@ -90,6 +90,7 @@ public:
     void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
 
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
+    caf::PdmObject* lastPickedObject() const;
 
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);

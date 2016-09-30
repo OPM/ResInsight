@@ -713,6 +713,16 @@ cvf::Vec3d RiuViewer::lastPickPositionInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmObject* RiuViewer::lastPickedObject() const
+{
+    CVF_ASSERT(m_viewerCommands);
+
+    return m_viewerCommands->currentPickedObject();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 {
     if (m_rimView.isNull()) return;
