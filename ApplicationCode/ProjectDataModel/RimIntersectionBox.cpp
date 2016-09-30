@@ -18,13 +18,20 @@
 
 #include "RimIntersectionBox.h"
 
+#include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimView.h"
+
+#include "IntersectionBoxCommands/RicBoxManipulatorEventHandler.h"
+
+#include "RiuViewer.h"
+
 #include "RivIntersectionBoxPartMgr.h"
 
-#include "cafPdmUiSliderEditor.h"
-#include "RimCase.h"
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "RimEclipseView.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiSliderEditor.h"
+#include "cafDisplayCoordTransform.h"
 
 
 namespace caf
@@ -76,6 +83,12 @@ RimIntersectionBox::RimIntersectionBox()
 
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_show3DManipulator, "show3DManipulator", "", "", "", "");
+    m_show3DManipulator.xmlCapability()->setIOWritable(false);
+    m_show3DManipulator.xmlCapability()->setIOReadable(false);
+    m_show3DManipulator.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+
+    m_show3DManipulator = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +96,12 @@ RimIntersectionBox::RimIntersectionBox()
 //--------------------------------------------------------------------------------------------------
 RimIntersectionBox::~RimIntersectionBox()
 {
+    if (m_boxManipulator && viewer())
+    {
+        viewer()->removeStaticModel(m_boxManipulator->model());
 
+        m_boxManipulator->deleteLater();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,6 +246,61 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         m_maxDepth = CVF_MAX(m_maxDepth, m_minDepth);
     }
+    else if (changedField == &m_show3DManipulator)
+    {
+        if (m_show3DManipulator)
+        {
+            if (viewer())
+            {
+                m_boxManipulator = new RicBoxManipulatorEventHandler(viewer());
+
+                connect(m_boxManipulator, SIGNAL(notifyRedraw()), this, SLOT(slotScheduleRedraw()));
+                connect(m_boxManipulator, SIGNAL(notifyUpdate(const cvf::Vec3d&, const cvf::Vec3d&)), this, SLOT(slotUpdateGeometry(const cvf::Vec3d&, const cvf::Vec3d&)));
+
+                RimView* rimView = nullptr;
+                this->firstAncestorOrThisOfType(rimView);
+                cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+
+                m_boxManipulator->setOrigin(transForm->transformToDisplayCoord(boxOrigin().translation()));
+                m_boxManipulator->setSize(transForm->scaleToDisplaySize(boxSize()));
+            }
+        }
+        else
+        {
+            if (m_boxManipulator)
+            {
+                if (viewer())
+                {
+                    viewer()->removeStaticModel(m_boxManipulator->model());
+                }
+
+                m_boxManipulator->deleteLater();
+                m_boxManipulator = nullptr;
+            }
+        }
+    }
+
+    if (changedField == &m_minXCoord ||
+        changedField == &m_minYCoord ||
+        changedField == &m_minDepth ||
+        changedField == &m_maxXCoord ||
+        changedField == &m_maxYCoord ||
+        changedField == &m_maxDepth)
+    {
+        if (m_boxManipulator)
+        {
+            RimView* rimView = nullptr;
+            this->firstAncestorOrThisOfType(rimView);
+
+            if (rimView)
+            {
+                cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+
+                m_boxManipulator->setOrigin(transForm->transformToDisplayCoord(boxOrigin().translation()));
+                m_boxManipulator->setSize(transForm->scaleToDisplaySize(boxSize()));
+            }
+        }
+    }
 
 
     if (changedField != &name)
@@ -262,6 +335,20 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
             myAttr->m_maximum = -cellsBoundingBox.min().z();
         }
     }
+
+    if (field == &m_show3DManipulator)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+
+        if (m_show3DManipulator)
+        {
+            attrib->m_buttonText = "Hide3D manipulator";
+        }
+        else
+        {
+            attrib->m_buttonText = "Show 3D manipulator";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,6 +357,7 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
 void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
+    uiOrdering.add(&m_show3DManipulator);
     uiOrdering.add(&m_singlePlaneState);
 
     cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
@@ -300,6 +388,41 @@ void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 void RimIntersectionBox::initAfterRead()
 {
     updateVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::slotScheduleRedraw()
+{
+    if (viewer())
+    {
+        viewer()->addStaticModelOnce(m_boxManipulator->model());
+
+        RimView* rimView = nullptr;
+        this->firstAncestorOrThisOfType(rimView);
+        
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size)
+{
+    RimView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+
+    if (rimView)
+    {
+        cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+
+        cvf::Vec3d domainOrigin = transForm->transformToDomainCoord(origin);
+        cvf::Vec3d domainSize = transForm->scaleToDomainSize(size);
+
+        setFromOriginAndSize(domainOrigin, domainSize);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -450,4 +573,18 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
     else
         return rimCase->activeCellsBoundingBox();
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuViewer* RimIntersectionBox::viewer()
+{
+    RimView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+
+    RiuViewer* riuViewer = nullptr;
+    if (rimView) riuViewer = rimView->viewer();
+
+    return riuViewer;
 }

@@ -214,6 +214,7 @@ set ( QT_MOC_HEADERS
     Application/RiaApplication.h
     
     ProjectDataModel/RimMimeData.h
+    ProjectDataModel/RimIntersectionBox.h
     
     UserInterface/RiuMainWindowBase.h
     UserInterface/RiuMainWindow.h

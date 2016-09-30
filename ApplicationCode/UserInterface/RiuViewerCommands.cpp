@@ -207,12 +207,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
                 m_currentPickedObject = const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox());
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicEditIntersectionBoxFeature"));
-                menu.addSeparator();
-
-                QStringList commandIdList;
-                commandIdList << "RicEditIntersectionBoxFeature";
-                caf::CmdFeatureManager::instance()->refreshCheckedState(commandIdList);
             }
 
             // IJK -slice commands

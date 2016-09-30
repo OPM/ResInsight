@@ -21,8 +21,15 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
 #include "cvfBoundingBox.h"
 
+#include <QObject>
+#include <QPointer>
+
+class RicBoxManipulatorEventHandler;
+class RiuViewer;
 class RivIntersectionBoxPartMgr;
 
 //==================================================================================================
@@ -30,8 +37,10 @@ class RivIntersectionBoxPartMgr;
 // 
 //
 //==================================================================================================
-class RimIntersectionBox : public caf::PdmObject
+class RimIntersectionBox : public QObject, public caf::PdmObject
 {
+    Q_OBJECT;
+
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -71,12 +80,19 @@ protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    initAfterRead() override;
 
+protected slots:
+    void                            slotScheduleRedraw();
+    void                            slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size);
+
 private:
     void                            rebuildGeometryAndScheduleCreateDisplayModel();
     void                            updateVisibility();
-    void                            updateLabelsFromBoundingBox();
     void                            clampSinglePlaneValues();
     void                            switchSingelPlaneState();
+    
+    cvf::BoundingBox                currentCellBoundingBox();
+
+    RiuViewer*                      viewer();
 
 private:
     caf::PdmField<caf::AppEnum< SinglePlaneState > > m_singlePlaneState;
@@ -89,8 +105,8 @@ private:
     caf::PdmField<double>           m_maxYCoord;
     caf::PdmField<double>           m_maxDepth;
 
-
-    cvf::BoundingBox                        currentCellBoundingBox();
+    caf::PdmField<bool>             m_show3DManipulator;
 
     cvf::ref<RivIntersectionBoxPartMgr>     m_intersectionBoxPartMgr;
+    QPointer<RicBoxManipulatorEventHandler> m_boxManipulator;
 };
