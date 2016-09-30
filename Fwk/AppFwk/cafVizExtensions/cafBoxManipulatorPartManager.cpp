@@ -12,6 +12,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfPrimitiveSetIndexedUShort.h"
 #include "cvfRay.h"
+#include "cvfPrimitiveSetDirect.h"
 
 
 using namespace cvf;
@@ -22,7 +23,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-BoxManipulatorPartManager::BoxManipulatorPartManager()
+BoxManipulatorPartManager::BoxManipulatorPartManager() : m_sizeOnStartManipulation(cvf::Vec3d::UNDEFINED)
 {
 }
 
@@ -42,7 +43,7 @@ void BoxManipulatorPartManager::setOrigin(const cvf::Vec3d& origin)
 void BoxManipulatorPartManager::setSize(const cvf::Vec3d& size)
 {
     m_size = size;
-
+    if (m_sizeOnStartManipulation.isUndefined()) m_sizeOnStartManipulation = m_size;
     clearAllGeometryAndParts();
 }
 
@@ -96,7 +97,8 @@ size_t BoxManipulatorPartManager::partIndexFromSourceInfo(const cvf::Part* candi
             si->m_cubeHandle == candidateSourceInfo->m_cubeHandle)
         {
             m_initialPickPoint = intersectionPoint;
-            
+            m_sizeOnStartManipulation = m_size;
+
             return i;
         }
     }
@@ -231,26 +233,26 @@ void BoxManipulatorPartManager::createAllHandleParts()
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4)
 {
-    float centerItemHeight = (p1 - p2).length();
-    if ((p2 - p3).length() < centerItemHeight)
-    {
-        centerItemHeight = (p2 - p3).length();
-    }
-    
-    float centerItemFactor = 0.1f;
-    centerItemHeight *= centerItemFactor;
+    float handleSize = m_sizeOnStartManipulation.length() * 0.04;
 
-    Vec3f center = (p1 + p3) / 2.0f;
-    Vec3f u = (p2 - p1).getNormalized() * centerItemHeight;
-    Vec3f v = (p4 - p1).getNormalized() * centerItemHeight;
+    Vec3f center = (p1 + p2 + p3 + p4) / 4.0f;
 
-    Vec3f pi1 = center - u / 2.0 - v / 2.0;
+    Vec3f nu = (p2 - p1).getNormalized();
+    Vec3f nv = (p4 - p1).getNormalized();
+    Vec3f nw = nu^nv;
+
+    Vec3f u = nu * handleSize;
+    Vec3f v = nv * handleSize;
+    Vec3f w = nw * handleSize;
+
+    Vec3f pi1 = center - u / 2.0 - v / 2.0 + w*0.1;
 
     Vec3f pi2 = pi1 + u;
     Vec3f pi3 = pi2 + v;
     Vec3f pi4 = pi1 + v;
+    Vec3f pi5 = center + w * 0.3;
 
-    ref<DrawableGeo> geo = createHandleGeo(pi1, pi2, pi3, pi4);
+    ref<DrawableGeo> geo = createHandleGeo(pi1, pi2, pi3, pi4, pi5);
 
     cvf::ref<cvf::Part> handlePart = new cvf::Part;
     handlePart->setName("Box manipulator handle");
@@ -271,28 +273,39 @@ void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> BoxManipulatorPartManager::createHandleGeo(const cvf::Vec3f& v1, const cvf::Vec3f& v2, const cvf::Vec3f& v3, const cvf::Vec3f& v4)
-{
+cvf::ref<cvf::DrawableGeo> BoxManipulatorPartManager::createHandleGeo(const cvf::Vec3f& v0, 
+                                                                      const cvf::Vec3f& v1,
+                                                                      const cvf::Vec3f& v2,
+                                                                      const cvf::Vec3f& v3,
+                                                                      const cvf::Vec3f& v4)
+{                                                                                        
     ref<DrawableGeo> geo = new DrawableGeo;
 
-    ref<Vec3fArray> vertexArray = new Vec3fArray(4);
-    vertexArray->set(0, v1);
-    vertexArray->set(1, v2);
-    vertexArray->set(2, v3);
-    vertexArray->set(3, v4);
+    ref<Vec3fArray> vertexArray = new Vec3fArray(18);
+
+    vertexArray->set(0,  v0);
+    vertexArray->set(1,  v1);
+    vertexArray->set(2,  v2);
+    vertexArray->set(3,  v0);
+    vertexArray->set(4,  v2);
+    vertexArray->set(5,  v3);
+    vertexArray->set(6,  v0);
+    vertexArray->set(7,  v1);
+    vertexArray->set(8,  v4);
+    vertexArray->set(9,  v1);
+    vertexArray->set(10, v2);
+    vertexArray->set(11, v4);
+    vertexArray->set(12, v2);
+    vertexArray->set(13, v3);
+    vertexArray->set(14, v4);
+    vertexArray->set(15, v3);
+    vertexArray->set(16, v0);
+    vertexArray->set(17, v4);
 
     geo->setVertexArray(vertexArray.p());
+    ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_TRIANGLES);
+    primSet->setIndexCount(18);
 
-    ref<cvf::UShortArray> indices = new cvf::UShortArray(6);
-    indices->set(0, 0);
-    indices->set(1, 1);
-    indices->set(2, 2);
-    indices->set(3, 0);
-    indices->set(4, 2);
-    indices->set(5, 3);
-
-    ref<cvf::PrimitiveSetIndexedUShort> primSet = new cvf::PrimitiveSetIndexedUShort(cvf::PT_TRIANGLES);
-    primSet->setIndices(indices.p());
     geo->addPrimitiveSet(primSet.p());
     geo->computeNormals();
 

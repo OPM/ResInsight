@@ -63,8 +63,6 @@ private:
     void        navCubeCornerPoints(cvf::Vec3f points[8]);
 
     void        createBoundingBoxPart();
-    //void        createAllHandleParts();
-
     void        createAllHandleParts();
     void        createCubeFaceHandlePart(BoxFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4);
 
@@ -72,8 +70,14 @@ private:
     void        recreateAllGeometryAndParts();
 
 
-    static cvf::ref<cvf::DrawableGeo>              createHandleGeo(const cvf::Vec3f& v1, const cvf::Vec3f& v2, const cvf::Vec3f& v3, const cvf::Vec3f& v4);
-    static bool closestPointOfTwoLines(const cvf::Vec3d& p1, const cvf::Vec3d& q1, const cvf::Vec3d& p2, const cvf::Vec3d& q2, cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2);
+    static cvf::ref<cvf::DrawableGeo>  createHandleGeo(const cvf::Vec3f& v1, 
+                                                       const cvf::Vec3f& v2, 
+                                                       const cvf::Vec3f& v3, 
+                                                       const cvf::Vec3f& v4, 
+                                                       const cvf::Vec3f& v5);
+    static bool closestPointOfTwoLines(const cvf::Vec3d& p1, const cvf::Vec3d& q1, 
+                                       const cvf::Vec3d& p2, const cvf::Vec3d& q2, 
+                                       cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2);
 
 private:
     //cvf::Collection<cvf::DrawableGeo>                       m_handleGeos;                 // These arrays have the same length
@@ -86,6 +90,7 @@ private:
     cvf::Vec3d          m_size;
 
     cvf::Vec3d          m_initialPickPoint;
+    cvf::Vec3d          m_sizeOnStartManipulation;
 };
 
 
