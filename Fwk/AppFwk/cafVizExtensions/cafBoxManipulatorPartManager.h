@@ -13,6 +13,7 @@ namespace cvf {
     class Part;
     class DrawableGeo;
     class Ray;
+    class HitItem;
 }
 
 namespace caf {
@@ -54,7 +55,7 @@ public:
     void    originAndSize(cvf::Vec3d* origin, cvf::Vec3d* size);
 
     bool    isManipulatorActive() const;
-    void    activateManipulator(const cvf::Part* part, const cvf::Vec3d& intersectionPoint);
+    void    tryToActivateManipulator(const cvf::HitItem* hitItem);
     void    updateManipulatorFromRay(const cvf::Ray* ray);
     void    endManipulator();
 

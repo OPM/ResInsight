@@ -82,17 +82,14 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
             cvf::HitItemCollection hitItems;
             if (m_viewer->rayPick(mouseEvent->x(), mouseEvent->y(), &hitItems))
             {
-                if (hitItems.firstItem() && hitItems.firstItem()->part())
-                {
-                    m_partManager->activateManipulator(hitItems.firstItem()->part(), hitItems.firstItem()->intersectionPoint());
+                m_partManager->tryToActivateManipulator(hitItems.firstItem());
 
-                    if (m_partManager->isManipulatorActive())
-                    {
-                        updateParts();
-                        emit notifyRedraw();
-                        
-                        return true;
-                    }
+                if(m_partManager->isManipulatorActive())
+                {
+                    updateParts();
+                    emit notifyRedraw();
+
+                    return true;
                 }
             }
         }

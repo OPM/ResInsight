@@ -13,6 +13,7 @@
 #include "cvfPrimitiveSetIndexedUShort.h"
 #include "cvfRay.h"
 #include "cvfPrimitiveSetDirect.h"
+#include "cvfHitItem.h"
 
 
 using namespace cvf;
@@ -88,13 +89,18 @@ void BoxManipulatorPartManager::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BoxManipulatorPartManager::activateManipulator(const cvf::Part* candidatePart, const cvf::Vec3d& intersectionPoint)
+void BoxManipulatorPartManager::tryToActivateManipulator(const cvf::HitItem* hitItem)
 {
     endManipulator();
 
-    if (!candidatePart) return;
+    if (!hitItem) return;
 
-    const cvf::Object* siConstObj = candidatePart->sourceInfo();
+    const cvf::Part* pickedPart = hitItem->part();
+    const cvf::Vec3d intersectionPoint = hitItem->intersectionPoint();
+
+    if (!pickedPart) return;
+
+    const cvf::Object* siConstObj = pickedPart->sourceInfo();
     cvf::Object* siObj = const_cast<cvf::Object*>(siConstObj);
 
     BoxManipulatorSourceInfo* candidateSourceInfo = dynamic_cast<BoxManipulatorSourceInfo*>(siObj);
@@ -252,7 +258,7 @@ void BoxManipulatorPartManager::createAllHandleParts()
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4)
 {
-    float handleSize = static_cast<float>(m_sizeOnStartManipulation.length() * 0.04);
+    float handleSize = static_cast<float>(m_sizeOnStartManipulation.length() * 0.02);
 
     Vec3f center = (p1 + p2 + p3 + p4) / 4.0f;
 
@@ -264,7 +270,7 @@ void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3
     Vec3f v = nv * handleSize;
     Vec3f w = nw * handleSize;
 
-    Vec3f pi1 = center - u / 2.0f - v / 2.0f + w*0.1f;
+    Vec3f pi1 = center - u / 2.0f - v / 2.0f + w*0.025f;
 
     Vec3f pi2 = pi1 + u;
     Vec3f pi3 = pi2 + v;
@@ -279,7 +285,7 @@ void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3
 
     handlePart->updateBoundingBox();
 
-    caf::SurfaceEffectGenerator surfaceGen(cvf::Color3::GREEN, caf::PO_1);
+    caf::SurfaceEffectGenerator surfaceGen(cvf::Color3::MAGENTA, caf::PO_1);
     cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
     handlePart->setEffect(eff.p());
 
@@ -398,7 +404,7 @@ void BoxManipulatorPartManager::createBoundingBoxPart()
         //                     part->setPriority(priMesh);
 
         cvf::ref<cvf::Effect> eff;
-        caf::MeshEffectGenerator effectGenerator(cvf::Color3::WHITE);
+        caf::MeshEffectGenerator effectGenerator(cvf::Color3::MAGENTA);
         eff = effectGenerator.generateCachedEffect();
         part->setEffect(eff.p());
 
