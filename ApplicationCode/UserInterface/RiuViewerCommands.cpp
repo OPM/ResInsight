@@ -504,6 +504,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
+            const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -532,6 +533,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
 
                 RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox()));
+            }
+            else if (eclipseWellSourceInfo)
+            {
+                RiuMainWindow::instance()->selectAsCurrentItem(eclipseWellSourceInfo->well());
             }
         }
 
