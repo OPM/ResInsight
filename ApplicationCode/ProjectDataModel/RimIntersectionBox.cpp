@@ -135,6 +135,10 @@ void RimIntersectionBox::setFromOriginAndSize(const cvf::Vec3d& origin, const cv
     m_maxYCoord =  origin.y() + size.y();
     m_maxDepth  = -origin.z();
 
+    clampSinglePlaneValues();
+
+    updateBoxManipulatorGeometry();
+
     updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
@@ -218,6 +222,7 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         switchSingelPlaneState();
         updateVisibility();
+        updateBoxManipulatorGeometry();
     }
     else if (changedField == &m_minXCoord)
     {
@@ -257,12 +262,7 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
                 connect(m_boxManipulator, SIGNAL(notifyRedraw()), this, SLOT(slotScheduleRedraw()));
                 connect(m_boxManipulator, SIGNAL(notifyUpdate(const cvf::Vec3d&, const cvf::Vec3d&)), this, SLOT(slotUpdateGeometry(const cvf::Vec3d&, const cvf::Vec3d&)));
 
-                RimView* rimView = nullptr;
-                this->firstAncestorOrThisOfType(rimView);
-                cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-
-                m_boxManipulator->setOrigin(transForm->transformToDisplayCoord(boxOrigin().translation()));
-                m_boxManipulator->setSize(transForm->scaleToDisplaySize(boxSize()));
+                updateBoxManipulatorGeometry();
             }
         }
         else
@@ -307,6 +307,21 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::updateBoxManipulatorGeometry()
+{
+    if (m_boxManipulator.isNull()) return;
+
+    RimView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+    cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+
+    m_boxManipulator->setOrigin(transForm->transformToDisplayCoord(boxOrigin().translation()));
+    m_boxManipulator->setSize(transForm->scaleToDisplaySize(boxSize()));
 }
 
 //--------------------------------------------------------------------------------------------------

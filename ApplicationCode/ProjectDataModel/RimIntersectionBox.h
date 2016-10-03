@@ -85,6 +85,7 @@ protected slots:
     void                            slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
 private:
+    void                            updateBoxManipulatorGeometry();
     void                            rebuildGeometryAndScheduleCreateDisplayModel();
     void                            updateVisibility();
     void                            clampSinglePlaneValues();
