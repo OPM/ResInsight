@@ -524,10 +524,14 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             else if (crossSectionSourceInfo)
             {
                 findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
+
+                RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection()));
             }
             else if (intersectionBoxSourceInfo)
             {
                 findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
+
+                RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox()));
             }
         }
 
