@@ -96,10 +96,8 @@ RimIntersectionBox::RimIntersectionBox()
 //--------------------------------------------------------------------------------------------------
 RimIntersectionBox::~RimIntersectionBox()
 {
-    if (m_boxManipulator && viewer())
+    if (m_boxManipulator)
     {
-        viewer()->removeStaticModel(m_boxManipulator->model());
-
         m_boxManipulator->deleteLater();
     }
 }
@@ -142,6 +140,14 @@ void RimIntersectionBox::setFromOriginAndSize(const cvf::Vec3d& origin, const cv
     updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionBox::show3dManipulator() const
+{
+    return m_show3DManipulator;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,6 +222,17 @@ RivIntersectionBoxPartMgr* RimIntersectionBox::intersectionBoxPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::appendManipulatorPartsToModel(cvf::ModelBasicList* model)
+{
+    if (show3dManipulator() && m_boxManipulator)
+    {
+        m_boxManipulator->appendPartsToModel(model);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_singlePlaneState)
@@ -269,11 +286,6 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         {
             if (m_boxManipulator)
             {
-                if (viewer())
-                {
-                    viewer()->removeStaticModel(m_boxManipulator->model());
-                }
-
                 m_boxManipulator->deleteLater();
                 m_boxManipulator = nullptr;
             }
@@ -410,15 +422,10 @@ void RimIntersectionBox::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::slotScheduleRedraw()
 {
-    if (viewer())
-    {
-        viewer()->addStaticModelOnce(m_boxManipulator->model());
-
-        RimView* rimView = nullptr;
-        this->firstAncestorOrThisOfType(rimView);
+    RimView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
         
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    rimView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

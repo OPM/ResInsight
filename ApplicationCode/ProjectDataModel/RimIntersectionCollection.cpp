@@ -147,6 +147,11 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
         {
             cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
+
+            if (cs->show3dManipulator())
+            {
+                cs->appendManipulatorPartsToModel(model);
+            }
         }
     }
 }

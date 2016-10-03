@@ -32,6 +32,10 @@ class RicBoxManipulatorEventHandler;
 class RiuViewer;
 class RivIntersectionBoxPartMgr;
 
+namespace cvf {
+    class ModelBasicList;
+}
+
 //==================================================================================================
 //
 // 
@@ -66,7 +70,9 @@ public:
     SinglePlaneState                singlePlaneState() const; 
     void                            setFromOriginAndSize(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
+    bool                            show3dManipulator() const;
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
+    void                            appendManipulatorPartsToModel(cvf::ModelBasicList* model);
 
     void                            setToDefaultSizeBox();
     void                            setToDefaultSizeSlice(SinglePlaneState plane, const cvf::Vec3d& position);

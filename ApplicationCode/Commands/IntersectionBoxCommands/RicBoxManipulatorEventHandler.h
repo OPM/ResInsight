@@ -39,7 +39,7 @@ public:
     void setOrigin(const cvf::Vec3d& origin);
     void setSize(const cvf::Vec3d& size);
 
-    cvf::Model* model();
+    void appendPartsToModel(cvf::ModelBasicList* model);
 
 signals:
     void        notifyRedraw();
@@ -49,10 +49,6 @@ protected:
     bool        eventFilter(QObject *obj, QEvent *event);
 
 private:
-    void        updateParts();
-
-private:
-    cvf::ref<cvf::ModelBasicList>   m_model;
     QPointer<caf::Viewer>           m_viewer;
 
     cvf::ref<caf::BoxManipulatorPartManager> m_partManager;

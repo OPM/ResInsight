@@ -22,7 +22,6 @@ RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer
     : m_viewer(viewer)
 {
     m_partManager = new caf::BoxManipulatorPartManager;
-    m_model = new cvf::ModelBasicList;
 
     m_viewer->installEventFilter(this);
 }
@@ -32,10 +31,7 @@ RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer
 //--------------------------------------------------------------------------------------------------
 RicBoxManipulatorEventHandler::~RicBoxManipulatorEventHandler()
 {
-    m_viewer->removeEventFilter(this);
-
-    // Make sure the model owned by this manipulator is not used anywhere else
-    CVF_ASSERT(m_model->refCount() == 1);
+    if (m_viewer) m_viewer->removeEventFilter(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +41,6 @@ void RicBoxManipulatorEventHandler::setOrigin(const cvf::Vec3d& origin)
 {
     m_partManager->setOrigin(origin);
 
-    updateParts();
     emit notifyRedraw();
 }
 
@@ -56,16 +51,15 @@ void RicBoxManipulatorEventHandler::setSize(const cvf::Vec3d& size)
 {
     m_partManager->setSize(size);
     
-    updateParts();
     emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Model* RicBoxManipulatorEventHandler::model()
+void RicBoxManipulatorEventHandler::appendPartsToModel(cvf::ModelBasicList* model)
 {
-    return m_model.p();
+    m_partManager->appendPartsToModel(model);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +80,6 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
 
                 if(m_partManager->isManipulatorActive())
                 {
-                    updateParts();
                     emit notifyRedraw();
 
                     return true;
@@ -109,8 +102,6 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
             cvf::ref<cvf::Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
             {
                 m_partManager->updateManipulatorFromRay(ray.p());
-
-                updateParts();
 
                 cvf::Vec3d origin;
                 cvf::Vec3d size;
@@ -141,16 +132,5 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
     }
 
     return false;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicBoxManipulatorEventHandler::updateParts()
-{
-    m_model->removeAllParts();
-
-    m_partManager->appendPartsToModel(m_model.p());
 }
 
