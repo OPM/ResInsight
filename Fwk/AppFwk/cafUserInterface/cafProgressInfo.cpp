@@ -421,7 +421,8 @@ namespace caf {
         {
             if (progressDialog() != NULL)
             {
-                progressDialog()->hide();
+                progressDialog()->reset();
+                progressDialog()->close();
             }
         }
 
