@@ -80,7 +80,7 @@ RiuMainPlotWindow::RiuMainPlotWindow()
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState(0);
 
-    m_dragDropInterface = new RiuDragDrop;
+    m_dragDropInterface = std::make_unique<RiuDragDrop>();
 
     initializeGuiNewProjectLoaded();
 
@@ -88,14 +88,6 @@ RiuMainPlotWindow::RiuMainPlotWindow()
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuMainPlotWindow::~RiuMainPlotWindow()
-{
-    delete m_dragDropInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,6 +118,8 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
     saveWinGeoAndDockToolBarLayout();
+
+    RiaApplication::instance()->tryClosePlotWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +183,7 @@ void RiuMainPlotWindow::createToolBars()
         QToolBar* toolbar = addToolBar(tr("Window Management"));
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicTilePlotWindowsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicShowMainWindowFeature"));
     }
 }
 
@@ -358,7 +353,7 @@ void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 
     m_projectTreeView->setPdmItem(pdmRoot);
     // For debug only : m_projectTreeView->treeView()->expandAll();
-    m_projectTreeView->setDragDropInterface(m_dragDropInterface);
+    m_projectTreeView->setDragDropInterface(m_dragDropInterface.get());
 }
 
 //--------------------------------------------------------------------------------------------------

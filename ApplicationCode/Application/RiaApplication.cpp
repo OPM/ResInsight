@@ -1387,10 +1387,8 @@ RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
         createMainPlotWindow();
     }
 
-    if (!m_mainPlotWindow->isVisible())
-    {
-        m_mainPlotWindow->show();
-    }
+    m_mainPlotWindow->show();
+    m_mainPlotWindow->raise();
 
     return m_mainPlotWindow;
 }
@@ -1438,6 +1436,37 @@ RimViewWindow* RiaApplication::activeViewWindow()
     }
 
     return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::tryCloseMainWindow()
+{
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    if (mainWindow && !mainWindow->isVisible())
+    {
+        mainWindow->close();
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::tryClosePlotWindow()
+{
+    if (m_mainPlotWindow && !m_mainPlotWindow->isVisible())
+    {
+        m_mainPlotWindow->close();
+
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

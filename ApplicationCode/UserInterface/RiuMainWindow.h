@@ -26,6 +26,8 @@
 #include <QPointer>
 #include <QMdiArea>
 
+#include <memory>
+
 class QActionGroup;
 class QComboBox;
 class QFrame;
@@ -74,6 +76,7 @@ class RiuMainWindow : public RiuMainWindowBase
 
 public:
     RiuMainWindow();
+
     static RiuMainWindow* instance();
 
     virtual QString mainWindowName()        { return "RiuMainWindow";  }
@@ -292,7 +295,7 @@ public:
 private:
     caf::PdmUiTreeView*            m_projectTreeView;
     
-    caf::PdmUiDragDropInterface* m_dragDropInterface;
+    std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
     QUndoView*                  m_undoView;
 

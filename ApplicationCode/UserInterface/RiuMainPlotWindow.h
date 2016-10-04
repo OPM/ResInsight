@@ -22,6 +22,8 @@
 
 #include <QMdiArea>
 
+#include <memory>
+
 class QMdiSubWindow;
 
 class RiuViewer;
@@ -48,7 +50,6 @@ class RiuMainPlotWindow : public RiuMainWindowBase
 
 public:
     RiuMainPlotWindow();
-    ~RiuMainPlotWindow();
     
     virtual QString mainWindowName()            { return "RiuMainPlotWindow";  }
     
@@ -125,7 +126,7 @@ public:
 private:
     caf::PdmUiTreeView*            m_projectTreeView;
     
-    caf::PdmUiDragDropInterface* m_dragDropInterface;
+    std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;

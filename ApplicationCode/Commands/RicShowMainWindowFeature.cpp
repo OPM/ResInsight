@@ -16,18 +16,20 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicShowPlotWindowFeature.h"
+#include "RicShowMainWindowFeature.h"
 
 #include "RiaApplication.h"
 
+#include "RiuMainWindow.h"
+
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowPlotWindowFeature, "RicShowPlotWindowFeature");
+CAF_CMD_SOURCE_INIT(RicShowMainWindowFeature, "RicShowMainWindowFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicShowPlotWindowFeature::isCommandEnabled()
+bool RicShowMainWindowFeature::isCommandEnabled()
 {
     return true;
 }
@@ -35,16 +37,18 @@ bool RicShowPlotWindowFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowPlotWindowFeature::onActionTriggered(bool isChecked)
+void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    mainWnd->show();
+    mainWnd->raise();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowPlotWindowFeature::setupActionLook(QAction* actionToSetup)
+void RicShowMainWindowFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Open Plot Window");
-    actionToSetup->setIcon(QIcon(":/SummaryPlots16x16.png"));
+    actionToSetup->setText("Open 3D Window");
+    actionToSetup->setIcon(QIcon(":/ReservoirView.png"));
 }

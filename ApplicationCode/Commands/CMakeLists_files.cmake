@@ -48,6 +48,7 @@ ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.h
+${CEE_CURRENT_LIST_DIR}RicShowMainWindowFeature.h
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileResampleUi.h
@@ -104,6 +105,7 @@ ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicShowMainWindowFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileResampleUi.cpp

@@ -182,6 +182,9 @@ public:
 
     static RimViewWindow* activeViewWindow();
 
+    bool                tryCloseMainWindow();
+    bool                tryClosePlotWindow();
+
 private:
     enum ProjectLoadAction
     {
