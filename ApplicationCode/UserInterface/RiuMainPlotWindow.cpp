@@ -119,7 +119,9 @@ void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
     saveWinGeoAndDockToolBarLayout();
 
-    RiaApplication::instance()->tryClosePlotWindow();
+    if (!RiaApplication::instance()->tryCloseMainWindow()) return;
+
+    RiaApplication::instance()->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------

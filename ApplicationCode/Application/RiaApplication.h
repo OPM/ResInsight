@@ -123,7 +123,7 @@ public:
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
-    bool                closeProject(bool askToSaveIfDirty);
+    void                closeProject();
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 

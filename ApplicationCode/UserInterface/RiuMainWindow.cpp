@@ -221,10 +221,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 
     if (!app->tryClosePlotWindow()) return;
 
-    if (!RiaApplication::instance()->closeProject(true))
-    {
-        return;
-    }
+    RiaApplication::instance()->closeProject();
         
     event->accept();
 }
@@ -984,7 +981,8 @@ bool RiuMainWindow::checkForDocumentModifications()
 void RiuMainWindow::slotCloseProject()
 {
     RiaApplication* app = RiaApplication::instance();
-    app->closeProject(true);
+    
+    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------

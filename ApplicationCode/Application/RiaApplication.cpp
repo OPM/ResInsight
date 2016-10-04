@@ -325,7 +325,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 {
     // First Close the current project
 
-    if (!closeProject(true)) return false;
+    closeProject();
 
     // Open the project file and read the serialized data. 
     // Will initialize itself.
@@ -349,7 +349,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     if (m_project->projectFileVersionString().isEmpty())
     {
-        closeProject(false);
+        closeProject();
 
         QString tmp = QString("Unknown project file version detected in file \n%1\n\nCould not open project.").arg(projectFileName);
         QMessageBox::warning(NULL, "Error when opening project file", tmp);
@@ -678,33 +678,13 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::closeProject(bool askToSaveIfDirty)
+void RiaApplication::closeProject()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
     clearViewsScheduledForUpdate();
 
     terminateProcess();
-
-    if (false)
-    {
-        QMessageBox msgBox(mainWnd);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText("The project being closed has been modified.");
-        msgBox.setInformativeText("Do you want to save your changes?");
-        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        //msgBox.setDefaultButton(QMessageBox::Save);
-
-        int ret = msgBox.exec();
-        if (ret == QMessageBox::Save)
-        {
-            //m_sceneManager->saveAll();
-        }
-        else if (ret == QMessageBox::Cancel)
-        {
-            return false;
-        }
-    }
 
     RiuSelectionManager::instance()->deleteAllItems();
 
@@ -724,8 +704,6 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     // Make sure all project windows are closed down properly before returning
     processEvents();
-
-    return true;    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1205,7 +1183,7 @@ bool RiaApplication::parseArguments()
             std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
 
-            closeProject(false);
+            closeProject();
 
             return false;
         }
@@ -1292,7 +1270,7 @@ bool RiaApplication::parseArguments()
 
             mainWnd->loadWinGeoAndDockToolBarLayout();
 
-            closeProject(false);
+            closeProject();
         }
 
         // Returning false will exit the application
@@ -2092,7 +2070,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
                  }
              }
 
-             closeProject(false);
+             closeProject();
         }
     }
 
