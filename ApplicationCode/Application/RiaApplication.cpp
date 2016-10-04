@@ -1437,6 +1437,11 @@ bool RiaApplication::tryCloseMainWindow()
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::tryClosePlotWindow()
 {
+    if (!m_mainPlotWindow)
+    {
+        return true;
+    }
+
     if (m_mainPlotWindow && !m_mainPlotWindow->isVisible())
     {
         m_mainPlotWindow->close();
