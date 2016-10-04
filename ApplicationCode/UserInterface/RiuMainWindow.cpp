@@ -506,9 +506,9 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar(tr("Window Management"));
         toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicLinkVisibleViewsFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
     }
 
     // View toolbar
