@@ -93,6 +93,7 @@ private:
 
     cvf::Vec3d          m_initialPickPoint;
     cvf::Vec3d          m_sizeOnStartManipulation;
+    cvf::Vec3d          m_originOnStartManipulation;
 
     size_t              m_currentHandleIndex;
 };

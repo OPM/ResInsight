@@ -14,6 +14,7 @@
 #include "cvfRay.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfHitItem.h"
+#include <QDebug>
 
 
 using namespace cvf;
@@ -26,6 +27,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 BoxManipulatorPartManager::BoxManipulatorPartManager() 
     : m_sizeOnStartManipulation(cvf::Vec3d::UNDEFINED),
+      m_originOnStartManipulation(cvf::Vec3d::UNDEFINED),
       m_currentHandleIndex(cvf::UNDEFINED_SIZE_T)
 {
 }
@@ -35,7 +37,10 @@ BoxManipulatorPartManager::BoxManipulatorPartManager()
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::setOrigin(const cvf::Vec3d& origin)
 {
+    if (isManipulatorActive()) return;
+
     m_origin = origin;
+    if (m_originOnStartManipulation.isUndefined()) m_originOnStartManipulation = origin;
 
     clearAllGeometryAndParts();
 }
@@ -45,8 +50,11 @@ void BoxManipulatorPartManager::setOrigin(const cvf::Vec3d& origin)
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::setSize(const cvf::Vec3d& size)
 {
+    if(isManipulatorActive()) return;
+
     m_size = size;
     if (m_sizeOnStartManipulation.isUndefined()) m_sizeOnStartManipulation = m_size;
+    
     clearAllGeometryAndParts();
 }
 
@@ -116,6 +124,7 @@ void BoxManipulatorPartManager::tryToActivateManipulator(const cvf::HitItem* hit
         {
             m_initialPickPoint = intersectionPoint;
             m_sizeOnStartManipulation = m_size;
+            m_originOnStartManipulation = m_origin;
             m_currentHandleIndex = i;
         }
     }
@@ -132,66 +141,39 @@ void BoxManipulatorPartManager::updateManipulatorFromRay(const cvf::Ray* ray)
     BoxFace face = m_handleIds[m_currentHandleIndex].first;
     cvf::Vec3d faceDir = normalFromFace(face);
 
-    cvf::Vec3d closestPoint1;
-    cvf::Vec3d closestPoint2;
-    BoxManipulatorPartManager::closestPointOfTwoLines(ray->origin(), ray->origin() + ray->direction(), m_initialPickPoint, m_initialPickPoint + faceDir, &closestPoint1, &closestPoint2);
+    cvf::Vec3d closestPointOnMouseRay;
+    cvf::Vec3d closestPointOnHandleRay;
+    BoxManipulatorPartManager::closestPointOfTwoLines(ray->origin(), ray->origin() + ray->direction(), 
+                                                      m_initialPickPoint, m_initialPickPoint + faceDir, 
+                                                      &closestPointOnMouseRay, &closestPointOnHandleRay);
 
     cvf::Vec3d newOrigin = m_origin;
     cvf::Vec3d newSize = m_size;
 
-    switch (face)
+    int axis = face/2;
+    cvf::Vec3d axisDir;
+    axisDir[axis] = 1.0;
+
+    cvf::Vec3d motion3d = closestPointOnHandleRay - m_initialPickPoint;
+
+    if (face == BCF_X_POS || face == BCF_Y_POS || face == BCF_Z_POS)
     {
-    case caf::BoxManipulatorPartManager::BCF_X_POS:
-        newSize.x() = CVF_MAX(0.0, closestPoint2.x() - m_origin.x());
-        break;
-    case caf::BoxManipulatorPartManager::BCF_X_NEG:
-        if (m_size.x() - (closestPoint2.x() - m_origin.x()) > 0.0)
-        {
-            newOrigin.x() = closestPoint2.x();
-            newSize.x() = m_size.x() - (closestPoint2.x() - m_origin.x());
-        }
-        else
-        {
-            newOrigin.x() = m_origin.x() + m_size.x();
-            newSize.x() = 0.0;
-        }
-        break;
-    case caf::BoxManipulatorPartManager::BCF_Y_POS:
-        newSize.y() = CVF_MAX(0.0, closestPoint2.y() - m_origin.y());
-        break;
-    case caf::BoxManipulatorPartManager::BCF_Y_NEG:
-        if (m_size.y() - (closestPoint2.y() - m_origin.y()) > 0.0)
-        {
-            newOrigin.y() = closestPoint2.y();
-            newSize.y() = m_size.y() - (closestPoint2.y() - m_origin.y());
-        }
-        else
-        {
-            newOrigin.y() = m_origin.y() + m_size.y();
-            newSize.y() = 0.0;
-        }
-        break;
-    case caf::BoxManipulatorPartManager::BCF_Z_POS:
-        newSize.z() = CVF_MAX(0.0, closestPoint2.z() - m_origin.z());
-        break;
-    case caf::BoxManipulatorPartManager::BCF_Z_NEG:
-        if (m_size.z() - (closestPoint2.z() - m_origin.z()) > 0.0)
-        {
-            newOrigin.z() = closestPoint2.z();
-            newSize.z() = m_size.z() - (closestPoint2.z() - m_origin.z());
-        }
-        else
-        {
-            newOrigin.z() = m_origin.z() + m_size.z();
-            newSize.z() = 0.0;
-        }
-        break;
-    default:
-        break;
+        newSize = m_sizeOnStartManipulation + motion3d;
+
+        for (int i = 0; i < 3; ++i) if (newSize[i] < 0.0) { newOrigin[i] = m_originOnStartManipulation[i] + newSize[i]; newSize[i] = 0.0; }
+    }
+    else
+    {
+        newOrigin = m_originOnStartManipulation + motion3d;
+        newSize   = m_sizeOnStartManipulation - motion3d;
+
+        for (int i = 0; i < 3; ++i) if (newSize[i] < 0.0) {  newSize[i] = 0.0; }
     }
 
-    setOrigin(newOrigin);
-    setSize(newSize);
+    m_origin = newOrigin;
+    m_size = newSize;
+
+    clearAllGeometryAndParts();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -415,7 +397,9 @@ void BoxManipulatorPartManager::createBoundingBoxPart()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool BoxManipulatorPartManager::closestPointOfTwoLines(const cvf::Vec3d& p1, const cvf::Vec3d& q1, const cvf::Vec3d& p2, const cvf::Vec3d& q2, cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2)
+bool BoxManipulatorPartManager::closestPointOfTwoLines(const cvf::Vec3d& L1p1, const cvf::Vec3d& L1p2, 
+                                                       const cvf::Vec3d& L2p1, const cvf::Vec3d& L2p2, 
+                                                       cvf::Vec3d* closestPointOnL1, cvf::Vec3d* closestPointOnL2)
 {
     //    qDebug() << p1 << " " << q1 << " " << p2 << " " << q2;
 
@@ -440,8 +424,8 @@ bool BoxManipulatorPartManager::closestPointOfTwoLines(const cvf::Vec3d& p1, con
     // t = (af-bc)/d
 
 
-    cvf::Vec3d d1 = q1 - p1;
-    cvf::Vec3d d2 = q2 - p2;
+    cvf::Vec3d d1 = L1p2 - L1p1;
+    cvf::Vec3d d2 = L2p2 - L2p1;
 
     double a = d1.dot(d1);
     double b = d1.dot(d2);
@@ -452,20 +436,20 @@ bool BoxManipulatorPartManager::closestPointOfTwoLines(const cvf::Vec3d& p1, con
     if (d < std::numeric_limits<double>::epsilon())
     {
         // Parallel lines
-        if (closestPoint1) *closestPoint1 = p1;
-        if (closestPoint2) *closestPoint2 = p2;
+        if (closestPointOnL1) *closestPointOnL1 = L1p1;
+        if (closestPointOnL2) *closestPointOnL2 = L2p1;
         return false;
     }
 
-    cvf::Vec3d r = p1 - p2;
+    cvf::Vec3d r = L1p1 - L2p1;
     double c = d1.dot(r);
     double f = d2.dot(r);
 
     double s = (b*f - c*e) / d;
     double t = (a*f - b*c) / d;
 
-    if (closestPoint1) *closestPoint1 = p1 + s*d1;
-    if (closestPoint2) *closestPoint2 = p2 + t*d2;
+    if (closestPointOnL1) *closestPointOnL1 = L1p1 + s*d1;
+    if (closestPointOnL2) *closestPointOnL2 = L2p1 + t*d2;
 
     if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
     {
