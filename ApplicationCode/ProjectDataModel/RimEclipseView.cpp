@@ -89,7 +89,7 @@ RimEclipseView::RimEclipseView()
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
-    CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
+    CAF_PDM_InitObject("Reservoir View", ":/3DView16x16.png", "", "");
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
     cellResult = new RimEclipseCellColors();

@@ -69,6 +69,9 @@
         <file>IntersectionXPlane16x16.png</file>
         <file>IntersectionYPlane16x16.png</file>
         <file>IntersectionZPlane16x16.png</file>
+      <file>PlotWindow24x24.png</file>
+      <file>3DWindow24x24.png</file>
+      <file>3DView16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

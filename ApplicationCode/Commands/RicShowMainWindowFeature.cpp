@@ -50,5 +50,5 @@ void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 void RicShowMainWindowFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Open 3D Window");
-    actionToSetup->setIcon(QIcon(":/ReservoirView.png"));
+    actionToSetup->setIcon(QIcon(":/3DWindow24x24.png"));
 }

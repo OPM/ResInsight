@@ -46,5 +46,5 @@ void RicShowPlotWindowFeature::onActionTriggered(bool isChecked)
 void RicShowPlotWindowFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Open Plot Window");
-    actionToSetup->setIcon(QIcon(":/SummaryPlots16x16.png"));
+    actionToSetup->setIcon(QIcon(":/PlotWindow24x24.png"));
 }
