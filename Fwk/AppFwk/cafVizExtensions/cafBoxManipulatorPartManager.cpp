@@ -35,6 +35,13 @@ BoxManipulatorPartManager::BoxManipulatorPartManager()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+BoxManipulatorPartManager::~BoxManipulatorPartManager()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::setOrigin(const cvf::Vec3d& origin)
 {
     if (isManipulatorActive()) return;
@@ -137,6 +144,8 @@ void BoxManipulatorPartManager::tryToActivateManipulator(const cvf::HitItem* hit
 void BoxManipulatorPartManager::updateManipulatorFromRay(const cvf::Ray* ray)
 {
     if (!isManipulatorActive()) return;
+    if (m_boundingBoxPart.isNull()) return;
+    
 
     BoxFace face = m_handleIds[m_currentHandleIndex].first;
     cvf::Vec3d faceDir = normalFromFace(face);
@@ -359,7 +368,6 @@ void BoxManipulatorPartManager::clearAllGeometryAndParts()
 void BoxManipulatorPartManager::recreateAllGeometryAndParts()
 {
     createBoundingBoxPart();
-    createAllHandleParts();
     createAllHandleParts();
 }
 

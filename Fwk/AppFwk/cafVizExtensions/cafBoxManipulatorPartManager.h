@@ -49,6 +49,7 @@ public:
 
 public:
     BoxManipulatorPartManager();
+    ~BoxManipulatorPartManager();
 
     void    setOrigin(const cvf::Vec3d& origin);
     void    setSize(const cvf::Vec3d& size);
