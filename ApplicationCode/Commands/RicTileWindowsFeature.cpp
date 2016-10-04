@@ -47,5 +47,5 @@ void RicTileWindowsFeature::onActionTriggered(bool isChecked)
 void RicTileWindowsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Tile Windows");
-    actionToSetup->setIcon(QIcon(":/view-page-multi-24.png"));
+    actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));
 }

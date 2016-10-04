@@ -8,7 +8,6 @@
 		<file>WestViewArrow.png</file>
 		<file>UpViewArrow.png</file>
 		<file>DownViewArrow.png</file>
-		<file>ReservoirView.png</file>
 		<file>CellFilter_Values.png</file>
 		<file>CellFilter_Range.png</file>
 		<file>CellResult.png</file>
@@ -48,7 +47,7 @@
 		<file>GeoMechCase48x48.png</file>
         <file>GeoMechCases48x48.png</file>
         <file>chain.png</file>
-        <file>view-page-multi-24.png</file>
+        <file>TileWindows24x24.png</file>
 		<file>LasFile16x16.png</file>
 		<file>WellLogTrack16x16.png</file>
 		<file>WellLogPlot16x16.png</file>
