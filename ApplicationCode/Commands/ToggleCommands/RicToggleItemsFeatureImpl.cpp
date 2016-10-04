@@ -20,6 +20,8 @@
 #include "RicToggleItemsFeatureImpl.h"
 
 #include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
+#include "RiaApplication.h"
 
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
@@ -42,8 +44,8 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 
     if (selectedItems.size() == 1)
     {
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
-        caf::PdmUiTreeOrdering* treeItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem(selectedItems[0]);
+
         if (!treeItem) return false;
 
         for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
@@ -107,8 +109,9 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
 
         // We need to get the children through the tree view, because that is where the actually shown children is 
         
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
-        caf::PdmUiTreeOrdering* treeItem = reinterpret_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem(selectedItems[0]);
+        
+        if (!treeItem) return;
 
         for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
         {
@@ -156,4 +159,24 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
             } 
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Finds the tree item in either the 3D main window or plot main window project tree view
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiTreeOrdering* RicToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem(const caf::PdmUiItem* uiItem)
+{
+    QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(uiItem);
+    if(!modIndex.isValid())
+    {
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        if(mainPlotWindow)
+        {
+            modIndex = mainPlotWindow->projectTreeView()->findModelIndex(uiItem);
+        }
+    }
+
+    caf::PdmUiTreeOrdering* treeItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer());
+
+    return treeItem;
 }
