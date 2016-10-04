@@ -83,7 +83,7 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
-    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
+    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&inputFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
     inputFromViewerEnabled.xmlCapability()->setIOWritable(false);

@@ -39,7 +39,7 @@ namespace caf
     template<>
     void AppEnum< RimIntersectionBox::SinglePlaneState >::setUp()
     {
-        addItem(RimIntersectionBox::PLANE_STATE_NONE,   "PLANE_STATE_NONE", "None");
+        addItem(RimIntersectionBox::PLANE_STATE_NONE,   "PLANE_STATE_NONE", "Box");
         addItem(RimIntersectionBox::PLANE_STATE_X,      "PLANE_STATE_X",    "X Plane");
         addItem(RimIntersectionBox::PLANE_STATE_Y,      "PLANE_STATE_Y",    "Y Plane");
         addItem(RimIntersectionBox::PLANE_STATE_Z,      "PLANE_STATE_Z",    "Z Plane");
@@ -61,7 +61,7 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Collapse box to plane", "", "", "");
+    CAF_PDM_InitField(&m_singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>(SinglePlaneState::PLANE_STATE_NONE), "Box Type", "", "", "");
 
     CAF_PDM_InitField(&m_minXCoord,    "MinXCoord",           0.0, "Min", "", "", "");
     m_minXCoord.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
@@ -81,12 +81,13 @@ RimIntersectionBox::RimIntersectionBox()
     CAF_PDM_InitField(&m_maxDepth,    "MaxDepth",           0.0, "Max", "", "", "");
     m_maxDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Inactive Cells", "", "", "");
+    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_show3DManipulator, "show3DManipulator", "", "", "", "");
     m_show3DManipulator.xmlCapability()->setIOWritable(false);
     m_show3DManipulator.xmlCapability()->setIOReadable(false);
     m_show3DManipulator.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_show3DManipulator.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_show3DManipulator = false;
 }
@@ -369,7 +370,7 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
 
         if (m_show3DManipulator)
         {
-            attrib->m_buttonText = "Hide3D manipulator";
+            attrib->m_buttonText = "Hide 3D manipulator";
         }
         else
         {
@@ -384,8 +385,12 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
 void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
-    uiOrdering.add(&m_show3DManipulator);
-    uiOrdering.add(&m_singlePlaneState);
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Options");
+        group->add(&m_singlePlaneState);
+        group->add(&showInactiveCells);
+    }
 
     cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
     {
@@ -405,6 +410,8 @@ void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
         group->add(&m_minDepth);
         group->add(&m_maxDepth);
     }
+
+    uiOrdering.add(&m_show3DManipulator);
 
 }
 
