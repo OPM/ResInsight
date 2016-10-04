@@ -20,6 +20,8 @@
 
 #include "RiuMainWindowBase.h"
 
+#include "cafPdmUiDragDropInterface.h"
+
 #include <QMdiArea>
 
 #include <memory>
@@ -36,7 +38,6 @@ namespace caf
      class PdmObject;
      class PdmUiPropertyView;
      class PdmUiItem;
-     class PdmUiDragDropInterface;
 }
 
 //==================================================================================================

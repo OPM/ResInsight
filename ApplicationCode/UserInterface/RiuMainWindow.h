@@ -22,6 +22,8 @@
 
 #include "RiuMainWindowBase.h"
 
+#include "cafPdmUiDragDropInterface.h"
+
 #include <QEvent>
 #include <QPointer>
 #include <QMdiArea>
@@ -57,7 +59,6 @@ namespace caf
     class PdmUiPropertyView;
     class UiPropertyCreatorPdm;
     class PdmUiItem;
-    class PdmUiDragDropInterface;
 }
 
 namespace ssihub

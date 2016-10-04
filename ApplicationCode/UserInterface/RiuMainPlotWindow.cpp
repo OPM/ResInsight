@@ -80,7 +80,7 @@ RiuMainPlotWindow::RiuMainPlotWindow()
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState(0);
 
-    m_dragDropInterface = std::make_unique<RiuDragDrop>();
+    m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>(new RiuDragDrop());
 
     initializeGuiNewProjectLoaded();
 

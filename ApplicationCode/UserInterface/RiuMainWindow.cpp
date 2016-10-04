@@ -139,7 +139,7 @@ RiuMainWindow::RiuMainWindow()
 
     sm_mainWindowInstance = this;
 
-    m_dragDropInterface = std::make_unique<RiuDragDrop>();
+    m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>(new RiuDragDrop());
 
     initializeGuiNewProjectLoaded();
 
