@@ -48,6 +48,7 @@
 #include "RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
 
@@ -101,6 +102,12 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
     currentModelIndexPath.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_show3DWindow, "show3DWindow", true, "Show 3D Window", "", "", "");
+    m_show3DWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "");
+    m_showPlotWindow.uiCapability()->setUiHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
@@ -324,6 +331,18 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
+    m_show3DWindow = RiuMainWindow::instance()->isVisible();
+
+    if (RiaApplication::instance()->mainPlotWindow() &&
+        RiaApplication::instance()->mainPlotWindow()->isVisible())
+    {
+        m_showPlotWindow = true;
+    }
+    else
+    {
+        m_showPlotWindow = false;
+    }
+
     m_projectFileVersionString = STRPRODUCTVER;
 }
 
@@ -704,6 +723,22 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimProject::show3DWindow() const
+{
+    return m_show3DWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimProject::showPlotWindow() const
+{
+    return m_showPlotWindow;
 }
 
 //--------------------------------------------------------------------------------------------------

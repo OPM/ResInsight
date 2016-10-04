@@ -335,7 +335,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     m_project->fileName = projectFileName;
     m_project->readFile();
 
-    // Apply any modifiactions to the loaded project before we go ahead and load actual data
+    // Apply any modifications to the loaded project before we go ahead and load actual data
     if (projectModifier)
     {
         projectModifier->applyModificationsToProject(m_project);
@@ -365,6 +365,25 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
         return true;
     }
+
+    if (m_project->show3DWindow())
+    {
+        RiuMainWindow::instance()->show();
+    }
+    else
+    {
+        RiuMainWindow::instance()->close();
+    }
+
+    if (m_project->showPlotWindow())
+    {
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
+    else if (mainPlotWindow())
+    {
+        mainPlotWindow()->close();
+    }
+
 
     ///////
     // Load the external data, and initialize stuff that needs specific ordering
