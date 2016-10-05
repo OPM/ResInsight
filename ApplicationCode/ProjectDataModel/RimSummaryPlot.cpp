@@ -304,6 +304,8 @@ void RimSummaryPlot::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoom()
 {
+    if (!m_qwtPlot) return;
+
     // Todo: introduce autoscale
 
     if(m_visibleWindow().size() == 4)

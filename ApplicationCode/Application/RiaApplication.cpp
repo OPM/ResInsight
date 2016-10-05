@@ -506,41 +506,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
     }
 
-    {
-        RimWellLogPlotCollection* wlpColl = nullptr;
-        RimSummaryPlotCollection* spColl = nullptr;
+    loadAndUpdatePlotData();
 
-        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
-        {
-            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-        }
-        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection())
-        {
-            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
-        }
-        size_t plotCount = 0;
-        plotCount += wlpColl ? wlpColl->wellLogPlots().size(): 0;
-        plotCount += spColl ? spColl->m_summaryPlots().size(): 0;
-
-        caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
-        if (wlpColl)
-        {
-            for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
-            {
-                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if (spColl)
-        {
-            for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
-            {
-                spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-    }
     // NB! This function must be called before executing command objects, 
     // because the tree view state is restored from project file and sets
     // current active view ( see restoreTreeViewState() )
@@ -563,7 +530,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     return true;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -572,6 +538,45 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     return loadProject(projectFileName, PLA_NONE, NULL);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::loadAndUpdatePlotData()
+{
+    RimWellLogPlotCollection* wlpColl = nullptr;
+    RimSummaryPlotCollection* spColl = nullptr;
+
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
+    {
+        wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+    }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection())
+    {
+        spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+    }
+    size_t plotCount = 0;
+    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
+    plotCount += spColl ? spColl->m_summaryPlots().size() : 0;
+
+    caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
+    if (wlpColl)
+    {
+        for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
+        {
+            wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+
+    if (spColl)
+    {
+        for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
+        {
+            spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
@@ -1385,6 +1390,7 @@ RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
     if (!m_mainPlotWindow)
     {
         createMainPlotWindow();
+        loadAndUpdatePlotData();
     }
 
     m_mainPlotWindow->show();

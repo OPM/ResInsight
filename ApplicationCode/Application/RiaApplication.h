@@ -200,6 +200,7 @@ private:
     };
 
     bool                    loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+
     void                    onProjectOpenedOrClosed();
     std::vector<QString>    readFileListFromTextFile(QString listFileName);
     void                    setWindowCaptionFromAppState();
@@ -209,6 +210,8 @@ private:
 
     void                    createMainPlotWindow();
     void                    deleteMainPlotWindow();
+    
+    void                    loadAndUpdatePlotData();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
