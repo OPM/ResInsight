@@ -179,6 +179,8 @@ void RiuSummaryQwtPlot::setDefaults()
     yAxisFont.setPixelSize(11);
     setAxisFont(QwtPlot::yLeft, yAxisFont);
 
+    setAxisMaxMinor(QwtPlot::yLeft, 3);
+
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
     QFont yAxisTitleFont = axisTitleY.font();
     yAxisTitleFont.setPixelSize(11);
