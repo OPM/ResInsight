@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowMainWindowFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.h
+${CEE_CURRENT_LIST_DIR}RicOpenProjectFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowMainWindowFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicOpenProjectFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

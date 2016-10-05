@@ -140,7 +140,6 @@ private:
 private:
     // File actions
     QAction*            m_importGeoMechCaseAction;
-    QAction*            m_openProjectAction;
     QAction*            m_openLastUsedProjectAction;
     QAction*            m_saveProjectAction;
     QAction*            m_saveProjectAsAction;
@@ -206,7 +205,6 @@ private slots:
 
     // File slots
     void    slotImportGeoMechModel();
-    void    slotOpenProject();
     void    slotOpenLastUsedProject();
     void    slotSaveProject();
     void    slotSaveProjectAs();

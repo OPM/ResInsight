@@ -232,7 +232,6 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
 
     m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
@@ -258,7 +257,6 @@ void RiuMainWindow::createActions()
 
     m_exitAction = new QAction("E&xit", this);
 
-    connect(m_openProjectAction,                SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
 
     connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
@@ -380,7 +378,7 @@ void RiuMainWindow::createMenus()
 
     menuBar()->addMenu(fileMenu);
   
-    fileMenu->addAction(m_openProjectAction);
+    fileMenu->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
     fileMenu->addAction(m_openLastUsedProjectAction);
     fileMenu->addSeparator();
 
@@ -485,7 +483,7 @@ void RiuMainWindow::createToolBars()
 
     m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    m_standardToolBar->addAction(m_openProjectAction);
+    m_standardToolBar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
 
@@ -846,27 +844,6 @@ void RiuMainWindow::slotImportGeoMechModel()
                 app->addToRecentFiles(fileName);
             }
         }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenProject()
-{
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
-
-    if (fileName.isEmpty()) return;
-
-    // Remember the path to next time
-    app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
-
-    if (app->loadProject(fileName))
-    {
-        app->addToRecentFiles(fileName);
     }
 }
 
