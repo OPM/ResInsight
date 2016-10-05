@@ -25,7 +25,9 @@
 #include "RimView.h"
 
 #include "cafPdmUiFilePathEditor.h"
-#include "QFile"
+
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimFormationNames, "FormationNames");
 
@@ -76,7 +78,7 @@ void RimFormationNames::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateUiTreeName()
 {
-    this->uiCapability()->setUiName(m_formationNamesFileName());
+    this->uiCapability()->setUiName(fileNameWoPath());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,6 +97,15 @@ void RimFormationNames::setFileName(const QString& fileName)
 const QString& RimFormationNames::fileName()
 {
     return m_formationNamesFileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFormationNames::fileNameWoPath()
+{
+    QFileInfo fnameFileInfo(m_formationNamesFileName());
+    return fnameFileInfo.fileName();
 }
 
 //--------------------------------------------------------------------------------------------------

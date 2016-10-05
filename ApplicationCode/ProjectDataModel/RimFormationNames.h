@@ -33,6 +33,7 @@ public:
 
     void                        setFileName(const QString& fileName);
     const QString&              fileName();
+    QString                     fileNameWoPath();
 
     RigFormationNames*          formationNamesData() { return m_formationNamesData.p();}
     void                        updateConnectedViews();
