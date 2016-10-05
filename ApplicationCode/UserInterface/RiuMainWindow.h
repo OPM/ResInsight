@@ -110,9 +110,6 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
-    void            addRecentFiles(const QString& file);
-    void            removeRecentFiles(const QString& file);
-
     RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
     RimMdiWindowGeometry    windowGeometryForWidget(QWidget* widget);
 
@@ -132,8 +129,6 @@ private:
     void            createToolBars();
     void            createDockPanels();
 
-    void            updateRecentFileActions();
-
     void            storeTreeViewState();
     void            restoreTreeViewState();
 
@@ -151,13 +146,6 @@ private:
     QAction*            m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
     QAction*            m_exitAction;
-
-    // Recent files
-    enum { MaxRecentFiles = 9 };
-    QAction*            m_recentFilesSeparatorAction;
-    QMenu*              m_recentFilesMenu;
-    QAction*            m_recentFileActions[MaxRecentFiles];
-
 
     // Edit actions
     QAction*            m_editPreferences;
@@ -223,8 +211,6 @@ private slots:
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
-
-    void    slotOpenRecentFile();
 
     void    slotRefreshFileActions();
 

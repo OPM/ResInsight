@@ -256,13 +256,6 @@ void RiuMainWindow::createActions()
 
     m_closeProjectAction               = new QAction("&Close Project", this);
 
-    for (int i = 0; i < MaxRecentFiles; ++i)
-    {
-        m_recentFileActions[i] = new QAction(this);
-        m_recentFileActions[i]->setVisible(false);
-        connect(m_recentFileActions[i], SIGNAL(triggered()), this, SLOT(slotOpenRecentFile()));
-    }
-
     m_exitAction = new QAction("E&xit", this);
 
     connect(m_openProjectAction,                SIGNAL(triggered()), SLOT(slotOpenProject()));
@@ -415,12 +408,12 @@ void RiuMainWindow::createMenus()
     fileMenu->addAction(m_saveProjectAction);
     fileMenu->addAction(m_saveProjectAsAction);
 
-    m_recentFilesSeparatorAction = fileMenu->addSeparator();
-    for (int i = 0; i < MaxRecentFiles; ++i)
-        fileMenu->addAction(m_recentFileActions[i]);
+    std::vector<QAction*> recentFileActions = RiaApplication::instance()->recentFileActions();
+    for (auto act : recentFileActions)
+    {
+        fileMenu->addAction(act);
+    }
     
-    updateRecentFileActions();
-
     fileMenu->addSeparator();
     QMenu* testMenu = fileMenu->addMenu("&Testing");
 
@@ -850,7 +843,7 @@ void RiuMainWindow::slotImportGeoMechModel()
         {
             if (app->openOdbCaseFromFile(fileName))
             {
-                addRecentFiles(fileName);
+                app->addToRecentFiles(fileName);
             }
         }
     }
@@ -873,7 +866,7 @@ void RiuMainWindow::slotOpenProject()
 
     if (app->loadProject(fileName))
     {
-        addRecentFiles(fileName);
+        app->addToRecentFiles(fileName);
     }
 }
 
@@ -887,7 +880,7 @@ void RiuMainWindow::slotOpenLastUsedProject()
     
     if (app->loadProject(fileName))
     {
-        addRecentFiles(fileName);
+        app->addToRecentFiles(fileName);
     }
 }
 
@@ -951,97 +944,6 @@ void RiuMainWindow::slotCloseProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenRecentFile()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action)
-    {
-        QString filename = action->data().toString();
-        bool loadingSucceded = false;
-
-        if (filename.contains(".rsp", Qt::CaseInsensitive) || filename.contains(".rip", Qt::CaseInsensitive) )
-        {
-            loadingSucceded = RiaApplication::instance()->loadProject(action->data().toString());
-        }
-        else if ( filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive) )
-        {
-            loadingSucceded = RiaApplication::instance()->openEclipseCaseFromFile(filename);
-        }
-        else if (filename.contains(".odb", Qt::CaseInsensitive) )
-        {
-            loadingSucceded = RiaApplication::instance()->openOdbCaseFromFile(filename);
-        }
-
-        if (loadingSucceded)
-        {
-            addRecentFiles(filename);
-        }
-        else
-        {
-            removeRecentFiles(filename);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::updateRecentFileActions()
-{
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
-
-    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
-
-    for (int i = 0; i < numRecentFiles; ++i) {
-        QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
-        m_recentFileActions[i]->setText(text);
-        m_recentFileActions[i]->setData(files[i]);
-        m_recentFileActions[i]->setToolTip(files[i]);
-        m_recentFileActions[i]->setVisible(true);
-    }
-    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
-        m_recentFileActions[j]->setVisible(false);
-
-    m_recentFilesSeparatorAction->setVisible(numRecentFiles > 0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addRecentFiles(const QString& file)
-{
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
-    files.removeAll(file);
-    files.prepend(file);
-    while (files.size() > MaxRecentFiles)
-        files.removeLast();
-
-    settings.setValue("recentFileList", files);
-
-    updateRecentFileActions();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::removeRecentFiles(const QString& file)
-{
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
-    files.removeAll(file);
-
-    settings.setValue("recentFileList", files);
-
-    updateRecentFileActions();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-
 QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 {
     QList<QMdiSubWindow*> subws = m_mdiArea->subWindowList();

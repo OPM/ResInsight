@@ -31,6 +31,9 @@
 #include "cvfFont.h"
 
 #include <iostream>
+#include <memory>
+
+class QAction;
 
 class Drawable;
 
@@ -52,6 +55,7 @@ class RimViewWindow;
 class RimWellLogPlot;
 
 class RiuMainPlotWindow;
+class RiuRecentFileActionProvider;
 
 namespace caf
 {
@@ -185,6 +189,9 @@ public:
     bool                tryCloseMainWindow();
     bool                tryClosePlotWindow();
 
+    void                  addToRecentFiles(const QString& fileName);
+    std::vector<QAction*> recentFileActions() const;
+
 private:
     enum ProjectLoadAction
     {
@@ -244,4 +251,6 @@ private:
     bool                                m_runningRegressionTests;
 
     RiuMainPlotWindow*                  m_mainPlotWindow;
+    
+    std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 };

@@ -59,7 +59,7 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
         {
             if (app->openEclipseCaseFromFile(fileName))
             {
-                RiuMainWindow::instance()->addRecentFiles(fileName);
+                app->addToRecentFiles(fileName);
             }
         }
     }

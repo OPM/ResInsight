@@ -73,6 +73,7 @@
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
+#include "RiuRecentFileActionProvider.h"
 #include "RiuSelectionManager.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
@@ -95,6 +96,7 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
+#include <QAction>
 #include <QClipboard>
 #include <QDebug>
 #include <QDesktopServices>
@@ -202,6 +204,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_runningRegressionTests = false;
 
     m_mainPlotWindow = NULL;
+
+    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 }
 
 
@@ -687,8 +691,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_preferences->lastUsedProjectFileName = fileName;
     caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    mainWnd->addRecentFiles(fileName);
+    m_recentFileActionProvider->addFileName(fileName);
 
     return true;
 }
@@ -1474,6 +1477,22 @@ bool RiaApplication::tryClosePlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::addToRecentFiles(const QString& fileName)
+{
+    m_recentFileActionProvider->addFileName(fileName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QAction*> RiaApplication::recentFileActions() const
+{
+    return m_recentFileActionProvider->actions();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileName)
 {
     std::vector<QString> fileList;
@@ -1499,7 +1518,6 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
 
     return fileList;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -118,6 +118,8 @@ set( USER_INTERFACE_FILES
 	UserInterface/RiuMainWindowBase.cpp
 	UserInterface/RiuPropertyViewTabWidget.h
 	UserInterface/RiuPropertyViewTabWidget.cpp
+	UserInterface/RiuRecentFileActionProvider.h
+	UserInterface/RiuRecentFileActionProvider.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -229,6 +231,7 @@ set ( QT_MOC_HEADERS
 	UserInterface/RiuTreeViewEventFilter.h
 	UserInterface/RiuWellLogPlot.h
 	UserInterface/RiuWellLogTrack.h
+	UserInterface/RiuRecentFileActionProvider.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
