@@ -834,26 +834,23 @@ void RiuMainWindow::slotAbout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportGeoMechModel()
 {
-    if (checkForDocumentModifications())
+    RiaApplication* app = RiaApplication::instance();
+
+    QString defaultDir = app->lastUsedDialogDirectory("GEOMECH_MODEL");
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)");
+    if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
+    app->setLastUsedDialogDirectory("GEOMECH_MODEL", defaultDir);
+
+    int i;
+    for (i = 0; i < fileNames.size(); i++)
     {
-        RiaApplication* app = RiaApplication::instance();
+        QString fileName = fileNames[i];
 
-        QString defaultDir = app->lastUsedDialogDirectory("GEOMECH_MODEL");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)");
-        if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-        app->setLastUsedDialogDirectory("GEOMECH_MODEL", defaultDir);
-
-        int i;
-        for (i = 0; i < fileNames.size(); i++)
+        if (!fileNames.isEmpty())
         {
-            QString fileName = fileNames[i];
-
-            if (!fileNames.isEmpty())
+            if (app->openOdbCaseFromFile(fileName))
             {
-                if (app->openOdbCaseFromFile(fileName))
-                {
-                    addRecentFiles(fileName);
-                }
+                addRecentFiles(fileName);
             }
         }
     }
@@ -865,23 +862,19 @@ void RiuMainWindow::slotImportGeoMechModel()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenProject()
 {
-    if (checkForDocumentModifications())
+    RiaApplication* app = RiaApplication::instance();
+    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
+    QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
+
+    if (fileName.isEmpty()) return;
+
+    // Remember the path to next time
+    app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
+
+    if (app->loadProject(fileName))
     {
-        RiaApplication* app = RiaApplication::instance();
-        QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
-
-        if (fileName.isEmpty()) return;
-
-        // Remember the path to next time
-        app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
-
-        if (app->loadProject(fileName))
-        {
-            addRecentFiles(fileName);
-        }
+        addRecentFiles(fileName);
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -944,36 +937,6 @@ void RiuMainWindow::slotInputMockModel()
     RiaApplication* app = RiaApplication::instance();
     app->createInputMockModel();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiuMainWindow::checkForDocumentModifications()
-{
-//    RiaApplication* app = RiaApplication::instance();
-//     RISceneManager* project = app->sceneManager();
-//     if (project && project->isModified())
-//     {
-//         QMessageBox msgBox(this);
-//         msgBox.setIcon(QMessageBox::Warning);
-//         msgBox.setText("The project has been modified.");
-//         msgBox.setInformativeText("Do you want to save your changes?");
-//         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-// 
-//         int ret = msgBox.exec();
-//         if (ret == QMessageBox::Save)
-//         {
-//             project->saveAll();
-//         }
-//         else if (ret == QMessageBox::Cancel)
-//         {
-//             return false;
-//         }
-//     }
-
-    return true;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

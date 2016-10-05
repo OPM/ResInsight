@@ -132,8 +132,6 @@ private:
     void            createToolBars();
     void            createDockPanels();
 
-    bool            checkForDocumentModifications();
-
     void            updateRecentFileActions();
 
     void            storeTreeViewState();
