@@ -1848,6 +1848,29 @@ void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::openFile(const QString& fileName)
+{
+    bool loadingSucceded = false;
+
+    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    {
+        loadingSucceded = loadProject(fileName);
+    }
+    else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
+    {
+        loadingSucceded = openEclipseCaseFromFile(fileName);
+    }
+    else if (fileName.contains(".odb", Qt::CaseInsensitive))
+    {
+        loadingSucceded = openOdbCaseFromFile(fileName);
+    }
+
+    return loadingSucceded;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::saveSnapshotPromtpForFilename()
 {
     QString startPath;

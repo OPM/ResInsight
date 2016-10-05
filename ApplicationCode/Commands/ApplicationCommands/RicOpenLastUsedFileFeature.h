@@ -24,7 +24,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicOpenProjectFeature : public caf::CmdFeature
+class RicOpenLastUsedFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

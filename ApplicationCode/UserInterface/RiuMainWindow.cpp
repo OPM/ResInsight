@@ -232,8 +232,6 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
-
     m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
@@ -256,8 +254,6 @@ void RiuMainWindow::createActions()
     m_closeProjectAction               = new QAction("&Close Project", this);
 
     m_exitAction = new QAction("E&xit", this);
-
-    connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
 
     connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
     
@@ -379,7 +375,7 @@ void RiuMainWindow::createMenus()
     menuBar()->addMenu(fileMenu);
   
     fileMenu->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
-    fileMenu->addAction(m_openLastUsedProjectAction);
+    fileMenu->addAction(cmdFeatureMgr->action("RicOpenLastUsedFileFeature"));
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");

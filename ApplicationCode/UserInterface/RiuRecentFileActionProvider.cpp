@@ -122,20 +122,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
     if (action)
     {
         QString filename = action->data().toString();
-        bool loadingSucceded = false;
-
-        if (filename.contains(".rsp", Qt::CaseInsensitive) || filename.contains(".rip", Qt::CaseInsensitive))
-        {
-            loadingSucceded = RiaApplication::instance()->loadProject(action->data().toString());
-        }
-        else if (filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive))
-        {
-            loadingSucceded = RiaApplication::instance()->openEclipseCaseFromFile(filename);
-        }
-        else if (filename.contains(".odb", Qt::CaseInsensitive))
-        {
-            loadingSucceded = RiaApplication::instance()->openOdbCaseFromFile(filename);
-        }
+        bool loadingSucceded = RiaApplication::instance()->openFile(filename);
 
         if (loadingSucceded)
         {

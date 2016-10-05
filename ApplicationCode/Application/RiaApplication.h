@@ -114,6 +114,7 @@ public:
     QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
+    bool                openFile(const QString& fileName);
     bool                openEclipseCaseFromFile(const QString& fileName);
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
     bool                addEclipseCases(const QStringList& fileNames);
