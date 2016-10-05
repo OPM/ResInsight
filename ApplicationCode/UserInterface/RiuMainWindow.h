@@ -129,7 +129,6 @@ private:
     void            createToolBars();
     void            createDockPanels();
 
-    void            storeTreeViewState();
     void            restoreTreeViewState();
 
 private:
@@ -165,11 +164,6 @@ private:
     QAction*            m_createCommandObject;
     QAction*            m_showRegressionTestDialog;
     QAction*            m_executePaintEventPerformanceTest;
-
-    // Help actions
-    QAction*            m_aboutAction;
-    QAction*            m_commandLineHelpAction;
-    QAction*            m_openUsersGuideInBrowserAction;
 
     // Animation
     caf::AnimationToolBar* m_animationToolBar;
@@ -243,11 +237,6 @@ private slots:
 
     // Windows slots
     void    slotBuildWindowActions();
-
-    // Help slots
-    void    slotAbout();
-    void    slotShowCommandLineHelp();
-    void    slotOpenUsersGuideInBrowserAction();
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
 

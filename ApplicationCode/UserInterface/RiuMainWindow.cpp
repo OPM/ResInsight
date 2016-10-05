@@ -293,14 +293,6 @@ void RiuMainWindow::createActions()
     m_newPropertyView = new QAction("New Project and Property View", this);
     connect(m_newPropertyView, SIGNAL(triggered()), SLOT(slotNewObjectPropertyView()));
 
-    // Help actions
-    m_aboutAction = new QAction("&About", this);    
-    connect(m_aboutAction, SIGNAL(triggered()), SLOT(slotAbout()));
-    m_commandLineHelpAction = new QAction("&Command Line Help", this);    
-    connect(m_commandLineHelpAction, SIGNAL(triggered()), SLOT(slotShowCommandLineHelp()));
-    m_openUsersGuideInBrowserAction = new QAction("&Users Guide", this);    
-    connect(m_openUsersGuideInBrowserAction, SIGNAL(triggered()), SLOT(slotOpenUsersGuideInBrowserAction()));
-
     // Draw style actions
     m_dsActionGroup = new QActionGroup(this);
 
@@ -441,10 +433,10 @@ void RiuMainWindow::createMenus()
 
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu("&Help");
-    helpMenu->addAction(m_openUsersGuideInBrowserAction);
-    helpMenu->addAction(m_commandLineHelpAction);
+    helpMenu->addAction(cmdFeatureMgr->action("RicHelpAboutFeature"));
+    helpMenu->addAction(cmdFeatureMgr->action("RicHelpCommandLineFeature"));
     helpMenu->addSeparator();
-    helpMenu->addAction(m_aboutAction);
+    helpMenu->addAction(cmdFeatureMgr->action("RicHelpOpenUsersGuideFeature"));
 }
 
 
@@ -758,37 +750,6 @@ void RiuMainWindow::refreshAnimationActions()
     m_animationToolBar->setCurrentTimeStepIndex(currentTimeStepIndex);
 
     m_animationToolBar->setEnabled(enableAnimControls);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotAbout()
-{
-    caf::AboutDialog dlg(this);
-
-    dlg.setApplicationName(RI_APPLICATION_NAME);
-    dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright Statoil ASA, Ceetron Solutions AS, Ceetron AS");
-    dlg.showQtVersion(false);
-#ifdef _DEBUG
-    dlg.setIsDebugBuild(true);
-#endif
-
-    dlg.addVersionEntry(" ", "ResInsight is made available under the GNU General Public License v. 3");
-    dlg.addVersionEntry(" ", "See http://www.gnu.org/licenses/gpl.html");
-    dlg.addVersionEntry(" ", " ");
-    dlg.addVersionEntry(" ", " ");
-    dlg.addVersionEntry(" ", "Technical Information");
-    dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
-    dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
-    dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
-
-    dlg.create();
-    dlg.resize(300, 200);
-
-    dlg.exec();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1526,27 +1487,6 @@ void RiuMainWindow::slotDisableLightingAction(bool disable)
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::storeTreeViewState()
-{
-    if (m_projectTreeView)
-    {
-        QString treeViewState;
-        RimTreeViewStateSerializer::storeTreeViewStateToString(m_projectTreeView->treeView(), treeViewState);
-
-        QModelIndex mi = m_projectTreeView->treeView()->currentIndex();
-
-        QString encodedModelIndexString;
-        RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
-        
-        RiaApplication::instance()->project()->treeViewState = treeViewState;
-        RiaApplication::instance()->project()->currentModelIndexPath = encodedModelIndexString;
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1616,16 +1556,6 @@ void RiuMainWindow::updateScaleValue()
 void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {
     caf::SelectionManager::instance()->objectsByType(&cases);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotShowCommandLineHelp()
-{
-    RiaApplication* app = RiaApplication::instance();
-    QString text = app->commandLineParameterHelp();
-    app->showFormattedTextInMessageBox(text);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1739,20 +1669,6 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
         {
             pdmUiFieldHandle->setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
-{
-    QString usersGuideUrl = "http://resinsight.org/docs/home";
-    
-    if (!QDesktopServices::openUrl(usersGuideUrl))
-    {
-        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
-        errorHandler->showMessage("Failed open browser with the following url\n\n" + usersGuideUrl);
     }
 }
 
