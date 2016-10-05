@@ -53,6 +53,7 @@ public:
     virtual ~RimSummaryCurveFilter();
 
     void                                    createCurves(RimSummaryCase* summaryCase, const QString& stringFilter);
+    bool                                    isCurvesVisible();
 
     void                                    loadDataAndUpdate();
     void                                    setParentQwtPlot(QwtPlot* plot);
@@ -75,6 +76,7 @@ private:
                                                    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const;
 
     // Overridden PDM methods
+    virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly); 
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -83,6 +85,7 @@ private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
 
     // Fields
+    caf::PdmField<bool>                       m_showCurves;
     caf::PdmPtrArrayField<RimSummaryCase*>    m_selectedSummaryCases;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 

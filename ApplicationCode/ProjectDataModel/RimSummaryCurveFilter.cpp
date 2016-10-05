@@ -103,6 +103,8 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
+    m_showCurves.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "" );
 
@@ -235,6 +237,14 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
         plot->updateYAxisUnit();
+    }
+    else if (changedField == &m_showCurves)
+    {
+        for(RimSummaryCurve* curve : m_curves)
+        {
+            curve->updateCurveVisibility();
+        }
+        if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
 }
 
@@ -477,6 +487,23 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
         curve->updateCurveName();
         curve->updateConnectedEditors();
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurveFilter::isCurvesVisible()
+{
+    return m_showCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryCurveFilter::objectToggleField()
+{
+    return &m_showCurves;
 }
 
 //--------------------------------------------------------------------------------------------------

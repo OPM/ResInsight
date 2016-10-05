@@ -77,6 +77,8 @@ public:
     void                            updateCurveName();
     QString                         curveName() const { return m_curveName; }
 
+    void                            updateCurveVisibility();
+
 protected:
 
     virtual QString                 createCurveAutoName() = 0;
@@ -84,7 +86,6 @@ protected:
     virtual void                    onLoadDataAndUpdate() = 0;
 
     void                            updateCurvePresentation();
-    void                            updateCurveVisibility();
     void                            updateCurveAppearance();
 
     void                            updateOptionSensitivity();
