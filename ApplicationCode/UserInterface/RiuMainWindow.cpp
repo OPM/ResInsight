@@ -232,8 +232,6 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_importGeoMechCaseAction     = new QAction(QIcon(":/GeoMechCase48x48.png"), "Import &Geo Mechanical Model", this);
-
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
@@ -248,8 +246,6 @@ void RiuMainWindow::createActions()
     m_showRegressionTestDialog  = new QAction("Regression Test Dialog", this);
     m_executePaintEventPerformanceTest = new QAction("&Paint Event Performance Test", this);
 
-    connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
-    
     connect(m_mockModelAction,            SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,    SIGNAL(triggered()), SLOT(slotMockResultsModel()));
     connect(m_mockLargeResultsModelAction,    SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
@@ -371,7 +367,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
-    importMenu->addAction(m_importGeoMechCaseAction);
+    importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
     importMenu->addSeparator();
     #endif
     importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
@@ -795,49 +791,6 @@ void RiuMainWindow::slotAbout()
     dlg.exec();
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportGeoMechModel()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    QString defaultDir = app->lastUsedDialogDirectory("GEOMECH_MODEL");
-    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)");
-    if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-    app->setLastUsedDialogDirectory("GEOMECH_MODEL", defaultDir);
-
-    int i;
-    for (i = 0; i < fileNames.size(); i++)
-    {
-        QString fileName = fileNames[i];
-
-        if (!fileNames.isEmpty())
-        {
-            if (app->openOdbCaseFromFile(fileName))
-            {
-                app->addToRecentFiles(fileName);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenLastUsedProject()
-{
-    RiaApplication* app = RiaApplication::instance();
-    QString fileName = app->preferences()->lastUsedProjectFileName;
-    
-    if (app->loadProject(fileName))
-    {
-        app->addToRecentFiles(fileName);
-    }
-}
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -882,16 +835,6 @@ void RiuMainWindow::slotInputMockModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createInputMockModel();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotCloseProject()
-{
-    RiaApplication* app = RiaApplication::instance();
-    
-    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -994,31 +937,6 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
 
     slotRefreshViewActions();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSaveProject()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    storeTreeViewState();
-
-    app->saveProject();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSaveProjectAs()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    storeTreeViewState();
-
-    app->saveProjectPromptForFileName();
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// This method needs to handle memory deallocation !!!

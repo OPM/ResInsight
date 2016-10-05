@@ -138,9 +138,6 @@ private:
     QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
 private:
-    // File actions
-    QAction*            m_importGeoMechCaseAction;
-
     // Edit actions
     QAction*            m_editPreferences;
     QAction*            m_newPropertyView;
@@ -199,12 +196,6 @@ private slots:
     friend class RiuMdiSubWindow;
 
     // File slots
-    void    slotImportGeoMechModel();
-    void    slotOpenLastUsedProject();
-    void    slotSaveProject();
-    void    slotSaveProjectAs();
-    void    slotCloseProject();
-
     void    slotRefreshFileActions();
 
     // Edit slots
