@@ -140,10 +140,6 @@ private:
 private:
     // File actions
     QAction*            m_importGeoMechCaseAction;
-    QAction*            m_saveProjectAction;
-    QAction*            m_saveProjectAsAction;
-    QAction*            m_closeProjectAction;
-    QAction*            m_exitAction;
 
     // Edit actions
     QAction*            m_editPreferences;

@@ -12,6 +12,10 @@ ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicOpenProjectFeature.h
 ${CEE_CURRENT_LIST_DIR}RicOpenLastUsedFileFeature.h
+${CEE_CURRENT_LIST_DIR}RicSaveProjectFeature.h
+${CEE_CURRENT_LIST_DIR}RicSaveProjectAsFeature.h
+${CEE_CURRENT_LIST_DIR}RicExitApplicationFeature.h
+${CEE_CURRENT_LIST_DIR}RicCloseProjectFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +26,10 @@ ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicOpenProjectFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicOpenLastUsedFileFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSaveProjectFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSaveProjectAsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExitApplicationFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCloseProjectFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

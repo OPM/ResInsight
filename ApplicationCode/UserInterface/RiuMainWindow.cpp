@@ -248,13 +248,6 @@ void RiuMainWindow::createActions()
     m_showRegressionTestDialog  = new QAction("Regression Test Dialog", this);
     m_executePaintEventPerformanceTest = new QAction("&Paint Event Performance Test", this);
 
-    m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
-    m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
-
-    m_closeProjectAction               = new QAction("&Close Project", this);
-
-    m_exitAction = new QAction("E&xit", this);
-
     connect(m_importGeoMechCaseAction,          SIGNAL(triggered()), SLOT(slotImportGeoMechModel()));
     
     connect(m_mockModelAction,            SIGNAL(triggered()), SLOT(slotMockModel()));
@@ -271,13 +264,6 @@ void RiuMainWindow::createActions()
     connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
     connect(m_executePaintEventPerformanceTest, SIGNAL(triggered()), SLOT(slotExecutePaintEventPerformanceTest()));
     
-    connect(m_saveProjectAction,        SIGNAL(triggered()), SLOT(slotSaveProject()));
-    connect(m_saveProjectAsAction,        SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
-
-    connect(m_closeProjectAction,                SIGNAL(triggered()), SLOT(slotCloseProject()));
-
-    connect(m_exitAction, SIGNAL(triggered()), QApplication::instance(), SLOT(closeAllWindows()));
-
     // Edit actions
     m_editPreferences                = new QAction("&Preferences...", this);
     connect(m_editPreferences,      SIGNAL(triggered()), SLOT(slotEditPreferences()));
@@ -399,8 +385,8 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction(m_snapshotAllViewsToFile);
 
     fileMenu->addSeparator();
-    fileMenu->addAction(m_saveProjectAction);
-    fileMenu->addAction(m_saveProjectAsAction);
+    fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
+    fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectAsFeature"));
 
     std::vector<QAction*> recentFileActions = RiaApplication::instance()->recentFileActions();
     for (auto act : recentFileActions)
@@ -412,9 +398,9 @@ void RiuMainWindow::createMenus()
     QMenu* testMenu = fileMenu->addMenu("&Testing");
 
     fileMenu->addSeparator();
-    fileMenu->addAction(m_closeProjectAction);
+    fileMenu->addAction(cmdFeatureMgr->action("RicCloseProjectFeature"));
     fileMenu->addSeparator();
-    fileMenu->addAction(m_exitAction);
+    fileMenu->addAction(cmdFeatureMgr->action("RicExitApplicationFeature"));
 
     connect(fileMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshFileActions()));
 
@@ -480,8 +466,7 @@ void RiuMainWindow::createToolBars()
     m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     m_standardToolBar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
-    //m_standardToolBar->addAction(m_openLastUsedProjectAction);
-    m_standardToolBar->addAction(m_saveProjectAction);
+    m_standardToolBar->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
 
     // Snapshots
     m_snapshotToolbar = addToolBar(tr("View Snapshots"));
@@ -672,11 +657,6 @@ void RiuMainWindow::slotRefreshFileActions()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    bool projectExists = true;
-    m_saveProjectAction->setEnabled(projectExists);
-    m_saveProjectAsAction->setEnabled(projectExists);
-    m_closeProjectAction->setEnabled(projectExists);
-    
     bool projectFileExists = QFile::exists(app->project()->fileName());
 
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
