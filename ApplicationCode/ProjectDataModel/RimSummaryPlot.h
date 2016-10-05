@@ -53,7 +53,6 @@ public:
     
     void                                            loadDataAndUpdate();
 
-    void updateZoom();
 
     void                                            handleViewerDeletion();
     void                                            updateYAxisUnit();
@@ -61,8 +60,9 @@ public:
 
     QWidget*                                        viewer();
 
-
+    void                                            setZoomWindow(const QRectF& zoomWindow);
     virtual void                                    zoomAll() override;
+    void                                            updateZoomInQwt();
 
 protected:
     // Overridden PDM methods

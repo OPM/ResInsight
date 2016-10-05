@@ -52,15 +52,18 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     setDefaults();
 
     // LeftButton for the zooming
-    zoomer = new QwtPlotZoomer(canvas());
-    zoomer->setRubberBandPen(QColor(Qt::black));
-    zoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    zoomer->setTrackerPen(QColor(Qt::black));
-    zoomer->initMousePattern(1);
+    m_zoomer = new QwtPlotZoomer(canvas());
+    m_zoomer->setRubberBandPen(QColor(Qt::black));
+    m_zoomer->setTrackerMode(QwtPicker::AlwaysOff);
+    m_zoomer->setTrackerPen(QColor(Qt::black));
+    m_zoomer->initMousePattern(1);
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner(canvas());
     panner->setMouseButton(Qt::MidButton);
+
+    connect(m_zoomer, SIGNAL(zoomed( const QRectF & )), SLOT(onZoomedSlot()));
+    connect(panner, SIGNAL(panned( int , int  )), SLOT(onZoomedSlot()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +106,7 @@ void RiuSummaryQwtPlot::zoomAll()
     setAxisAutoScale(yLeft, true);
     setAxisAutoScale(xBottom, true);
 
-    zoomer->setZoomBase(true);
+    m_zoomer->setZoomBase(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +129,7 @@ QRectF RiuSummaryQwtPlot::currentVisibleWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setZoomWindow(const QRectF& zoomWindow)
 {
-    zoomer->zoom(zoomWindow);
+    m_zoomer->zoom(zoomWindow);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,4 +282,12 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
             RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::onZoomedSlot()
+{
+    m_plotDefinition->setZoomWindow(currentVisibleWindow());
 }

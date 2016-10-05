@@ -36,6 +36,7 @@ class RimSummaryPlot;
 //==================================================================================================
 class RiuSummaryQwtPlot : public QwtPlot
 {
+    Q_OBJECT;
 public:
     RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuSummaryQwtPlot();
@@ -54,10 +55,13 @@ private:
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
 
+private slots:
+    void                            onZoomedSlot( );
+
 private:
     QwtPlotGrid*                    m_grid;
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
-    QPointer<QwtPlotZoomer>             zoomer;
+    QPointer<QwtPlotZoomer>         m_zoomer;
 };
 
 

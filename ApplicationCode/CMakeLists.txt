@@ -232,6 +232,7 @@ set ( QT_MOC_HEADERS
 	UserInterface/RiuWellLogPlot.h
 	UserInterface/RiuWellLogTrack.h
 	UserInterface/RiuRecentFileActionProvider.h
+    UserInterface/RiuSummaryQwtPlot.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )

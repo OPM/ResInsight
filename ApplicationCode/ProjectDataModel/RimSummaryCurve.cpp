@@ -323,7 +323,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
 
-    plot->updateZoom(); 
+    plot->updateZoomInQwt(); 
 }
 
 //--------------------------------------------------------------------------------------------------

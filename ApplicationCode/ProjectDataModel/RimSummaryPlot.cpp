@@ -160,6 +160,24 @@ QWidget* RimSummaryPlot::viewer()
     return m_qwtPlot;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setZoomWindow(const QRectF& zoomWindow)
+{
+    if(!zoomWindow.isEmpty())
+    {
+        std::vector<float> window;
+        window.push_back(zoomWindow.left());
+        window.push_back(zoomWindow.top());
+        window.push_back(zoomWindow.width());
+        window.push_back(zoomWindow.height());
+
+        m_visibleWindow = window;
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +186,7 @@ void RimSummaryPlot::zoomAll()
     if (m_qwtPlot)
     {
         m_qwtPlot->zoomAll();
+        this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
     }
 }
 
@@ -239,19 +258,7 @@ void RimSummaryPlot::setupBeforeSave()
             this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
         }
 
-        QRectF visibleWindow = m_qwtPlot->currentVisibleWindow();
-        if (!visibleWindow.isEmpty())
-        {
-            //QRectF(qreal left, qreal top, qreal width, qreal height);
-
-            std::vector<float> window;
-            window.push_back(visibleWindow.left());
-            window.push_back(visibleWindow.top());
-            window.push_back(visibleWindow.width());
-            window.push_back(visibleWindow.height());
-
-            m_visibleWindow = window;
-        }
+        this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
     }
 }
 
@@ -296,13 +303,13 @@ void RimSummaryPlot::loadDataAndUpdate()
  
     this->updateYAxisUnit();
 
-    updateZoom();
+    updateZoomInQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoom()
+void RimSummaryPlot::updateZoomInQwt()
 {
     if (!m_qwtPlot) return;
 
