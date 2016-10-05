@@ -236,11 +236,9 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::loadDataAndUpdate()
 {
-    CVF_ASSERT(m_wellLogTrackPlotWidget);
-
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfType(wellLogPlot);
-    if (wellLogPlot)
+    if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
     }
