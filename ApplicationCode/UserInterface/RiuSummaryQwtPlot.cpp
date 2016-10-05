@@ -172,16 +172,16 @@ void RiuSummaryQwtPlot::setDefaults()
     setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
 
     QFont xAxisFont = axisFont(QwtPlot::xBottom);
-    xAxisFont.setPixelSize(9);
+    xAxisFont.setPixelSize(11);
     setAxisFont(QwtPlot::xBottom, xAxisFont);
 
     QFont yAxisFont = axisFont(QwtPlot::yLeft);
-    yAxisFont.setPixelSize(9);
+    yAxisFont.setPixelSize(11);
     setAxisFont(QwtPlot::yLeft, yAxisFont);
 
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
     QFont yAxisTitleFont = axisTitleY.font();
-    yAxisTitleFont.setPixelSize(9);
+    yAxisTitleFont.setPixelSize(11);
     yAxisTitleFont.setBold(false);
     axisTitleY.setFont(yAxisTitleFont);
     axisTitleY.setRenderFlags(Qt::AlignRight);
