@@ -200,11 +200,14 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance settings");
     appearanceGroup->add(&m_useAutoAppearanceAssignment);
-    appearanceGroup->add(&m_caseAppearanceType);
-    appearanceGroup->add(&m_variableAppearanceType);
-    appearanceGroup->add(&m_wellAppearanceType);
-    appearanceGroup->add(&m_groupAppearanceType);
-    appearanceGroup->add(&m_regionAppearanceType);
+    if(!m_useAutoAppearanceAssignment())
+    {
+        appearanceGroup->add(&m_caseAppearanceType);
+        appearanceGroup->add(&m_variableAppearanceType);
+        appearanceGroup->add(&m_wellAppearanceType);
+        appearanceGroup->add(&m_groupAppearanceType);
+        appearanceGroup->add(&m_regionAppearanceType);
+    }
 
     // Set sensitivity
     {
