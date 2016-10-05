@@ -36,8 +36,8 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitObject("Summary Case",":/Cases16x16.png","","");
 
-    CAF_PDM_InitField(&m_shortName, "ShortName", QString("Short Name"), "Short Name", "", "", "");
-    CAF_PDM_InitField(&m_useAutoShortName, "AutoShortyName", true, "Use Auto Short Name", "", "", "");
+    CAF_PDM_InitField(&m_shortName, "ShortName", QString("Display Name"), "Display Name", "", "", "");
+    CAF_PDM_InitField(&m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +95,10 @@ void RimSummaryCase::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
 {
-    this->setUiName(caseName() + " (" + shortName() +")");
+    if (caseName() != shortName())
+        this->setUiName(caseName() + " (" + shortName() +")");
+    else
+        this->setUiName(caseName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +131,11 @@ void RimSummaryCase::updateAutoShortName()
         CVF_ASSERT(summaryCaseCollection);
 
         m_shortName =  summaryCaseCollection->uniqueShortNameForCase(this);
+        updateTreeItemName();
+    }
+    else if (m_shortName() == QString("Display Name"))
+    {
+        m_shortName =  caseName();
         updateTreeItemName();
     }
 }
