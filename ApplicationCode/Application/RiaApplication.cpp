@@ -376,7 +376,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     }
     else
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::instance()->hide();
     }
 
     if (m_project->showPlotWindow())
@@ -385,7 +385,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     }
     else if (mainPlotWindow())
     {
-        mainPlotWindow()->close();
+        mainPlotWindow()->hide();
     }
 
 
