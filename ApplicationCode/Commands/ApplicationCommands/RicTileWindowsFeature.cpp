@@ -20,8 +20,10 @@
 #include "RicTileWindowsFeature.h"
 
 #include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include <QAction>
+#include <QApplication>
 
 CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
 
@@ -30,7 +32,20 @@ CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandEnabled()
 {
-    return RiuMainWindow::instance()->isAnyMdiSubWindowVisible();
+    QWidget* topLevelWidget = QApplication::activeWindow();
+
+    RiuMainWindow* mainWindow = dynamic_cast<RiuMainWindow*>(topLevelWidget);
+    RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+    if (mainWindow)
+    {
+        return mainWindow->isAnyMdiSubWindowVisible();
+    }
+    else if (mainPlotWindow)
+    {
+        return mainPlotWindow->isAnyMdiSubWindowVisible();
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,7 +53,18 @@ bool RicTileWindowsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsFeature::onActionTriggered(bool isChecked)
 {
-    RiuMainWindow::instance()->tileWindows();
+    QWidget* topLevelWidget = QApplication::activeWindow();
+
+    RiuMainWindow* mainWindow = dynamic_cast<RiuMainWindow*>(topLevelWidget);
+    RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+    if (mainWindow)
+    {
+        mainWindow->tileWindows();
+    }
+    else if (mainPlotWindow)
+    {
+        mainPlotWindow->tileWindows();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

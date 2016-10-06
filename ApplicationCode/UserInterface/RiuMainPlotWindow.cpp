@@ -228,7 +228,7 @@ void RiuMainPlotWindow::createToolBars()
         QToolBar* toolbar = addToolBar(tr("Window Management"));
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicShowMainWindowFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicTilePlotWindowsFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
     }
 
     {
@@ -501,7 +501,7 @@ void RiuMainPlotWindow::slotBuildWindowActions()
     QAction* closeAllSubWindowsAction = new QAction("Close All Windows", this);
     connect(closeAllSubWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(closeAllSubWindows()));
 
-    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTilePlotWindowsFeature"));
+    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTileWindowsFeature"));
     m_windowMenu->addAction(cascadeWindowsAction);
     m_windowMenu->addAction(closeAllSubWindowsAction);
 }

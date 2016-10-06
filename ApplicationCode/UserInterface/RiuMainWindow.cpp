@@ -278,16 +278,12 @@ void RiuMainWindow::createActions()
     m_viewFromBelow                = new QAction(QIcon(":/UpViewArrow.png"),"Look Up", this);
     m_viewFromBelow->setToolTip("Look Up");
 
-    m_zoomAll                = new QAction(QIcon(":/ZoomAll16x16.png"),"Zoom all", this);
-    m_zoomAll->setToolTip("Zoom to view all");
-
     connect(m_viewFromNorth,                SIGNAL(triggered()), SLOT(slotViewFromNorth()));
     connect(m_viewFromSouth,                SIGNAL(triggered()), SLOT(slotViewFromSouth()));
     connect(m_viewFromEast,                 SIGNAL(triggered()), SLOT(slotViewFromEast()));
     connect(m_viewFromWest,                 SIGNAL(triggered()), SLOT(slotViewFromWest()));
     connect(m_viewFromAbove,                SIGNAL(triggered()), SLOT(slotViewFromAbove()));
     connect(m_viewFromBelow,                SIGNAL(triggered()), SLOT(slotViewFromBelow()));
-    connect(m_zoomAll,                        SIGNAL(triggered()), SLOT(slotZoomAll()));
 
     // Debug actions
     m_newPropertyView = new QAction("New Project and Property View", this);
@@ -403,7 +399,7 @@ void RiuMainWindow::createMenus()
 
     // View menu
     QMenu* viewMenu = menuBar()->addMenu("&View");
-    viewMenu->addAction(m_zoomAll);
+    viewMenu->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
     viewMenu->addSeparator();
     viewMenu->addAction(m_viewFromSouth);
     viewMenu->addAction(m_viewFromNorth);
@@ -479,7 +475,7 @@ void RiuMainWindow::createToolBars()
         QToolBar* toolbar = addToolBar(tr("View"));
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicTogglePerspectiveViewFeature"));
-        toolbar->addAction(m_zoomAll);
+        toolbar->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
         toolbar->addAction(m_viewFromNorth);
         toolbar->addAction(m_viewFromSouth);
         toolbar->addAction(m_viewFromEast);
@@ -992,17 +988,6 @@ void RiuMainWindow::slotViewFromBelow()
     if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
         RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,0,1), cvf::Vec3d(0,1,0));
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotZoomAll()
-{
-    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
-    {
-        RiaApplication::instance()->activeReservoirView()->viewer()->zoomAll();
     }
 }
 

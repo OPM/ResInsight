@@ -148,7 +148,6 @@ private:
     QAction*            m_viewFromWest;
     QAction*            m_viewFromAbove;
     QAction*            m_viewFromBelow;
-    QAction*            m_zoomAll;
 
     // Mock actions
     QAction*            m_mockModelAction;
@@ -198,7 +197,6 @@ private slots:
     void    slotViewFromWest();
     void    slotViewFromAbove();
     void    slotViewFromBelow();
-    void    slotZoomAll();
     void    slotScaleChanged(int scaleValue);
 
     void slotDrawStyleChanged(QAction* activatedAction);

@@ -9,7 +9,6 @@ ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowMainWindowFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.h
-${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicOpenProjectFeature.h
 ${CEE_CURRENT_LIST_DIR}RicOpenLastUsedFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveProjectFeature.h
@@ -24,7 +23,6 @@ ${CEE_CURRENT_LIST_DIR}RicLaunchUnitTestsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowPlotWindowFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowMainWindowFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTileWindowsFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicTilePlotWindowsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicOpenProjectFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicOpenLastUsedFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveProjectFeature.cpp
