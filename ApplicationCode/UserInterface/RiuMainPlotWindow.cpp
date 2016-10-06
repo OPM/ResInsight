@@ -221,6 +221,7 @@ void RiuMainPlotWindow::createToolBars()
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
     }
