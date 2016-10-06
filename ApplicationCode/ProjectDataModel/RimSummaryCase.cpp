@@ -60,6 +60,14 @@ void RimSummaryCase::loadCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigSummaryCaseData* RimSummaryCase::caseData()
+{
+    return m_summaryCaseData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_useAutoShortName)

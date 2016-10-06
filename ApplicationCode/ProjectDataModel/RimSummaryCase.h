@@ -23,7 +23,6 @@
 #include "cvfObject.h"
 #include "cafPdmPtrField.h"
 
-class RimEclipseCase;
 class RigSummaryCaseData;
 
 //==================================================================================================
@@ -47,7 +46,7 @@ public:
     void                updateOptionSensitivity();
 
     void                loadCase();
-    RigSummaryCaseData* caseData() { return m_summaryCaseData.p(); }
+    RigSummaryCaseData* caseData();
 
 protected:
     void                updateTreeItemName();

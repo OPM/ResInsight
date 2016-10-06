@@ -61,6 +61,14 @@ void RimGridSummaryCase::setAssociatedEclipseCase(RimEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
+{
+    return m_eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::summaryHeaderFilename() const
 {
     if (!m_eclipseCase()) return QString();

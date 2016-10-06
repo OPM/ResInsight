@@ -19,6 +19,8 @@
 
 #include "RimSummaryCase.h"
 
+class RimEclipseCase;
+
 //==================================================================================================
 //
 // 
@@ -33,7 +35,7 @@ public:
     virtual ~RimGridSummaryCase();
 
     void                            setAssociatedEclipseCase(RimEclipseCase* eclipseCase);
-    RimEclipseCase*                 associatedEclipseCase() { return m_eclipseCase(); }
+    RimEclipseCase*                 associatedEclipseCase();
 
     virtual QString                 summaryHeaderFilename() const  override;
     virtual QString                 caseName() const override;
