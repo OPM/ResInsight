@@ -448,20 +448,14 @@ void RiuMainWindow::createToolBars()
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
 
-    m_standardToolBar = addToolBar(tr("Standard"));
-    m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
-
-    m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
-    m_standardToolBar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    m_standardToolBar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
-    m_standardToolBar->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
-
-    // Snapshots
-    m_snapshotToolbar = addToolBar(tr("View Snapshots"));
-    m_snapshotToolbar->setObjectName(m_snapshotToolbar->windowTitle());
-    m_snapshotToolbar->addAction(m_snapshotToClipboard);
-    m_snapshotToolbar->addAction(m_snapshotToFile);
-    m_snapshotToolbar->addAction(m_snapshotAllViewsToFile);
+    {
+        QToolBar* toolbar = addToolBar(tr("Standard"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
+    }
 
     {
         QToolBar* toolbar = addToolBar(tr("Window Management"));
@@ -471,26 +465,37 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
     }
 
+    {
+        QToolBar* toolbar = addToolBar(tr("View Snapshots"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(m_snapshotToClipboard);
+        toolbar->addAction(m_snapshotToFile);
+        toolbar->addAction(m_snapshotAllViewsToFile);
+    }
+
+
     // View toolbar
-    m_viewToolBar = addToolBar(tr("View"));
-    m_viewToolBar->setObjectName(m_viewToolBar->windowTitle());
-    m_viewToolBar->addAction(cmdFeatureMgr->action("RicTogglePerspectiveViewFeature"));
-    m_viewToolBar->addAction(m_zoomAll);
-    m_viewToolBar->addAction(m_viewFromNorth);
-    m_viewToolBar->addAction(m_viewFromSouth);
-    m_viewToolBar->addAction(m_viewFromEast);
-    m_viewToolBar->addAction(m_viewFromWest);
-    m_viewToolBar->addAction(m_viewFromAbove);
-    m_viewToolBar->addAction(m_viewFromBelow);
+    {
+        QToolBar* toolbar = addToolBar(tr("View"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicTogglePerspectiveViewFeature"));
+        toolbar->addAction(m_zoomAll);
+        toolbar->addAction(m_viewFromNorth);
+        toolbar->addAction(m_viewFromSouth);
+        toolbar->addAction(m_viewFromEast);
+        toolbar->addAction(m_viewFromWest);
+        toolbar->addAction(m_viewFromAbove);
+        toolbar->addAction(m_viewFromBelow);
 
-    QLabel* scaleLabel = new QLabel(m_viewToolBar);
-    scaleLabel->setText("Scale");
-    m_viewToolBar->addWidget(scaleLabel);
+        QLabel* scaleLabel = new QLabel(toolbar);
+        scaleLabel->setText("Scale");
+        toolbar->addWidget(scaleLabel);
 
-    m_scaleFactor = new QSpinBox(m_viewToolBar);
-    m_scaleFactor->setValue(0);
-    m_viewToolBar->addWidget(m_scaleFactor);
-    connect(m_scaleFactor, SIGNAL(valueChanged(int)), SLOT(slotScaleChanged(int)));
+        m_scaleFactor = new QSpinBox(toolbar);
+        m_scaleFactor->setValue(0);
+        toolbar->addWidget(m_scaleFactor);
+        connect(m_scaleFactor, SIGNAL(valueChanged(int)), SLOT(slotScaleChanged(int)));
+    }
     
     {
         QToolBar* dsToolBar = addToolBar(tr("Draw Style"));

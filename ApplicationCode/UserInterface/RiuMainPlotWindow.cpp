@@ -143,13 +143,67 @@ void RiuMainPlotWindow::createActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createMenus()
 {
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+
     // File menu
     QMenu* fileMenu = new RiuToolTipMenu(menuBar());
     fileMenu->setTitle("&File");
 
     menuBar()->addMenu(fileMenu);
 
-    fileMenu->addAction("Close", this, SLOT(close()));
+    fileMenu->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
+    fileMenu->addAction(cmdFeatureMgr->action("RicOpenLastUsedFileFeature"));
+    fileMenu->addSeparator();
+
+    QMenu* importMenu = fileMenu->addMenu("&Import");
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
+    importMenu->addSeparator();
+#ifdef USE_ODB_API
+    importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
+    importMenu->addSeparator();
+#endif
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportFileFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellPathsImportSsihubFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicWellLogsImportFileFeature"));
+    importMenu->addSeparator();
+    importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
+
+    fileMenu->addSeparator();
+    fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
+    fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectAsFeature"));
+
+    std::vector<QAction*> recentFileActions = RiaApplication::instance()->recentFileActions();
+    for (auto act : recentFileActions)
+    {
+        fileMenu->addAction(act);
+    }
+
+    fileMenu->addSeparator();
+    fileMenu->addAction(cmdFeatureMgr->action("RicCloseProjectFeature"));
+    fileMenu->addSeparator();
+    fileMenu->addAction(cmdFeatureMgr->action("RicExitApplicationFeature"));
+
+    // Edit menu
+    QMenu* editMenu = menuBar()->addMenu("&Edit");
+    editMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+
+    // View menu
+    QMenu* viewMenu = menuBar()->addMenu("&View");
+    viewMenu->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
+
+    // Windows menu
+    m_windowMenu = menuBar()->addMenu("&Windows");
+    connect(m_windowMenu, SIGNAL(aboutToShow()), SLOT(slotBuildWindowActions()));
+
+    // Help menu
+    QMenu* helpMenu = menuBar()->addMenu("&Help");
+    helpMenu->addAction(cmdFeatureMgr->action("RicHelpAboutFeature"));
+    helpMenu->addAction(cmdFeatureMgr->action("RicHelpCommandLineFeature"));
+    helpMenu->addSeparator();
+    helpMenu->addAction(cmdFeatureMgr->action("RicHelpOpenUsersGuideFeature"));
 }
 
 
@@ -162,23 +216,12 @@ void RiuMainPlotWindow::createToolBars()
     CVF_ASSERT(cmdFeatureMgr);
 
     {
-        // Snapshots
-        QToolBar* toolbar = addToolBar(tr("View Snapshots"));
+        QToolBar* toolbar = addToolBar(tr("Standard"));
         toolbar->setObjectName(toolbar->windowTitle());
-/*
-        toolbar->addAction(m_snapshotToClipboard);
-        toolbar->addAction(m_snapshotToFile);
-        toolbar->addAction(m_snapshotAllViewsToFile);
-*/
-
-        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
-    }
-
-    {
-        // Snapshots
-        QToolBar* toolbar = addToolBar(tr("View"));
-        toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
     }
 
     {
@@ -186,6 +229,18 @@ void RiuMainPlotWindow::createToolBars()
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicShowMainWindowFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicTilePlotWindowsFeature"));
+    }
+
+    {
+        QToolBar* toolbar = addToolBar(tr("View Snapshots"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+    }
+
+    {
+        QToolBar* toolbar = addToolBar(tr("View"));
+        toolbar->setObjectName(toolbar->windowTitle());
+        toolbar->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
     }
 }
 
@@ -446,7 +501,7 @@ void RiuMainPlotWindow::slotBuildWindowActions()
     QAction* closeAllSubWindowsAction = new QAction("Close All Windows", this);
     connect(closeAllSubWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(closeAllSubWindows()));
 
-    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTileWindowsFeature"));
+    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTilePlotWindowsFeature"));
     m_windowMenu->addAction(cascadeWindowsAction);
     m_windowMenu->addAction(closeAllSubWindowsAction);
 }

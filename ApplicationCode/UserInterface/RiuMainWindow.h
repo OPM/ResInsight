@@ -165,14 +165,7 @@ private:
     QAction*            m_showRegressionTestDialog;
     QAction*            m_executePaintEventPerformanceTest;
 
-    // Animation
     caf::AnimationToolBar* m_animationToolBar;
-
-    // Toolbars
-    QToolBar*           m_viewToolBar;
-    QToolBar*           m_standardToolBar;
-    QToolBar*           m_snapshotToolbar;
-
 
     QMdiArea*           m_mdiArea;
     RiuViewer*          m_mainViewer;
