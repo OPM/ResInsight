@@ -82,8 +82,6 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     scriptCollection.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
-    treeViewState.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
@@ -100,8 +98,15 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
-    currentModelIndexPath.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&mainWindowTreeViewState, "TreeViewState", "",  "", "", "");
+    mainWindowTreeViewState.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&mainWindowCurrentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
+    mainWindowCurrentModelIndexPath.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&plotWindowTreeViewState, "PlotWindowTreeViewState", "", "", "", "");
+    plotWindowTreeViewState.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&plotWindowCurrentModelIndexPath, "PlotWindowTreeViewCurrentModelIndexPath", "", "", "", "");
+    plotWindowCurrentModelIndexPath.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_show3DWindow, "show3DWindow", true, "Show 3D Window", "", "", "");
     m_show3DWindow.uiCapability()->setUiHidden(true);
@@ -177,8 +182,10 @@ void RimProject::close()
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
-    currentModelIndexPath = "";
-    treeViewState = "";
+    mainWindowCurrentModelIndexPath = "";
+    mainWindowTreeViewState = "";
+    plotWindowCurrentModelIndexPath = "";
+    plotWindowTreeViewState = "";
 }
 
 

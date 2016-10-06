@@ -1456,14 +1456,14 @@ void RiuMainWindow::restoreTreeViewState()
 {
     if (m_projectTreeView)
     {
-        QString stateString = RiaApplication::instance()->project()->treeViewState;
+        QString stateString = RiaApplication::instance()->project()->mainWindowTreeViewState;
         if (!stateString.isEmpty())
         {
             m_projectTreeView->treeView()->collapseAll();
             RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
-        QString currentIndexString = RiaApplication::instance()->project()->currentModelIndexPath;
+        QString currentIndexString = RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
             QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);

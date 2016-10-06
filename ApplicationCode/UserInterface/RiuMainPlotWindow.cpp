@@ -644,38 +644,18 @@ void RiuMainPlotWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::storeTreeViewState()
-{
-    if (m_projectTreeView)
-    {
-        QString treeViewState;
-        RimTreeViewStateSerializer::storeTreeViewStateToString(m_projectTreeView->treeView(), treeViewState);
-
-        QModelIndex mi = m_projectTreeView->treeView()->currentIndex();
-
-        QString encodedModelIndexString;
-        RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
-        
-        RiaApplication::instance()->project()->treeViewState = treeViewState;
-        RiaApplication::instance()->project()->currentModelIndexPath = encodedModelIndexString;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::restoreTreeViewState()
 {
     if (m_projectTreeView)
     {
-        QString stateString = RiaApplication::instance()->project()->treeViewState;
+        QString stateString = RiaApplication::instance()->project()->plotWindowTreeViewState;
         if (!stateString.isEmpty())
         {
             m_projectTreeView->treeView()->collapseAll();
             RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
-        QString currentIndexString = RiaApplication::instance()->project()->currentModelIndexPath;
+        QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
             QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);

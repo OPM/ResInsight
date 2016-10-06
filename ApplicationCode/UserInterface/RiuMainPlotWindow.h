@@ -88,7 +88,6 @@ private:
     void            createToolBars();
     void            createDockPanels();
 
-    void            storeTreeViewState();
     void            restoreTreeViewState();
 
 private:

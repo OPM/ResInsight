@@ -24,6 +24,7 @@
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "cafPdmUiTreeView.h"
 
@@ -66,19 +67,40 @@ void RicSaveProjectFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicSaveProjectFeature::storeTreeViewState()
 {
-    caf::PdmUiTreeView* projectTreeView = RiuMainWindow::instance()->projectTreeView();
-    if (projectTreeView)
     {
-        QString treeViewState;
-        RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+        RiaApplication* app = RiaApplication::instance();
+        if (app->mainPlotWindow() && app->mainPlotWindow()->projectTreeView())
+        {
+            caf::PdmUiTreeView* projectTreeView = app->mainPlotWindow()->projectTreeView();
 
-        QModelIndex mi = projectTreeView->treeView()->currentIndex();
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
 
-        QString encodedModelIndexString;
-        RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
 
-        RiaApplication::instance()->project()->treeViewState = treeViewState;
-        RiaApplication::instance()->project()->currentModelIndexPath = encodedModelIndexString;
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            RiaApplication::instance()->project()->plotWindowTreeViewState = treeViewState;
+            RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
+    }
+
+    {
+        caf::PdmUiTreeView* projectTreeView = RiuMainWindow::instance()->projectTreeView();
+        if (projectTreeView)
+        {
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            RiaApplication::instance()->project()->mainWindowTreeViewState = treeViewState;
+            RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
     }
 }
 

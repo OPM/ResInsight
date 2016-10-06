@@ -69,9 +69,12 @@ public:
     caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>        viewLinkerCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
-    caf::PdmField<QString>                              treeViewState;
-    caf::PdmField<QString>                              currentModelIndexPath;
+    
+    caf::PdmField<QString>                              mainWindowTreeViewState;
+    caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;
 
+    caf::PdmField<QString>                              plotWindowTreeViewState;
+    caf::PdmField<QString>                              plotWindowCurrentModelIndexPath;
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
