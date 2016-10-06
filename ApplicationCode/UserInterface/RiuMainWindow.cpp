@@ -25,36 +25,19 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
 
-#include "RigCaseCellResultsData.h"
-#include "RigFemPartResultsCollection.h"
-#include "RigGeoMechCaseData.h"
-
-#include "RimCaseCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechCellColors.h"
-#include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGeoMechView.h"
-#include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimTools.h"
 #include "RimTreeViewStateSerializer.h"
-#include "RimViewWindow.h"
-#include "RimWellPathImport.h"
+#include "RimView.h"
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
-#include "RiuMultiCaseImportDialog.h"
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -63,38 +46,26 @@
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
-#include "RiuWellImportWizard.h"
 
-#include "cafAboutDialog.h"
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
-#include "cafPdmDefaultObjectFactory.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmObjectGroup.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
-#include "cvfTimer.h"
 
 #include <QAction>
 #include <QCloseEvent>
-#include <QDesktopServices>
+#include <QDir>
 #include <QDockWidget>
-#include <QErrorMessage>
-#include <QFileDialog>
-#include <QFileInfo>
 #include <QLabel>
 #include <QLayout>
-#include <QMdiArea>
 #include <QMdiSubWindow>
-#include <QMenu>
 #include <QMenuBar>
 #include <QSpinBox>
-#include <QStyle>
-#include <QToolTip>
+#include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
 

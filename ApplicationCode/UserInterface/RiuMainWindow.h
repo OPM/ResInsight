@@ -29,24 +29,17 @@
 #include <QMdiArea>
 
 #include <memory>
+#include <vector>
 
 class QActionGroup;
-class QComboBox;
-class QFrame;
-class QItemSelection;
-class QLabel;
-class QLineEdit;
 class QMdiSubWindow;
 class QSpinBox;
-class QTreeView;
 class QUndoView;
 
 class RimCase;
-class RimEclipseCase;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
-class RiuWellLogPlot;
 class RiuResultQwtPlot;
 struct RimMdiWindowGeometry;
 
@@ -54,10 +47,8 @@ namespace caf
 {
     class PdmUiTreeView;
     class AnimationToolBar;
-    class FrameAnimationControl;
-    class PdmObject;
+     class PdmObject;
     class PdmUiPropertyView;
-    class UiPropertyCreatorPdm;
     class PdmUiItem;
 }
 
