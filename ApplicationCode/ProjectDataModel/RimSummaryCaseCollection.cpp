@@ -23,6 +23,7 @@
 #include "RimGridSummaryCase.h"
 #include "RifEclipseSummaryTools.h"
 #include <QDir>
+#include "RimFileSummaryCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection,"SummaryCaseCollection");
@@ -121,7 +122,7 @@ void RimSummaryCaseCollection::loadAllSummaryCaseData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGridSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase)
+RimSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase)
 {
     QString gridFileName = eclResCase->gridFileName();
     if(RifEclipseSummaryTools::hasSummaryFiles(QDir::toNativeSeparators(gridFileName).toStdString()))
@@ -133,6 +134,20 @@ RimGridSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipse
         return newSumCase;
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromFileName(const QString& fileName)
+{
+    RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+
+    this->m_cases.push_back(newSumCase);
+    newSumCase->setSummaryHeaderFilename(fileName);
+    newSumCase->updateOptionSensitivity();
+
+    return newSumCase;
 }
 
 //--------------------------------------------------------------------------------------------------

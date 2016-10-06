@@ -51,6 +51,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.h
 ${CEE_CURRENT_LIST_DIR}RicAddOpmInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
@@ -104,6 +105,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicAddOpmInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
 
 
 # General delete of any object in a child array field

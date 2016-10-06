@@ -21,7 +21,6 @@
 #include "cafPdmObject.h"
 
 class RimSummaryCase;
-class RimGridSummaryCase;
 class RimEclipseResultCase;
 
 class RimSummaryCaseCollection : public caf::PdmObject
@@ -35,7 +34,8 @@ public:
     size_t              summaryCaseCount();
 
     void                createSummaryCasesFromRelevantEclipseResultCases();
-    RimGridSummaryCase* createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
+    RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
+    RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);
 
     void                loadAllSummaryCaseData();
 

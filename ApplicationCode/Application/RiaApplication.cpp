@@ -47,11 +47,11 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -68,7 +68,6 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimFormationNamesCollection.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -79,6 +78,7 @@
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 
+#include "RicImportSummaryCaseFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include "cafFixedAtlasFont.h"
@@ -842,7 +842,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
         if(sumCaseColl)
         {
-            RimGridSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
+            RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
             if (newSumCase)
             {
                 newSumCase->loadCase();
@@ -1863,6 +1863,15 @@ bool RiaApplication::openFile(const QString& fileName)
     else if (fileName.contains(".odb", Qt::CaseInsensitive))
     {
         loadingSucceded = openOdbCaseFromFile(fileName);
+    }
+    else if (fileName.contains(".smspec", Qt::CaseInsensitive))
+    {
+        loadingSucceded = RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(fileName);
+        if (loadingSucceded)
+        {
+            getOrCreateAndShowMainPlotWindow();
+            m_project->updateConnectedEditors();
+        }
     }
 
     return loadingSucceded;

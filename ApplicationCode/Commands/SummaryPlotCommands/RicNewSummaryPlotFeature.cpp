@@ -109,7 +109,6 @@ void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* su
 
     summaryPlotColl->updateConnectedEditors();
     plot->loadDataAndUpdate();
-    
 
     if (RiaApplication::instance()->mainPlotWindow())
     {
