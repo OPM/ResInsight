@@ -23,6 +23,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryYAxisProperties.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSelectionColors.h"
@@ -58,6 +59,20 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitField(&m_visibleWindow, "VisibleWindow", std::vector<float>(), "Visible Display Window", "", "", "");
     m_visibleWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
+    m_leftYAxisProperties.uiCapability()->setUiHidden(true);
+
+    m_leftYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
+    m_leftYAxisPropertiesObject->setName("Left Y-Axis");
+    m_leftYAxisProperties = m_leftYAxisPropertiesObject.get();
+
+    CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
+    m_rightYAxisProperties.uiCapability()->setUiHidden(true);
+
+    m_rightYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
+    m_rightYAxisPropertiesObject->setName("Right Y-Axis");
+    m_rightYAxisProperties = m_rightYAxisPropertiesObject.get();
 }
 
 //--------------------------------------------------------------------------------------------------

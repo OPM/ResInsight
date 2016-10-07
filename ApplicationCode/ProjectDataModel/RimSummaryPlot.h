@@ -23,14 +23,19 @@
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+
+#include "RimViewWindow.h"
 
 #include <QPointer>
 
-#include "RimViewWindow.h"
+#include <memory>
 
 class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
+class RimSummaryYAxisProperties;
+
 class QwtPlotCurve;
 
 //==================================================================================================
@@ -85,5 +90,11 @@ private:
     caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
     caf::PdmField<std::vector<float> >              m_visibleWindow;
 
+    caf::PdmChildField<RimSummaryYAxisProperties*>  m_leftYAxisProperties;
+    caf::PdmChildField<RimSummaryYAxisProperties*>  m_rightYAxisProperties;
+
     QPointer<RiuSummaryQwtPlot>                     m_qwtPlot;
+
+    std::unique_ptr<RimSummaryYAxisProperties>      m_leftYAxisPropertiesObject;
+    std::unique_ptr<RimSummaryYAxisProperties>      m_rightYAxisPropertiesObject;
 };
