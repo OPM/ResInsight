@@ -45,10 +45,30 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
     for(const std::pair<RimSummaryCase*, RifEclipseSummaryAddress>& curveDef : curveDefinitions)
     {
         if(curveDef.first)                           m_caseToAppearanceIdxMap[curveDef.first]                  = -1;
-        if(!curveDef.second.quantityName().empty())  m_varToAppearanceIdxMap[curveDef.second.quantityName()]  = -1;
         if(!curveDef.second.wellName().empty())      m_welToAppearanceIdxMap[curveDef.second.wellName()]      = -1;
         if(!curveDef.second.wellGroupName().empty()) m_grpToAppearanceIdxMap[curveDef.second.wellGroupName()] = -1;
         if(!(curveDef.second.regionNumber() == -1))  m_regToAppearanceIdxMap[curveDef.second.regionNumber()]  = -1;
+
+        if(!curveDef.second.quantityName().empty())
+        {
+            std::string varname = curveDef.second.quantityName();
+            m_varToAppearanceIdxMap[varname]  = -1;
+
+            // Indexes for sub color ranges
+            char secondChar = 0;
+            if(varname.size() > 1)
+            { 
+                secondChar = varname[1];
+                if (   secondChar != 'W' 
+                    && secondChar != 'O'
+                    && secondChar != 'G'
+                    && secondChar != 'V')
+                 { 
+                     secondChar = 0; // Consider all others as one group for coloring
+                 } 
+            }
+            m_secondCharToVarToAppearanceIdxMap[secondChar][varname] = -1;
+        }
     }
 
     m_caseCount     = m_caseToAppearanceIdxMap.size();
@@ -57,7 +77,8 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
     m_groupCount    = m_grpToAppearanceIdxMap .size();
     m_regionCount   = m_regToAppearanceIdxMap .size();
 
-    // Select the appearance type for each data "dimension"
+    // Select the default appearance type for each data "dimension"
+
     m_caseAppearanceType   = NONE;
     m_varAppearanceType    = NONE;
     m_wellAppearanceType   = NONE;
@@ -78,12 +99,18 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
     if(m_groupCount    > 1) { m_groupAppearanceType  = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
     if(m_regionCount   > 1) { m_regionAppearanceType = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
 
+    if (m_dimensionCount == 0) m_varAppearanceType = COLOR; // basically one curve
+    
     // Assign increasing indexes             
     { int idx = 0; for(auto& pair : m_caseToAppearanceIdxMap) pair.second = idx++; }
     { int idx = 0; for(auto& pair : m_varToAppearanceIdxMap) pair.second = idx++; }
     { int idx = 0; for(auto& pair : m_welToAppearanceIdxMap) pair.second = idx++; }
     { int idx = 0; for(auto& pair : m_grpToAppearanceIdxMap) pair.second = idx++; }
     { int idx = 0; for(auto& pair : m_regToAppearanceIdxMap) pair.second = idx++; }
+
+    for (auto& charMapPair : m_secondCharToVarToAppearanceIdxMap)
+      { int idx = 0; for(auto& pair : charMapPair.second) pair.second = idx++; }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,13 +122,14 @@ void RimSummaryCurveAppearanceCalculator::assignDimensions(  CurveAppearanceType
                                                 CurveAppearanceType gropAppearance, 
                                                 CurveAppearanceType regiAppearance)
 {
-    m_dimensionCount = 0;
     m_caseAppearanceType   = caseAppearance;
     m_varAppearanceType    = variAppearance;
     m_wellAppearanceType   = wellAppearance;
     m_groupAppearanceType  = gropAppearance;
     m_regionAppearanceType = regiAppearance;
 
+    // Update the dimensionCount
+    m_dimensionCount = 0;
     if(m_caseAppearanceType   != NONE) ++m_dimensionCount;
     if(m_varAppearanceType    != NONE) ++m_dimensionCount;
     if(m_wellAppearanceType   != NONE) ++m_dimensionCount;
@@ -139,12 +167,55 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     int grpAppearanceIdx = m_grpToAppearanceIdxMap[curve->summaryAddress().wellGroupName()];
     int regAppearanceIdx = m_regToAppearanceIdxMap[curve->summaryAddress().regionNumber()];
 
+    // Remove index for curves without value at the specific dimension
+    if(curve->summaryAddress().wellName().empty())  welAppearanceIdx = -1;
+    if(curve->summaryAddress().wellGroupName().empty())  grpAppearanceIdx = -1;
+    if(curve->summaryAddress().regionNumber() < 0)  regAppearanceIdx = -1;
+
     setOneCurveAppearance(m_caseAppearanceType,   m_caseCount,     caseAppearanceIdx, curve);
-    setOneCurveAppearance(m_varAppearanceType,    m_variableCount, varAppearanceIdx,  curve);
     setOneCurveAppearance(m_wellAppearanceType,   m_wellCount,     welAppearanceIdx,  curve);
     setOneCurveAppearance(m_groupAppearanceType,  m_groupCount,    grpAppearanceIdx,  curve);
     setOneCurveAppearance(m_regionAppearanceType, m_regionCount,   regAppearanceIdx,  curve);
 
+    if (m_varAppearanceType == COLOR && m_secondCharToVarToAppearanceIdxMap.size() > 1)
+    { 
+        int subColorIndex = -1;
+        char secondChar = 0;
+        std::string varname = curve->summaryAddress().quantityName();
+        if (varname.size() > 1) secondChar = varname[1];
+
+        subColorIndex = m_secondCharToVarToAppearanceIdxMap[secondChar][varname];
+        
+        if (secondChar == 'W')
+        {
+            // Pick blue
+            m_currentCurveBaseColor = cycledBlueColor(subColorIndex);
+        }
+        else if (secondChar == 'O')
+        {
+            // Pick Green
+            m_currentCurveBaseColor = cycledGreenColor(subColorIndex);
+        }
+        else if (secondChar == 'G')
+        {
+            // Pick Red
+            m_currentCurveBaseColor = cycledRedColor(subColorIndex);
+        }
+        else if(secondChar == 'V')
+        {
+            // Pick Brown
+            m_currentCurveBaseColor = cycledBrownColor(subColorIndex);
+        }
+        else
+        {
+            m_currentCurveBaseColor = cycledNoneRGBBrColor(subColorIndex);
+        }
+    }
+    else
+    {
+        setOneCurveAppearance(m_varAppearanceType, m_variableCount, varAppearanceIdx, curve);
+    }
+    
     curve->setColor(gradeColor(m_currentCurveBaseColor, m_currentCurveGradient));
 }
 
@@ -180,25 +251,148 @@ void RimSummaryCurveAppearanceCalculator::setOneCurveAppearance(CurveAppearanceT
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor(int colorIndex)
 {
-    static const int RI_LOGPLOT_CURVECOLORSCOUNT = 11;
-    static const cvf::ubyte RI_LOGPLOT_CURVECOLORS[][3] =
+    if (colorIndex < 0) return cvf::Color3f::BLACK;
+
+    static const int colorCount = 15;
+    static const cvf::ubyte colorData[][3] =
     {
-      { 202,   0,   0 },
-      { 236, 118,   0 },
-      { 236, 188,   0 },
-      { 164, 193,   0 },
-      { 78,  204,   0 },
-      { 0,   205,  68 },
-      { 0,   221, 221 },
-      { 0,   143, 239 },
-      { 56,   56, 255 },
-      { 169,   2, 240 },
-      { 248,   0, 170 }
+      {  0,  112, 136 }, // Dark Green-Blue
+      { 202,   0,   0 }, // Red
+      { 78,  204,   0 }, // Clear Green
+      { 236, 118,   0 }, // Orange
+      {  0 ,   0,   0 }, // Black
+      { 56,   56, 255 }, // Vivid Blue
+      { 248,   0, 170 }, // Magenta
+      { 169,   2, 240 }, // Purple
+      { 0,   221, 221 }, // Turquoise
+      { 201, 168, 206 }, // Light Violet
+      { 0,   205,  68 }, // Bluish Green
+      { 236, 188,   0 }, // Mid Yellow
+      { 51,  204, 255 },  // Bluer Turquoise
+      { 164, 193,   0 }, // Mid Yellowish Green
+      { 0,   143, 239 }, // Dark Light Blue
     };
 
-    int paletteIdx = colorIndex % RI_LOGPLOT_CURVECOLORSCOUNT;
+    int paletteIdx = colorIndex % colorCount;
 
-    cvf::Color3ub ubColor(RI_LOGPLOT_CURVECOLORS[paletteIdx][0], RI_LOGPLOT_CURVECOLORS[paletteIdx][1], RI_LOGPLOT_CURVECOLORS[paletteIdx][2]);
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
+    cvf::Color3f cvfColor(ubColor);
+    return cvfColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(int colorIndex)
+{
+    if(colorIndex < 0) return cvf::Color3f::BLACK;
+
+    static const int colorCount = 7;
+    static const cvf::ubyte colorData[][3] =
+    {
+        { 236, 118,   0 }, // Orange
+        {  0 ,   0,   0 }, // Black
+        { 248,   0, 170 }, // Magenta
+        { 236, 188,   0 }, // Mid Yellow
+        { 169,   2, 240 }, // Purple
+        { 0,   221, 221 }, // Turquoise
+        { 201, 168, 206 }, // Light Violet
+    };
+
+    int paletteIdx = colorIndex % colorCount;
+
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
+    cvf::Color3f cvfColor(ubColor);
+    return cvfColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledGreenColor(int colorIndex)
+{
+    if(colorIndex < 0) return cvf::Color3f::BLACK;
+
+    static const int colorCount = 3;
+    static const cvf::ubyte colorData[][3] =
+    {
+        { 78,  204,   0 }, // Clear Green 
+        { 164, 193,   0 }, // Mid Yellowish Green
+        { 0,   205,  68 }  // Bluish Green
+    };
+
+    int paletteIdx = colorIndex % colorCount;
+
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
+    cvf::Color3f cvfColor(ubColor);
+    return cvfColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBlueColor(int colorIndex)
+{
+    if(colorIndex < 0) return cvf::Color3f::BLACK;
+
+    static const int colorCount = 3;
+    static const cvf::ubyte colorData[][3] =
+    {
+        { 56,   56, 255 },  // Vivid Blue
+        { 0,   143, 239 }, // Dark Light Blue
+        { 153, 153, 255 }, // Off Light Blue
+    };
+
+    int paletteIdx = colorIndex % colorCount;
+
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
+    cvf::Color3f cvfColor(ubColor);
+    return cvfColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledRedColor(int colorIndex)
+{
+    if(colorIndex < 0) return cvf::Color3f::BLACK;
+
+    static const int colorCount = 3;
+    static const cvf::ubyte colorData[][3] =
+    {
+        { 202,   0,   0 }, // Off Red
+        { 255,  51,  51},  // Bright Red
+        { 255, 102, 102 }  // Light Red
+    };
+
+    int paletteIdx = colorIndex % colorCount;
+
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
+    cvf::Color3f cvfColor(ubColor);
+    return cvfColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor(int colorIndex)
+{
+    if(colorIndex < 0) return cvf::Color3f::BLACK;
+
+    static const int colorCount = 3;
+    static const cvf::ubyte colorData[][3] =
+    {
+        {186, 101, 44},
+        { 99, 53, 23 }, // Highway Brown
+        { 103, 56, 24}  // Dark Brown
+    };
+
+    int paletteIdx = colorIndex % colorCount;
+
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
     cvf::Color3f cvfColor(ubColor);
     return cvfColor;
 }
@@ -208,6 +402,8 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor(int colorIn
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle(int index)
 {
+    if (index < 0) return RimPlotCurve::STYLE_SOLID;
+
     return caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1)));
 }
 
@@ -216,6 +412,8 @@ RimPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(int index)
 {
+    if (index < 0) return RimPlotCurve::SYMBOL_NONE;
+
     return caf::AppEnum<RimPlotCurve::PointSymbolEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1)));
 }
 
@@ -227,6 +425,7 @@ int RimSummaryCurveAppearanceCalculator::cycledLineThickness(int index)
     static const int thicknessCount = 3;
     static const int thicknesses[] ={ 1, 3, 5 };
 
+    if (index < 0) return 1;
     return (thicknesses[(index) % 3]);
 }
 
@@ -235,7 +434,7 @@ int RimSummaryCurveAppearanceCalculator::cycledLineThickness(int index)
 //--------------------------------------------------------------------------------------------------
 float RimSummaryCurveAppearanceCalculator::gradient(size_t totalCount, int index)
 {
-    if(totalCount == 1) return 0.0f;
+    if(totalCount == 1 || index < 0) return 0.0f;
 
     const float darkLimit = -0.45f;
     const float lightLimit = 0.7f;

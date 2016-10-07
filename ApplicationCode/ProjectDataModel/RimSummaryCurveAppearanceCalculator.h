@@ -58,6 +58,12 @@ private:
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);
 
     cvf::Color3f                   cycledPaletteColor(int colorIndex);
+    cvf::Color3f                   cycledNoneRGBBrColor(int colorIndex);
+    cvf::Color3f                   cycledGreenColor(int colorIndex);
+    cvf::Color3f                   cycledBlueColor(int colorIndex);
+    cvf::Color3f                   cycledRedColor(int colorIndex);
+    cvf::Color3f                   cycledBrownColor(int colorIndex);
+
     RimPlotCurve::LineStyleEnum    cycledLineStyle(int index);
     RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);
     int                            cycledLineThickness(int index);
@@ -86,6 +92,8 @@ private:
     std::map<std::string    , int> m_welToAppearanceIdxMap;
     std::map<std::string    , int> m_grpToAppearanceIdxMap;
     std::map<int            , int> m_regToAppearanceIdxMap;
+
+    std::map<char, std::map< std::string, int> > m_secondCharToVarToAppearanceIdxMap;
 
 };
 
