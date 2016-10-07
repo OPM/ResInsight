@@ -36,6 +36,48 @@
 #include <QRectF>
 
 #include "qwt_plot_renderer.h"
+#include "qwt_scale_draw.h"
+#include "qwt_scale_engine.h"
+
+
+//--------------------------------------------------------------------------------------------------
+// e	format as [-]9.9e[+|-]999
+// E	format as[-]9.9E[+| -]999
+// f	format as[-]9.9
+// g	use e or f format, whichever is the most concise
+// G	use E or f format, whichever is the most concise
+
+//--------------------------------------------------------------------------------------------------
+class DecimalScaleDraw : public QwtScaleDraw
+{
+public:
+    virtual QwtText label(double value) const override
+    {
+        if (qFuzzyCompare(value + 1.0, 1.0))
+            value = 0.0;
+
+        return QString::number(value, 'f', 3);
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class ScientificScaleDraw : public QwtScaleDraw
+{
+
+public:
+    virtual QwtText label(double value) const override
+    {
+        if (qFuzzyCompare(value + 1.0, 1.0))
+            value = 0.0;
+
+        return QString::number(value, 'e', 3);
+    }
+};
+
+
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -103,6 +145,118 @@ void RimSummaryPlot::deletePlotWidget()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateLeftAndRightYAxis()
+{
+    updateLeftYAxis();
+    updateRightYAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateLeftYAxis()
+{
+    if (!m_qwtPlot) return;
+
+    {
+        QString axisTitle = m_leftYAxisPropertiesObject->customTitle;
+        if (m_leftYAxisPropertiesObject->isAutoTitle) axisTitle = autoAxisTitle();
+    
+        QwtText axisTitleY = m_qwtPlot->axisTitle(QwtPlot::yLeft);
+
+        QFont axisTitleYFont = axisTitleY.font();
+        axisTitleYFont.setBold(true);
+        axisTitleYFont.setPixelSize(m_leftYAxisPropertiesObject->fontSize);
+        axisTitleY.setFont(axisTitleYFont);
+
+        axisTitleY.setText(axisTitle);
+        m_qwtPlot->setAxisTitle(QwtPlot::yLeft, axisTitleY);
+    }
+
+    {
+        QFont yAxisFont = m_qwtPlot->axisFont(QwtPlot::yLeft);
+        yAxisFont.setBold(false);
+        yAxisFont.setPixelSize(m_leftYAxisPropertiesObject->fontSize);
+        m_qwtPlot->setAxisFont(QwtPlot::yLeft, yAxisFont);
+    }
+
+    {
+        if (m_leftYAxisPropertiesObject->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO)
+        {
+            m_qwtPlot->setAxisScaleDraw(QwtPlot::yLeft, new QwtScaleDraw);
+        }
+        else if (m_leftYAxisPropertiesObject->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_DECIMAL)
+        {
+            m_qwtPlot->setAxisScaleDraw(QwtPlot::yLeft, new DecimalScaleDraw);
+        }
+        else if (m_leftYAxisPropertiesObject->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
+        {
+            m_qwtPlot->setAxisScaleDraw(QwtPlot::yLeft, new ScientificScaleDraw());
+        }
+    }
+
+    {
+        if (m_leftYAxisPropertiesObject->isLogarithmicScaleEnabled)
+        {
+            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(m_qwtPlot->axisScaleEngine(QwtPlot::yLeft));
+            if (!currentScaleEngine)
+            {
+                m_qwtPlot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine);
+
+                m_qwtPlot->replot();
+            }
+        }
+        else
+        {
+            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(m_qwtPlot->axisScaleEngine(QwtPlot::yLeft));
+            if (!currentScaleEngine)
+            {
+                m_qwtPlot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
+
+                m_qwtPlot->replot();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateRightYAxis()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlot::autoAxisTitle()
+{
+    std::set<std::string> unitNames;
+
+    for (RimSummaryCurve* rimCurve : m_curves)
+    {
+        if (rimCurve->isCurveVisible()) unitNames.insert(rimCurve->unitName());
+    }
+
+    for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
+    {
+        std::set<std::string> filterUnitNames = curveFilter->unitNames();
+        unitNames.insert(filterUnitNames.begin(), filterUnitNames.end());
+    }
+
+    QString assembledYAxisText;
+
+    for (const std::string& unitName : unitNames)
+    {
+        assembledYAxisText += "[" + QString::fromStdString(unitName) + "] ";
+    }
+
+    return assembledYAxisText;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -125,6 +279,9 @@ void RimSummaryPlot::handleViewerDeletion()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateYAxisUnit()
 {
+    updateLeftAndRightYAxis();
+
+/*
     if (!m_qwtPlot) return;
 
     std::set<std::string> unitNames;
@@ -148,6 +305,7 @@ void RimSummaryPlot::updateYAxisUnit()
     }
 
     m_qwtPlot->setYAxisTitle(assembledYAxisText);
+*/
 }
 
 //--------------------------------------------------------------------------------------------------

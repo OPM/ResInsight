@@ -58,7 +58,6 @@ public:
     
     void                                            loadDataAndUpdate();
 
-
     void                                            handleViewerDeletion();
     void                                            updateYAxisUnit();
     void                                            updateCaseNameHasChanged();
@@ -68,6 +67,8 @@ public:
     void                                            setZoomWindow(const QRectF& zoomWindow);
     virtual void                                    zoomAll() override;
     void                                            updateZoomInQwt();
+
+    void                                            updateLeftAndRightYAxis();
 
 protected:
     // Overridden PDM methods
@@ -83,6 +84,10 @@ private:
     void                                            updateViewerWidgetWindowTitle();
     void                                            detachAllCurves();
     void                                            deletePlotWidget();
+    
+    void                                            updateLeftYAxis();
+    void                                            updateRightYAxis();
+    QString                                         autoAxisTitle();
 
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;

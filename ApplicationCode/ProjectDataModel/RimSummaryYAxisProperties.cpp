@@ -18,8 +18,7 @@
 
 #include "RimSummaryYAxisProperties.h"
 
-
-CAF_PDM_SOURCE_INIT(RimSummaryYAxisProperties, "SummaryYAxisProperties");
+#include "RimSummaryPlot.h"
 
 
 namespace caf
@@ -35,6 +34,7 @@ namespace caf
     }
 }
 
+CAF_PDM_SOURCE_INIT(RimSummaryYAxisProperties, "SummaryYAxisProperties");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -114,6 +114,10 @@ void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         updateOptionSensitivity();
     }
+
+    RimSummaryPlot* rimSummaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(rimSummaryPlot);
+    rimSummaryPlot->updateLeftAndRightYAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
