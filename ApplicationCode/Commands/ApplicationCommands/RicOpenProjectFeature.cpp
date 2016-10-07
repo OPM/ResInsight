@@ -62,5 +62,5 @@ void RicOpenProjectFeature::onActionTriggered(bool isChecked)
 void RicOpenProjectFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Open Project");
-    actionToSetup->setIcon(QApplication::style()->standardIcon(QStyle::SP_DirOpenIcon));
+    actionToSetup->setIcon(QIcon(":/openFolder24x24.png"));
 }

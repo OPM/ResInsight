@@ -71,6 +71,8 @@
       <file>PlotWindow24x24.png</file>
       <file>3DWindow24x24.png</file>
       <file>3DView16x16.png</file>
+      <file>SummaryCase48x48.png</file>
+      <file>openFolder24x24.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
