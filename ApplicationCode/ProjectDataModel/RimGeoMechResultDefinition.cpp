@@ -82,7 +82,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_resultVariableUiField.xmlCapability()->setIOWritable(false);
     m_resultVariableUiField.xmlCapability()->setIOReadable(false);
 
-    CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Type", "", "", "");
+    CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Relative Result", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
     m_isTimeLapseResultUiField.xmlCapability()->setIOWritable(false);
     m_isTimeLapseResultUiField.xmlCapability()->setIOReadable(false);
 
@@ -110,11 +110,13 @@ RimGeoMechResultDefinition::~RimGeoMechResultDefinition(void)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_isTimeLapseResultUiField);
-    if (m_isTimeLapseResultUiField())
-        uiOrdering.add(&m_timeLapseBaseTimestepUiField);
     uiOrdering.add(&m_resultPositionTypeUiField);
     uiOrdering.add(&m_resultVariableUiField);
+
+    caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Relative Result Options");
+    timeLapseGr->add(&m_isTimeLapseResultUiField);
+    if (m_isTimeLapseResultUiField())
+        timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
 
     uiOrdering.setForgetRemainingFields(true);
 }
@@ -143,8 +145,8 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
         }
         else if (&m_isTimeLapseResultUiField == fieldNeedingOptions)
         {
-            options.push_back(caf::PdmOptionItemInfo("Absolute", false));
-            options.push_back(caf::PdmOptionItemInfo("Time Lapse", true));
+            //options.push_back(caf::PdmOptionItemInfo("Absolute", false));
+            //options.push_back(caf::PdmOptionItemInfo("Time Lapse", true));
         }
         else if (&m_timeLapseBaseTimestepUiField == fieldNeedingOptions)
         {
@@ -189,6 +191,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, m_isTimeLapseResultUiField, m_timeLapseBaseTimestepUiField);
 
         if (m_resultPositionTypeUiField() == m_resultPositionType()
+            && m_isTimeLapseResultUiField() == m_isTimeLapseResult()
+            && m_timeLapseBaseTimestepUiField() == m_timeLapseBaseTimestep()
             && varNames.contains(composeFieldCompString(m_resultFieldName(), m_resultComponentName())))
         {
             m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
