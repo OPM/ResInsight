@@ -83,12 +83,18 @@ private:
     std::map<std::string, std::vector<std::string> >  getResultMetaDataForUIFieldSetting();
     static void                                       getUiAndResultVariableStringList(QStringList* uiNames, 
                                                                                        QStringList* variableNames, 
-                                                                                       const std::map<std::string, std::vector<std::string> >& fieldCompNames);
+                                                                                       const std::map<std::string, std::vector<std::string> >& fieldCompNames, 
+                                                                                       bool isTimeLapseResultList, 
+                                                                                       int baseFrameIdx);
     static QString                                    composeFieldCompString(const QString& resultFieldName, 
                                                                              const QString& resultComponentName);
 
-    static QString                                    convertToUiResultFieldName(QString resultFieldName);
-    static QString                                    convertToUIComponentName(QString resultComponentName);
+    static QString                                    convertToUiResultFieldName(QString resultFieldName,
+                                                                                 bool isTimeLapseResultList,
+                                                                                 int baseFrameIdx);
+    static QString                                    convertToUIComponentName(QString resultComponentName,
+                                                                               bool isTimeLapseResultList,
+                                                                               int baseFrameIdx);
 
     // Data Fields
 
