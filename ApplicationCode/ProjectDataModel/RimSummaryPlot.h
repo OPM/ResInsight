@@ -36,6 +36,7 @@ class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
 class RimSummaryYAxisProperties;
+class PdmUiTreeOrdering;
 
 class QwtPlotCurve;
 
@@ -76,8 +77,11 @@ protected:
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    setupBeforeSave() override;
+    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual QImage                                  snapshotWindowContent() override;
+
+
 
 private:
     void                                            updateViewerWidget();

@@ -143,7 +143,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitObject("Summary Curve", ":/SummaryCurve16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
-    m_summaryCase.uiCapability()->setUiChildrenHidden(true);
+    m_summaryCase.uiCapability()->setUiTreeChildrenHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
@@ -153,7 +153,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
     m_summaryFilter.xmlCapability()->setIOWritable(false);
     m_summaryFilter.xmlCapability()->setIOReadable(false);
-    m_summaryFilter.uiCapability()->setUiChildrenHidden(true);
+    m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
     m_summaryFilter = new RimSummaryFilter();
@@ -168,7 +168,7 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_curveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
     m_curveVariable.uiCapability()->setUiHidden(true);
-    m_curveVariable.uiCapability()->setUiChildrenHidden(true);
+    m_curveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 

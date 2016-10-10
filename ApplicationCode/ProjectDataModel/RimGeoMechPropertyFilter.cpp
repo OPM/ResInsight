@@ -51,7 +51,7 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
     resultDefinition.uiCapability()->setUiHidden(true);
-    resultDefinition.uiCapability()->setUiChildrenHidden(true);
+    resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
     lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());

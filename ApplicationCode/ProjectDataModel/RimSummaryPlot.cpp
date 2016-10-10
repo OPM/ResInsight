@@ -38,6 +38,7 @@
 
 #include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
+#include "cafPdmUiTreeOrdering.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -54,23 +55,23 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
-    m_curveFilters.uiCapability()->setUiHidden(true);
+    m_curveFilters.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_curves, "SummaryCurves", "",  "", "", "");
-    m_curves.uiCapability()->setUiHidden(true);
+    m_curves.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitField(&m_visibleWindow, "VisibleWindow", std::vector<float>(), "Visible Display Window", "", "", "");
     m_visibleWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
-    m_leftYAxisProperties.uiCapability()->setUiHidden(true);
+    m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
 
     m_leftYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
     m_leftYAxisPropertiesObject->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
     m_leftYAxisProperties = m_leftYAxisPropertiesObject.get();
 
     CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
-    m_rightYAxisProperties.uiCapability()->setUiHidden(true);
+    m_rightYAxisProperties.uiCapability()->setUiTreeHidden(true);
 
     m_rightYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
     m_rightYAxisPropertiesObject->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
@@ -333,6 +334,17 @@ QImage RimSummaryPlot::snapshotWindowContent()
     }
 
     return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(&m_leftYAxisProperties);
+    uiTreeOrdering.add(&m_rightYAxisProperties);
+    uiTreeOrdering.add(&m_curveFilters);
+    uiTreeOrdering.add(&m_curves);
 }
 
 //--------------------------------------------------------------------------------------------------

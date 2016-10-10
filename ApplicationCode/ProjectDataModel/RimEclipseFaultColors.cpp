@@ -150,7 +150,7 @@ bool RimEclipseFaultColors::hasValidCustomResult()
 void RimEclipseFaultColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     if (m_customFaultResultColors()->ternaryLegendConfig()
-        && !m_customFaultResultColors()->ternaryLegendConfig.uiCapability()->isUiChildrenHidden(uiConfigName))
+        && !m_customFaultResultColors()->ternaryLegendConfig.uiCapability()->isUiTreeChildrenHidden(uiConfigName))
     {
         uiTreeOrdering.add(m_customFaultResultColors()->ternaryLegendConfig());
     }

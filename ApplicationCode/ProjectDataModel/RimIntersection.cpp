@@ -92,7 +92,7 @@ RimIntersection::RimIntersection()
 
     inputFromViewerEnabled = false;
 
-    uiCapability()->setUiChildrenHidden(true);
+    uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

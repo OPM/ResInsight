@@ -70,7 +70,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
     resultDefinition.uiCapability()->setUiHidden(true);
-    resultDefinition.uiCapability()->setUiChildrenHidden(true);
+    resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_lowerBound, "LowerBound", 0.0, "Min", "", "", "");
     m_lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());

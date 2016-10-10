@@ -66,7 +66,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitObject("Curve Filter", ":/SummaryCurveFilter16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCases, "SummaryCases", "Cases", "", "", "");
-    m_selectedSummaryCases.uiCapability()->setUiChildrenHidden(true);
+    m_selectedSummaryCases.uiCapability()->setUiTreeChildrenHidden(true);
     m_selectedSummaryCases.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue(false);
     m_selectedSummaryCases.xmlCapability()->setIOWritable(false);
@@ -80,7 +80,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedVariableDisplayField.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
-    m_summaryFilter.uiCapability()->setUiChildrenHidden(true);
+    m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
     m_summaryFilter = new RimSummaryFilter();
 
@@ -93,7 +93,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     
     CAF_PDM_InitFieldNoDefault(&m_curves, "FilteredCurves", "Filtered Curves", "", "", "");
     m_curves.uiCapability()->setUiHidden(true);
-    m_curves.uiCapability()->setUiChildrenHidden(false);
+    m_curves.uiCapability()->setUiTreeChildrenHidden(false);
 
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "Apply", "", "", "");
     m_applyButtonField.xmlCapability()->setIOWritable(false);
