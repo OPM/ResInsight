@@ -134,8 +134,7 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    group1->add(&(resultDefinition->m_resultPositionTypeUiField));
-    group1->add(&(resultDefinition->m_resultVariableUiField));
+    resultDefinition->defineUiOrdering(uiConfigName, *group1);
 
     uiOrdering.add(&isActive);
     uiOrdering.add(&filterMode);
@@ -171,6 +170,8 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
     // Include fields declared in RimResultDefinition
     objFields.push_back(&(resultDefinition->m_resultPositionTypeUiField));
     objFields.push_back(&(resultDefinition->m_resultVariableUiField));
+    objFields.push_back(&(resultDefinition->m_isTimeLapseResultUiField));
+    objFields.push_back(&(resultDefinition->m_timeLapseBaseTimestepUiField));
 
     for (size_t i = 0; i < objFields.size(); i++)
     {

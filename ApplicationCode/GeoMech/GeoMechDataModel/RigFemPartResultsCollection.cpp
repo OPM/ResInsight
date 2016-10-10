@@ -333,8 +333,45 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.isTimeLapse());
+
+    RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName);
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, resVarNative);
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    int frameCount = srcDataFrames->frameCount();
+    int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
+    if (baseFrameIdx >= frameCount) return dstDataFrames;
+    const std::vector<float>& baseFrameData = srcDataFrames->frameData(baseFrameIdx);
+
+    for(int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = srcFrameData.size();
+        dstFrameData.resize(valCount);
+    
+        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+        {
+            dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
+        }
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
+    if (resVarAddr.isTimeLapse())
+    {
+        return calculateTimeLapseResult(partIndex, resVarAddr);    
+    }
+
     if (resVarAddr.fieldName == "S-Bar")
     {
         return calculateBarConvertedResult(partIndex, resVarAddr, "S");

@@ -39,57 +39,76 @@ class RimGeoMechCase;
 class RimGeoMechResultDefinition : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
-
 public:
     RimGeoMechResultDefinition(void);
     virtual ~RimGeoMechResultDefinition(void);
 
-    void                       setGeoMechCase(RimGeoMechCase* geomCase);
+    void                                              setGeoMechCase(RimGeoMechCase* geomCase);
 
-    RigGeoMechCaseData*        ownerCaseData();
-    bool                       hasResult(); 
-    void                       loadResult();
+    RigGeoMechCaseData*                               ownerCaseData();
+    bool                                              hasResult(); 
+    void                                              loadResult();
 
-    RigFemResultAddress        resultAddress()       { return RigFemResultAddress(resultPositionType(), resultFieldName().toStdString(), resultComponentName().toStdString());}
+    RigFemResultAddress                               resultAddress();
 
-    RigFemResultPosEnum        resultPositionType()  { return m_resultPositionType();}
-    QString                    resultFieldName()     { return m_resultFieldName();}
-    QString                    resultComponentName() { return m_resultComponentName();}
-    void                       setResultAddress(const RigFemResultAddress& resultAddress);
+    RigFemResultPosEnum                               resultPositionType()  { return m_resultPositionType();}
+    QString                                           resultFieldName()     { return m_resultFieldName();}
+    QString                                           resultComponentName() { return m_resultComponentName();}
+    void                                              setResultAddress(const RigFemResultAddress& resultAddress);
 
-    QString                    resultFieldUiName();
-    QString                    resultComponentUiName();
+    QString                                           resultFieldUiName();
+    QString                                           resultComponentUiName();
 
-    bool                       hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
+    bool                                              hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
 protected:
-    virtual void               updateLegendCategorySettings() {};
+    virtual void                                      updateLegendCategorySettings() {};
+
+
 
 private:
-    virtual QList<caf::PdmOptionItemInfo>            calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                           bool * useOptionsOnly);
-    std::map<std::string, std::vector<std::string> > getResultMetaDataForUIFieldSetting();
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    static void getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
-                                                 const std::map<std::string, std::vector<std::string> >& fieldCompNames);
-    static QString     composeFieldCompString(const QString& resultFieldName, const QString& resultComponentName);
+    // Overridden PDM methods
 
-    virtual void initAfterRead();
+    virtual QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                            bool * useOptionsOnly);
+    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
+                                                                       const QVariant& oldValue, 
+                                                                       const QVariant& newValue);
+    virtual void                                      initAfterRead();
+
+    // Metadata and option build tools
+
+    std::map<std::string, std::vector<std::string> >  getResultMetaDataForUIFieldSetting();
+    static void                                       getUiAndResultVariableStringList(QStringList* uiNames, 
+                                                                                       QStringList* variableNames, 
+                                                                                       const std::map<std::string, std::vector<std::string> >& fieldCompNames);
+    static QString                                    composeFieldCompString(const QString& resultFieldName, 
+                                                                             const QString& resultComponentName);
+
+    static QString                                    convertToUiResultFieldName(QString resultFieldName);
+    static QString                                    convertToUIComponentName(QString resultComponentName);
+
+    // Data Fields
 
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionType;
-    caf::PdmField<QString>                           m_resultFieldName;
-    caf::PdmField<QString>                           m_resultComponentName;
+    caf::PdmField<QString>                            m_resultFieldName;
+    caf::PdmField<QString>                            m_resultComponentName;
+    caf::PdmField<bool>                               m_isTimeLapseResult;
+    caf::PdmField<int>                                m_timeLapseBaseTimestep;
 
-    friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
+    // UI Fields only
+
+    friend class RimGeoMechPropertyFilter;  // Property filter needs the ui fields
     friend class RimWellLogExtractionCurve; // Curve needs the ui fields
-    friend class RimGeoMechCellColors; // Needs the ui fields
+    friend class RimGeoMechCellColors;      // Needs the ui fields
  
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
-    caf::PdmField<QString>                           m_resultVariableUiField;
+    caf::PdmField<QString>                            m_resultVariableUiField;
+    caf::PdmField<bool>                               m_isTimeLapseResultUiField;
+    caf::PdmField<int>                                m_timeLapseBaseTimestepUiField;
 
-    caf::PdmPointer<RimGeoMechCase>                  m_geomCase;
 
-    static QString convertToUiResultFieldName(QString resultFieldName);
-    static QString convertToUIComponentName(QString resultComponentName);
+    caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
 };
