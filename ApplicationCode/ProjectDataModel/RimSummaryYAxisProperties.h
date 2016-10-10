@@ -24,6 +24,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
 
+#include "qwt_plot.h"
+
 #include <QString>
 
 //==================================================================================================
@@ -42,12 +44,11 @@ public:
         NUMBER_FORMAT_SCIENTIFIC
     };
 
-
-
 public:
     RimSummaryYAxisProperties();
 
-    void setName(const QString& name);
+    void setNameAndAxis(const QString& name, QwtPlot::Axis axis);
+    QwtPlot::Axis axis() const;
 
     caf::PdmField<bool>         isAutoTitle;
     caf::PdmField<QString>      customTitle;
@@ -57,7 +58,7 @@ public:
     caf::PdmField<double>       visibleRangeMin;
     caf::PdmField<double>       visibleRangeMax;
 
-    caf::PdmField< caf::AppEnum< NumberFormatType > >      numberFormat;
+    caf::PdmField< caf::AppEnum< NumberFormatType > > numberFormat;
 
     caf::PdmField<bool>         isLogarithmicScaleEnabled;
 
@@ -66,14 +67,12 @@ public:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 protected:
-    virtual void initAfterRead() override;
+    virtual void                            initAfterRead() override;
 
 private:
     void                                    updateOptionSensitivity();
 
 private:
     caf::PdmField<QString>      m_name;
-
-    static constexpr double m_minLogValueDefault = - 10.0;
-    static constexpr double m_maxLogValueDefault =  100.0;
+    QwtPlot::Axis               m_axis;
 };

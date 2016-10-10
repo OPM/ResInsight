@@ -25,19 +25,25 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmChildArrayField.h"
-
-#include "RimPlotCurve.h"
-#include "RifEclipseSummaryAddress.h"
 #include "cafAppEnum.h"
-
-#include "RimSummaryCurve.h"
-#include "RimSummaryFilter.h"
 #include "cafPdmPtrArrayField.h"
+
+#include "RifEclipseSummaryAddress.h"
+#include "RimDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-class RimSummaryCase;
+#include "qwt_plot.h"
+
+class QwtPlot;
+class QwtPlotCurve;
 class RifReaderEclipseSummary;
+class RimSummaryCase;
+class RimSummaryCurve;
+class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
+
+#include <QPointer>
+
 
 Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
 
@@ -48,6 +54,7 @@ Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
 class RimSummaryCurveFilter : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
@@ -63,6 +70,8 @@ public:
     std::set<std::string>                   unitNames();
 
     void                                    updateCaseNameHasChanged();
+
+    RimDefines::PlotAxis                    associatedPlotAxis() const;
 
 private:
     void                                    syncCurvesFromUiSelection();
@@ -90,6 +99,9 @@ private:
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
+    
+    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;

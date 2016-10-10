@@ -22,6 +22,7 @@
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryYAxisProperties.h"
 
@@ -35,49 +36,8 @@
 #include <QDateTime>
 #include <QRectF>
 
+#include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
-#include "qwt_scale_draw.h"
-#include "qwt_scale_engine.h"
-
-
-//--------------------------------------------------------------------------------------------------
-// e	format as [-]9.9e[+|-]999
-// E	format as[-]9.9E[+| -]999
-// f	format as[-]9.9
-// g	use e or f format, whichever is the most concise
-// G	use E or f format, whichever is the most concise
-
-//--------------------------------------------------------------------------------------------------
-class DecimalScaleDraw : public QwtScaleDraw
-{
-public:
-    virtual QwtText label(double value) const override
-    {
-        if (qFuzzyCompare(value + 1.0, 1.0))
-            value = 0.0;
-
-        return QString::number(value, 'f', 3);
-    }
-};
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class ScientificScaleDraw : public QwtScaleDraw
-{
-
-public:
-    virtual QwtText label(double value) const override
-    {
-        if (qFuzzyCompare(value + 1.0, 1.0))
-            value = 0.0;
-
-        return QString::number(value, 'e', 3);
-    }
-};
-
-
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -106,14 +66,14 @@ RimSummaryPlot::RimSummaryPlot()
     m_leftYAxisProperties.uiCapability()->setUiHidden(true);
 
     m_leftYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
-    m_leftYAxisPropertiesObject->setName("Left Y-Axis");
+    m_leftYAxisPropertiesObject->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
     m_leftYAxisProperties = m_leftYAxisPropertiesObject.get();
 
     CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
     m_rightYAxisProperties.uiCapability()->setUiHidden(true);
 
     m_rightYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
-    m_rightYAxisPropertiesObject->setName("Right Y-Axis");
+    m_rightYAxisPropertiesObject->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
     m_rightYAxisProperties = m_rightYAxisPropertiesObject.get();
 }
 
@@ -150,112 +110,65 @@ void RimSummaryPlot::deletePlotWidget()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateLeftAndRightYAxis()
 {
-    updateLeftYAxis();
-    updateRightYAxis();
+    updateAxis(RimDefines::PLOT_AXIS_LEFT);
+    updateAxis(RimDefines::PLOT_AXIS_RIGHT);
+
+    if (m_qwtPlot) m_qwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateLeftYAxis()
+void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
 
+    std::vector<RimSummaryCurve*> curvesForAxis;
+    std::vector<RimSummaryCurveFilter*> curveFiltersForAxis;
+
+    std::vector<RimSummaryCurve*> childCurves;
+    this->descendantsIncludingThisOfType(childCurves);
+
+    for (RimSummaryCurve* curve : childCurves)
     {
-        QString axisTitle = m_leftYAxisPropertiesObject->customTitle;
-        if (m_leftYAxisPropertiesObject->isAutoTitle) axisTitle = autoAxisTitle();
-    
-        QwtText axisTitleY = m_qwtPlot->axisTitle(QwtPlot::yLeft);
-
-        QFont axisTitleYFont = axisTitleY.font();
-        axisTitleYFont.setBold(true);
-        axisTitleYFont.setPixelSize(m_leftYAxisPropertiesObject->fontSize);
-        axisTitleY.setFont(axisTitleYFont);
-
-        axisTitleY.setText(axisTitle);
-        m_qwtPlot->setAxisTitle(QwtPlot::yLeft, axisTitleY);
-    }
-
-    {
-        QFont yAxisFont = m_qwtPlot->axisFont(QwtPlot::yLeft);
-        yAxisFont.setBold(false);
-        yAxisFont.setPixelSize(m_leftYAxisPropertiesObject->fontSize);
-        m_qwtPlot->setAxisFont(QwtPlot::yLeft, yAxisFont);
-    }
-
-    {
-        if (m_leftYAxisPropertiesObject->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO)
+        if (curve->associatedPlotAxis() == plotAxis)
         {
-            m_qwtPlot->setAxisScaleDraw(QwtPlot::yLeft, new QwtScaleDraw);
-        }
-        else if (m_leftYAxisPropertiesObject->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_DECIMAL)
-        {
-            m_qwtPlot->setAxisScaleDraw(QwtPlot::yLeft, new DecimalScaleDraw);
-        }
-        else if (m_leftYAxisPropertiesObject->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
-        {
-            m_qwtPlot->setAxisScaleDraw(QwtPlot::yLeft, new ScientificScaleDraw());
+            curvesForAxis.push_back(curve);
         }
     }
 
+    for (RimSummaryCurveFilter* cs : m_curveFilters)
     {
-        if (m_leftYAxisPropertiesObject->isLogarithmicScaleEnabled)
+        if (cs->associatedPlotAxis() == plotAxis)
         {
-            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(m_qwtPlot->axisScaleEngine(QwtPlot::yLeft));
-            if (!currentScaleEngine)
-            {
-                m_qwtPlot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine);
-
-                m_qwtPlot->replot();
-            }
-        }
-        else
-        {
-            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(m_qwtPlot->axisScaleEngine(QwtPlot::yLeft));
-            if (!currentScaleEngine)
-            {
-                m_qwtPlot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
-
-                m_qwtPlot->replot();
-            }
+            curveFiltersForAxis.push_back(cs);
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateRightYAxis()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::autoAxisTitle()
-{
-    std::set<std::string> unitNames;
-
-    for (RimSummaryCurve* rimCurve : m_curves)
+    QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
+    RimSummaryYAxisProperties* yAxisProperties = nullptr;
+    if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
     {
-        if (rimCurve->isCurveVisible()) unitNames.insert(rimCurve->unitName());
+        qwtAxis = QwtPlot::yLeft;
+        yAxisProperties = m_leftYAxisProperties();
+    }
+    else
+    {
+        qwtAxis = QwtPlot::yRight;
+        yAxisProperties = m_rightYAxisProperties();
     }
 
-    for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
+    if (curvesForAxis.size() > 0)
     {
-        std::set<std::string> filterUnitNames = curveFilter->unitNames();
-        unitNames.insert(filterUnitNames.begin(), filterUnitNames.end());
+        m_qwtPlot->enableAxis(qwtAxis, true);
+
+        RimSummaryCurvesCalculator calc(yAxisProperties, curvesForAxis, curveFiltersForAxis);
+        calc.applyPropertiesToPlot(m_qwtPlot);
     }
-
-    QString assembledYAxisText;
-
-    for (const std::string& unitName : unitNames)
+    else
     {
-        assembledYAxisText += "[" + QString::fromStdString(unitName) + "] ";
+        m_qwtPlot->enableAxis(qwtAxis, false);
     }
-
-    return assembledYAxisText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,40 +185,6 @@ void RimSummaryPlot::handleViewerDeletion()
 
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateYAxisUnit()
-{
-    updateLeftAndRightYAxis();
-
-/*
-    if (!m_qwtPlot) return;
-
-    std::set<std::string> unitNames;
-
-    for(RimSummaryCurve* rimCurve: m_curves)
-    {
-        if (rimCurve->isCurveVisible()) unitNames.insert(rimCurve->unitName());
-    }
-
-    for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
-    {
-        std::set<std::string> filterUnitNames = curveFilter->unitNames();
-        unitNames.insert(filterUnitNames.begin(), filterUnitNames.end());
-    }
-
-    QString assembledYAxisText;
-
-    for (const std::string& unitName : unitNames)
-    {
-        assembledYAxisText += "[" + QString::fromStdString(unitName) + "] ";
-    }
-
-    m_qwtPlot->setYAxisTitle(assembledYAxisText);
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,7 +211,6 @@ QWidget* RimSummaryPlot::viewer()
 {
     return m_qwtPlot;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -374,7 +252,7 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
         if (m_qwtPlot)
         {
             curve->setParentQwtPlot(m_qwtPlot);
-            this->updateYAxisUnit();
+            this->updateLeftAndRightYAxis();
         }
     }
 }
@@ -390,7 +268,7 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
         if(m_qwtPlot)
         {
             curveFilter->setParentQwtPlot(m_qwtPlot);
-            this->updateYAxisUnit();
+            this->updateLeftAndRightYAxis();
         }
     }
 }
@@ -474,7 +352,7 @@ void RimSummaryPlot::loadDataAndUpdate()
         curve->loadDataAndUpdate();
     }
  
-    this->updateYAxisUnit();
+    this->updateLeftAndRightYAxis();
 
     updateZoomInQwt();
 }

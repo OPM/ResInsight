@@ -25,6 +25,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 
+#include "RimDefines.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
@@ -59,7 +60,6 @@ public:
     void                                            loadDataAndUpdate();
 
     void                                            handleViewerDeletion();
-    void                                            updateYAxisUnit();
     void                                            updateCaseNameHasChanged();
 
     QWidget*                                        viewer();
@@ -85,9 +85,7 @@ private:
     void                                            detachAllCurves();
     void                                            deletePlotWidget();
     
-    void                                            updateLeftYAxis();
-    void                                            updateRightYAxis();
-    QString                                         autoAxisTitle();
+    void                                            updateAxis(RimDefines::PlotAxis plotAxis);
 
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;

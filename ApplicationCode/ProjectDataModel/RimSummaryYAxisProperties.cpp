@@ -19,6 +19,7 @@
 #include "RimSummaryYAxisProperties.h"
 
 #include "RimSummaryPlot.h"
+#include "RimDefines.h"
 
 
 namespace caf
@@ -35,6 +36,31 @@ namespace caf
 }
 
 CAF_PDM_SOURCE_INIT(RimSummaryYAxisProperties, "SummaryYAxisProperties");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryYAxisProperties::RimSummaryYAxisProperties()
+{
+    CAF_PDM_InitObject("Y-Axis Properties", ":/SummaryPlot16x16.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
+    m_name.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
+    CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
+
+    CAF_PDM_InitField(&isAutoScaleEnabled, "AutoScale", true, "Auto Scale", "", "", "");
+    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RimDefines::minimumDefaultValuePlot(), "Min", "", "", "");
+    CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RimDefines::maximumDefaultValuePlot(), "Max", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
+
+    CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
+
+    updateOptionSensitivity();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -74,34 +100,18 @@ QList<caf::PdmOptionItemInfo> RimSummaryYAxisProperties::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryYAxisProperties::RimSummaryYAxisProperties()
+void RimSummaryYAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
 {
-    CAF_PDM_InitObject("Y-Axis Properties", ":/SummaryPlot16x16.png", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
-    m_name.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
-    CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
-
-    CAF_PDM_InitField(&isAutoScaleEnabled, "AutoScale", true, "Auto Scale", "", "", "");
-    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", m_minLogValueDefault, "Min", "", "", "");
-    CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", m_maxLogValueDefault, "Max", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
-
-    CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
-
-    updateOptionSensitivity();
+    m_name = name;
+    m_axis = axis;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryYAxisProperties::setName(const QString& name)
+QwtPlot::Axis RimSummaryYAxisProperties::axis() const
 {
-    m_name = name;
+    return m_axis;
 }
 
 //--------------------------------------------------------------------------------------------------

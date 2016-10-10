@@ -29,6 +29,8 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -37,11 +39,8 @@
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
-#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTreeOrdering.h"
-#include "RimSummaryCurveAppearanceCalculator.h"
 
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
@@ -114,6 +113,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType,    "GroupAppearanceType",    "Group",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType,   "RegionAppearanceType",   "Region", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,7 +218,9 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
         m_regionAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
     }
 
+    uiOrdering.add(&m_plotAxis);
     uiOrdering.add(&m_applyButtonField);
+
     uiOrdering.setForgetRemainingFields(true);
 }
 
@@ -239,7 +241,7 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
-        plot->updateYAxisUnit();
+        plot->updateLeftAndRightYAxis();
     }
     else if (changedField == &m_showCurves)
     {
@@ -248,6 +250,18 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
             curve->updateCurveVisibility();
         }
         if (m_parentQwtPlot) m_parentQwtPlot->replot();
+    }
+    else if (changedField == &m_plotAxis)
+    {
+        for (RimSummaryCurve* curve : m_curves)
+        {
+            curve->setPlotAxis(m_plotAxis());
+            curve->updateQwtPlotAxis();
+
+            RimSummaryPlot* plot = nullptr;
+            firstAncestorOrThisOfType(plot);
+            plot->updateLeftAndRightYAxis();
+        }
     }
 }
 
@@ -492,6 +506,14 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::PlotAxis RimSummaryCurveFilter::associatedPlotAxis() const
+{
+    return m_plotAxis();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
