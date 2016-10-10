@@ -51,13 +51,13 @@ RimSummaryYAxisProperties::RimSummaryYAxisProperties()
     CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
     CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
 
-    CAF_PDM_InitField(&isAutoScaleEnabled, "AutoScale", true, "Auto Scale", "", "", "");
-    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RimDefines::minimumDefaultValuePlot(), "Min", "", "", "");
     CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RimDefines::maximumDefaultValuePlot(), "Max", "", "", "");
+    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RimDefines::minimumDefaultValuePlot(), "Min", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
 
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
+    isLogarithmicScaleEnabled.uiCapability()->setUiHidden(true);
 
     updateOptionSensitivity();
 }
@@ -119,8 +119,7 @@ QwtPlot::Axis RimSummaryYAxisProperties::axis() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &isAutoTitle ||
-        changedField == &isAutoScaleEnabled)
+    if (changedField == &isAutoTitle)
     {
         updateOptionSensitivity();
     }
@@ -136,9 +135,6 @@ void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* chan
 void RimSummaryYAxisProperties::updateOptionSensitivity()
 {
     customTitle.uiCapability()->setUiReadOnly(isAutoTitle);
-    
-    visibleRangeMin.uiCapability()->setUiReadOnly(isAutoScaleEnabled);
-    visibleRangeMax.uiCapability()->setUiReadOnly(isAutoScaleEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -72,6 +72,7 @@ public:
     void                                    updateCaseNameHasChanged();
 
     RimDefines::PlotAxis                    associatedPlotAxis() const;
+    void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
 
 private:
     void                                    syncCurvesFromUiSelection();
@@ -90,7 +91,9 @@ private:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly); 
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    void                                    updatePlotAxisForCurves();
 
+private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
 
     // Fields
@@ -117,6 +120,5 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >  m_wellAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >  m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
-
 };
 

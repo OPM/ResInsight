@@ -54,7 +54,6 @@ public:
     caf::PdmField<QString>      customTitle;
     caf::PdmField<int>          fontSize;
 
-    caf::PdmField<bool>         isAutoScaleEnabled;
     caf::PdmField<double>       visibleRangeMin;
     caf::PdmField<double>       visibleRangeMax;
 

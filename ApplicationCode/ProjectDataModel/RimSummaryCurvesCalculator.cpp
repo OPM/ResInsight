@@ -145,8 +145,10 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
         {
             m_qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new ScientificScaleDraw());
         }
+
     }
 
+/*
     {
         if (m_axisProperties->isLogarithmicScaleEnabled)
         {
@@ -155,6 +157,8 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
             {
                 m_qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLogScaleEngine);
             }
+
+            m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 5);
         }
         else
         {
@@ -163,9 +167,15 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
             {
                 m_qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLinearScaleEngine);
             }
+
+            m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 3);
         }
     }
+*/
 
+    m_qwtPlot->setAxisScale(m_axisProperties->axis(), m_axisProperties->visibleRangeMin, m_axisProperties->visibleRangeMax);
+
+/*
     {
         if (m_axisProperties->isAutoScaleEnabled)
         {
@@ -181,6 +191,7 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
             m_qwtPlot->setAxisScale(m_axisProperties->axis(), m_axisProperties->visibleRangeMin, m_axisProperties->visibleRangeMax);
         }
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,7 +255,7 @@ void RimSummaryCurvesCalculator::computeYRange(double* min, double* max) const
         maxValue = RimDefines::maximumDefaultValuePlot();
     }
 
-    if (m_axisProperties->isAutoScaleEnabled && m_axisProperties->isLogarithmicScaleEnabled)
+    if (m_axisProperties->isLogarithmicScaleEnabled)
     {
         // For logarithmic auto scaling, compute positive curve value closest to zero and use
         // this value as the plot visible minimum

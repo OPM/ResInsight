@@ -227,6 +227,10 @@ void RimSummaryPlot::setZoomWindow(const QRectF& zoomWindow)
         window.push_back(zoomWindow.height());
 
         m_visibleWindow = window;
+
+        m_leftYAxisProperties->visibleRangeMax = zoomWindow.bottom();
+        m_leftYAxisProperties->visibleRangeMin = zoomWindow.top();
+        m_leftYAxisProperties->updateConnectedEditors();
     }
 }
 

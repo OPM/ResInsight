@@ -253,15 +253,7 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     }
     else if (changedField == &m_plotAxis)
     {
-        for (RimSummaryCurve* curve : m_curves)
-        {
-            curve->setPlotAxis(m_plotAxis());
-            curve->updateQwtPlotAxis();
-
-            RimSummaryPlot* plot = nullptr;
-            firstAncestorOrThisOfType(plot);
-            plot->updateLeftAndRightYAxis();
-        }
+        updatePlotAxisForCurves();
     }
 }
 
@@ -382,6 +374,22 @@ void RimSummaryCurveFilter::defineEditorAttribute(const caf::PdmFieldHandle* fie
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         attrib->m_buttonText = "Apply" ;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::updatePlotAxisForCurves()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->setPlotAxis(m_plotAxis());
+        curve->updateQwtPlotAxis();
+
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType(plot);
+        plot->updateLeftAndRightYAxis();
     }
 }
 
@@ -513,6 +521,25 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
 RimDefines::PlotAxis RimSummaryCurveFilter::associatedPlotAxis() const
 {
     return m_plotAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::setPlotAxis(RimDefines::PlotAxis plotAxis)
+{
+    m_plotAxis = plotAxis;
+    updateConnectedEditors();
+
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->setPlotAxis(m_plotAxis());
+        curve->updateQwtPlotAxis();
+
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType(plot);
+        plot->updateLeftAndRightYAxis();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
