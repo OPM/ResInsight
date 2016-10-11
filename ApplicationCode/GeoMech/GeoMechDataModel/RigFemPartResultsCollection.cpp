@@ -203,6 +203,8 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
 
+            fieldCompNames["SM"];
+
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
             fieldCompNames["Gamma"].push_back("Gamma3");
@@ -240,6 +242,8 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S1");
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
+
+            fieldCompNames["SM"];
 
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
@@ -365,11 +369,49 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSM(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == "SM");
+
+    RigFemScalarResultFrames * sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S11"));
+    RigFemScalarResultFrames * sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S22"));
+    RigFemScalarResultFrames * sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S33"));
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    int frameCount = sa11->frameCount();
+    for(int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& sa11Data = sa11->frameData(fIdx);
+        const std::vector<float>& sa22Data = sa22->frameData(fIdx);
+        const std::vector<float>& sa33Data = sa33->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = sa11Data.size();
+        dstFrameData.resize(valCount);
+
+        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+        {
+            dstFrameData[vIdx] = (sa11Data[vIdx] + sa22Data[vIdx] + sa33Data[vIdx])/3.0f;
+        }
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     if (resVarAddr.isTimeLapse())
     {
         return calculateTimeLapseResult(partIndex, resVarAddr);    
+    }
+
+    if(resVarAddr.fieldName == "SM")
+    {
+        return calculateMeanStressSM(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "S-Bar")

@@ -444,7 +444,7 @@ void RimGeoMechView::updateLegends()
         legendTitle += ", " + cvfqt::Utils::toString(cellResult->resultComponentUiName());
     }
 
-    if (cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar")
+    if (cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar" || cellResult->resultFieldName() == "SM")
     {
         legendTitle += " [Bar]";
     }
