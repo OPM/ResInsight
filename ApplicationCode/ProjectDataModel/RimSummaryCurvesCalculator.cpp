@@ -60,15 +60,18 @@ private:
     static int calculatePrecision(double value)
     {
         double absVal = fabs(value);
+
+        const int numberOfDigits = 2;
+
         if (1e-16 < absVal && absVal < 1.0e3)
         {
             int logVal = static_cast<int>(log10(absVal));
-            int numDigitsAfterPoint = abs(logVal - 6);
+            int numDigitsAfterPoint = abs(logVal - numberOfDigits);
             return numDigitsAfterPoint;
         }
         else
         {
-            return 3;
+            return numberOfDigits;
         }
     }
 };

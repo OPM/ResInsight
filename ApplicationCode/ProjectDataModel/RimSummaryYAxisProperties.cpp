@@ -119,14 +119,27 @@ QwtPlot::Axis RimSummaryYAxisProperties::axis() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimSummaryPlot* rimSummaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(rimSummaryPlot);
+
     if (changedField == &isAutoTitle)
     {
         updateOptionSensitivity();
     }
+    else if (changedField == &visibleRangeMax)
+    {
+        if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
+        
+        rimSummaryPlot->disableAutoZoom();
+    }
+    else if (changedField == &visibleRangeMin)
+    {
+        if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
+        
+        rimSummaryPlot->disableAutoZoom();
+    }
 
-    RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType(rimSummaryPlot);
-    rimSummaryPlot->updateLeftAndRightYAxis();
+    rimSummaryPlot->updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------

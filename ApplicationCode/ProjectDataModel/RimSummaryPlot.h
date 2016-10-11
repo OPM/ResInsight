@@ -36,6 +36,7 @@ class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
 class RimSummaryYAxisProperties;
+class RimSummaryTimeAxisProperties;
 class PdmUiTreeOrdering;
 
 class QwtPlotCurve;
@@ -68,8 +69,9 @@ public:
     void                                            setZoomWindow(const QRectF& zoomWindow);
     virtual void                                    zoomAll() override;
     void                                            updateZoomInQwt();
+    void                                            disableAutoZoom();
 
-    void                                            updateLeftAndRightYAxis();
+    void                                            updateAxes();
 
 protected:
     // Overridden PDM methods
@@ -81,8 +83,6 @@ protected:
 
     virtual QImage                                  snapshotWindowContent() override;
 
-
-
 private:
     void                                            updateViewerWidget();
     void                                            updateViewerWidgetWindowTitle();
@@ -91,17 +91,21 @@ private:
     
     void                                            updateAxis(RimDefines::PlotAxis plotAxis);
 
+private:
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
-    caf::PdmField<std::vector<float> >              m_visibleWindow;
 
+    caf::PdmField<bool>                             m_isAutoZoom;
     caf::PdmChildField<RimSummaryYAxisProperties*>  m_leftYAxisProperties;
     caf::PdmChildField<RimSummaryYAxisProperties*>  m_rightYAxisProperties;
+    caf::PdmChildField<RimSummaryTimeAxisProperties*>  m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                     m_qwtPlot;
 
+    // Internal objects managed by unique_ptr
     std::unique_ptr<RimSummaryYAxisProperties>      m_leftYAxisPropertiesObject;
     std::unique_ptr<RimSummaryYAxisProperties>      m_rightYAxisPropertiesObject;
+    std::unique_ptr<RimSummaryTimeAxisProperties>   m_timeAxisPropertiesObject;
 };

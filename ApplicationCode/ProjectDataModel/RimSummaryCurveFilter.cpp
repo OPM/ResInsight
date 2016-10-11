@@ -241,7 +241,7 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
-        plot->updateLeftAndRightYAxis();
+        plot->updateAxes();
     }
     else if (changedField == &m_showCurves)
     {
@@ -386,11 +386,11 @@ void RimSummaryCurveFilter::updatePlotAxisForCurves()
     {
         curve->setPlotAxis(m_plotAxis());
         curve->updateQwtPlotAxis();
-
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType(plot);
-        plot->updateLeftAndRightYAxis();
     }
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType(plot);
+    plot->updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -531,15 +531,7 @@ void RimSummaryCurveFilter::setPlotAxis(RimDefines::PlotAxis plotAxis)
     m_plotAxis = plotAxis;
     updateConnectedEditors();
 
-    for (RimSummaryCurve* curve : m_curves)
-    {
-        curve->setPlotAxis(m_plotAxis());
-        curve->updateQwtPlotAxis();
-
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType(plot);
-        plot->updateLeftAndRightYAxis();
-    }
+    updatePlotAxisForCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

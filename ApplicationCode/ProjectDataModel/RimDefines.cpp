@@ -57,7 +57,7 @@ namespace caf
     void caf::AppEnum< RimDefines::PlotAxis >::setUp()
     {
         addItem(RimDefines::PLOT_AXIS_LEFT,  "PLOT_AXIS_LEFT",  "Left");
-        addItem(RimDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right");
+        //addItem(RimDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right");
 
         setDefault(RimDefines::PLOT_AXIS_LEFT);
     }

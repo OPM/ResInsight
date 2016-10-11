@@ -24,6 +24,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryTimeAxisProperties.h"
 #include "RimSummaryYAxisProperties.h"
 
 #include "RiuMainPlotWindow.h"
@@ -33,12 +34,13 @@
 #include "cvfBase.h"
 #include "cvfColor3.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
 #include <QDateTime>
 #include <QRectF>
 
 #include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
-#include "cafPdmUiTreeOrdering.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -60,9 +62,6 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault(&m_curves, "SummaryCurves", "",  "", "", "");
     m_curves.uiCapability()->setUiTreeHidden(true);
 
-    CAF_PDM_InitField(&m_visibleWindow, "VisibleWindow", std::vector<float>(), "Visible Display Window", "", "", "");
-    m_visibleWindow.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
 
@@ -76,6 +75,15 @@ RimSummaryPlot::RimSummaryPlot()
     m_rightYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
     m_rightYAxisPropertiesObject->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
     m_rightYAxisProperties = m_rightYAxisPropertiesObject.get();
+
+    CAF_PDM_InitFieldNoDefault(&m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "");
+    m_timeAxisProperties.uiCapability()->setUiTreeHidden(true);
+
+    m_timeAxisPropertiesObject = std::unique_ptr<RimSummaryTimeAxisProperties>(new RimSummaryTimeAxisProperties);
+    m_timeAxisProperties = m_timeAxisPropertiesObject.get();
+
+    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Auto Zoom", "", "", "");
+    m_isAutoZoom.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,12 +117,12 @@ void RimSummaryPlot::deletePlotWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateLeftAndRightYAxis()
+void RimSummaryPlot::updateAxes()
 {
     updateAxis(RimDefines::PLOT_AXIS_LEFT);
     updateAxis(RimDefines::PLOT_AXIS_RIGHT);
 
-    if (m_qwtPlot) m_qwtPlot->replot();
+    updateZoomInQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,18 +228,16 @@ void RimSummaryPlot::setZoomWindow(const QRectF& zoomWindow)
 {
     if(!zoomWindow.isEmpty())
     {
-        std::vector<float> window;
-        window.push_back(zoomWindow.left());
-        window.push_back(zoomWindow.top());
-        window.push_back(zoomWindow.width());
-        window.push_back(zoomWindow.height());
-
-        m_visibleWindow = window;
-
         m_leftYAxisProperties->visibleRangeMax = zoomWindow.bottom();
         m_leftYAxisProperties->visibleRangeMin = zoomWindow.top();
         m_leftYAxisProperties->updateConnectedEditors();
+
+        m_timeAxisProperties->setVisibleRangeMin(zoomWindow.left());
+        m_timeAxisProperties->setVisibleRangeMax(zoomWindow.right());
+        m_timeAxisProperties->updateConnectedEditors();
     }
+
+    disableAutoZoom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,6 +250,8 @@ void RimSummaryPlot::zoomAll()
         m_qwtPlot->zoomAll();
         this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
     }
+
+    m_isAutoZoom = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,7 +265,7 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
         if (m_qwtPlot)
         {
             curve->setParentQwtPlot(m_qwtPlot);
-            this->updateLeftAndRightYAxis();
+            this->updateAxes();
         }
     }
 }
@@ -273,7 +281,7 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
         if(m_qwtPlot)
         {
             curveFilter->setParentQwtPlot(m_qwtPlot);
-            this->updateLeftAndRightYAxis();
+            this->updateAxes();
         }
     }
 }
@@ -307,14 +315,9 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setupBeforeSave()
 {
-    if (m_qwtPlot)
+    if (m_qwtPlot && RiaApplication::instance()->mainPlotWindow())
     {
-        if (RiaApplication::instance()->mainPlotWindow())
-        {
-            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
-        }
-
-        this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
+        this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
     }
 }
 
@@ -345,10 +348,12 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
+    uiTreeOrdering.add(&m_timeAxisProperties);
     uiTreeOrdering.add(&m_leftYAxisProperties);
-    uiTreeOrdering.add(&m_rightYAxisProperties);
+    //uiTreeOrdering.add(&m_rightYAxisProperties);
     uiTreeOrdering.add(&m_curveFilters);
     uiTreeOrdering.add(&m_curves);
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,7 +373,7 @@ void RimSummaryPlot::loadDataAndUpdate()
         curve->loadDataAndUpdate();
     }
  
-    this->updateLeftAndRightYAxis();
+    this->updateAxes();
 
     updateZoomInQwt();
 }
@@ -379,15 +384,29 @@ void RimSummaryPlot::loadDataAndUpdate()
 void RimSummaryPlot::updateZoomInQwt()
 {
     if (!m_qwtPlot) return;
-
-    // Todo: introduce autoscale
-
-    if(m_visibleWindow().size() == 4)
+    
+    if (m_isAutoZoom)
     {
-        QRectF visibleWindow(m_visibleWindow()[0], m_visibleWindow()[1], m_visibleWindow()[2], m_visibleWindow()[3]);
+        zoomAll();
+    }
+    else
+    {
+        QRectF visibleWindow;
+        visibleWindow.setBottom(m_leftYAxisProperties->visibleRangeMin());
+        visibleWindow.setTop(m_leftYAxisProperties->visibleRangeMax());
+        visibleWindow.setLeft(m_timeAxisProperties->visibleRangeMin());
+        visibleWindow.setRight(m_timeAxisProperties->visibleRangeMax());
 
         m_qwtPlot->setZoomWindow(visibleWindow);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::disableAutoZoom()
+{
+    m_isAutoZoom = false;
 }
 
 //--------------------------------------------------------------------------------------------------

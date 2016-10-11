@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicSummaryCurveSwitchAxisFeature, "RicSummaryCurveSwitchAxis
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled()
 {
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 
         RimSummaryPlot* plot = nullptr;
         summaryCurve->firstAncestorOrThisOfType(plot);
-        if (plot) plot->updateLeftAndRightYAxis();
+        if (plot) plot->updateAxes();
     }
     else if (summaryCurveFilter)
     {

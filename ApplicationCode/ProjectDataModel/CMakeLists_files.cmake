@@ -94,6 +94,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.h
 ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurvesCalculator.h
+${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -186,6 +187,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.cpp
 ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurvesCalculator.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -468,11 +468,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         this->loadDataAndUpdate();
 
-        plot->updateLeftAndRightYAxis();
+        plot->updateAxes();
     } 
     else if (&m_showCurve == changedField)
     {
-        plot->updateLeftAndRightYAxis();
+        plot->updateAxes();
     }
     else if (changedField == &m_addCaseNameToCurveName)
     {
@@ -483,7 +483,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         updateQwtPlotAxis();
 
-        plot->updateLeftAndRightYAxis();
+        plot->updateAxes();
     }
 }
 
