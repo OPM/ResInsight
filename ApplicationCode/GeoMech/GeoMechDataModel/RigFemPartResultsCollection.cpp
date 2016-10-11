@@ -183,6 +183,10 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         else if (resPos == RIG_ELEMENT_NODAL)
         {
             fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
+
+            fieldCompNames["SM"];
+            fieldCompNames["SEM"];
+
             fieldCompNames["SE"].push_back("S11");
             fieldCompNames["SE"].push_back("S22");
             fieldCompNames["SE"].push_back("S33");
@@ -203,8 +207,6 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
 
-            fieldCompNames["SM"];
-
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
             fieldCompNames["Gamma"].push_back("Gamma3");
@@ -223,6 +225,9 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         else if (resPos == RIG_INTEGRATION_POINT)
         {
             fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
+            fieldCompNames["SM"];
+            fieldCompNames["SEM"];
+
             fieldCompNames["SE"].push_back("S11");
             fieldCompNames["SE"].push_back("S22");
             fieldCompNames["SE"].push_back("S33");
@@ -243,7 +248,6 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
 
-            fieldCompNames["SM"];
 
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
@@ -369,13 +373,28 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSM(int partIndex, const RigFemResultAddress& resVarAddr)
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSMSEM(int partIndex, const RigFemResultAddress& resVarAddr)
 {
-    CVF_ASSERT(resVarAddr.fieldName == "SM");
+    RigFemScalarResultFrames * sa11 = nullptr;
+    RigFemScalarResultFrames * sa22 = nullptr;
+    RigFemScalarResultFrames * sa33 = nullptr;
 
-    RigFemScalarResultFrames * sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S11"));
-    RigFemScalarResultFrames * sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S22"));
-    RigFemScalarResultFrames * sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S33"));
+    if (resVarAddr.fieldName == "SM")
+    {
+        sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S11"));
+        sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S22"));
+        sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S33"));
+    }
+    else if (resVarAddr.fieldName == "SEM")
+    {
+        sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S11"));
+        sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S22"));
+        sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S33"));
+    }
+    else
+    {
+        CVF_ASSERT(false);
+    }
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -409,9 +428,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return calculateTimeLapseResult(partIndex, resVarAddr);    
     }
 
-    if(resVarAddr.fieldName == "SM")
+    if(resVarAddr.fieldName == "SM" || resVarAddr.fieldName == "SEM")
     {
-        return calculateMeanStressSM(partIndex, resVarAddr);
+        return calculateMeanStressSMSEM(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "S-Bar")
