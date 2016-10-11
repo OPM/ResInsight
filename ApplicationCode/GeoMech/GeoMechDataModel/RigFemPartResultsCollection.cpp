@@ -222,6 +222,8 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["NE"].push_back("E13");
             fieldCompNames["NE"].push_back("E23");
 
+            fieldCompNames["EV"];
+
        }
         else if (resPos == RIG_INTEGRATION_POINT)
         {
@@ -265,6 +267,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["NE"].push_back("E13");
             fieldCompNames["NE"].push_back("E23");
 
+            fieldCompNames["EV"];
        }
     }
 
@@ -465,11 +468,55 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStress
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    RigFemScalarResultFrames * ea11 = nullptr;
+    RigFemScalarResultFrames * ea22 = nullptr;
+    RigFemScalarResultFrames * ea33 = nullptr;
+
+    CVF_ASSERT(resVarAddr.fieldName == "EV");
+
+    {
+        ea11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NE", "E11"));
+        ea22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NE", "E22"));
+        ea33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NE", "E33"));
+    }
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    int frameCount = ea11->frameCount();
+    for(int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& ea11Data = ea11->frameData(fIdx);
+        const std::vector<float>& ea22Data = ea22->frameData(fIdx);
+        const std::vector<float>& ea33Data = ea33->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = ea11Data.size();
+        dstFrameData.resize(valCount);
+
+        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+        {
+            dstFrameData[vIdx] = (ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx]);
+        }
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     if (resVarAddr.isTimeLapse())
     {
         return calculateTimeLapseResult(partIndex, resVarAddr);    
+    }
+
+    if(resVarAddr.fieldName == "EV")
+    {
+        return calculateVolumetricStrain(partIndex, resVarAddr);
     }
 
     if(resVarAddr.fieldName == "Q" )
