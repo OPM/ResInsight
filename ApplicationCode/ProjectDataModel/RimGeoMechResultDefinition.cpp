@@ -158,7 +158,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
 
             for (size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx)
             {
-                options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(stepNames[stepIdx]), stepIdx));
+                options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(stepNames[stepIdx]), static_cast<int>(stepIdx)));
             }
         }
     }
