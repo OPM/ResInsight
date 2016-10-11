@@ -61,8 +61,9 @@ public:
     ~PdmUiDefaultObjectEditor();
 
 protected:
-    virtual QWidget* createWidget(QWidget* parent);
-    virtual void     configureAndUpdateUi(const QString& uiConfigName);
+    virtual QWidget*    createWidget(QWidget* parent) override;
+    virtual void        configureAndUpdateUi(const QString& uiConfigName) override;
+    virtual void        cleanupBeforeSettingPdmObject() override;
 
 private:
     void recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);

@@ -174,6 +174,30 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::cleanupBeforeSettingPdmObject()
+{
+    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+    for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
+    {
+        PdmUiFieldEditorHandle* fvh = it->second;
+        delete fvh;
+    }
+    m_fieldViews.clear();
+
+    m_newGroupBoxes.clear();
+
+    std::map<QString, QPointer<QGroupBox> >::iterator groupIt;
+    for (groupIt = m_groupBoxes.begin(); groupIt != m_groupBoxes.end(); ++groupIt)
+    {
+        if (!groupIt->second.isNull()) groupIt->second->deleteLater();
+    }
+
+    m_groupBoxes.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName)
 {
     int currentRowIndex = 0;
