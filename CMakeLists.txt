@@ -88,6 +88,11 @@ else()
 	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
 endif()
 
+# Boost < 1.57 has c++11 name mangling issues in boost::filesystem
+if(Boost_VERSION VERSION_LESS 105700)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_NO_CXX11_SCOPED_ENUMS")
+endif()
+
 ################################################################################
 # cotire 
 # Fully automated CMake module for build speedup
