@@ -445,7 +445,7 @@ void RimGeoMechView::updateLegends()
     }
 
     if (   cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar" 
-        || cellResult->resultFieldName() == "SM" || cellResult->resultFieldName() == "SEM")
+        || cellResult->resultFieldName() == "SM" || cellResult->resultFieldName() == "SEM" || cellResult->resultFieldName() == "Q" )
     {
         legendTitle += " [Bar]";
     }

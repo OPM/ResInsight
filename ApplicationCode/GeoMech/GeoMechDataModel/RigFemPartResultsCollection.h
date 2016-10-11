@@ -74,6 +74,7 @@ private:
     RigFemScalarResultFrames*                        calculateEnIpPorBarResult(int partIndex, const RigFemResultAddress &convertedResultAddr);
     RigFemScalarResultFrames*                        calculateTimeLapseResult(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateMeanStressSMSEM(int partIndex, const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        calculateDeviatoricStress(int partIndex, const RigFemResultAddress& resVarAddr);
 
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
