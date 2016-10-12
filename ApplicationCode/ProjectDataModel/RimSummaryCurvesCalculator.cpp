@@ -109,6 +109,15 @@ RimSummaryCurvesCalculator::RimSummaryCurvesCalculator(RimSummaryYAxisProperties
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCurvesCalculator::RimSummaryCurvesCalculator(RimSummaryYAxisProperties* axisProperties, const std::vector<RimSummaryCurve*>& curves)
+    : m_axisProperties(axisProperties),
+    m_singleCurves(curves)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtPlot)
 {
     if (!m_qwtPlot) return;
@@ -151,7 +160,6 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
 
     }
 
-/*
     {
         if (m_axisProperties->isLogarithmicScaleEnabled)
         {
@@ -159,9 +167,9 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
             if (!currentScaleEngine)
             {
                 m_qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLogScaleEngine);
+                m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 5);
             }
 
-            m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 5);
         }
         else
         {
@@ -169,32 +177,10 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
             if (!currentScaleEngine)
             {
                 m_qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLinearScaleEngine);
+                m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 3);
             }
-
-            m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 3);
         }
     }
-*/
-
-    m_qwtPlot->setAxisScale(m_axisProperties->axis(), m_axisProperties->visibleRangeMin, m_axisProperties->visibleRangeMax);
-
-/*
-    {
-        if (m_axisProperties->isAutoScaleEnabled)
-        {
-            double min = HUGE_VAL;
-            double max = -HUGE_VAL;
-
-            computeYRange(&min, &max);
-
-            m_qwtPlot->setAxisScale(m_axisProperties->axis(), min, max);
-        }
-        else
-        {
-            m_qwtPlot->setAxisScale(m_axisProperties->axis(), m_axisProperties->visibleRangeMin, m_axisProperties->visibleRangeMax);
-        }
-    }
-*/
 }
 
 //--------------------------------------------------------------------------------------------------

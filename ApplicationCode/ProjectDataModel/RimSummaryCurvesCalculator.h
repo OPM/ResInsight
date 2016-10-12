@@ -36,11 +36,14 @@ public:
         const std::vector<RimSummaryCurve*>& curves,
         const std::vector<RimSummaryCurveFilter*>& curveFilters);
 
-    void applyPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot);
+    RimSummaryCurvesCalculator(RimSummaryYAxisProperties* axisProperties,
+        const std::vector<RimSummaryCurve*>& curves);
+
+    void    applyPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot);
+    void    computeYRange(double* min, double* max) const;
 
 private:
     QString autoAxisTitle() const;
-    void    computeYRange(double* min, double* max) const;
     bool    curveValueRangeY(const QwtPlotCurve* qwtCurve, double* min, double* max) const;
 
 private:

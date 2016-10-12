@@ -57,7 +57,6 @@ RimSummaryYAxisProperties::RimSummaryYAxisProperties()
     CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
 
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
-    isLogarithmicScaleEnabled.uiCapability()->setUiHidden(true);
 
     updateOptionSensitivity();
 }
@@ -139,7 +138,14 @@ void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* chan
         rimSummaryPlot->disableAutoZoom();
     }
 
-    rimSummaryPlot->updateAxes();
+    if (changedField == &isLogarithmicScaleEnabled)
+    {
+        rimSummaryPlot->loadDataAndUpdate();
+    }
+    else
+    {
+        rimSummaryPlot->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

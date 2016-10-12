@@ -132,20 +132,9 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
 
-    std::vector<RimSummaryCurve*> curvesForAxis;
+    std::vector<RimSummaryCurve*> curves = curvesForAxis(plotAxis);
+
     std::vector<RimSummaryCurveFilter*> curveFiltersForAxis;
-
-    std::vector<RimSummaryCurve*> childCurves;
-    this->descendantsIncludingThisOfType(childCurves);
-
-    for (RimSummaryCurve* curve : childCurves)
-    {
-        if (curve->associatedPlotAxis() == plotAxis)
-        {
-            curvesForAxis.push_back(curve);
-        }
-    }
-
     for (RimSummaryCurveFilter* cs : m_curveFilters)
     {
         if (cs->associatedPlotAxis() == plotAxis)
@@ -167,17 +156,38 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
         yAxisProperties = m_rightYAxisProperties();
     }
 
-    if (curvesForAxis.size() > 0)
+    if (curves.size() > 0)
     {
         m_qwtPlot->enableAxis(qwtAxis, true);
 
-        RimSummaryCurvesCalculator calc(yAxisProperties, curvesForAxis, curveFiltersForAxis);
+        RimSummaryCurvesCalculator calc(yAxisProperties, curves, curveFiltersForAxis);
         calc.applyPropertiesToPlot(m_qwtPlot);
     }
     else
     {
         m_qwtPlot->enableAxis(qwtAxis, false);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForAxis(RimDefines::PlotAxis plotAxis) const
+{
+    std::vector<RimSummaryCurve*> curves;
+
+    std::vector<RimSummaryCurve*> childCurves;
+    this->descendantsIncludingThisOfType(childCurves);
+
+    for (RimSummaryCurve* curve : childCurves)
+    {
+        if (curve->associatedPlotAxis() == plotAxis)
+        {
+            curves.push_back(curve);
+        }
+    }
+
+    return curves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,7 +257,40 @@ void RimSummaryPlot::zoomAll()
 {
     if (m_qwtPlot)
     {
-        m_qwtPlot->zoomAll();
+        m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom, true);
+
+        if (m_leftYAxisProperties->isLogarithmicScaleEnabled)
+        {
+            std::vector<RimSummaryCurve*> curves = curvesForAxis(RimDefines::PLOT_AXIS_LEFT);
+
+            double min, max;
+            RimSummaryCurvesCalculator calc(m_leftYAxisProperties, curves);
+            calc.computeYRange(&min, &max);
+
+            m_qwtPlot->setAxisScale(m_leftYAxisProperties->axis(), min, max);
+        }
+        else
+        {
+            m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft, true);
+        }
+
+        if (m_rightYAxisProperties->isLogarithmicScaleEnabled)
+        {
+            std::vector<RimSummaryCurve*> curves = curvesForAxis(RimDefines::PLOT_AXIS_RIGHT);
+
+            double min, max;
+            RimSummaryCurvesCalculator calc(m_rightYAxisProperties, curves);
+            calc.computeYRange(&min, &max);
+
+            m_qwtPlot->setAxisScale(m_rightYAxisProperties->axis(), min, max);
+        }
+        else
+        {
+            m_qwtPlot->setAxisAutoScale(QwtPlot::yRight, true);
+        }
+
+        m_qwtPlot->replot();
+
         this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
     }
 

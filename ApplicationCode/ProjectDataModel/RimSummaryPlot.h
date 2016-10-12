@@ -90,6 +90,7 @@ private:
     void                                            deletePlotWidget();
     
     void                                            updateAxis(RimDefines::PlotAxis plotAxis);
+    std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
 
 private:
     caf::PdmField<bool>                             m_showWindow;
