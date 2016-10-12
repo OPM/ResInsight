@@ -123,6 +123,8 @@ void RimSummaryPlot::updateAxes()
     updateAxis(RimDefines::PLOT_AXIS_RIGHT);
 
     updateZoomInQwt();
+
+    updateTimeAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +205,19 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForAxis(RimDefines::PlotAxis
     }
 
     return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateTimeAxis()
+{
+    if (!m_qwtPlot) return;
+
+    QFont timeAxisFont = m_qwtPlot->axisFont(QwtPlot::xBottom);
+    timeAxisFont.setBold(false);
+    timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
+    m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
 }
 
 //--------------------------------------------------------------------------------------------------

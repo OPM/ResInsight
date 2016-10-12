@@ -93,6 +93,9 @@ private:
     void                                            updateAxis(RimDefines::PlotAxis plotAxis);
     std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
 
+    void                                            updateTimeAxis();
+
+
 private:
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
