@@ -51,7 +51,7 @@ RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
 {
     CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
 
@@ -63,7 +63,7 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<Q
 
         {
             std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
-            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues);
+            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
 
             RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
             RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
@@ -79,11 +79,8 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<Q
         }
     }
 
-    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
-
     this->setSamples(points);
     this->setLineSegmentStartStopIndices(filteredIntervals);
-
 }
 
 //--------------------------------------------------------------------------------------------------

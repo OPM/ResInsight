@@ -128,6 +128,21 @@ void RimSummaryPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const
+{
+    if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+    {
+        return m_leftYAxisProperties->isLogarithmicScaleEnabled();
+    }
+    else
+    {
+        return m_rightYAxisProperties->isLogarithmicScaleEnabled();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;

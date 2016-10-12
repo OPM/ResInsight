@@ -72,6 +72,7 @@ public:
     void                                            disableAutoZoom();
 
     void                                            updateAxes();
+    bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
 protected:
     // Overridden PDM methods

@@ -377,13 +377,17 @@ void RimSummaryCurve::onLoadDataAndUpdate()
         std::vector<QDateTime> dateTimes;
         std::vector<double> values;
 
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType(plot);
+        bool isLogCurve = plot->isLogarithmicScaleEnabled(this->associatedPlotAxis());
+
         if(this->curveData(&dateTimes, &values))
         {
-            m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values);
+            m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values, isLogCurve);
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>());
+            m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>(), isLogCurve);
         }
 
         updateZoomInParentPlot();
