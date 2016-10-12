@@ -22,6 +22,8 @@
 
 #include "cafPdmUiLineEditor.h"
 
+#include "qwt_date.h"
+
 
 CAF_PDM_SOURCE_INIT(RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties");
 
@@ -46,7 +48,7 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::visibleRangeMin() const
 {
-    return m_visibleRangeMin().toMSecsSinceEpoch();
+    return QwtDate::toDouble(m_visibleRangeMin());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ double RimSummaryTimeAxisProperties::visibleRangeMin() const
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::visibleRangeMax() const
 {
-    return m_visibleRangeMax().toMSecsSinceEpoch();
+    return QwtDate::toDouble(m_visibleRangeMax());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +64,7 @@ double RimSummaryTimeAxisProperties::visibleRangeMax() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::setVisibleRangeMin(double value)
 {
-    m_visibleRangeMin = QDateTime::fromMSecsSinceEpoch(value);
+    m_visibleRangeMin = QwtDate::toDateTime(value);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMin(double value)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
 {
-    m_visibleRangeMax = QDateTime::fromMSecsSinceEpoch(value);
+    m_visibleRangeMax = QwtDate::toDateTime(value);
 }
 
 //--------------------------------------------------------------------------------------------------
