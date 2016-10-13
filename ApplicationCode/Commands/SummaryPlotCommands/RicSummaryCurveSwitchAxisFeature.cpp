@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicSummaryCurveSwitchAxisFeature, "RicSummaryCurveSwitchAxis
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled()
 {
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
         }
 
         summaryCurve->updateQwtPlotAxis();
+        summaryCurve->updateConnectedEditors();
 
         RimSummaryPlot* plot = nullptr;
         summaryCurve->firstAncestorOrThisOfType(plot);
@@ -75,6 +76,8 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
         {
             summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_LEFT);
         }
+
+        summaryCurveFilter->updateConnectedEditors();
     }
 }
 
