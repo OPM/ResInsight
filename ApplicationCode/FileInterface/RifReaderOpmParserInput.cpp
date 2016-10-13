@@ -65,56 +65,53 @@ void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName
             {
                 eclipseGrid = Opm::Parser::parseGrid(*deck, parseContext);
 
-                if (eclipseGrid && eclipseGrid->hasCellInfo())
+                if (eclipseGrid && eclipseGrid->c_ptr())
                 {
-                    if (eclipseGrid->c_ptr())
-                    {
-                        RifReaderEclipseOutput::transferGeometry(eclipseGrid->c_ptr(), caseData);
-                    }
-                    else
-                    {
-                        throw std::invalid_argument("No valid 3D grid detected");
-                    }
+                    RifReaderEclipseOutput::transferGeometry(eclipseGrid->c_ptr(), caseData);
+                }
+                else
+                {
+                    throw std::invalid_argument("No valid 3D grid detected");
+                }
 
-                    Opm::TableManager tableManager(*deck);
+                Opm::TableManager tableManager(*deck);
 
-                    Opm::Eclipse3DProperties properties(*deck, tableManager, *eclipseGrid);
+                Opm::Eclipse3DProperties properties(*deck, tableManager, *eclipseGrid);
 
-                    std::vector<std::string> predefKeywords = RifReaderOpmParserInput::knownPropertyKeywords();
-                    for (auto keyword : predefKeywords)
+                std::vector<std::string> predefKeywords = RifReaderOpmParserInput::knownPropertyKeywords();
+                for (auto keyword : predefKeywords)
+                {
+                    if (properties.supportsGridProperty(keyword))
                     {
-                        if (properties.supportsGridProperty(keyword))
+                        if (properties.hasDeckDoubleGridProperty(keyword))
                         {
-                            if (properties.hasDeckDoubleGridProperty(keyword))
+                            auto allValues = properties.getDoubleGridProperty(keyword).getData();
+
+                            QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(QString::fromStdString(keyword));
+                            size_t resultIndex = RifReaderOpmParserPropertyReader::findOrCreateResult(newResultName, caseData);
+
+                            if (resultIndex != cvf::UNDEFINED_SIZE_T)
                             {
-                                auto allValues = properties.getDoubleGridProperty(keyword).getData();
-
-                                QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(QString::fromStdString(keyword));
-                                size_t resultIndex = RifReaderOpmParserPropertyReader::findOrCreateResult(newResultName, caseData);
-
-                                if (resultIndex != cvf::UNDEFINED_SIZE_T)
-                                {
-                                    std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
-                                    newPropertyData.push_back(allValues);
-                                }
+                                std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+                                newPropertyData.push_back(allValues);
                             }
-                            else if (properties.hasDeckIntGridProperty(keyword))
+                        }
+                        else if (properties.hasDeckIntGridProperty(keyword))
+                        {
+                            auto intValues = properties.getIntGridProperty(keyword).getData();
+
+                            QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(QString::fromStdString(keyword));
+                            size_t resultIndex = RifReaderOpmParserPropertyReader::findOrCreateResult(newResultName, caseData);
+
+                            if (resultIndex != cvf::UNDEFINED_SIZE_T)
                             {
-                                auto intValues = properties.getIntGridProperty(keyword).getData();
+                                std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
 
-                                QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(QString::fromStdString(keyword));
-                                size_t resultIndex = RifReaderOpmParserPropertyReader::findOrCreateResult(newResultName, caseData);
+                                std::vector<double> doubleValues;
 
-                                if (resultIndex != cvf::UNDEFINED_SIZE_T)
-                                {
-                                    std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+                                doubleValues.insert(std::end(doubleValues), std::begin(intValues), std::end(intValues));
 
-                                    std::vector<double> doubleValues;
-
-                                    doubleValues.insert(std::end(doubleValues), std::begin(intValues), std::end(intValues));
-
-                                    newPropertyData.push_back(doubleValues);
-                                }
+                                newPropertyData.push_back(doubleValues);
                             }
                         }
                     }
