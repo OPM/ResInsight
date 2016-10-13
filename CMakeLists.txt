@@ -172,8 +172,8 @@ else()
         set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
         add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
     else()
-        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel)
-        add_subdirectory(ThirdParty/Ert/devel)
+        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert)
+        add_subdirectory(ThirdParty/Ert)
     endif ()
 
     list(APPEND ERT_INCLUDE_DIRS
@@ -184,7 +184,7 @@ else()
         ${ERT_INCLUDE_ROOT}/libeclxx/include
         ${ERT_INCLUDE_ROOT}/libert_utilxx/include
 
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
+        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
     )
 
     list(APPEND ERT_LIBRARIES
@@ -372,21 +372,21 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(ERT_SHARED_LIB_FILES
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl.so.2.0
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libeclxx.so.2.0
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libecl_well.so.2.0
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_geometry.so.2.0
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/lib64/libert_util.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libecl.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libecl.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libecl.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libeclxx.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libeclxx.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libeclxx.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libecl_well.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libecl_well.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libecl_well.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libert_geometry.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libert_geometry.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libert_geometry.so.2.0
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libert_util.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libert_util.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib64/libert_util.so.2.0
         )
       
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
