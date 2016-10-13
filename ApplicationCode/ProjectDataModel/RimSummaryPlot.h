@@ -40,6 +40,7 @@ class RimSummaryTimeAxisProperties;
 class PdmUiTreeOrdering;
 
 class QwtPlotCurve;
+class QwtInterval;
 
 //==================================================================================================
 ///  
@@ -66,12 +67,16 @@ public:
 
     QWidget*                                        viewer();
 
-    void                                            setZoomWindow(const QRectF& zoomWindow);
-    virtual void                                    zoomAll() override;
-    void                                            updateZoomInQwt();
-    void                                            disableAutoZoom();
-
     void                                            updateAxes();
+    virtual void                                    zoomAll() override;
+    void                                            setZoomWindow(const QwtInterval& leftAxis,
+                                                                  const QwtInterval& rightAxis,
+                                                                  const QwtInterval& timeAxis);
+
+    void                                            updateZoomInQwt();
+    void                                            updateZoomFromQwt();
+    void                                            disableAutoZoom();
+    
     bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
 protected:
@@ -94,6 +99,7 @@ private:
     std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
 
     void                                            updateTimeAxis();
+    void                                            setZoomIntervalsInQwtPlot();
 
 
 private:

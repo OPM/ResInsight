@@ -264,18 +264,19 @@ QWidget* RimSummaryPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setZoomWindow(const QRectF& zoomWindow)
+void RimSummaryPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
 {
-    if(!zoomWindow.isEmpty())
-    {
-        m_leftYAxisProperties->visibleRangeMax = zoomWindow.bottom();
-        m_leftYAxisProperties->visibleRangeMin = zoomWindow.top();
-        m_leftYAxisProperties->updateConnectedEditors();
+    m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
+    m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
+    m_leftYAxisProperties->updateConnectedEditors();
 
-        m_timeAxisProperties->setVisibleRangeMin(zoomWindow.left());
-        m_timeAxisProperties->setVisibleRangeMax(zoomWindow.right());
-        m_timeAxisProperties->updateConnectedEditors();
-    }
+    m_rightYAxisProperties->visibleRangeMax = rightAxis.maxValue();
+    m_rightYAxisProperties->visibleRangeMin = rightAxis.minValue();
+    m_rightYAxisProperties->updateConnectedEditors();
+
+    m_timeAxisProperties->setVisibleRangeMin(timeAxis.minValue());
+    m_timeAxisProperties->setVisibleRangeMax(timeAxis.maxValue());
+    m_timeAxisProperties->updateConnectedEditors();
 
     disableAutoZoom();
 }
@@ -320,9 +321,9 @@ void RimSummaryPlot::zoomAll()
         }
 
         m_qwtPlot->replot();
-
-        this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
     }
+
+    updateZoomFromQwt();
 
     m_isAutoZoom = true;
 }
@@ -423,10 +424,9 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 {
     uiTreeOrdering.add(&m_timeAxisProperties);
     uiTreeOrdering.add(&m_leftYAxisProperties);
-    //uiTreeOrdering.add(&m_rightYAxisProperties);
+    uiTreeOrdering.add(&m_rightYAxisProperties);
     uiTreeOrdering.add(&m_curveFilters);
     uiTreeOrdering.add(&m_curves);
-    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,14 +464,38 @@ void RimSummaryPlot::updateZoomInQwt()
     }
     else
     {
-        QRectF visibleWindow;
-        visibleWindow.setBottom(m_leftYAxisProperties->visibleRangeMin());
-        visibleWindow.setTop(m_leftYAxisProperties->visibleRangeMax());
-        visibleWindow.setLeft(m_timeAxisProperties->visibleRangeMin());
-        visibleWindow.setRight(m_timeAxisProperties->visibleRangeMax());
-
-        m_qwtPlot->setZoomWindow(visibleWindow);
+        setZoomIntervalsInQwtPlot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setZoomIntervalsInQwtPlot()
+{
+    QwtInterval left, right, time;
+
+    left.setMinValue(m_leftYAxisProperties->visibleRangeMin());
+    left.setMaxValue(m_leftYAxisProperties->visibleRangeMax());
+    right.setMinValue(m_rightYAxisProperties->visibleRangeMin());
+    right.setMaxValue(m_rightYAxisProperties->visibleRangeMax());
+    time.setMinValue(m_timeAxisProperties->visibleRangeMin());
+    time.setMaxValue(m_timeAxisProperties->visibleRangeMax());
+
+    m_qwtPlot->setZoomWindow(left, right, time);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateZoomFromQwt()
+{
+    if (!m_qwtPlot) return;
+
+    QwtInterval left, right, time;
+    m_qwtPlot->currentVisibleWindow(&left, &right, &time);
+
+    setZoomWindow(left, right, time);
 }
 
 //--------------------------------------------------------------------------------------------------
