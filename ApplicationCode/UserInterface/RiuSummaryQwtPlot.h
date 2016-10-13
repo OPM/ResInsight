@@ -26,6 +26,7 @@
 class QwtPlotCurve;
 class QwtPlotGrid;
 class QwtPlotZoomer;
+class QwtInterval;
 
 class RimSummaryPlot;
 
@@ -42,11 +43,14 @@ public:
     virtual ~RiuSummaryQwtPlot();
 
     RimSummaryPlot*                 ownerPlotDefinition();
-    void                            setYAxisTitle(const QString& title);
-    void                            zoomAll();
 
-    QRectF                          currentVisibleWindow() const;
-    void                            setZoomWindow(const QRectF& zoomWindow);
+    void                            currentVisibleWindow(QwtInterval* leftAxis,
+                                                         QwtInterval* rightAxis,
+                                                         QwtInterval* timeAxis) const;
+
+    void                            setZoomWindow(const QwtInterval& leftAxis,
+                                                  const QwtInterval& rightAxis,
+                                                  const QwtInterval& timeAxis);
 
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event);
@@ -61,8 +65,8 @@ private slots:
 private:
     QwtPlotGrid*                    m_grid;
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
-    QPointer<QwtPlotZoomer>         m_zoomer;
+
+    QPointer<QwtPlotZoomer>         m_zoomerLeft;
+    QPointer<QwtPlotZoomer>         m_zoomerRight;
 };
-
-
 

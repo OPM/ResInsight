@@ -19,22 +19,28 @@
 #include "RimSummaryCurve.h"
 
 #include "RiaApplication.h"
+
 #include "RifReaderEclipseSummary.h"
+
+#include "RigSummaryCaseData.h"
+
 #include "RimDefines.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
+
+#include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "RiuLineSegmentQwtPlotCurve.h"
+
 #include "qwt_date.h"
-#include "RimSummaryCase.h"
-#include "RigSummaryCaseData.h"
-#include "RimSummaryFilter.h"
+
 
 CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
 
@@ -137,7 +143,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitObject("Summary Curve", ":/SummaryCurve16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
-    m_summaryCase.uiCapability()->setUiChildrenHidden(true);
+    m_summaryCase.uiCapability()->setUiTreeChildrenHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
@@ -147,7 +153,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
     m_summaryFilter.xmlCapability()->setIOWritable(false);
     m_summaryFilter.xmlCapability()->setIOReadable(false);
-    m_summaryFilter.uiCapability()->setUiChildrenHidden(true);
+    m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
     m_summaryFilter = new RimSummaryFilter();
@@ -162,7 +168,9 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_curveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
     m_curveVariable.uiCapability()->setUiHidden(true);
-    m_curveVariable.uiCapability()->setUiChildrenHidden(true);
+    m_curveVariable.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
     m_curveVariable = new RimSummaryAddress;
 
@@ -231,6 +239,35 @@ std::string RimSummaryCurve::unitName()
     RifReaderEclipseSummary* reader = summaryReader();
     if (reader) return reader->unitName(this->summaryAddress());
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSummaryCurve::yPlotValues() const
+{
+    std::vector<QDateTime> dateTimes;
+    std::vector<double> values;
+
+    this->curveData(&dateTimes, &values);
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setPlotAxis(RimDefines::PlotAxis plotAxis)
+{
+    m_plotAxis = plotAxis;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::PlotAxis RimSummaryCurve::associatedPlotAxis() const
+{
+    return m_plotAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -340,19 +377,25 @@ void RimSummaryCurve::onLoadDataAndUpdate()
         std::vector<QDateTime> dateTimes;
         std::vector<double> values;
 
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType(plot);
+        bool isLogCurve = plot->isLogarithmicScaleEnabled(this->associatedPlotAxis());
+
         if(this->curveData(&dateTimes, &values))
         {
-            m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values);
+            m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values, isLogCurve);
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>());
+            m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>(), isLogCurve);
         }
 
         updateZoomInParentPlot();
 
         if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
+
+    updateQwtPlotAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -382,9 +425,28 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         appearanceGroup->add(&m_addCaseNameToCurveName);
     }
 
+    uiOrdering.add(&m_plotAxis);
+
     uiOrdering.setForgetRemainingFields(true); // For now. 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::updateQwtPlotAxis()
+{
+    if (m_qwtPlotCurve)
+    {
+        if (this->associatedPlotAxis() == RimDefines::PLOT_AXIS_LEFT)
+        {
+            m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
+        }
+        else
+        {
+            m_qwtPlotCurve->setYAxis(QwtPlot::yRight);
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -393,6 +455,10 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 {
     this->RimPlotCurve::fieldChangedByUi(changedField,oldValue,newValue);
     
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType(plot);
+    CVF_ASSERT(plot);
+
     if(changedField == &m_uiFilterResultSelection)
     {
         if (0 <= m_uiFilterResultSelection() && static_cast<size_t>(m_uiFilterResultSelection()) < summaryReader()->allResultAddresses().size())
@@ -406,27 +472,29 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         this->loadDataAndUpdate();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType(plot);
-        plot->updateYAxisUnit();
+        plot->updateAxes();
     } 
     else if (&m_showCurve == changedField)
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType(plot);
-        plot->updateYAxisUnit();
+        plot->updateAxes();
     }
     else if (changedField == &m_addCaseNameToCurveName)
     {
         this->uiCapability()->updateConnectedEditors();
         updateCurveName();
     }
+    else if (changedField == &m_plotAxis)
+    {
+        updateQwtPlotAxis();
+
+        plot->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryCurve::summaryReader()
+RifReaderEclipseSummary* RimSummaryCurve::summaryReader() const
 {
     if (!m_summaryCase()) return nullptr;
 
@@ -446,7 +514,7 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values)
+bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const
 {
     CVF_ASSERT(timeSteps && values);
 

@@ -76,11 +76,11 @@ RimEclipseCase::RimEclipseCase()
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_matrixModelResults.uiCapability()->setUiHidden(true);
-    m_matrixModelResults.uiCapability()->setUiChildrenHidden(true);
+    m_matrixModelResults.uiCapability()->setUiTreeChildrenHidden(true);
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults.uiCapability()->setUiHidden(true);
-    m_fractureModelResults.uiCapability()->setUiChildrenHidden(true);
+    m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden(true);
 
     this->setReservoirData( NULL );
 }

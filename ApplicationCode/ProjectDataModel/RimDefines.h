@@ -80,5 +80,17 @@ public:
     };
 
     static double feetPerMeter()                    { return 3.2808399; }
+
+
+    // Defines relate to plotting
+
+    enum PlotAxis
+    {
+        PLOT_AXIS_LEFT,
+        PLOT_AXIS_RIGHT
+    };
+
+    static double minimumDefaultValuePlot()         { return - 10.0; }
+    static double maximumDefaultValuePlot()         { return  100.0; }
 };
 

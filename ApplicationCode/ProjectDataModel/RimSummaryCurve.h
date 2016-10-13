@@ -25,14 +25,16 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
-#include "RimPlotCurve.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RimDefines.h"
+#include "RimPlotCurve.h"
+
 #include "cafAppEnum.h"
 
-class RimSummaryCase;
 class RifReaderEclipseSummary;
-class RiuLineSegmentQwtPlotCurve;
+class RimSummaryCase;
 class RimSummaryFilter;
+class RiuLineSegmentQwtPlotCurve;
 
 class RimSummaryAddress: public caf::PdmObject
 {
@@ -68,6 +70,7 @@ private:
 class RimSummaryCurve : public RimPlotCurve
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimSummaryCurve();
     virtual ~RimSummaryCurve();
@@ -79,6 +82,13 @@ public:
     RifEclipseSummaryAddress                summaryAddress();
     void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
     std::string                             unitName();
+
+    std::vector<double>                     yPlotValues() const;
+
+    void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
+    RimDefines::PlotAxis                    associatedPlotAxis() const;
+    void                                    updateQwtPlotAxis();
+
 protected:
     // RimPlotCurve overrides
 
@@ -87,8 +97,8 @@ protected:
     virtual void                            onLoadDataAndUpdate() override;
 
 private:
-    RifReaderEclipseSummary*                summaryReader();
-    bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values);
+    RifReaderEclipseSummary*                summaryReader() const;
+    bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
 
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -96,15 +106,16 @@ private:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+private:
     // Fields
     caf::PdmPtrField<RimSummaryCase*>       m_summaryCase;
     caf::PdmChildField<RimSummaryAddress*>  m_curveVariable;
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
     caf::PdmField<bool>                     m_addCaseNameToCurveName;
 
+    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
     caf::PdmField<int>                      m_uiFilterResultSelection;
-
 };

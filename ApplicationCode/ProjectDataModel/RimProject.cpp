@@ -86,7 +86,7 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
     wellPathImport.uiCapability()->setUiHidden(true);
-    wellPathImport.uiCapability()->setUiChildrenHidden(true);
+    wellPathImport.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", "", "", "");
     mainPlotCollection.uiCapability()->setUiHidden(true);

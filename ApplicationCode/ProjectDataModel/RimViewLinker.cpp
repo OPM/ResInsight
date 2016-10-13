@@ -61,12 +61,12 @@ RimViewLinker::RimViewLinker(void)
     m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View", "", "", "");
-    m_masterView.uiCapability()->setUiChildrenHidden(true);
+    m_masterView.uiCapability()->setUiTreeChildrenHidden(true);
     m_masterView.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
     m_viewControllers.uiCapability()->setUiHidden(true);
-    m_viewControllers.uiCapability()->setUiChildrenHidden(true);
+    m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

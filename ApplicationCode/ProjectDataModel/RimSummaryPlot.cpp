@@ -22,7 +22,10 @@
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryTimeAxisProperties.h"
+#include "RimSummaryYAxisProperties.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSelectionColors.h"
@@ -31,9 +34,12 @@
 #include "cvfBase.h"
 #include "cvfColor3.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
 #include <QDateTime>
 #include <QRectF>
 
+#include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
 
 
@@ -51,13 +57,33 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
-    m_curveFilters.uiCapability()->setUiHidden(true);
+    m_curveFilters.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_curves, "SummaryCurves", "",  "", "", "");
-    m_curves.uiCapability()->setUiHidden(true);
+    m_curves.uiCapability()->setUiTreeHidden(true);
 
-    CAF_PDM_InitField(&m_visibleWindow, "VisibleWindow", std::vector<float>(), "Visible Display Window", "", "", "");
-    m_visibleWindow.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
+    m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
+
+    m_leftYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
+    m_leftYAxisPropertiesObject->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
+    m_leftYAxisProperties = m_leftYAxisPropertiesObject.get();
+
+    CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
+    m_rightYAxisProperties.uiCapability()->setUiTreeHidden(true);
+
+    m_rightYAxisPropertiesObject = std::unique_ptr<RimSummaryYAxisProperties>(new RimSummaryYAxisProperties);
+    m_rightYAxisPropertiesObject->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
+    m_rightYAxisProperties = m_rightYAxisPropertiesObject.get();
+
+    CAF_PDM_InitFieldNoDefault(&m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "");
+    m_timeAxisProperties.uiCapability()->setUiTreeHidden(true);
+
+    m_timeAxisPropertiesObject = std::unique_ptr<RimSummaryTimeAxisProperties>(new RimSummaryTimeAxisProperties);
+    m_timeAxisProperties = m_timeAxisPropertiesObject.get();
+
+    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Auto Zoom", "", "", "");
+    m_isAutoZoom.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,6 +114,111 @@ void RimSummaryPlot::deletePlotWidget()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAxes()
+{
+    updateAxis(RimDefines::PLOT_AXIS_LEFT);
+    updateAxis(RimDefines::PLOT_AXIS_RIGHT);
+
+    updateZoomInQwt();
+
+    updateTimeAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const
+{
+    if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+    {
+        return m_leftYAxisProperties->isLogarithmicScaleEnabled();
+    }
+    else
+    {
+        return m_rightYAxisProperties->isLogarithmicScaleEnabled();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
+{
+    if (!m_qwtPlot) return;
+
+    std::vector<RimSummaryCurve*> curves = curvesForAxis(plotAxis);
+
+    std::vector<RimSummaryCurveFilter*> curveFiltersForAxis;
+    for (RimSummaryCurveFilter* cs : m_curveFilters)
+    {
+        if (cs->associatedPlotAxis() == plotAxis)
+        {
+            curveFiltersForAxis.push_back(cs);
+        }
+    }
+
+    QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
+    RimSummaryYAxisProperties* yAxisProperties = nullptr;
+    if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+    {
+        qwtAxis = QwtPlot::yLeft;
+        yAxisProperties = m_leftYAxisProperties();
+    }
+    else
+    {
+        qwtAxis = QwtPlot::yRight;
+        yAxisProperties = m_rightYAxisProperties();
+    }
+
+    if (curves.size() > 0)
+    {
+        m_qwtPlot->enableAxis(qwtAxis, true);
+
+        RimSummaryCurvesCalculator calc(yAxisProperties, curves, curveFiltersForAxis);
+        calc.applyPropertiesToPlot(m_qwtPlot);
+    }
+    else
+    {
+        m_qwtPlot->enableAxis(qwtAxis, false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForAxis(RimDefines::PlotAxis plotAxis) const
+{
+    std::vector<RimSummaryCurve*> curves;
+
+    std::vector<RimSummaryCurve*> childCurves;
+    this->descendantsIncludingThisOfType(childCurves);
+
+    for (RimSummaryCurve* curve : childCurves)
+    {
+        if (curve->associatedPlotAxis() == plotAxis)
+        {
+            curves.push_back(curve);
+        }
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateTimeAxis()
+{
+    if (!m_qwtPlot) return;
+
+    QFont timeAxisFont = m_qwtPlot->axisFont(QwtPlot::xBottom);
+    timeAxisFont.setBold(false);
+    timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
+    m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -103,36 +234,6 @@ void RimSummaryPlot::handleViewerDeletion()
 
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateYAxisUnit()
-{
-    if (!m_qwtPlot) return;
-
-    std::set<std::string> unitNames;
-
-    for(RimSummaryCurve* rimCurve: m_curves)
-    {
-        if (rimCurve->isCurveVisible()) unitNames.insert(rimCurve->unitName());
-    }
-
-    for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
-    {
-        std::set<std::string> filterUnitNames = curveFilter->unitNames();
-        unitNames.insert(filterUnitNames.begin(), filterUnitNames.end());
-    }
-
-    QString assembledYAxisText;
-
-    for (const std::string& unitName : unitNames)
-    {
-        assembledYAxisText += "[" + QString::fromStdString(unitName) + "] ";
-    }
-
-    m_qwtPlot->setYAxisTitle(assembledYAxisText);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,22 +261,24 @@ QWidget* RimSummaryPlot::viewer()
     return m_qwtPlot;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setZoomWindow(const QRectF& zoomWindow)
+void RimSummaryPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
 {
-    if(!zoomWindow.isEmpty())
-    {
-        std::vector<float> window;
-        window.push_back(zoomWindow.left());
-        window.push_back(zoomWindow.top());
-        window.push_back(zoomWindow.width());
-        window.push_back(zoomWindow.height());
+    m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
+    m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
+    m_leftYAxisProperties->updateConnectedEditors();
 
-        m_visibleWindow = window;
-    }
+    m_rightYAxisProperties->visibleRangeMax = rightAxis.maxValue();
+    m_rightYAxisProperties->visibleRangeMin = rightAxis.minValue();
+    m_rightYAxisProperties->updateConnectedEditors();
+
+    m_timeAxisProperties->setVisibleRangeMin(timeAxis.minValue());
+    m_timeAxisProperties->setVisibleRangeMax(timeAxis.maxValue());
+    m_timeAxisProperties->updateConnectedEditors();
+
+    disableAutoZoom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,9 +288,44 @@ void RimSummaryPlot::zoomAll()
 {
     if (m_qwtPlot)
     {
-        m_qwtPlot->zoomAll();
-        this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
+        m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom, true);
+
+        if (m_leftYAxisProperties->isLogarithmicScaleEnabled)
+        {
+            std::vector<RimSummaryCurve*> curves = curvesForAxis(RimDefines::PLOT_AXIS_LEFT);
+
+            double min, max;
+            RimSummaryCurvesCalculator calc(m_leftYAxisProperties, curves);
+            calc.computeYRange(&min, &max);
+
+            m_qwtPlot->setAxisScale(m_leftYAxisProperties->axis(), min, max);
+        }
+        else
+        {
+            m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft, true);
+        }
+
+        if (m_rightYAxisProperties->isLogarithmicScaleEnabled)
+        {
+            std::vector<RimSummaryCurve*> curves = curvesForAxis(RimDefines::PLOT_AXIS_RIGHT);
+
+            double min, max;
+            RimSummaryCurvesCalculator calc(m_rightYAxisProperties, curves);
+            calc.computeYRange(&min, &max);
+
+            m_qwtPlot->setAxisScale(m_rightYAxisProperties->axis(), min, max);
+        }
+        else
+        {
+            m_qwtPlot->setAxisAutoScale(QwtPlot::yRight, true);
+        }
+
+        m_qwtPlot->replot();
     }
+
+    updateZoomFromQwt();
+
+    m_isAutoZoom = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +339,7 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
         if (m_qwtPlot)
         {
             curve->setParentQwtPlot(m_qwtPlot);
-            this->updateYAxisUnit();
+            this->updateAxes();
         }
     }
 }
@@ -217,7 +355,7 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
         if(m_qwtPlot)
         {
             curveFilter->setParentQwtPlot(m_qwtPlot);
-            this->updateYAxisUnit();
+            this->updateAxes();
         }
     }
 }
@@ -251,14 +389,9 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setupBeforeSave()
 {
-    if (m_qwtPlot)
+    if (m_qwtPlot && RiaApplication::instance()->mainPlotWindow())
     {
-        if (RiaApplication::instance()->mainPlotWindow())
-        {
-            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
-        }
-
-        this->setZoomWindow(m_qwtPlot->currentVisibleWindow());
+        this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
     }
 }
 
@@ -287,6 +420,18 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(&m_timeAxisProperties);
+    uiTreeOrdering.add(&m_leftYAxisProperties);
+    uiTreeOrdering.add(&m_rightYAxisProperties);
+    uiTreeOrdering.add(&m_curveFilters);
+    uiTreeOrdering.add(&m_curves);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::loadDataAndUpdate()
 {
    updateViewerWidget();    
@@ -301,7 +446,7 @@ void RimSummaryPlot::loadDataAndUpdate()
         curve->loadDataAndUpdate();
     }
  
-    this->updateYAxisUnit();
+    this->updateAxes();
 
     updateZoomInQwt();
 }
@@ -312,15 +457,53 @@ void RimSummaryPlot::loadDataAndUpdate()
 void RimSummaryPlot::updateZoomInQwt()
 {
     if (!m_qwtPlot) return;
-
-    // Todo: introduce autoscale
-
-    if(m_visibleWindow().size() == 4)
+    
+    if (m_isAutoZoom)
     {
-        QRectF visibleWindow(m_visibleWindow()[0], m_visibleWindow()[1], m_visibleWindow()[2], m_visibleWindow()[3]);
-
-        m_qwtPlot->setZoomWindow(visibleWindow);
+        zoomAll();
     }
+    else
+    {
+        setZoomIntervalsInQwtPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setZoomIntervalsInQwtPlot()
+{
+    QwtInterval left, right, time;
+
+    left.setMinValue(m_leftYAxisProperties->visibleRangeMin());
+    left.setMaxValue(m_leftYAxisProperties->visibleRangeMax());
+    right.setMinValue(m_rightYAxisProperties->visibleRangeMin());
+    right.setMaxValue(m_rightYAxisProperties->visibleRangeMax());
+    time.setMinValue(m_timeAxisProperties->visibleRangeMin());
+    time.setMaxValue(m_timeAxisProperties->visibleRangeMax());
+
+    m_qwtPlot->setZoomWindow(left, right, time);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateZoomFromQwt()
+{
+    if (!m_qwtPlot) return;
+
+    QwtInterval left, right, time;
+    m_qwtPlot->currentVisibleWindow(&left, &right, &time);
+
+    setZoomWindow(left, right, time);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::disableAutoZoom()
+{
+    m_isAutoZoom = false;
 }
 
 //--------------------------------------------------------------------------------------------------

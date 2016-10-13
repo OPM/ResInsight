@@ -64,7 +64,7 @@ RimViewController::RimViewController(void)
     m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View", "", "", "");
-    m_managedView.uiCapability()->setUiChildrenHidden(true);
+    m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
     CAF_PDM_InitField(&m_syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");

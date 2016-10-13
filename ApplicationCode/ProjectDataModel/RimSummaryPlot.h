@@ -23,15 +23,24 @@
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+
+#include "RimDefines.h"
+#include "RimViewWindow.h"
 
 #include <QPointer>
 
-#include "RimViewWindow.h"
+#include <memory>
 
 class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
+class RimSummaryYAxisProperties;
+class RimSummaryTimeAxisProperties;
+class PdmUiTreeOrdering;
+
 class QwtPlotCurve;
+class QwtInterval;
 
 //==================================================================================================
 ///  
@@ -53,16 +62,22 @@ public:
     
     void                                            loadDataAndUpdate();
 
-
     void                                            handleViewerDeletion();
-    void                                            updateYAxisUnit();
     void                                            updateCaseNameHasChanged();
 
     QWidget*                                        viewer();
 
-    void                                            setZoomWindow(const QRectF& zoomWindow);
+    void                                            updateAxes();
     virtual void                                    zoomAll() override;
+    void                                            setZoomWindow(const QwtInterval& leftAxis,
+                                                                  const QwtInterval& rightAxis,
+                                                                  const QwtInterval& timeAxis);
+
     void                                            updateZoomInQwt();
+    void                                            updateZoomFromQwt();
+    void                                            disableAutoZoom();
+    
+    bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
 protected:
     // Overridden PDM methods
@@ -70,6 +85,7 @@ protected:
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    setupBeforeSave() override;
+    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
@@ -78,12 +94,29 @@ private:
     void                                            updateViewerWidgetWindowTitle();
     void                                            detachAllCurves();
     void                                            deletePlotWidget();
+    
+    void                                            updateAxis(RimDefines::PlotAxis plotAxis);
+    std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
 
+    void                                            updateTimeAxis();
+    void                                            setZoomIntervalsInQwtPlot();
+
+
+private:
     caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
-    caf::PdmField<std::vector<float> >              m_visibleWindow;
+
+    caf::PdmField<bool>                             m_isAutoZoom;
+    caf::PdmChildField<RimSummaryYAxisProperties*>  m_leftYAxisProperties;
+    caf::PdmChildField<RimSummaryYAxisProperties*>  m_rightYAxisProperties;
+    caf::PdmChildField<RimSummaryTimeAxisProperties*>  m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                     m_qwtPlot;
+
+    // Internal objects managed by unique_ptr
+    std::unique_ptr<RimSummaryYAxisProperties>      m_leftYAxisPropertiesObject;
+    std::unique_ptr<RimSummaryYAxisProperties>      m_rightYAxisPropertiesObject;
+    std::unique_ptr<RimSummaryTimeAxisProperties>   m_timeAxisPropertiesObject;
 };

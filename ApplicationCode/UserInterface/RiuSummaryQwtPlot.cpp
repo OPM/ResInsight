@@ -52,18 +52,23 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     setDefaults();
 
     // LeftButton for the zooming
-    m_zoomer = new QwtPlotZoomer(canvas());
-    m_zoomer->setRubberBandPen(QColor(Qt::black));
-    m_zoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    m_zoomer->setTrackerPen(QColor(Qt::black));
-    m_zoomer->initMousePattern(1);
+    m_zoomerLeft = new QwtPlotZoomer(canvas());
+    m_zoomerLeft->setRubberBandPen(QColor(Qt::black));
+    m_zoomerLeft->setTrackerMode(QwtPicker::AlwaysOff);
+    m_zoomerLeft->setTrackerPen(QColor(Qt::black));
+    m_zoomerLeft->initMousePattern(1);
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner(canvas());
     panner->setMouseButton(Qt::MidButton);
 
-    connect(m_zoomer, SIGNAL(zoomed( const QRectF & )), SLOT(onZoomedSlot()));
+    connect(m_zoomerLeft, SIGNAL(zoomed( const QRectF & )), SLOT(onZoomedSlot()));
     connect(panner, SIGNAL(panned( int , int  )), SLOT(onZoomedSlot()));
+
+    // Attach a zoomer for the right axis
+    m_zoomerRight = new QwtPlotZoomer(canvas());
+    m_zoomerRight->setAxis(xTop, yRight);
+    m_zoomerRight->setTrackerMode(QwtPicker::AlwaysOff);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,45 +96,37 @@ RimSummaryPlot* RiuSummaryQwtPlot::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setYAxisTitle(const QString& title)
+void RiuSummaryQwtPlot::currentVisibleWindow(QwtInterval* leftAxis, QwtInterval* rightAxis, QwtInterval* timeAxis) const
 {
-    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
-    axisTitleY.setText(title);
-    setAxisTitle(QwtPlot::yLeft, axisTitleY);
+    *leftAxis  = axisScaleDiv(yLeft).interval();
+    *rightAxis = axisScaleDiv(yRight).interval();
+    *timeAxis  = axisScaleDiv(xBottom).interval();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::zoomAll()
+void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
 {
-    setAxisAutoScale(yLeft, true);
-    setAxisAutoScale(xBottom, true);
+    {
+        QRectF zoomWindow;
+        zoomWindow.setLeft(timeAxis.minValue());
+        zoomWindow.setRight(timeAxis.maxValue());
+        zoomWindow.setTop(leftAxis.maxValue());
+        zoomWindow.setBottom(leftAxis.minValue());
 
-    m_zoomer->setZoomBase(true);
-}
+        m_zoomerLeft->zoom(zoomWindow);
+    }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QRectF RiuSummaryQwtPlot::currentVisibleWindow() const
-{
-    QRectF scaleRect;
-    scaleRect.setLeft(axisScaleDiv(xBottom).lowerBound());
-    scaleRect.setRight(axisScaleDiv(xBottom).upperBound());
+    {
+        QRectF zoomWindow;
+        zoomWindow.setLeft(timeAxis.minValue());
+        zoomWindow.setRight(timeAxis.maxValue());
+        zoomWindow.setTop(rightAxis.maxValue());
+        zoomWindow.setBottom(rightAxis.minValue());
 
-    scaleRect.setBottom(axisScaleDiv(yLeft).upperBound());
-    scaleRect.setTop(axisScaleDiv(yLeft).lowerBound());
-
-    return scaleRect;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setZoomWindow(const QRectF& zoomWindow)
-{
-    m_zoomer->zoom(zoomWindow);
+        m_zoomerRight->zoom(zoomWindow);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,5 +289,10 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
-    m_plotDefinition->setZoomWindow(currentVisibleWindow());
+    QwtInterval left, right, time;
+    currentVisibleWindow(&left, &right, &time);
+
+    this->setZoomWindow(left, right, time);
+    
+    m_plotDefinition->updateZoomFromQwt();
 }

@@ -32,7 +32,8 @@ class RigCurveDataTools
 {
 public:
     static void calculateIntervalsOfValidValues(const std::vector<double>& values, 
-                                                std::vector< std::pair<size_t, size_t> >* intervals);
+                                                std::vector< std::pair<size_t, size_t> >* intervals,
+                                                bool removeNegativeValues);
 
     template <typename T>
     static void getValuesByIntervals(const std::vector<T>& values,

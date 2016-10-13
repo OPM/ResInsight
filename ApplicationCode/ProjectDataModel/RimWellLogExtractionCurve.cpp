@@ -66,20 +66,20 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     CAF_PDM_InitObject("Well Log Curve", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Path", "", "", "");
-    m_wellPath.uiCapability()->setUiChildrenHidden(true);
+    m_wellPath.uiCapability()->setUiTreeChildrenHidden(true);
     //m_wellPath.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
-    m_case.uiCapability()->setUiChildrenHidden(true);
+    m_case.uiCapability()->setUiTreeChildrenHidden(true);
     //m_case.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "");
     m_eclipseResultDefinition.uiCapability()->setUiHidden(true);
-    m_eclipseResultDefinition.uiCapability()->setUiChildrenHidden(true);
+    m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
 
     CAF_PDM_InitFieldNoDefault(&m_geomResultDefinition, "CurveGeomechResult", "", "", "", "");
     m_geomResultDefinition.uiCapability()->setUiHidden(true);
-    m_geomResultDefinition.uiCapability()->setUiChildrenHidden(true);
+    m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");

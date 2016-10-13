@@ -69,7 +69,7 @@ public:
     
     ~PdmUiTreeOrdering();
 
-    void                        add(PdmFieldHandle * field);
+    void                        add(PdmFieldHandle * field, QString uiConfigName = "");
     void                        add(PdmObjectHandle* object);
     PdmUiTreeOrdering*          add(const QString & title, const QString& iconResourceName );
     

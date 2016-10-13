@@ -25,19 +25,25 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmChildArrayField.h"
-
-#include "RimPlotCurve.h"
-#include "RifEclipseSummaryAddress.h"
 #include "cafAppEnum.h"
-
-#include "RimSummaryCurve.h"
-#include "RimSummaryFilter.h"
 #include "cafPdmPtrArrayField.h"
+
+#include "RifEclipseSummaryAddress.h"
+#include "RimDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-class RimSummaryCase;
+#include "qwt_plot.h"
+
+class QwtPlot;
+class QwtPlotCurve;
 class RifReaderEclipseSummary;
+class RimSummaryCase;
+class RimSummaryCurve;
+class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
+
+#include <QPointer>
+
 
 Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
 
@@ -48,6 +54,7 @@ Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
 class RimSummaryCurveFilter : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
@@ -63,6 +70,9 @@ public:
     std::set<std::string>                   unitNames();
 
     void                                    updateCaseNameHasChanged();
+
+    RimDefines::PlotAxis                    associatedPlotAxis() const;
+    void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
 
 private:
     void                                    syncCurvesFromUiSelection();
@@ -81,7 +91,9 @@ private:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly); 
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    void                                    updatePlotAxisForCurves();
 
+private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
 
     // Fields
@@ -90,6 +102,9 @@ private:
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
     caf::PdmField<QString>                  m_selectedVariableDisplayField;
+    
+    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
@@ -105,6 +120,5 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >  m_wellAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >  m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
-
 };
 

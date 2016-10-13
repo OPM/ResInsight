@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals)
+void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double>& values, std::vector< std::pair<size_t, size_t> >* intervals, bool removeNegativeValues)
 {
     CVF_ASSERT(intervals);
 
@@ -36,7 +36,19 @@ void RigCurveDataTools::calculateIntervalsOfValidValues(const std::vector<double
     while (vIdx < valueCount)
     {
         double value = values[vIdx];
+
+        bool isInvalidValueDetected = false;
         if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
+        {
+            isInvalidValueDetected = true;
+        }
+
+        if (removeNegativeValues && value <= 0.0)
+        {
+            isInvalidValueDetected = true;
+        }
+
+        if (isInvalidValueDetected)
         {
             if (startIdx >= 0)
             {

@@ -49,7 +49,7 @@ RimWellLogFileCurve::RimWellLogFileCurve()
     CAF_PDM_InitObject("Well Log File Curve", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Path", "", "", "");
-    m_wellPath.uiCapability()->setUiChildrenHidden(true);
+    m_wellPath.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 

@@ -280,6 +280,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicSummaryCurveSwitchAxisFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
@@ -287,6 +288,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicSummaryCurveSwitchAxisFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
         }
