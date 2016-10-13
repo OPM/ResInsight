@@ -197,6 +197,10 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["SE"].push_back("S1");
             fieldCompNames["SE"].push_back("S2");
             fieldCompNames["SE"].push_back("S3");
+            fieldCompNames["SE"].push_back("S1inc");
+            fieldCompNames["SE"].push_back("S1azi");
+            fieldCompNames["SE"].push_back("S3inc");
+            fieldCompNames["SE"].push_back("S3azi");
 
             fieldCompNames["ST"].push_back("S11");
             fieldCompNames["ST"].push_back("S22");
@@ -207,6 +211,11 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S1");
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
+
+            fieldCompNames["ST"].push_back("S1inc");
+            fieldCompNames["ST"].push_back("S1azi");
+            fieldCompNames["ST"].push_back("S3inc");
+            fieldCompNames["ST"].push_back("S3azi");
 
             fieldCompNames["Gamma"].push_back("Gamma1");
             fieldCompNames["Gamma"].push_back("Gamma2");
@@ -241,7 +250,12 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["SE"].push_back("S1");
             fieldCompNames["SE"].push_back("S2");
             fieldCompNames["SE"].push_back("S3");
- 
+
+            fieldCompNames["SE"].push_back("S1inc");
+            fieldCompNames["SE"].push_back("S1azi");
+            fieldCompNames["SE"].push_back("S3inc");
+            fieldCompNames["SE"].push_back("S3azi");
+
             fieldCompNames["ST"].push_back("S11");
             fieldCompNames["ST"].push_back("S22");
             fieldCompNames["ST"].push_back("S33");
@@ -251,6 +265,11 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["ST"].push_back("S1");
             fieldCompNames["ST"].push_back("S2");
             fieldCompNames["ST"].push_back("S3");
+
+            fieldCompNames["ST"].push_back("S1inc");
+            fieldCompNames["ST"].push_back("S1azi");
+            fieldCompNames["ST"].push_back("S3inc");
+            fieldCompNames["ST"].push_back("S3azi");
 
 
             fieldCompNames["Gamma"].push_back("Gamma1");
@@ -564,8 +583,14 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return dstDataFrames;
     }
 
+
     if ((resVarAddr.fieldName == "SE") 
-        && !(resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" || resVarAddr.componentName == ""))
+        && (   resVarAddr.componentName == "S11" 
+            || resVarAddr.componentName == "S22" 
+            || resVarAddr.componentName == "S33" 
+            || resVarAddr.componentName == "S12"
+            || resVarAddr.componentName == "S13" 
+            || resVarAddr.componentName == "S23" ))
     {
         RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName));
         RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
@@ -615,7 +640,14 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     }
 
     if (   (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" )
-        && (resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ))
+        && (   resVarAddr.componentName == "S1" 
+            || resVarAddr.componentName == "S2" 
+            || resVarAddr.componentName == "S3" 
+            || resVarAddr.componentName == "S1inc" 
+            || resVarAddr.componentName == "S1azi" 
+            || resVarAddr.componentName == "S3inc" 
+            || resVarAddr.componentName == "S3azi" )
+        )
     {
         RigFemScalarResultFrames * s11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S11"));
         RigFemScalarResultFrames * s22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S22"));
@@ -627,6 +659,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         RigFemScalarResultFrames * s1Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S1"));
         RigFemScalarResultFrames * s2Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S2"));
         RigFemScalarResultFrames * s3Frames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S3"));
+
+        RigFemScalarResultFrames * s1IncFrames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S1inc"));
+        RigFemScalarResultFrames * s1AziFrames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S1azi"));
+        RigFemScalarResultFrames * s3IncFrames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S3inc"));
+        RigFemScalarResultFrames * s3AziFrames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "S3azi"));
 
         int frameCount = s11Frames->frameCount();
         for (int fIdx = 0; fIdx < frameCount; ++fIdx)
@@ -642,20 +679,36 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
             std::vector<float>& s2 = s2Frames->frameData(fIdx);
             std::vector<float>& s3 = s3Frames->frameData(fIdx);
 
+            std::vector<float>& s1inc = s1IncFrames->frameData(fIdx);
+            std::vector<float>& s1Azi = s1AziFrames->frameData(fIdx);
+            std::vector<float>& s3inc = s3IncFrames->frameData(fIdx);
+            std::vector<float>& s3azi = s3AziFrames->frameData(fIdx);
+
             size_t valCount = s11.size();
             
             s1.resize(valCount);
             s2.resize(valCount);
             s3.resize(valCount);
+            s1inc.resize(valCount);
+            s1Azi.resize(valCount);
+            s3inc.resize(valCount);
+            s3azi.resize(valCount);
 
             for (size_t vIdx = 0; vIdx < valCount; ++vIdx)
             {
                 caf::Ten3f T(s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s23[vIdx], s13[vIdx] );
-
-                cvf::Vec3f principals = T.calculatePrincipals(NULL);
+                cvf::Vec3f principalDirs[3];
+                cvf::Vec3f principals = T.calculatePrincipals(principalDirs);
                 s1[vIdx] = principals[0];
                 s2[vIdx] = principals[1];
                 s3[vIdx] = principals[2];
+
+                OffshoreSphericalCoords sphCoord1(principalDirs[0]);
+                OffshoreSphericalCoords sphCoord3(principalDirs[2]);
+                s1inc[vIdx] = cvf::Math::toDegrees( sphCoord1.inc() );
+                s1Azi[vIdx] = cvf::Math::toDegrees( sphCoord1.azi() );
+                s3inc[vIdx] = cvf::Math::toDegrees( sphCoord3.inc() );
+                s3azi[vIdx] = cvf::Math::toDegrees( sphCoord3.azi() );
             }
         }
 
