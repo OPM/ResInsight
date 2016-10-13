@@ -72,6 +72,7 @@ namespace caf {
         addItem(RimLegendConfig::WHITE_BLACK,    "WHITE_BLACK",     "White to black");
         addItem(RimLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
         addItem(RimLegendConfig::CATEGORY,       "CATEGORY",        "Category colors");
+        addItem(RimLegendConfig::ANGULAR,        "ANGULAR",         "Full color cyclic");
         setDefault(RimLegendConfig::NORMAL);
     }
 }
@@ -367,6 +368,21 @@ void RimLegendConfig::updateLegend()
         legendColors.add(cvf::Color3ub(  0,  83, 138)); // hwb(204,  0%, 46%) strong_blue
         legendColors.add(cvf::Color3ub(166, 189, 215)); // hwb(212, 65%, 16%) very_light_blue
         legendColors.add(cvf::Color3ub( 46,  76, 224)); // hwb(230, 18%, 12%) medium_blue
+   }
+   break;
+
+   case ANGULAR:
+   {
+       legendColors.reserve(9);
+       legendColors.add(cvf::Color3ub(255, 0, 255));
+       legendColors.add(cvf::Color3ub(0, 0, 255));
+       legendColors.add(cvf::Color3ub(0, 127, 255));
+       legendColors.add(cvf::Color3ub(0, 255, 255));
+       legendColors.add(cvf::Color3ub(0, 255, 0));
+       legendColors.add(cvf::Color3ub(255, 255, 0));
+       legendColors.add(cvf::Color3ub(255, 127, 0));
+       legendColors.add(cvf::Color3ub(255, 0, 0));
+       legendColors.add(cvf::Color3ub(255, 0, 255));
    }
    break;
 
@@ -769,7 +785,6 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QStringList optionTexts;
 
     bool isCategoryResult = false;
     {
@@ -788,45 +803,52 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         }
     }
 
+    QList<caf::PdmOptionItemInfo> optionList;
+
     if (fieldNeedingOptions == &m_mappingMode)
     {
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
-
-        optionTexts << m_mappingMode.v().uiText(LINEAR_DISCRETE);
-        optionTexts << m_mappingMode.v().uiText(LINEAR_CONTINUOUS);
-        optionTexts << m_mappingMode.v().uiText(LOG10_CONTINUOUS);
-        optionTexts << m_mappingMode.v().uiText(LOG10_DISCRETE);
+        std::vector<MappingType> mappingTypes;
+        mappingTypes.push_back(LINEAR_DISCRETE);
+        mappingTypes.push_back(LINEAR_CONTINUOUS);
+        mappingTypes.push_back(LOG10_CONTINUOUS);
+        mappingTypes.push_back(LOG10_DISCRETE);
 
         if (isCategoryResult)
         {
-            optionTexts << m_mappingMode.v().uiText(CATEGORY_INTEGER);
+            mappingTypes.push_back(CATEGORY_INTEGER);
+        }
+
+        for(MappingType mapType: mappingTypes)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
         }
     }
     else if (fieldNeedingOptions == &m_colorRangeMode)
     {
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
-
-        optionTexts << m_colorRangeMode.v().uiText(NORMAL);
-        optionTexts << m_colorRangeMode.v().uiText(OPPOSITE_NORMAL);
-        optionTexts << m_colorRangeMode.v().uiText(WHITE_PINK);
-        optionTexts << m_colorRangeMode.v().uiText(PINK_WHITE);
-        optionTexts << m_colorRangeMode.v().uiText(BLUE_WHITE_RED);
-        optionTexts << m_colorRangeMode.v().uiText(RED_WHITE_BLUE);
-        optionTexts << m_colorRangeMode.v().uiText(WHITE_BLACK);
-        optionTexts << m_colorRangeMode.v().uiText(BLACK_WHITE);
+        std::vector<ColorRangesType> rangeTypes;
+        rangeTypes.push_back(NORMAL);
+        rangeTypes.push_back(OPPOSITE_NORMAL);
+        rangeTypes.push_back(WHITE_PINK);
+        rangeTypes.push_back(PINK_WHITE);
+        rangeTypes.push_back(BLUE_WHITE_RED);
+        rangeTypes.push_back(RED_WHITE_BLUE);
+        rangeTypes.push_back(WHITE_BLACK);
+        rangeTypes.push_back(BLACK_WHITE);
+        rangeTypes.push_back(ANGULAR);
 
         if (isCategoryResult)
         {
-            optionTexts << m_colorRangeMode.v().uiText(CATEGORY);
+            rangeTypes.push_back(CATEGORY);
+        }
+
+        for(ColorRangesType colType: rangeTypes)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
         }
     }
-
-    QList<caf::PdmOptionItemInfo> optionList;
-    for (int i = 0; i < optionTexts.size(); ++i)
-    {
-        optionList.push_back(caf::PdmOptionItemInfo(optionTexts[i], static_cast<unsigned int>(i)));
-    }
-
+ 
     return optionList;
 }
 
