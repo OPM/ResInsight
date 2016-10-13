@@ -19,9 +19,7 @@
 
 #define BOOST_TEST_MODULE TableContainerTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
@@ -34,7 +32,7 @@
 #include <string>
 #include <memory>
 
-std::shared_ptr<const Opm::Deck> createSWOFDeck() {
+inline std::shared_ptr<const Opm::Deck> createSWOFDeck() {
     const char *deckData =
         "TABDIMS\n"
         " 2 /\n"

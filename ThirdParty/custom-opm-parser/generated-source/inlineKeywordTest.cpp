@@ -146,6 +146,25 @@ BOOST_AUTO_TEST_CASE(TESTAPIKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTAQUANCONKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUANCON";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::AQUANCON inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTAQUCONKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUCON";
     boost::filesystem::path jsonPath( jsonFile );
@@ -171,6 +190,44 @@ BOOST_AUTO_TEST_CASE(TESTAQUDIMSKeyword) {
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
     ParserKeywords::AQUDIMS inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TESTAQUFETPKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUFETP";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::AQUFETP inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TESTAQUIFER_PROBE_ANALYTICKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/A/AQUIFER_PROBE_ANALYTIC";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::AQUIFER_PROBE_ANALYTIC inlineKeyword;
     BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
     if (jsonKeyword.hasDimension()) {
         ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
@@ -526,6 +583,25 @@ BOOST_AUTO_TEST_CASE(TESTDATESKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTDATUMKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DATUM";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::DATUM inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTDENSITYKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DENSITY";
     boost::filesystem::path jsonPath( jsonFile );
@@ -684,6 +760,25 @@ BOOST_AUTO_TEST_CASE(TESTDRVDTKeyword) {
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
     ParserKeywords::DRVDT inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TESTDUMPFLUXKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/D/DUMPFLUX";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::DUMPFLUX inlineKeyword;
     BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
     if (jsonKeyword.hasDimension()) {
         ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
@@ -1552,6 +1647,25 @@ BOOST_AUTO_TEST_CASE(TESTGEFACKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTGRAVITYKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRAVITY";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::GRAVITY inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTGRIDKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/G/GRID";
     boost::filesystem::path jsonPath( jsonFile );
@@ -1989,6 +2103,25 @@ BOOST_AUTO_TEST_CASE(TESTISWUKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTJFUNCKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/J/JFUNC";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::JFUNC inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTMAPAXESKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MAPAXES";
     boost::filesystem::path jsonPath( jsonFile );
@@ -2356,6 +2489,25 @@ BOOST_AUTO_TEST_CASE(TESTMULTPVKeyword) {
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
     ParserKeywords::MULTPV inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TESTMULTREGPKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/M/MULTREGP";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::MULTREGP inlineKeyword;
     BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
     if (jsonKeyword.hasDimension()) {
         ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
@@ -3946,6 +4098,25 @@ BOOST_AUTO_TEST_CASE(TESTRPTPROPSKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTRPTREGSKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTREGS";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::RPTREGS inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTRPTRSTKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/R/RPTRST";
     boost::filesystem::path jsonPath( jsonFile );
@@ -5276,6 +5447,25 @@ BOOST_AUTO_TEST_CASE(TESTTLPMIXPAKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTTNUMKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TNUM";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::TNUM inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTTOPSKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/T/TOPS";
     boost::filesystem::path jsonPath( jsonFile );
@@ -5846,6 +6036,44 @@ BOOST_AUTO_TEST_CASE(TESTWCONPRODKeyword) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(TESTWDRILTIMKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WDRILTIM";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::WDRILTIM inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TESTWECONKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WECON";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::WECON inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TESTWELLDIMSKeyword) {
     std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WELLDIMS";
     boost::filesystem::path jsonPath( jsonFile );
@@ -5985,6 +6213,25 @@ BOOST_AUTO_TEST_CASE(TESTWHISTCTLKeyword) {
     Json::JsonObject jsonConfig( jsonPath );
     ParserKeyword jsonKeyword(jsonConfig);
     ParserKeywords::WHISTCTL inlineKeyword;
+    BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
+    if (jsonKeyword.hasDimension()) {
+        ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);
+        for (size_t i=0; i < parserRecord->size(); i++){ 
+            ParserItemConstPtr item = parserRecord->get( i );
+            for (size_t j=0; j < item->numDimensions(); j++) {
+                std::string dimString = item->getDimension(j);
+                BOOST_CHECK_NO_THROW( unitSystem->getNewDimension( dimString ));
+             }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(TESTWLIFTKeyword) {
+    std::string jsonFile = "E:/Jenkins/jobs/opm-parser-create-keywords/workspace/opm-parser/opm/parser/share/keywords/000_Eclipse100/W/WLIFT";
+    boost::filesystem::path jsonPath( jsonFile );
+    Json::JsonObject jsonConfig( jsonPath );
+    ParserKeyword jsonKeyword(jsonConfig);
+    ParserKeywords::WLIFT inlineKeyword;
     BOOST_CHECK( jsonKeyword.equal( inlineKeyword ));
     if (jsonKeyword.hasDimension()) {
         ParserRecordConstPtr parserRecord = jsonKeyword.getRecord(0);

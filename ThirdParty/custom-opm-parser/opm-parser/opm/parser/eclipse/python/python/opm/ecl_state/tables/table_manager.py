@@ -1,6 +1,6 @@
 import os.path
 
-from ert.cwrap import BaseCClass
+from cwrap import BaseCClass
 from opm import OPMPrototype
 
 
@@ -23,7 +23,7 @@ class TableManager(BaseCClass):
 
         
     def free(self):
-        self._free( self )
+        self._free( )
         
 
     def hasTable(self, name ):

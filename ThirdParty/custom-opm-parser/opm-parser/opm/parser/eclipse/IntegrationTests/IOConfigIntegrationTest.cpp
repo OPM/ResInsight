@@ -28,7 +28,7 @@
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+#include <opm/parser/eclipse/EclipseState/IOConfig/RestartConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
@@ -36,24 +36,21 @@
 
 using namespace Opm;
 
-
-void verifyRestartConfig(IOConfigConstPtr ioconfig, std::vector<std::tuple<int , bool, boost::gregorian::date>>& rptConfig) {
+inline void verifyRestartConfig( const RestartConfig& rst, std::vector<std::tuple<int , bool, boost::gregorian::date>>& rptConfig) {
 
     for (auto rptrst : rptConfig) {
         int report_step                    = std::get<0>(rptrst);
         bool save                          = std::get<1>(rptrst);
         boost::gregorian::date report_date = std::get<2>(rptrst);
 
-        BOOST_CHECK_EQUAL( save , ioconfig->getWriteRestartFile( report_step ));
+        BOOST_CHECK_EQUAL( save, rst.getWriteRestartFile( report_step ) );
         if (save) {
-            BOOST_CHECK_EQUAL( report_date, ioconfig->getTimestepDate( report_step ));
+            BOOST_CHECK_EQUAL( report_date, rst.getTimestepDate( report_step ));
         }
     }
 }
 
-
-
-BOOST_AUTO_TEST_CASE( NorneResttartConfig ) {
+BOOST_AUTO_TEST_CASE( NorneRestartConfig ) {
     std::vector<std::tuple<int , bool, boost::gregorian::date> > rptConfig;
     rptConfig.push_back( std::make_tuple(0 , true , boost::gregorian::date( 1997,11,6)) );
     rptConfig.push_back( std::make_tuple(1 , true , boost::gregorian::date( 1997,11,14)) );
@@ -300,7 +297,7 @@ BOOST_AUTO_TEST_CASE( NorneResttartConfig ) {
 
 
     auto state = Parser::parse("testdata/integration_tests/IOConfig/RPTRST_DECK.DATA");
-    verifyRestartConfig(state.getIOConfigConst(), rptConfig);
+    verifyRestartConfig(state.cfg().restart(), rptConfig);
 }
 
 
@@ -342,8 +339,17 @@ BOOST_AUTO_TEST_CASE( RestartConfig2 ) {
     ParserPtr parser(new Parser());
     DeckConstPtr deck = parser->parseFile("testdata/integration_tests/IOConfig/RPT_TEST2.DATA", parseContext);
     EclipseState state( deck , parseContext );
-    std::shared_ptr<const IOConfig> ioConfig = state.getIOConfigConst();
-    verifyRestartConfig(ioConfig, rptConfig);
+    const auto& rstConfig = state.cfg().restart();
+    verifyRestartConfig( rstConfig, rptConfig );
 
-    BOOST_CHECK_EQUAL( ioConfig->getFirstRestartStep() , 0 );
+    BOOST_CHECK_EQUAL( rstConfig.getFirstRestartStep() , 0 );
+}
+
+
+
+BOOST_AUTO_TEST_CASE( SPE9END ) {
+    ParseContext parseContext;
+    ParserPtr parser(new Parser());
+    DeckConstPtr deck = parser->parseFile("testdata/integration_tests/IOConfig/SPE9_END.DATA", parseContext);
+    BOOST_CHECK_NO_THROW( EclipseState state( *deck , parseContext ) );
 }

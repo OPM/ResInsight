@@ -24,37 +24,37 @@
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
+#include <opm/parser/eclipse/EclipseState/Schedule/DynamicState.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/DynamicVector.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/Events.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/Group.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/GroupTree.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/OilVaporizationProperties.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/ScheduleEnums.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp>
 #include <opm/parser/eclipse/EclipseState/Util/OrderedMap.hpp>
 #include <opm/parser/eclipse/Parser/MessageContainer.hpp>
 
 namespace Opm
 {
 
-    template< typename > class DynamicState;
-    template< typename > class DynamicVector;
-
     class Deck;
     class DeckKeyword;
     class DeckRecord;
     class EclipseGrid;
-    class Events;
-    class Group;
-    class GroupTree;
-    class OilVaporizationProperties;
     class ParseContext;
     class SCHEDULESection;
     class TimeMap;
-    class Tuning;
     class UnitSystem;
     class Well;
 
     class Schedule {
     public:
-        Schedule(const ParseContext& parseContext, std::shared_ptr<const EclipseGrid> grid,
+        Schedule(const ParseContext& parseContext, const EclipseGrid& grid,
                  const Deck& deck );
+
         /// [deprecated]
-        Schedule(const ParseContext& parseContext, std::shared_ptr<const EclipseGrid> grid,
+        Schedule(const ParseContext& parseContext, const EclipseGrid& grid,
                  std::shared_ptr<const Deck> deck );
 
         /*
@@ -63,6 +63,8 @@ namespace Opm
          */
         boost::posix_time::ptime getStartTime() const;
         time_t posixStartTime() const;
+        time_t posixEndTime() const;
+
 
         std::shared_ptr< const TimeMap > getTimeMap() const;
 
@@ -70,22 +72,20 @@ namespace Opm
         size_t numWells(size_t timestep) const;
         size_t getMaxNumCompletionsForWells(size_t timestep) const;
         bool hasWell(const std::string& wellName) const;
-        std::shared_ptr< Well > getWell(const std::string& wellName);
-        const Well& getWell(const std::string& wellName) const;
-        std::vector<std::shared_ptr< Well >> getOpenWells(size_t timeStep);
-        std::vector<std::shared_ptr< const Well >> getWells() const;
-        std::vector<std::shared_ptr< const Well >> getWells(size_t timeStep) const;
-        std::vector<std::shared_ptr< Well >> getWells(const std::string& wellNamePattern);
-        std::shared_ptr< const OilVaporizationProperties > getOilVaporizationProperties(size_t timestep);
+        const Well* getWell(const std::string& wellName) const;
+        std::vector< const Well* > getOpenWells(size_t timeStep) const;
+        std::vector< const Well* > getWells() const;
+        std::vector< const Well* > getWells(size_t timeStep) const;
+        std::vector< const Well* > getWellsMatching( const std::string& ) const;
+        const OilVaporizationProperties& getOilVaporizationProperties(size_t timestep);
 
-        std::shared_ptr< GroupTree > getGroupTree(size_t t) const;
+        const GroupTree& getGroupTree(size_t t) const;
         size_t numGroups() const;
         bool hasGroup(const std::string& groupName) const;
-        std::shared_ptr< Group > getGroup(const std::string& groupName) const;
+        const Group& getGroup(const std::string& groupName) const;
         std::vector< const Group* > getGroups() const;
-        std::shared_ptr< Tuning > getTuning() const;
+        const Tuning& getTuning() const;
 
-        bool initOnly() const;
         const Events& getEvents() const;
         bool hasOilVaporizationProperties();
         std::shared_ptr<const Deck> getModifierDeck(size_t timeStep) const;
@@ -96,34 +96,30 @@ namespace Opm
     private:
         std::shared_ptr< TimeMap > m_timeMap;
         OrderedMap<std::shared_ptr< Well >> m_wells;
-        std::shared_ptr<const EclipseGrid> m_grid;
-        std::map<std::string , std::shared_ptr< Group >> m_groups;
-        std::shared_ptr<DynamicState<std::shared_ptr< GroupTree >> > m_rootGroupTree;
-        std::shared_ptr<DynamicState<std::shared_ptr< OilVaporizationProperties > > > m_oilvaporizationproperties;
-        std::shared_ptr<Events> m_events;
-        std::shared_ptr<DynamicVector<std::shared_ptr<Deck> > > m_modifierDeck;
-        std::shared_ptr< Tuning > m_tuning;
-        bool nosim;
+        std::map<std::string, Group > m_groups;
+        DynamicState< GroupTree > m_rootGroupTree;
+        DynamicState< OilVaporizationProperties > m_oilvaporizationproperties;
+        Events m_events;
+        DynamicVector<std::shared_ptr<Deck> > m_modifierDeck;
+        Tuning m_tuning;
         MessageContainer m_messages;
+        WellProducer::ControlModeEnum m_controlModeWHISTCTL;
 
-
-        void updateWellStatus(std::shared_ptr<Well> well, size_t reportStep , WellCommon::StatusEnum status);
-        void addWellToGroup( std::shared_ptr< Group > newGroup , std::shared_ptr< Well > well , size_t timeStep);
-        void initializeNOSIM(const Deck& deck);
-        void initRootGroupTreeNode(std::shared_ptr< const TimeMap > timeMap);
-        void initOilVaporization(std::shared_ptr< const TimeMap > timeMap);
-        void iterateScheduleSection(const ParseContext& parseContext ,  const SCHEDULESection& );
-        bool handleGroupFromWELSPECS(const std::string& groupName, std::shared_ptr< GroupTree > newTree) const;
+        std::vector< Well* > getWells(const std::string& wellNamePattern);
+        void updateWellStatus( Well& well, size_t reportStep , WellCommon::StatusEnum status);
+        void addWellToGroup( Group& newGroup , Well& well , size_t timeStep);
+        void iterateScheduleSection(const ParseContext& parseContext ,  const SCHEDULESection& , const EclipseGrid& grid);
+        bool handleGroupFromWELSPECS(const std::string& groupName, GroupTree& newTree) const;
         void addGroup(const std::string& groupName , size_t timeStep);
         void addWell(const std::string& wellName, const DeckRecord& record, size_t timeStep, WellCompletion::CompletionOrderEnum wellCompletionOrder);
         void handleCOMPORD(const ParseContext& parseContext, const DeckKeyword& compordKeyword, size_t currentStep);
-        void checkWELSPECSConsistency(std::shared_ptr< const Well > well, const DeckKeyword& keyword, size_t recordIdx);
-        void handleWELSPECS( const SCHEDULESection&, const DeckKeyword& keyword, size_t currentStep);
+        void checkWELSPECSConsistency( const Well&, const DeckKeyword& keyword, size_t recordIdx);
+        void handleWELSPECS( const SCHEDULESection&, size_t, size_t  );
         void handleWCONProducer( const DeckKeyword& keyword, size_t currentStep, bool isPredictionMode);
         void handleWCONHIST( const DeckKeyword& keyword, size_t currentStep);
         void handleWCONPROD( const DeckKeyword& keyword, size_t currentStep);
         void handleWGRUPCON( const DeckKeyword& keyword, size_t currentStep);
-        void handleCOMPDAT( const DeckKeyword& keyword,  size_t currentStep);
+        void handleCOMPDAT( const DeckKeyword& keyword,  size_t currentStep, const EclipseGrid& grid);
         void handleWELSEGS( const DeckKeyword& keyword, size_t currentStep);
         void handleCOMPSEGS( const DeckKeyword& keyword, size_t currentStep);
         void handleWCONINJE( const SCHEDULESection&,  const DeckKeyword& keyword, size_t currentStep);
@@ -136,9 +132,6 @@ namespace Opm
         void handleGCONPROD( const DeckKeyword& keyword, size_t currentStep);
         void handleGEFAC( const DeckKeyword& keyword, size_t currentStep);
         void handleTUNING( const DeckKeyword& keyword, size_t currentStep);
-        void handleNOSIM();
-        void handleDATES( const DeckKeyword& keyword );
-        void handleTSTEP( const DeckKeyword& keyword );
         void handleGRUPTREE( const DeckKeyword& keyword, size_t currentStep);
         void handleWRFT( const DeckKeyword& keyword, size_t currentStep);
         void handleWRFTPLT( const DeckKeyword& keyword, size_t currentStep);
@@ -146,15 +139,14 @@ namespace Opm
         void handleDRSDT( const DeckKeyword& keyword, size_t currentStep);
         void handleDRVDT( const DeckKeyword& keyword, size_t currentStep);
         void handleVAPPARS( const DeckKeyword& keyword, size_t currentStep);
+        void handleWECON( const DeckKeyword& keyword, size_t currentStep);
+        void handleWHISTCTL(const ParseContext& parseContext, const DeckKeyword& keyword);
 
         void checkUnhandledKeywords( const SCHEDULESection& ) const;
 
         static double convertInjectionRateToSI(double rawRate, WellInjector::TypeEnum wellType, const Opm::UnitSystem &unitSystem);
         static double convertInjectionRateToSI(double rawRate, Phase::PhaseEnum wellPhase, const Opm::UnitSystem &unitSystem);
         static bool convertEclipseStringToBool(const std::string& eclipseString);
-
-
-        void setOilVaporizationProperties(const std::shared_ptr< OilVaporizationProperties > vapor, size_t timestep);
 
     };
     typedef std::shared_ptr<Schedule> SchedulePtr;

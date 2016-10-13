@@ -19,83 +19,31 @@
 
 #define BOOST_TEST_MODULE CompletionIntegrationTests
 
-
-#include <map>
-#include <stdexcept>
-
 #include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/filesystem/path.hpp>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Completion.hpp>
-
+#include <opm/parser/eclipse/EclipseState/Schedule/Well.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/CompletionSet.hpp>
 
 using namespace Opm;
-
-
-BOOST_AUTO_TEST_CASE( CreateCompletionsFromRecord ) {
-
-    ParserPtr parser(new Parser());
-    boost::filesystem::path scheduleFile("testdata/integration_tests/SCHEDULE/SCHEDULE_COMPDAT1");
-    DeckPtr deck =  parser->parseFile(scheduleFile.string(), ParseContext());
-    const auto& COMPDAT1 = deck->getKeyword("COMPDAT" , 0);
-    const auto& line0 = COMPDAT1.getRecord(0);
-    const auto& line1 = COMPDAT1.getRecord(1);
-
-    std::pair< std::string , std::vector<CompletionPtr> > completionsList = Completion::completionsFromCOMPDATRecord( line0 );
-    BOOST_CHECK_EQUAL( "W_1" , completionsList.first );
-    BOOST_CHECK_EQUAL( 3U , completionsList.second.size() );
-
-    {
-        CompletionPtr completion0 = completionsList.second[0];
-        CompletionPtr completion2 = completionsList.second[2];
-
-        BOOST_CHECK_EQUAL( 29 , completion0->getI() );
-        BOOST_CHECK_EQUAL( 36 , completion0->getJ() );
-        BOOST_CHECK_EQUAL( 0  , completion0->getK() );
-        BOOST_CHECK_EQUAL( WellCompletion::OPEN  , completion0->getState() );
-        BOOST_CHECK_EQUAL(  3.8134259259259256e-12 , completion0->getConnectionTransmissibilityFactor() );
-        BOOST_CHECK_EQUAL( WellCompletion::DirectionEnum::X, completion0->getDirection() );
-
-        BOOST_CHECK_EQUAL( 29 , completion2->getI() );
-        BOOST_CHECK_EQUAL( 36 , completion2->getJ() );
-        BOOST_CHECK_EQUAL( 2  , completion2->getK() );
-        BOOST_CHECK_EQUAL( WellCompletion::OPEN  , completion2->getState() );
-        BOOST_CHECK_EQUAL( 3.8134259259259256e-12  , completion2->getConnectionTransmissibilityFactor() );
-        BOOST_CHECK_EQUAL( WellCompletion::DirectionEnum::X, completion2->getDirection() );
-    }
-
-    {
-        std::pair<std::string , std::vector<CompletionPtr> > pair = Completion::completionsFromCOMPDATRecord( line1 );
-
-        // We try to get the numerical value of a default CF:
-        CompletionPtr comp = pair.second[0];
-        /*
-          This statement gives a compilation error:
-          BOOST_CHECK_THROW( comp->getConnectionTransmissibilityFactor() , std::logical_error );
-        */
-    }
-}
-
-
 
 BOOST_AUTO_TEST_CASE( CreateCompletionsFromKeyword ) {
 
     ParserPtr parser(new Parser());
-    boost::filesystem::path scheduleFile("testdata/integration_tests/SCHEDULE/SCHEDULE_COMPDAT1");
-    DeckPtr deck =  parser->parseFile(scheduleFile.string(), ParseContext());
+    const auto scheduleFile = "testdata/integration_tests/SCHEDULE/SCHEDULE_COMPDAT1";
+    DeckPtr deck =  parser->parseFile(scheduleFile, ParseContext());
+    EclipseGrid grid(10,10,10);
+    const Schedule schedule( ParseContext(), grid, *deck );
     const auto& COMPDAT1 = deck->getKeyword("COMPDAT" , 1);
 
-    std::map< std::string , std::vector<CompletionPtr> > completions = Completion::completionsFromCOMPDATKeyword( COMPDAT1 );
+    const auto wells = schedule.getWells( 0 );
+    auto completions = Completion::fromCOMPDAT( grid, COMPDAT1, wells );
     BOOST_CHECK_EQUAL( 3U , completions.size() );
-
 
     BOOST_CHECK( completions.find("W_1") != completions.end() );
     BOOST_CHECK( completions.find("W_2") != completions.end() );
@@ -110,19 +58,29 @@ BOOST_AUTO_TEST_CASE( CreateCompletionsFromKeyword ) {
     CompletionConstPtr completion0 = W_3Completions[0];
     CompletionConstPtr completion4 = W_3Completions[4];
 
-    BOOST_CHECK_EQUAL( 30     , completion0->getI() );
-    BOOST_CHECK_EQUAL( 17     , completion0->getJ() );
-    BOOST_CHECK_EQUAL( 0      , completion0->getK() );
+    BOOST_CHECK_EQUAL( 2     , completion0->getI() );
+    BOOST_CHECK_EQUAL( 7     , completion0->getJ() );
+    BOOST_CHECK_EQUAL( 0     , completion0->getK() );
     BOOST_CHECK_EQUAL( WellCompletion::OPEN   , completion0->getState() );
     BOOST_CHECK_EQUAL( 3.1726851851851847e-12 , completion0->getConnectionTransmissibilityFactor() );
     BOOST_CHECK_EQUAL( WellCompletion::DirectionEnum::Y, completion0->getDirection() );
 
-    BOOST_CHECK_EQUAL( 30     , completion4->getI() );
-    BOOST_CHECK_EQUAL( 16     , completion4->getJ() );
-    BOOST_CHECK_EQUAL( 3      , completion4->getK() );
+    BOOST_CHECK_EQUAL( 2     , completion4->getI() );
+    BOOST_CHECK_EQUAL( 6     , completion4->getJ() );
+    BOOST_CHECK_EQUAL( 3     , completion4->getK() );
     BOOST_CHECK_EQUAL( WellCompletion::OPEN   , completion4->getState() );
     BOOST_CHECK_EQUAL( 5.4722222222222212e-13 , completion4->getConnectionTransmissibilityFactor() );
     BOOST_CHECK_EQUAL( WellCompletion::DirectionEnum::Y, completion4->getDirection() );
+
+
+    // Check that wells with all completions shut is also itself shut
+    const Well* well1 = schedule.getWell("W_1");
+    BOOST_CHECK (!well1->getCompletions(0)->allCompletionsShut());
+    BOOST_CHECK_EQUAL (well1->getStatus(0) , WellCommon::StatusEnum::OPEN);
+
+    const Well* well2 = schedule.getWell("W_2");
+    BOOST_CHECK (well2->getCompletions(0)->allCompletionsShut());
+    BOOST_CHECK_EQUAL (well2->getStatus(0) , WellCommon::StatusEnum::SHUT);
+
+
 }
-
-

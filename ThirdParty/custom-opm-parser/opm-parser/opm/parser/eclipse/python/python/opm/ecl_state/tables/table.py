@@ -1,6 +1,6 @@
 import os.path
 
-from ert.cwrap import BaseCClass
+from cwrap import BaseCClass
 from opm import OPMPrototype
 
 from .table_index import TableIndex

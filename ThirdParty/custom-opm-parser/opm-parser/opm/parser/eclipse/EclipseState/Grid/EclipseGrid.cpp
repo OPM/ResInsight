@@ -29,6 +29,9 @@
 #include <opm/parser/eclipse/Deck/DeckItem.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
+
+#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+
 #include <opm/parser/eclipse/Parser/ParserKeywords/A.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/C.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/D.hpp>
@@ -37,86 +40,94 @@
 #include <opm/parser/eclipse/Parser/ParserKeywords/S.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/T.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/Z.hpp>
+
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 
 #include <ert/ecl/ecl_grid.h>
 
 namespace Opm {
 
+
+    EclipseGrid::EclipseGrid(std::array<int, 3>& dims ,
+			     const std::vector<double>& coord , 
+			     const std::vector<double>& zcorn , 
+			     const int * actnum, 
+			     const double * mapaxes) 
+	: m_minpvValue(0),
+	  m_minpvMode(MinpvMode::ModeEnum::Inactive),
+	  m_pinch("PINCH"),
+	  m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
+	  m_multzMode(PinchMode::ModeEnum::TOP)
+    {
+        initCornerPointGrid( dims, coord , zcorn , actnum , mapaxes );
+    }
+
+
+
     /**
        Will create an EclipseGrid instance based on an existing
        GRID/EGRID file.
     */
     EclipseGrid::EclipseGrid(const std::string& filename )
-        : m_minpvValue(0),
+        : GridDims(),
+          m_minpvValue(0),
           m_minpvMode(MinpvMode::ModeEnum::Inactive),
           m_pinch("PINCH"),
           m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
           m_multzMode(PinchMode::ModeEnum::TOP)
     {
-        ecl_grid_type * new_ptr = ecl_grid_load_case( filename.c_str() );
+        ecl_grid_type * new_ptr = ecl_grid_load_case__( filename.c_str() , false );
         if (new_ptr)
             m_grid.reset( new_ptr );
         else
             throw std::invalid_argument("Could not load grid from binary file: " + filename);
 
-        m_nx = static_cast<size_t>( ecl_grid_get_nx( c_ptr() ));
-        m_ny = static_cast<size_t>( ecl_grid_get_ny( c_ptr() ));
-        m_nz = static_cast<size_t>( ecl_grid_get_nz( c_ptr() ));
+        m_nx = ecl_grid_get_nx( c_ptr() );
+        m_ny = ecl_grid_get_ny( c_ptr() );
+        m_nz = ecl_grid_get_nz( c_ptr() );
     }
 
-    /* Copy constructor */
-    EclipseGrid::EclipseGrid(const EclipseGrid& src)
-        : m_minpvValue( src.m_minpvValue ),
-          m_minpvMode( src.m_minpvMode ),
-          m_pinch( src.m_pinch ),
-          m_pinchoutMode( src.m_pinchoutMode ),
-          m_multzMode( src.m_multzMode ),
-          m_nx( src.m_nx ),
-          m_ny( src.m_ny ),
-          m_nz( src.m_nz ),
-          m_messages( src.m_messages )
-    {
-        if (src.hasCellInfo())
-            m_grid.reset( ecl_grid_alloc_copy( src.c_ptr() ) );
-
-    }
-
-    /*
-      This creates a grid which only has dimension, and no pointer to
-      a true grid structure. This grid will answer false to
-      hasCellInfo() - but can be used in all situations where the grid
-      dependency is really only on the dimensions.
-    */
 
     EclipseGrid::EclipseGrid(size_t nx, size_t ny , size_t nz,
                              double dx, double dy, double dz)
-        : m_minpvValue(0),
+        : GridDims(nx, ny, nz),
+          m_minpvValue(0),
           m_minpvMode(MinpvMode::ModeEnum::Inactive),
           m_pinch("PINCH"),
           m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
-          m_multzMode(PinchMode::ModeEnum::TOP)
+          m_multzMode(PinchMode::ModeEnum::TOP),
+          m_grid( ecl_grid_alloc_rectangular(nx, ny, nz, dx, dy, dz, NULL) )
     {
-        m_nx = nx;
-        m_ny = ny;
-        m_nz = nz;
-        m_grid.reset(ecl_grid_alloc_rectangular(nx, ny, nz, dx, dy, dz, NULL));
-    }
-
-
-    // keyword must be DIMENS or SPECGRID
-    static std::vector<int> getDims( const DeckKeyword& keyword ) {
-        const auto& record = keyword.getRecord(0);
-        std::vector<int> dims = {record.getItem("NX").get< int >(0) ,
-            record.getItem("NY").get< int >(0) ,
-            record.getItem("NZ").get< int >(0) };
-        return dims;
     }
 
     EclipseGrid::EclipseGrid(const std::shared_ptr<const Deck>& deckptr, const int * actnum)
-       :
-               EclipseGrid(*deckptr, actnum)
+       : EclipseGrid(*deckptr, actnum)
     {}
+
+
+    EclipseGrid::EclipseGrid(const EclipseGrid& src, const double* zcorn , const std::vector<int>& actnum)
+        : GridDims(src.getNX(), src.getNY(), src.getNZ()),
+          m_messages( src.m_messages ),
+          m_minpvValue( src.m_minpvValue ),
+          m_minpvMode( src.m_minpvMode ),
+          m_pinch( src.m_pinch ),
+          m_pinchoutMode( src.m_pinchoutMode ),
+          m_multzMode( src.m_multzMode )
+    {
+        const int * actnum_data = (actnum.empty()) ? nullptr : actnum.data();
+        m_grid.reset( ecl_grid_alloc_processed_copy( src.c_ptr(), zcorn , actnum_data ));
+    }
+
+
+    EclipseGrid::EclipseGrid(const EclipseGrid& src, const std::vector<double>& zcorn , const std::vector<int>& actnum)
+        : EclipseGrid( src , (zcorn.empty()) ? nullptr : zcorn.data(), actnum )
+    { }
+
+
+    EclipseGrid::EclipseGrid(const EclipseGrid& src, const std::vector<int>& actnum)
+        : EclipseGrid( src , nullptr , actnum )
+    {  }
+
 
 
     /*
@@ -149,54 +160,17 @@ namespace Opm {
 
 
     EclipseGrid::EclipseGrid(const Deck& deck, const int * actnum)
-        : m_minpvValue(0),
+        : GridDims(deck),
+          m_minpvValue(0),
           m_minpvMode(MinpvMode::ModeEnum::Inactive),
           m_pinch("PINCH"),
           m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
           m_multzMode(PinchMode::ModeEnum::TOP)
     {
-        const bool hasRUNSPEC = Section::hasRUNSPEC(deck);
-        const bool hasGRID = Section::hasGRID(deck);
-        if (hasRUNSPEC && hasGRID) {
-            // Equivalent to first constructor.
-            RUNSPECSection runspecSection( deck );
-            if( runspecSection.hasKeyword<ParserKeywords::DIMENS>() ) {
-                const auto& dimens = runspecSection.getKeyword<ParserKeywords::DIMENS>();
-                std::vector<int> dims = getDims(dimens);
-                initGrid(dims, deck);
-            } else {
-                const std::string msg = "The RUNSPEC section must have the DIMENS keyword with logically Cartesian grid dimensions.";
-                m_messages.error(msg);
-                throw std::invalid_argument(msg);
-            }
-        } else if (hasGRID) {
-            // Look for SPECGRID instead of DIMENS.
-            if (deck.hasKeyword<ParserKeywords::SPECGRID>()) {
-                const auto& specgrid = deck.getKeyword<ParserKeywords::SPECGRID>();
-                std::vector<int> dims = getDims(specgrid);
-                initGrid(dims, deck);
-            } else {
-                const std::string msg = "With no RUNSPEC section, the GRID section must specify the grid dimensions using the SPECGRID keyword.";
-                m_messages.error(msg);
-                throw std::invalid_argument(msg);
-            }
-        } else {
-            // The deck contains no relevant section, so it is probably a sectionless GRDECL file.
-            // Either SPECGRID or DIMENS is OK.
-            if (deck.hasKeyword("SPECGRID")) {
-                const auto& specgrid = deck.getKeyword<ParserKeywords::SPECGRID>();
-                std::vector<int> dims = getDims(specgrid);
-                initGrid(dims, deck);
-            } else if (deck.hasKeyword<ParserKeywords::DIMENS>()) {
-                const auto& dimens = deck.getKeyword<ParserKeywords::DIMENS>();
-                std::vector<int> dims = getDims(dimens);
-                initGrid(dims, deck);
-            } else {
-                const std::string msg = "The deck must specify grid dimensions using either DIMENS or SPECGRID.";
-                m_messages.error(msg);
-                throw std::invalid_argument(msg);
-            }
-        }
+
+        const std::array<int, 3> dims = getNXYZ();
+        initGrid(dims, deck);
+
         if (actnum != nullptr)
             resetACTNUM(actnum);
         else {
@@ -213,15 +187,13 @@ namespace Opm {
     }
 
 
-    void EclipseGrid::initGrid( const std::vector<int>& dims, const Deck& deck) {
-        m_nx = static_cast<size_t>(dims[0]);
-        m_ny = static_cast<size_t>(dims[1]);
-        m_nz = static_cast<size_t>(dims[2]);
-
+    void EclipseGrid::initGrid( const std::array<int, 3>& dims, const Deck& deck) {
         if (hasCornerPointKeywords(deck)) {
             initCornerPointGrid(dims , deck);
         } else if (hasCartesianKeywords(deck)) {
             initCartesianGrid(dims , deck);
+        } else {
+            throw std::invalid_argument("EclipseGrid needs cornerpoint or cartesian keywords.");
         }
 
         if (deck.hasKeyword<ParserKeywords::PINCH>()) {
@@ -261,39 +233,26 @@ namespace Opm {
         return activeIndex( getGlobalIndex( i,j,k ));
     }
 
-
-
     size_t EclipseGrid::activeIndex(size_t globalIndex) const {
-        assertCellInfo();
-        {
-            int active_index = ecl_grid_get_active_index1( m_grid.get() , globalIndex );
-            if (active_index < 0)
-                throw std::invalid_argument("Input argument does not correspond to an active cell");
-            return static_cast<size_t>( active_index );
-        }
+        int active_index = ecl_grid_get_active_index1( m_grid.get() , globalIndex );
+        if (active_index < 0)
+            throw std::invalid_argument("Input argument does not correspond to an active cell");
+        return static_cast<size_t>( active_index );
     }
 
-
-
-    size_t EclipseGrid::getNX( ) const {
-        return m_nx;
+    /**
+       Observe: the input argument is assumed to be in the space
+       [0,num_active).
+    */
+    size_t EclipseGrid::getGlobalIndex(size_t active_index) const {
+        int global_index = ecl_grid_get_global_index1A( m_grid.get() , active_index );
+        return static_cast<size_t>(global_index);
     }
 
-    size_t EclipseGrid::getNY( ) const {
-        return m_ny;
+    size_t EclipseGrid::getGlobalIndex(size_t i, size_t j, size_t k) const {
+        return GridDims::getGlobalIndex(i,j,k);
     }
 
-    size_t EclipseGrid::getNZ( ) const {
-        return m_nz;
-    }
-
-    std::array< int, 3 > EclipseGrid::getNXYZ() const {
-        return {{ int( m_nx ), int( m_ny ), int( m_nz ) }};
-    }
-
-    size_t EclipseGrid::getCartesianSize( ) const {
-        return m_nx * m_ny * m_nz;
-    }
 
     bool EclipseGrid::isPinchActive( ) const {
         return m_pinch.hasValue();
@@ -320,34 +279,7 @@ namespace Opm {
     }
 
 
-    size_t EclipseGrid::getGlobalIndex(size_t i, size_t j, size_t k) const {
-        return (i + j * getNX() + k * getNX() * getNY());
-    }
-
-    std::array<int, 3> EclipseGrid::getIJK(size_t globalIndex) const {
-        std::array<int, 3> r = {{ 0, 0, 0 }};
-        int k = globalIndex / (getNX() * getNY()); globalIndex -= k * (getNX() * getNY());
-        int j = globalIndex / getNX();             globalIndex -= j *  getNX();
-        int i = globalIndex;
-        r[0] = i;
-        r[1] = j;
-        r[2] = k;
-        return r;
-    }
-
-    void EclipseGrid::assertGlobalIndex(size_t globalIndex) const {
-        if (globalIndex >= getCartesianSize())
-            throw std::invalid_argument("input index above valid range");
-    }
-
-    void EclipseGrid::assertIJK(size_t i , size_t j , size_t k) const {
-        if (i >= getNX() || j >= getNY() || k >= getNZ())
-            throw std::invalid_argument("input index above valid range");
-    }
-
-
-
-    void EclipseGrid::initCartesianGrid(const std::vector<int>& dims , const Deck& deck) {
+    void EclipseGrid::initCartesianGrid(const std::array<int, 3>& dims , const Deck& deck) {
         if (hasDVDEPTHZKeywords( deck ))
             initDVDEPTHZGrid( dims , deck );
         else if (hasDTOPSKeywords(deck))
@@ -357,7 +289,7 @@ namespace Opm {
     }
 
 
-    void EclipseGrid::initDVDEPTHZGrid(const std::vector<int>& dims, const Deck& deck) {
+    void EclipseGrid::initDVDEPTHZGrid(const std::array<int, 3>& dims, const Deck& deck) {
         const std::vector<double>& DXV = deck.getKeyword<ParserKeywords::DXV>().getSIDoubleData();
         const std::vector<double>& DYV = deck.getKeyword<ParserKeywords::DYV>().getSIDoubleData();
         const std::vector<double>& DZV = deck.getKeyword<ParserKeywords::DZV>().getSIDoubleData();
@@ -372,7 +304,7 @@ namespace Opm {
     }
 
 
-    void EclipseGrid::initDTOPSGrid(const std::vector<int>& dims , const Deck& deck) {
+    void EclipseGrid::initDTOPSGrid(const std::array<int, 3>& dims , const Deck& deck) {
         std::vector<double> DX = createDVector( dims , 0 , "DX" , "DXV" , deck);
         std::vector<double> DY = createDVector( dims , 1 , "DY" , "DYV" , deck);
         std::vector<double> DZ = createDVector( dims , 2 , "DZ" , "DZV" , deck);
@@ -380,14 +312,44 @@ namespace Opm {
         m_grid.reset( ecl_grid_alloc_dx_dy_dz_tops( dims[0] , dims[1] , dims[2] , DX.data() , DY.data() , DZ.data() , TOPS.data() , nullptr ) );
     }
 
-    void EclipseGrid::initCornerPointGrid(const std::vector<int>& dims, const Deck& deck) {
+
+
+    void EclipseGrid::initCornerPointGrid(const std::array<int,3>& dims ,
+                                          const std::vector<double>& coord ,
+                                          const std::vector<double>& zcorn ,
+                                          const int * actnum,
+                                          const double * mapaxes)
+    {
+        const std::vector<float> zcorn_float( zcorn.begin() , zcorn.end() );
+        const std::vector<float> coord_float( coord.begin() , coord.end() );
+        float * mapaxes_float = nullptr;
+        if (mapaxes) {
+            mapaxes_float = new float[6];
+            for (size_t i=0; i < 6; i++)
+                mapaxes_float[i] = mapaxes[i];
+        }
+
+        m_grid.reset( ecl_grid_alloc_GRDECL_data(dims[0] ,
+                                                 dims[1] ,
+                                                 dims[2] ,
+                                                 zcorn_float.data() ,
+                                                 coord_float.data() ,
+                                                 actnum ,
+                                                 false,  // We do not apply the MAPAXES transformations
+                                                 mapaxes_float) );
+
+        if (mapaxes)
+            delete[] mapaxes_float;
+    }
+
+    void EclipseGrid::initCornerPointGrid(const std::array<int,3>& dims, const Deck& deck) {
         assertCornerPointKeywords( dims , deck);
         {
             const auto& ZCORNKeyWord = deck.getKeyword<ParserKeywords::ZCORN>();
             const auto& COORDKeyWord = deck.getKeyword<ParserKeywords::COORD>();
             const std::vector<double>& zcorn = ZCORNKeyWord.getSIDoubleData();
             const std::vector<double>& coord = COORDKeyWord.getSIDoubleData();
-            double    * mapaxes = NULL;
+            double * mapaxes = nullptr;
 
             if (deck.hasKeyword<ParserKeywords::MAPAXES>()) {
                 const auto& mapaxesKeyword = deck.getKeyword<ParserKeywords::MAPAXES>();
@@ -397,24 +359,9 @@ namespace Opm {
                     mapaxes[i] = record.getItem( i ).getSIDouble( 0 );
                 }
             }
-
-
-            {
-                const std::vector<float> zcorn_float( zcorn.begin() , zcorn.end() );
-                const std::vector<float> coord_float( coord.begin() , coord.end() );
-                float * mapaxes_float = NULL;
-                if (mapaxes) {
-                    mapaxes_float = new float[6];
-                    for (size_t i=0; i < 6; i++)
-                        mapaxes_float[i] = mapaxes[i];
-                }
-                m_grid.reset( ecl_grid_alloc_GRDECL_data(dims[0] , dims[1] , dims[2] , zcorn_float.data() , coord_float.data() , nullptr , mapaxes_float) );
-
-                if (mapaxes) {
-                    delete[] mapaxes_float;
-                    delete[] mapaxes;
-                }
-            }
+            initCornerPointGrid( dims, coord , zcorn , nullptr , mapaxes );
+            if (mapaxes)
+                delete[] mapaxes;
         }
     }
 
@@ -428,7 +375,7 @@ namespace Opm {
     }
 
 
-    void EclipseGrid::assertCornerPointKeywords( const std::vector<int>& dims , const Deck& deck)
+    void EclipseGrid::assertCornerPointKeywords(const std::array<int, 3>& dims , const Deck& deck)
     {
         const int nx = dims[0];
         const int ny = dims[1];
@@ -530,7 +477,7 @@ namespace Opm {
             retained.
     */
 
-    std::vector<double> EclipseGrid::createTOPSVector(const std::vector<int>& dims,
+    std::vector<double> EclipseGrid::createTOPSVector(const std::array<int, 3>& dims,
             const std::vector<double>& DZ, const Deck& deck)
     {
         double z_tolerance = 1e-6;
@@ -563,7 +510,7 @@ namespace Opm {
         return TOPS;
     }
 
-    std::vector<double> EclipseGrid::createDVector(const std::vector<int>& dims, size_t dim, const std::string& DKey,
+    std::vector<double> EclipseGrid::createDVector(const std::array<int, 3>& dims, size_t dim, const std::string& DKey,
             const std::string& DVKey, const Deck& deck)
     {
         size_t volume = dims[0] * dims[1] * dims[2];
@@ -600,7 +547,7 @@ namespace Opm {
     }
 
 
-    void EclipseGrid::scatterDim(const std::vector<int>& dims , size_t dim , const std::vector<double>& DV , std::vector<double>& D) {
+    void EclipseGrid::scatterDim(const std::array<int, 3>& dims , size_t dim , const std::vector<double>& DV , std::vector<double>& D) {
         int index[3];
         for (index[2] = 0;  index[2] < dims[2]; index[2]++) {
             for (index[1] = 0; index[1] < dims[1]; index[1]++) {
@@ -612,26 +559,7 @@ namespace Opm {
         }
     }
 
-
-    /*
-      This function checks if the grid has a pointer to an underlying
-      ecl_grid_type; which must be used to read cell info as
-      size/depth/active of individual cells.
-    */
-
-    bool EclipseGrid::hasCellInfo() const {
-        return static_cast<bool>( m_grid );
-    }
-
-
-    void EclipseGrid::assertCellInfo() const {
-        if (!hasCellInfo())
-            throw std::invalid_argument("Tried to access cell information in a grid with only dimensions");
-    }
-
-
     const ecl_grid_type * EclipseGrid::c_ptr() const {
-        assertCellInfo();
         return m_grid.get();
     }
 
@@ -651,12 +579,16 @@ namespace Opm {
         if(m_minpvMode!=MinpvMode::ModeEnum::Inactive){
             status = status && (m_minpvValue == other.getMinpvValue());
         }
-        return  status;
+        return status;
     }
 
 
     size_t EclipseGrid::getNumActive( ) const {
         return static_cast<size_t>(ecl_grid_get_nactive( c_ptr() ));
+    }
+
+    bool EclipseGrid::allActive( ) const {
+        return (getNumActive() == getCartesianSize());
     }
 
     bool EclipseGrid::cellActive( size_t globalIndex ) const {
@@ -776,20 +708,69 @@ namespace Opm {
         ecl_grid_init_zcorn_data_double( c_ptr() , zcorn.data() );
     }
 
+    const std::vector<int>& EclipseGrid::getActiveMap() const {
+        if( !this->activeMap.empty() ) return this->activeMap;
 
+        this->activeMap.resize( this->getNumActive() );
+        const auto size = int(this->getCartesianSize());
+
+        for( int global_index = 0; global_index < size; global_index++) {
+            // Using the low level C function to get the active index, because the C++
+            // version will throw for inactive cells.
+            int active_index = ecl_grid_get_active_index1( m_grid.get() , global_index );
+            if (active_index >= 0)
+                this->activeMap[ active_index ] = global_index;
+        }
+
+        return this->activeMap;
+    }
 
     void EclipseGrid::resetACTNUM( const int * actnum) {
-        assertCellInfo();
         ecl_grid_reset_actnum( m_grid.get() , actnum );
+        /* re-build the active map cache */
+        this->activeMap.clear();
+        this->getActiveMap();
+    }
+
+    ZcornMapper EclipseGrid::zcornMapper() const {
+        return ZcornMapper( getNX() , getNY(), getNZ() );
+    }
+
+    ZcornMapper::ZcornMapper(size_t nx , size_t ny, size_t nz)
+        : dims( {nx,ny,nz} ),
+          stride( {2 , 4*nx, 8*nx*ny} ),
+          cell_shift( {0 , 1 , 2*nx , 2*nx + 1 , 4*nx*ny , 4*nx*ny + 1, 4*nx*ny + 2*nx , 4*nx*ny + 2*nx + 1 })
+    {
     }
 
 
-    void EclipseGrid::fwriteEGRID( const std::string& filename, bool output_metric ) const {
-        assertCellInfo();
-        ecl_grid_fwrite_EGRID( m_grid.get() , filename.c_str(), output_metric );
+    /* lower layer:   upper layer  (higher value of z - i.e. lower down in resrvoir).
+
+         2---3           6---7
+         |   |           |   |
+         0---1           4---5
+    */
+
+    size_t ZcornMapper::index(size_t i, size_t j, size_t k, int c) const {
+        if ((i >= dims[0]) || (j >= dims[1]) || (k >= dims[2]) || (c < 0) || (c >= 8))
+            throw std::invalid_argument("Invalid cell argument");
+
+        return i*stride[0] + j*stride[1] + k*stride[2] + cell_shift[c];
     }
 
 
+
+    size_t ZcornMapper::index(size_t g, int c) const {
+        int k = g / (dims[0] * dims[1]);
+        g -= k * dims[0] * dims[1];
+
+        int j = g / dims[0];
+        g -= j * dims[0];
+
+        int i = g;
+
+        return index(i,j,k,c);
+    }
 }
 
 

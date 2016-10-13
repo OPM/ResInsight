@@ -37,7 +37,7 @@ namespace Opm {
         m_TFDIFF( new DynamicState<double>(timemap, 1.25)),
         m_THRUPT( new DynamicState<double>(timemap, 1.0E20)),
         m_TMAXWC( new DynamicState<double>(timemap, 0.0   * Metric::Time)),
-        m_TMAXWC_has_value( new DynamicState<bool>(timemap, false)),
+        m_TMAXWC_has_value( new DynamicState<int>(timemap, false)),
         m_TRGTTE( new DynamicState<double>(timemap, 0.1)),
         m_TRGCNV( new DynamicState<double>(timemap, 0.001)),
         m_TRGMBE( new DynamicState<double>(timemap, 1.0E-7)),
@@ -49,7 +49,7 @@ namespace Opm {
         m_XXXWFL( new DynamicState<double>(timemap, 0.001)),
         m_TRGFIP( new DynamicState<double>(timemap, 0.025)),
         m_TRGSFT( new DynamicState<double>(timemap, 0.0)),
-        m_TRGSFT_has_value( new DynamicState<bool>(timemap, false)),
+        m_TRGSFT_has_value( new DynamicState<int>(timemap, false)),
         m_THIONX( new DynamicState<double>(timemap, 0.01)),
         m_TRWGHT( new DynamicState<int>(timemap, 1)),
         m_NEWTMX( new DynamicState<int>(timemap, 12)),
@@ -62,7 +62,7 @@ namespace Opm {
         m_DDSLIM( new DynamicState<double>(timemap, 1.0E6)),
         m_TRGDPR( new DynamicState<double>(timemap, 1.0E6 * Metric::Pressure)),
         m_XXXDPR( new DynamicState<double>(timemap, 0.0   * Metric::Pressure)),
-        m_XXXDPR_has_value( new DynamicState<bool>(timemap, false))
+        m_XXXDPR_has_value( new DynamicState<int>(timemap, false))
     {
     }
 
@@ -196,11 +196,11 @@ namespace Opm {
         return values->get(timestep);
     }
 
-    bool Tuning::getBoolValue(const std::string tuningItem, std::shared_ptr<DynamicState<bool>> values, size_t timestep) const{
+    bool Tuning::getBoolValue(const std::string tuningItem, std::shared_ptr<DynamicState<int>> values, size_t timestep) const{
         if(m_ResetValue.find(tuningItem)!= m_ResetValue.end()){
             timestep = 0;
         }
-        return values->get(timestep);
+        return bool( values->get(timestep) );
     }
 
 

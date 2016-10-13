@@ -127,17 +127,16 @@ namespace Opm {
       Then it will go through the different regions and looking for
       interface with the wanted region values.
     */
-    MULTREGTScanner::MULTREGTScanner(const Eclipse3DProperties& cellRegionNumbers,
-    		                         const std::vector< const DeckKeyword* >& keywords,
-									 const std::string& defaultRegion ) :
-        m_cellRegionNumbers(cellRegionNumbers) {
+    MULTREGTScanner::MULTREGTScanner(const Eclipse3DProperties& e3DProps,
+                                     const std::vector< const DeckKeyword* >& keywords) :
+                m_e3DProps(e3DProps) {
 
         for (size_t idx = 0; idx < keywords.size(); idx++)
-            this->addKeyword(*keywords[idx] , defaultRegion);
+            this->addKeyword(*keywords[idx] , e3DProps.getDefaultRegionKeyword());
 
         MULTREGTSearchMap searchPairs;
         for (std::vector<MULTREGTRecord>::const_iterator record = m_records.begin(); record != m_records.end(); ++record) {
-            if (cellRegionNumbers.hasDeckIntGridProperty( record->m_region.getValue())) {
+            if (e3DProps.hasDeckIntGridProperty( record->m_region.getValue())) {
                 if (record->m_srcRegion.hasValue() && record->m_targetRegion.hasValue()) {
                     int srcRegion    = record->m_srcRegion.getValue();
                     int targetRegion = record->m_targetRegion.getValue();
@@ -148,9 +147,11 @@ namespace Opm {
                 }
             }
             else
-                throw std::logic_error("MULTREGT record is based on region: " + record->m_region.getValue() + " which is not in the deck");
+                throw std::logic_error(
+                                "MULTREGT record is based on region: "
+                              +  record->m_region.getValue()
+                              + " which is not in the deck");
         }
-
 
         for (auto iter = searchPairs.begin(); iter != searchPairs.end(); ++iter) {
             const MULTREGTRecord * record = (*iter).second;
@@ -161,8 +162,6 @@ namespace Opm {
 
             m_searchMap[keyword][pair] = record;
         }
-
-
     }
 
 
@@ -235,7 +234,7 @@ namespace Opm {
     double MULTREGTScanner::getRegionMultiplier(size_t globalIndex1 , size_t globalIndex2, FaceDir::DirEnum faceDir) const {
 
         for (auto iter = m_searchMap.begin(); iter != m_searchMap.end(); iter++) {
-            const Opm::GridProperty<int>& region = m_cellRegionNumbers.getIntGridProperty( (*iter).first );
+            const Opm::GridProperty<int>& region = m_e3DProps.getIntGridProperty( (*iter).first );
             MULTREGTSearchMap map = (*iter).second;
 
             int regionId1 = region.iget(globalIndex1);

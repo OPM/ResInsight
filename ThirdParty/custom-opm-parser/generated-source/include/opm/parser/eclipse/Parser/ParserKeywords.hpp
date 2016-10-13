@@ -13,6 +13,7 @@ namespace ParserKeywords {
 #include <opm/parser/eclipse/Parser/ParserKeywords/F.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/G.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/I.hpp>
+#include <opm/parser/eclipse/Parser/ParserKeywords/J.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/M.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/N.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/O.hpp>

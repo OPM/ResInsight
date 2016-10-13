@@ -37,6 +37,8 @@
 
 using namespace Opm;
 
+namespace {
+
 std::unique_ptr< ParserKeyword > createFixedSized(const std::string& kw , size_t size) {
     std::unique_ptr< ParserKeyword > pkw( new ParserKeyword( kw ) );
     pkw->setFixedSize( size );
@@ -49,7 +51,7 @@ std::unique_ptr< ParserKeyword > createDynamicSized(const std::string& kw) {
     return pkw;
 }
 
-static ParserPtr createWWCTParser() {
+ParserPtr createWWCTParser() {
     auto parserKeyword = createDynamicSized("WWCT");
     {
         std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
@@ -62,6 +64,8 @@ static ParserPtr createWWCTParser() {
     parser->addParserKeyword( std::move( parserKeyword ) );
     parser->addParserKeyword( std::move( summaryKeyword ) );
     return parser;
+}
+
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithWWCTKeyword_deckReturned) {

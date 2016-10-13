@@ -94,7 +94,7 @@ namespace Opm {
 
 
 
-    void CompletionSet::orderCompletions(size_t well_i, size_t well_j, EclipseGridConstPtr grid)
+    void CompletionSet::orderCompletions(size_t well_i, size_t well_j)
     {
         if (m_completions.empty()) {
             return;
@@ -102,42 +102,42 @@ namespace Opm {
 
         // Find the first completion and swap it into the 0-position.
         const double surface_z = 0.0;
-        size_t first_index = findClosestCompletion(well_i, well_j, grid, surface_z, 0);
+        size_t first_index = findClosestCompletion(well_i, well_j, surface_z, 0);
         std::swap(m_completions[first_index], m_completions[0]);
 
         // Repeat for remaining completions.
-        // Note that since findClosestCompletion() is O(n) if n is the number of completions,
-        // this is an O(n^2) algorithm. However, it should be acceptable since the expected
-        // number of completions is fairly low (< 100).
+        //
+        // Note that since findClosestCompletion() is O(n), this is an
+        // O(n^2) algorithm. However, it should be acceptable since
+        // the expected number of completions is fairly low (< 100).
+
         for (size_t pos = 1; pos < m_completions.size() - 1; ++pos) {
             CompletionConstPtr prev = m_completions[pos - 1];
-            const double prevz = grid->getCellDepth(prev->getI(), prev->getJ(), prev->getK());
-            size_t next_index = findClosestCompletion(prev->getI(), prev->getJ(), grid, prevz, pos);
+            const double prevz = prev->getCenterDepth();
+            size_t next_index = findClosestCompletion(prev->getI(), prev->getJ(), prevz, pos);
             std::swap(m_completions[next_index], m_completions[pos]);
         }
     }
 
 
 
-    size_t CompletionSet::findClosestCompletion(int oi, int oj, EclipseGridConstPtr grid,
-                                                double oz, size_t start_pos)
+    size_t CompletionSet::findClosestCompletion(int oi, int oj, double oz, size_t start_pos)
     {
         size_t closest = std::numeric_limits<size_t>::max();
         int min_ijdist2 = std::numeric_limits<int>::max();
         double min_zdiff = std::numeric_limits<double>::max();
         for (size_t pos = start_pos; pos < m_completions.size(); ++pos) {
+            const double depth = m_completions[pos]->getCenterDepth();
             const int ci = m_completions[pos]->getI();
             const int cj = m_completions[pos]->getJ();
             // Using square of distance to avoid non-integer arithmetics.
             const int ijdist2 = (ci - oi) * (ci - oi) + (cj - oj) * (cj - oj);
             if (ijdist2 < min_ijdist2) {
                 min_ijdist2 = ijdist2;
-                const int ck = m_completions[pos]->getK();
-                min_zdiff = std::abs(grid->getCellDepth(ci, cj, ck) - oz);
+                min_zdiff = std::abs(depth - oz);
                 closest = pos;
             } else if (ijdist2 == min_ijdist2) {
-                const int ck = m_completions[pos]->getK();
-                const double zdiff = std::abs(grid->getCellDepth(ci, cj, ck) - oz);
+                const double zdiff = std::abs(depth - oz);
                 if (zdiff < min_zdiff) {
                     min_zdiff = zdiff;
                     closest = pos;

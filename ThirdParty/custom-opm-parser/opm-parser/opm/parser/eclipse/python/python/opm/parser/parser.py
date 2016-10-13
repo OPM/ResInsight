@@ -3,7 +3,7 @@ import json
 import inspect
 from functools import partial
 
-from ert.cwrap import BaseCClass
+from cwrap import BaseCClass
 from opm import OPMPrototype
 from opm.deck import Deck
 from opm.parser import ParseContext
@@ -29,7 +29,7 @@ class Parser(BaseCClass):
     _alloc            = OPMPrototype("void*     parser_alloc()" , bind = False)
     _free             = OPMPrototype("void      parser_free(parser)")
     _has_keyword      = OPMPrototype("bool      parser_has_keyword(parser, char*)")
-    _parse_file       = OPMPrototype("deck_obj  parser_parse_file(parser, char*, parse_mode)")
+    _parse_file       = OPMPrototype("deck_obj  parser_parse_file(parser, char*, parse_context)")
     _add_json_keyword = OPMPrototype("void      parser_add_json_keyword(parser, char*)")
 
     

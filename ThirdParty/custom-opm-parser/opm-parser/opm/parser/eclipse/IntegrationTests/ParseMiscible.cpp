@@ -19,10 +19,8 @@
 #define BOOST_TEST_MODULE ParseMiscible
 #include <math.h>
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Deck/DeckItem.hpp>

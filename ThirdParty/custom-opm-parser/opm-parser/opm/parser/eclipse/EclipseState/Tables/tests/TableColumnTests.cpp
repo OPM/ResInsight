@@ -19,9 +19,7 @@
 
 #define BOOST_TEST_MODULE TableColumnTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 
 #include <opm/parser/eclipse/EclipseState/Tables/TableIndex.hpp>

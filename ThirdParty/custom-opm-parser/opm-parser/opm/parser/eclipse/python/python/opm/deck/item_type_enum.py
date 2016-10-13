@@ -1,4 +1,4 @@
-from ert.cwrap import BaseCEnum
+from cwrap import BaseCEnum
 
 
 class ItemType(BaseCEnum):

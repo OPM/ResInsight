@@ -20,12 +20,14 @@
 #include <memory>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/Deck/Section.hpp>
 #include <opm/parser/eclipse/EclipseState/Eclipse3DProperties.hpp>
 #include <opm/parser/eclipse/EclipseState/EclipseConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
 #include <opm/parser/eclipse/EclipseState/InitConfig/InitConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+#include <opm/parser/eclipse/EclipseState/IOConfig/RestartConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
 #include <opm/parser/eclipse/EclipseState/SimulationConfig/SimulationConfig.hpp>
@@ -34,23 +36,51 @@ namespace Opm {
 
     EclipseConfig::EclipseConfig(const Deck& deck,
                                  const Eclipse3DProperties& eclipse3DProperties,
-                                 std::shared_ptr< EclipseGrid > inputGrid,
-                                 const Schedule& schedule) :
+                                 const GridDims& inputGrid,
+                                 const Schedule& schedule,
+                                 const ParseContext& parseContext) :
             m_ioConfig(        std::make_shared<IOConfig>(deck)),
-            m_initConfig(      std::make_shared<const InitConfig>(deck)),
-            m_simulationConfig(std::make_shared<const SimulationConfig>(deck, eclipse3DProperties)),
-            m_summaryConfig(   deck, schedule, eclipse3DProperties, inputGrid->getNXYZ())
+            m_initConfig(      deck),
+            m_simulationConfig(deck, eclipse3DProperties),
+            m_summaryConfig(   deck, schedule, eclipse3DProperties, parseContext , inputGrid.getNXYZ()),
+            m_restartConfig(   deck )
     {
-        // Hmmm - would have thought this should iterate through the SCHEDULE section as well?
-        if (Section::hasSOLUTION(deck)) {
-            std::shared_ptr<const SOLUTIONSection> solutionSection = std::make_shared<const SOLUTIONSection>(deck);
-            m_ioConfig->handleSolutionSection(schedule.getTimeMap(), solutionSection);
-        }
-        m_ioConfig->initFirstOutput(schedule);
+        m_ioConfig->initFirstRFTOutput(schedule);
     }
 
-    const SummaryConfig& EclipseConfig::getSummaryConfig() const {
+
+    const InitConfig& EclipseConfig::init() const {
+        return m_initConfig;
+    }
+
+    const IOConfig& EclipseConfig::io() const {
+        return *m_ioConfig;
+    }
+
+    IOConfig& EclipseConfig::io() {
+        return *m_ioConfig;
+    }
+
+    const SimulationConfig& EclipseConfig::simulation() const {
+        return m_simulationConfig;
+    }
+
+    const SummaryConfig& EclipseConfig::summary() const {
         return m_summaryConfig;
+    }
+
+    const RestartConfig& EclipseConfig::restart() const {
+        return this->m_restartConfig;
+    }
+
+    // [[deprecated]] --- use summary()
+    const SummaryConfig& EclipseConfig::getSummaryConfig() const {
+        return summary();
+    }
+
+    // [[deprecated]] --- use restart()
+    const RestartConfig& EclipseConfig::getRestartConfig() const {
+        return this->restart();
     }
 
     IOConfigConstPtr EclipseConfig::getIOConfigConst() const {
@@ -61,11 +91,13 @@ namespace Opm {
         return m_ioConfig;
     }
 
-    InitConfigConstPtr EclipseConfig::getInitConfig() const {
-        return m_initConfig;
+    // [[deprecated]] --- use init()
+    const InitConfig& EclipseConfig::getInitConfig() const {
+        return init();
     }
 
-    SimulationConfigConstPtr EclipseConfig::getSimulationConfig() const {
-        return m_simulationConfig;
+    // [[deprecated]] --- use simulation()
+    const SimulationConfig& EclipseConfig::getSimulationConfig() const {
+        return simulation();
     }
 }

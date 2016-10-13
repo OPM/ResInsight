@@ -34,14 +34,16 @@
 
 using namespace Opm;
 
-void check_property(const Eclipse3DProperties& props1, const Eclipse3DProperties& props2, const std::string& propertyName) {
+inline void check_property(const Eclipse3DProperties& props1,
+                           const Eclipse3DProperties& props2,
+                           const std::string& propertyName) {
     auto& data1 = props1.getDoubleGridProperty(propertyName).getData();
     auto& data2 = props2.getDoubleGridProperty(propertyName).getData();
 
     BOOST_CHECK_CLOSE(data1[0], data2[0], 1e-12);
 }
 
-static Opm::Eclipse3DProperties getProps(Opm::DeckPtr deck) {
+inline Opm::Eclipse3DProperties getProps(Opm::DeckPtr deck) {
     return Opm::Eclipse3DProperties(*deck, *new Opm::TableManager(*deck), *new Opm::EclipseGrid(deck));
 }
 

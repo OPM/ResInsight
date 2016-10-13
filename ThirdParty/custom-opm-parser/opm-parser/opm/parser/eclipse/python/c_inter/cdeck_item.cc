@@ -2,6 +2,14 @@
 
 extern "C" {
 
+    int          deck_item_get_size( const Opm::DeckItem * item );
+    int          deck_item_get_type( const Opm::DeckItem * item );
+    int          deck_item_iget_int( const Opm::DeckItem * item , int index);
+    double       deck_item_iget_double( const Opm::DeckItem * item , int index);
+    const char * deck_item_iget_string( const Opm::DeckItem * item , int index);
+
+    /*-----------------------------------------------------------------*/
+
     int deck_item_get_size( const Opm::DeckItem * item ) {
         return static_cast<int>(item->size());
     }

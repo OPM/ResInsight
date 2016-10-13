@@ -23,6 +23,7 @@
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/NNC.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/N.hpp>
 
@@ -34,23 +35,27 @@ namespace Opm
             NNC(*deck, eclipseGrid)
     {}
 
-    NNC::NNC(const Deck& deck, EclipseGridConstPtr eclipseGrid) {
+    /// [[deprecated]]
+    NNC::NNC(const Deck& deck, EclipseGridConstPtr eclipseGrid) :
+            NNC(deck, *eclipseGrid)
+    {}
+
+    NNC::NNC(const Deck& deck, const GridDims& gridDims) {
         const auto& nncs = deck.getKeywordList<ParserKeywords::NNC>();
         for (size_t idx_nnc = 0; idx_nnc<nncs.size(); ++idx_nnc) {
             const auto& nnc = *nncs[idx_nnc];
-            size_t numNNC = nnc.size();
-            for (size_t i = 0; i<numNNC; ++i) {
+            for (size_t i = 0; i < nnc.size(); ++i) {
                 std::array<size_t, 3> ijk1;
                 ijk1[0] = static_cast<size_t>(nnc.getRecord(i).getItem(0).get< int >(0)-1);
                 ijk1[1] = static_cast<size_t>(nnc.getRecord(i).getItem(1).get< int >(0)-1);
                 ijk1[2] = static_cast<size_t>(nnc.getRecord(i).getItem(2).get< int >(0)-1);
-                size_t global_index1 = eclipseGrid->getGlobalIndex(ijk1[0],ijk1[1],ijk1[2]);
+                size_t global_index1 = gridDims.getGlobalIndex(ijk1[0],ijk1[1],ijk1[2]);
                 
                 std::array<size_t, 3> ijk2;
                 ijk2[0] = static_cast<size_t>(nnc.getRecord(i).getItem(3).get< int >(0)-1);
                 ijk2[1] = static_cast<size_t>(nnc.getRecord(i).getItem(4).get< int >(0)-1);
                 ijk2[2] = static_cast<size_t>(nnc.getRecord(i).getItem(5).get< int >(0)-1);
-                size_t global_index2 = eclipseGrid->getGlobalIndex(ijk2[0],ijk2[1],ijk2[2]);
+                size_t global_index2 = gridDims.getGlobalIndex(ijk2[0],ijk2[1],ijk2[2]);
                 
                 const double trans = nnc.getRecord(i).getItem(6).getSIDouble(0);
                 
@@ -65,11 +70,11 @@ namespace Opm
 
 
     void NNC::addNNC(const size_t cell1, const size_t cell2, const double trans) {
-        NNCdata nncdata;
-        nncdata.cell1 = cell1;
-        nncdata.cell2 = cell2;
-        nncdata.trans = trans;
-        m_nnc.push_back(nncdata);
+        NNCdata tmp;
+        tmp.cell1 = cell1;
+        tmp.cell2 = cell2;
+        tmp.trans = trans;
+        m_nnc.push_back(tmp);
     }
 
     size_t NNC::numNNC() const {

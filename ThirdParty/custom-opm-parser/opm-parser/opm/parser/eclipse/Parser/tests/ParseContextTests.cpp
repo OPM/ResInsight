@@ -147,6 +147,15 @@ BOOST_AUTO_TEST_CASE( CheckUnsupportedInSCHEDULE ) {
         "RUNSPEC\n"
         "DIMENS\n"
         "  10 10 10 / \n"
+        "GRID\n"
+        "DX\n"
+        "1000*0.25 /\n"
+        "DY\n"
+        "1000*0.25 /\n"
+        "DZ\n"
+        "1000*0.25 /\n"
+        "TOPS\n"
+        "100*0.25 /\n"
         "SCHEDULE\n"
         "MULTZ\n"
         "   1000*0.10 /\n"
@@ -158,6 +167,15 @@ BOOST_AUTO_TEST_CASE( CheckUnsupportedInSCHEDULE ) {
         "RUNSPEC\n"
         "DIMENS\n"
         "  10 10 10 / \n"
+        "GRID\n"
+        "DX\n"
+        "1000*0.25 /\n"
+        "DY\n"
+        "1000*0.25 /\n"
+        "DZ\n"
+        "1000*0.25 /\n"
+        "TOPS\n"
+        "100*0.25 /\n"
         "SCHEDULE\n"
         "MULTFLT\n"
         "   'F1' 0.10 /\n"
@@ -170,7 +188,7 @@ BOOST_AUTO_TEST_CASE( CheckUnsupportedInSCHEDULE ) {
 
     auto deckSupported = parser.parseString( deckStringSupported , parseContext );
     auto deckUnSupported = parser.parseString( deckStringUnSupported , parseContext );
-    std::shared_ptr<EclipseGrid> grid = std::make_shared<EclipseGrid>( deckSupported );
+    EclipseGrid grid( deckSupported );
 
     parseContext.update( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , InputError::IGNORE );
     BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deckSupported ));
@@ -226,6 +244,15 @@ BOOST_AUTO_TEST_CASE(TestCOMPORD) {
         "RUNSPEC\n"
         "DIMENS\n"
         "  10 10 10 / \n"
+        "GRID\n"
+        "DX\n"
+        "1000*0.25 /\n"
+        "DY\n"
+        "1000*0.25 /\n"
+        "DZ\n"
+        "1000*0.25 /\n"
+        "TOPS\n"
+        "100*0.25 /\n"
         "SCHEDULE\n"
         "COMPORD\n"
         "  '*'  'DEPTH' /\n"
@@ -235,7 +262,7 @@ BOOST_AUTO_TEST_CASE(TestCOMPORD) {
     Parser parser(true);
     auto deck = parser.parseString( deckString , parseContext );
 
-    std::shared_ptr<EclipseGrid> grid = std::make_shared<EclipseGrid>( deck );
+    EclipseGrid grid( deck );
 
     parseContext.update( ParseContext::UNSUPPORTED_COMPORD_TYPE , InputError::IGNORE);
     BOOST_CHECK_NO_THROW( Schedule( parseContext , grid , deck ));

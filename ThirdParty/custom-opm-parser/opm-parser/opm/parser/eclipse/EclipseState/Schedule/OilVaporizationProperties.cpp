@@ -20,11 +20,6 @@
 
 namespace Opm {
 
-
-    OilVaporizationProperties::OilVaporizationProperties(){
-
-    }
-
     double OilVaporizationProperties::getMaxDRVDT() const{
         if (m_type == Opm::OilVaporizationEnum::DRVDT){
             return m_maxDRVDT;
@@ -69,35 +64,60 @@ namespace Opm {
         }
     }
 
-    OilVaporizationPropertiesPtr OilVaporizationProperties::createOilVaporizationPropertiesDRSDT(double maximum, std::string option){
-        auto ovp = OilVaporizationPropertiesPtr(new OilVaporizationProperties());
-        ovp->m_type = Opm::OilVaporizationEnum::DRSDT;
-        ovp->m_maxDRSDT = maximum;
+    OilVaporizationProperties OilVaporizationProperties::createDRSDT(double maximum, std::string option){
+        OilVaporizationProperties ovp;
+        ovp.m_type = Opm::OilVaporizationEnum::DRSDT;
+        ovp.m_maxDRSDT = maximum;
         if (option == "ALL"){
-            ovp->m_maxDRSDT_allCells = true;
+            ovp.m_maxDRSDT_allCells = true;
         }else if (option == "FREE") {
-            ovp->m_maxDRSDT_allCells = false;
+            ovp.m_maxDRSDT_allCells = false;
         }else{
             throw std::invalid_argument("Only ALL or FREE is allowed as option string");
         }
         return ovp;
     }
 
-    OilVaporizationPropertiesPtr OilVaporizationProperties::createOilVaporizationPropertiesDRVDT(double maximum){
-        auto ovp = OilVaporizationPropertiesPtr(new OilVaporizationProperties());
-        ovp->m_type = Opm::OilVaporizationEnum::DRVDT;
-        ovp->m_maxDRVDT = maximum;
+    OilVaporizationProperties OilVaporizationProperties::createDRVDT(double maximum){
+        OilVaporizationProperties ovp;
+        ovp.m_type = Opm::OilVaporizationEnum::DRVDT;
+        ovp.m_maxDRVDT = maximum;
         return ovp;
-
     }
 
-    OilVaporizationPropertiesPtr OilVaporizationProperties::createOilVaporizationPropertiesVAPPARS(double vap1, double vap2){
-        auto ovp = OilVaporizationPropertiesPtr(new OilVaporizationProperties());
-        ovp->m_type = Opm::OilVaporizationEnum::VAPPARS;
-        ovp->m_vap1 = vap1;
-        ovp->m_vap2 = vap2;
+    OilVaporizationProperties OilVaporizationProperties::createVAPPARS(double vap1, double vap2){
+        OilVaporizationProperties ovp;
+        ovp.m_type = Opm::OilVaporizationEnum::VAPPARS;
+        ovp.m_vap1 = vap1;
+        ovp.m_vap2 = vap2;
         return ovp;
-
     }
 
+    bool OilVaporizationProperties::operator==( const OilVaporizationProperties& rhs ) const {
+        if( this->m_type == OilVaporizationEnum::UNDEF
+         || rhs.m_type   == OilVaporizationEnum::UNDEF
+         || this->m_type != rhs.m_type ) return false;
+
+        switch( this->m_type ) {
+            case OilVaporizationEnum::DRSDT:
+                return this->m_maxDRSDT == rhs.m_maxDRSDT
+                    && this->m_maxDRSDT_allCells == rhs.m_maxDRSDT_allCells;
+
+            case OilVaporizationEnum::DRVDT:
+                return this->m_maxDRVDT == rhs.m_maxDRVDT;
+
+            case OilVaporizationEnum::VAPPARS:
+                return this->m_vap1 == rhs.m_vap1
+                    && this->m_vap2 == rhs.m_vap2;
+
+            default:
+                throw std::logic_error( "UNDEF Oil vaporization property; this should never happen" );
+        }
+    }
+
+    bool OilVaporizationProperties::operator!=( const OilVaporizationProperties& rhs ) const {
+        return this->m_type == OilVaporizationEnum::UNDEF
+            || rhs.m_type == OilVaporizationEnum::UNDEF
+            || this->m_type != rhs.m_type;
+    }
 }

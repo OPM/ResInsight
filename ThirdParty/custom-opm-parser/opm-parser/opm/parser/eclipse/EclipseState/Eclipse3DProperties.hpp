@@ -1,5 +1,5 @@
 /*
-  Copyright 2013 Statoil ASA.
+  Copyright 2016  Statoil ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -19,13 +19,16 @@
 #ifndef OPM_ECLIPSE_PROPERTIES_HPP
 #define OPM_ECLIPSE_PROPERTIES_HPP
 
-#include <utility>
-#include <memory>
-#include <set>
+#include <vector>
+#include <string>
 
-#include <opm/parser/eclipse/EclipseState/Grid/GridProperty.hpp>
+#include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/parser/eclipse/Deck/DeckItem.hpp>
+#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/GridProperties.hpp>
-#include <opm/parser/eclipse/Parser/MessageContainer.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridProperty.hpp>
+#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
 
 namespace Opm {
 
@@ -36,13 +39,8 @@ namespace Opm {
     class DeckKeyword;
     class DeckRecord;
     class EclipseGrid;
-    class EclipseState;
-    class InitConfig;
-    class IOConfig;
-    class Schedule;
     class Section;
     class TableManager;
-    class TransMult;
     class UnitSystem;
 
     /// Class representing properties on 3D grid for use in EclipseState.
@@ -61,6 +59,9 @@ namespace Opm {
 
         const GridProperty<int>&      getIntGridProperty     ( const std::string& keyword ) const;
         const GridProperty<double>&   getDoubleGridProperty  ( const std::string& keyword ) const;
+
+        const GridProperties<int>& getIntProperties() const;
+        const GridProperties<double>& getDoubleProperties() const;
 
         bool hasDeckIntGridProperty(const std::string& keyword) const;
         bool hasDeckDoubleGridProperty(const std::string& keyword) const;

@@ -22,6 +22,7 @@
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -46,8 +47,11 @@ public:
     /// [[deprecated]]
     NNC(std::shared_ptr<const Deck> deck_ptr, std::shared_ptr< const EclipseGrid > eclipseGrid);
 
-    /// Construct from input deck.
+    /// [[deprecated]]
     NNC(const Deck& deck, std::shared_ptr< const EclipseGrid > eclipseGrid);
+
+    /// Construct from input deck.
+    NNC(const Deck& deck, const GridDims& gridDims);
     void addNNC(const size_t cell1, const size_t cell2, const double trans);
     const std::vector<NNCdata>& nncdata() const { return m_nnc; }
     size_t numNNC() const;

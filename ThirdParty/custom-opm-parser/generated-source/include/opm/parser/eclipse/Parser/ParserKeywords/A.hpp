@@ -156,6 +156,69 @@ namespace ParserKeywords {
 
 
 
+   class AQUANCON : public ParserKeyword {
+   public:
+       AQUANCON();
+       static const std::string keywordName;
+
+       class AQUIFER_ID {
+       public:
+           static const std::string itemName;
+       };
+
+       class I1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class I2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class J1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class J2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class K1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class K2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class FACE {
+       public:
+           static const std::string itemName;
+       };
+
+       class INFLUX_COEFF {
+       public:
+           static const std::string itemName;
+       };
+
+       class INFLUX_MULT {
+       public:
+           static const std::string itemName;
+       };
+
+       class CONNECT_ADJOINING_ACTIVE_CELL {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class AQUCON : public ParserKeyword {
    public:
        AQUCON();
@@ -280,6 +343,72 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
            static const int defaultValue;
+       };
+   };
+
+
+
+   class AQUFETP : public ParserKeyword {
+   public:
+       AQUFETP();
+       static const std::string keywordName;
+
+       class ID {
+       public:
+           static const std::string itemName;
+       };
+
+       class DATUM_DEPTH {
+       public:
+           static const std::string itemName;
+       };
+
+       class P0 {
+       public:
+           static const std::string itemName;
+       };
+
+       class V0 {
+       public:
+           static const std::string itemName;
+       };
+
+       class COMPRESSIBILITY {
+       public:
+           static const std::string itemName;
+       };
+
+       class PI {
+       public:
+           static const std::string itemName;
+       };
+
+       class WATER_TABLE {
+       public:
+           static const std::string itemName;
+       };
+
+       class SALINITY {
+       public:
+           static const std::string itemName;
+       };
+
+       class TEMP {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class AQUIFER_PROBE_ANALYTIC : public ParserKeyword {
+   public:
+       AQUIFER_PROBE_ANALYTIC();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
        };
    };
 

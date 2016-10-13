@@ -22,9 +22,7 @@
 
 #define BOOST_TEST_MODULE DeckTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
@@ -35,6 +33,18 @@ BOOST_AUTO_TEST_CASE(Initialize) {
     BOOST_REQUIRE_NO_THROW(Deck deck);
     BOOST_REQUIRE_NO_THROW(DeckPtr deckPtr(new Deck()));
     BOOST_REQUIRE_NO_THROW(DeckConstPtr deckConstPtr(new Deck()));
+}
+
+BOOST_AUTO_TEST_CASE(Initializer_lists) {
+    DeckKeyword foo( "foo" );
+    DeckKeyword bar( "bar" );
+
+    std::string foostr( "foo" );
+    std::string barstr( "bar" );
+
+    BOOST_REQUIRE_NO_THROW( Deck( { foo, bar } ) );
+    BOOST_REQUIRE_NO_THROW( Deck( { foostr, barstr } ) );
+    BOOST_REQUIRE_NO_THROW( Deck( { "Kappa", "Phi" } ) );
 }
 
 BOOST_AUTO_TEST_CASE(hasKeyword_empty_returnFalse) {

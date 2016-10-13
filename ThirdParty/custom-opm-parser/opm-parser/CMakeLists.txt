@@ -5,6 +5,12 @@ enable_language(C)
 include(CTest)
 include(TestCXXAcceptsFlag)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "No build type specified - defaulting to 'Debug'.")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose build type." FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release" "Debug" "RelWithDebInfo" "MinSizeRel")
+endif()
+
 # project information is in dune.module. Read this file and set variables.
 # we cannot generate dune.module since it is read by dunecontrol before
 # the build starts, so it makes sense to keep the data there then.
@@ -77,20 +83,19 @@ endif (USE_RUNPATH)
 
 if (MSVC)
   add_definitions( "/W3 /D_CRT_SECURE_NO_WARNINGS /wd4996 /wd4244 /wd4267")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  set(CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS}")
 else()
-  if (NOT DEFINED CMAKE_CXX_FLAGS)
-    SET( CMAKE_CXX_FLAGS "-pipe -std=c++0x -pedantic -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wmissing-declarations -Wcast-qual -Wshadow -Wwrite-strings -Wchar-subscripts -Wredundant-decls")
-  endif()
-  SET( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}   -O0 -DDEBUG  -ggdb3")
-  SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -mtune=native")
+  # The cmake macros are expanded *after* our flags so that options can be
+  # overriden via -DCMAKE_FLAGS from the command line or ccmake
+  SET( CMAKE_CXX_FLAGS "-pipe -std=c++0x  ${CMAKE_CXX_FLAGS}")
+  SET( CMAKE_CXX_FLAGS_DEBUG   "-pedantic -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wmissing-declarations -Wcast-qual -Wshadow -Wwrite-strings -Wchar-subscripts -Wredundant-decls ${CMAKE_CXX_FLAGS_DEBUG}")
+  SET( CMAKE_CXX_FLAGS_DEBUG   "-O0 -DDEBUG  -ggdb3        ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}  ")
+  SET( CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -mtune=native ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
 endif(MSVC)
 
-if (NOT DEFINED CMAKE_C_FLAGS)
-  SET( CMAKE_C_FLAGS "-pipe -Wall -Wno-unknown-pragmas -std=c99")
-endif()
-SET( CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}   -O0 -DDEBUG -ggdb3")
-SET( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG -mtune=native")
+SET( CMAKE_C_FLAGS "-pipe -Wall -Wno-unknown-pragmas -std=c99 ${CMAKE_C_FLAGS}")
+SET( CMAKE_C_FLAGS_DEBUG   "-O0 -DDEBUG -ggdb3         ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}  ")
+SET( CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -mtune=native ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
 
 
 if (BOOST_ROOT AND NOT DEFINED Boost_NO_SYSTEM_PATHS)
@@ -111,7 +116,7 @@ add_definitions(-DOPM_PARSER_DECK_API=1)
 # Requires BOOST filesystem version 3, thus 1.44 is necessary.
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 find_package(Boost 1.44.0 COMPONENTS filesystem date_time system unit_test_framework regex REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
@@ -137,8 +142,6 @@ endif()
 include( cmake/Modules/CheckCaseSensitiveFileSystem.cmake )
 add_definitions("-DHAVE_CASE_SENSITIVE_FILESYSTEM=${HAVE_CASE_SENSITIVE_FILESYSTEM}")
 
-find_package(opm-common)
-include_directories( ${opm-common_INCLUDE_DIRS} )
 include( Findopm-data )
 
 find_package(ERT)

@@ -78,17 +78,23 @@ namespace Opm {
                 throw std::runtime_error("this way to obtain DISTANCE_END not implemented yet!");
             }
 
-            WellCompletion::DirectionEnum direction;
-            if (record.getItem<ParserKeywords::COMPSEGS::DIRECTION>().hasValue(0)) {
-                direction = WellCompletion::DirectionEnumFromString(record.getItem<ParserKeywords::COMPSEGS::DIRECTION>().get< std::string >(0));
-            } else if (!record.getItem<ParserKeywords::COMPSEGS::DISTANCE_END>().hasValue(0)) {
+            if( !record.getItem< ParserKeywords::COMPSEGS::DIRECTION >().hasValue( 0 ) &&
+                !record.getItem< ParserKeywords::COMPSEGS::DISTANCE_END >().hasValue( 0 ) ) {
                 throw std::runtime_error("the direction has to be specified when DISTANCE_END in the record is not specified");
             }
 
-            if (record.getItem<ParserKeywords::COMPSEGS::END_IJK>().hasValue(0)) {
-                if (!record.getItem<ParserKeywords::COMPSEGS::DIRECTION>().hasValue(0)) {
-                    throw std::runtime_error("the direction has to be specified when END_IJK in the record is specified");
-                }
+            if( record.getItem< ParserKeywords::COMPSEGS::END_IJK >().hasValue( 0 ) &&
+               !record.getItem< ParserKeywords::COMPSEGS::DIRECTION >().hasValue( 0 ) ) {
+                throw std::runtime_error("the direction has to be specified when END_IJK in the record is specified");
+            }
+
+            /*
+             * Defaulted well completion. Must be non-defaulted if DISTANCE_END
+             * is set or a range is specified. If not this is effectively ignored.
+             */
+            WellCompletion::DirectionEnum direction = WellCompletion::X;
+            if( record.getItem< ParserKeywords::COMPSEGS::DIRECTION >().hasValue( 0 ) ) {
+                direction = WellCompletion::DirectionEnumFromString(record.getItem<ParserKeywords::COMPSEGS::DIRECTION>().get< std::string >(0));
             }
 
             double center_depth;

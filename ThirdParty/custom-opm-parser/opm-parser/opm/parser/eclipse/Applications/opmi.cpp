@@ -21,12 +21,28 @@
 #include <memory>
 
 #include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/parser/eclipse/Parser/MessageContainer.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
 
 
-void loadDeck( const char * deck_file) {
+inline void dumpMessages( const Opm::MessageContainer& messageContainer) {
+    auto extractMessage = [](const Opm::Message& msg) {
+        const auto& location = msg.location;
+        if (location)
+            return location.filename + ":" + std::to_string( location.lineno ) + " " + msg.message;
+        else
+            return msg.message;
+    };
+
+
+    for(const auto& msg : messageContainer)
+        std::cout << extractMessage(msg) << std::endl;
+}
+
+
+inline void loadDeck( const char * deck_file) {
     Opm::ParseContext parseContext;
     Opm::ParserPtr parser(new Opm::Parser());
     std::shared_ptr<const Opm::Deck> deck;
@@ -35,8 +51,10 @@ void loadDeck( const char * deck_file) {
     std::cout << "Loading deck: " << deck_file << " ..... "; std::cout.flush();
     deck = parser->parseFile(deck_file, parseContext);
     std::cout << "parse complete - creating EclipseState .... ";  std::cout.flush();
-    state = std::make_shared<Opm::EclipseState>( deck , parseContext );
+    state = std::make_shared<Opm::EclipseState>( *deck , parseContext );
     std::cout << "complete." << std::endl;
+
+    dumpMessages( deck->getMessageContainer() );
 }
 
 

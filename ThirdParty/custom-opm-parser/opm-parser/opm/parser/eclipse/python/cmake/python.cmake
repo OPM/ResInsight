@@ -31,6 +31,11 @@ function(add_python_package target package_path source_files install_package)
 endfunction()
 
 
+function(add_python_module target package_path module_file install_package)
+   set (source_list ${module_file})
+   add_python_package( ${target} ${package_path} ${source_list} ${install_package})
+endfunction()
+
 #-----------------------------------------------------------------
 
 
@@ -52,6 +57,5 @@ function (addPythonTest TEST_NAME TEST_CLASS)
     if(TEST_OPTIONS_ENVIRONMENT)
         set_property(TEST python.tests.${TEST_NAME} PROPERTY ENVIRONMENT ${TEST_OPTIONS_ENVIRONMENT})
     endif()
-    set_property(TEST python.tests.${TEST_NAME} PROPERTY ENVIRONMENT "PYTHONPATH=${ERT_PYTHON_PATH}:${PYTHONPATH}")
+    set_property(TEST python.tests.${TEST_NAME} PROPERTY ENVIRONMENT "PYTHONPATH=${CWRAP_PYTHON_PATH}:${PYTHONPATH}")
 endfunction(addPythonTest)
-

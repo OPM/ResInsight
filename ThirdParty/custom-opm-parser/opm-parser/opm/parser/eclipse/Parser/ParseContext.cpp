@@ -67,8 +67,12 @@ namespace Opm {
         addKey(UNSUPPORTED_SCHEDULE_GEO_MODIFIER);
         addKey(UNSUPPORTED_COMPORD_TYPE);
         addKey(UNSUPPORTED_INITIAL_THPRES);
+        addKey(UNSUPPORTED_TERMINATE_IF_BHP);
 
         addKey(INTERNAL_ERROR_UNINITIALIZED_THPRES);
+
+        addKey(SUMMARY_UNKNOWN_WELL);
+        addKey(SUMMARY_UNKNOWN_GROUP);
     }
 
     void ParseContext::initEnv() {
@@ -238,10 +242,14 @@ namespace Opm {
     const std::string ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER = "UNSUPPORTED_SCHEDULE_GEO_MODIFIER";
     const std::string ParseContext::UNSUPPORTED_COMPORD_TYPE = "UNSUPPORTED_COMPORD_TYPE";
     const std::string ParseContext::UNSUPPORTED_INITIAL_THPRES = "UNSUPPORTED_INITIAL_THPRES";
+    const std::string ParseContext::UNSUPPORTED_TERMINATE_IF_BHP = "UNSUPPORTED_TERMINATE_IF_BHP";
 
     const std::string ParseContext::INTERNAL_ERROR_UNINITIALIZED_THPRES = "INTERNAL_ERROR_UNINITIALIZED_THPRES";
 
     const std::string ParseContext::PARSE_MISSING_SECTIONS = "PARSE_MISSING_SECTIONS";
+
+    const std::string ParseContext::SUMMARY_UNKNOWN_WELL  = "SUMMARY_UNKNOWN_WELL";
+    const std::string ParseContext::SUMMARY_UNKNOWN_GROUP = "SUMMARY_UNKNOWN_GROUP";
 }
 
 

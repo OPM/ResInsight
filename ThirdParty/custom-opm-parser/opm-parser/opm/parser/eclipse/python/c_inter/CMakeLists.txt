@@ -5,6 +5,8 @@ cparse_context.cc
 ctable_manager.cc
 ctable.cc
 ctable_index.cc
+ceclipse_grid.cc
+cschedule.cc
 )
 
 target_link_libraries(copmparser opmparser)

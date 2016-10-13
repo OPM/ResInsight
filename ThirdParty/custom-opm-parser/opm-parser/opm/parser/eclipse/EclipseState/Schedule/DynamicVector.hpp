@@ -24,8 +24,6 @@
 
 #include <stdexcept>
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
 

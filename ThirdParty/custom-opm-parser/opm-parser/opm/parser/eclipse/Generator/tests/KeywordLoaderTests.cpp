@@ -23,11 +23,9 @@
 
 #define BOOST_TEST_MODULE InputKeywordTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 
 #include <opm/parser/eclipse/Generator/KeywordLoader.hpp>
@@ -84,9 +82,11 @@ BOOST_AUTO_TEST_CASE(DirectorySort) {
     BOOST_CHECK_THROW( Opm::KeywordLoader::sortSubdirectories( "testdata/parser/keyword-generator/loader/ZCORN") , std::invalid_argument );
     std::vector<std::string> dir_list = Opm::KeywordLoader::sortSubdirectories( "testdata/parser/keyword-generator/loader");
 
+    namespace fs = boost::filesystem;
+
     BOOST_CHECK_EQUAL( 2U , dir_list.size());
-    BOOST_CHECK_EQUAL( dir_list[0] , "testdata/parser/keyword-generator/loader/001_ECLIPSE100");
-    BOOST_CHECK_EQUAL( dir_list[1] , "testdata/parser/keyword-generator/loader/002_ECLIPSE300");
+    BOOST_CHECK_EQUAL( fs::path( dir_list[0] ), fs::path( "testdata/parser/keyword-generator/loader/001_ECLIPSE100" ) );
+    BOOST_CHECK_EQUAL( fs::path( dir_list[1] ), fs::path( "testdata/parser/keyword-generator/loader/002_ECLIPSE300" ) );
 }
 
 

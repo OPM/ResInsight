@@ -37,6 +37,8 @@ COMPDAT
 
 WCONHIST 
 -- the spaces around the names indicator are intentional!
+-- they test that even padded quoted literals as arguments to WCONHIST and
+-- friends are stripped correctly
      ' W_1 '      ' OPEN '      ' ORAT '   4000.000      4.000 12345  5* /
      'W_2'      'SHUT'      'ORAT'   7998.000      2.000 1461075.000  5* /
      'W_3'      'AUTO'      'ORAT'   7999.000      1.000 1471824.000  5* /

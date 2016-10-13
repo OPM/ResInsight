@@ -228,6 +228,39 @@ static Opm::DeckPtr createDeckWithNTG() {
     return parser->parseString(deckData, Opm::ParseContext()) ;
 }
 
+static Opm::DeckPtr createDeckWithMULTREGP() {
+    const char *deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        " 10 10 10 /\n"
+        "GRID\n"
+        "DX\n"
+        "1000*0.25 /\n"
+        "DYV\n"
+        "10*0.25 /\n"
+        "DZ\n"
+        "1000*0.25 /\n"
+        "TOPS\n"
+        "100*0.25 /\n"
+        "PORV\n"
+        "1000*77 /\n"
+        "MULTNUM\n"
+        "100*1 700*2 200*3 / \n"
+        "FLUXNUM\n"
+        "200*1 700*2 100*3  / \n"
+        "MULTREGP\n"
+        "1 10.0 / \n"
+        "1 2.0 F/ \n"
+        "0 123.0 F/ \n" // ignored
+        "2 20.0 M / \n"
+        "/\n"
+        "\n";
+
+    Opm::ParserPtr parser(new Opm::Parser());
+    return parser->parseString(deckData, Opm::ParseContext()) ;
+}
+
 BOOST_AUTO_TEST_CASE(PORV_cartesianDeck) {
     /* Check that an exception is raised if we try to create a PORV field without PORO. */
     Opm::DeckPtr deck = createCARTDeck();
@@ -324,6 +357,29 @@ BOOST_AUTO_TEST_CASE(PORV_multpvAndNtg) {
     BOOST_CHECK_CLOSE( cell_volume * poro*multpv*NTG , porv.iget(9,9,9) , 0.001);
 }
 
+BOOST_AUTO_TEST_CASE(PORV_multregp) {
+    Opm::DeckPtr deck = createDeckWithMULTREGP();
+    const auto props = getProps(deck);
+    const auto& porv = props.getDoubleGridProperty("PORV");
+    const auto& porvData = porv.getData();
+    double basePorv = 77.0;
+
+    // the cumlative effect of the base pore volume is multiplied 2 for the cells in
+    // region 1 of FLUXNUM and by 20 for region 2 of MULTNUM. This means that the first
+    // 100 cels are multiplied by 2, then follow 100 cells multiplied by 2*20, then
+    // 600 cells multiplied by 20 while the last 200 cells are not modified at all.
+    for (int i=0; i < 100; ++i)
+        BOOST_CHECK_CLOSE(porvData[i], basePorv*2, 1e-8);
+
+    for (int i=100; i < 200; ++i)
+        BOOST_CHECK_CLOSE(porvData[i], basePorv*2*20, 1e-8);
+
+    for (int i=200; i < 800; ++i)
+        BOOST_CHECK_CLOSE(porvData[i], basePorv*20, 1e-8);
+
+    for (int i=800; i < 1000; ++i)
+        BOOST_CHECK_CLOSE(porvData[i], basePorv, 1e-8);
+}
 
 
 static Opm::DeckPtr createDeckNakedGRID() {
@@ -346,8 +402,7 @@ static Opm::DeckPtr createDeckNakedGRID() {
 BOOST_AUTO_TEST_CASE(NAKED_GRID_THROWS) {
     /* Check that MULTIPLE Boxed PORV and MULTPV statements work and NTG */
     Opm::DeckPtr deck = createDeckNakedGRID();
-    const auto props = getProps(deck);
-    BOOST_CHECK_THROW( props.getDoubleGridProperty("PORV") , std::invalid_argument );
+    BOOST_CHECK_THROW( getProps(deck) , std::invalid_argument );
 }
 
 static Opm::DeckPtr createDeckWithPOROZero() {
@@ -386,7 +441,7 @@ static Opm::DeckPtr createDeckWithPOROZero() {
 BOOST_AUTO_TEST_CASE(PORO_ZERO_ACTNUM_CORRECT) {
     /* Check that MULTIPLE Boxed PORV and MULTPV statements work and NTG */
     Opm::DeckPtr deck = createDeckWithPOROZero();
-    Opm::EclipseState state( deck , Opm::ParseContext());
+    Opm::EclipseState state( *deck , Opm::ParseContext());
     auto grid = state.getInputGrid( );
 
     /* Top layer is active */

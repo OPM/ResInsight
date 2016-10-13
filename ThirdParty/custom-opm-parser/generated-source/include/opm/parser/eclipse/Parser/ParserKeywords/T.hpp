@@ -298,6 +298,19 @@ namespace ParserKeywords {
 
 
 
+   class TNUM : public ParserKeyword {
+   public:
+       TNUM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class TOPS : public ParserKeyword {
    public:
        TOPS();

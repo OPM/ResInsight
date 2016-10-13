@@ -26,8 +26,8 @@
       {MULTX , MULTX- , MULTY , MULTY- , MULTZ , MULTZ-, MULTFLT , MULTREGT}
 
 */
-#ifndef TRANSMULT_HPP
-#define TRANSMULT_HPP
+#ifndef OPM_PARSER_TRANSMULT_HPP
+#define OPM_PARSER_TRANSMULT_HPP
 
 
 #include <cstddef>
@@ -35,13 +35,12 @@
 #include <memory>
 
 #include <opm/parser/eclipse/EclipseState/Grid/FaceDir.hpp>
-
+#include <opm/parser/eclipse/EclipseState/Grid/MULTREGTScanner.hpp>
 
 namespace Opm {
     template< typename > class GridProperty;
     class Fault;
     class FaultCollection;
-    class MULTREGTScanner;
 
     class TransMult {
 
@@ -53,7 +52,8 @@ namespace Opm {
         void applyMULT(const GridProperty<double>& srcMultProp, FaceDir::DirEnum faceDir);
         void applyMULTFLT(const FaultCollection& faults);
         void applyMULTFLT(const Fault& fault);
-        void setMultregtScanner(std::shared_ptr<const MULTREGTScanner> multregtScanner);
+        void createMultregtScanner(const Eclipse3DProperties& e3DProps,
+                                   std::vector<const DeckKeyword*> multregtKeywords);
 
     private:
         size_t getGlobalIndex(size_t i , size_t j , size_t k) const;
@@ -66,9 +66,9 @@ namespace Opm {
         size_t m_nx , m_ny , m_nz;
         std::map<FaceDir::DirEnum , GridProperty<double> > m_trans;
         std::map<FaceDir::DirEnum , std::string> m_names;
-        std::shared_ptr<const MULTREGTScanner> m_multregtScanner;
+        MULTREGTScanner* m_multregtScanner = nullptr;
     };
 
 }
 
-#endif
+#endif // OPM_PARSER_TRANSMULT_HPP

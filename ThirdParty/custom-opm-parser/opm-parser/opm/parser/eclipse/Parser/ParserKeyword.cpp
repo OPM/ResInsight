@@ -223,7 +223,7 @@ namespace Opm {
 
     string_view ParserKeyword::getDeckName( const string_view& str ) {
 
-        auto first_sep = std::find_if( str.begin(), str.end(), RawConsts::is_separator );
+        auto first_sep = std::find_if( str.begin(), str.end(), RawConsts::is_separator() );
 
         // only look at the first 8 characters (at most)
         if( std::distance( str.begin(), first_sep ) < 9 )

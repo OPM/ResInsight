@@ -38,7 +38,8 @@ namespace Opm {
         RawRecord( const string_view&, const std::string& fileName = "", const std::string& keywordName = "");
 
         inline string_view pop_front();
-        void push_front(std::string token);
+        void push_front( string_view token );
+        void prepend( size_t count, string_view token );
         inline size_t size() const;
 
         std::string getRecordString() const;
@@ -53,7 +54,6 @@ namespace Opm {
     private:
         string_view m_sanitizedRecordString;
         std::deque< string_view > m_recordItems;
-        std::list< std::string > expanded_items;
         const std::string m_fileName;
         const std::string m_keywordName;
 

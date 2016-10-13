@@ -12,7 +12,10 @@ namespace Opm {
 namespace ParserKeywords {
 
 
+void addDefaultKeywords2(Parser& p);
 void addDefaultKeywords2(Parser& p) {
+p.addKeyword< ParserKeywords::PIMULTAB >();
+p.addKeyword< ParserKeywords::PINCH >();
 p.addKeyword< ParserKeywords::PLMIXPAR >();
 p.addKeyword< ParserKeywords::PLYADS >();
 p.addKeyword< ParserKeywords::PLYADSS >();
@@ -52,6 +55,7 @@ p.addKeyword< ParserKeywords::RPTGRID >();
 p.addKeyword< ParserKeywords::RPTONLY >();
 p.addKeyword< ParserKeywords::RPTONLYO >();
 p.addKeyword< ParserKeywords::RPTPROPS >();
+p.addKeyword< ParserKeywords::RPTREGS >();
 p.addKeyword< ParserKeywords::RPTRST >();
 p.addKeyword< ParserKeywords::RPTRUNSP >();
 p.addKeyword< ParserKeywords::RPTSCHED >();

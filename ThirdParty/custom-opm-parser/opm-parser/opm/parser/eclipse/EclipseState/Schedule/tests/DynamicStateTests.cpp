@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(DynamicStateGetDefault) {
     Opm::TimeMapPtr timeMap(new Opm::TimeMap(boost::posix_time::ptime(startDate)));
     Opm::DynamicState<int> state(timeMap , 137);
     BOOST_CHECK_EQUAL( 137 , state.get(0));
+    BOOST_CHECK_EQUAL( 137 , state.back() );
 }
 
 
@@ -92,6 +93,7 @@ BOOST_AUTO_TEST_CASE(DynamicStateSetOK) {
     BOOST_CHECK_EQUAL( 60 , state.get(6));
     BOOST_CHECK_EQUAL( 60 , state.get(8));
     BOOST_CHECK_EQUAL( 60 , state.get(9));
+    BOOST_CHECK_EQUAL( 60 , state.back());
 }
 
 

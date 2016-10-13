@@ -40,7 +40,8 @@ using namespace boost::filesystem;
 static void
 createDeckWithInclude(path& datafile, std::string addEndKeyword)
 {
-    path root = unique_path("/tmp/%%%%-%%%%");
+    path tmpdir = temp_directory_path();
+    path root = tmpdir / unique_path("%%%%-%%%%");
     path absoluteInclude = root / "absolute.include";
     path includePath1 = root / "include";
     path includePath2 = root / "include2";

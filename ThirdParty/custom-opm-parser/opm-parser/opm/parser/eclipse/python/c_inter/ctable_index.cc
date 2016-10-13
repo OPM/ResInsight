@@ -2,6 +2,10 @@
 
 extern "C" {
 
+    void table_index_free( Opm::TableIndex * table_index );
+
+    /*-----------------------------------------------------------------*/
+
     void table_index_free( Opm::TableIndex * table_index ) {
         delete table_index;
     }

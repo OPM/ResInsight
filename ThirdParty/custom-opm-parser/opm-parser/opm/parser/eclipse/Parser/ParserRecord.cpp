@@ -118,11 +118,10 @@ namespace Opm {
     }
 
     DeckRecord ParserRecord::parse(const ParseContext& parseContext , MessageContainer& msgContainer, RawRecord& rawRecord ) const {
-        DeckRecord deckRecord( size() + 20 );
-        for (size_t i = 0; i < size(); i++) {
-            auto parserItem = get(i);
-            deckRecord.addItem( parserItem->scan( rawRecord ) );
-        }
+        std::vector< DeckItem > items;
+        items.reserve( this->size() + 20 );
+        for( const auto& parserItem : *this )
+            items.emplace_back( parserItem->scan( rawRecord ) );
 
         if (rawRecord.size() > 0) {
             std::string msg = "The RawRecord for keyword \""  + rawRecord.getKeywordName() + "\" in file\"" + rawRecord.getFileName() + "\" contained " +
@@ -131,7 +130,7 @@ namespace Opm {
             parseContext.handleError(ParseContext::PARSE_EXTRA_DATA , msgContainer, msg);
         }
 
-        return deckRecord;
+        return { std::move( items ) };
     }
 
     bool ParserRecord::equal(const ParserRecord& other) const {

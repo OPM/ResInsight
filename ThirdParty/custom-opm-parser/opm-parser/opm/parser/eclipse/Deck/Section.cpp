@@ -63,11 +63,16 @@ namespace Opm {
 
     Section::Section( const Deck& deck, const std::string& section )
         : DeckView( find_section( deck, section ) ),
-          section_name( section )
+          section_name( section ),
+          units( deck.getActiveUnitSystem() )
     {}
 
     const std::string& Section::name() const {
         return this->section_name;
+    }
+
+    const UnitSystem& Section::unitSystem() const {
+        return this->units;
     }
 
     bool Section::hasRUNSPEC(const Deck& deck) { return deck.hasKeyword( "RUNSPEC" ); }

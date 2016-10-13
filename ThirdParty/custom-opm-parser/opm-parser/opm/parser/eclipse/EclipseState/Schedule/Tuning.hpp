@@ -139,7 +139,7 @@ namespace Opm {
         std::shared_ptr<DynamicState<double>> m_TFDIFF;
         std::shared_ptr<DynamicState<double>> m_THRUPT;
         std::shared_ptr<DynamicState<double>> m_TMAXWC;
-        std::shared_ptr<DynamicState<bool>>   m_TMAXWC_has_value;
+        std::shared_ptr<DynamicState<int>>    m_TMAXWC_has_value;
         /* Record 2 */
         std::shared_ptr<DynamicState<double>> m_TRGTTE;
         std::shared_ptr<DynamicState<double>> m_TRGCNV;
@@ -152,7 +152,7 @@ namespace Opm {
         std::shared_ptr<DynamicState<double>> m_XXXWFL;
         std::shared_ptr<DynamicState<double>> m_TRGFIP;
         std::shared_ptr<DynamicState<double>> m_TRGSFT;
-        std::shared_ptr<DynamicState<bool>>   m_TRGSFT_has_value;
+        std::shared_ptr<DynamicState<int>>    m_TRGSFT_has_value;
         std::shared_ptr<DynamicState<double>> m_THIONX;
         std::shared_ptr<DynamicState<int>>    m_TRWGHT;
         /* Record 3 */
@@ -166,12 +166,12 @@ namespace Opm {
         std::shared_ptr<DynamicState<double>> m_DDSLIM;
         std::shared_ptr<DynamicState<double>> m_TRGDPR;
         std::shared_ptr<DynamicState<double>> m_XXXDPR;
-        std::shared_ptr<DynamicState<bool>>   m_XXXDPR_has_value;
+        std::shared_ptr<DynamicState<int>>    m_XXXDPR_has_value;
         std::map<std::string, bool> m_ResetValue;
 
         double getDoubleValue(const std::string tuningItem, std::shared_ptr<DynamicState<double>> values, size_t timestep) const;
         int getIntValue(const std::string tuningItem, std::shared_ptr<DynamicState<int>> values, size_t timestep) const;
-        bool getBoolValue(const std::string tuningItem, std::shared_ptr<DynamicState<bool>> values, size_t timestep) const;
+        bool getBoolValue(const std::string tuningItem, std::shared_ptr<DynamicState<int>> values, size_t timestep) const;
 
     };
 

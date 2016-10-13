@@ -3,6 +3,15 @@
 
 extern "C" {
 
+    bool              table_has_column( const Opm::SimpleTable * table , const char * column );
+    int               table_get_num_rows( const Opm::SimpleTable * table );
+    double            table_get_value( const Opm::SimpleTable * table , const char * column , int row_index);
+    double            table_evaluate( const Opm::SimpleTable * table , const char * column , int row_index);
+    double            table_evaluate_from_index( const Opm::SimpleTable * table , const char * column , const Opm::TableIndex * eval_index);
+    Opm::TableIndex * table_lookup( const Opm::SimpleTable * table , double arg_value );
+
+    /*-----------------------------------------------------------------*/
+
     bool table_has_column( const Opm::SimpleTable * table , const char * column ) {
         return table->hasColumn( column );
     }

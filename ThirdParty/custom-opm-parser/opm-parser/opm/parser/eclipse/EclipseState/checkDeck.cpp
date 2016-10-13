@@ -33,7 +33,7 @@ bool checkDeck(DeckConstPtr deck, ParserConstPtr parser, size_t enabledChecks) {
             const auto& keyword = deck->getKeyword(keywordIdx);
             if (!parser->isRecognizedKeyword( keyword.name() ) ) {
                 std::string msg("Keyword '" + keyword.name() + "' is unknown.");
-                deck->getMessageContainer().warning(keyword.getFileName(), msg,keyword.getLineNumber());
+                deck->getMessageContainer().warning(msg, keyword.getFileName(), keyword.getLineNumber());
                 deckValid = false;
             }
         }

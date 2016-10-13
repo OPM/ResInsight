@@ -30,6 +30,11 @@ namespace Opm {
         m_root = GroupTreeNode::createFieldNode();
     }
 
+    GroupTree::GroupTree( const GroupTree& x ) :
+        m_root( GroupTreeNode::createFieldNode() ) {
+        deepCopy( x.m_root, this->m_root );
+    }
+
     void GroupTree::updateTree(const std::string& childName) {
         updateTree(childName, m_root->name());
     }

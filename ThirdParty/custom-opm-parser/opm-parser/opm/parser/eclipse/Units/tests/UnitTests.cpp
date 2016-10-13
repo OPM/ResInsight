@@ -188,3 +188,41 @@ BOOST_AUTO_TEST_CASE(UnitSystemEqual) {
 
 
 
+BOOST_AUTO_TEST_CASE(LabUnitConversions) {
+    using Meas = UnitSystem::measure;
+
+    auto lab = std::unique_ptr<UnitSystem>( UnitSystem::newLAB() );
+
+    {
+        const auto furlong = 660*details::unit::feet;
+        BOOST_CHECK_CLOSE( 2.01168e4 , lab->from_si( Meas::length , furlong ) , 1.0e-10 );
+        BOOST_CHECK_CLOSE( furlong   , lab->to_si( Meas::length , 2.01168e4 ) , 1.0e-10 );
+    }
+
+    struct Factor { Meas m; double f; };
+
+    for (const auto& q : { Factor{ Meas::density               , 1.0e3  }   ,
+                           Factor{ Meas::pressure              , 101325.0 } ,
+                           Factor{ Meas::viscosity             , 1.0e-3 }   ,
+                           Factor{ Meas::liquid_surface_volume , 1.0e-6 }   ,
+                           Factor{ Meas::gas_surface_volume    , 1.0e-6 }   ,
+                           Factor{ Meas::time                  , 3600.0 }   ,
+                           Factor{ Meas::mass                  , 1.0e-3 }   })
+    {
+        BOOST_CHECK_CLOSE( q.f , lab->to_si( q.m , 1.0 )   , 1.0e-10 );
+        BOOST_CHECK_CLOSE( 1.0 , lab->from_si( q.m , q.f ) , 1.0e-10 );
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE( VectorConvert ) {
+    std::vector<double> d0 = {1,2,3};
+    std::vector<double> d1 = {1,2,3};
+    UnitSystem * units = UnitSystem::newLAB();
+
+    units->from_si( UnitSystem::measure::pressure , d0 );
+    for (size_t i = 0; i < d1.size(); i++)
+        BOOST_CHECK_EQUAL( units->from_si( UnitSystem::measure::pressure , d1[i] ) , d0[i]);
+
+    delete units;
+}

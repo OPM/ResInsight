@@ -35,7 +35,6 @@ namespace Opm {
         static void ensurePath( const std::string& file_name);
         static std::string endTest();
         static std::string startTest(const std::string& test_name);
-        static std::string sourceHeader();
         static std::string headerHeader( const std::string& );
         static bool updateFile(const std::stringstream& newContent, const std::string& filename);
 

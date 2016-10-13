@@ -20,10 +20,11 @@ override_dh_auto_build:
 
 # consider using -DUSE_VERSIONED_DIR=ON if backporting
 override_dh_auto_configure:
-	dh_auto_configure --buildsystem=cmake -- -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1
+	dh_auto_configure --buildsystem=cmake -- -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 -DENABLE_PYTHON=1
 
 override_dh_installdocs:
 	dh_installdocs --link-doc=libopm-parser1
 
 override_dh_strip:
 	dh_strip -plibopm-parser1 --dbg-package=libopm-parser1-dbg
+	dh_strip -plibopm-cparser1 --dbg-package=libopm-cparser1-dbg

@@ -23,19 +23,19 @@
 #include <memory>
 #include <string>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Well.hpp>
-
 namespace Opm {
+
+    class Well;
 
     class WellSet {
     public:
-        using const_iterator = std::map< std::string, std::shared_ptr< Well > >::const_iterator;
+        using const_iterator = std::map< std::string, Well* >::const_iterator;
 
         WellSet();
         size_t size() const;
         bool hasWell(const std::string& wellName) const;
-        std::shared_ptr< const Well > getWell(const std::string& wellName) const;
-        void addWell(std::shared_ptr< Well > well);
+        const Well* getWell(const std::string& wellName) const;
+        void addWell( Well* well);
         void delWell(const std::string& wellName);
         WellSet * shallowCopy() const;
 
@@ -43,11 +43,8 @@ namespace Opm {
         const_iterator end() const;
 
     private:
-        std::map<std::string , std::shared_ptr< Well >> m_wells;
+        std::map<std::string, Well* > m_wells;
     };
-
-    typedef std::shared_ptr<WellSet> WellSetPtr;
-    typedef std::shared_ptr<const WellSet> WellSetConstPtr;
 }
 
 #endif

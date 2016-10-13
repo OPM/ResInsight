@@ -30,50 +30,45 @@
 #include <opm/parser/eclipse/Generator/KeywordGenerator.hpp>
 #include <opm/parser/eclipse/Generator/KeywordLoader.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+
+
+namespace {
+
+const std::string testHeader =
+    "#define BOOST_TEST_MODULE ParserRecordTests\n"
+    "#include <boost/filesystem.hpp>\n"
+    "#include <boost/test/unit_test.hpp>\n"
+    "#include <memory>\n"
+    "#include <opm/json/JsonObject.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserKeywords.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserIntItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserStringItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserDoubleItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserRecord.hpp>\n"
+    "#include <opm/parser/eclipse/Units/UnitSystem.hpp>\n"
+    "using namespace Opm;\n"
+    "std::shared_ptr<UnitSystem> unitSystem( UnitSystem::newMETRIC() );\n";
+
+const std::string sourceHeader =
+    "#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserIntItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserStringItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserDoubleItem.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserRecord.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/Parser.hpp>\n"
+    "#include <opm/parser/eclipse/Parser/ParserKeywords.hpp>\n\n\n"
+    "namespace Opm {\n"
+    "namespace ParserKeywords {\n\n";
+}
+
 namespace Opm {
 
     KeywordGenerator::KeywordGenerator(bool verbose)
         : m_verbose( verbose )
     {
-    }
-
-
-
-
-    std::string testHeader() {
-        std::string header = "#define BOOST_TEST_MODULE ParserRecordTests\n"
-            "#include <boost/filesystem.hpp>\n"
-            "#include <boost/test/unit_test.hpp>\n"
-            "#include <memory>\n"
-            "#include <opm/json/JsonObject.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserKeywords.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserIntItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserStringItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserDoubleItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserRecord.hpp>\n"
-            "#include <opm/parser/eclipse/Units/UnitSystem.hpp>\n"
-            "using namespace Opm;\n"
-            "std::shared_ptr<UnitSystem> unitSystem( UnitSystem::newMETRIC() );\n";
-
-        return header;
-    }
-
-
-    std::string KeywordGenerator::sourceHeader() {
-        std::string header = "#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserIntItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserStringItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserDoubleItem.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserRecord.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/Parser.hpp>\n"
-            "#include <opm/parser/eclipse/Parser/ParserKeywords.hpp>\n\n\n"
-            "namespace Opm {\n"
-            "namespace ParserKeywords {\n\n";
-
-        return header;
     }
 
     std::string KeywordGenerator::headerHeader(const std::string& suffix) {
@@ -136,7 +131,8 @@ namespace Opm {
 
         std::vector< std::stringstream > streams( blocks );
         for( unsigned int i = 0; i < streams.size(); ++i )
-            streams[ i ] << sourceHeader() << std::endl
+            streams[ i ] << sourceHeader << std::endl
+                << "void addDefaultKeywords" << i << "(Parser& p);" << std::endl
                 << "void addDefaultKeywords" << i << "(Parser& p) {" << std::endl;
 
         int bi = 0;
@@ -153,7 +149,7 @@ namespace Opm {
             updateFile( streams[i], srcfile.insert( srcfile.size() - 4, std::to_string( i ) ) );
         }
 
-        newSource << sourceHeader();
+        newSource << sourceHeader;
         for (auto iter = loader.keyword_begin(); iter != loader.keyword_end(); ++iter) {
             std::shared_ptr<ParserKeyword> keyword = (*iter).second;
             newSource << keyword->createCode() << std::endl;
@@ -226,7 +222,7 @@ namespace Opm {
     bool KeywordGenerator::updateTest(const KeywordLoader& loader , const std::string& testFile) const {
         std::stringstream stream;
 
-        stream << testHeader();
+        stream << testHeader;
         for (auto iter = loader.keyword_begin(); iter != loader.keyword_end(); ++iter) {
             const std::string& keywordName = (*iter).first;
             std::shared_ptr<ParserKeyword> keyword = (*iter).second;

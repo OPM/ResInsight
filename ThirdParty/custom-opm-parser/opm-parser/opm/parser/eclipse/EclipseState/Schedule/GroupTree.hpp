@@ -32,6 +32,7 @@ namespace Opm {
     class GroupTree {
     public:
         GroupTree();
+        GroupTree( const GroupTree& );
         void updateTree(const std::string& childName);
         void updateTree(const std::string& childName, const std::string& parentName);
 
@@ -41,6 +42,14 @@ namespace Opm {
 
         std::shared_ptr<GroupTree> deepCopy() const;
         void printTree(std::ostream &os) const;
+
+        bool operator==( const GroupTree& rhs ) {
+            return this->m_root == rhs.m_root;
+        }
+
+        bool operator!=( const GroupTree& rhs ) {
+            return !(*this == rhs );
+        }
 
 
     private:

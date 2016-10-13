@@ -19,10 +19,8 @@
 
 #define BOOST_TEST_MODULE BoxTest
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <boost/filesystem/path.hpp>
 
@@ -44,7 +42,7 @@ EclipseState makeState(const std::string& fileName) {
     ParserPtr parser(new Parser( ));
     boost::filesystem::path boxFile(fileName);
     DeckPtr deck =  parser->parseFile(boxFile.string(), ParseContext());
-    EclipseState state(deck , ParseContext());
+    EclipseState state(*deck , ParseContext());
     return state;
 }
 

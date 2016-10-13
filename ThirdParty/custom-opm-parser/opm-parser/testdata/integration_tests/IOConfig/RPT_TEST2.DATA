@@ -8,8 +8,14 @@ START
 1 'JAN' 2000  /
 
 GRID
-SPECGRID
-   46  112   22     1     F     /
+DX
+905296*1 /
+DY
+905296*1 /
+DZ
+905296*1 /
+TOPS
+32332*1 /
 
 SOLUTION
 

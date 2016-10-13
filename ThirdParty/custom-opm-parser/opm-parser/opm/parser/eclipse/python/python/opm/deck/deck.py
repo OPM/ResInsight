@@ -1,4 +1,4 @@
-from ert.cwrap import BaseCClass
+from cwrap import BaseCClass
 from opm import OPMPrototype
 
 class Deck(BaseCClass):
@@ -116,7 +116,7 @@ class Deck(BaseCClass):
 
         
     def free(self):
-        self._free( self )
+        self._free(  )
 
 
         

@@ -23,10 +23,8 @@
 
 #define BOOST_TEST_MODULE TimeMapTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 
 
@@ -307,10 +305,6 @@ BOOST_AUTO_TEST_CASE(initTimestepsYearsAndMonths) {
     Opm::ParserPtr parser(new Opm::Parser(true));
     Opm::DeckPtr deck = parser->parseString(deckData, Opm::ParseContext());
     const Opm::TimeMap tmap(deck);
-
-    Opm::TimeMap* writableTimemap = const_cast<Opm::TimeMap*>(&tmap);
-    writableTimemap->initFirstTimestepsMonths();
-    writableTimemap->initFirstTimestepsYears();
 
     /*deckData timesteps:
     0   21 may  1981 START

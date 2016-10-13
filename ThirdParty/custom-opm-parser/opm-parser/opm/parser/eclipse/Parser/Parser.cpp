@@ -47,15 +47,21 @@ namespace Opm {
 
 namespace {
 
-template< typename Itr >
-inline Itr find_comment( Itr begin, Itr end ) {
+struct find_comment {
+    /*
+     * A note on performance: using a function to plug functionality into
+     * find_terminator rather than plain functions because it almost ensures
+     * inlining, where the plain function can reduce to a function pointer.
+     */
+    template< typename Itr >
+    Itr operator()( Itr begin, Itr end ) const {
+        auto itr = std::find( begin, end, '-' );
+        for( ; itr != end; itr = std::find( itr + 1, end, '-' ) )
+            if( (itr + 1) != end &&  *( itr + 1 ) == '-' ) return itr;
 
-    auto itr = std::find( begin, end, '-' );
-    for( ; itr != end; itr = std::find( itr + 1, end, '-' ) )
-        if( (itr + 1) != end &&  *( itr + 1 ) == '-' ) return itr;
-
-    return end;
-}
+        return end;
+    }
+};
 
 template< typename Itr, typename Term >
 inline Itr find_terminator( Itr begin, Itr end, Term terminator ) {
@@ -64,7 +70,7 @@ inline Itr find_terminator( Itr begin, Itr end, Term terminator ) {
 
     if( pos == end ) return end;
 
-    auto qbegin = std::find_if( begin, end, RawConsts::is_quote );
+    auto qbegin = std::find_if( begin, end, RawConsts::is_quote() );
 
     if( qbegin == end || qbegin > pos )
         return pos;
@@ -88,14 +94,13 @@ inline Itr find_terminator( Itr begin, Itr end, Term terminator ) {
     ABC "-- Not balanced quote?  =>  ABC "-- Not balanced quote?
 */
 static inline string_view strip_comments( string_view str ) {
-    return { str.begin(), find_terminator( str.begin(), str.end(),
-            find_comment< string_view::const_iterator > ) };
+    return { str.begin(),
+             find_terminator( str.begin(), str.end(), find_comment() ) };
 }
 
 template< typename Itr >
 inline Itr trim_left( Itr begin, Itr end ) {
-
-    return std::find_if_not( begin, end, RawConsts::is_separator );
+    return std::find_if_not( begin, end, RawConsts::is_separator() );
 }
 
 template< typename Itr >
@@ -104,7 +109,7 @@ inline Itr trim_right( Itr begin, Itr end ) {
     std::reverse_iterator< Itr > rbegin( end );
     std::reverse_iterator< Itr > rend( begin );
 
-    return std::find_if_not( rbegin, rend, RawConsts::is_separator ).base();
+    return std::find_if_not( rbegin, rend, RawConsts::is_separator() ).base();
 }
 
 inline string_view trim( string_view str ) {
@@ -147,45 +152,24 @@ inline bool getline( string_view& input, string_view& line ) {
 /*
  * Read the input file and remove everything that isn't interesting data,
  * including stripping comments, removing leading/trailing whitespaces and
- * everything after (terminating) slashes
+ * everything after (terminating) slashes. Manually copying into the string for
+ * performance.
  */
 inline std::string clean( const std::string& str ) {
     std::string dst;
-    dst.reserve( str.size() );
+    dst.resize( str.size() );
 
     string_view input( str ), line;
+    auto dsti = dst.begin();
     while( getline( input, line ) ) {
         line = trim( strip_slash( strip_comments( line ) ) );
 
-        //if( line.begin() == line.end() ) continue;
-
-        dst.append( line.begin(), line.end() );
-        dst.push_back( '\n' );
+        std::copy( line.begin(), line.end(), dsti );
+        dsti += std::distance( line.begin(), line.end() );
+        *dsti++ = '\n';
     }
 
-    struct f {
-        bool inside_quotes = false;
-        bool operator()( char c ) {
-            if( c == ',' ) return true;
-            if( RawConsts::is_quote( c ) ) inside_quotes = !inside_quotes;
-            return false;
-        }
-    };
-
-    /* some decks use commas for item separation in records, but commas add
-     * nothing over whitespace. run over the deck and replace all non-quoted
-     * commas with whitespace. commas withing quotes are read verbatim and not
-     * to be touched.
-     *
-     * There's a known defect: considering the record
-     * foo bar, , , baz, , /
-     * baz will silently interpreted as item #3 instead of item #5. As of
-     * writing we're not sure if this is even legal, nor have we seen it
-     * happen, but the effort needed to support it is tremendous and will
-     * require significant changes throughout.
-     */
-    std::replace_if( dst.begin(), dst.end(), f(), ' ' );
-
+    dst.resize( std::distance( dst.begin(), dsti ) );
     return dst;
 }
 
@@ -267,12 +251,12 @@ bool ParserState::done() const {
 }
 
 string_view ParserState::getline() {
-    string_view line;
+    string_view ln;
 
-    Opm::getline( this->input_stack.top().input, line );
+    Opm::getline( this->input_stack.top().input, ln );
     this->input_stack.top().lineNR++;
 
-    return line;
+    return ln;
 }
 
 void ParserState::closeFile() {
@@ -331,10 +315,10 @@ void ParserState::loadFile(const boost::filesystem::path& inputFile) {
     std::fseek( fp, 0, SEEK_END );
     buffer.resize( std::ftell( fp ) + 1 );
     std::rewind( fp );
-    std::fread( &buffer[ 0 ], 1, buffer.size() - 1, fp );
+    const auto readc = std::fread( &buffer[ 0 ], 1, buffer.size() - 1, fp );
     buffer.back() = '\n';
 
-    if( std::ferror( fp ) )
+    if( std::ferror( fp ) || readc != buffer.size() - 1 )
         throw std::runtime_error( "Error when reading input file '"
                                 + inputFileCanonical.string() + "'" );
 
@@ -581,8 +565,8 @@ bool parseState( ParserState& parserState, const Parser& parser ) {
      * strip_comment is the actual (internal) implementation
      */
     std::string Parser::stripComments( const std::string& str ) {
-        return { str.begin(), find_terminator( str.begin(), str.end(),
-                find_comment< std::string::const_iterator > ) };
+        return { str.begin(),
+                 find_terminator( str.begin(), str.end(), find_comment() ) };
     }
 
     Parser::Parser(bool addDefault) {
@@ -617,7 +601,7 @@ bool parseState( ParserState& parserState, const Parser& parser ) {
         return parserState.deck;
     }
 
-    void assertFullDeck(const ParseContext& context) {
+    inline void assertFullDeck(const ParseContext& context) {
         if (context.hasKey(ParseContext::PARSE_MISSING_SECTIONS))
             throw new std::logic_error("Cannot construct a state in partial deck context");
     }
@@ -625,8 +609,9 @@ bool parseState( ParserState& parserState, const Parser& parser ) {
     EclipseState Parser::parse(const std::string &filename, const ParseContext& context) {
         assertFullDeck(context);
         Parser p;
-        auto deck = p.parseFile(filename, context);
-        return EclipseState(deck, context);
+        DeckPtr deck = p.parseFile(filename, context);
+        EclipseState es(deck, context);
+        return es;
     }
 
     EclipseState Parser::parse(const Deck& deck, const ParseContext& context) {
@@ -694,7 +679,7 @@ bool parseState( ParserState& parserState, const Parser& parser ) {
         if( m_deckParserKeywords.count( name ) )
             return true;
 
-        return matchingKeyword( name );
+        return bool( matchingKeyword( name ) );
     }
 
 void Parser::addParserKeyword( std::unique_ptr< const ParserKeyword >&& parserKeyword) {
@@ -852,7 +837,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
         if( deck.getKeyword(0).name() != "RUNSPEC" ) {
             std::string msg = "The first keyword of a valid deck must be RUNSPEC\n";
             auto curKeyword = deck.getKeyword(0);
-            deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+            deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
             deckValid = false;
         }
 
@@ -872,7 +857,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                     std::string msg =
                         "The keyword '"+curKeywordName+"' is located in the '"+curSectionName
                         +"' section where it is invalid";
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -883,7 +868,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "GRID") {
                     std::string msg =
                         "The RUNSPEC section must be followed by GRID instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -893,7 +878,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "EDIT" && curKeywordName != "PROPS") {
                     std::string msg =
                         "The GRID section must be followed by EDIT or PROPS instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -903,7 +888,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "PROPS") {
                     std::string msg =
                         "The EDIT section must be followed by PROPS instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -913,7 +898,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "REGIONS" && curKeywordName != "SOLUTION") {
                     std::string msg =
                         "The PROPS section must be followed by REGIONS or SOLUTION instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -923,7 +908,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "SOLUTION") {
                     std::string msg =
                         "The REGIONS section must be followed by SOLUTION instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -933,7 +918,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "SUMMARY" && curKeywordName != "SCHEDULE") {
                     std::string msg =
                         "The SOLUTION section must be followed by SUMMARY or SCHEDULE instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -943,7 +928,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 if (curKeywordName != "SCHEDULE") {
                     std::string msg =
                         "The SUMMARY section must be followed by SCHEDULE instead of "+curKeywordName;
-                    deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                    deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                     deckValid = false;
                 }
 
@@ -954,7 +939,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
                 std::string msg =
                     "The SCHEDULE section must be the last one ("
                     +curKeywordName+" specified after SCHEDULE)";
-                deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+                deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
                 deckValid = false;
             }
         }
@@ -964,7 +949,7 @@ std::vector<std::string> Parser::getAllDeckNames () const {
             const auto& curKeyword = deck.getKeyword(deck.size() - 1);
             std::string msg =
                 "The last section of a valid deck must be SCHEDULE (is "+curSectionName+")";
-            deck.getMessageContainer().warning(curKeyword.getFileName(), msg, curKeyword.getLineNumber());
+            deck.getMessageContainer().warning(msg, curKeyword.getFileName(), curKeyword.getLineNumber());
             deckValid = false;
         }
 

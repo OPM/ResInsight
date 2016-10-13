@@ -27,8 +27,6 @@
 
 namespace Opm {
 
-    class EclipseGrid;
-
     class CompletionSet {
     public:
         using const_iterator = std::vector< std::shared_ptr< const Completion > >::const_iterator;
@@ -56,11 +54,10 @@ namespace Opm {
         /// \param[in] well_i  logical cartesian i-coordinate of well head
         /// \param[in] well_j  logical cartesian j-coordinate of well head
         /// \param[in] grid    EclipseGrid object, used for cell depths
-        void orderCompletions(size_t well_i, size_t well_j, std::shared_ptr< const EclipseGrid > grid);
+        void orderCompletions(size_t well_i, size_t well_j);
     private:
         std::vector<std::shared_ptr< const Completion >> m_completions;
-        size_t findClosestCompletion(int oi, int oj, std::shared_ptr< const EclipseGrid > grid,
-                                     double oz, size_t start_pos);
+        size_t findClosestCompletion(int oi, int oj, double oz, size_t start_pos);
     };
 
     typedef std::shared_ptr<CompletionSet> CompletionSetPtr;

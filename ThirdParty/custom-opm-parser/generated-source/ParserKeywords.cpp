@@ -232,6 +232,89 @@ API::API( ) : ParserKeyword("API") {
 const std::string API::keywordName = "API";
 
 
+AQUANCON::AQUANCON( ) : ParserKeyword("AQUANCON") {
+  setSizeType(SLASH_TERMINATED);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("GRID");
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("AQUANCON");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserIntItem("AQUIFER_ID",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("I1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("I2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("J1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("J2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("K1",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("K2",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("FACE",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("INFLUX_COEFF",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Length*Length");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("INFLUX_MULT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("CONNECT_ADJOINING_ACTIVE_CELL",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string AQUANCON::keywordName = "AQUANCON";
+const std::string AQUANCON::AQUIFER_ID::itemName = "AQUIFER_ID";
+const std::string AQUANCON::I1::itemName = "I1";
+const std::string AQUANCON::I2::itemName = "I2";
+const std::string AQUANCON::J1::itemName = "J1";
+const std::string AQUANCON::J2::itemName = "J2";
+const std::string AQUANCON::K1::itemName = "K1";
+const std::string AQUANCON::K2::itemName = "K2";
+const std::string AQUANCON::FACE::itemName = "FACE";
+const std::string AQUANCON::INFLUX_COEFF::itemName = "INFLUX_COEFF";
+const std::string AQUANCON::INFLUX_MULT::itemName = "INFLUX_MULT";
+const std::string AQUANCON::CONNECT_ADJOINING_ACTIVE_CELL::itemName = "CONNECT_ADJOINING_ACTIVE_CELL";
+
+
 AQUCON::AQUCON( ) : ParserKeyword("AQUCON") {
   setSizeType(SLASH_TERMINATED);
   setDescription("");
@@ -394,6 +477,104 @@ const std::string AQUDIMS::MXNALI::itemName = "MXNALI";
 const int AQUDIMS::MXNALI::defaultValue = 0;
 const std::string AQUDIMS::MXAAQL::itemName = "MXAAQL";
 const int AQUDIMS::MXAAQL::defaultValue = 0;
+
+
+AQUFETP::AQUFETP( ) : ParserKeyword("AQUFETP") {
+  setSizeType(OTHER_KEYWORD_IN_DECK);
+  initSizeKeyword("AQUDIMS","NANAQU");
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("SCHEDULE");
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("AQUFETP");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserIntItem("ID",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("DATUM_DEPTH",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Length");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("P0",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Pressure");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("V0",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Length*Length*Length");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("COMPRESSIBILITY",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("1/Pressure");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("PI",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("ReservoirVolume/Pressure*Time");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("WATER_TABLE",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("SALINITY",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Salinity");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("TEMP",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string AQUFETP::keywordName = "AQUFETP";
+const std::string AQUFETP::ID::itemName = "ID";
+const std::string AQUFETP::DATUM_DEPTH::itemName = "DATUM_DEPTH";
+const std::string AQUFETP::P0::itemName = "P0";
+const std::string AQUFETP::V0::itemName = "V0";
+const std::string AQUFETP::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
+const std::string AQUFETP::PI::itemName = "PI";
+const std::string AQUFETP::WATER_TABLE::itemName = "WATER_TABLE";
+const std::string AQUFETP::SALINITY::itemName = "SALINITY";
+const std::string AQUFETP::TEMP::itemName = "TEMP";
+
+
+AQUIFER_PROBE_ANALYTIC::AQUIFER_PROBE_ANALYTIC( ) : ParserKeyword("AQUIFER_PROBE_ANALYTIC") {
+  setFixedSize( (size_t) 1);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  setMatchRegex("AA.+");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserIntItem("data",Opm::ALL));
+        item->setDescription("");
+        record->addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string AQUIFER_PROBE_ANALYTIC::keywordName = "AQUIFER_PROBE_ANALYTIC";
+const std::string AQUIFER_PROBE_ANALYTIC::data::itemName = "data";
 
 
 AQUNUM::AQUNUM( ) : ParserKeyword("AQUNUM") {
@@ -1462,6 +1643,28 @@ const std::string DATES::TIME::itemName = "TIME";
 const std::string DATES::TIME::defaultValue = "00:00:00.000";
 
 
+DATUM::DATUM( ) : ParserKeyword("DATUM") {
+  setFixedSize( (size_t) 1);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("DATUM");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserDoubleItem("DEPTH",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Length");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string DATUM::keywordName = "DATUM";
+const std::string DATUM::DEPTH::itemName = "DEPTH";
+
+
 DENSITY::DENSITY( ) : ParserKeyword("DENSITY") {
   setSizeType(OTHER_KEYWORD_IN_DECK);
   initSizeKeyword("TABDIMS","NTPVT");
@@ -1684,6 +1887,17 @@ DRVDT::DRVDT( ) : ParserKeyword("DRVDT") {
 }
 const std::string DRVDT::keywordName = "DRVDT";
 const std::string DRVDT::DRVDT_MAX::itemName = "DRVDT_MAX";
+
+
+DUMPFLUX::DUMPFLUX( ) : ParserKeyword("DUMPFLUX") {
+  setFixedSize( (size_t) 0);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("DUMPFLUX");
+}
+const std::string DUMPFLUX::keywordName = "DUMPFLUX";
 
 
 DX::DX( ) : ParserKeyword("DX") {
@@ -3701,6 +3915,43 @@ const std::string GEFAC::TRANSFER_EXT_NET::itemName = "TRANSFER_EXT_NET";
 const std::string GEFAC::TRANSFER_EXT_NET::defaultValue = "YES";
 
 
+GRAVITY::GRAVITY( ) : ParserKeyword("GRAVITY") {
+  setSizeType(OTHER_KEYWORD_IN_DECK);
+  initSizeKeyword("TABDIMS","NTPVT");
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("GRAVITY");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserDoubleItem("API_GRAVITY",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("1");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("WATER_SP_GRAVITY",Opm::SINGLE,1));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("GAS_SP_GRAVITY",Opm::SINGLE,0.77729999999999999));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string GRAVITY::keywordName = "GRAVITY";
+const std::string GRAVITY::API_GRAVITY::itemName = "API_GRAVITY";
+const std::string GRAVITY::WATER_SP_GRAVITY::itemName = "WATER_SP_GRAVITY";
+const double GRAVITY::WATER_SP_GRAVITY::defaultValue = 1;
+const std::string GRAVITY::GAS_SP_GRAVITY::itemName = "GAS_SP_GRAVITY";
+const double GRAVITY::GAS_SP_GRAVITY::defaultValue = 0.7773;
+
+
 GRID::GRID( ) : ParserKeyword("GRID") {
   setFixedSize( (size_t) 0);
   setDescription("");
@@ -4494,6 +4745,65 @@ const std::string ISWU::keywordName = "ISWU";
 const std::string ISWU::data::itemName = "data";
 
 
+JFUNC::JFUNC( ) : ParserKeyword("JFUNC") {
+  setFixedSize( (size_t) 1);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("JFUNC");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserStringItem("FLAG",Opm::SINGLE,"BOTH"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("OW_SURFACE_TENSION",Opm::SINGLE,-1));
+        item->setDescription("");
+        item->push_backDimension("SurfaceTension");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("GO_SURFACE_TENSION",Opm::SINGLE,-1));
+        item->setDescription("");
+        item->push_backDimension("SurfaceTension");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("ALPHA_FACTOR",Opm::SINGLE,0.5));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("BETA_FACTOR",Opm::SINGLE,0.5));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("DIRECTION",Opm::SINGLE,"XY"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string JFUNC::keywordName = "JFUNC";
+const std::string JFUNC::FLAG::itemName = "FLAG";
+const std::string JFUNC::FLAG::defaultValue = "BOTH";
+const std::string JFUNC::OW_SURFACE_TENSION::itemName = "OW_SURFACE_TENSION";
+const double JFUNC::OW_SURFACE_TENSION::defaultValue = -1;
+const std::string JFUNC::GO_SURFACE_TENSION::itemName = "GO_SURFACE_TENSION";
+const double JFUNC::GO_SURFACE_TENSION::defaultValue = -1;
+const std::string JFUNC::ALPHA_FACTOR::itemName = "ALPHA_FACTOR";
+const double JFUNC::ALPHA_FACTOR::defaultValue = 0.5;
+const std::string JFUNC::BETA_FACTOR::itemName = "BETA_FACTOR";
+const double JFUNC::BETA_FACTOR::defaultValue = 0.5;
+const std::string JFUNC::DIRECTION::itemName = "DIRECTION";
+const std::string JFUNC::DIRECTION::defaultValue = "XY";
+
+
 MAPAXES::MAPAXES( ) : ParserKeyword("MAPAXES") {
   setFixedSize( (size_t) 1);
   setDescription("");
@@ -5215,6 +5525,41 @@ MULTPV::MULTPV( ) : ParserKeyword("MULTPV") {
 }
 const std::string MULTPV::keywordName = "MULTPV";
 const std::string MULTPV::data::itemName = "data";
+
+
+MULTREGP::MULTREGP( ) : ParserKeyword("MULTREGP") {
+  setSizeType(SLASH_TERMINATED);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("EDIT");
+  addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("MULTREGP");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserIntItem("REGION",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MULTIPLIER",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("REGION_TYPE",Opm::SINGLE,"M"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string MULTREGP::keywordName = "MULTREGP";
+const std::string MULTREGP::REGION::itemName = "REGION";
+const std::string MULTREGP::MULTIPLIER::itemName = "MULTIPLIER";
+const std::string MULTREGP::REGION_TYPE::itemName = "REGION_TYPE";
+const std::string MULTREGP::REGION_TYPE::defaultValue = "M";
 
 
 MULTREGT::MULTREGT( ) : ParserKeyword("MULTREGT") {
@@ -9079,6 +9424,27 @@ const std::string RPTPROPS::keywordName = "RPTPROPS";
 const std::string RPTPROPS::mnemonics::itemName = "mnemonics";
 
 
+RPTREGS::RPTREGS( ) : ParserKeyword("RPTREGS") {
+  setFixedSize( (size_t) 1);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("REGIONS");
+  clearDeckNames();
+  addDeckName("RPTREGS");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserStringItem("MNEMONIC_LIST",Opm::ALL));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string RPTREGS::keywordName = "RPTREGS";
+const std::string RPTREGS::MNEMONIC_LIST::itemName = "MNEMONIC_LIST";
+
+
 RPTRST::RPTRST( ) : ParserKeyword("RPTRST") {
   setFixedSize( (size_t) 1);
   setDescription("");
@@ -10767,6 +11133,27 @@ const std::string TLPMIXPA::keywordName = "TLPMIXPA";
 const std::string TLPMIXPA::DATA::itemName = "DATA";
 
 
+TNUM::TNUM( ) : ParserKeyword("TNUM") {
+  setFixedSize( (size_t) 1);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("REGIONS");
+  clearDeckNames();
+  setMatchRegex("TNUM(F|S).{1,3}");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserIntItem("data",Opm::ALL));
+        item->setDescription("");
+        record->addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string TNUM::keywordName = "TNUM";
+const std::string TNUM::data::itemName = "data";
+
+
 TOPS::TOPS( ) : ParserKeyword("TOPS") {
   setFixedSize( (size_t) 1);
   setDescription("");
@@ -12421,6 +12808,175 @@ const std::string WCONPROD::E300_ITEM19::itemName = "E300_ITEM19";
 const std::string WCONPROD::E300_ITEM20::itemName = "E300_ITEM20";
 
 
+WDRILTIM::WDRILTIM( ) : ParserKeyword("WDRILTIM") {
+  setSizeType(SLASH_TERMINATED);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WDRILTIM");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserStringItem("WELL",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("DRILL_TIME",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Time");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("WORKOVER_CLOSE",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("COMPARTMENT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WDRILTIM::keywordName = "WDRILTIM";
+const std::string WDRILTIM::WELL::itemName = "WELL";
+const std::string WDRILTIM::DRILL_TIME::itemName = "DRILL_TIME";
+const std::string WDRILTIM::WORKOVER_CLOSE::itemName = "WORKOVER_CLOSE";
+const std::string WDRILTIM::COMPARTMENT::itemName = "COMPARTMENT";
+
+
+WECON::WECON( ) : ParserKeyword("WECON") {
+  setSizeType(SLASH_TERMINATED);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WECON");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserStringItem("WELL",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MIN_OIL_PRODUCTION",Opm::SINGLE,0));
+        item->setDescription("");
+        item->push_backDimension("LiquidSurfaceVolume/Time");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MIN_GAS_PRODUCTION",Opm::SINGLE,0));
+        item->setDescription("");
+        item->push_backDimension("GasSurfaceVolume/Time");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MAX_WATER_CUT",Opm::SINGLE,0));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MAX_GAS_OIL_RATIO",Opm::SINGLE,0));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MAX_WATER_GAS_RATIO",Opm::SINGLE,0));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("WORKOVER_RATIO_LIMIT",Opm::SINGLE,"NONE"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("END_RUN_FLAG",Opm::SINGLE,"NO"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("FOLLOW_ON_WELL",Opm::SINGLE,"'"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("LIMITED_QUANTITY",Opm::SINGLE,"RATE"));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("SECOND_MAX_WATER_CUT",Opm::SINGLE,0));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("WORKOVER_SECOND_WATER_CUT_LIMIT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MAX_GAS_LIQUID_RATIO",Opm::SINGLE,0));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MIN_LIQUID_PRODCUTION_RATE",Opm::SINGLE,0));
+        item->setDescription("");
+        item->push_backDimension("LiquidSurfaceVolume/Time");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MAX_TEMP",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Temperature");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("MIN_RES_FLUID_RATE",Opm::SINGLE,0));
+        item->setDescription("");
+        item->push_backDimension("ReservoirVolume/Time");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WECON::keywordName = "WECON";
+const std::string WECON::WELL::itemName = "WELL";
+const std::string WECON::MIN_OIL_PRODUCTION::itemName = "MIN_OIL_PRODUCTION";
+const double WECON::MIN_OIL_PRODUCTION::defaultValue = 0;
+const std::string WECON::MIN_GAS_PRODUCTION::itemName = "MIN_GAS_PRODUCTION";
+const double WECON::MIN_GAS_PRODUCTION::defaultValue = 0;
+const std::string WECON::MAX_WATER_CUT::itemName = "MAX_WATER_CUT";
+const double WECON::MAX_WATER_CUT::defaultValue = 0;
+const std::string WECON::MAX_GAS_OIL_RATIO::itemName = "MAX_GAS_OIL_RATIO";
+const double WECON::MAX_GAS_OIL_RATIO::defaultValue = 0;
+const std::string WECON::MAX_WATER_GAS_RATIO::itemName = "MAX_WATER_GAS_RATIO";
+const double WECON::MAX_WATER_GAS_RATIO::defaultValue = 0;
+const std::string WECON::WORKOVER_RATIO_LIMIT::itemName = "WORKOVER_RATIO_LIMIT";
+const std::string WECON::WORKOVER_RATIO_LIMIT::defaultValue = "NONE";
+const std::string WECON::END_RUN_FLAG::itemName = "END_RUN_FLAG";
+const std::string WECON::END_RUN_FLAG::defaultValue = "NO";
+const std::string WECON::FOLLOW_ON_WELL::itemName = "FOLLOW_ON_WELL";
+const std::string WECON::FOLLOW_ON_WELL::defaultValue = "'";
+const std::string WECON::LIMITED_QUANTITY::itemName = "LIMITED_QUANTITY";
+const std::string WECON::LIMITED_QUANTITY::defaultValue = "RATE";
+const std::string WECON::SECOND_MAX_WATER_CUT::itemName = "SECOND_MAX_WATER_CUT";
+const double WECON::SECOND_MAX_WATER_CUT::defaultValue = 0;
+const std::string WECON::WORKOVER_SECOND_WATER_CUT_LIMIT::itemName = "WORKOVER_SECOND_WATER_CUT_LIMIT";
+const std::string WECON::MAX_GAS_LIQUID_RATIO::itemName = "MAX_GAS_LIQUID_RATIO";
+const double WECON::MAX_GAS_LIQUID_RATIO::defaultValue = 0;
+const std::string WECON::MIN_LIQUID_PRODCUTION_RATE::itemName = "MIN_LIQUID_PRODCUTION_RATE";
+const double WECON::MIN_LIQUID_PRODCUTION_RATE::defaultValue = 0;
+const std::string WECON::MAX_TEMP::itemName = "MAX_TEMP";
+const std::string WECON::MIN_RES_FLUID_RATE::itemName = "MIN_RES_FLUID_RATE";
+const double WECON::MIN_RES_FLUID_RATE::defaultValue = 0;
+
+
 WELLDIMS::WELLDIMS( ) : ParserKeyword("WELLDIMS") {
   setFixedSize( (size_t) 1);
   setDescription("");
@@ -13237,6 +13793,89 @@ const std::string WHISTCTL::CMODE::itemName = "CMODE";
 const std::string WHISTCTL::CMODE::defaultValue = "NONE";
 const std::string WHISTCTL::BPH_TERMINATE::itemName = "BPH_TERMINATE";
 const std::string WHISTCTL::BPH_TERMINATE::defaultValue = "NO";
+
+
+WLIFT::WLIFT( ) : ParserKeyword("WLIFT") {
+  setSizeType(SLASH_TERMINATED);
+  setDescription("");
+  clearValidSectionNames();
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("WLIFT");
+  {
+     std::shared_ptr<ParserRecord> record = std::make_shared<ParserRecord>();
+     {
+        ParserItemPtr item(new ParserStringItem("WELL",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("TRIGGER_LIMIT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserStringItem("TRIGGRE_PHASE",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserIntItem("NEW_VFP_TABLE",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("NEW_ALQ_VALUE",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("NEW_WEFAC",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("WWCT_LIMIT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("NEW_THP_LIMIT",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Pressure");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("WGOR_LIMIT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("ALQ_SHIFT",Opm::SINGLE));
+        item->setDescription("");
+        record->addItem(item);
+     }
+     {
+        ParserItemPtr item(new ParserDoubleItem("THP_SHIFT",Opm::SINGLE));
+        item->setDescription("");
+        item->push_backDimension("Pressure");
+        record->addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string WLIFT::keywordName = "WLIFT";
+const std::string WLIFT::WELL::itemName = "WELL";
+const std::string WLIFT::TRIGGER_LIMIT::itemName = "TRIGGER_LIMIT";
+const std::string WLIFT::TRIGGRE_PHASE::itemName = "TRIGGRE_PHASE";
+const std::string WLIFT::NEW_VFP_TABLE::itemName = "NEW_VFP_TABLE";
+const std::string WLIFT::NEW_ALQ_VALUE::itemName = "NEW_ALQ_VALUE";
+const std::string WLIFT::NEW_WEFAC::itemName = "NEW_WEFAC";
+const std::string WLIFT::WWCT_LIMIT::itemName = "WWCT_LIMIT";
+const std::string WLIFT::NEW_THP_LIMIT::itemName = "NEW_THP_LIMIT";
+const std::string WLIFT::WGOR_LIMIT::itemName = "WGOR_LIMIT";
+const std::string WLIFT::ALQ_SHIFT::itemName = "ALQ_SHIFT";
+const std::string WLIFT::THP_SHIFT::itemName = "THP_SHIFT";
 
 
 WPAVE::WPAVE( ) : ParserKeyword("WPAVE") {

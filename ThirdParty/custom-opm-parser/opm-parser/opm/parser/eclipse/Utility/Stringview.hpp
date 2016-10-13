@@ -147,16 +147,16 @@ namespace Opm {
 
     // Member functions of string_view.
 
-    inline string_view::string_view( const_iterator begin,
-                                     const_iterator end ) :
-        fst( begin ),
-        lst( end )
+    inline string_view::string_view( const_iterator first,
+                                     const_iterator last ) :
+        fst( first ),
+        lst( last )
     {}
 
-    inline string_view::string_view( const_iterator begin,
+    inline string_view::string_view( const_iterator first ,
                                      size_t count ) :
-        fst( begin ),
-        lst( begin + count )
+        fst( first ),
+        lst( first + count )
     {}
 
     inline string_view::string_view( const std::string& str ) :

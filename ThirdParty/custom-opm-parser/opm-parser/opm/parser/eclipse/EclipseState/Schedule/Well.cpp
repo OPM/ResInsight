@@ -20,7 +20,6 @@
 #include <iostream>
 
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Completion.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/CompletionSet.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/DynamicState.hpp>
@@ -33,30 +32,34 @@
 
 namespace Opm {
 
-    Well::Well(const std::string& name_, std::shared_ptr<const EclipseGrid> grid , int headI, int headJ, Value<double> refDepth , Phase::PhaseEnum preferredPhase,
-               TimeMapConstPtr timeMap, size_t creationTimeStep, WellCompletion::CompletionOrderEnum completionOrdering, bool allowCrossFlow)
+    Well::Well(const std::string& name_, int headI,
+               int headJ, Value<double> refDepth , Phase::PhaseEnum preferredPhase,
+               TimeMapConstPtr timeMap, size_t creationTimeStep,
+               WellCompletion::CompletionOrderEnum completionOrdering,
+               bool allowCrossFlow, bool automaticShutIn)
         : m_status(new DynamicState<WellCommon::StatusEnum>(timeMap, WellCommon::SHUT)),
-          m_isAvailableForGroupControl(new DynamicState<bool>(timeMap, true)),
+          m_isAvailableForGroupControl(new DynamicState<int>(timeMap, true)),
           m_guideRate(new DynamicState<double>(timeMap, -1.0)),
           m_guideRatePhase(new DynamicState<GuideRate::GuideRatePhaseEnum>(timeMap, GuideRate::UNDEFINED)),
           m_guideRateScalingFactor(new DynamicState<double>(timeMap, 1.0)),
-          m_isProducer(new DynamicState<bool>(timeMap, true)) ,
+          m_isProducer(new DynamicState<int>(timeMap, true)) ,
           m_completions( new DynamicState<CompletionSetConstPtr>( timeMap , CompletionSetConstPtr( new CompletionSet()) )),
           m_productionProperties( new DynamicState<WellProductionProperties>(timeMap, WellProductionProperties() )),
           m_injectionProperties( new DynamicState<WellInjectionProperties>(timeMap, WellInjectionProperties() )),
           m_polymerProperties( new DynamicState<WellPolymerProperties>(timeMap, WellPolymerProperties() )),
+          m_econproductionlimits( new DynamicState<WellEconProductionLimits>(timeMap, WellEconProductionLimits()) ),
           m_solventFraction( new DynamicState<double>(timeMap, 0.0 )),
           m_groupName( new DynamicState<std::string>( timeMap , "" )),
-          m_rft( new DynamicState<bool>(timeMap,false)),
-          m_plt( new DynamicState<bool>(timeMap,false)),
+          m_rft( new DynamicState<int>(timeMap,false)),
+          m_plt( new DynamicState<int>(timeMap,false)),
           m_timeMap( timeMap ),
           m_headI(headI),
           m_headJ(headJ),
           m_refDepth(refDepth),
           m_preferredPhase(preferredPhase),
-          m_grid( grid ),
           m_comporder(completionOrdering),
           m_allowCrossFlow(allowCrossFlow),
+          m_automaticShutIn(automaticShutIn),
           m_segmentset(new DynamicState<SegmentSetConstPtr>(timeMap, SegmentSetPtr(new SegmentSet())))
     {
         m_name = name_;
@@ -88,6 +91,33 @@ namespace Opm {
     }
 
 
+    double Well::production_rate( Phase::PhaseEnum phase, size_t timestep ) const {
+        if( !this->isProducer( timestep ) ) return 0.0;
+
+        const auto& p = this->getProductionProperties( timestep );
+
+        switch( phase ) {
+            case Phase::WATER: return p.WaterRate;
+            case Phase::OIL:   return p.OilRate;
+            case Phase::GAS:   return p.GasRate;
+        }
+
+        throw std::logic_error( "Unreachable state. Invalid PhaseEnum value. "
+                                "This is likely a programming error." );
+    }
+
+    double Well::injection_rate( Phase::PhaseEnum phase, size_t timestep ) const {
+        if( !this->isInjector( timestep ) ) return 0.0;
+
+        const auto& i = this->getInjectionProperties( timestep );
+        const auto type = i.injectorType;
+
+        if( phase == Phase::WATER && type != WellInjector::WATER ) return 0.0;
+        if( phase == Phase::OIL   && type != WellInjector::OIL   ) return 0.0;
+        if( phase == Phase::GAS   && type != WellInjector::GAS   ) return 0.0;
+
+        return i.surfaceInjectionRate;
+    }
 
     bool Well::setProductionProperties(size_t timeStep , const WellProductionProperties newProperties) {
         if (isInjector(timeStep))
@@ -139,6 +169,16 @@ namespace Opm {
         return m_solventFraction->update(timeStep, fraction);
     }
 
+    bool Well::setEconProductionLimits(const size_t timeStep, const WellEconProductionLimits& productionlimits) {
+        // not sure if this keyword turning a well to be producer.
+        // not sure what will happen if we use this keyword to a injector.
+        return m_econproductionlimits->update(timeStep, productionlimits);
+    }
+
+    const WellEconProductionLimits& Well::getEconProductionLimits(const size_t timeStep) const {
+        return m_econproductionlimits->at(timeStep);
+    }
+
     const double& Well::getSolventFraction(size_t timeStep) const {
         return m_solventFraction->at(timeStep);
     }
@@ -166,11 +206,11 @@ namespace Opm {
         return m_messages;
     }
     bool Well::isProducer(size_t timeStep) const {
-        return m_isProducer->get(timeStep);
+        return bool( m_isProducer->get(timeStep) );
     }
 
     bool Well::isInjector(size_t timeStep) const {
-        return !isProducer(timeStep);
+        return !bool( isProducer(timeStep) );
     }
 
     bool Well::isAvailableForGroupControl(size_t timeStep) const {
@@ -232,8 +272,7 @@ namespace Opm {
             auto completions = getCompletions( timeStep );
             if (completions->size() > 0) {
                 auto firstCompletion = completions->get(0);
-                double depth = m_grid->getCellDepth( firstCompletion->getI() , firstCompletion->getJ() , firstCompletion->getK());
-                m_refDepth.setValue( depth );
+                m_refDepth.setValue( firstCompletion->getCenterDepth() );
                 break;
             } else {
                 timeStep++;
@@ -252,6 +291,10 @@ namespace Opm {
         return m_completions->get( timeStep );
     }
 
+    CompletionSetConstPtr Well::getCompletions() const {
+        return m_completions->back();
+    }
+
     void Well::addCompletions(size_t time_step , const std::vector<CompletionPtr>& newCompletions) {
         CompletionSetConstPtr currentCompletionSet = m_completions->get(time_step);
         CompletionSetPtr newCompletionSet = CompletionSetPtr( currentCompletionSet->shallowCopy() );
@@ -267,7 +310,7 @@ namespace Opm {
     void Well::addCompletionSet(size_t time_step, const CompletionSetConstPtr newCompletionSet){
         CompletionSetPtr mutable_copy(newCompletionSet->shallowCopy());
         if (getWellCompletionOrdering() == WellCompletion::TRACK) {
-            mutable_copy->orderCompletions(m_headI, m_headJ, m_grid);
+            mutable_copy->orderCompletions(m_headI, m_headJ);
         }
         m_completions->update(time_step, mutable_copy);
     }
@@ -288,11 +331,11 @@ namespace Opm {
     }
 
     bool Well::getRFTActive(size_t time_step) const{
-        return m_rft->get(time_step);
+        return bool( m_rft->get(time_step) );
     }
 
     bool Well::getPLTActive(size_t time_step) const{
-     return m_plt->get(time_step);
+     return bool( m_plt->get(time_step) );
     }
     void Well::setPLTActive(size_t time_step, bool value){
         m_plt->update(time_step, value);
@@ -361,21 +404,18 @@ namespace Opm {
         return m_allowCrossFlow;
     }
 
+    bool Well::getAutomaticShutIn() const {
+        return m_automaticShutIn;
+    }
+
     bool Well::canOpen(size_t currentStep) const {
-        bool canOpen = true;
-        if (!getAllowCrossFlow()) {
-            if ( isInjector(currentStep) ) {
-                if (getInjectionProperties(currentStep).surfaceInjectionRate == 0) {;
-                    canOpen = false;
-                }
-            } else {
-                if ( (getProductionProperties(currentStep).WaterRate + getProductionProperties(currentStep).OilRate +
-                      getProductionProperties(currentStep).GasRate) == 0) {
-                    canOpen = false;
-                }
-            }
-        }
-        return canOpen;
+        if( getAllowCrossFlow() ) return true;
+
+        if( isInjector( currentStep ) )
+            return getInjectionProperties( currentStep ).surfaceInjectionRate != 0;
+
+        const auto& prod = getProductionProperties( currentStep );
+        return (prod.WaterRate + prod.OilRate + prod.GasRate) != 0;
     }
 
 

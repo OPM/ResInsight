@@ -7,6 +7,14 @@
 
 extern "C" {
 
+    Opm::Deck * parser_parse_file(const Opm::Parser * parser , const char * file , const Opm::ParseContext * parse_mode);
+    void *      parser_alloc();
+    bool        parser_has_keyword(const Opm::Parser * parser , const char * keyword);
+    void        parser_free(Opm::Parser * parser);
+    void        parser_add_json_keyword(Opm::Parser * parser, const char * json_string);
+
+    /*-----------------------------------------------------------------*/
+
     Opm::Deck * parser_parse_file(const Opm::Parser * parser , const char * file , const Opm::ParseContext * parse_mode) {
         return parser->newDeckFromFile( file , *parse_mode );
     }

@@ -17,19 +17,24 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
 #include <opm/parser/eclipse/Deck/DeckItem.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Completion.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/ScheduleEnums.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/Well.hpp>
 #include <opm/parser/eclipse/EclipseState/Util/Value.hpp>
 
 namespace Opm {
 
-    Completion::Completion(int i, int j , int k , WellCompletion::StateEnum state ,
+    Completion::Completion(int i, int j , int k ,
+                           double depth,
+                           WellCompletion::StateEnum state ,
                            const Value<double>& connectionTransmissibilityFactor,
                            const Value<double>& diameter,
                            const Value<double>& skinFactor,
@@ -42,7 +47,7 @@ namespace Opm {
           m_state(state),
           m_direction(direction),
           m_segment_number(-1),
-          m_center_depth(-1.e100)
+          m_center_depth( depth )
     {}
 
     Completion::Completion(std::shared_ptr<const Completion> oldCompletion, WellCompletion::StateEnum newStatus)
@@ -136,12 +141,22 @@ namespace Opm {
        disentangled, and each completion is returned separately.
     */
 
-    std::pair<std::string , std::vector<CompletionPtr> > Completion::completionsFromCOMPDATRecord( const DeckRecord& compdatRecord ) {
+    inline std::vector< CompletionPtr >
+    fromCOMPDAT( const EclipseGrid& grid, const DeckRecord& compdatRecord, const Well& well ) {
+
         std::vector<CompletionPtr> completions;
-        std::string well = compdatRecord.getItem("WELL").getTrimmedString(0);
+
         // We change from eclipse's 1 - n, to a 0 - n-1 solution
-        int I = compdatRecord.getItem("I").get< int >(0) - 1;
-        int J = compdatRecord.getItem("J").get< int >(0) - 1;
+        // I and J can be defaulted with 0 or *, in which case they are fetched
+        // from the well head
+        const auto& itemI = compdatRecord.getItem( "I" );
+        const auto defaulted_I = itemI.defaultApplied( 0 ) || itemI.get< int >( 0 ) == 0;
+        const int I = !defaulted_I ? itemI.get< int >( 0 ) - 1 : well.getHeadI();
+
+        const auto& itemJ = compdatRecord.getItem( "J" );
+        const auto defaulted_J = itemJ.defaultApplied( 0 ) || itemJ.get< int >( 0 ) == 0;
+        const int J = !defaulted_J ? itemJ.get< int >( 0 ) - 1 : well.getHeadJ();
+
         int K1 = compdatRecord.getItem("K1").get< int >(0) - 1;
         int K2 = compdatRecord.getItem("K2").get< int >(0) - 1;
         WellCompletion::StateEnum state = WellCompletion::StateEnumFromString( compdatRecord.getItem("STATE").getTrimmedString(0) );
@@ -167,11 +182,12 @@ namespace Opm {
         const WellCompletion::DirectionEnum direction = WellCompletion::DirectionEnumFromString(compdatRecord.getItem("DIR").getTrimmedString(0));
 
         for (int k = K1; k <= K2; k++) {
-            CompletionPtr completion(new Completion(I , J , k , state , connectionTransmissibilityFactor, diameter, skinFactor, direction ));
+            double depth = grid.getCellDepth( I,J,k );
+            CompletionPtr completion(new Completion(I , J , k , depth , state , connectionTransmissibilityFactor, diameter, skinFactor, direction ));
             completions.push_back( completion );
         }
 
-        return std::pair<std::string , std::vector<CompletionPtr> >( well , completions );
+        return completions;
     }
 
     /*
@@ -184,25 +200,32 @@ namespace Opm {
       }
     */
 
+    std::map< std::string, std::vector< CompletionPtr > >
+    Completion::fromCOMPDAT( const EclipseGrid& grid ,
+                             const DeckKeyword& compdatKeyword,
+                             const std::vector< const Well* >& wells ) {
 
-    std::map<std::string , std::vector< CompletionPtr> > Completion::completionsFromCOMPDATKeyword( const DeckKeyword& compdatKeyword ) {
-        std::map<std::string , std::vector< CompletionPtr> > completionMapList;
-        for (size_t recordIndex = 0; recordIndex < compdatKeyword.size(); recordIndex++) {
-            std::pair<std::string , std::vector< CompletionPtr> > wellCompletionsPair = completionsFromCOMPDATRecord( compdatKeyword.getRecord( recordIndex ));
-            std::string well = wellCompletionsPair.first;
-            std::vector<CompletionPtr>& newCompletions = wellCompletionsPair.second;
+        std::map< std::string, std::vector< CompletionPtr > > res;
 
-            if (completionMapList.find(well) == completionMapList.end())
-                 completionMapList[well] = std::vector<CompletionPtr>();
+        for( const auto& record : compdatKeyword ) {
 
-            {
-                std::vector<CompletionPtr>& currentCompletions = completionMapList.find(well)->second;
+            const auto wellname = record.getItem( "WELL" ).getTrimmedString( 0 );
+            const auto name_eq = [&]( const Well* w ) {
+                return w->name() == wellname;
+            };
 
-                for (size_t ic = 0; ic < newCompletions.size(); ic++)
-                    currentCompletions.push_back( newCompletions[ic] );
-            }
+            auto well = std::find_if( wells.begin(), wells.end(), name_eq );
+
+            if( well == wells.end() ) continue;
+
+            auto completions = Opm::fromCOMPDAT( grid, record, **well );
+
+            res[ wellname ].insert( res[ wellname ].end(),
+                                    completions.begin(),
+                                    completions.end() );
         }
-        return completionMapList;
+
+        return res;
     }
 
     void Completion::fixDefaultIJ(int wellHeadI , int wellHeadJ) {

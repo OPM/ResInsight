@@ -149,6 +149,14 @@ static Opm::DeckPtr createValidIntDeck() {
         "DIMENS\n"
         " 5 5 1 /\n"
         "GRID\n"
+        "DX\n"
+        "25*0.25 /\n"
+        "DY\n"
+        "25*0.25 /\n"
+        "DZ\n"
+        "25*0.25 /\n"
+        "TOPS\n"
+        "25*0.25 /\n"
         "MULTNUM \n"
         "1  1  2  2 2\n"
         "1  1  2  2 2\n"
@@ -180,6 +188,14 @@ static Opm::DeckPtr createValidPERMXDeck() {
         "DIMENS\n"
         " 5 5 1 /\n"
         "GRID\n"
+        "DX\n"
+        "25*0.25 /\n"
+        "DY\n"
+        "25*0.25 /\n"
+        "DZ\n"
+        "25*0.25 /\n"
+        "TOPS\n"
+        "25*0.25 /\n"
         "MULTNUM \n"
         "1  1  2  2 2\n"
         "1  1  2  2 2\n"
@@ -218,31 +234,31 @@ static Opm::DeckPtr createValidPERMXDeck() {
 
 BOOST_AUTO_TEST_CASE(InvalidArrayThrows) {
     Opm::DeckPtr deck = createDeckInvalidArray();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
 BOOST_AUTO_TEST_CASE(InvalidRegionThrows) {
     Opm::DeckPtr deck = createDeckInvalidRegion();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
 BOOST_AUTO_TEST_CASE(ExpectedIntThrows) {
     Opm::DeckPtr deck = createDeckInvalidValue();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
 BOOST_AUTO_TEST_CASE(UnInitializedRegionThrows) {
     Opm::DeckPtr deck = createDeckUnInitializedRegion();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
 BOOST_AUTO_TEST_CASE(UnInitializedVectorThrows) {
     Opm::DeckPtr deck = createDeckUnInitializedVector();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 

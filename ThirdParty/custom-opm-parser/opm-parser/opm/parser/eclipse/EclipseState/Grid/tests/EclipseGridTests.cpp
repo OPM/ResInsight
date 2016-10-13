@@ -23,22 +23,21 @@
 #include <cstdio>
 
 #define BOOST_TEST_MODULE EclipseGridTests
-
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
-
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-
-#include <opm/parser/eclipse/Deck/Section.hpp>
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/parser/eclipse/Deck/Section.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
+
+#include <opm/parser/eclipse/Parser/ParseContext.hpp>
+#include <opm/parser/eclipse/Parser/Parser.hpp>
 
 
 BOOST_AUTO_TEST_CASE(CreateMissingDIMENS_throws) {
@@ -49,8 +48,6 @@ BOOST_AUTO_TEST_CASE(CreateMissingDIMENS_throws) {
 
     BOOST_CHECK_THROW(new Opm::EclipseGrid( deck ) , std::invalid_argument);
 }
-
-
 
 static Opm::DeckPtr createDeckHeaders() {
     const char *deckData =
@@ -66,6 +63,35 @@ static Opm::DeckPtr createDeckHeaders() {
     return parser->parseString(deckData, Opm::ParseContext());
 }
 
+static Opm::DeckPtr createDeckDIMENS() {
+    const char *deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        " 13 17 19/\n"
+        "GRID\n"
+        "EDIT\n"
+        "\n";
+    Opm::ParserPtr parser(new Opm::Parser());
+    return parser->parseString(deckData, Opm::ParseContext());
+}
+
+static Opm::DeckPtr createDeckSPECGRID() {
+    const char *deckData =
+        "GRID\n"
+        "SPECGRID \n"
+        "  13 17 19 / \n"
+        "COORD\n"
+        "  726*1 / \n"
+        "ZCORN \n"
+        "  8000*1 / \n"
+        "ACTNUM \n"
+        "  1000*1 / \n"
+        "EDIT\n"
+        "\n";
+    Opm::ParserPtr parser(new Opm::Parser());
+    return parser->parseString(deckData, Opm::ParseContext());
+}
 
 static Opm::DeckPtr createDeckMissingDIMS() {
     const char *deckData =
@@ -93,8 +119,14 @@ BOOST_AUTO_TEST_CASE(HasGridKeywords) {
 
 
 BOOST_AUTO_TEST_CASE(CreateGridNoCells) {
-    Opm::DeckPtr deck = createDeckHeaders();
-    Opm::EclipseGrid grid( deck );
+    Opm::DeckPtr deckptr = createDeckHeaders();
+    const Opm::Deck& deck = *deckptr;
+    {
+        Opm::EclipseGrid* gridptr = nullptr;
+        BOOST_CHECK_THROW( gridptr = new Opm::EclipseGrid( deck ) , std::invalid_argument);
+        delete gridptr;
+    }
+    const Opm::GridDims grid(deck);
     BOOST_CHECK_EQUAL( 10 , grid.getNX());
     BOOST_CHECK_EQUAL( 10 , grid.getNY());
     BOOST_CHECK_EQUAL( 10 , grid.getNZ());
@@ -318,8 +350,6 @@ BOOST_AUTO_TEST_CASE(CREATE_SIMPLE) {
     BOOST_CHECK_EQUAL( grid.getNY() , 20 );
     BOOST_CHECK_EQUAL( grid.getNZ() , 30 );
     BOOST_CHECK_EQUAL( grid.getCartesianSize() , 6000 );
-    BOOST_CHECK_EQUAL( true , grid.hasCellInfo() );
-
 }
 
 BOOST_AUTO_TEST_CASE(DEPTHZ_EQUAL_TOPS) {
@@ -399,9 +429,13 @@ BOOST_AUTO_TEST_CASE(HasINVALIDCartKeywords) {
 
 
 BOOST_AUTO_TEST_CASE(CreateMissingGRID_throws) {
-    Opm::DeckPtr deck = createDeckHeaders();
-    Opm::EclipseGrid grid( deck );
-    BOOST_CHECK_EQUAL( false , grid.hasCellInfo() );
+    auto deckptr = createDeckHeaders();
+    const Opm::Deck& deck = *deckptr;
+    {
+        Opm::EclipseGrid* gridptr = nullptr;
+        BOOST_CHECK_THROW( gridptr = new Opm::EclipseGrid( deck ) , std::invalid_argument);
+        delete gridptr;
+    }
 }
 
 
@@ -430,7 +464,8 @@ static Opm::DeckPtr createInvalidDXYZCARTDeck() {
 
 
 BOOST_AUTO_TEST_CASE(CreateCartesianGRID) {
-    Opm::DeckPtr deck = createInvalidDXYZCARTDeck();
+    auto deckptr = createInvalidDXYZCARTDeck();
+    const Opm::Deck& deck = *deckptr;
     BOOST_CHECK_THROW(new Opm::EclipseGrid( deck ) , std::invalid_argument);
 }
 
@@ -460,9 +495,13 @@ static Opm::DeckPtr createInvalidDXYZCARTDeckDEPTHZ() {
 
 
 BOOST_AUTO_TEST_CASE(CreateCartesianGRIDDEPTHZ) {
-    Opm::DeckPtr deck = createInvalidDXYZCARTDeckDEPTHZ();
-    Opm::EclipseGrid grid( deck );
-    BOOST_CHECK_EQUAL( false , grid.hasCellInfo() );
+    auto deckptr = createInvalidDXYZCARTDeckDEPTHZ();
+    const Opm::Deck& deck = *deckptr;
+    {
+        Opm::EclipseGrid* gridptr = nullptr;
+        BOOST_CHECK_THROW( gridptr = new Opm::EclipseGrid( deck ) , std::invalid_argument);
+        delete gridptr;
+    }
 }
 
 
@@ -513,8 +552,14 @@ static Opm::DeckPtr createInvalidDEPTHZDeck1 () {
 
 
 BOOST_AUTO_TEST_CASE(CreateCartesianGRIDInvalidDEPTHZ1) {
-    Opm::DeckPtr deck = createInvalidDEPTHZDeck1();
-    BOOST_CHECK_THROW(new Opm::EclipseGrid( deck ) , std::invalid_argument);
+    auto deckptr = createInvalidDEPTHZDeck1();
+    const Opm::Deck& deck = *deckptr;
+    {
+        Opm::EclipseGrid* gridptr = nullptr;
+        BOOST_CHECK_THROW( gridptr = new Opm::EclipseGrid( deck ) , std::invalid_argument);
+        delete gridptr;
+    }
+
 }
 
 
@@ -541,20 +586,26 @@ static Opm::DeckPtr createInvalidDEPTHZDeck2 () {
 }
 
 BOOST_AUTO_TEST_CASE(CreateCartesianGRIDInvalidDEPTHZ2) {
-    Opm::DeckPtr deck = createInvalidDEPTHZDeck2();
-    BOOST_CHECK_THROW(new Opm::EclipseGrid( deck ) , std::invalid_argument);
+    auto deckptr = createInvalidDEPTHZDeck2();
+    const Opm::Deck& deck = *deckptr;
+    {
+        Opm::EclipseGrid* gridptr = nullptr;
+        BOOST_CHECK_THROW( gridptr = new Opm::EclipseGrid( deck ) , std::invalid_argument);
+        delete gridptr;
+    }
+
 }
 
 
 
 BOOST_AUTO_TEST_CASE(CreateCartesianGRIDOnlyTopLayerDZ) {
     Opm::DeckPtr deck = createOnlyTopDZCartGrid();
-    std::shared_ptr<Opm::EclipseGrid> grid(new Opm::EclipseGrid( deck ));
+    Opm::EclipseGrid grid( *deck );
 
-    BOOST_CHECK_EQUAL( 10 , grid->getNX( ));
-    BOOST_CHECK_EQUAL(  5 , grid->getNY( ));
-    BOOST_CHECK_EQUAL( 20 , grid->getNZ( ));
-    BOOST_CHECK_EQUAL( 1000 , grid->getNumActive());
+    BOOST_CHECK_EQUAL( 10 , grid.getNX( ));
+    BOOST_CHECK_EQUAL(  5 , grid.getNY( ));
+    BOOST_CHECK_EQUAL( 20 , grid.getNZ( ));
+    BOOST_CHECK_EQUAL( 1000 , grid.getNumActive());
 }
 
 
@@ -640,11 +691,42 @@ BOOST_AUTO_TEST_CASE(ResetACTNUM) {
     BOOST_CHECK_EQUAL( 1000U , grid.getNumActive());
     std::vector<int> actnum(1000);
     actnum[0] = 1;
+    actnum[2] = 1;
+    actnum[4] = 1;
+    actnum[6] = 1;
     grid.resetACTNUM( actnum.data() );
-    BOOST_CHECK_EQUAL( 1U , grid.getNumActive() );
+    BOOST_CHECK_EQUAL( 4U , grid.getNumActive() );
+    {
+        std::vector<int> full(grid.getCartesianSize());
+        std::iota(full.begin(), full.end(), 0);
+
+        auto compressed = grid.compressedVector( full );
+        BOOST_CHECK_EQUAL( compressed.size() , 4U );
+        BOOST_CHECK_EQUAL( compressed[0] , 0 );
+        BOOST_CHECK_EQUAL( compressed[1] , 2 );
+        BOOST_CHECK_EQUAL( compressed[2] , 4 );
+        BOOST_CHECK_EQUAL( compressed[3] , 6 );
+    }
+    {
+        const auto& activeMap = grid.getActiveMap( );
+        BOOST_CHECK_EQUAL( 4U , activeMap.size() );
+        BOOST_CHECK_EQUAL( 0 , activeMap[0] );
+        BOOST_CHECK_EQUAL( 2 , activeMap[1] );
+        BOOST_CHECK_EQUAL( 4 , activeMap[2] );
+        BOOST_CHECK_EQUAL( 6 , activeMap[3] );
+    }
 
     grid.resetACTNUM( NULL );
     BOOST_CHECK_EQUAL( 1000U , grid.getNumActive() );
+
+    {
+        const auto&  activeMap = grid.getActiveMap( );
+        BOOST_CHECK_EQUAL( 1000U , activeMap.size() );
+        BOOST_CHECK_EQUAL( 0 , activeMap[0] );
+        BOOST_CHECK_EQUAL( 1 , activeMap[1] );
+        BOOST_CHECK_EQUAL( 2 , activeMap[2] );
+        BOOST_CHECK_EQUAL( 999 , activeMap[999] );
+    }
 }
 
 
@@ -698,32 +780,6 @@ BOOST_AUTO_TEST_CASE(LoadFromBinary) {
 }
 
 
-
-BOOST_AUTO_TEST_CASE(Fwrite) {
-    const char *deckData =
-        "RUNSPEC\n"
-        "\n"
-        "DIMENS\n"
-        " 10 10 10 /\n"
-        "GRID\n"
-        "COORD\n"
-        "  726*1 / \n"
-        "ZCORN \n"
-        "  8000*1 / \n"
-        "EDIT\n"
-        "\n";
-
-    Opm::ParserPtr parser(new Opm::Parser());
-    Opm::DeckConstPtr deck = parser->parseString(deckData, Opm::ParseContext()) ;
-    Opm::EclipseGrid grid1(deck );
-
-    grid1.fwriteEGRID( "TEST.EGRID" , true);
-
-    Opm::EclipseGrid grid2( "TEST.EGRID" );
-
-    BOOST_CHECK( grid1.equal( grid2 ));
-    remove("TEST.EGRID");
-}
 
 
 
@@ -884,7 +940,7 @@ static Opm::DeckPtr createActnumBoxDeck() {
 
 BOOST_AUTO_TEST_CASE(GridBoxActnum) {
     Opm::DeckConstPtr deck = createActnumBoxDeck();
-    Opm::EclipseState es(deck, Opm::ParseContext());
+    Opm::EclipseState es(*deck, Opm::ParseContext());
     auto ep = es.get3DProperties();
     auto grid = es.getInputGrid();
 
@@ -935,26 +991,111 @@ BOOST_AUTO_TEST_CASE(GridBoxActnum) {
 BOOST_AUTO_TEST_CASE(GridActnumVia3D) {
     Opm::DeckConstPtr deck = createActnumDeck();
 
-    Opm::EclipseState es(deck, Opm::ParseContext());
+    Opm::EclipseState es(*deck, Opm::ParseContext());
     auto ep = es.get3DProperties();
     auto grid = es.getInputGrid();
     Opm::EclipseGrid grid2( *grid );
 
     BOOST_CHECK_NO_THROW(ep.getIntGridProperty("ACTNUM"));
     BOOST_CHECK_NO_THROW(grid->getNumActive());
-    BOOST_CHECK(grid->hasCellInfo());
     BOOST_CHECK_EQUAL(grid->getNumActive(), 2 * 2 * 2 - 1);
 
     BOOST_CHECK_NO_THROW(grid2.getNumActive());
-    BOOST_CHECK(grid2.hasCellInfo());
     BOOST_CHECK_EQUAL(grid2.getNumActive(), 2 * 2 * 2 - 1);
 }
 
 BOOST_AUTO_TEST_CASE(GridActnumViaState) {
     Opm::DeckConstPtr deck = createActnumDeck();
 
-    BOOST_CHECK_NO_THROW(Opm::EclipseState(deck, Opm::ParseContext()));
-    Opm::EclipseState es(deck, Opm::ParseContext());
-    BOOST_CHECK(es.getInputGrid()->hasCellInfo());
+    BOOST_CHECK_NO_THROW(Opm::EclipseState(*deck, Opm::ParseContext()));
+    Opm::EclipseState es(*deck, Opm::ParseContext());
     BOOST_CHECK_EQUAL(es.getInputGrid()->getNumActive(), 2 * 2 * 2 - 1);
+}
+
+
+BOOST_AUTO_TEST_CASE(GridDimsSPECGRID) {
+    auto deckptr =  createDeckSPECGRID();
+    auto gd = Opm::GridDims(*deckptr);
+    BOOST_CHECK_EQUAL(gd.getNX(), 13);
+    BOOST_CHECK_EQUAL(gd.getNY(), 17);
+    BOOST_CHECK_EQUAL(gd.getNZ(), 19);
+}
+
+BOOST_AUTO_TEST_CASE(GridDimsDIMENS) {
+    auto deckptr =  createDeckDIMENS();
+    auto gd = Opm::GridDims(*deckptr);
+    BOOST_CHECK_EQUAL(gd.getNX(), 13);
+    BOOST_CHECK_EQUAL(gd.getNY(), 17);
+    BOOST_CHECK_EQUAL(gd.getNZ(), 19);
+}
+
+
+BOOST_AUTO_TEST_CASE(ProcessedCopy) {
+    Opm::EclipseGrid gd(10,10,10);
+    std::vector<double> zcorn;
+    std::vector<int> actnum;
+
+    gd.exportZCORN( zcorn );
+    gd.exportACTNUM( actnum  );
+
+    {
+        Opm::EclipseGrid gd2(gd , zcorn , actnum );
+        BOOST_CHECK( gd.equal( gd2 ));
+    }
+
+    zcorn[0] -= 1;
+    {
+        Opm::EclipseGrid gd2(gd , zcorn , actnum );
+        BOOST_CHECK( !gd.equal( gd2 ));
+    }
+
+    {
+        Opm::EclipseGrid gd2(gd , actnum );
+        BOOST_CHECK( gd.equal( gd2 ));
+    }
+
+    actnum.assign( gd.getCartesianSize() , 1);
+    actnum[0] = 0;
+    {
+        Opm::EclipseGrid gd2(gd , actnum );
+        BOOST_CHECK( !gd.equal( gd2 ));
+        BOOST_CHECK( !gd2.cellActive( 0 ));
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(ZcornMapper) {
+    int nx = 3;
+    int ny = 4;
+    int nz = 5;
+    Opm::EclipseGrid grid(nx,ny,nz);
+    Opm::ZcornMapper zmp = grid.zcornMapper( );
+    const ecl_grid_type * ert_grid = grid.c_ptr();
+
+
+    BOOST_CHECK_THROW(zmp.index(nx,1,1,0) , std::invalid_argument);
+    BOOST_CHECK_THROW(zmp.index(0,ny,1,0) , std::invalid_argument);
+    BOOST_CHECK_THROW(zmp.index(0,1,nz,0) , std::invalid_argument);
+    BOOST_CHECK_THROW(zmp.index(0,1,2,8) , std::invalid_argument);
+
+    for (int k=0; k < nz; k++)
+        for (int j=0; j < ny; j++)
+            for (int i=0; i < nx; i++)
+                for (int c=0; c < 8; c++) {
+                    size_t g = i + j*nx + k*nx*ny;
+                    BOOST_CHECK_EQUAL( zmp.index(g , c) , zmp.index( i,j,k,c));
+                    BOOST_CHECK_EQUAL( zmp.index(i,j,k,c) , ecl_grid_zcorn_index( ert_grid, i , j , k, c));
+                }
+}
+
+
+
+BOOST_AUTO_TEST_CASE(MoveTest) {
+    int nx = 3;
+    int ny = 4;
+    int nz = 5;
+    Opm::EclipseGrid grid1(nx,ny,nz);
+    Opm::EclipseGrid grid2( std::move( grid1 )); // grid2 should be move constructed from grid1
+
+    BOOST_CHECK( !grid1.c_ptr() );               // We peek at some internal details ...
 }

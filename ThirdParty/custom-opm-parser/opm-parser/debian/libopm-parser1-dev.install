@@ -1,5 +1,5 @@
 usr/include/*
-usr/lib/*/lib*.so
+usr/lib/*/libopm*.so
 usr/lib/dunecontrol/*
 usr/share/cmake/*
 usr/lib/*/pkgconfig/*

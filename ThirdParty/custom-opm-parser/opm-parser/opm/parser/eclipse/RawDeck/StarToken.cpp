@@ -24,10 +24,12 @@
 #include <stdexcept>
 #include <cstdlib>
 
+#include <boost/spirit/include/qi.hpp>
+
 #include <opm/parser/eclipse/RawDeck/StarToken.hpp>
 #include <opm/parser/eclipse/Utility/Stringview.hpp>
 
-
+namespace qi = boost::spirit::qi;
 
 namespace Opm {
 
@@ -69,55 +71,38 @@ namespace Opm {
 
     template<>
     int readValueToken< int >( string_view view ) {
+        int n = 0;
+        auto cursor = view.begin();
+        const bool ok = qi::parse( cursor, view.end(), qi::int_, n );
 
-        if( view.empty() ) throw std::invalid_argument( "Empty input string" );
-
-        char* end;
-        auto value = std::strtol( view.begin(), &end, 10 );
-
-        if( std::distance( view.begin(), (const char*)end ) != int( view.size() ) )
-            throw std::invalid_argument( "Expected integer, got '" + view + "'" );
-
-        return value;
+        if( ok && cursor == view.end() ) return n;
+        throw std::invalid_argument( "Malformed integer '" + view + "'" );
     }
 
-    static inline bool fortran_float( char ch ) {
-        return ch == 'd' || ch == 'D' || ch == 'E';
-    }
+    template< typename T >
+    struct fortran_double : qi::real_policies< T > {
+        // Eclipse supports Fortran syntax for specifying exponents of floating point
+        // numbers ('D' and 'E', e.g., 1.234d5)
+        template< typename It >
+        static bool parse_exp( It& first, const It& last ) {
+            if( first == last ||
+                (*first != 'e' && *first != 'E' &&
+                *first != 'd' && *first != 'D' ) )
+                return false;
+            ++first;
+            return true;
+        }
+    };
 
     template<>
     double readValueToken< double >( string_view view ) {
-        if( view.empty() ) throw std::invalid_argument( "Empty input string" );
+        double n = 0;
+        qi::real_parser< double, fortran_double< double > > double_;
+        auto cursor = view.begin();
+        const auto ok = qi::parse( cursor, view.end(), double_, n );
 
-        char* end;
-        auto value = std::strtod( view.begin(), &end );
-        if( std::distance( view.begin(), (const char*) end ) == int( view.size() ) )
-            return value;
-
-        // Eclipse supports Fortran syntax for specifying exponents of floating point
-        // numbers ('D' and 'E', e.g., 1.234d5) while C++ only supports the 'e' (e.g.,
-        // 1.234e5). the quick fix is to replace 'D' by 'E' and 'd' by 'e' before trying
-        // to convert the string into a floating point value.
-
-        const auto width = 64;
-
-        if( view.size() > width ) throw std::invalid_argument(
-            "Maximum 'double' length is " + std::to_string( width )
-        );
-
-        std::array< char, width > buffer {};
-        std::copy( view.begin(), view.end(), buffer.begin() );
-
-
-        auto fortran = std::find_if( buffer.begin(), buffer.end(), fortran_float );
-        if( fortran != buffer.end() )
-            *fortran = 'e';
-
-        value = std::strtod( buffer.data(), &end );
-        if( std::distance( buffer.data(), end ) == int( view.size() ) )
-            return value;
-
-        throw std::invalid_argument( "Expected double, got: '" + view + "'" );
+        if( ok && cursor == view.end() ) return n;
+        throw std::invalid_argument( "Malformed floating point number '" + view + "'" );
     }
 
     template <>

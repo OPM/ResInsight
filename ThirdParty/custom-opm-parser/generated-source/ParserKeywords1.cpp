@@ -12,7 +12,11 @@ namespace Opm {
 namespace ParserKeywords {
 
 
+void addDefaultKeywords1(Parser& p);
 void addDefaultKeywords1(Parser& p) {
+p.addKeyword< ParserKeywords::GRID >();
+p.addKeyword< ParserKeywords::GRIDFILE >();
+p.addKeyword< ParserKeywords::GRIDOPTS >();
 p.addKeyword< ParserKeywords::GRIDUNIT >();
 p.addKeyword< ParserKeywords::GROUP_PROBE >();
 p.addKeyword< ParserKeywords::GRUPNET >();
@@ -33,6 +37,7 @@ p.addKeyword< ParserKeywords::ISOWCR >();
 p.addKeyword< ParserKeywords::ISWCR >();
 p.addKeyword< ParserKeywords::ISWL >();
 p.addKeyword< ParserKeywords::ISWU >();
+p.addKeyword< ParserKeywords::JFUNC >();
 p.addKeyword< ParserKeywords::MAPAXES >();
 p.addKeyword< ParserKeywords::MAPUNITS >();
 p.addKeyword< ParserKeywords::MAXVALUE >();
@@ -53,6 +58,7 @@ p.addKeyword< ParserKeywords::MULTIPLY >();
 p.addKeyword< ParserKeywords::MULTIREG >();
 p.addKeyword< ParserKeywords::MULTNUM >();
 p.addKeyword< ParserKeywords::MULTPV >();
+p.addKeyword< ParserKeywords::MULTREGP >();
 p.addKeyword< ParserKeywords::MULTREGT >();
 p.addKeyword< ParserKeywords::MULT_XYZ >();
 p.addKeyword< ParserKeywords::MW >();
@@ -95,6 +101,4 @@ p.addKeyword< ParserKeywords::PERMYZ >();
 p.addKeyword< ParserKeywords::PERMZ >();
 p.addKeyword< ParserKeywords::PERMZX >();
 p.addKeyword< ParserKeywords::PIMTDIMS >();
-p.addKeyword< ParserKeywords::PIMULTAB >();
-p.addKeyword< ParserKeywords::PINCH >();
 }}}

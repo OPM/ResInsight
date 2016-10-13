@@ -51,16 +51,14 @@ static Opm::TimeMapPtr createXDaysTimeMap(size_t numDays) {
 
 BOOST_AUTO_TEST_CASE(CreateWell_CorrectNameAndDefaultValues) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" ,  0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
     BOOST_CHECK_EQUAL( "WELL1" , well.name() );
     BOOST_CHECK_EQUAL(0.0 , well.getProductionPropertiesCopy(5).OilRate);
 }
 
 BOOST_AUTO_TEST_CASE(CreateWell_GetProductionPropertiesShouldReturnSameObject) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" ,  0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
 
     BOOST_CHECK_EQUAL(&(well.getProductionProperties(5)), &(well.getProductionProperties(5)));
     BOOST_CHECK_EQUAL(&(well.getProductionProperties(8)), &(well.getProductionProperties(8)));
@@ -69,8 +67,7 @@ BOOST_AUTO_TEST_CASE(CreateWell_GetProductionPropertiesShouldReturnSameObject) {
 
 BOOST_AUTO_TEST_CASE(CreateWell_GetInjectionPropertiesShouldReturnSameObject) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
+    Opm::Well well("WELL1" ,  0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
 
     BOOST_CHECK_EQUAL(&(well.getInjectionProperties(5)), &(well.getInjectionProperties(5)));
     BOOST_CHECK_EQUAL(&(well.getInjectionProperties(8)), &(well.getInjectionProperties(8)));
@@ -79,8 +76,7 @@ BOOST_AUTO_TEST_CASE(CreateWell_GetInjectionPropertiesShouldReturnSameObject) {
 
 BOOST_AUTO_TEST_CASE(CreateWellCreateTimeStepOK) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 5);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 5);
     BOOST_CHECK_EQUAL( false , well.hasBeenDefined(0) );
     BOOST_CHECK_EQUAL( false , well.hasBeenDefined(4) );
     BOOST_CHECK_EQUAL( true , well.hasBeenDefined(5) );
@@ -91,8 +87,7 @@ BOOST_AUTO_TEST_CASE(CreateWellCreateTimeStepOK) {
 
 BOOST_AUTO_TEST_CASE(setWellProductionProperties_PropertiesSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getProductionPropertiesCopy( 5 ).OilRate);
     Opm::WellProductionProperties props;
@@ -116,8 +111,7 @@ BOOST_AUTO_TEST_CASE(setWellProductionProperties_PropertiesSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(setOilRate_RateSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getProductionPropertiesCopy(5).OilRate);
     Opm::WellProductionProperties props;
@@ -129,8 +123,7 @@ BOOST_AUTO_TEST_CASE(setOilRate_RateSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(seLiquidRate_RateSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" ,  0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getProductionPropertiesCopy(5).LiquidRate);
     Opm::WellProductionProperties props;
@@ -143,8 +136,7 @@ BOOST_AUTO_TEST_CASE(seLiquidRate_RateSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(setPredictionModeProduction_ModeSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
 
     BOOST_CHECK_EQUAL( true, well.getProductionPropertiesCopy(5).predictionMode);
     Opm::WellProductionProperties props;
@@ -158,8 +150,7 @@ BOOST_AUTO_TEST_CASE(setPredictionModeProduction_ModeSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(setpredictionModeInjection_ModeSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
 
     BOOST_CHECK_EQUAL( true, well.getInjectionPropertiesCopy(5).predictionMode);
     Opm::WellInjectionProperties props;
@@ -197,9 +188,9 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestTRACK) {
 
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>( 10 , 10 , 10 );
+    Opm::EclipseGrid grid(10,10,10);
     Opm::Schedule schedule(Opm::ParseContext() , grid , deck );
-    Opm::WellPtr op_1 = schedule.getWell("OP_1");
+    auto* op_1 = schedule.getWell("OP_1");
 
     size_t timestep = 2;
     Opm::CompletionSetConstPtr completions = op_1->getCompletions( timestep );
@@ -238,9 +229,9 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestDefaultTRACK) {
 
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>( 10 , 10 , 10 );
+    Opm::EclipseGrid grid(10,10,10);
     Opm::Schedule schedule(Opm::ParseContext() , grid , deck );
-    Opm::WellPtr op_1 = schedule.getWell("OP_1");
+    auto* op_1 = schedule.getWell("OP_1");
 
     size_t timestep = 2;
     Opm::CompletionSetConstPtr completions = op_1->getCompletions( timestep );
@@ -281,9 +272,9 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestINPUT) {
 
     Opm::ParseContext parseContext;
     Opm::DeckPtr deck = parser.parseString(input, parseContext);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>( 10 , 10 , 10 );
+    Opm::EclipseGrid grid(10,10,10);
     Opm::Schedule schedule(Opm::ParseContext() , grid , deck );
-    Opm::WellPtr op_1 = schedule.getWell("OP_1");
+    auto* op_1 = schedule.getWell("OP_1");
 
     size_t timestep = 2;
     Opm::CompletionSetConstPtr completions = op_1->getCompletions( timestep );
@@ -323,8 +314,7 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestINPUT) {
 
 BOOST_AUTO_TEST_CASE(NewWellZeroCompletions) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
     Opm::CompletionSetConstPtr completions = well.getCompletions( 0 );
     BOOST_CHECK_EQUAL( 0U , completions->size());
 }
@@ -332,19 +322,18 @@ BOOST_AUTO_TEST_CASE(NewWellZeroCompletions) {
 
 BOOST_AUTO_TEST_CASE(UpdateCompletions) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    Opm::EclipseGridConstPtr grid = std::make_shared<Opm::EclipseGrid>(20, 20, 20);
 
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
     Opm::CompletionSetConstPtr completions = well.getCompletions( 0 );
     BOOST_CHECK_EQUAL( 0U , completions->size());
 
     std::vector<Opm::CompletionPtr> newCompletions;
     std::vector<Opm::CompletionPtr> newCompletions2;
-    Opm::CompletionPtr comp1(new Opm::Completion( 10 , 10 , 10 , Opm::WellCompletion::AUTO , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
-    Opm::CompletionPtr comp2(new Opm::Completion( 10 , 10 , 11 , Opm::WellCompletion::SHUT , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
-    Opm::CompletionPtr comp3(new Opm::Completion( 10 , 10 , 12 , Opm::WellCompletion::OPEN , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
-    Opm::CompletionPtr comp4(new Opm::Completion( 10 , 10 , 12 , Opm::WellCompletion::SHUT , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
-    Opm::CompletionPtr comp5(new Opm::Completion( 10 , 10 , 13 , Opm::WellCompletion::OPEN , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
+    Opm::CompletionPtr comp1(new Opm::Completion( 10 , 10 , 10 , 10,Opm::WellCompletion::AUTO , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
+    Opm::CompletionPtr comp2(new Opm::Completion( 10 , 10 , 11 , 11,Opm::WellCompletion::SHUT , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
+    Opm::CompletionPtr comp3(new Opm::Completion( 10 , 10 , 12 , 12,Opm::WellCompletion::OPEN , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
+    Opm::CompletionPtr comp4(new Opm::Completion( 10 , 10 , 12 , 12,Opm::WellCompletion::SHUT , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
+    Opm::CompletionPtr comp5(new Opm::Completion( 10 , 10 , 13 , 13,Opm::WellCompletion::OPEN , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
 
     //std::vector<Opm::CompletionConstPtr> newCompletions2{ comp4 , comp5}; Newer c++
 
@@ -375,6 +364,7 @@ Opm::CompletionPtr completion(const size_t i, const size_t j, const size_t k);
 Opm::CompletionPtr completion(const size_t i, const size_t j, const size_t k)
 {
     return std::make_shared<Opm::Completion>(i, j, k,
+                                             k*1.0,
                                              Opm::WellCompletion::AUTO,
                                              Opm::Value<double>("ConnectionTransmissibilityFactor",99.88),
                                              Opm::Value<double>("D",22.33),
@@ -386,11 +376,9 @@ Opm::CompletionPtr completion(const size_t i, const size_t j, const size_t k)
 
 BOOST_AUTO_TEST_CASE(CompletionOrder) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    Opm::EclipseGridConstPtr grid = std::make_shared<Opm::EclipseGrid>(10, 10, 10);
-
     {
         // Vertical well.
-        Opm::Well well("WELL1" , grid , 5, 5, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+        Opm::Well well("WELL1" , 5, 5, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
         auto c1 = completion(5, 5, 8);
         auto c2 = completion(5, 5, 9);
         auto c3 = completion(5, 5, 1);
@@ -406,7 +394,7 @@ BOOST_AUTO_TEST_CASE(CompletionOrder) {
 
     {
         // Horizontal well.
-        Opm::Well well("WELL1" , grid , 5, 5, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+        Opm::Well well("WELL1" ,  5, 5, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
         auto c1 = completion(6, 5, 8);
         auto c2 = completion(5, 6, 7);
         auto c3 = completion(7, 5, 8);
@@ -445,8 +433,7 @@ BOOST_AUTO_TEST_CASE(CompletionOrder) {
 
 BOOST_AUTO_TEST_CASE(setGasRate_RateSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::GAS, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::GAS, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getProductionPropertiesCopy(5).GasRate);
     Opm::WellProductionProperties properties;
@@ -460,8 +447,7 @@ BOOST_AUTO_TEST_CASE(setGasRate_RateSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(setWaterRate_RateSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getProductionPropertiesCopy(5).WaterRate);
     Opm::WellProductionProperties properties;
@@ -474,8 +460,7 @@ BOOST_AUTO_TEST_CASE(setWaterRate_RateSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(setSurfaceInjectionRate_RateSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getInjectionPropertiesCopy(5).surfaceInjectionRate);
     Opm::WellInjectionProperties props(well.getInjectionPropertiesCopy(5));
@@ -488,8 +473,7 @@ BOOST_AUTO_TEST_CASE(setSurfaceInjectionRate_RateSetCorrect) {
 
 BOOST_AUTO_TEST_CASE(setReservoirInjectionRate_RateSetCorrect) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap , 0);
 
     BOOST_CHECK_EQUAL(0.0 , well.getInjectionPropertiesCopy(5).reservoirInjectionRate);
     Opm::WellInjectionProperties properties(well.getInjectionPropertiesCopy(5));
@@ -504,8 +488,7 @@ BOOST_AUTO_TEST_CASE(isProducerCorrectlySet) {
     // HACK: This test checks correctly setting of isProducer/isInjector. This property depends on which of
     //       WellProductionProperties/WellInjectionProperties is set last, independent of actual values.
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap ,0);
+    Opm::Well well("WELL1" , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap ,0);
 
     /* 1: Well is created as producer */
     BOOST_CHECK_EQUAL( false , well.isInjector(0));
@@ -561,8 +544,7 @@ BOOST_AUTO_TEST_CASE(isProducerCorrectlySet) {
 
 BOOST_AUTO_TEST_CASE(GroupnameCorretlySet) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap ,0);
+    Opm::Well well("WELL1" ,  0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::WATER, timeMap ,0);
 
     BOOST_CHECK_EQUAL("" , well.getGroupName(2));
 
@@ -576,8 +558,7 @@ BOOST_AUTO_TEST_CASE(GroupnameCorretlySet) {
 
 BOOST_AUTO_TEST_CASE(addWELSPECS_setData_dataSet) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 23, 42, Opm::Value<double>("REF_DEPTH" , 2334.32) , Opm::Phase::WATER, timeMap, 3);
+    Opm::Well well("WELL1", 23, 42, Opm::Value<double>("REF_DEPTH" , 2334.32) , Opm::Phase::WATER, timeMap, 3);
 
     BOOST_CHECK(!well.hasBeenDefined(2));
     BOOST_CHECK(well.hasBeenDefined(3));
@@ -590,8 +571,7 @@ BOOST_AUTO_TEST_CASE(addWELSPECS_setData_dataSet) {
 
 BOOST_AUTO_TEST_CASE(XHPLimitDefault) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
 
 
     Opm::WellProductionProperties productionProps(well.getProductionPropertiesCopy(1));
@@ -612,8 +592,7 @@ BOOST_AUTO_TEST_CASE(XHPLimitDefault) {
 
 BOOST_AUTO_TEST_CASE(InjectorType) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
 
     Opm::WellInjectionProperties injectionProps(well.getInjectionPropertiesCopy(1));
     injectionProps.injectorType = Opm::WellInjector::WATER;
@@ -628,12 +607,11 @@ BOOST_AUTO_TEST_CASE(InjectorType) {
 
 BOOST_AUTO_TEST_CASE(WellStatus) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(10);
-    Opm::EclipseGridConstPtr grid = std::make_shared<Opm::EclipseGrid>(20, 20, 20);
 
-    Opm::Well well("WELL1" , grid , 0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
+    Opm::Well well("WELL1" ,  0, 0, Opm::Value<double>("REF_DEPTH"), Opm::Phase::OIL, timeMap , 0);
 
     std::vector<Opm::CompletionPtr> newCompletions;
-    Opm::CompletionPtr comp1(new Opm::Completion( 10 , 10 , 10 , Opm::WellCompletion::OPEN , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
+    Opm::CompletionPtr comp1(new Opm::Completion( 10 , 10 , 10 , 0.25 , Opm::WellCompletion::OPEN , Opm::Value<double>("ConnectionTransmissibilityFactor",99.88), Opm::Value<double>("D",22.33), Opm::Value<double>("SKIN",33.22)));
 
     newCompletions.push_back( comp1 );
 
@@ -651,8 +629,7 @@ BOOST_AUTO_TEST_CASE(WellStatus) {
 BOOST_AUTO_TEST_CASE(WellHaveProductionControlLimit) {
 
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(20);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::OIL, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::OIL, timeMap, 0);
 
 
     BOOST_CHECK( !well.getProductionPropertiesCopy(1).hasProductionControl( Opm::WellProducer::ORAT ));
@@ -702,8 +679,7 @@ BOOST_AUTO_TEST_CASE(WellHaveProductionControlLimit) {
 BOOST_AUTO_TEST_CASE(WellHaveInjectionControlLimit) {
 
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(20);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
 
     BOOST_CHECK( !well.getInjectionPropertiesCopy(1).hasInjectionControl( Opm::WellInjector::RATE ));
     BOOST_CHECK( !well.getInjectionPropertiesCopy(1).hasInjectionControl( Opm::WellInjector::RESV ));
@@ -747,8 +723,7 @@ BOOST_AUTO_TEST_CASE(WellHaveInjectionControlLimit) {
 
 BOOST_AUTO_TEST_CASE(WellSetAvailableForGroupControl_ControlSet) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(20);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
 
     BOOST_CHECK(well.isAvailableForGroupControl(10));
     well.setAvailableForGroupControl(12, false);
@@ -759,8 +734,7 @@ BOOST_AUTO_TEST_CASE(WellSetAvailableForGroupControl_ControlSet) {
 
 BOOST_AUTO_TEST_CASE(WellSetGuideRate_GuideRateSet) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(20);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
 
     BOOST_CHECK_LT(well.getGuideRate(0), 0);
     well.setGuideRate(1, 32.2);
@@ -770,8 +744,7 @@ BOOST_AUTO_TEST_CASE(WellSetGuideRate_GuideRateSet) {
 
 BOOST_AUTO_TEST_CASE(WellGuideRatePhase_GuideRatePhaseSet) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(20);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
     BOOST_CHECK_EQUAL(Opm::GuideRate::UNDEFINED, well.getGuideRatePhase(0));
     well.setGuideRatePhase(3, Opm::GuideRate::RAT);
     BOOST_CHECK_EQUAL(Opm::GuideRate::UNDEFINED, well.getGuideRatePhase(2));
@@ -781,8 +754,7 @@ BOOST_AUTO_TEST_CASE(WellGuideRatePhase_GuideRatePhaseSet) {
 
 BOOST_AUTO_TEST_CASE(WellSetScalingFactor_ScalingFactorSetSet) {
     Opm::TimeMapPtr timeMap = createXDaysTimeMap(20);
-    std::shared_ptr<const Opm::EclipseGrid> grid = std::make_shared<const Opm::EclipseGrid>(10,10,10);
-    Opm::Well well("WELL1", grid , 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
+    Opm::Well well("WELL1", 1, 2, Opm::Value<double>("REF_DEPTH" , 2334.32), Opm::Phase::WATER, timeMap, 0);
     BOOST_CHECK_EQUAL(1.0, well.getGuideRateScalingFactor(0));
     well.setGuideRateScalingFactor(4, 0.6);
     BOOST_CHECK_EQUAL(1.0, well.getGuideRateScalingFactor(3));

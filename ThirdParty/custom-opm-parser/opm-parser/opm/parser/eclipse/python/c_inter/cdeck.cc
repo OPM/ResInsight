@@ -3,6 +3,16 @@
 
 extern "C" {
 
+    int                      deck_size( const Opm::Deck * deck );
+    Opm::Deck *              deck_alloc();
+    void                     deck_free( Opm::Deck * deck );
+    const Opm::DeckKeyword * deck_iget_keyword( const Opm::Deck * deck , int index);
+    const Opm::DeckKeyword * deck_iget_named_keyword( const Opm::Deck * deck , const char * keyword , int index);
+    bool                     deck_has_keyword( const Opm::Deck * deck , const char * keyword);
+    int                      deck_num_keywords( const Opm::Deck * deck , const char * keyword);
+
+    /*-----------------------------------------------------------------*/
+
     int deck_size( const Opm::Deck * deck ) {
         return static_cast<int>( deck->size() );
     }

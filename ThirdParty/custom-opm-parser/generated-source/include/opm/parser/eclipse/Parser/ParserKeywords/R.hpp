@@ -328,6 +328,19 @@ namespace ParserKeywords {
 
 
 
+   class RPTREGS : public ParserKeyword {
+   public:
+       RPTREGS();
+       static const std::string keywordName;
+
+       class MNEMONIC_LIST {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class RPTRST : public ParserKeyword {
    public:
        RPTRST();

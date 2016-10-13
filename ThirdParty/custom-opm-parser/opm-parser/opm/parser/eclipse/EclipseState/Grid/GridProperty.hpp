@@ -147,7 +147,32 @@ public:
       assembling the properties.
     */
     void runPostProcessor();
+     /*
+      Will scan through the roperty and return a vector of all the
+      indices where the property value agrees with the input value.
+     */
+     std::vector<size_t> indexEqual(T value) const;
 
+
+     /*
+       Will run through all the cells in the activeMap and return a
+       list of the elements where the property value agrees with the
+       input value. The values returned will be in the space
+       [0,nactive) - i.e. 'active' indices.
+     */
+     std::vector<size_t> cellsEqual(T value , const std::vector<int>& activeMap) const;
+
+     /*
+       If active == true the method will get the activeMap from the
+       grid and call the cellsEqual( T , std::vector<int>&) overload,
+       otherwise it will return indexEqual( value );
+     */
+     std::vector<size_t>  cellsEqual(T value, const EclipseGrid& grid, bool active = true)  const;
+
+    /*
+      Will return a std::vector<T> of the data in the active cells.
+    */
+     std::vector<T> compressedCopy( const EclipseGrid& grid) const;
 
 private:
     const DeckItem& getDeckItem( const DeckKeyword& );

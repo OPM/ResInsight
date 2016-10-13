@@ -199,17 +199,18 @@ namespace Opm {
                     } else
                         deckItem.push_back(readValueToken<ValueType>(st.valueString()));
 
+                    const auto value_start = token.size() - valueString.size();
                     // replace the first occurence of "N*FOO" by a sequence of N-1 times
-                    // "1*FOO". this is slightly hacky, but it makes it work if the
+                    // "FOO". this is slightly hacky, but it makes it work if the
                     // number of defaults pass item boundaries...
-                    std::string singleRepetition;
-                    if (st.hasValue())
-                        singleRepetition = st.valueString();
-                    else
-                        singleRepetition = "1*";
+                    // We can safely make a string_view of one_star because it
+                    // has static storage
+                    static const char* one_star = "1*";
+                    string_view rep = !st.hasValue()
+                                    ? string_view{ one_star }
+                                    : string_view{ token.begin() + value_start, token.end() };
 
-                    for (size_t i=0; i < st.count() - 1; i++)
-                        rawRecord.push_front(singleRepetition);
+                    rawRecord.prepend( st.count() - 1, rep );
                 } else {
                     deckItem.push_back( readValueToken<ValueType>( token ) );
                 }

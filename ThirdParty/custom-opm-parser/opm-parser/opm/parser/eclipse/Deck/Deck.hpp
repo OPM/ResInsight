@@ -120,6 +120,8 @@ namespace Opm {
             using iterator = std::vector< DeckKeyword >::iterator;
 
             Deck();
+            Deck( std::initializer_list< DeckKeyword > );
+            Deck( std::initializer_list< std::string > );
             void addKeyword( DeckKeyword&& keyword );
             void addKeyword( const DeckKeyword& keyword );
 

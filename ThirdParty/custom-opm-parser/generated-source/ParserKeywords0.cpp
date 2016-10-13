@@ -12,6 +12,7 @@ namespace Opm {
 namespace ParserKeywords {
 
 
+void addDefaultKeywords0(Parser& p);
 void addDefaultKeywords0(Parser& p) {
 p.addKeyword< ParserKeywords::ACTDIMS >();
 p.addKeyword< ParserKeywords::ACTNUM >();
@@ -20,8 +21,11 @@ p.addKeyword< ParserKeywords::ADDREG >();
 p.addKeyword< ParserKeywords::ADSALNOD >();
 p.addKeyword< ParserKeywords::ALL >();
 p.addKeyword< ParserKeywords::API >();
+p.addKeyword< ParserKeywords::AQUANCON >();
 p.addKeyword< ParserKeywords::AQUCON >();
 p.addKeyword< ParserKeywords::AQUDIMS >();
+p.addKeyword< ParserKeywords::AQUFETP >();
+p.addKeyword< ParserKeywords::AQUIFER_PROBE_ANALYTIC >();
 p.addKeyword< ParserKeywords::AQUNUM >();
 p.addKeyword< ParserKeywords::BLOCK_PROBE >();
 p.addKeyword< ParserKeywords::BLOCK_PROBE300 >();
@@ -40,6 +44,7 @@ p.addKeyword< ParserKeywords::CREF >();
 p.addKeyword< ParserKeywords::CREFS >();
 p.addKeyword< ParserKeywords::DATE >();
 p.addKeyword< ParserKeywords::DATES >();
+p.addKeyword< ParserKeywords::DATUM >();
 p.addKeyword< ParserKeywords::DENSITY >();
 p.addKeyword< ParserKeywords::DEPTH >();
 p.addKeyword< ParserKeywords::DEPTHZ >();
@@ -49,6 +54,7 @@ p.addKeyword< ParserKeywords::DREF >();
 p.addKeyword< ParserKeywords::DREFS >();
 p.addKeyword< ParserKeywords::DRSDT >();
 p.addKeyword< ParserKeywords::DRVDT >();
+p.addKeyword< ParserKeywords::DUMPFLUX >();
 p.addKeyword< ParserKeywords::DX >();
 p.addKeyword< ParserKeywords::DXV >();
 p.addKeyword< ParserKeywords::DY >();
@@ -94,7 +100,5 @@ p.addKeyword< ParserKeywords::GCONPROD >();
 p.addKeyword< ParserKeywords::GDORIENT >();
 p.addKeyword< ParserKeywords::GECON >();
 p.addKeyword< ParserKeywords::GEFAC >();
-p.addKeyword< ParserKeywords::GRID >();
-p.addKeyword< ParserKeywords::GRIDFILE >();
-p.addKeyword< ParserKeywords::GRIDOPTS >();
+p.addKeyword< ParserKeywords::GRAVITY >();
 }}}

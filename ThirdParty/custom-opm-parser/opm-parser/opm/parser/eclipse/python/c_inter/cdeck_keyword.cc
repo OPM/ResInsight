@@ -2,6 +2,13 @@
 
 extern "C" {
 
+    Opm::DeckKeyword *     deck_keyword_alloc( const char * name );
+    void                   deck_keyword_free( Opm::DeckKeyword * keyword );
+    const char *           deck_keyword_get_name( const Opm::DeckKeyword * keyword );
+    int                    deck_keyword_get_size( const Opm::DeckKeyword * keyword );
+    const Opm::DeckRecord* deck_keyword_iget_record( const Opm::DeckKeyword * keyword , int index);
+
+    /*-----------------------------------------------------------------*/
 
     Opm::DeckKeyword * deck_keyword_alloc( const char * name ) {
         auto keyword = new Opm::DeckKeyword( name );

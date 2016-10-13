@@ -3,20 +3,25 @@
 
 extern "C" {
 
+    Opm::ParseContext * parse_context_alloc();
+    void                parse_context_free( Opm::ParseContext * parse_context ) ;
+    void                parse_context_update( Opm::ParseContext * parse_context , const char * var , Opm::InputError::Action action);
 
-    Opm::ParseContext * parse_mode_alloc() {
-        Opm::ParseContext * parse_mode = new Opm::ParseContext( );
-        return parse_mode;
+    /*-----------------------------------------------------------------*/
+
+    Opm::ParseContext * parse_context_alloc() {
+        Opm::ParseContext * parse_context = new Opm::ParseContext( );
+        return parse_context;
     }
 
 
-    void parse_mode_free( Opm::ParseContext * parse_mode ) {
-        delete parse_mode;
+    void parse_context_free( Opm::ParseContext * parse_context ) {
+        delete parse_context;
     }
 
 
-    void parse_mode_update( Opm::ParseContext * parse_mode , const char * var , Opm::InputError::Action action) {
-        parse_mode->update( var , action );
+    void parse_context_update( Opm::ParseContext * parse_context , const char * var , Opm::InputError::Action action) {
+        parse_context->update( var , action );
     }
 
 }

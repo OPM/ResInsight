@@ -23,10 +23,8 @@
 
 #define BOOST_TEST_MODULE Eclipse3DPropertiesTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
@@ -46,6 +44,14 @@ static Opm::DeckPtr createDeck() {
             "DIMENS\n"
             " 10 10 10 /\n"
             "GRID\n"
+            "DX\n"
+            "1000*0.25 /\n"
+            "DY\n"
+            "1000*0.25 /\n"
+            "DZ\n"
+            "1000*0.25 /\n"
+            "TOPS\n"
+            "100*0.25 /\n"
             "FAULTS \n"
             "  'F1'  1  1  1  4   1  4  'X' / \n"
             "  'F2'  5  5  1  4   1  4  'X-' / \n"
@@ -74,6 +80,8 @@ static Opm::DeckPtr createDeck() {
     return parser->parseString(deckData, Opm::ParseContext());
 }
 
+
+
 static Opm::DeckPtr createValidIntDeck() {
     const char *deckData = "RUNSPEC\n"
             "GRIDOPTS\n"
@@ -82,6 +90,14 @@ static Opm::DeckPtr createValidIntDeck() {
             "DIMENS\n"
             " 5 5 1 /\n"
             "GRID\n"
+            "DX\n"
+            "25*0.25 /\n"
+            "DY\n"
+            "25*0.25 /\n"
+            "DZ\n"
+            "25*0.25 /\n"
+            "TOPS\n"
+            "25*0.25 /\n"
             "MULTNUM \n"
             "1  1  2  2 2\n"
             "1  1  2  2 2\n"
@@ -111,6 +127,14 @@ static Opm::DeckPtr createValidPERMXDeck() {
             "DIMENS\n"
             " 5 5 1 /\n"
             "GRID\n"
+            "DX\n"
+            "25*0.25 /\n"
+            "DY\n"
+            "25*0.25 /\n"
+            "DZ\n"
+            "25*0.25 /\n"
+            "TOPS\n"
+            "25*0.25 /\n"
             "MULTNUM \n"
             "1  1  2  2 2\n"
             "1  1  2  2 2\n"
@@ -131,8 +155,8 @@ static Opm::DeckPtr createValidPERMXDeck() {
             "PERMX\n"
             "25*1 /\n"
             "ADDREG\n"
-            "  PERMX 1 1     / \n"
-            "  PERMX 3 2     / \n"
+            "'PermX   '   1 1     / \n"
+            "PErmX   3 2     / \n"
             "/\n"
             "EDIT\n"
             "\n";
@@ -210,7 +234,6 @@ BOOST_AUTO_TEST_CASE(IntGridProperty) {
 BOOST_AUTO_TEST_CASE(AddregIntSetCorrectly) {
     Opm::DeckPtr deck = createValidIntDeck();
     Setup s(deck);
-
     const auto& property = s.props.getIntGridProperty("SATNUM");
     for (size_t j = 0; j < 5; j++)
         for (size_t i = 0; i < 5; i++) {
@@ -236,6 +259,33 @@ BOOST_AUTO_TEST_CASE(PermxUnitAppliedCorrectly) {
         }
 }
 
+BOOST_AUTO_TEST_CASE(DoubleIterator) {
+    Opm::DeckPtr deck = createValidPERMXDeck();
+    Setup s(deck);
+    const auto& doubleProperties = s.props.getDoubleProperties();
+    std::vector<std::string> kw_list;
+    for (const auto& prop : doubleProperties )
+        kw_list.push_back( prop.getKeywordName() );
+
+    BOOST_CHECK_EQUAL( 2 , kw_list.size() );
+    BOOST_CHECK( std::find( kw_list.begin() , kw_list.end() , "PERMX") != kw_list.end());
+    BOOST_CHECK( std::find( kw_list.begin() , kw_list.end() , "PERMZ") != kw_list.end());
+}
+
+
+BOOST_AUTO_TEST_CASE(IntIterator) {
+    Opm::DeckPtr deck = createValidPERMXDeck();
+    Setup s(deck);
+    const auto& intProperties = s.props.getIntProperties();
+    std::vector<std::string> kw_list;
+    for (const auto& prop : intProperties )
+        kw_list.push_back( prop.getKeywordName() );
+
+    BOOST_CHECK_EQUAL( 1 , kw_list.size() );
+    BOOST_CHECK_EQUAL( kw_list[0] , "MULTNUM" );
+}
+
+
 BOOST_AUTO_TEST_CASE(getRegions) {
     const char* input =
             "START             -- 0 \n"
@@ -245,9 +295,14 @@ BOOST_AUTO_TEST_CASE(getRegions) {
             "DIMENS\n"
             " 2 2 1 /\n"
             "GRID\n"
-            "DXV \n 2*400 /\n"
-            "DYV \n 2*400 /\n"
-            "DZV \n 1*400 /\n"
+            "DX\n"
+            "4*0.25 /\n"
+            "DY\n"
+            "4*0.25 /\n"
+            "DZ\n"
+            "4*0.25 /\n"
+            "TOPS\n"
+            "4*0.25 /\n"
             "REGIONS\n"
             "FIPNUM\n"
             "1 1 2 3 /\n";

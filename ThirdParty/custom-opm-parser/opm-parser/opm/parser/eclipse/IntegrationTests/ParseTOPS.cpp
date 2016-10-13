@@ -20,10 +20,8 @@
 #define BOOST_TEST_MODULE ParserIntegrationTests
 #include <math.h>
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 #include <opm/parser/eclipse/Parser/Parser.hpp>
@@ -42,7 +40,7 @@ BOOST_AUTO_TEST_CASE( PARSE_TOPS_OK) {
     std::string deckFile("testdata/integration_tests/GRID/TOPS.DATA");
     ParseContext parseContext;
     DeckPtr deck =  parser->parseFile(deckFile, parseContext);
-    EclipseState state(deck , parseContext);
+    EclipseState state(*deck , parseContext);
     EclipseGridConstPtr grid = state.getInputGrid();
 
     BOOST_CHECK_EQUAL( grid->getNX() , 9 );

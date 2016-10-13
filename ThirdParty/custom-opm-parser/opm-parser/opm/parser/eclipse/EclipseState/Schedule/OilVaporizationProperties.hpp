@@ -32,14 +32,12 @@ namespace Opm
      * Any one of the three keywords {VAPPARS, DRSDT, DRVDT} will cancel previous settings of the other keywords.
      * Ask for type first and the ask for the correct values for this type, asking for values not valid for the current type will throw a logic exception.
      */
-    class OilVaporizationProperties
-    {
+    class OilVaporizationProperties {
     public:
+        static OilVaporizationProperties createDRSDT(double maxDRSDT, std::string option);
+        static OilVaporizationProperties createDRVDT(double maxDRVDT);
+        static OilVaporizationProperties createVAPPARS(double vap1, double vap2);
 
-
-        static std::shared_ptr<OilVaporizationProperties> createOilVaporizationPropertiesDRSDT(double maxDRSDT, std::string option);
-        static std::shared_ptr<OilVaporizationProperties> createOilVaporizationPropertiesDRVDT(double maxDRVDT);
-        static std::shared_ptr<OilVaporizationProperties> createOilVaporizationPropertiesVAPPARS(double vap1, double vap2);
         Opm::OilVaporizationEnum getType() const;
         double getVap1() const;
         double getVap2() const;
@@ -47,16 +45,20 @@ namespace Opm
         double getMaxDRVDT() const;
         bool getOption() const;
 
+        /*
+         * if either argument was default constructed == will always be false
+         * and != will always be true
+         */
+        bool operator==( const OilVaporizationProperties& ) const;
+        bool operator!=( const OilVaporizationProperties& ) const;
+
     private:
-        OilVaporizationProperties();
-        Opm::OilVaporizationEnum m_type;
+        Opm::OilVaporizationEnum m_type = OilVaporizationEnum::UNDEF;
         double m_vap1;
         double m_vap2;
         double m_maxDRSDT;
         double m_maxDRVDT;
         bool m_maxDRSDT_allCells;
     };
-    typedef std::shared_ptr<OilVaporizationProperties> OilVaporizationPropertiesPtr;
-    typedef std::shared_ptr<const OilVaporizationProperties> OilVaporizationPropertiesConstPtr;
 }
 #endif // DRSDT_H

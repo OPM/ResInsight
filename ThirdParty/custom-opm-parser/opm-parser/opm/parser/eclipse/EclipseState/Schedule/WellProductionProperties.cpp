@@ -49,8 +49,9 @@ namespace Opm {
         WellProductionProperties p(record);
         p.predictionMode = false;
 
-        for (auto const& modeKey : {"ORAT", "WRAT", "GRAT", "LRAT", "RESV", "GRUP"}) {
-            auto cmode = WellProducer::ControlModeFromString( modeKey );
+        namespace wp = WellProducer;
+        for( auto cmode : { wp::ORAT, wp::WRAT, wp::GRAT,
+                            wp::LRAT, wp::RESV, wp::GRUP } ) {
             p.addProductionControl( cmode );
         }
 
@@ -67,7 +68,7 @@ namespace Opm {
 
         const auto& cmodeItem = record.getItem("CMODE");
         if (!cmodeItem.defaultApplied(0)) {
-            const WellProducer::ControlModeEnum cmode = WellProducer::ControlModeFromString( cmodeItem.get< std::string >(0) );
+            const auto cmode = WellProducer::ControlModeFromString( cmodeItem.getTrimmedString( 0 ) );
 
             if (p.hasProductionControl( cmode ))
                 p.controlMode = cmode;
@@ -92,11 +93,17 @@ namespace Opm {
         p.ALQValue       = record.getItem("ALQ"      ).get< double >(0); //NOTE: Unit of ALQ is never touched
         p.VFPTableNumber = record.getItem("VFP_TABLE").get< int >(0);
 
-        for (auto const& modeKey : {"ORAT", "WRAT", "GRAT", "LRAT","RESV", "BHP" , "THP"}) {
-             if (!record.getItem(modeKey).defaultApplied(0)) {
-                 auto cmode = WellProducer::ControlModeFromString( modeKey );
-                 p.addProductionControl( cmode );
-            }
+        namespace wp = WellProducer;
+        using mode = std::pair< const char*, wp::ControlModeEnum >;
+        static const mode modes[] = {
+            { "ORAT", wp::ORAT }, { "WRAT", wp::WRAT }, { "GRAT", wp::GRAT },
+            { "LRAT", wp::LRAT }, { "RESV", wp::RESV }, { "BHP", wp::BHP },
+            { "THP", wp::THP }
+        };
+
+        for( const auto& cmode : modes ) {
+            if( !record.getItem( cmode.first ).defaultApplied( 0 ) )
+                 p.addProductionControl( cmode.second );
         }
 
         if (addGroupProductionControl) {
@@ -107,7 +114,7 @@ namespace Opm {
         {
             const auto& cmodeItem = record.getItem("CMODE");
             if (cmodeItem.hasValue(0)) {
-                const WellProducer::ControlModeEnum cmode = WellProducer::ControlModeFromString( cmodeItem.get< std::string >(0) );
+                const WellProducer::ControlModeEnum cmode = WellProducer::ControlModeFromString( cmodeItem.getTrimmedString(0) );
 
                 if (p.hasProductionControl( cmode ))
                     p.controlMode = cmode;

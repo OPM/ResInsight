@@ -16,8 +16,8 @@
   You should have received a copy of the GNU General Public License
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef FAULT_FACE_HPP_
-#define FAULT_FACE_HPP_
+#ifndef OPM_PARSER_FAULT_FACE_HPP
+#define OPM_PARSER_FAULT_FACE_HPP
 
 #include <cstddef>
 #include <vector>
@@ -48,4 +48,4 @@ private:
 
 }
 
-#endif
+#endif // OPM_PARSER_FAULT_FACE_HPP

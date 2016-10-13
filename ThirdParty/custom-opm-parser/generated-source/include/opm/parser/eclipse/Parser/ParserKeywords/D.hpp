@@ -41,6 +41,19 @@ namespace ParserKeywords {
 
 
 
+   class DATUM : public ParserKeyword {
+   public:
+       DATUM();
+       static const std::string keywordName;
+
+       class DEPTH {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class DENSITY : public ParserKeyword {
    public:
        DENSITY();
@@ -178,6 +191,14 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
        };
+   };
+
+
+
+   class DUMPFLUX : public ParserKeyword {
+   public:
+       DUMPFLUX();
+       static const std::string keywordName;
    };
 
 

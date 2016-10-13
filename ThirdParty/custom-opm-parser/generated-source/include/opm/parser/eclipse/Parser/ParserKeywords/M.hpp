@@ -494,6 +494,30 @@ namespace ParserKeywords {
 
 
 
+   class MULTREGP : public ParserKeyword {
+   public:
+       MULTREGP();
+       static const std::string keywordName;
+
+       class REGION {
+       public:
+           static const std::string itemName;
+       };
+
+       class MULTIPLIER {
+       public:
+           static const std::string itemName;
+       };
+
+       class REGION_TYPE {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+   };
+
+
+
    class MULTREGT : public ParserKeyword {
    public:
        MULTREGT();

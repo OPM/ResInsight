@@ -1,11 +1,11 @@
-from ert.cwrap import BaseCClass, CWrapper
+from cwrap import BaseCClass, CWrapper
 from opm import OPMPrototype
 
 class ParseContext(BaseCClass):
-    TYPE_NAME = "parse_mode"
-    _alloc    = OPMPrototype("void* parse_mode_alloc()", bind = False)
-    _free     = OPMPrototype("void  parse_mode_free(parse_mode)")
-    _update   = OPMPrototype("void  parse_mode_update(parse_mode, char* , error_action_enum)")
+    TYPE_NAME = "parse_context"
+    _alloc    = OPMPrototype("void* parse_context_alloc()", bind = False)
+    _free     = OPMPrototype("void  parse_context_free(parse_context)")
+    _update   = OPMPrototype("void  parse_context_update(parse_context, char* , error_action_enum)")
     
     def __init__(self):
         c_ptr = self._alloc()

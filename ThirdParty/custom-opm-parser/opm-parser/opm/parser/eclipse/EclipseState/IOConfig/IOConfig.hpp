@@ -30,8 +30,6 @@ namespace Opm {
     class DeckKeyword;
     class GRIDSection;
     class RUNSPECSection;
-    class SCHEDULESection;
-    class SOLUTIONSection;
     class TimeMap;
     class Schedule;
 
@@ -124,9 +122,8 @@ namespace Opm {
         explicit IOConfig( const Deck& );
         explicit IOConfig( const std::string& input_path );
 
-        int  getFirstRestartStep() const;
+
         int  getFirstRFTStep() const;
-        bool getWriteRestartFile(size_t timestep) const;
         bool getWriteEGRIDFile() const;
         bool getWriteINITFile() const;
         bool getUNIFOUT() const;
@@ -135,52 +132,40 @@ namespace Opm {
         bool getFMTOUT() const;
         const std::string& getEclipseInputPath() const;
 
-        void overrideRestartWriteInterval(size_t interval);
+        void overrideNOSIM(bool nosim);
 
-        void handleSolutionSection(std::shared_ptr< const TimeMap > timemap, std::shared_ptr<const SOLUTIONSection> solutionSection);
-        void setWriteInitialRestartFile(bool writeInitialRestartFile);
 
-        /// This method will internalize variables with information of
-        /// the first report step with restart and rft output
-        /// respectively. This information is important because right
-        /// at the first output step we must reset the files to size
-        /// zero, for subsequent output steps we should append.
-        void initFirstOutput(const Schedule& schedule);
 
         boost::gregorian::date getTimestepDate(size_t timestep) const;
-        void dumpRestartConfig() const;
 
         std::string getRestartFileName(const std::string& restart_base, int report_step, bool output) const;
 
         bool getOutputEnabled();
         void setOutputEnabled(bool enabled);
 
-        std::string getOutputDir();
+        std::string getOutputDir() const;
         void setOutputDir(const std::string& outputDir);
 
         const std::string& getBaseName() const;
         void setBaseName(std::string baseName);
 
+        /// Return a string consisting of outputpath and basename;
+        /// i.e. /path/to/sim/CASE
+        std::string fullBasePath( ) const;
+
+        bool initOnly() const;
+        void initFirstRFTOutput(const Schedule& schedule);
+
+        // Proxy methods forwarding directly to corresponding RestartConfig
+        bool getWriteRestartFile(size_t timestep) const;
+        int  getFirstRestartStep() const;
+        void overrideRestartWriteInterval(size_t interval);
+        void setWriteInitialRestartFile(bool writeInitialRestartFile);
+
     private:
-
-        IOConfig( const GRIDSection&,
-                  const RUNSPECSection&,
-                  const SCHEDULESection&,
-                  std::shared_ptr< const TimeMap >,
-                  const std::string& input_path );
-
-        void assertTimeMap(std::shared_ptr< const TimeMap > timemap);
-        bool getWriteRestartFileFrequency(size_t timestep,
-                                          size_t start_timestep,
-                                          size_t frequency,
-                                          bool years  = false,
-                                          bool months = false) const;
-        void handleRPTSOL( const DeckKeyword& keyword);
-
         std::shared_ptr< const TimeMap > m_timemap;
         bool            m_write_INIT_file = false;
         bool            m_write_EGRID_file = true;
-        bool            m_write_initial_RST_file = false;
         bool            m_UNIFIN = false;
         bool            m_UNIFOUT = false;
         bool            m_FMTIN = false;
@@ -191,57 +176,13 @@ namespace Opm {
         bool            m_output_enabled = true;
         std::string     m_output_dir;
         std::string     m_base_name;
+        bool            m_nosim;
 
-        struct restartConfig {
-            /*
-              The content of this struct is logically divided in two; either the
-              restart behaviour is governed by { timestep , basic , frequency }, or
-              alternatively by { rptshec_restart_set , rptsched_restart }.
-
-              The former triplet is mainly governed by the RPTRST keyword and the
-              latter pair by the RPTSCHED keyword.
-            */
-            size_t timestep = 0;
-            size_t basic = 0;
-            size_t frequency = 0;
-            bool   rptsched_restart_set = false;
-            size_t rptsched_restart = 0;
-
-            restartConfig() = default;
-            restartConfig( size_t sched_restart ) :
-                rptsched_restart_set( true ),
-                rptsched_restart( sched_restart )
-            {}
-
-            restartConfig( size_t step, size_t b, size_t freq ) :
-                timestep( step ),
-                basic( b ),
-                frequency( freq )
-            {}
-
-            bool operator!=(const restartConfig& rhs) const {
-                return !( *this == rhs );
-            }
-
-            bool operator==( const restartConfig& rhs ) const {
-                if( this->rptsched_restart_set ) {
-                    return rhs.rptsched_restart_set
-                        && this->rptsched_restart == rhs.rptsched_restart;
-                }
-
-                return this->timestep == rhs.timestep &&
-                       this->basic == rhs.basic &&
-                       this->frequency == rhs.frequency;
-            }
-        };
-
-        static DynamicState< restartConfig > rstconf( const SCHEDULESection&,
-                                                      std::shared_ptr< const TimeMap > );
-        static restartConfig rptrst( const DeckKeyword&, size_t );
-        static restartConfig rptsched( const DeckKeyword& );
-
-        std::shared_ptr<DynamicState<restartConfig>> m_restart_output_config;
-
+        IOConfig( const GRIDSection&,
+                  const RUNSPECSection&,
+                  std::shared_ptr< const TimeMap >,
+                  bool nosim,
+                  const std::string& input_path );
 
     };
 

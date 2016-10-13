@@ -410,6 +410,135 @@ namespace ParserKeywords {
 
 
 
+   class WDRILTIM : public ParserKeyword {
+   public:
+       WDRILTIM();
+       static const std::string keywordName;
+
+       class WELL {
+       public:
+           static const std::string itemName;
+       };
+
+       class DRILL_TIME {
+       public:
+           static const std::string itemName;
+       };
+
+       class WORKOVER_CLOSE {
+       public:
+           static const std::string itemName;
+       };
+
+       class COMPARTMENT {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class WECON : public ParserKeyword {
+   public:
+       WECON();
+       static const std::string keywordName;
+
+       class WELL {
+       public:
+           static const std::string itemName;
+       };
+
+       class MIN_OIL_PRODUCTION {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MIN_GAS_PRODUCTION {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAX_WATER_CUT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAX_GAS_OIL_RATIO {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAX_WATER_GAS_RATIO {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class WORKOVER_RATIO_LIMIT {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class END_RUN_FLAG {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class FOLLOW_ON_WELL {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class LIMITED_QUANTITY {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class SECOND_MAX_WATER_CUT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class WORKOVER_SECOND_WATER_CUT_LIMIT {
+       public:
+           static const std::string itemName;
+       };
+
+       class MAX_GAS_LIQUID_RATIO {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MIN_LIQUID_PRODCUTION_RATE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAX_TEMP {
+       public:
+           static const std::string itemName;
+       };
+
+       class MIN_RES_FLUID_RATE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
    class WELLDIMS : public ParserKeyword {
    public:
        WELLDIMS();
@@ -850,6 +979,69 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
            static const std::string defaultValue;
+       };
+   };
+
+
+
+   class WLIFT : public ParserKeyword {
+   public:
+       WLIFT();
+       static const std::string keywordName;
+
+       class WELL {
+       public:
+           static const std::string itemName;
+       };
+
+       class TRIGGER_LIMIT {
+       public:
+           static const std::string itemName;
+       };
+
+       class TRIGGRE_PHASE {
+       public:
+           static const std::string itemName;
+       };
+
+       class NEW_VFP_TABLE {
+       public:
+           static const std::string itemName;
+       };
+
+       class NEW_ALQ_VALUE {
+       public:
+           static const std::string itemName;
+       };
+
+       class NEW_WEFAC {
+       public:
+           static const std::string itemName;
+       };
+
+       class WWCT_LIMIT {
+       public:
+           static const std::string itemName;
+       };
+
+       class NEW_THP_LIMIT {
+       public:
+           static const std::string itemName;
+       };
+
+       class WGOR_LIMIT {
+       public:
+           static const std::string itemName;
+       };
+
+       class ALQ_SHIFT {
+       public:
+           static const std::string itemName;
+       };
+
+       class THP_SHIFT {
+       public:
+           static const std::string itemName;
        };
    };
 

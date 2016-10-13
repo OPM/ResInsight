@@ -707,10 +707,11 @@ namespace Opm {
         const bool useEnptvd = tableManager->useEnptvd();
         const auto& enptvdTables = tableManager->getEnptvdTables();
 
-        for( size_t cellIdx = 0; cellIdx < eclipseGrid->getCartesianSize(); cellIdx++ ) {
+        const auto gridsize = eclipseGrid->getCartesianSize();
+        for( size_t cellIdx = 0; cellIdx < gridsize; cellIdx++ ) {
             int satTableIdx = satnum.iget( cellIdx ) - 1;
             int endNum = endnum.iget( cellIdx ) - 1;
-            double cellDepth = std::get< 2 >( eclipseGrid->getCellCenter( cellIdx ) );
+            double cellDepth = eclipseGrid->getCellDepth( cellIdx );
 
 
             values[cellIdx] = selectValue(enptvdTables,
@@ -748,10 +749,11 @@ namespace Opm {
         // assign a NaN in this case...
         const bool useImptvd = tableManager->useImptvd();
         const TableContainer& imptvdTables = tableManager->getImptvdTables();
-        for( size_t cellIdx = 0; cellIdx < eclipseGrid->getCartesianSize(); cellIdx++ ) {
+        const auto gridsize = eclipseGrid->getCartesianSize();
+        for( size_t cellIdx = 0; cellIdx < gridsize; cellIdx++ ) {
             int imbTableIdx = imbnum.iget( cellIdx ) - 1;
             int endNum = endnum.iget( cellIdx ) - 1;
-            double cellDepth = std::get< 2 >( eclipseGrid->getCellCenter( cellIdx ) );
+            double cellDepth = eclipseGrid->getCellDepth( cellIdx );
 
             values[cellIdx] = selectValue(imptvdTables,
                                                 (useImptvd && endNum >= 0) ? endNum : -1,

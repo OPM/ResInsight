@@ -20,9 +20,7 @@
 
 #define BOOST_TEST_MODULE ParserTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/json/JsonObject.hpp>
 
@@ -40,6 +38,7 @@
 
 using namespace Opm;
 
+namespace {
 
 std::shared_ptr<ParserKeyword> createFixedSized(const std::string& kw , size_t size) {
     std::shared_ptr<ParserKeyword> pkw = std::make_shared<ParserKeyword>(kw);
@@ -64,6 +63,7 @@ std::shared_ptr<ParserKeyword> createTable(const std::string& name,
     return pkw;
 }
 
+}
 
 BOOST_AUTO_TEST_CASE(construct_withname_nameSet) {
     ParserKeywordConstPtr parserKeyword = createDynamicSized("BPR");

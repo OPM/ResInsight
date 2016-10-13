@@ -42,19 +42,19 @@ BOOST_AUTO_TEST_CASE(MULTFLT_IN_SCHEDULE) {
     ParserPtr parser(new Parser());
     std::string scheduleFile("testdata/integration_tests/TRANS/Deck1");
     ParseContext parseContext;
-    DeckPtr deck =  parser->parseFile(scheduleFile, parseContext);
-    std::shared_ptr<EclipseState> eclState = std::make_shared<EclipseState>( deck , parseContext );
-    std::shared_ptr<const TransMult> trans = eclState->getTransMult();
-    std::shared_ptr<const Schedule> schedule = eclState->getSchedule();
+    DeckPtr deck = parser->parseFile(scheduleFile, parseContext);
+    EclipseState state(*deck, parseContext);
+    const auto& trans = state.getTransMult();
+    std::shared_ptr<const Schedule> schedule = state.getSchedule();
     const Events& events = schedule->getEvents();
 
-    BOOST_CHECK_EQUAL( 0.10 , trans->getMultiplier( 3,2,0,FaceDir::XPlus ));
-    BOOST_CHECK_EQUAL( 0.10 , trans->getMultiplier( 2,2,0,FaceDir::XPlus ));
+    BOOST_CHECK_EQUAL( 0.10 , trans.getMultiplier( 3,2,0,FaceDir::XPlus ));
+    BOOST_CHECK_EQUAL( 0.10 , trans.getMultiplier( 2,2,0,FaceDir::XPlus ));
     BOOST_CHECK( events.hasEvent( ScheduleEvents::GEO_MODIFIER , 3 ) );
     {
         std::shared_ptr<const Deck> mini_deck = schedule->getModifierDeck(3);
-        eclState->applyModifierDeck( *mini_deck );
+        state.applyModifierDeck( *mini_deck );
     }
-    BOOST_CHECK_EQUAL( 2.00 , trans->getMultiplier( 2,2,0,FaceDir::XPlus ));
-    BOOST_CHECK_EQUAL( 0.10 , trans->getMultiplier( 3,2,0,FaceDir::XPlus ));
+    BOOST_CHECK_EQUAL( 2.00 , trans.getMultiplier( 2,2,0,FaceDir::XPlus ));
+    BOOST_CHECK_EQUAL( 0.10 , trans.getMultiplier( 3,2,0,FaceDir::XPlus ));
 }

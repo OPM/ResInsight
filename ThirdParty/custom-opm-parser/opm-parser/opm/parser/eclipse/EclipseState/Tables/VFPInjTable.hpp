@@ -23,11 +23,9 @@
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 
 #include <boost/multi_array.hpp>
 
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 namespace Opm {
 

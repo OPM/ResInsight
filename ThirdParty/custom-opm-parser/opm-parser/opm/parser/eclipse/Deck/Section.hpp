@@ -35,6 +35,7 @@ class Section : public DeckView {
 
         Section( const Deck& deck, const std::string& startKeyword );
         const std::string& name() const;
+        const UnitSystem& unitSystem() const;
 
         static bool hasRUNSPEC( const Deck& );
         static bool hasGRID( const Deck& );
@@ -53,42 +54,56 @@ class Section : public DeckView {
 
     private:
         std::string section_name;
+        const UnitSystem& units;
 
     };
 
     class RUNSPECSection : public Section {
     public:
+        using Section::const_iterator;
         RUNSPECSection(const Deck& deck) : Section(deck, "RUNSPEC") {}
     };
 
     class GRIDSection : public Section {
     public:
+        using Section::const_iterator;
         GRIDSection(const Deck& deck) : Section(deck, "GRID") {}
     };
 
     class EDITSection : public Section {
     public:
+        using Section::const_iterator;
         EDITSection(const Deck& deck) : Section(deck, "EDIT") {}
     };
 
     class PROPSSection : public Section {
     public:
+        using Section::const_iterator;
         PROPSSection(const Deck& deck) : Section(deck, "PROPS") {}
     };
 
     class REGIONSSection : public Section {
     public:
+        using Section::const_iterator;
         REGIONSSection(const Deck& deck) : Section(deck, "REGIONS") {}
     };
 
     class SOLUTIONSection : public Section {
     public:
+        using Section::const_iterator;
         SOLUTIONSection(const Deck& deck) : Section(deck, "SOLUTION") {}
     };
 
     class SUMMARYSection : public Section {
     public:
+        using Section::const_iterator;
         SUMMARYSection(const Deck& deck) : Section(deck, "SUMMARY") {}
+    };
+
+    class SCHEDULESection : public Section {
+    public:
+        using Section::const_iterator;
+        SCHEDULESection(const Deck& deck) : Section(deck, "SCHEDULE") {}
     };
 }
 

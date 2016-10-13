@@ -36,32 +36,32 @@ namespace Opm {
     template< typename T >
     static std::function< std::vector< T >( size_t ) > constant( T val ) {
         return [=]( size_t size ) { return std::vector< T >( size, val ); };
-    };
+    }
 
     template< typename T >
     static std::function< void( std::vector< T >& ) > noop() {
         return []( std::vector< T >& ) { return; };
-    };
+    }
 
     template< typename T >
     GridPropertySupportedKeywordInfo< T >::GridPropertySupportedKeywordInfo(
             const std::string& name,
-            std::function< std::vector< T >( size_t ) > initializer,
-            std::function< void( std::vector< T >& ) > postProcessor,
+            std::function< std::vector< T >( size_t ) > init,
+            std::function< void( std::vector< T >& ) > post,
             const std::string& dimString ) :
         m_keywordName( name ),
-        m_initializer( initializer ),
-        m_postProcessor( postProcessor ),
+        m_initializer( init ),
+        m_postProcessor( post ),
         m_dimensionString( dimString )
     {}
 
     template< typename T >
     GridPropertySupportedKeywordInfo< T >::GridPropertySupportedKeywordInfo(
             const std::string& name,
-            std::function< std::vector< T >( size_t ) > initializer,
+            std::function< std::vector< T >( size_t ) > init,
             const std::string& dimString ) :
         m_keywordName( name ),
-        m_initializer( initializer ),
+        m_initializer( init ),
         m_postProcessor( noop< T >() ),
         m_dimensionString( dimString )
     {}
@@ -81,11 +81,11 @@ namespace Opm {
     GridPropertySupportedKeywordInfo< T >::GridPropertySupportedKeywordInfo(
             const std::string& name,
             const T defaultValue,
-            std::function< void( std::vector< T >& ) > postProcessor,
+            std::function< void( std::vector< T >& ) > post,
             const std::string& dimString ) :
         m_keywordName( name ),
         m_initializer( constant( defaultValue ) ),
-        m_postProcessor( postProcessor ),
+        m_postProcessor( post ),
         m_dimensionString( dimString )
     {}
 
@@ -141,11 +141,7 @@ namespace Opm {
 
     template< typename T >
     T GridProperty< T >::iget( size_t index ) const {
-        if (index < m_data.size()) {
-            return m_data[index];
-        } else {
-            throw std::invalid_argument("Index out of range \n");
-        }
+        return this->m_data.at( index );
     }
 
     template< typename T >
@@ -156,10 +152,7 @@ namespace Opm {
 
     template< typename T >
     void GridProperty< T >::iset(size_t index, T value) {
-        if (index < m_data.size())
-            m_data[index] = value;
-        else
-            throw std::invalid_argument("Index out of range \n");
+        this->m_data.at( index ) = value;
     }
 
     template< typename T >
@@ -412,6 +405,48 @@ const std::string& GridProperty<double>::getDimensionString() const {
     return m_kwInfo.getDimensionString();
 }
 
+
+template<typename T>
+std::vector<T> GridProperty<T>::compressedCopy(const EclipseGrid& grid) const {
+    if (grid.allActive())
+        return m_data;
+    else {
+        return grid.compressedVector( m_data );
+    }
+}
+
+
+
+template<typename T>
+std::vector<size_t> GridProperty<T>::cellsEqual(T value, const std::vector<int>& activeMap) const {
+    std::vector<size_t> cells;
+    for (size_t active_index = 0; active_index < activeMap.size(); active_index++) {
+        size_t global_index = activeMap[ active_index ];
+        if (m_data[global_index] == value)
+            cells.push_back( active_index );
+    }
+    return cells;
+}
+
+
+template<typename T>
+std::vector<size_t> GridProperty<T>::indexEqual(T value) const {
+    std::vector<size_t> index_list;
+    for (size_t index = 0; index < m_data.size(); index++) {
+        if (m_data[index] == value)
+            index_list.push_back( index );
+    }
+    return index_list;
+}
+
+
+template<typename T>
+std::vector<size_t> GridProperty<T>::cellsEqual(T value, const EclipseGrid& grid, bool active) const {
+    if (active)
+        return cellsEqual( value , grid.getActiveMap());
+    else
+        return indexEqual( value );
+}
 
 std::vector< double > temperature_lookup( size_t size,
                                             const TableManager* tables,

@@ -68,6 +68,12 @@ namespace Opm {
         }
 
 
+        const T& back() const {
+            if (m_data.size() > 0)
+                return m_data.back();
+            else
+                return m_initialValue;
+        }
 
         const T& at(size_t index) const {
             if (index >= m_timeMap->size())
@@ -85,14 +91,8 @@ namespace Opm {
         }
 
 
-        T get(size_t index) const {
-            if (index >= m_timeMap->size())
-                throw std::range_error("Index value is out range.");
-
-            if (index >= m_data.size())
-                return m_currentValue;
-
-            return m_data[index];
+        const T& get(size_t index) const {
+            return this->at( index );
         }
 
 

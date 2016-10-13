@@ -47,7 +47,7 @@ namespace Opm {
         // keyword was specified)
         if (deck.hasKeyword("START")) {
             const auto& keyword = deck.getKeyword("START");
-            startTime = timeFromEclipse(keyword.getRecord(/*index=*/0));
+            startTime = timeFromEclipse(keyword.getRecord(0));
         }
 
         m_timeList.push_back( startTime );
@@ -68,9 +68,6 @@ namespace Opm {
             else if (keyword.name() == "DATES")
                 addFromDATESKeyword(keyword);
         }
-
-        this->initFirstTimestepsYears();
-        this->initFirstTimestepsMonths();
     }
 
     size_t TimeMap::numTimesteps() const {
@@ -82,6 +79,9 @@ namespace Opm {
         return m_timeList[tStepIdx];
     }
 
+    boost::posix_time::ptime TimeMap::getEndTime() const {
+        return m_timeList.back();
+    }
 
     double TimeMap::getTotalTime() const
     {
@@ -91,21 +91,29 @@ namespace Opm {
         return static_cast<double>(deltaT.total_milliseconds())/1000.0;
     }
 
+
     void TimeMap::addTime(boost::posix_time::ptime newTime) {
         boost::posix_time::ptime lastTime = m_timeList.back();
-        if (newTime > lastTime)
+        size_t step = m_timeList.size();
+        if (newTime > lastTime) {
+            boost::gregorian::date new_date = newTime.date();
+            boost::gregorian::date prev_date = lastTime.date();
+
+            if (new_date.month() != prev_date.month())
+              m_first_timestep_months.push_back(step);
+
+            if (new_date.year() != prev_date.year())
+                m_first_timestep_years.push_back( step );
+
             m_timeList.push_back( newTime );
-        else
+        } else
             throw std::invalid_argument("Times added must be in strictly increasing order.");
     }
 
 
     void TimeMap::addTStep(boost::posix_time::time_duration step) {
-        if (step.total_seconds() > 0) {
-          boost::posix_time::ptime newTime = m_timeList.back() + step;
-          m_timeList.push_back( newTime );
-        } else
-          throw std::invalid_argument("Can only add positive steps");
+        boost::posix_time::ptime newTime = m_timeList.back() + step;
+        addTime(newTime);
     }
 
 
@@ -291,58 +299,14 @@ namespace Opm {
 
 
 
-    void TimeMap::initFirstTimestepsMonths() {
-        m_first_timestep_months.clear();
-
-        const boost::posix_time::ptime& ptime_prev = getStartTime(0);
-        boost::gregorian::date prev_date = ptime_prev.date();
-
-        for (size_t rstep = 0; rstep < m_timeList.size(); ++rstep) {
-            const boost::posix_time::ptime& ptime_cur = getStartTime(rstep);
-            boost::gregorian::date cur_date = ptime_cur.date();
-
-            if (cur_date.month() != prev_date.month()) {
-                m_first_timestep_months.push_back(rstep);
-                prev_date = cur_date;
-            } else if (cur_date.year() != prev_date.year()) { //Same month but different year
-                m_first_timestep_months.push_back(rstep);
-                prev_date = cur_date;
-            }
-        }
-    }
-
-
-    void TimeMap::initFirstTimestepsYears()  {
-
-        m_first_timestep_years.clear();
-
-        const boost::posix_time::ptime& ptime_prev = getStartTime(0);
-        boost::gregorian::date prev_date = ptime_prev.date();
-
-        for (size_t rstep = 0; rstep < m_timeList.size(); ++rstep) {
-            const boost::posix_time::ptime& ptime_cur = getStartTime(rstep);
-            boost::gregorian::date cur_date = ptime_cur.date();
-
-            if (cur_date.year() != prev_date.year()) {
-                m_first_timestep_years.push_back(rstep);
-                prev_date = cur_date;
-            }
-        }
-    }
 
 
     const std::vector<size_t>& TimeMap::getFirstTimestepMonths() const {
-        if (m_first_timestep_months.size() == 0) {
-            throw std::runtime_error("TimeMap vector m_first_timestep_months not initialized");
-        }
         return m_first_timestep_months;
     }
 
 
     const std::vector<size_t>& TimeMap::getFirstTimestepYears() const {
-        if (m_first_timestep_years.size() == 0) {
-            throw std::runtime_error("TimeMap vector m_first_timestep_years not initialized");
-        }
         return m_first_timestep_years;
     }
 

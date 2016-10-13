@@ -149,6 +149,14 @@ static Opm::DeckPtr createValidIntDeck() {
         "DIMENS\n"
         " 5 5 1 /\n"
         "GRID\n"
+        "DX\n"
+        "25*0.25 /\n"
+        "DY\n"
+        "25*0.25 /\n"
+        "DZ\n"
+        "25*0.25 /\n"
+        "TOPS\n"
+        "25*0.25 /\n"
         "MULTNUM \n"
         "1  1  2  2 2\n"
         "1  1  2  2 2\n"
@@ -175,19 +183,19 @@ static Opm::DeckPtr createValidIntDeck() {
 
 BOOST_AUTO_TEST_CASE(InvalidArrayThrows1) {
     Opm::DeckPtr deck = createDeckInvalidArray1();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 BOOST_AUTO_TEST_CASE(InvalidArrayThrows2) {
     Opm::DeckPtr deck = createDeckInvalidArray2();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
 
 BOOST_AUTO_TEST_CASE(InvalidRegionThrows) {
     Opm::DeckPtr deck = createDeckInvalidRegion();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
@@ -195,13 +203,13 @@ BOOST_AUTO_TEST_CASE(InvalidRegionThrows) {
 
 BOOST_AUTO_TEST_CASE(UnInitializedVectorThrows) {
     Opm::DeckPtr deck = createDeckUnInitialized();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 
 BOOST_AUTO_TEST_CASE(TypeMismatchThrows) {
     Opm::DeckPtr deck = createDeckInvalidTypeMismatch();
-    BOOST_CHECK_THROW( new Opm::EclipseState( deck, Opm::ParseContext()) , std::invalid_argument );
+    BOOST_CHECK_THROW( new Opm::EclipseState( *deck, Opm::ParseContext()) , std::invalid_argument );
 }
 
 

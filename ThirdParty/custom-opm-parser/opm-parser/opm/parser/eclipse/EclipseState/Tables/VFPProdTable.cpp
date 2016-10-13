@@ -31,7 +31,9 @@
 
 namespace Opm {
 
-static VFPProdTable::FLO_TYPE getFloType( const DeckItem& item) {
+namespace {
+
+VFPProdTable::FLO_TYPE getFloType( const DeckItem& item) {
     const std::string& flo_string = item.getTrimmedString(0);
     if (flo_string == "OIL") {
         return VFPProdTable::FLO_OIL;
@@ -116,6 +118,9 @@ VFPProdTable::ALQ_TYPE getALQType( const DeckItem& item) {
         return VFPProdTable::ALQ_INVALID;
     }
 }
+
+}
+
 void VFPProdTable::init(int table_num,
         double datum_depth,
         FLO_TYPE flo_type,

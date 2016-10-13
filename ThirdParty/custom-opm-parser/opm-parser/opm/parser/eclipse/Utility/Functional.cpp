@@ -21,9 +21,9 @@
 namespace Opm {
 namespace fun {
 
-    iota::iota( int begin, int end ) : first( begin ), last( end ) {}
+    iota::iota( int fst, int lst ) : first( fst ), last( lst ) {}
 
-    iota::iota( int end ) : iota( 0, end ) {}
+    iota::iota( int lst ) : iota( 0, lst ) {}
 
     size_t iota::size() const {
         return this->last - this->first;

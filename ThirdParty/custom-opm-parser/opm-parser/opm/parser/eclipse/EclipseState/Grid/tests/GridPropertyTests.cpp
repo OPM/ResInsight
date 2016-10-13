@@ -23,11 +23,9 @@
 
 #define BOOST_TEST_MODULE EclipseGridTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
@@ -260,6 +258,8 @@ BOOST_AUTO_TEST_CASE(GridPropertyInitialization) {
         "\n"
         "GRID\n"
         "\n"
+        "ACTNUM\n"
+        " 0 8*1 0 8*1 0 8*1 /\n"
         "DXV\n"
         "1 1 1 /\n"
         "\n"
@@ -382,10 +382,62 @@ BOOST_AUTO_TEST_CASE(GridPropertyInitialization) {
     BOOST_CHECK_EQUAL(sguPropData[0 * 3*3], 0.9);
     BOOST_CHECK_EQUAL(sguPropData[1 * 3*3], 0.85);
     BOOST_CHECK_EQUAL(sguPropData[2 * 3*3], 0.80);
+
+
+    const auto& satnum = props.getIntGridProperty("SATNUM");
+    {
+        const auto& activeMap = eg.getActiveMap();
+        const auto cells1 = satnum.cellsEqual(1 , activeMap);
+        const auto cells2 = satnum.cellsEqual(2 , activeMap);
+        const auto cells3 = satnum.cellsEqual(3 , activeMap);
+
+        BOOST_CHECK_EQUAL( cells1.size() , 8 );
+        BOOST_CHECK_EQUAL( cells2.size() , 8 );
+        BOOST_CHECK_EQUAL( cells3.size() , 8 );
+
+        for (size_t i = 0; i < 8; i++) {
+            BOOST_CHECK_EQUAL( cells1[i] , i );
+            BOOST_CHECK_EQUAL( cells2[i] , i + 8);
+            BOOST_CHECK_EQUAL( cells3[i] , i + 16);
+        }
+    }
+    {
+        const auto cells1 = satnum.indexEqual(1 );
+        const auto cells2 = satnum.indexEqual(2 );
+        const auto cells3 = satnum.indexEqual(3 );
+
+        BOOST_CHECK_EQUAL( cells1.size() , 9 );
+        BOOST_CHECK_EQUAL( cells2.size() , 9 );
+        BOOST_CHECK_EQUAL( cells3.size() , 9 );
+
+        for (size_t i = 0; i < 9; i++) {
+            BOOST_CHECK_EQUAL( cells1[i] , i );
+            BOOST_CHECK_EQUAL( cells2[i] , i + 9);
+            BOOST_CHECK_EQUAL( cells3[i] , i + 18);
+        }
+    }
+
+    {
+        const auto cells3_a = satnum.cellsEqual(3 , eg);
+        const auto cells3_g = satnum.cellsEqual(3 , eg , false);
+
+        for (size_t i = 0; i < 8; i++) {
+            BOOST_CHECK_EQUAL( cells3_a[i] , i + 16);
+            BOOST_CHECK_EQUAL( cells3_g[i] , i + 18);
+        }
+        BOOST_CHECK_EQUAL( cells3_g[8] , 26);
+    }
+
+    const auto compressedSatnum = satnum.compressedCopy( eg );
+    BOOST_CHECK_EQUAL( compressedSatnum.size() , eg.getNumActive());
+    for (size_t i=0; i < eg.getNumActive(); i++) {
+        size_t g = eg.getGlobalIndex( i );
+        BOOST_CHECK_EQUAL( compressedSatnum[i] , satnum.getData()[g]);
+    }
 }
 
 
-void TestPostProcessorMul(std::vector< double >& values,
+inline void TestPostProcessorMul(std::vector< double >& values,
         const Opm::TableManager*,
         const Opm::EclipseGrid*,
         Opm::GridProperties<int>*,

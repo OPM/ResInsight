@@ -18,13 +18,15 @@
 */
 
 
-#ifndef ECLIPSE_GRID_HPP_
-#define ECLIPSE_GRID_HPP_
+#ifndef OPM_PARSER_ECLIPSE_GRID_HPP
+#define OPM_PARSER_ECLIPSE_GRID_HPP
 
 
 #include <opm/parser/eclipse/EclipseState/Util/Value.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/MinpvMode.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/PinchMode.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
+
 #include <opm/parser/eclipse/Parser/MessageContainer.hpp>
 
 #include <ert/ecl/ecl_grid.h>
@@ -37,6 +39,7 @@
 namespace Opm {
 
     class Deck;
+    class ZcornMapper;
 
     /**
        About cell information and dimension: The actual grid
@@ -47,33 +50,29 @@ namespace Opm {
          - Size of cells
          - Real world position of cells
          - Active/inactive status of cells
-
-       However in may cases the only required information is the
-       dimension of the grid. To facilitate simpler use, in particular
-       in testing, the grid dimensions are internalized separate from
-       the ecl_grid_type pointer. This means that in many cases a grid
-       without the underlying ecl_grid_type pointer is sufficient. To
-       create such a 'naked' grid you can parse a deck with only
-       DIMENS / SPECGRID and no further grid related keywords, or
-       alternatively use the:
-
-           EclipseGrid::EclipseGrid(nx,ny,nz)
-
-       constructor.
-
-       To query a grid instance if it has proper underlying grid
-       support use the method:
-
-           bool EclipseGrid::hasCellInfo();
-
     */
 
-    class EclipseGrid {
+    class EclipseGrid : public GridDims {
     public:
         explicit EclipseGrid(const std::string& filename);
-        explicit EclipseGrid(const EclipseGrid& srcGrid);
-        explicit EclipseGrid(size_t nx, size_t ny, size_t nz,
-                             double dx = 1.0, double dy = 1.0, double dz = 1.0);
+
+        /*
+          These constructors will make a copy of the src grid, with
+          zcorn and or actnum have been adjustments.
+        */
+        EclipseGrid(const EclipseGrid& src, const double* zcorn , const std::vector<int>& actnum);
+        EclipseGrid(const EclipseGrid& src, const std::vector<double>& zcorn , const std::vector<int>& actnum);
+        EclipseGrid(const EclipseGrid& src, const std::vector<int>& actnum);
+
+        EclipseGrid(size_t nx, size_t ny, size_t nz,
+                    double dx = 1.0, double dy = 1.0, double dz = 1.0);
+
+        EclipseGrid(std::array<int, 3>& dims ,
+                    const std::vector<double>& coord ,
+                    const std::vector<double>& zcorn ,
+                    const int * actnum = nullptr,
+                    const double * mapaxes = nullptr);
+
 
         /// EclipseGrid ignores ACTNUM in Deck, and therefore needs ACTNUM
         /// explicitly.  If a null pointer is passed, every cell is active.
@@ -84,11 +83,20 @@ namespace Opm {
         static bool hasCornerPointKeywords(const Deck&);
         static bool hasCartesianKeywords(const Deck&);
         size_t  getNumActive( ) const;
-        size_t  getNX( ) const;
-        size_t  getNY( ) const;
-        size_t  getNZ( ) const;
-        std::array< int, 3 > getNXYZ() const;
-        size_t  getCartesianSize( ) const;
+        bool allActive() const;
+
+        size_t activeIndex(size_t i, size_t j, size_t k) const;
+        size_t activeIndex(size_t globalIndex) const;
+
+        /*
+          Observe that the there is a getGlobalIndex(i,j,k)
+          implementation in the base class. This method - translating
+          from an active index to a global index must be implemented
+          in the current class.
+        */
+        size_t getGlobalIndex(size_t active_index) const;
+        size_t getGlobalIndex(size_t i, size_t j, size_t k) const;
+
         bool isPinchActive( ) const;
         double getPinchThresholdThickness( ) const;
         PinchMode::ModeEnum getPinchOption( ) const;
@@ -97,22 +105,43 @@ namespace Opm {
         MinpvMode::ModeEnum getMinpvMode() const;
         double getMinpvValue( ) const;
 
-        bool hasCellInfo() const;
 
-        /// The activeIndex methods will return from (i,j,k) or g,
-        /// where g \in [0,nx*n*nz) to the corresponding active index
-        /// in the range [0,numActive). Observe that if the input
-        /// argument corresponds to a cell which is not active an
-        /// exception will be raised - check with cellActive() first
-        /// if that is a possibillity.
-        size_t activeIndex(size_t i, size_t j, size_t k) const;
-        size_t activeIndex(size_t globalIndex) const;
+        /*
+          Will return a vector of nactive elements. The method will
+          behave differently depending on the lenght of the
+          input_vector:
+
+             nx*ny*nz: only the values corresponding to active cells
+               are copied out.
+
+             nactive: The input vector is copied straight out again.
+
+             ??? : Exception.
+        */
+        template<typename T>
+        std::vector<T> compressedVector(const std::vector<T>& input_vector) const {
+            if( input_vector.size() == this->getNumActive() ) {
+                return input_vector;
+            }
+
+            if (input_vector.size() != getCartesianSize())
+                throw std::invalid_argument("Input vector must have full size");
+
+            {
+                std::vector<T> compressed_vector( this->getNumActive() );
+                const auto& active_map = this->getActiveMap( );
+
+                for (size_t i = 0; i < this->getNumActive(); ++i)
+                    compressed_vector[i] = input_vector[ active_map[i] ];
+
+                return compressed_vector;
+            }
+        }
 
 
-        size_t getGlobalIndex(size_t i, size_t j, size_t k) const;
-        std::array<int, 3> getIJK(size_t globalIndex) const;
-        void assertGlobalIndex(size_t globalIndex) const;
-        void assertIJK(size_t i , size_t j , size_t k) const;
+        /// Will return a vector a length num_active; where the value
+        /// of each element is the corresponding global index.
+        const std::vector<int>& getActiveMap() const;
         std::array<double, 3> getCellCenter(size_t i,size_t j, size_t k) const;
         std::array<double, 3> getCellCenter(size_t globalIndex) const;
         double getCellVolume(size_t globalIndex) const;
@@ -125,6 +154,7 @@ namespace Opm {
         bool cellActive( size_t i , size_t j, size_t k ) const;
         double getCellDepth(size_t i,size_t j, size_t k) const;
         double getCellDepth(size_t globalIndex) const;
+        ZcornMapper zcornMapper() const;
 
 
         void exportMAPAXES( std::vector<double>& mapaxes) const;
@@ -133,46 +163,76 @@ namespace Opm {
         void exportACTNUM( std::vector<int>& actnum) const;
         void resetACTNUM( const int * actnum);
         bool equal(const EclipseGrid& other) const;
-        void fwriteEGRID( const std::string& filename, bool output_metric ) const;
         const ecl_grid_type * c_ptr() const;
         const MessageContainer& getMessageContainer() const;
         MessageContainer& getMessageContainer();
     private:
-        ERT::ert_unique_ptr<ecl_grid_type , ecl_grid_free> m_grid;
+        MessageContainer m_messages;
+
         double m_minpvValue;
         MinpvMode::ModeEnum m_minpvMode;
         Value<double> m_pinch;
         PinchMode::ModeEnum m_pinchoutMode;
         PinchMode::ModeEnum m_multzMode;
-        size_t m_nx;
-        size_t m_ny;
-        size_t m_nz;
-        MessageContainer m_messages;
+        mutable std::vector< int > activeMap;
 
-        void assertCellInfo() const;
+        /*
+          The internal class grid_ptr is a a std::unique_ptr with
+          special copy semantics. The purpose of implementing this is
+          that the EclipseGrid class can now use the default
+          implementation for the copy and move constructors.
+        */
+        using ert_ptr = ERT::ert_unique_ptr<ecl_grid_type , ecl_grid_free>;
+        class grid_ptr : public ert_ptr {
+        public:
+            using ert_ptr::unique_ptr;
+            grid_ptr() = default;
+            grid_ptr(grid_ptr&&) = default;
+            grid_ptr(const grid_ptr& src) :
+                ert_ptr( ecl_grid_alloc_copy( src.get() ) ) {}
+        };
+        grid_ptr m_grid;
 
-        void initCartesianGrid(const std::vector<int>& dims, const Deck&);
-        void initCornerPointGrid(const std::vector<int>& dims, const Deck&);
-        void initDTOPSGrid(const std::vector<int>& dims, const Deck&);
-        void initDVDEPTHZGrid(const std::vector<int>& dims, const Deck& deck);
-        void initGrid(const std::vector<int>& dims, const Deck&);
+        void initCornerPointGrid(const std::array<int,3>& dims ,
+                                 const std::vector<double>& coord ,
+                                 const std::vector<double>& zcorn ,
+                                 const int * actnum,
+                                 const double * mapaxes);
 
-        void assertCornerPointKeywords(const std::vector<int>& dims, const Deck&);
+        void initCartesianGrid(         const std::array<int, 3>&, const Deck&);
+        void initCornerPointGrid(       const std::array<int, 3>&, const Deck&);
+        void initDTOPSGrid(             const std::array<int, 3>&, const Deck&);
+        void initDVDEPTHZGrid(          const std::array<int, 3>&, const Deck&);
+        void initGrid(                  const std::array<int, 3>&, const Deck&);
+        void assertCornerPointKeywords( const std::array<int, 3>&, const Deck&);
+
         static bool hasDVDEPTHZKeywords(const Deck&);
-        static bool hasDTOPSKeywords(const Deck&);
-        static void assertVectorSize(const std::vector<double>& vector, size_t expectedSize, const std::string& msg);
-        static std::vector<double> createTOPSVector(const std::vector<int>& dims, const std::vector<double>& DZ,
+        static bool hasDTOPSKeywords(   const Deck&);
+        static void assertVectorSize(   const std::vector<double>& vector, size_t expectedSize, const std::string& msg);
+        static std::vector<double> createTOPSVector(const std::array<int, 3>& dims, const std::vector<double>& DZ,
                 const Deck&);
-        static std::vector<double> createDVector(const std::vector<int>& dims, size_t dim, const std::string& DKey,
+        static std::vector<double> createDVector(const std::array<int, 3>& dims, size_t dim, const std::string& DKey,
                 const std::string& DVKey, const Deck&);
-        static void scatterDim(const std::vector<int>& dims , size_t dim , const std::vector<double>& DV , std::vector<double>& D);
+        static void scatterDim(const std::array<int, 3>& dims , size_t dim , const std::vector<double>& DV , std::vector<double>& D);
    };
 
     typedef std::shared_ptr<EclipseGrid> EclipseGridPtr;
     typedef std::shared_ptr<const EclipseGrid> EclipseGridConstPtr;
+
+    class ZcornMapper {
+    public:
+        ZcornMapper(size_t nx, size_t ny, size_t nz);
+        size_t index(size_t i, size_t j, size_t k, int c) const;
+        size_t index(size_t g, int c) const;
+
+    private:
+        std::array<size_t,3> dims;
+        std::array<size_t,3> stride;
+        std::array<size_t,8> cell_shift;
+    };
 }
 
 
 
 
-#endif
+#endif // OPM_PARSER_ECLIPSE_GRID_HPP

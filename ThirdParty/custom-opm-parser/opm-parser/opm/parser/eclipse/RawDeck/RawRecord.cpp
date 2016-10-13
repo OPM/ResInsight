@@ -33,48 +33,48 @@ using namespace std;
 
 namespace Opm {
 
-    template< typename Itr >
-    static inline Itr first_nonspace( Itr begin, Itr end ) {
-        return std::find_if_not( begin, end, RawConsts::is_separator );
-    }
+namespace {
 
-    static std::deque< string_view > splitSingleRecordString( const string_view& line ) {
+std::deque< string_view > splitSingleRecordString( const string_view& record ) {
+    auto first_nonspace = []( string_view::const_iterator begin,
+                              string_view::const_iterator end ) {
+        return std::find_if_not( begin, end, RawConsts::is_separator() );
+    };
 
-        std::deque< string_view > dst;
-        string_view record( line );
-
-        for( auto current = first_nonspace( record.begin(), record.end() );
-                current != record.end();
-                current = first_nonspace( current, record.end() ) )
-        {
-            if( *current == RawConsts::quote ) {
-                auto quote_end = std::find( current + 1, record.end(), RawConsts::quote ) + 1;
-                dst.push_back( { current, quote_end } );
-                current = quote_end;
-            } else {
-                auto token_end = std::find_if( current, record.end(), RawConsts::is_separator );
-                dst.push_back( { current, token_end } );
-                current = token_end;
-            }
+    std::deque< string_view > dst;
+    auto current = record.begin();
+    while( (current = first_nonspace( current, record.end() )) != record.end() )
+    {
+        if( *current == RawConsts::quote ) {
+            auto quote_end = std::find( current + 1, record.end(), RawConsts::quote ) + 1;
+            dst.push_back( { current, quote_end } );
+            current = quote_end;
+        } else {
+            auto token_end = std::find_if( current, record.end(), RawConsts::is_separator() );
+            dst.push_back( { current, token_end } );
+            current = token_end;
         }
-
-        return dst;
     }
 
-    /*
-     * It is assumed that after a record is terminated, there is no quote marks
-     * in the subsequent comment. This is in accordance with the Eclipse user
-     * manual.
-     *
-     * If a "non-complete" record string is supplied, an invalid_argument
-     * exception is thrown.
-     *
-     */
+    return dst;
+}
 
-    template< typename T >
-    static inline bool even_quotes( const T& str ) {
-        return std::count( str.begin(), str.end(), RawConsts::quote ) % 2 == 0;
-    }
+/*
+    * It is assumed that after a record is terminated, there is no quote marks
+    * in the subsequent comment. This is in accordance with the Eclipse user
+    * manual.
+    *
+    * If a "non-complete" record string is supplied, an invalid_argument
+    * exception is thrown.
+    *
+    */
+
+template< typename T >
+inline bool even_quotes( const T& str ) {
+    return std::count( str.begin(), str.end(), RawConsts::quote ) % 2 == 0;
+}
+
+}
 
     RawRecord::RawRecord(const string_view& singleRecordString,
                          const std::string& fileName,
@@ -100,9 +100,8 @@ namespace Opm {
         return m_keywordName;
     }
 
-    void RawRecord::push_front(std::string tok ) {
-        this->expanded_items.push_back( tok );
-        this->m_recordItems.emplace_front( this->expanded_items.back() );
+    void RawRecord::prepend( size_t count, string_view tok ) {
+        this->m_recordItems.insert( this->m_recordItems.begin(), count, tok );
     }
 
     void RawRecord::dump() const {

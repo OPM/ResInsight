@@ -30,6 +30,7 @@
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/FaultCollection.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/Fault.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/MULTREGTScanner.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/NNC.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/SatfuncPropertyInitializers.hpp>
@@ -56,16 +57,17 @@ namespace Opm {
     EclipseState::EclipseState(const Deck& deck, ParseContext parseContext) :
         m_parseContext(      parseContext ),
         m_tables(            deck ),
+        m_gridDims(          deck ),
         m_inputGrid(         std::make_shared<EclipseGrid>(deck, nullptr) ),
-        m_schedule(          std::make_shared<Schedule>( m_parseContext, m_inputGrid, deck ) ),
+        m_transMult(         m_inputGrid->getNX(), m_inputGrid->getNY(), m_inputGrid->getNZ()),
+        m_schedule(          std::make_shared<Schedule>( m_parseContext, *m_inputGrid, deck ) ),
         m_eclipseProperties( deck, m_tables, *m_inputGrid ),
-        m_eclipseConfig(     deck, m_eclipseProperties, m_inputGrid, *m_schedule),
-        m_inputNnc(          deck, m_inputGrid ),
+        m_eclipseConfig(     deck, m_eclipseProperties, m_gridDims, *m_schedule , parseContext),
+        m_inputNnc(          deck, m_gridDims ),
         m_deckUnitSystem(    deck.getActiveUnitSystem() )
 
     {
-        if (m_inputGrid->hasCellInfo())
-            m_inputGrid->resetACTNUM(m_eclipseProperties.getIntGridProperty("ACTNUM").getData().data());
+        m_inputGrid->resetACTNUM(m_eclipseProperties.getIntGridProperty("ACTNUM").getData().data());
 
         if (deck.hasKeyword( "TITLE" )) {
             const auto& titleKeyword = deck.getKeyword( "TITLE" );
@@ -76,7 +78,12 @@ namespace Opm {
 
         initTransMult();
         initFaults(deck);
-        initMULTREGT(deck);
+
+        std::vector< const DeckKeyword* > multregtKeywords;
+        if (deck.hasKeyword("MULTREGT"))
+            multregtKeywords = deck.getKeywordList("MULTREGT");
+        m_transMult.createMultregtScanner(m_eclipseProperties, multregtKeywords);
+
 
         m_messageContainer.appendMessages(m_tables.getMessageContainer());
         m_messageContainer.appendMessages(m_schedule->getMessageContainer());
@@ -102,6 +109,14 @@ namespace Opm {
 
     const SummaryConfig& EclipseState::getSummaryConfig() const {
         return m_eclipseConfig.getSummaryConfig();
+    }
+
+    const RestartConfig& EclipseState::getRestartConfig() const {
+        return m_eclipseConfig.getRestartConfig();
+    }
+
+    RestartConfig& EclipseState::getRestartConfig() {
+        return const_cast< RestartConfig& >( m_eclipseConfig.getRestartConfig() );
     }
 
     const Eclipse3DProperties& EclipseState::get3DProperties() const {
@@ -130,19 +145,32 @@ namespace Opm {
         return m_schedule;
     }
 
+    /// [[deprecated]] --- use cfg().io()
     IOConfigConstPtr EclipseState::getIOConfigConst() const {
         return m_eclipseConfig.getIOConfigConst();
     }
 
+    /// [[deprecated]] --- use cfg().io()
     IOConfigPtr EclipseState::getIOConfig() const {
         return m_eclipseConfig.getIOConfig();
     }
 
-    InitConfigConstPtr EclipseState::getInitConfig() const {
+    /// [[deprecated]] --- use cfg().init()
+    const InitConfig& EclipseState::getInitConfig() const {
         return m_eclipseConfig.getInitConfig();
     }
 
-    SimulationConfigConstPtr EclipseState::getSimulationConfig() const {
+    /// [[deprecated]] --- use cfg()
+    const EclipseConfig& EclipseState::getEclipseConfig() const {
+        return cfg();
+    }
+
+    const EclipseConfig& EclipseState::cfg() const {
+        return m_eclipseConfig;
+    }
+
+    /// [[deprecated]] --- use cfg().simulation()
+    const SimulationConfig& EclipseState::getSimulationConfig() const {
         return m_eclipseConfig.getSimulationConfig();
     }
 
@@ -150,7 +178,7 @@ namespace Opm {
         return m_faults;
     }
 
-    std::shared_ptr<const TransMult> EclipseState::getTransMult() const {
+    const TransMult& EclipseState::getTransMult() const {
         return m_transMult;
     }
 
@@ -167,46 +195,41 @@ namespace Opm {
     }
 
     void EclipseState::initTransMult() {
-        EclipseGridConstPtr grid = getInputGrid();
-        m_transMult = std::make_shared<TransMult>( grid->getNX() , grid->getNY() , grid->getNZ());
-
         const auto& p = m_eclipseProperties;
         if (m_eclipseProperties.hasDeckDoubleGridProperty("MULTX"))
-            m_transMult->applyMULT(p.getDoubleGridProperty("MULTX"), FaceDir::XPlus);
+            m_transMult.applyMULT(p.getDoubleGridProperty("MULTX"), FaceDir::XPlus);
         if (m_eclipseProperties.hasDeckDoubleGridProperty("MULTX-"))
-            m_transMult->applyMULT(p.getDoubleGridProperty("MULTX-"), FaceDir::XMinus);
+            m_transMult.applyMULT(p.getDoubleGridProperty("MULTX-"), FaceDir::XMinus);
 
         if (m_eclipseProperties.hasDeckDoubleGridProperty("MULTY"))
-            m_transMult->applyMULT(p.getDoubleGridProperty("MULTY"), FaceDir::YPlus);
+            m_transMult.applyMULT(p.getDoubleGridProperty("MULTY"), FaceDir::YPlus);
         if (m_eclipseProperties.hasDeckDoubleGridProperty("MULTY-"))
-            m_transMult->applyMULT(p.getDoubleGridProperty("MULTY-"), FaceDir::YMinus);
+            m_transMult.applyMULT(p.getDoubleGridProperty("MULTY-"), FaceDir::YMinus);
 
         if (m_eclipseProperties.hasDeckDoubleGridProperty("MULTZ"))
-            m_transMult->applyMULT(p.getDoubleGridProperty("MULTZ"), FaceDir::ZPlus);
+            m_transMult.applyMULT(p.getDoubleGridProperty("MULTZ"), FaceDir::ZPlus);
         if (m_eclipseProperties.hasDeckDoubleGridProperty("MULTZ-"))
-            m_transMult->applyMULT(p.getDoubleGridProperty("MULTZ-"), FaceDir::ZMinus);
+            m_transMult.applyMULT(p.getDoubleGridProperty("MULTZ-"), FaceDir::ZMinus);
     }
 
     void EclipseState::initFaults(const Deck& deck) {
-        EclipseGridConstPtr grid = getInputGrid();
-        std::shared_ptr<GRIDSection> gridSection = std::make_shared<GRIDSection>( deck );
+        const GRIDSection gridSection ( deck );
 
-        m_faults = FaultCollection(gridSection, grid);
+        m_faults = FaultCollection(gridSection, *m_inputGrid);
         setMULTFLT(gridSection);
 
         if (Section::hasEDIT(deck)) {
-            std::shared_ptr<EDITSection> editSection = std::make_shared<EDITSection>( deck );
-            setMULTFLT(editSection);
+            setMULTFLT(EDITSection ( deck ));
         }
 
-        m_transMult->applyMULTFLT( m_faults );
+        m_transMult.applyMULTFLT( m_faults );
     }
 
 
 
-    void EclipseState::setMULTFLT(std::shared_ptr<const Section> section) {
-        for (size_t index=0; index < section->count("MULTFLT"); index++) {
-            const auto& faultsKeyword = section->getKeyword("MULTFLT" , index);
+    void EclipseState::setMULTFLT(const Section& section) {
+        for (size_t index=0; index < section.count("MULTFLT"); index++) {
+            const auto& faultsKeyword = section.getKeyword("MULTFLT" , index);
             for (auto iter = faultsKeyword.begin(); iter != faultsKeyword.end(); ++iter) {
 
                 const auto& faultRecord = *iter;
@@ -218,26 +241,6 @@ namespace Opm {
         }
     }
 
-
-
-    void EclipseState::initMULTREGT(const Deck& deck) {
-        EclipseGridConstPtr grid = getInputGrid();
-
-        std::vector< const DeckKeyword* > multregtKeywords;
-        if (deck.hasKeyword("MULTREGT"))
-            multregtKeywords = deck.getKeywordList("MULTREGT");
-
-        std::shared_ptr<MULTREGTScanner> scanner =
-            std::make_shared<MULTREGTScanner>(
-                m_eclipseProperties,
-                multregtKeywords ,
-                m_eclipseProperties.getDefaultRegionKeyword());
-
-        m_transMult->setMultregtScanner( scanner );
-    }
-
-
-
     void EclipseState::complainAboutAmbiguousKeyword(const Deck& deck, const std::string& keywordName) {
         m_messageContainer.error("The " + keywordName + " keyword must be unique in the deck. Ignoring all!");
         auto keywords = deck.getKeywordList(keywordName);
@@ -245,10 +248,6 @@ namespace Opm {
             std::string msg = "Ambiguous keyword "+keywordName+" defined here";
             m_messageContainer.error(keywords[i]->getFileName(), msg, keywords[i]->getLineNumber());
         }
-    }
-
-    void EclipseState::applyModifierDeck(std::shared_ptr<const Deck> deckptr) {
-        applyModifierDeck(*deckptr);
     }
 
     void EclipseState::applyModifierDeck(const Deck& deck) {
@@ -284,7 +283,7 @@ namespace Opm {
 
                     */
                     fault.setTransMult( tmpMultFlt );
-                    m_transMult->applyMULTFLT( fault );
+                    m_transMult.applyMULTFLT( fault );
                     fault.setTransMult( newMultFlt );
                 }
             }

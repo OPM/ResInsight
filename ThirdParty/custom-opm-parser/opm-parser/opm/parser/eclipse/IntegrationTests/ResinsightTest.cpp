@@ -17,7 +17,8 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define BOOST_TEST_MODULE BoxTest
+#define BOOST_TEST_MODULE ResinsightIntegrationTests
+
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
 
@@ -29,7 +30,7 @@
 #include <opm/parser/eclipse/Parser/ParserKeywords/G.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/S.hpp>
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/FaultCollection.hpp>
 
 
@@ -46,10 +47,18 @@ BOOST_AUTO_TEST_CASE( test_parse ) {
     parser.addKeyword<ParserKeywords::SPECGRID>();
     parser.addKeyword<ParserKeywords::FAULTS>();
 
-    auto deck = parser.parseFile("testdata/integration_tests/Resinsight/DECK1.DATA" , parseContext);
+    auto deckptr = parser.parseFile("testdata/integration_tests/Resinsight/DECK1.DATA" , parseContext);
+    const Deck& deck = *deckptr;
 
-    BOOST_CHECK( deck->hasKeyword<ParserKeywords::SPECGRID>() );
-    BOOST_CHECK( deck->hasKeyword<ParserKeywords::FAULTS>() );
+    BOOST_CHECK( deck.hasKeyword<ParserKeywords::SPECGRID>() );
+    BOOST_CHECK( deck.hasKeyword<ParserKeywords::FAULTS>() );
+
+    {
+        GridDims* grid = nullptr;
+        BOOST_CHECK_NO_THROW( grid = new GridDims(deck) );
+        BOOST_CHECK_NO_THROW( grid->getCartesianSize() );
+        delete grid;
+    }
 }
 
 
@@ -64,9 +73,14 @@ BOOST_AUTO_TEST_CASE( test_state ) {
     parser.addKeyword<ParserKeywords::SPECGRID>();
     parser.addKeyword<ParserKeywords::FAULTS>();
     parser.addKeyword<ParserKeywords::GRID>();
-    auto deck = parser.parseFile("testdata/integration_tests/Resinsight/DECK1.DATA" , parseContext);
+    auto deckptr = parser.parseFile("testdata/integration_tests/Resinsight/DECK1.DATA" , parseContext);
+    const Deck& deck = *deckptr;
 
-    auto grid = std::make_shared<EclipseGrid>( deck );
-    auto gsec = std::make_shared< GRIDSection >( *deck );
-    auto faults = std::make_shared<FaultCollection>( gsec, grid );
+    GridDims grid(deck);
+    GRIDSection gsec(deck);
+    FaultCollection faults(gsec, grid);
+    BOOST_CHECK_EQUAL( grid.getNX(), 20U);
+    BOOST_CHECK_EQUAL( grid.getNY(), 20U);
+    BOOST_CHECK_EQUAL( grid.getNZ(), 10U);
+    BOOST_CHECK_EQUAL( faults.size(), 2U);
 }

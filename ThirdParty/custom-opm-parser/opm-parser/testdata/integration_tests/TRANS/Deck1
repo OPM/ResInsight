@@ -10,6 +10,14 @@ DIMENS
  5 5 1 /
 
 GRID
+DX
+25*1 /
+DY
+25*1 /
+DZ
+25*1 /
+TOPS
+25*1 /
 
 FAULTS
    'F1'  3  3   1  5  1  1  'X' /

@@ -22,13 +22,13 @@
 #define GROUP_HPP_
 
 #include <opm/parser/eclipse/EclipseState/Schedule/ScheduleEnums.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/DynamicState.hpp>
 
 #include <memory>
 #include <string>
 
 namespace Opm {
 
-    template< typename > class DynamicState;
 
     class TimeMap;
     class Well;
@@ -51,6 +51,7 @@ namespace Opm {
         bool isProductionGroup(size_t timeStep) const;
         bool isInjectionGroup(size_t timeStep) const;
         void setProductionGroup(size_t timeStep, bool isProductionGroup);
+        void setInjectionGroup(size_t timeStep, bool isInjectionGroup_);
 
         /******************************************************************/
         void             setInjectionPhase(size_t time_step , Phase::PhaseEnum phase);
@@ -100,10 +101,10 @@ namespace Opm {
         /*****************************************************************/
 
         bool hasWell(const std::string& wellName , size_t time_step) const;
-        std::shared_ptr< const Well > getWell(const std::string& wellName , size_t time_step) const;
+        const Well* getWell(const std::string& wellName , size_t time_step) const;
         const WellSet& getWells( size_t time_step ) const;
         size_t numWells(size_t time_step) const;
-        void addWell(size_t time_step , std::shared_ptr< Well > well);
+        void addWell(size_t time_step , Well* well);
         void delWell(size_t time_step, const std::string& wellName );
     private:
         std::shared_ptr< const WellSet > wellMap(size_t time_step) const;
@@ -113,7 +114,8 @@ namespace Opm {
         std::shared_ptr<GroupInjection::InjectionData> m_injection;
         std::shared_ptr<GroupProduction::ProductionData> m_production;
         std::shared_ptr<DynamicState<std::shared_ptr< const WellSet >> > m_wells;
-        std::shared_ptr<DynamicState<bool> > m_isProductionGroup;
+        DynamicState<int> m_isProductionGroup;
+        DynamicState<int> m_isInjectionGroup;
     };
     typedef std::shared_ptr<Group> GroupPtr;
     typedef std::shared_ptr<const Group> GroupConstPtr;

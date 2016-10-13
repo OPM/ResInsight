@@ -51,13 +51,13 @@ namespace Opm {
         namespace prefix
         /// Conversion prefix for units.
         {
-            const double micro = 1.0e-6;  /**< Unit prefix [\f$\mu\f$] */
-            const double milli = 1.0e-3;  /**< Unit prefix [m] */
-            const double centi = 1.0e-2;  /**< Non-standard unit prefix [c] */
-            const double deci  = 1.0e-1;  /**< Non-standard unit prefix [d] */
-            const double kilo  = 1.0e3;   /**< Unit prefix [k] */
-            const double mega  = 1.0e6;   /**< Unit prefix [M] */
-            const double giga  = 1.0e9;   /**< Unit prefix [G] */
+            constexpr const double micro = 1.0e-6;  /**< Unit prefix [\f$\mu\f$] */
+            constexpr const double milli = 1.0e-3;  /**< Unit prefix [m] */
+            constexpr const double centi = 1.0e-2;  /**< Non-standard unit prefix [c] */
+            constexpr const double deci  = 1.0e-1;  /**< Non-standard unit prefix [d] */
+            constexpr const double kilo  = 1.0e3;   /**< Unit prefix [k] */
+            constexpr const double mega  = 1.0e6;   /**< Unit prefix [M] */
+            constexpr const double giga  = 1.0e9;   /**< Unit prefix [G] */
         } // namespace prefix
 
         namespace unit
@@ -78,8 +78,8 @@ namespace Opm {
         {
             ///\name Common powers
             /// @{
-            inline double square(double v) { return v * v;     }
-            inline double cubic (double v) { return v * v * v; }
+            constexpr double square(double v) { return v * v;     }
+            constexpr double cubic (double v) { return v * v * v; }
             /// @}
 
             // --------------------------------------------------------------
@@ -88,32 +88,33 @@ namespace Opm {
 
             /// \name Length
             /// @{
-            const double meter =  1;
-            const double inch  =  2.54 * prefix::centi*meter;
-            const double feet  = 12    * inch;
+            constexpr const double meter =  1;
+            constexpr const double inch  =  2.54 * prefix::centi*meter;
+            constexpr const double feet  = 12    * inch;
             /// @}
 
             /// \name Time
             /// @{
-            const double second =   1;
-            const double minute =  60 * second;
-            const double hour   =  60 * minute;
-            const double day    =  24 * hour;
-            const double year   = 365 * day;
+            constexpr const double second =   1;
+            constexpr const double minute =  60 * second;
+            constexpr const double hour   =  60 * minute;
+            constexpr const double day    =  24 * hour;
+            constexpr const double year   = 365 * day;
             /// @}
 
             /// \name Volume
             /// @{
-            const double gallon = 231 * cubic(inch);
-            const double stb    =  42 * gallon;
-            const double liter  =   1 * cubic(prefix::deci*meter);
+            constexpr const double gallon = 231 * cubic(inch);
+            constexpr const double stb    =  42 * gallon;
+            constexpr const double _liter  =   1 * cubic(prefix::deci*meter);
             /// @}
 
             /// \name Mass
             /// @{
-            const double kilogram = 1;
+            constexpr const double kilogram = 1;
+            constexpr const double gram     = 1.0e-3 * kilogram;
             // http://en.wikipedia.org/wiki/Pound_(mass)#Avoirdupois_pound
-            const double pound    = 0.45359237 * kilogram;
+            constexpr const double pound    = 0.45359237 * kilogram;
             /// @}
 
             // --------------------------------------------------------------
@@ -122,7 +123,7 @@ namespace Opm {
 
             /// \name Standardised constant
             /// @{
-            const double gravity = 9.80665 * meter/square(second);
+            constexpr const double gravity = 9.80665 * meter/square(second);
             /// @}
 
             // --------------------------------------------------------------
@@ -131,16 +132,17 @@ namespace Opm {
 
             /// \name Force
             /// @{
-            const double Newton = kilogram*meter / square(second); // == 1
-            const double lbf    = pound * gravity; // Pound-force
+            constexpr const double Newton = kilogram*meter / square(second); // == 1
+            constexpr const double dyne   = 1e-5*Newton;
+            constexpr const double lbf    = pound * gravity; // Pound-force
             /// @}
 
             /// \name Pressure
             /// @{
-            const double Pascal = Newton / square(meter); // == 1
-            const double barsa  = 100000 * Pascal;
-            const double atm    = 101325 * Pascal;
-            const double psia   = lbf / square(inch);
+            constexpr const double Pascal = Newton / square(meter); // == 1
+            constexpr const double barsa  = 100000 * Pascal;
+            constexpr const double atm    = 101325 * Pascal;
+            constexpr const double psia   = lbf / square(inch);
             /// @}
 
             /// \name Temperature. This one is more complicated
@@ -149,26 +151,26 @@ namespace Opm {
             /// subtract an offset for the conversion between from/to
             /// Kelvin
             /// @{
-            const double degCelsius = 1.0; // scaling factor °C -> K
-            const double degCelsiusOffset = 273.15; // offset for the °C -> K conversion
+            constexpr const double degCelsius = 1.0; // scaling factor °C -> K
+            constexpr const double degCelsiusOffset = 273.15; // offset for the °C -> K conversion
 
-            const double degFahrenheit = 5.0/9; // scaling factor °F -> K
-            const double degFahrenheitOffset = 255.37; // offset for the °C -> K conversion
+            constexpr const double degFahrenheit = 5.0/9; // scaling factor °F -> K
+            constexpr const double degFahrenheitOffset = 255.37; // offset for the °C -> K conversion
             /// @}
 
             /// \name Viscosity
             /// @{
-            const double Pas   = Pascal * second; // == 1
-            const double Poise = prefix::deci*Pas;
+            constexpr const double Pas   = Pascal * second; // == 1
+            constexpr const double Poise = prefix::deci*Pas;
             /// @}
 
             namespace perm_details {
-                const double p_grad   = atm / (prefix::centi*meter);
-                const double area     = square(prefix::centi*meter);
-                const double flux     = cubic (prefix::centi*meter) / second;
-                const double velocity = flux / area;
-                const double visc     = prefix::centi*Poise;
-                const double darcy    = (velocity * visc) / p_grad;
+                constexpr const double p_grad   = atm / (prefix::centi*meter);
+                constexpr const double area     = square(prefix::centi*meter);
+                constexpr const double flux     = cubic (prefix::centi*meter) / second;
+                constexpr const double velocity = flux / area;
+                constexpr const double visc     = prefix::centi*Poise;
+                constexpr const double darcy    = (velocity * visc) / p_grad;
                 //                    == 1e-7 [m^2] / 101325
                 //                    == 9.869232667160130e-13 [m^2]
             }
@@ -181,7 +183,7 @@ namespace Opm {
             /// of \f$1\,\mathit{atm}/\mathit{cm}\f$ acting across an area of
             /// \f$1\,\mathit{cm}^2\f$.
             ///
-            const double darcy = perm_details::darcy;
+            constexpr const double darcy = perm_details::darcy;
             /// @}
         }
 
@@ -191,50 +193,78 @@ namespace Opm {
     namespace Metric {
         using namespace details::prefix;
         using namespace details::unit;
-        const double Pressure             = barsa;
-        const double Temperature          = degCelsius;
-        const double TemperatureOffset    = degCelsiusOffset;
-        const double AbsoluteTemperature  = degCelsius; // actually [K], but the these two are identical
-        const double Length               = meter;
-        const double Time                 = day;
-        const double Mass                 = kilogram;
-        const double Permeability         = milli*darcy;
-        const double Transmissibility     = centi*Poise*cubic(meter)/(day*barsa);
-        const double LiquidSurfaceVolume  = cubic(meter);
-        const double GasSurfaceVolume     = cubic(meter);
-        const double ReservoirVolume      = cubic(meter);
-        const double GasDissolutionFactor = GasSurfaceVolume/LiquidSurfaceVolume;
-        const double OilDissolutionFactor = LiquidSurfaceVolume/GasSurfaceVolume;
-        const double Density              = kilogram/cubic(meter);
-        const double PolymerDensity       = kilogram/cubic(meter);
-        const double Salinity             = kilogram/cubic(meter);
-        const double Viscosity            = centi*Poise;
-        const double Timestep             = day;
+        constexpr const double Pressure             = barsa;
+        constexpr const double Temperature          = degCelsius;
+        constexpr const double TemperatureOffset    = degCelsiusOffset;
+        constexpr const double AbsoluteTemperature  = degCelsius; // actually [K], but the these two are identical
+        constexpr const double Length               = meter;
+        constexpr const double Time                 = day;
+        constexpr const double Mass                 = kilogram;
+        constexpr const double Permeability         = milli*darcy;
+        constexpr const double Transmissibility     = centi*Poise*cubic(meter)/(day*barsa);
+        constexpr const double LiquidSurfaceVolume  = cubic(meter);
+        constexpr const double GasSurfaceVolume     = cubic(meter);
+        constexpr const double ReservoirVolume      = cubic(meter);
+        constexpr const double GasDissolutionFactor = GasSurfaceVolume/LiquidSurfaceVolume;
+        constexpr const double OilDissolutionFactor = LiquidSurfaceVolume/GasSurfaceVolume;
+        constexpr const double Density              = kilogram/cubic(meter);
+        constexpr const double PolymerDensity       = kilogram/cubic(meter);
+        constexpr const double Salinity             = kilogram/cubic(meter);
+        constexpr const double Viscosity            = centi*Poise;
+        constexpr const double Timestep             = day;
+        constexpr const double SurfaceTension       = dyne/(centi*meter);
     }
 
 
     namespace Field {
         using namespace details::prefix;
         using namespace details::unit;
-        const double Pressure             = psia;
-        const double Temperature          = degFahrenheit;
-        const double TemperatureOffset    = degFahrenheitOffset;
-        const double AbsoluteTemperature  = degFahrenheit; // actually [°R], but the these two are identical
-        const double Length               = feet;
-        const double Time                 = day;
-        const double Mass                 = pound;
-        const double Permeability         = milli*darcy;
-        const double Transmissibility     = centi*Poise*stb/(day*psia);
-        const double LiquidSurfaceVolume  = stb;
-        const double GasSurfaceVolume     = 1000*cubic(feet);
-        const double ReservoirVolume      = stb;
-        const double GasDissolutionFactor = GasSurfaceVolume/LiquidSurfaceVolume;
-        const double OilDissolutionFactor = LiquidSurfaceVolume/GasSurfaceVolume;
-        const double Density              = pound/cubic(feet);
-        const double PolymerDensity       = pound/stb;
-        const double Salinity             = pound/stb;
-        const double Viscosity            = centi*Poise;
-        const double Timestep             = day;
+        constexpr const double Pressure             = psia;
+        constexpr const double Temperature          = degFahrenheit;
+        constexpr const double TemperatureOffset    = degFahrenheitOffset;
+        constexpr const double AbsoluteTemperature  = degFahrenheit; // actually [°R], but the these two are identical
+        constexpr const double Length               = feet;
+        constexpr const double Time                 = day;
+        constexpr const double Mass                 = pound;
+        constexpr const double Permeability = milli*darcy;
+        constexpr const double Transmissibility = centi*Poise*stb/(day*psia);
+        constexpr const double LiquidSurfaceVolume  = stb;
+        constexpr const double GasSurfaceVolume     = 1000*cubic(feet);
+        constexpr const double ReservoirVolume      = stb;
+        constexpr const double GasDissolutionFactor = GasSurfaceVolume/LiquidSurfaceVolume;
+        constexpr const double OilDissolutionFactor = LiquidSurfaceVolume/GasSurfaceVolume;
+        constexpr const double Density              = pound/cubic(feet);
+        constexpr const double PolymerDensity       = pound/stb;
+        constexpr const double Salinity             = pound/stb;
+        constexpr const double Viscosity            = centi*Poise;
+        constexpr const double Timestep             = day;
+        constexpr const double SurfaceTension       = dyne/(centi*meter);
+    }
+
+
+    namespace Lab {
+        using namespace details::prefix;
+        using namespace details::unit;
+        constexpr const double Pressure             = atm;
+        constexpr const double Temperature          = degCelsius;
+        constexpr const double TemperatureOffset    = degCelsiusOffset;
+        constexpr const double AbsoluteTemperature  = degCelsius; // actually [K], but the these two are identical
+        constexpr const double Length               = centi*meter;
+        constexpr const double Time                 = hour;
+        constexpr const double Mass                 = gram;
+        constexpr const double Permeability         = milli*darcy;
+        constexpr const double Transmissibility     = centi*Poise*cubic(centi*meter)/(hour*atm);
+        constexpr const double LiquidSurfaceVolume  = cubic(centi*meter);
+        constexpr const double GasSurfaceVolume     = cubic(centi*meter);
+        constexpr const double ReservoirVolume      = cubic(centi*meter);
+        constexpr const double GasDissolutionFactor = GasSurfaceVolume/LiquidSurfaceVolume;
+        constexpr const double OilDissolutionFactor = LiquidSurfaceVolume/GasSurfaceVolume;
+        constexpr const double Density              = gram/cubic(centi*meter);
+        constexpr const double PolymerDensity       = gram/cubic(centi*meter);
+        constexpr const double Salinity             = gram/cubic(centi*meter);
+        constexpr const double Viscosity            = centi*Poise;
+        constexpr const double Timestep             = hour;
+        constexpr const double SurfaceTension       = dyne/(centi*meter);
     }
 
 }

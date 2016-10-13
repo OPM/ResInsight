@@ -333,6 +333,31 @@ namespace ParserKeywords {
 
 
 
+   class GRAVITY : public ParserKeyword {
+   public:
+       GRAVITY();
+       static const std::string keywordName;
+
+       class API_GRAVITY {
+       public:
+           static const std::string itemName;
+       };
+
+       class WATER_SP_GRAVITY {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class GAS_SP_GRAVITY {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
    class GRID : public ParserKeyword {
    public:
        GRID();

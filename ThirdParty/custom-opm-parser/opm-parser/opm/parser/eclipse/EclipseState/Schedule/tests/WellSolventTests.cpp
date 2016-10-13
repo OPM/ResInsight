@@ -19,10 +19,8 @@
 
 #define BOOST_TEST_MODULE WellSolventTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
@@ -141,14 +139,14 @@ static DeckPtr createDeckWithWaterInjector() {
 }
 BOOST_AUTO_TEST_CASE(TestNoSolvent) {
     DeckPtr deck = createDeckWithOutSolvent();
-    std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
+    EclipseGrid grid(10,10,10);
     Schedule schedule(ParseContext() , grid , deck );
     BOOST_CHECK(!deck->hasKeyword("WSOLVENT"));
 }
 
 BOOST_AUTO_TEST_CASE(TestGasInjector) {
     DeckPtr deck = createDeckWithGasInjector();
-    std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
+    EclipseGrid grid(10,10,10);
     Schedule schedule(ParseContext(), grid , deck );
     BOOST_CHECK(deck->hasKeyword("WSOLVENT"));
 
@@ -156,14 +154,14 @@ BOOST_AUTO_TEST_CASE(TestGasInjector) {
 
 BOOST_AUTO_TEST_CASE(TestDynamicWSOLVENT) {
     DeckPtr deck = createDeckWithDynamicWSOLVENT();
-    std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
+    EclipseGrid grid(10,10,10);
     Schedule schedule(ParseContext() , grid , deck );
     BOOST_CHECK(deck->hasKeyword("WSOLVENT"));
     const auto& keyword = deck->getKeyword("WSOLVENT");
     BOOST_CHECK_EQUAL(keyword.size(),1);
     const auto& record = keyword.getRecord(0);
     const std::string& wellNamesPattern = record.getItem("WELL").getTrimmedString(0);
-    std::vector<WellPtr> wells_solvent = schedule.getWells(wellNamesPattern);
+    auto wells_solvent = schedule.getWellsMatching(wellNamesPattern);
     BOOST_CHECK_EQUAL(wellNamesPattern, "W_1");
     BOOST_CHECK_EQUAL(wells_solvent[0]->getSolventFraction(0),0); //default 0
     BOOST_CHECK_EQUAL(wells_solvent[0]->getSolventFraction(1),1);
@@ -173,12 +171,12 @@ BOOST_AUTO_TEST_CASE(TestDynamicWSOLVENT) {
 
 BOOST_AUTO_TEST_CASE(TestOilInjector) {
     DeckPtr deck = createDeckWithOilInjector();
-    std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
+    EclipseGrid grid(10,10,10);
     BOOST_CHECK_THROW (Schedule(ParseContext() , grid , deck ), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(TestWaterInjector) {
     DeckPtr deck = createDeckWithWaterInjector();
-    std::shared_ptr<const EclipseGrid> grid = std::make_shared<const EclipseGrid>(10,10,10);
+    EclipseGrid grid(10,10,10);
     BOOST_CHECK_THROW (Schedule(ParseContext(), grid , deck ), std::invalid_argument);
 }

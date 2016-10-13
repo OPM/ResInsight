@@ -71,6 +71,8 @@ BOOST_AUTO_TEST_CASE(addItem_differentItemsSameName_throws) {
     DeckRecord deckRecord;
     deckRecord.addItem( mkIntItem( "TEST" ) );
     BOOST_CHECK_THROW( deckRecord.addItem( mkIntItem( "TEST" ) ), std::invalid_argument );
+    std::vector< DeckItem > items = { mkIntItem( "TEST" ), mkIntItem( "TEST" ) };
+    BOOST_CHECK_THROW( DeckRecord( std::move( items ) ), std::invalid_argument );
 }
 
 BOOST_AUTO_TEST_CASE(get_byIndex_returnsItem) {

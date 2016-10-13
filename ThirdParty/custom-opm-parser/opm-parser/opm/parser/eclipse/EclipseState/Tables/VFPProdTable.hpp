@@ -20,11 +20,9 @@
 #ifndef OPM_PARSER_ECLIPSE_ECLIPSESTATE_TABLES_VFPPRODTABLE_HPP_
 #define OPM_PARSER_ECLIPSE_ECLIPSESTATE_TABLES_VFPPRODTABLE_HPP_
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 
 #include <boost/multi_array.hpp>
 
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 #include <opm/parser/eclipse/Parser/MessageContainer.hpp>
 
 namespace Opm {

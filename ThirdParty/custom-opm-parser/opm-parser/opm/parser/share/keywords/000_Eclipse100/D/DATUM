@@ -1,0 +1,4 @@
+{"name" : "DATUM" , "sections" : ["SOLUTION"] , "size" : 1,
+"items" : [
+  {"name" : "DEPTH" , "value_type" : "DOUBLE" , "dimension" : "Length"}]}
+  

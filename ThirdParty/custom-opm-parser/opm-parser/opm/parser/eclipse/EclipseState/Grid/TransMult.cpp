@@ -16,15 +16,16 @@
   You should have received a copy of the GNU General Public License
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdexcept>
-#include <iostream>
 
-#include <opm/parser/eclipse/EclipseState/Grid/GridProperty.hpp>
+#include <stdexcept>
+
 #include <opm/parser/eclipse/EclipseState/Grid/Fault.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/FaultFace.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/FaultCollection.hpp>
+#include <opm/parser/eclipse/EclipseState/Grid/GridProperty.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/TransMult.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/MULTREGTScanner.hpp>
+
 
 namespace Opm {
 
@@ -78,7 +79,9 @@ namespace Opm {
     }
 
     double TransMult::getRegionMultiplier(size_t globalCellIndex1,  size_t globalCellIndex2, FaceDir::DirEnum faceDir) const {
-            return m_multregtScanner->getRegionMultiplier(globalCellIndex1, globalCellIndex2, faceDir);
+        if (m_multregtScanner == nullptr)
+            throw new std::logic_error("MULTREGTScanner has not been initialized.");
+        return m_multregtScanner->getRegionMultiplier(globalCellIndex1, globalCellIndex2, faceDir);
     }
 
     bool TransMult::hasDirectionProperty(FaceDir::DirEnum faceDir) const {
@@ -134,7 +137,8 @@ namespace Opm {
 
 
 
-    void TransMult::setMultregtScanner( std::shared_ptr<const MULTREGTScanner> multregtScanner) {
-        m_multregtScanner = multregtScanner;
+    void TransMult::createMultregtScanner(const Eclipse3DProperties& e3DProps,
+                                          std::vector< const DeckKeyword* > multregtKeywords) {
+        m_multregtScanner = new MULTREGTScanner(e3DProps, multregtKeywords);
     }
 }

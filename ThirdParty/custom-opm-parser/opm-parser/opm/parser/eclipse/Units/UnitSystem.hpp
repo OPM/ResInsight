@@ -22,6 +22,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <memory>
 
 namespace Opm {
@@ -37,6 +38,7 @@ namespace Opm {
         };
 
         enum class measure : int {
+            identity,
             length,
             time,
             density,
@@ -53,6 +55,15 @@ namespace Opm {
             rate,
             transmissibility,
             mass,
+            gas_oil_ratio,
+            oil_gas_ratio,
+            water_cut,
+            gas_formation_volume_factor,
+            oil_formation_volume_factor,
+            water_formation_volume_factor,
+            gas_inverse_formation_volume_factor,
+            oil_inverse_formation_volume_factor,
+            water_inverse_formation_volume_factor,
         };
 
         UnitSystem(UnitType unit);
@@ -71,9 +82,13 @@ namespace Opm {
 
         double from_si( measure, double ) const;
         double to_si( measure, double ) const;
+        void from_si( measure, std::vector<double>& ) const;
+        void to_si( measure, std::vector<double>& ) const;
+        const char* name( measure ) const;
 
         static UnitSystem * newMETRIC();
         static UnitSystem * newFIELD();
+        static UnitSystem * newLAB();
     private:
         std::shared_ptr<const Dimension> parseFactor(const std::string& dimension) const;
 
@@ -82,6 +97,7 @@ namespace Opm {
         std::map<std::string , std::shared_ptr<const Dimension> > m_dimensions;
         const double* measure_table_from_si;
         const double* measure_table_to_si;
+        const char* const*  unit_name_table;
     };
 }
 

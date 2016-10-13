@@ -19,9 +19,7 @@
 
 #define BOOST_TEST_MODULE SimpleTableTests
 
-#include <opm/common/utility/platform_dependent/disable_warnings.h>
 #include <boost/test/unit_test.hpp>
-#include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
@@ -47,6 +45,7 @@
 #include <stdexcept>
 #include <iostream>
 
+namespace {
 
 std::shared_ptr<const Opm::Deck> createSingleRecordDeck() {
     const char *deckData =
@@ -93,6 +92,7 @@ std::shared_ptr<const Opm::Deck> createSingleRecordDeckWithVd() {
     return deck;
 }
 
+}
 
 BOOST_AUTO_TEST_CASE( CreateTables ) {
     std::shared_ptr<const Opm::Deck> deck = createSingleRecordDeck();

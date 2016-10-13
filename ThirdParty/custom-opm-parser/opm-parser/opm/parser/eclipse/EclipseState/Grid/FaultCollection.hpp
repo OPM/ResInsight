@@ -16,29 +16,26 @@
   You should have received a copy of the GNU General Public License
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef FAULT_COLLECTION_HPP_
-#define FAULT_COLLECTION_HPP_
+#ifndef OPM_PARSER_FAULT_COLLECTION_HPP
+#define OPM_PARSER_FAULT_COLLECTION_HPP
 
 #include <cstddef>
 #include <string>
-#include <memory>
 
 #include <opm/parser/eclipse/EclipseState/Util/OrderedMap.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/Fault.hpp>
 
-
 namespace Opm {
 
-    class Deck;
-    class GRIDSection;
-    class EclipseGrid;
+    class DeckRecord;
+    class GridDims;
     class GRIDSection;
 
 
 class FaultCollection {
 public:
     FaultCollection();
-    FaultCollection( std::shared_ptr<const GRIDSection> deck, std::shared_ptr<const EclipseGrid> grid);
+    FaultCollection(const GRIDSection& gridSection, const GridDims& grid);
 
     size_t size() const;
     bool hasFault(const std::string& faultName) const;
@@ -52,9 +49,12 @@ public:
     void setTransMult(const std::string& faultName , double transMult);
 
 private:
+    void addFaultFaces(const GridDims& grid,
+                       const DeckRecord&  faultRecord,
+                       const std::string& faultName);
     OrderedMap<Fault> m_faults;
+
 };
 }
 
-
-#endif
+#endif // OPM_PARSER_FAULT_COLLECTION_HPP

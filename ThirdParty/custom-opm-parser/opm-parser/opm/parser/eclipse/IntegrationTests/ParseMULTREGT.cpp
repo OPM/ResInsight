@@ -51,50 +51,50 @@ BOOST_AUTO_TEST_CASE( MULTREGT_ECLIPSE_STATE ) {
     ParseContext parseContext;
     ParserPtr parser(new Parser());
     DeckPtr deck =  parser->parseFile("testdata/integration_tests/MULTREGT/MULTREGT.DATA", parseContext);
-    EclipseState state(deck , parseContext);
+    EclipseState state(*deck , parseContext);
     auto transMult = state.getTransMult();
 
     // Test NONNC
     // cell 0 and 1 are neigbours
-    BOOST_CHECK_EQUAL( 0.10 , transMult->getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 0.10 , transMult.getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::XPlus));
     // cell 0 and 3 are not neigbours ==> 1
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 0 , 3 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 0 , 3 , FaceDir::DirEnum::XPlus));
 
     // Test NNC
     // cell 4 and 5 are neigbours ==> 1
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 4 , 5 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 4 , 5 , FaceDir::DirEnum::XPlus));
     // cell 4 and 7 are not neigbours
-    BOOST_CHECK_EQUAL( 0.50 , transMult->getRegionMultiplier( 4 , 7 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 0.50 , transMult.getRegionMultiplier( 4 , 7 , FaceDir::DirEnum::XPlus));
 
     // Test direction X, returns 1 for directions other than +-X
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::YPlus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::ZPlus));
-    BOOST_CHECK_EQUAL( 0.10 , transMult->getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::XMinus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::YMinus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::ZMinus));
-    BOOST_CHECK_EQUAL( 0.20 , transMult->getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::XPlus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::YPlus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::ZPlus));
-    BOOST_CHECK_EQUAL( 0.20 , transMult->getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::XMinus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::YMinus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::ZMinus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::YPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::ZPlus));
+    BOOST_CHECK_EQUAL( 0.10 , transMult.getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::XMinus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::YMinus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 0 , 1 , FaceDir::DirEnum::ZMinus));
+    BOOST_CHECK_EQUAL( 0.20 , transMult.getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::YPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::ZPlus));
+    BOOST_CHECK_EQUAL( 0.20 , transMult.getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::XMinus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::YMinus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 1 , 0 , FaceDir::DirEnum::ZMinus));
 
     // Multipliers between cells of the same region should return 1
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 0 , 2 , FaceDir::DirEnum::XPlus));
-    BOOST_CHECK_EQUAL( 1.00 , transMult->getRegionMultiplier( 2 , 0 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 0 , 2 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.00 , transMult.getRegionMultiplier( 2 , 0 , FaceDir::DirEnum::XPlus));
 
     // Test direcion XYZ, returns values for all directions
-    BOOST_CHECK_EQUAL( 1.50 , transMult->getRegionMultiplier( 0 , 4 , FaceDir::DirEnum::XPlus));
-    BOOST_CHECK_EQUAL( 1.50 , transMult->getRegionMultiplier( 0 , 4 , FaceDir::DirEnum::YPlus));
-    BOOST_CHECK_EQUAL( 1.50 , transMult->getRegionMultiplier( 0 , 4 , FaceDir::DirEnum::ZPlus));
-    BOOST_CHECK_EQUAL( 1.50 , transMult->getRegionMultiplier( 4 , 0 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.50 , transMult.getRegionMultiplier( 0 , 4 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 1.50 , transMult.getRegionMultiplier( 0 , 4 , FaceDir::DirEnum::YPlus));
+    BOOST_CHECK_EQUAL( 1.50 , transMult.getRegionMultiplier( 0 , 4 , FaceDir::DirEnum::ZPlus));
+    BOOST_CHECK_EQUAL( 1.50 , transMult.getRegionMultiplier( 4 , 0 , FaceDir::DirEnum::XPlus));
 
     // The first record is overwritten by the second
-    BOOST_CHECK_EQUAL( 2.50 , transMult->getRegionMultiplier( 3 , 7 , FaceDir::DirEnum::XPlus));
-    BOOST_CHECK_EQUAL( 2.50 , transMult->getRegionMultiplier( 3 , 7 , FaceDir::DirEnum::YPlus));
+    BOOST_CHECK_EQUAL( 2.50 , transMult.getRegionMultiplier( 3 , 7 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 2.50 , transMult.getRegionMultiplier( 3 , 7 , FaceDir::DirEnum::YPlus));
 
     // The 2 4 0.75 Z input is overwritten by 2 4 2.5 XY, ==) that 2 4 Z returns the 4 2 value = 0.6
-    BOOST_CHECK_EQUAL( 0.60 , transMult->getRegionMultiplier( 7 , 3 , FaceDir::DirEnum::XPlus));
-    BOOST_CHECK_EQUAL( 0.60 , transMult->getRegionMultiplier( 3 , 7 , FaceDir::DirEnum::ZPlus));
+    BOOST_CHECK_EQUAL( 0.60 , transMult.getRegionMultiplier( 7 , 3 , FaceDir::DirEnum::XPlus));
+    BOOST_CHECK_EQUAL( 0.60 , transMult.getRegionMultiplier( 3 , 7 , FaceDir::DirEnum::ZPlus));
 
 }

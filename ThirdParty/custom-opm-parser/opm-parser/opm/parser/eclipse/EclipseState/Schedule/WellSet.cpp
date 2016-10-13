@@ -36,7 +36,7 @@ namespace Opm {
     }
 
 
-    std::shared_ptr< const Well > WellSet::getWell(const std::string& wellName) const {
+    const Well* WellSet::getWell(const std::string& wellName) const {
         if (hasWell(wellName))
             return m_wells.find(wellName)->second;
         else
@@ -44,7 +44,7 @@ namespace Opm {
     }
 
 
-    void WellSet::addWell(std::shared_ptr< Well > well) {
+    void WellSet::addWell( Well* well) {
         const std::string& wellName = well->name();
         if (!hasWell(wellName))
             m_wells[wellName] = well;
@@ -62,12 +62,12 @@ namespace Opm {
 
 
     WellSet * WellSet::shallowCopy() const {
-        WellSet * copy = new WellSet();
+        std::unique_ptr< WellSet > copy( new WellSet() );
 
-        for (std::map<std::string , std::shared_ptr< Well >>::const_iterator iter=m_wells.begin(); iter != m_wells.end(); ++iter)
-            copy->addWell( (*iter).second );
+        for( auto pair : this->m_wells )
+            copy->addWell( pair.second );
 
-        return copy;
+        return copy.release();
     }
 
     WellSet::const_iterator WellSet::begin() const {

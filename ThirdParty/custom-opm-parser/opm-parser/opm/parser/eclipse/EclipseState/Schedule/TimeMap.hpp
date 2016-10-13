@@ -33,15 +33,14 @@ namespace Opm {
 
     class TimeMap {
     public:
-        TimeMap(boost::posix_time::ptime startDate);
-        TimeMap(std::shared_ptr< const Deck > deck);
-        TimeMap( const Deck& deck);
+        explicit TimeMap(boost::posix_time::ptime startDate);
+        explicit TimeMap(std::shared_ptr< const Deck > deck);
+        explicit TimeMap( const Deck& deck);
+
         void addTime(boost::posix_time::ptime newTime);
         void addTStep(boost::posix_time::time_duration step);
         void addFromDATESKeyword( const DeckKeyword& DATESKeyword );
         void addFromTSTEPKeyword( const DeckKeyword& TSTEPKeyword );
-        void initFirstTimestepsMonths();
-        void initFirstTimestepsYears();
         size_t size() const;
         size_t last() const;
         size_t numTimesteps() const;
@@ -49,6 +48,7 @@ namespace Opm {
         const boost::posix_time::ptime& operator[] (size_t index) const;
         /// Return the date and time where a given time step starts.
         boost::posix_time::ptime getStartTime(size_t tStepIdx) const;
+        boost::posix_time::ptime getEndTime() const;
         /// Return the period of time in seconds which passed between the start of the simulation and a given point in time.
         double getTimePassedUntil(size_t tLevelIdx) const;
         /// Return the length of a given time step in seconds.

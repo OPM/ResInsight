@@ -18,6 +18,7 @@
  */
 
 
+#include <unordered_set>
 #include <stdexcept>
 #include <string>
 #include <algorithm>
@@ -29,8 +30,26 @@
 namespace Opm {
 
 
-    DeckRecord::DeckRecord( size_t size ) {
-        this->m_items.reserve( size );
+    DeckRecord::DeckRecord( std::vector< DeckItem >&& items ) :
+        m_items( std::move( items ) ) {
+
+        std::unordered_set< std::string > names;
+        for( const auto& item : this->m_items )
+            names.insert( item.name() );
+
+        if( names.size() == this->m_items.size() )
+            return;
+
+        names.clear();
+        std::string msg = "Duplicate item names in DeckRecord:";
+        for( const auto& item : this->m_items ) {
+            if( names.count( item.name() ) != 0 )
+                msg += std::string( " " ) += item.name();
+
+            names.insert( item.name() );
+        }
+
+        throw std::invalid_argument( msg );
     }
 
     size_t DeckRecord::size() const {

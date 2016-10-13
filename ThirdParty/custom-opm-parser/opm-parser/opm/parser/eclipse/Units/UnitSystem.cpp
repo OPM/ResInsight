@@ -40,6 +40,7 @@ namespace {
      */
 
     static const double to_metric[] = {
+        1,
         1 / Metric::Length,
         1 / Metric::Time,
         1 / Metric::Density,
@@ -56,9 +57,19 @@ namespace {
         1 / ( Metric::ReservoirVolume / Metric::Time ),
         1 / Metric::Transmissibility,
         1 / Metric::Mass,
+        1, /* gas-oil ratio */
+        1, /* oil-gas ratio */
+        1, /* water cut */
+        1, /* gas formation volume factor */
+        1, /* oil formation volume factor */
+        1, /* water formation volume factor */
+        1, /* gas inverse formation volume factor */
+        1, /* oil inverse formation volume factor */
+        1, /* water inverse formation volume factor */
     };
 
     static const double from_metric[] = {
+        1,
         Metric::Length,
         Metric::Time,
         Metric::Density,
@@ -75,9 +86,48 @@ namespace {
         Metric::ReservoirVolume / Metric::Time,
         Metric::Transmissibility,
         Metric::Mass,
+        1, /* gas-oil ratio */
+        1, /* oil-gas ratio */
+        1, /* water cut */
+        1, /* gas formation volume factor */
+        1, /* oil formation volume factor */
+        1, /* water formation volume factor */
+        1, /* gas inverse formation volume factor */
+        1, /* oil inverse formation volume factor */
+        1, /* water inverse formation volume factor */
+    };
+
+    static constexpr const char* metric_names[] = {
+        "",
+        "M",
+        "DAY",
+        "KG/M3",
+        "BARSA",
+        "K",
+        "C",
+        "CP",
+        "MD",
+        "SM3",
+        "SM3",
+        "RM3",
+        "SM3/DAY",
+        "SM3/DAY",
+        "RM3/DAY",
+        "CPR3/DAY/BARS",
+        "KG",
+        "SM3/SM3",
+        "SM3/SM3",
+        "SM3/SM3",
+        "RM3/SM3", /* gas formation volume factor */
+        "RM3/SM3", /* oil formation volume factor */
+        "RM3/SM3", /* water formation volume factor */
+        "SM3/RM3", /* gas inverse formation volume factor */
+        "SM3/RM3", /* oil inverse formation volume factor */
+        "SM3/RM3", /* water inverse formation volume factor */
     };
 
     static const double to_field[] = {
+        1,
         1 / Field::Length,
         1 / Field::Time,
         1 / Field::Density,
@@ -94,9 +144,19 @@ namespace {
         1 / ( Field::ReservoirVolume / Field::Time ),
         1 / Field::Transmissibility,
         1 / Field::Mass,
+        1, /* gas-oil ratio */
+        1, /* oil-gas ratio */
+        1, /* water cut */
+        1 / (Field::ReservoirVolume / Field::GasSurfaceVolume), /* gas formation volume factor */
+        1, /* oil formation volume factor */
+        1, /* water formation volume factor */
+        1 / (Field::GasSurfaceVolume / Field::ReservoirVolume), /* gas inverse formation volume factor */
+        1, /* oil inverse formation volume factor */
+        1, /* water inverse formation volume factor */
     };
 
     static const double from_field[] = {
+         1,
          Field::Length,
          Field::Time,
          Field::Density,
@@ -113,8 +173,132 @@ namespace {
          Field::ReservoirVolume / Field::Time,
          Field::Transmissibility,
          Field::Mass,
+         1, /* gas-oil ratio */
+         1, /* oil-gas ratio */
+         1, /* water cut */
+         Field::ReservoirVolume / Field::GasSurfaceVolume, /* gas formation volume factor */
+         1, /* oil formation volume factor */
+         1, /* water formation volume factor */
+         Field::GasSurfaceVolume / Field::ReservoirVolume, /* gas inverse formation volume factor */
+         1, /* oil inverse formation volume factor */
+         1, /* water inverse formation volume factor */
     };
 
+    static constexpr const char* field_names[] = {
+        "",
+        "FT",
+        "DAY",
+        "LB/FT3",
+        "PSIA",
+        "R",
+        "F",
+        "CP",
+        "MD",
+        "STB",
+        "MSCF",
+        "RB",
+        "STB/DAY",
+        "MSCF/DAY",
+        "RB/DAY",
+        "CPRB/DAY/PSI",
+        "LB",
+        "MSCF/STB",
+        "STB/MSCF",
+        "STB/STB",
+        "RB/MSCF", /* gas formation volume factor */
+        "RB/STB", /* oil formation volume factor */
+        "RB/STB", /* water formation volume factor */
+        "MSCF/RB", /* gas inverse formation volume factor */
+        "STB/RB", /* oil inverse formation volume factor */
+        "STB/RB", /* water inverse formation volume factor */
+    };
+
+    static const double to_lab[] = {
+        1,
+        1 / Lab::Length,
+        1 / Lab::Time,
+        1 / Lab::Density,
+        1 / Lab::Pressure,
+        1 / Lab::AbsoluteTemperature,
+        1 / Lab::Temperature,
+        1 / Lab::Viscosity,
+        1 / Lab::Permeability,
+        1 / Lab::LiquidSurfaceVolume,
+        1 / Lab::GasSurfaceVolume,
+        1 / Lab::ReservoirVolume,
+        1 / ( Lab::LiquidSurfaceVolume / Lab::Time ),
+        1 / ( Lab::GasSurfaceVolume / Lab::Time ),
+        1 / ( Lab::ReservoirVolume / Lab::Time ),
+        1 / Lab::Transmissibility,
+        1 / Lab::Mass,
+        1 / Lab::GasDissolutionFactor, /* gas-oil ratio */
+        1 / Lab::OilDissolutionFactor, /* oil-gas ratio */
+        1, /* water cut */
+        1, /* gas formation volume factor */
+        1, /* oil formation volume factor */
+        1, /* water formation volume factor */
+        1, /* gas inverse formation volume factor */
+        1, /* oil inverse formation volume factor */
+        1, /* water inverse formation volume factor */
+    };
+
+    static const double from_lab[] = {
+        1,
+        Lab::Length,
+        Lab::Time,
+        Lab::Density,
+        Lab::Pressure,
+        Lab::AbsoluteTemperature,
+        Lab::Temperature,
+        Lab::Viscosity,
+        Lab::Permeability,
+        Lab::LiquidSurfaceVolume,
+        Lab::GasSurfaceVolume,
+        Lab::ReservoirVolume,
+        Lab::LiquidSurfaceVolume / Lab::Time,
+        Lab::GasSurfaceVolume / Lab::Time,
+        Lab::ReservoirVolume / Lab::Time,
+        Lab::Transmissibility,
+        Lab::Mass,
+        Lab::GasDissolutionFactor,  /* gas-oil ratio */
+        Lab::OilDissolutionFactor,  /* oil-gas ratio */
+        1, /* water cut */
+        1, /* gas formation volume factor */
+        1, /* oil formation volume factor */
+        1, /* water formation volume factor */
+        1, /* gas inverse formation volume factor */
+        1, /* oil inverse formation volume factor */
+        1, /* water inverse formation volume factor */
+    };
+
+    static constexpr const char* lab_names[] = {
+        "",
+        "CM",
+        "HR",
+        "G/CC",
+        "ATM",
+        "K",
+        "C",
+        "CP",
+        "MD",
+        "SCC",
+        "SCC",
+        "RCC",
+        "SCC/HR",
+        "SCC/HR",
+        "RCC/HR",
+        "CPRCC/HR/ATM",
+        "G",
+        "SCC/SCC",
+        "SCC/SCC",
+        "SCC/SCC",
+        "RCC/SCC", /* gas formation volume factor */
+        "RCC/SCC", /* oil formation volume factor */
+        "RCC/SCC", /* water formation volume factor */
+        "SCC/RCC", /* gas formation volume factor */
+        "SCC/RCC", /* oil inverse formation volume factor */
+        "SCC/RCC", /* water inverse formation volume factor */
+    };
 }
 
     UnitSystem::UnitSystem(const UnitType unit) :
@@ -125,15 +309,19 @@ namespace {
                 m_name = "Metric";
                 this->measure_table_from_si = to_metric;
                 this->measure_table_to_si = from_metric;
+                this->unit_name_table = metric_names;
                 break;
             case(UNIT_TYPE_FIELD):
                 m_name = "Field";
                 this->measure_table_from_si = to_field;
                 this->measure_table_to_si = from_field;
+                this->unit_name_table = field_names;
                 break;
             case(UNIT_TYPE_LAB):
                 m_name = "Lab";
-                throw std::runtime_error( "Lab unit system is not supported" );
+                this->measure_table_from_si = to_lab;
+                this->measure_table_to_si = from_lab;
+                this->unit_name_table = lab_names;
                 break;
             default:
                 //do nothing
@@ -259,6 +447,25 @@ namespace {
         return this->measure_table_to_si[ static_cast< int >( m ) ] * val;
     }
 
+    void UnitSystem::from_si( measure m, std::vector<double>& data ) const {
+        double factor = this->measure_table_from_si[ static_cast< int >( m ) ];
+        auto scale = [=](double x) { return x * factor; };
+        std::transform( data.begin() , data.end() , data.begin() , scale);
+    }
+
+
+    void UnitSystem::to_si( measure m, std::vector<double>& data) const {
+        double factor = this->measure_table_to_si[ static_cast< int >( m ) ];
+        auto scale = [=](double x) { return x * factor; };
+        std::transform( data.begin() , data.end() , data.begin() , scale);
+    }
+
+
+
+    const char* UnitSystem::name( measure m ) const {
+        return this->unit_name_table[ static_cast< int >( m ) ];
+    }
+
     UnitSystem * UnitSystem::newMETRIC() {
         UnitSystem * system = new UnitSystem(UNIT_TYPE_METRIC);
 
@@ -281,6 +488,7 @@ namespace {
         system->addDimension("Salinity", Metric::Salinity);
         system->addDimension("Viscosity" , Metric::Viscosity);
         system->addDimension("Timestep"  , Metric::Timestep);
+        system->addDimension("SurfaceTension"  , Metric::SurfaceTension);
         system->addDimension("ContextDependent", std::numeric_limits<double>::quiet_NaN());
         return system;
     }
@@ -309,6 +517,36 @@ namespace {
         system->addDimension("Salinity", Field::Salinity);
         system->addDimension("Viscosity", Field::Viscosity);
         system->addDimension("Timestep", Field::Timestep);
+        system->addDimension("SurfaceTension"  , Field::SurfaceTension);
+        system->addDimension("ContextDependent", std::numeric_limits<double>::quiet_NaN());
+        return system;
+    }
+
+
+
+    UnitSystem * UnitSystem::newLAB() {
+        UnitSystem * system = new UnitSystem(UNIT_TYPE_LAB);
+
+        system->addDimension("1"    , 1.0);
+        system->addDimension("Pressure", Lab::Pressure );
+        system->addDimension("Temperature", Lab::Temperature, Lab::TemperatureOffset);
+        system->addDimension("AbsoluteTemperature", Lab::AbsoluteTemperature);
+        system->addDimension("Length", Lab::Length);
+        system->addDimension("Time" , Lab::Time);
+        system->addDimension("Mass", Lab::Mass);
+        system->addDimension("Permeability", Lab::Permeability );
+        system->addDimension("Transmissibility", Lab::Transmissibility );
+        system->addDimension("GasDissolutionFactor" , Lab::GasDissolutionFactor);
+        system->addDimension("OilDissolutionFactor", Lab::OilDissolutionFactor);
+        system->addDimension("LiquidSurfaceVolume", Lab::LiquidSurfaceVolume );
+        system->addDimension("GasSurfaceVolume", Lab::GasSurfaceVolume );
+        system->addDimension("ReservoirVolume", Lab::ReservoirVolume );
+        system->addDimension("Density", Lab::Density );
+        system->addDimension("PolymerDensity", Lab::PolymerDensity);
+        system->addDimension("Salinity", Lab::Salinity);
+        system->addDimension("Viscosity", Lab::Viscosity);
+        system->addDimension("Timestep", Lab::Timestep);
+        system->addDimension("SurfaceTension"  , Lab::SurfaceTension);
         system->addDimension("ContextDependent", std::numeric_limits<double>::quiet_NaN());
         return system;
     }

@@ -1,23 +1,23 @@
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/generated-source/include)
 
 add_subdirectory(Parser/tests)
-#add_subdirectory(Generator/tests)
-#add_subdirectory(RawDeck/tests)
-#add_subdirectory(Deck/tests)
-#add_subdirectory(Units/tests)
-#add_subdirectory(EclipseState/tests)
-#add_subdirectory(EclipseState/Schedule/tests)
-#add_subdirectory(EclipseState/SimulationConfig/tests)
-#add_subdirectory(EclipseState/Tables/tests)
-#add_subdirectory(EclipseState/Grid/tests)
-#add_subdirectory(EclipseState/Util/tests)
-#add_subdirectory(EclipseState/IOConfig/tests)
-#add_subdirectory(EclipseState/InitConfig/tests)
-#add_subdirectory(EclipseState/SummaryConfig/tests)
-#add_subdirectory(Utility/tests)
+add_subdirectory(Generator/tests)
+add_subdirectory(RawDeck/tests)
+add_subdirectory(Deck/tests)
+add_subdirectory(Units/tests)
+add_subdirectory(EclipseState/tests)
+add_subdirectory(EclipseState/Schedule/tests)
+add_subdirectory(EclipseState/SimulationConfig/tests)
+add_subdirectory(EclipseState/Tables/tests)
+add_subdirectory(EclipseState/Grid/tests)
+add_subdirectory(EclipseState/Util/tests)
+add_subdirectory(EclipseState/IOConfig/tests)
+add_subdirectory(EclipseState/InitConfig/tests)
+add_subdirectory(EclipseState/SummaryConfig/tests)
+add_subdirectory(Utility/tests)
 
-#add_subdirectory(Applications)
-#add_subdirectory(IntegrationTests)
+add_subdirectory(Applications)
+add_subdirectory(IntegrationTests)
 
 set( rawdeck_source 
 RawDeck/StarToken.cpp
@@ -34,8 +34,6 @@ Deck/DeckKeyword.cpp
 Deck/DeckRecord.cpp
 Deck/DeckItem.cpp
 Deck/Section.cpp
-Deck/SCHEDULESection.cpp
-Deck/DeckTimeStep.cpp
 )
 
 set( parser_source
@@ -83,6 +81,7 @@ EclipseState/Schedule/Well.cpp
 EclipseState/Schedule/WellProductionProperties.cpp
 EclipseState/Schedule/WellInjectionProperties.cpp
 EclipseState/Schedule/WellPolymerProperties.cpp
+EclipseState/Schedule/WellEconProductionLimits.cpp
 EclipseState/Schedule/MSW/Segment.cpp
 EclipseState/Schedule/MSW/SegmentSet.cpp
 EclipseState/Schedule/MSW/Compsegs.cpp
@@ -109,6 +108,7 @@ EclipseState/Tables/PvtxTable.cpp
 EclipseState/Tables/Tables.cpp
 #
 EclipseState/Grid/SatfuncPropertyInitializers.cpp
+EclipseState/Grid/GridDims.cpp
 EclipseState/Grid/GridProperty.cpp
 EclipseState/Grid/GridProperties.cpp
 EclipseState/Grid/Box.cpp
@@ -128,6 +128,7 @@ EclipseState/InitConfig/Equil.cpp
 EclipseState/SimulationConfig/SimulationConfig.cpp
 EclipseState/SimulationConfig/ThresholdPressure.cpp
 EclipseState/SummaryConfig/SummaryConfig.cpp
+EclipseState/IOConfig/RestartConfig.cpp
 EclipseState/IOConfig/IOConfig.cpp)
 #
 
@@ -148,8 +149,6 @@ Deck/DeckKeyword.hpp
 Deck/DeckRecord.hpp
 Deck/DeckItem.hpp
 Deck/Section.hpp
-Deck/SCHEDULESection.hpp
-Deck/DeckTimeStep.hpp
 #
 Parser/ParserEnums.hpp
 Parser/ParserKeyword.hpp 
@@ -184,6 +183,7 @@ EclipseState/Schedule/Well.hpp
 EclipseState/Schedule/WellProductionProperties.hpp
 EclipseState/Schedule/WellInjectionProperties.hpp
 EclipseState/Schedule/WellPolymerProperties.hpp
+EclipseState/Schedule/WellEconProductionLimits.hpp
 EclipseState/Schedule/MSW/Segment.hpp
 EclipseState/Schedule/MSW/SegmentSet.hpp
 EclipseState/Schedule/MSW/Compsegs.hpp
@@ -203,27 +203,29 @@ EclipseState/Util/RecordVector.hpp
 EclipseState/Util/OrderedMap.hpp 
 EclipseState/Util/Value.hpp 
 #
-EclipseState/Grid/EclipseGrid.hpp
-EclipseState/Grid/GridProperty.hpp
-EclipseState/Grid/GridProperties.hpp
-EclipseState/Grid/SatfuncPropertyInitializers.hpp
 EclipseState/Grid/Box.hpp
 EclipseState/Grid/BoxManager.hpp
+EclipseState/Grid/EclipseGrid.hpp
 EclipseState/Grid/FaceDir.hpp
-EclipseState/Grid/MinpvMode.hpp
-EclipseState/Grid/PinchMode.hpp
-EclipseState/Grid/MULTREGTScanner.hpp        
-EclipseState/Grid/TransMult.hpp       
+EclipseState/Grid/FaultCollection.hpp
 EclipseState/Grid/FaultFace.hpp
 EclipseState/Grid/Fault.hpp
-EclipseState/Grid/FaultCollection.hpp
+EclipseState/Grid/GridDims.hpp
+EclipseState/Grid/GridProperties.hpp
+EclipseState/Grid/GridProperty.hpp
+EclipseState/Grid/MinpvMode.hpp
+EclipseState/Grid/MULTREGTScanner.hpp
 EclipseState/Grid/NNC.hpp
+EclipseState/Grid/PinchMode.hpp
+EclipseState/Grid/SatfuncPropertyInitializers.hpp
+EclipseState/Grid/TransMult.hpp
 #
 EclipseState/InitConfig/InitConfig.hpp
 EclipseState/InitConfig/Equil.hpp
 EclipseState/SimulationConfig/SimulationConfig.hpp
 EclipseState/SimulationConfig/ThresholdPressure.hpp
 EclipseState/SummaryConfig/SummaryConfig.hpp
+EclipseState/IOConfig/RestartConfig.hpp
 EclipseState/IOConfig/IOConfig.hpp
 #
 EclipseState/Tables/Tabdims.hpp

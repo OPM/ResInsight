@@ -47,6 +47,15 @@ BOOST_AUTO_TEST_CASE( CheckUnsoppertedInSCHEDULE ) {
         "RUNSPEC\n"
         "DIMENS\n"
         "  10 10 10 / \n"
+        "GRID\n"
+        "DX\n"
+        "1000*0.25 /\n"
+        "DY\n"
+        "1000*0.25 /\n"
+        "DZ\n"
+        "1000*0.25 /\n"
+        "TOPS\n"
+        "100*0.25 /\n"
         "SCHEDULE\n"
         "TSTEP -- 1,2\n"
         "   10 10/\n"
@@ -64,7 +73,7 @@ BOOST_AUTO_TEST_CASE( CheckUnsoppertedInSCHEDULE ) {
     Parser parser(true);
 
     auto deck = parser.parseString( deckString , parseContext );
-    std::shared_ptr<EclipseGrid> grid = std::make_shared<EclipseGrid>( deck );
+    EclipseGrid grid( deck );
 
     parseContext.update( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , InputError::IGNORE );
     {
