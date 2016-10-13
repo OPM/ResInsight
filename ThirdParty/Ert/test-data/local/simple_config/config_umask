@@ -1,0 +1,5 @@
+JOBNAME  Job%d
+RUNPATH simulations/run%d
+NUM_REALIZATIONS 1
+JOB_SCRIPT script.sh
+UMASK 0022

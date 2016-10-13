@@ -49,7 +49,7 @@ install:
     - conda update -q conda
     # Useful for debugging any issues with conda
     - conda info -a
-    - conda install pyqt scipy=0.16.1 numpy pandas matplotlib
+    - conda install pyqt=4 scipy=0.16.1 numpy pandas matplotlib
 
 env:
   global:
@@ -58,10 +58,6 @@ env:
 before_script:
   - mkdir build
   - cd build
-  - echo "WORKFLOW_JOB_DIRECTORY ../devel/share/workflows/jobs/internal/config" > DEFAULT_SITE_CONFIG_FILE
-  - echo "WORKFLOW_JOB_DIRECTORY ../devel/share/workflows/jobs/internal-gui/config" >> DEFAULT_SITE_CONFIG_FILE
-  - echo "JOB_SCRIPT ../devel/share/bin/job_dispatch.py" >> DEFAULT_SITE_CONFIG_FILE
-  - echo "MAX_RUNNING_LOCAL 1" >> DEFAULT_SITE_CONFIG_FILE
-  - cmake -DPYTHON_INSTALL_PREFIX=python -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DUSE_RUNPATH=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=OFF -DSITE_CONFIG_FILE=DEFAULT_SITE_CONFIG_FILE -DERT_BUILD_CXX=ON ../devel
+  - cmake -DPYTHON_INSTALL_PREFIX=python -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DUSE_RUNPATH=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=OFF -DERT_BUILD_CXX=ON ..
 
-script: make && ctest --output-on-failure -LE StatoilData
+script: make && ctest --output-on-failure

@@ -1,0 +1,4 @@
+STDOUT snake_oil_diff.stdout
+STDERR snake_oil_diff.stderr
+
+EXECUTABLE snake_oil_diff.py

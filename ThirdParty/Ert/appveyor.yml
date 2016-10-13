@@ -2,8 +2,6 @@
 clone_depth: 1
 build_script:
 - cmd: >-
-    cd devel
-
     mkdir build
 
     cd build
