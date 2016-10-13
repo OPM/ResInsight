@@ -397,28 +397,17 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSMSEM(int partIndex, const RigFemResultAddress& resVarAddr)
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM(int partIndex, const RigFemResultAddress& resVarAddr)
 {
+    CVF_ASSERT(resVarAddr.fieldName == "SEM");
+
     RigFemScalarResultFrames * sa11 = nullptr;
     RigFemScalarResultFrames * sa22 = nullptr;
     RigFemScalarResultFrames * sa33 = nullptr;
 
-    if (resVarAddr.fieldName == "SM")
-    {
-        sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S11"));
-        sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S22"));
-        sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S33"));
-    }
-    else if (resVarAddr.fieldName == "SEM")
-    {
-        sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S11"));
-        sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S22"));
-        sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S33"));
-    }
-    else
-    {
-        CVF_ASSERT(false);
-    }
+    sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S11"));
+    sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S22"));
+    sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S33"));
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -436,6 +425,41 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSMSEM(
         for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
         {
             dstFrameData[vIdx] = (sa11Data[vIdx] + sa22Data[vIdx] + sa33Data[vIdx])/3.0f;
+        }
+    }
+
+    return dstDataFrames;
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSM(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == "SM");
+    RigFemScalarResultFrames * sa11 = nullptr;
+    RigFemScalarResultFrames * sa22 = nullptr;
+    RigFemScalarResultFrames * sa33 = nullptr;
+
+    sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S11"));
+    sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S22"));
+    sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "S-Bar", "S33"));
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    int frameCount = sa11->frameCount();
+    for(int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& sa11Data = sa11->frameData(fIdx);
+        const std::vector<float>& sa22Data = sa22->frameData(fIdx);
+        const std::vector<float>& sa33Data = sa33->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = sa11Data.size();
+        dstFrameData.resize(valCount);
+
+        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
+        {
+            dstFrameData[vIdx] = -(sa11Data[vIdx] + sa22Data[vIdx] + sa33Data[vIdx])/3.0f;
         }
     }
 
@@ -543,9 +567,14 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return calculateDeviatoricStress(partIndex, resVarAddr);
     }
 
-    if(resVarAddr.fieldName == "SM" || resVarAddr.fieldName == "SEM")
+    if(resVarAddr.fieldName == "SM") 
     {
-        return calculateMeanStressSMSEM(partIndex, resVarAddr);
+        return calculateMeanStressSM(partIndex, resVarAddr);
+    }
+
+    if(resVarAddr.fieldName == "SEM")
+    {
+        return calculateMeanStressSEM(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "S-Bar")
