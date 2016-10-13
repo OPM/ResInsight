@@ -47,12 +47,27 @@ function build_superlu {
 }
 
 
+function install_python_deps {
+    export TRAVIS_PYTHON_VERSION="2.7"
+    wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+
+    bash miniconda.sh -b -p $HOME/miniconda
+    export CONDA_HOME="$HOME/miniconda"
+    export PATH="$CONDA_HOME/bin:$PATH"
+    hash -r
+    conda config --set always_yes yes --set changeps1 no
+    conda update -q conda
+
+    conda install numpy
+}
+
 
 function build_ert {
+    install_python_deps
     git clone https://github.com/Ensembles/ert.git
     mkdir -p ert/build
     pushd ert/build > /dev/null
-    cmake ../devel && make
+    cmake .. && make
     popd > /dev/null
 }
 
@@ -66,6 +81,4 @@ build_dune dune-common
 build_dune dune-istl
 build_dune dune-geometry
 build_dune dune-grid
-
-
-
+build_dune dune-localfunctions

@@ -42,7 +42,7 @@ if (USE_QUADMATH AND NOT QUADMATH_FOUND)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(QuadMath
+find_package_handle_standard_args(Quadmath
   DEFAULT_MSG
   QUADMATH_LIBRARIES
   HAVE_QUAD

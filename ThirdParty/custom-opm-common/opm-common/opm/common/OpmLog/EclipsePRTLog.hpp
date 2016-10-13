@@ -37,8 +37,27 @@ public:
 
     ~EclipsePRTLog();
 
+    /// \brief Construct a logger to the <MODLE>.PRT file
+    /// \param logFile The name of the logfile to use.
+    /// \param messageMask ????
+    /// \param append If true then we append messages to the file.
+    ///               Otherwise a new file is created.
+    /// \param print_summary If true print a summary to the PRT file.
+    EclipsePRTLog(const std::string& logFile , int64_t messageMask,
+                  bool append, bool print_summary);
+
+    /// \brief Construct a logger to the <MODLE>.PRT file
+    /// \param logFile The name of the logfile to use.
+    /// \param messageMask ????
+    /// \param append If true then we append messages to the file.
+    ///               Otherwise a new file is created.
+    /// \param print_summary If true print a summary to the PRT file.
+    EclipsePRTLog(std::ostream& os , int64_t messageMask,
+                  bool print_summary);
 private:
     std::map<int64_t, size_t> m_count;
+    /// \brief Whether to print a summary to the log file.
+    bool print_summary_ = true;
 };
 }
 #endif // ECLIPSEPRTLOG_H

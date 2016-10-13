@@ -19,7 +19,8 @@ set (opm-simulators_DEPS
 	# DUNE prerequisites
 	"dune-common REQUIRED;
 	dune-istl REQUIRED"
-	# OPM dependency
+	"ERTPython"
+        # OPM dependency
 	"opm-common REQUIRED;
         opm-parser REQUIRED;
 	opm-core REQUIRED;

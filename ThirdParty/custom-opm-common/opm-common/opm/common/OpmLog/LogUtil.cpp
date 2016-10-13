@@ -35,7 +35,7 @@ namespace Log {
     std::string fileMessage(const std::string& filename , int line , const std::string& message) {
         std::ostringstream oss;
 
-        oss << filename << ":" << line << ": " << message;
+        oss << message << "\n" << "In file " << filename << ", line " << line << "\n";
 
         return oss.str();
     }

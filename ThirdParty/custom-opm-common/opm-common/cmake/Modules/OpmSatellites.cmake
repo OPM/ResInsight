@@ -1,4 +1,8 @@
 # - Build satellites that are dependent of main library
+
+option(ADD_DISABLED_CTESTS "Add the tests which are disabled due to failed preconditions to the ctest output (this makes ctest return an error if such a test is present)" ON)
+mark_as_advanced(ADD_DISABLED_CTESTS)
+
 #
 # Enumerate all source code in a "satellite" directory such as tests/,
 # compile each of them and optionally set them as a test for CTest to
@@ -337,7 +341,7 @@ macro(opm_add_test TestName)
     # the following causes the test to appear as 'skipped' in the
     # CDash dashboard. it this is removed, the test is just silently
     # ignored.
-    if (NOT CURTEST_ONLY_COMPILE)
+    if (NOT CURTEST_ONLY_COMPILE AND ADD_DISABLED_CTESTS)
       add_test(${TestName} skip_test_dummy)
     endif()
   endif()

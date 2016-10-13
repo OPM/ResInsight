@@ -23,20 +23,18 @@ if(PYTHONINTERP_FOUND)
   endif()
   set(PYTHON_INSTALL_PREFIX  "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/${PYTHON_PACKAGE_PATH}"  CACHE STRING "Subdirectory to install Python modules in")
 
+  set(PATH_LIST)
   if (ERT_ROOT)
-     set( start_path "${ERT_ROOT}/${PYTHON_INSTALL_PREFIX}" )
-  else()
-     set( start_path "DEFAULT_PATH")
+      list(APPEND PATH_LIST ${ERT_ROOT})
   endif()
+  list(APPEND PATH_LIST ${CMAKE_PREFIX_PATH})
 
-  set( PATH_LIST "${start_path}"
-                 "${PROJECT_SOURCE_DIR}/../ert/build/${PYTHON_INSTALL_PREFIX}"
-                 "${PROJECT_SOURCE_DIR}/../ert/devel/build/${PYTHON_INSTALL_PREFIX}"
-                 "${PROJECT_BINARY_DIR}/../ert-build/${PYTHON_INSTALL_PREFIX}"
-                 "${PROJECT_BINARY_DIR}/../ert/devel/${PYTHON_INSTALL_PREFIX}")
+  # Add various popular sibling alternatives.
+  list(APPEND PATH_LIST "${PROJECT_SOURCE_DIR}/../ert/build"
+    			"${PROJECT_BINARY_DIR}/../ert-build")
 
   foreach( PATH ${PATH_LIST})
-      set( python_code "import sys; sys.path.insert(0 , '${PATH}'); import os.path; import inspect; import ert; print os.path.dirname(os.path.dirname(inspect.getfile(ert)))")
+      set( python_code "import sys; sys.path.insert(0 , '${PATH}/${PYTHON_INSTALL_PREFIX}'); import os.path; import inspect; import ert; print os.path.dirname(os.path.dirname(inspect.getfile(ert))); from ert.ecl import EclSum")
       execute_process( COMMAND ${PYTHON_EXECUTABLE} -c "${python_code}"
                        RESULT_VARIABLE import_result
                        OUTPUT_VARIABLE stdout_output

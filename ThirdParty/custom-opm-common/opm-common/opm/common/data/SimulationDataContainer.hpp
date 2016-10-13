@@ -22,7 +22,7 @@
 
 #include <cstddef>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 namespace Opm {
@@ -118,8 +118,8 @@ namespace Opm {
         const std::vector<double>& facepressure() const;
         const std::vector<double>& faceflux    () const;
 
-        const std::unordered_map<std::string, std::vector<double>>& cellData() const;
-        std::unordered_map<std::string, std::vector<double>>& cellData();
+        const std::map<std::string, std::vector<double>>& cellData() const;
+        std::map<std::string, std::vector<double>>& cellData();
 
     private:
         void addDefaultFields();
@@ -129,8 +129,8 @@ namespace Opm {
         size_t m_num_faces;
         size_t m_num_phases;
 
-        std::unordered_map< std::string , std::vector<double> > m_cell_data;
-        std::unordered_map< std::string , std::vector<double> > m_face_data;
+        std::map< std::string , std::vector<double> > m_cell_data;
+        std::map< std::string , std::vector<double> > m_face_data;
 
         std::vector<double>* pressure_ref_;
         std::vector<double>* temperature_ref_;

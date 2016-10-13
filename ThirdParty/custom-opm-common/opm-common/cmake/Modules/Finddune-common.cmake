@@ -57,6 +57,7 @@ int main (void) {
   HAVE_NULLPTR;
   HAVE_STATIC_ASSERT;
   HAVE_SHARED_PTR;
+  MPI_2;
   SHARED_PTR_HEADER;
   SHARED_PTR_NAMESPACE;
   HAVE_TYPE_TRAITS;
@@ -65,6 +66,17 @@ int main (void) {
   HAVE_CXA_DEMANGLE
   ")
 #debug_find_vars ("dune-common")
+
+if(MPI_C_FOUND)
+  # check for MPI version 2
+  include(CMakePushCheckState)
+  include(CheckFunctionExists)
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES};${MPI_C_LIBRARIES})
+  set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES};${MPI_C_INCLUDES})
+  check_function_exists(MPI_Finalized MPI_2)
+  cmake_pop_check_state()
+endif(MPI_C_FOUND)
 
 # make version number available in config.h
 include (UseDuneVer)

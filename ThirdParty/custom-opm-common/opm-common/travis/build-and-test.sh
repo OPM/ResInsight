@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-build_order=(opm-common opm-parser opm-material opm-output opm-core opm-grid opm-simulators opm-upscaling)
+build_order=(opm-common opm-parser opm-material opm-output opm-core opm-grid ewoms opm-simulators opm-upscaling)
 
 # This shell script should be started with the name of a module as
 # only only command line argument. It will start by building all
@@ -25,13 +25,12 @@ build_order=(opm-common opm-parser opm-material opm-output opm-core opm-grid opm
 # This can typically be achived by using the 'clone-opm.sh' script.
 
 
-
 function upstream_build {
     project=${1}
     echo "Building: ${project}"
     mkdir -p ${project}/build
     pushd ${project}/build > /dev/null
-    cmake ../ -DENABLE_PYTHON=ON -DBUILD_TESTING=OFF -DSILENCE_EXTERNAL_WARNINGS=True
+    cmake ../ -DENABLE_PYTHON=ON -DBUILD_TESTING=OFF -DSILENCE_EXTERNAL_WARNINGS=True -DUSE_QUADMATH=OFF -DADD_DISABLED_CTESTS=OFF
     make 
     popd > /dev/null
 }
@@ -45,11 +44,16 @@ function downstream_build_and_test {
     # The build commands cmake, make and ctest must be given as
     # separate commands and not chained with &&. If chaining with &&
     # is used the 'set -e' does not exit on first error.
-    cmake ../ -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DSILENCE_EXTERNAL_WARNINGS=True
+    cmake ../ -DENABLE_PYTHON=ON -DBUILD_TESTING=ON -DSILENCE_EXTERNAL_WARNINGS=True -DUSE_QUADMATH=OFF -DADD_DISABLED_CTESTS=OFF
     make
     ctest --output-on-failure
     popd > /dev/null
 }
+
+#-----------------------------------------------------------------
+
+export CONDA_HOME="$HOME/miniconda"
+export PATH="$CONDA_HOME/bin:$PATH"
 
 
 for i in "${!build_order[@]}"; do

@@ -8,7 +8,6 @@
 # HAVE_SHARED_PTR                  True if std::shared_ptr is available
 # HAVE_UNIQUE_PTR                  True if std::unique_ptr is available
 # HAVE_NULLPTR                     True if nullptr is available
-# HAVE_REGEX                       True if std::regex available and sufficiently usable
 # HAVE_ARRAY                       True if header <array> and fill() are available
 # HAVE_ATTRIBUTE_ALWAYS_INLINE     True if attribute always inline is supported
 # HAS_ATTRIBUTE_UNUSED             True if attribute unused is supported
@@ -145,33 +144,6 @@ CHECK_CXX_SOURCE_COMPILES("
       return 0;
     }
 "  HAVE_NULLPTR
-)
-
-# <regex>
-CHECK_CXX_SOURCE_RUNS("
-    #include <regex>
-    int main(void)
-    {
-      std::regex r(\"AB.*|BC+|DE.+\", std::regex::extended);
-      if (!std::regex_match(\"AB\", r))
-           return 1;
-      if (!std::regex_match(\"ABC\", r))
-           return 2;
-      if (!std::regex_match(\"ABC!#\", r))
-           return 3;
-      if (std::regex_match(\"B\", r))
-           return 4;
-      if (!std::regex_match(\"BC\", r))
-           return 5;
-      if (std::regex_match(\"BCE\", r))
-           return 6;
-      if (std::regex_match(\"DE\", r))
-           return 7;
-      if (!std::regex_match(\"DEF\", r))
-           return 8;
-      return 0;
-    }
-"  HAVE_REGEX
 )
 
 # constexpr

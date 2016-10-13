@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-project_list=(opm-data opm-parser opm-material opm-core opm-output opm-grid opm-simulators opm-upscaling ewoms)
+project_list=(opm-data opm-parser opm-material ewoms opm-core opm-output opm-grid opm-simulators opm-upscaling)
 
 # Will clone all the projects *except* the one project given as
 # commandline argument; that has typically been checked out by travis

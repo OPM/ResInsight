@@ -25,12 +25,12 @@ set (ewoms_DEPS
 	"CXX11Features REQUIRED"
 	# DUNE prerequisites
 	"dune-common REQUIRED"
-	"dune-localfunctions REQUIRED"
 	"dune-geometry REQUIRED"
 	"dune-grid REQUIRED"
 	"dune-istl REQUIRED"
 	"opm-common REQUIRED"
 	"opm-material REQUIRED"
+	"dune-localfunctions"
 	"dune-alugrid"
 	"dune-fem"
 	"opm-parser"

@@ -107,22 +107,35 @@ if (Petsc_ROOT)
     set (PETSC_ROOT "${Petsc_ROOT}")
 endif (Petsc_ROOT)
 
-find_path (PETSC_NORMAL_INCLUDE_DIR
-    NAMES "petsc.h"
-    PATHS ${PETSC_ROOT}
-    PATH_SUFFIXES "include" "petsc"
-    ${_no_default_path}
-    )
+find_package(PkgConfig)
+if(PKG_CONFIG_FOUND)
+  set(OLD_PKG $ENV{PKG_CONFIG_PATH})
+  set(ENV{PKG_CONFIG_PATH} $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/lib/pkgconfig)
+  pkg_check_modules(PETSC PETSc>=3.4.0)
+  set(ENV{PKG_CONFIG_PATH} ${OLD_PKG})
+  set(PETSC_LIBRARIES ${PETSC_STATIC_LDFLAGS})
+  set(PETSC_LIBRARY ${PETSC_LIBRARIES})
+  set(PETSC_INCLUDE_DIR ${PETSC_INCLUDE_DIRS})
+endif()
 
-list(APPEND PETSC_INCLUDE_DIR ${PETSC_NORMAL_INCLUDE_DIR})
+if(NOT PETSC_FOUND)
+  find_path (PETSC_NORMAL_INCLUDE_DIR
+      NAMES "petsc.h"
+      PATHS ${PETSC_ROOT}
+      PATH_SUFFIXES "include" "petsc"
+      ${_no_default_path}
+      )
 
-# look for actual Petsc library
-find_library(PETSC_LIBRARY
-    NAMES "petsc-3.4.3" "petsc-3.4.4" "petsc" 
-    PATHS ${PETSC_ROOT}
-    PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
-    ${_no_default_path}
-    )
+  list(APPEND PETSC_INCLUDE_DIR ${PETSC_NORMAL_INCLUDE_DIR})
+
+  # look for actual Petsc library
+  find_library(PETSC_LIBRARY
+      NAMES "petsc-3.4.3" "petsc-3.4.4" "petsc"
+      PATHS ${PETSC_ROOT}
+      PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+      ${_no_default_path}
+      )
+endif()
 
 if(NOT PETSC_LIBRARY)
   message(STATUS "Could not find the PETSc library")
@@ -136,7 +149,7 @@ mark_as_advanced(PETSC_INCLUDE_DIR PETSC_LIBRARY)
 
 # if both headers and library are found, store results
 if(PETSC_FOUND)
-    set(PETSC_INCLUDE_DIRS ${PETSC_INCLUDE_DIR})
+  set(PETSC_INCLUDE_DIRS ${PETSC_INCLUDE_DIR})
     list(APPEND PETSC_INCLUDE_DIRS ${PETSC_MPI_INCLUDE_DIRS})
 
     set(PETSC_LIBRARIES ${PETSC_LIBRARY})

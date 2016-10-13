@@ -2,23 +2,20 @@
 # vim: set filetype=cmake autoindent tabstop=2 shiftwidth=2 noexpandtab softtabstop=2 nowrap:
 
 # defines that must be present in config.h for our headers
-set (opm-output_CONFIG_VAR
-	HAVE_ERT
+set (opm-flowdiagnostics-applications_CONFIG_VAR
 	)
 
 # dependencies
-set (opm-output_DEPS
+set (opm-flowdiagnostics-applications_DEPS
 	# compile with C99 support if available
 	"C99"
 	# compile with C++0x/11 support if available
 	"CXX11Features REQUIRED"
-	# various runtime library enhancements
 	"Boost 1.44.0
-		COMPONENTS unit_test_framework REQUIRED"
-	# Ensembles-based Reservoir Tools (ERT)
+		COMPONENTS filesystem system unit_test_framework REQUIRED"
 	"ERT REQUIRED"
-	# Look for MPI support
-	"opm-common REQUIRED"
-	# Parser library for ECL-type simulation models
-	"opm-parser REQUIRED"
+	# prerequisite OPM modules
+	"opm-common REQUIRED;
+	opm-flowdiagnostics REQUIRED;
+	opm-core REQUIRED"
 	)

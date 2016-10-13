@@ -23,7 +23,7 @@ find_opm_package (
   "${opm-flowdiagnostics_DEPS}"
   
   # header to search for
-  "opm/flowdiagnostics/reorder/tarjan.h"
+  "opm/flowdiagnostics/Toolbox.hpp"
 
   # library to search for
   "opmflowdiagnostics"
@@ -32,16 +32,15 @@ find_opm_package (
   ""
 
   # test program
-"#include <opm/flowdiagnostics/reorder/tarjan.h>
-int main() {
-  const int ia[]  = { 0, 0, 1, 2, 4 };
-  const int ja[]  = { 0, 0, 1, 2 };
-  int vert[4]     = { 0 };
-  int comp[4 + 1] = { 0 };
-  int ncomp       =   0  ;
-  int work[3 * 4] = { 0 };
+"#include <opm/flowdiagnostics/Toolbox.hpp>
 
-  tarjan(4, ia, ja, vert, comp, &ncomp, work);
+#include <vector>
+
+int main()
+{
+    using FDT = Opm::FlowDiagnostics::Toolbox;
+
+    const auto pv = std::vector<double>(10, 0.3);
 }
 "
   # config variables
