@@ -354,7 +354,6 @@ set( LINK_LIBRARIES
     ${VIZ_FWK_LIBRARIES}
     
     ${ERT_LIBRARIES}
-    ${ERT_EXTERNAL_LIBRARIES}
     
     NRLib
 
