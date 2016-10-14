@@ -79,7 +79,8 @@ public:
     
     bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
-    void selectAxisInPropertyEditor(int axis);
+    void                                            selectAxisInPropertyEditor(int axis);
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
@@ -105,7 +106,10 @@ private:
 
 private:
     caf::PdmField<bool>                             m_showWindow;
+    
+    caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
+    
     caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
 

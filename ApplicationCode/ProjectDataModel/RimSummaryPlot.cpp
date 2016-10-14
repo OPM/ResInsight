@@ -55,6 +55,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_showWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters.uiCapability()->setUiTreeHidden(true);
@@ -398,7 +399,8 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         uiCapability()->updateUiIconFromToggleField();
     }
-    else if (changedField == &m_userName)
+    else if (changedField == &m_userName || 
+             changedField == &m_showPlotTitle)
     {
         updateViewerWidgetWindowTitle();
     }
@@ -586,6 +588,15 @@ void RimSummaryPlot::updateViewerWidgetWindowTitle()
     if (m_qwtPlot)
     {
         m_qwtPlot->setWindowTitle(m_userName);
+
+        if (m_showPlotTitle)
+        {
+            m_qwtPlot->setTitle(m_userName);
+        }
+        else
+        {
+            m_qwtPlot->setTitle("");
+        }
     }
 }
 
