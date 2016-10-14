@@ -91,13 +91,19 @@ class SingleLasFileMetaData
 public:
     SingleLasFileMetaData()
         : m_minimumCurveValue(HUGE_VAL),
-        m_rkbDiff(HUGE_VAL)
+        m_rkbDiff(HUGE_VAL),
+        m_exportTvdrkb(false)
     {
     }
 
     void setWellName(const QString& wellName)
     {
         m_wellName = wellName;
+    }
+
+    QString wellName()
+    {
+        return m_wellName;
     }
 
     void setCaseName(const QString& caseName)
@@ -113,6 +119,16 @@ public:
     void setRkbDiff(double rkbDiff)
     {
         m_rkbDiff = rkbDiff;
+    }
+
+    void enableTvdrkbExport()
+    {
+        m_exportTvdrkb = true;
+    }
+
+    double rkbDiff()
+    {
+        return m_rkbDiff;
     }
 
     void addLogData(const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData)
@@ -198,7 +214,7 @@ public:
         {
             lasFile->AddLog("TVDMSL", "M", "True vertical depth in meters", firstCurveData->tvDepths());
 
-            if (m_rkbDiff != HUGE_VAL)
+            if (m_exportTvdrkb && m_rkbDiff != -1.0)
             {
                 // Export True Vertical Depth Rotary Kelly Bushing - TVDRKB
                 std::vector<double> tvdrkbValues = firstCurveData->tvDepths();
@@ -269,7 +285,9 @@ private:
     QString m_wellName;
     QString m_caseName;
     QString m_date;
+    
     double m_rkbDiff;
+    double m_exportTvdrkb;
 
     RimDefines::DepthUnitType m_depthUnit;
     std::vector<double> m_depthValues;
@@ -301,9 +319,54 @@ void RigLasFileExporter::setResamplingInterval(double interval)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigLasFileExporter::wellPathsAndRkbDiff(std::vector<QString>* wellNames, std::vector<double>* rkbDiffs)
+{
+    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions(m_curves);
+
+    std::set<QString> uniqueWellNames;
+
+    for (auto metaData : lasFileDescriptions)
+    {
+        QString wellName = metaData.wellName();
+        if (uniqueWellNames.find(wellName) == uniqueWellNames.end())
+        {
+            uniqueWellNames.insert(wellName);
+            
+            wellNames->push_back(wellName);
+            rkbDiffs->push_back(metaData.rkbDiff());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigLasFileExporter::setRkbDiffs(const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs)
+{
+    assert(wellNames.size() == rkbDiffs.size());
+
+    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions(m_curves);
+
+    for (size_t i = 0; i < wellNames.size(); i++)
+    {
+        for (auto& metaData : lasFileDescriptions)
+        {
+            if (metaData.wellName() == wellNames[i])
+            {
+                m_userDefinedRkbOffsets.push_back(rkbDiffs[i]);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigLasFileExporter::writeToFolder(const QString& exportFolder)
 {
     std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions(m_curves);
+
+    applyUserDefinedRkbOffsets(&lasFileDescriptions);
 
     for (auto lasFileDescr : lasFileDescriptions)
     {
@@ -494,6 +557,21 @@ double RigLasFileExporter::rkbDiff(RimWellLogCurve* curve)
         return extractionCurve->rkbDiff();
     }
 
-    return HUGE_VAL;
+    return -1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigLasFileExporter::applyUserDefinedRkbOffsets(std::vector<SingleLasFileMetaData>* lasFileDescriptions)
+{
+    if (m_userDefinedRkbOffsets.size() == lasFileDescriptions->size())
+    {
+        for (size_t i = 0; i < m_userDefinedRkbOffsets.size(); i++)
+        {
+            lasFileDescriptions->at(i).setRkbDiff(m_userDefinedRkbOffsets[i]);
+            lasFileDescriptions->at(i).enableTvdrkbExport();
+        }
+    }
 }
 

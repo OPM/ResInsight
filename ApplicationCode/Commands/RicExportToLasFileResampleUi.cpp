@@ -18,6 +18,20 @@
 
 #include "RicExportToLasFileResampleUi.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiOrdering.h"
+#include "cafPdmUiCheckBoxEditor.h"
+
+CAF_PDM_SOURCE_INIT(RicExportToLasFileObj, "RicExportToLasFileObj");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportToLasFileObj::RicExportToLasFileObj(void)
+{
+    CAF_PDM_InitObject("RicExportToLasFileObj", "", "", "");
+
+    CAF_PDM_InitField(&tvdrkbOffset, "tvdrkbOffset", 0.0, "TVDRKB offset (RKB - MSL) [m]", "", "", "");
+}
 
 CAF_PDM_SOURCE_INIT(RicExportToLasFileResampleUi, "RicExportToLasFileResampleUi");
 
@@ -32,9 +46,50 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi(void)
     exportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&activateResample, "ActivateResample", false,     "Resample Curve Data", "", "", "");
+    activateResample.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     CAF_PDM_InitField(&resampleInterval, "ResampleInterval", 1.0,       "Resample Interval [m]", "", "", "");
 
+    CAF_PDM_InitField(&exportTvdrkb,    "ExportTvdrkb",     false,      "Export TVDRKB", "", "", "");
+    exportTvdrkb.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    
+    CAF_PDM_InitFieldNoDefault(&m_tvdrkbOffsets, "tvdrkbOffsets", "", "", "", "");
+
     updateFieldVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportToLasFileResampleUi::~RicExportToLasFileResampleUi()
+{
+    m_tvdrkbOffsets.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportToLasFileResampleUi::tvdrkbDiffForWellPaths(std::vector<double>* rkbDiffs)
+{
+    for (size_t i = 0; i < m_tvdrkbOffsets.size(); i++)
+    {
+        rkbDiffs->push_back(m_tvdrkbOffsets()[i]->tvdrkbOffset);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportToLasFileResampleUi::setRkbDiffs(const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs)
+{
+    for (size_t i = 0; i < wellNames.size(); i++)
+    {
+        RicExportToLasFileObj* obj = new RicExportToLasFileObj;
+        obj->tvdrkbOffset = rkbDiffs[i];
+        obj->tvdrkbOffset.uiCapability()->setUiName(wellNames[i]);
+
+        m_tvdrkbOffsets.push_back(obj);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +113,15 @@ void RicExportToLasFileResampleUi::defineEditorAttribute(const caf::PdmFieldHand
             myAttr->m_selectDirectory = true;
         }
     }
+
+    if (field == &exportTvdrkb || field == &activateResample)
+    {
+        caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_useNativeCheckBoxLabel = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,4 +137,31 @@ void RicExportToLasFileResampleUi::updateFieldVisibility()
     {
         resampleInterval.uiCapability()->setUiReadOnly(true);
     }
+
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportToLasFileResampleUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&exportFolder);
+    
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Resampling");
+
+        group->add(&activateResample);
+        group->add(&resampleInterval);
+    }
+
+    
+    caf::PdmUiGroup* tvdrkbGroup = uiOrdering.addNewGroup("TVDRKB");
+    tvdrkbGroup->add(&exportTvdrkb);
+
+    caf::PdmUiGroup* group = tvdrkbGroup->addNewGroup("Difference between TVDRKB and TVDMSL");
+    for (auto& obj : m_tvdrkbOffsets)
+    {
+        group->add(&obj->tvdrkbOffset);
+    }
+}
+

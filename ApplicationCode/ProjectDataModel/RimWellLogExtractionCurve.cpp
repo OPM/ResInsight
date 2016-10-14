@@ -642,8 +642,15 @@ double RimWellLogExtractionCurve::rkbDiff() const
 {
     if (m_wellPath && m_wellPath->wellPathGeometry())
     {
-        return cvf::Math::abs(m_wellPath->wellPathGeometry()->m_measuredDepths[0] - m_wellPath->wellPathGeometry()->m_wellPathPoints[0].z());
+        RigWellPath* geo = m_wellPath->wellPathGeometry();
+        
+        if (geo->m_wellPathPoints.size() > 0 && geo->m_measuredDepths.size() > 0)
+        {
+            double diff = cvf::Math::abs(cvf::Math::abs(geo->m_wellPathPoints[0].z()) - geo->m_measuredDepths[0]);
+        
+            return diff;
+        }
     }
 
-    return HUGE_VAL;
+    return -1.0;
 }

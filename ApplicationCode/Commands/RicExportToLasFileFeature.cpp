@@ -55,19 +55,37 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("WELL_LOGS_DIR", projectFolder);
 
+    RigLasFileExporter lasExporter(curves);
     RicExportToLasFileResampleUi featureUi;
     featureUi.exportFolder = defaultDir;
+
+    {
+        std::vector<QString> wellNames;
+        std::vector<double> rkbDiffs;
+        lasExporter.wellPathsAndRkbDiff(&wellNames, &rkbDiffs);
+        featureUi.setRkbDiffs(wellNames, rkbDiffs);
+    }
+    
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     propertyDialog.resize(QSize(400, 200));
     
     if (propertyDialog.exec() == QDialog::Accepted &&
         !featureUi.exportFolder().isEmpty())
     {
-        RigLasFileExporter lasExporter(curves);
-
         if (featureUi.activateResample)
         {
             lasExporter.setResamplingInterval(featureUi.resampleInterval());
+        }
+
+        if (featureUi.exportTvdrkb)
+        {
+            std::vector<QString> wellNames;
+            std::vector<double> rkbDiffs;
+            lasExporter.wellPathsAndRkbDiff(&wellNames, &rkbDiffs);
+
+            std::vector<double> userDefRkbDiff;
+            featureUi.tvdrkbDiffForWellPaths(&userDefRkbDiff);
+            lasExporter.setRkbDiffs(wellNames, userDefRkbDiff);
         }
 
         lasExporter.writeToFolder(featureUi.exportFolder());

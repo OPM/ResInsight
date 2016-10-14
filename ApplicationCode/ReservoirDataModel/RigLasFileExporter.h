@@ -36,6 +36,9 @@ public:
 
     void setResamplingInterval(double interval);
 
+    void wellPathsAndRkbDiff(std::vector<QString>* wellNames, std::vector<double>* rkbDiffs);
+    void setRkbDiffs(const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs);
+
     bool writeToFolder(const QString& exportFolder);
 
 private:
@@ -45,8 +48,11 @@ private:
     QString                             caseNameFromCurve(RimWellLogCurve* curve);
     double                              rkbDiff(RimWellLogCurve* curve);
 
+    void                                applyUserDefinedRkbOffsets(std::vector<SingleLasFileMetaData>* lasFileDescriptions);
+
 private:
-    std::vector<RimWellLogCurve*> m_curves;
+    std::vector<RimWellLogCurve*>   m_curves;
+    std::vector<double>             m_userDefinedRkbOffsets;
 
     bool                                 m_isResampleActive;
     double                               m_resamplingInterval;

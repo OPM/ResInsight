@@ -20,6 +20,22 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
+
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicExportToLasFileObj : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicExportToLasFileObj(void);
+
+    caf::PdmField<double> tvdrkbOffset;
+};
+
 
 //==================================================================================================
 /// 
@@ -30,15 +46,28 @@ class RicExportToLasFileResampleUi : public caf::PdmObject
 
 public:
     RicExportToLasFileResampleUi(void);
+    ~RicExportToLasFileResampleUi();
+
+    caf::PdmField<QString>  exportFolder;
 
     caf::PdmField<bool>     activateResample;
     caf::PdmField<double>   resampleInterval;
-    caf::PdmField<QString>  exportFolder;
 
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    caf::PdmField<bool>     exportTvdrkb;
+
+    void                    tvdrkbDiffForWellPaths(std::vector<double>* rkbDiffs);
+    void                    setRkbDiffs(const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs);
+
+    virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
+protected:
+    virtual void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void updateFieldVisibility();
+    void                    updateFieldVisibility();
+
+private:
+    caf::PdmChildArrayField<RicExportToLasFileObj*> m_tvdrkbOffsets;
 
 };
