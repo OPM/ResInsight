@@ -19,9 +19,12 @@
 #include "RiuSummaryQwtPlot.h"
 
 #include "RiaApplication.h"
+
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
+
 #include "RiuMainPlotWindow.h"
+#include "RiuQwtScalePicker.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
@@ -69,6 +72,9 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     m_zoomerRight = new QwtPlotZoomer(canvas());
     m_zoomerRight->setAxis(xTop, yRight);
     m_zoomerRight->setTrackerMode(QwtPicker::AlwaysOff);
+
+    RiuQwtScalePicker* scalePicker = new RiuQwtScalePicker(this);
+    connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,4 +301,14 @@ void RiuSummaryQwtPlot::onZoomedSlot()
     this->setZoomWindow(left, right, time);
     
     m_plotDefinition->updateZoomFromQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::onAxisClicked(int axis, double value)
+{
+    if (!m_plotDefinition) return;
+
+    m_plotDefinition->selectAxisInPropertyEditor(axis);
 }

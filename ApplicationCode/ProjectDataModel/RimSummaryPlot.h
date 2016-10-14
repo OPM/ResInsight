@@ -79,6 +79,7 @@ public:
     
     bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
+    void selectAxisInPropertyEditor(int axis);
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }

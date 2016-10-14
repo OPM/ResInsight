@@ -145,6 +145,26 @@ bool RimSummaryPlot::isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
+{
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    if (axis == QwtPlot::yLeft)
+    {
+        plotwindow->selectAsCurrentItem(m_leftYAxisProperties);
+    }
+    else if (axis == QwtPlot::yRight)
+    {
+        plotwindow->selectAsCurrentItem(m_rightYAxisProperties);
+    }
+    else if (axis == QwtPlot::xBottom)
+    {
+        plotwindow->selectAsCurrentItem(this);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;

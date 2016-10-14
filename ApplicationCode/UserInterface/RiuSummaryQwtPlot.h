@@ -61,6 +61,7 @@ private:
 
 private slots:
     void                            onZoomedSlot( );
+    void                            onAxisClicked(int axis, double value);
 
 private:
     QwtPlotGrid*                    m_grid;
