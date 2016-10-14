@@ -83,16 +83,23 @@ void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
      updateFieldVisibility();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QStringList RimEclipseResultDefinition::getResultVariableListForCurrentUIFieldSettings()
 {
-    if (!m_eclipseCase  ) return QStringList();
+    RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModelUiField());
+    if (!cellResultsStorage) return QStringList();
 
-    return m_eclipseCase->results(porosityModel)->cellResults()->resultNames(m_resultTypeUiField());
+    if (!cellResultsStorage->cellResults()) return QStringList();
+
+    return cellResultsStorage->cellResults()->resultNames(m_resultTypeUiField());
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResults() const
 {
     if (!m_eclipseCase ) return NULL;
