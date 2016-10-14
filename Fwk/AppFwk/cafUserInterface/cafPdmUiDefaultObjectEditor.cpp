@@ -117,7 +117,7 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     // Set all fieldViews to be unvisited
-    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
         it->second->setField(NULL);
@@ -128,17 +128,19 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     const std::vector<PdmUiItem*>& uiItems = config.uiItems();
     
-    {
-        std::set<QString> fieldKeywordNames;
-        std::set<QString> groupNames;
-        recursiveVerifyUniqueNames(uiItems, uiConfigName, &fieldKeywordNames, &groupNames);
-    }
+    // TODO: Review that is it not breaking anything to have fields with identical keywords
+    //     {
+    //         std::set<QString> fieldKeywordNames;
+    //         std::set<QString> groupNames;
+    // 
+    //         recursiveVerifyUniqueNames(uiItems, uiConfigName, &fieldKeywordNames, &groupNames);
+    //     }
 
     recursiveSetupFieldsAndGroups(uiItems, m_mainWidget, m_layout, uiConfigName);
 
     // Remove all fieldViews not mentioned by the configuration from the layout
 
-    std::vector< QString > fvhToRemoveFromMap;
+    std::vector< PdmFieldHandle* > fvhToRemoveFromMap;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
         if (it->second->field() == 0)
@@ -176,7 +178,7 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 void PdmUiDefaultObjectEditor::cleanupBeforeSettingPdmObject()
 {
-    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
         PdmUiFieldEditorHandle* fvh = it->second;
@@ -252,8 +254,8 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             PdmUiFieldEditorHandle* fieldEditor = NULL;
 
             // Find or create FieldEditor
-            std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
-            it = m_fieldViews.find(field->fieldHandle()->keyword());
+            std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
+            it = m_fieldViews.find(field->fieldHandle());
 
             if (it == m_fieldViews.end())
             {
@@ -286,7 +288,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                 if (fieldEditor)
                 {
-                    m_fieldViews[field->fieldHandle()->keyword()] = fieldEditor;
+                    m_fieldViews[field->fieldHandle()] = fieldEditor;
                     fieldEditor->createWidgets(parent);
                 }
                 else
