@@ -168,7 +168,7 @@ cvf::Vec3d eigenVector3(const cvf::Mat3d& mx, double eigenValue, bool* computedO
 /// The tensor must be laid out as follows: SXX, SYY, SZZ, SXY, SYZ, SZX
 //--------------------------------------------------------------------------------------------------
 template<typename S>
-cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3])
+cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3]) const
 {
     CVF_TIGHT_ASSERT(m_tensor);
 
@@ -314,12 +314,31 @@ cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3])
 /// 
 //--------------------------------------------------------------------------------------------------
 template< typename S>
-float caf::Tensor3<S>::calculateVonMises()
+float caf::Tensor3<S>::calculateVonMises() const
 {
     return (float) sqrt( (   (m_tensor[0]*m_tensor[0] + m_tensor[1]*m_tensor[1] + m_tensor[2]*m_tensor[2]) ) +
                          (  -(m_tensor[0]*m_tensor[1] + m_tensor[1]*m_tensor[2] + m_tensor[0]*m_tensor[2]) ) +
                          ( 3*(m_tensor[3]*m_tensor[3] + m_tensor[4]*m_tensor[4] + m_tensor[5]*m_tensor[5]) )   );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Calculates Trot = rotMx*T*transpose(rotMx)
+//--------------------------------------------------------------------------------------------------
+template< typename S>
+Tensor3<S> caf::Tensor3<S>::rotate(const cvf::Matrix3<S>& rotMx) const
+{
+    cvf::Matrix3<S> tensor(m_tensor[SXX], m_tensor[SXY], m_tensor[SZX], 
+                           m_tensor[SXY], m_tensor[SYY], m_tensor[SYZ], 
+                           m_tensor[SZX], m_tensor[SYZ], m_tensor[SZZ]); 
+
+    cvf::Matrix3<S> transposedRotMx = rotMx;
+    transposedRotMx.transpose();
+    cvf::Matrix3<S>  rotatedTensor = rotMx * tensor * transposedRotMx;
+
+    return Tensor3(rotatedTensor(0,0), rotatedTensor(1,1), rotatedTensor(2,2), 
+                   rotatedTensor(1,0), rotatedTensor(1,2), rotatedTensor(0,2));
+}
+
 
 }
 
