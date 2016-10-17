@@ -2400,11 +2400,11 @@ AssertionResult DoubleNearPredFormat(const char* expr1,
   // TODO(wan): do not print the value of an expression if it's
   // already a literal.
   Message msg;
-  msg << "The difference between " << expr1 << " and " << expr2
-      << " is " << diff << ", which exceeds " << abs_error_expr << ", where\n"
-      << expr1 << " evaluates to " << val1 << ",\n"
-      << expr2 << " evaluates to " << val2 << ", and\n"
-      << abs_error_expr << " evaluates to " << abs_error << ".";
+  msg << "\nThe difference between " << expr1 << " and " << expr2
+      << " is " << diff << ". It exceeds " << abs_error_expr << "\n"
+      << " Expected : " << val1 << " (" << expr1 << ")\n"
+      << " Actual   : " << val2 << " (" << expr2 << ")\n"
+      << " Tolerance: " << abs_error << " (" << abs_error_expr << ")" ;
   return AssertionFailure(msg);
 }
 
