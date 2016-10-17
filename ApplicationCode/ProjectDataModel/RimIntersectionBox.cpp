@@ -244,18 +244,36 @@ void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     }
     else if (changedField == &m_minXCoord)
     {
-        clampSinglePlaneValues();
-        m_minXCoord = CVF_MIN(m_maxXCoord, m_minXCoord);
+        if (m_singlePlaneState == PLANE_STATE_X)
+        {
+            m_maxXCoord = m_minXCoord;
+        }
+        else
+        {
+            m_minXCoord = CVF_MIN(m_maxXCoord, m_minXCoord);
+        }
     }
     else if (changedField == &m_minYCoord)
     {
-        clampSinglePlaneValues();
-        m_minYCoord = CVF_MIN(m_maxYCoord, m_minYCoord);
+        if (m_singlePlaneState == PLANE_STATE_Y)
+        {
+            m_maxYCoord = m_minYCoord;
+        }
+        else
+        {
+            m_minYCoord = CVF_MIN(m_maxYCoord, m_minYCoord);
+        }
     }
     else if (changedField == &m_minDepth)
     {
-        clampSinglePlaneValues();
-        m_minDepth = CVF_MIN(m_maxDepth, m_minDepth);
+        if (m_singlePlaneState == PLANE_STATE_Z)
+        {
+            m_maxDepth = m_minDepth;
+        }
+        else
+        {
+            m_minDepth = CVF_MIN(m_maxDepth, m_minDepth);
+        }
     }
     else if (changedField == &m_maxXCoord)
     {
