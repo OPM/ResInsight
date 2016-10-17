@@ -804,6 +804,11 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 {
     cvf::OverlayItem* pickedOverlayItem = m_viewer->overlayItem(winPosX, winPosY);
+    if (!pickedOverlayItem)
+    {
+        pickedOverlayItem = m_viewer->pickFixedPositionedLegend(winPosX, winPosY);
+    }
+
     if (pickedOverlayItem)
     {
         caf::PdmObject* objToSelect = NULL;

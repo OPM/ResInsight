@@ -92,6 +92,8 @@ public:
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
     caf::PdmObject* lastPickedObject() const;
 
+    cvf::OverlayItem*   pickFixedPositionedLegend(int winPosX, int winPosY);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();

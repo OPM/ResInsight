@@ -723,6 +723,26 @@ caf::PdmObject* RiuViewer::lastPickedObject() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
+{
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    for (auto overlayItem : m_visibleLegends)
+    {
+        if (overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
+            overlayItem->pick(translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->sizeHint()))
+        {
+            return overlayItem.p();
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 {
     if (m_rimView.isNull()) return;
