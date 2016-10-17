@@ -363,8 +363,6 @@ void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_t
                     // Set Date
                     {
                         QDateTime reportDateTime(QDate(restart_header->year, restart_header->month, restart_header->day));
-                        CVF_ASSERT(reportDateTime.isValid());
-
                         reportStep.dateTime = reportDateTime;
                     }
 
