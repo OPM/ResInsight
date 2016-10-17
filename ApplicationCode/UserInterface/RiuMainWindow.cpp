@@ -1567,6 +1567,8 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
+    regressionTestDialog.resize(QSize(600, 200));
+
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
