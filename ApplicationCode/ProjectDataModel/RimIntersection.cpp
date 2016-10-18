@@ -140,7 +140,6 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_branchIndex = -1;
     }
 
-
     if (changedField == &simulationWell 
         || changedField == &wellPath
         || changedField == &m_branchIndex)
@@ -151,12 +150,22 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     if (changedField == &inputPolyLineFromViewerEnabled
         || changedField == &m_userPolyline)
     {
+        if (inputPolyLineFromViewerEnabled)
+        {
+            inputExtrusionPointsFromViewerEnabled = false;
+        }
+
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
     if (changedField == &inputExtrusionPointsFromViewerEnabled
         || changedField == &m_customExtrusionPoints)
     {
+        if (inputExtrusionPointsFromViewerEnabled)
+        {
+            inputPolyLineFromViewerEnabled = false;
+        }
+
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 }
