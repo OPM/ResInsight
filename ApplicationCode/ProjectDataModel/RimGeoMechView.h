@@ -119,9 +119,3 @@ private:
 
 };
 
-#include "cvfArray.h"
-
-namespace cvf {
-    class CellRangeFilter;
-}
-
