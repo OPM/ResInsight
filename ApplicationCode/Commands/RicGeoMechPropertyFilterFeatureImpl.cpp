@@ -24,12 +24,12 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechResultDefinition.h"
-#include "RimGeoMechCellColors.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-#include "RiuMainWindow.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -125,7 +125,7 @@ void RicGeoMechPropertyFilterFeatureImpl::setDefaults(RimGeoMechPropertyFilter* 
     CVF_ASSERT(reservoirView);
 
     propertyFilter->resultDefinition->setGeoMechCase(reservoirView->geoMechCase());
-    propertyFilter->resultDefinition->setResultAddress(reservoirView->cellResult()->resultAddress());
+    propertyFilter->resultDefinition->setResultAddress(reservoirView->cellResultResultDefinition()->resultAddress());
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();

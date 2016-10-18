@@ -22,8 +22,10 @@
 
 #include "RiaApplication.h"
 
+#include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimGeoMechResultDefinition.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -42,8 +44,6 @@
 #include "cvfqtUtils.h"
 
 #include <cmath>
-#include "RimGeoMechCellColors.h"
-#include "RimCellEdgeColors.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
@@ -790,7 +790,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
     {
         RimEclipseCellColors* eclCellColors = nullptr;
         this->firstAncestorOrThisOfType(eclCellColors);
-        RimGeoMechCellColors* gmCellColors = nullptr;
+        RimGeoMechResultDefinition* gmCellColors = nullptr;
         this->firstAncestorOrThisOfType(gmCellColors);
         RimCellEdgeColors* eclCellEdgColors = nullptr;
         this->firstAncestorOrThisOfType(eclCellEdgColors);

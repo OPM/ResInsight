@@ -30,21 +30,20 @@
 #include "RigResultAccessorFactory.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
-#include "RimWellLogCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCellColors.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
@@ -135,7 +134,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     if (geoMechView)
     {
-        m_geomResultDefinition->setResultAddress(geoMechView->cellResult()->resultAddress());
+        m_geomResultDefinition->setResultAddress(geoMechView->cellResultResultDefinition()->resultAddress());
         m_timeStep = geoMechView->currentTimeStep();
     }
 }

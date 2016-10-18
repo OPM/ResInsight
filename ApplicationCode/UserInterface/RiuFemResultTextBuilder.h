@@ -22,12 +22,13 @@
 #include "cvfBase.h"
 #include "cafPdmPointer.h"
 #include "cvfStructGrid.h"
+
 #include <QString>
 
-class RimGeoMechView;
-class RimEclipseCellColors;
 class RigGeoMechCaseData;
-class RimGeoMechCellColors;
+class RimEclipseCellColors;
+class RimGeoMechResultDefinition;
+class RimGeoMechView;
 
 namespace cvf {
     class Part;
@@ -54,9 +55,9 @@ private:
     QString gridResultDetails();
     QString formationDetails();
 
-    QString closestNodeResultText(RimGeoMechCellColors* resultColors);
+    QString closestNodeResultText(RimGeoMechResultDefinition* resultDefinition);
 
-    void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText);
+    void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultDefinition* resultDefinition, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;

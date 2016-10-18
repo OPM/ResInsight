@@ -692,6 +692,14 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition()
+{
+    return cellResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() const
 {
     return geoMechPropertyFilterCollection();

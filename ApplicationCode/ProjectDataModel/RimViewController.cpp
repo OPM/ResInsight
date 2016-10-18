@@ -23,6 +23,7 @@
 
 #include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
+#include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
 
@@ -44,7 +45,6 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
-#include "RigCaseToCaseRangeFilterMapper.h"
 
 #include <QMessageBox>
 

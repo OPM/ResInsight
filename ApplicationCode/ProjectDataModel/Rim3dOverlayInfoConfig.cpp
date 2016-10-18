@@ -22,28 +22,29 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimEclipseCase.h"
-#include "RimCellEdgeColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseWellCollection.h"
-#include "RiuViewer.h"
-#include "RimGeoMechView.h"
-#include "RimView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RimGeoMechCellColors.h"
-#include "RigFemResultAddress.h"
-#include "RigFemPartResultsCollection.h"
-
-#include "RigStatisticsDataCache.h"
-#include "RigFemNativeVisibleCellsStatCalc.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
+#include "RigFemNativeVisibleCellsStatCalc.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigFemResultAddress.h"
+#include "RigGeoMechCaseData.h"
+#include "RigStatisticsDataCache.h"
+
+#include "RimCellEdgeColors.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimFaultCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimView.h"
+
+#include "RiuViewer.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
@@ -379,7 +380,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 {
     RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
     RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
-    bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult();
+    bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResultResultDefinition()->hasResult();
 
     // Retreive result stats if needed
 
@@ -393,7 +394,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
     {
         if (isResultsInfoRelevant)
         {
-            RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+            RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
             if (m_statisticsCellRange == ALL_CELLS)
             {
                 if (m_statisticsTimeRange == ALL_TIMESTEPS)
@@ -472,10 +473,10 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
         {
             {
                 QString resultPos;
-                QString fieldName = geoMechView->cellResult()->resultFieldUiName();
-                QString compName = geoMechView->cellResult()->resultComponentUiName();
+                QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
+                QString compName = geoMechView->cellResultResultDefinition()->resultComponentUiName();
 
-                switch (geoMechView->cellResult()->resultPositionType())
+                switch (geoMechView->cellResultResultDefinition()->resultPositionType())
                 {
                     case RIG_NODAL:
                     resultPos = "Nodal";
@@ -537,7 +538,7 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
         cvf::ref<RigStatisticsCalculator> calc;
         if (geoMechView)
         {
-            RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+            RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
             calc = new RigFemNativeVisibleCellsStatCalc(geoMechView->geoMechCase()->geoMechData(),
                                                         resAddress,
                                                         geoMechView->currentTotalCellVisibility().p());

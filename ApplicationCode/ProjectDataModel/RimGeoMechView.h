@@ -36,6 +36,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
+class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
 class RiuViewer;
 class RivGeoMechPartMgr;
@@ -65,6 +66,7 @@ public:
     virtual void                                        loadDataAndUpdate();
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
+    RimGeoMechResultDefinition*                         cellResultResultDefinition();
 
     virtual const RimPropertyFilterCollection*          propertyFilterCollection() const;
 

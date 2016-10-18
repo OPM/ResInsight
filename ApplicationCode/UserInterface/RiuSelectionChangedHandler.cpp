@@ -31,7 +31,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
 
@@ -138,21 +138,21 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
     RimGeoMechView* geoMechView = geomSelectionItem->m_view.p();
 
     if (geoMechView &&
-        geoMechView->cellResult() &&
-        geoMechView->cellResult()->hasResult() &&
+        geoMechView->cellResultResultDefinition() &&
+        geoMechView->cellResultResultDefinition()->hasResult() &&
         geoMechView->geoMechCase() &&
         geoMechView->geoMechCase()->geoMechData())
     {
-        RigFemTimeHistoryResultAccessor timeHistResultAccessor(geoMechView->geoMechCase()->geoMechData(), geoMechView->cellResult->resultAddress(),
+        RigFemTimeHistoryResultAccessor timeHistResultAccessor(geoMechView->geoMechCase()->geoMechData(), geoMechView->cellResultResultDefinition()->resultAddress(),
             geomSelectionItem->m_gridIndex, geomSelectionItem->m_cellIndex, geomSelectionItem->m_localIntersectionPoint);
 
         QString curveName;
         curveName.append(geoMechView->geoMechCase()->caseUserDescription() + ", ");
 
-        caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = geoMechView->cellResult()->resultPositionType();
+        caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = geoMechView->cellResultResultDefinition()->resultPositionType();
         curveName.append(resPosAppEnum.uiText() + ", ");
-        curveName.append(geoMechView->cellResult()->resultFieldUiName()+ ", ") ;
-        curveName.append(geoMechView->cellResult()->resultComponentUiName() + ":\n");
+        curveName.append(geoMechView->cellResultResultDefinition()->resultFieldUiName()+ ", ") ;
+        curveName.append(geoMechView->cellResultResultDefinition()->resultComponentUiName() + ":\n");
         curveName.append(timeHistResultAccessor.topologyText());
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();

@@ -19,8 +19,8 @@
 
 #include "RimGeoMechPropertyFilterCollection.h"
 
-#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"

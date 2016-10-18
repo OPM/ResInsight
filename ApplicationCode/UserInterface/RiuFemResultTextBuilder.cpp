@@ -19,16 +19,16 @@
 
 #include "RiuFemResultTextBuilder.h"
 
-#include "RigGeoMechCaseData.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigFemPartCollection.h"
 #include "RigFemPart.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
-#include "RimGeoMechCellColors.h"
 #include "RigFemPartResultsCollection.h"
-#include "RimFormationNames.h"
 #include "RigFormationNames.h"
+#include "RigGeoMechCaseData.h"
+#include "RimFormationNames.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 
 
 
@@ -71,7 +71,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 {
     QString text;
 
-    text = closestNodeResultText(m_reservoirView->cellResult());
+    text = closestNodeResultText(m_reservoirView->cellResultResultDefinition());
 
     if (!text.isEmpty()) text += "\n";
 
@@ -144,7 +144,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
     {
         RigGeoMechCaseData* eclipseCaseData = m_reservoirView->geoMechCase()->geoMechData();
 
-        this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
+        this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResultResultDefinition(), &text);
 
         if (!text.isEmpty())
         {
@@ -161,7 +161,6 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 //--------------------------------------------------------------------------------------------------
 QString RiuFemResultTextBuilder::formationDetails()
 {
-
     QString text;
     RimCase* rimCase = m_reservoirView->ownerCase();
     if(rimCase)
@@ -199,23 +198,22 @@ QString RiuFemResultTextBuilder::formationDetails()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText)
+void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultDefinition* resultDefinition, QString* resultInfoText)
 {
-    if (!resultColors)
+    if (!resultDefinition)
     {
         return;
     }
 
-    if (resultColors->hasResult())
+    if (resultDefinition->hasResult())
     {
-        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), gridIndex, timeStepIndex);
+        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultDefinition->resultAddress(), gridIndex, timeStepIndex);
         if (scalarResults.size())
         {
-            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultColors->resultPositionType();
+            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultDefinition->resultPositionType();
             resultInfoText->append(resPosAppEnum.uiText() + ", ");
-            resultInfoText->append(resultColors->resultFieldUiName()+ ", ") ;
-            resultInfoText->append(resultColors->resultComponentUiName() + ":\n");
-
+            resultInfoText->append(resultDefinition->resultFieldUiName()+ ", ") ;
+            resultInfoText->append(resultDefinition->resultComponentUiName() + ":\n");
 
             RigFemPart* femPart = geomData->femParts()->part(gridIndex);
             RigElementType elmType =  femPart->elementType(cellIndex);
@@ -228,7 +226,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
                
                 float scalarValue = std::numeric_limits<float>::infinity();
                 int nodeIdx = elmentConn[lNodeIdx];
-                if (resultColors->resultPositionType() == RIG_NODAL)
+                if (resultDefinition->resultPositionType() == RIG_NODAL)
                 {
                    
                     scalarValue = scalarResults[nodeIdx];
@@ -240,7 +238,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
                 }
 
 
-                if (resultColors->resultPositionType() == RIG_INTEGRATION_POINT)
+                if (resultDefinition->resultPositionType() == RIG_INTEGRATION_POINT)
                 {
                     resultInfoText->append(QString("\tIP:%1 \t: %2 \tAss. Node: \t%3").arg(lElmNodeToIpMap[lNodeIdx] + 1 ).arg(scalarValue).arg(femPart->nodes().nodeIds[nodeIdx]));
                 }
@@ -271,7 +269,7 @@ void RiuFemResultTextBuilder::appendDetails(QString& text, const QString& detail
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* resultColors)
+QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinition* resultColors)
 {
     QString text;
     if (!resultColors)

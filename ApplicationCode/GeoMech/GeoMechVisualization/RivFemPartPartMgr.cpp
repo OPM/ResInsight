@@ -18,16 +18,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
+
 #include "RivGeoMechPartMgr.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
+#include "RifGeoMechReaderInterface.h"
+
+#include "RigFemPartResultsCollection.h"
+#include "RigFemScalarResultFrames.h"
+#include "RigGeoMechCaseData.h"
 
 #include "RimEclipseView.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimLegendConfig.h"
 
+#include "RivFemPickSourceInfo.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivSourceInfo.h"
@@ -39,20 +47,15 @@
 #include "cvfMath.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfRenderState_FF.h"
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStatePolygonOffset.h"
-#include "cvfRenderState_FF.h"
 #include "cvfShaderProgram.h"
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
 #include "cvfUniform.h"
-#include "RifGeoMechReaderInterface.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemScalarResultFrames.h"
-#include "RigFemPartResultsCollection.h"
-#include "RivFemPickSourceInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
