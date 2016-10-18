@@ -61,6 +61,10 @@ public:
     cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable();
     cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable();
 
+    cvf::ref<cvf::DrawableGeo>  createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines);
+    cvf::ref<cvf::DrawableGeo>  createPointsFromPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines);
+
+
     // Mapping between cells and geometry
     const std::vector<size_t>&           triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;

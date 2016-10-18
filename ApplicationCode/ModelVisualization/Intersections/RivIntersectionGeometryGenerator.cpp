@@ -246,20 +246,28 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createMeshDrawable(
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPolylineDrawable()
 {
+    return createLineAlongPolylineDrawable(m_polyLines);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines)
+{
     std::vector<cvf::uint> lineIndices;
     std::vector<cvf::Vec3f> vertices;
 
     cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
 
-    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
+    for (size_t pLineIdx = 0; pLineIdx < polyLines.size(); ++pLineIdx)
     {
-        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
-        if (m_polyLine.size() < 2) continue;
+        const std::vector<cvf::Vec3d>& polyLine = polyLines[pLineIdx];
+        if (polyLine.size() < 2) continue;
 
-        for (size_t i = 0; i < m_polyLine.size(); ++i)
+        for (size_t i = 0; i < polyLine.size(); ++i)
         {
-            vertices.push_back(cvf::Vec3f(m_polyLine[i] - displayOffset));
-            if (i < m_polyLine.size() - 1)
+            vertices.push_back(cvf::Vec3f(polyLine[i] - displayOffset));
+            if (i < polyLine.size() - 1)
             {
                 lineIndices.push_back(static_cast<cvf::uint>(i));
                 lineIndices.push_back(static_cast<cvf::uint>(i + 1));
@@ -289,16 +297,25 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createLineAlongPoly
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPolylineDrawable()
 {
+    return createPointsFromPolylineDrawable(m_polyLines);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPolylineDrawable(const std::vector<std::vector<cvf::Vec3d> >& polyLines)
+{
     std::vector<cvf::Vec3f> vertices;
 
     cvf::Vec3d displayOffset = m_hexGrid->displayOffset();
 
-    for (size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx)
+    for (size_t pLineIdx = 0; pLineIdx < polyLines.size(); ++pLineIdx)
     {
-        const std::vector<cvf::Vec3d>& m_polyLine = m_polyLines[pLineIdx];
-        for (size_t i = 0; i < m_polyLine.size(); ++i)
+        const std::vector<cvf::Vec3d>& polyLine = polyLines[pLineIdx];
+        for (size_t i = 0; i < polyLine.size(); ++i)
         {
-            vertices.push_back(cvf::Vec3f(m_polyLine[i] - displayOffset));
+            vertices.push_back(cvf::Vec3f(polyLine[i] - displayOffset));
         }
     }
 
@@ -315,8 +332,8 @@ cvf::ref<cvf::DrawableGeo> RivIntersectionGeometryGenerator::createPointsFromPol
     geo->addPrimitiveSet(primSet.p());
 
     return geo;
-}
 
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Remove the lines from the polyline that is nearly parallel to the extrusion direction

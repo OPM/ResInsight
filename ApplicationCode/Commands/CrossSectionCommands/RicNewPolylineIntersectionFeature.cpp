@@ -103,7 +103,7 @@ bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
             }
             else if (crossSection->inputExtrusionPointsFromViewerEnabled())
             {
-                crossSection->appendPointToCustomExtrusion(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
+                crossSection->appendPointToExtrusionDirection(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
 
                 // Further Ui processing is stopped when true is returned
                 return true;

@@ -76,10 +76,12 @@ public:
     caf::PdmField< bool >                                inputExtrusionPointsFromViewerEnabled;
 
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
+    void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
+
     RivIntersectionPartMgr*                              crossSectionPartMgr();
 
-    void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
-    void                                                 appendPointToCustomExtrusion(const cvf::Vec3d& point);
+    std::vector< std::vector <cvf::Vec3d> >              polyLinesForExtrusionDirection() const;
+    void                                                 appendPointToExtrusionDirection(const cvf::Vec3d& point);
 
     cvf::Vec3d                                           extrusionDirection() const;
 

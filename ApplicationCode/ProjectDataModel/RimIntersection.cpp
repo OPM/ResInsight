@@ -380,6 +380,18 @@ RivIntersectionPartMgr* RimIntersection::crossSectionPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLinesForExtrusionDirection() const
+{
+    std::vector< std::vector <cvf::Vec3d> > lines;
+
+    lines.push_back(m_customExtrusionPoints);
+
+    return lines;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersection::updateWellCenterline() const
 {
     if (isActive() && type == CS_SIMULATION_WELL && simulationWell())
@@ -601,7 +613,7 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::appendPointToCustomExtrusion(const cvf::Vec3d& point)
+void RimIntersection::appendPointToExtrusionDirection(const cvf::Vec3d& point)
 {
     if (m_customExtrusionPoints().size() > 1) m_customExtrusionPoints.v().clear();
 

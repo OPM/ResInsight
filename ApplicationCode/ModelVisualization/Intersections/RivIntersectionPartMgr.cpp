@@ -333,6 +333,19 @@ void RivIntersectionPartMgr::generatePartGeometry()
         }
     }
 
+    createPolyLineParts(useBufferObjects);
+
+    createExtrusionDirParts(useBufferObjects);
+
+    updatePartEffect();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
+{
     // Highlight line
 
     m_highlightLineAlongPolyline = NULL;
@@ -408,10 +421,87 @@ void RivIntersectionPartMgr::generatePartGeometry()
             m_highlightPointsForPolyline = part;
         }
     }
-
-    updatePartEffect();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
+{
+    m_highlightLineAlongExtrusionDir = nullptr;
+    m_highlightPointsForExtrusionDir = nullptr;
+
+    if (m_rimCrossSection->direction() == RimIntersection::CS_TWO_POINTS)
+    {
+        {
+            cvf::ref<cvf::DrawableGeo> polylineGeo = m_crossSectionGenerator->createLineAlongPolylineDrawable(m_rimCrossSection->polyLinesForExtrusionDirection());
+            if (polylineGeo.notNull())
+            {
+                if (useBufferObjects)
+                {
+                    polylineGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+                }
+
+                cvf::ref<cvf::Part> part = new cvf::Part;
+                part->setName("Cross Section Polyline");
+                part->setDrawable(polylineGeo.p());
+
+                part->updateBoundingBox();
+                part->setPriority(10000);
+
+                // Always show this part, also when mesh is turned off
+                //part->setEnableMask(meshFaultBit);
+
+                cvf::ref<cvf::Effect> eff;
+                caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
+                eff = lineEffGen.generateUnCachedEffect();
+
+                cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+                depth->enableDepthTest(false);
+                eff->setRenderState(depth.p());
+
+                part->setEffect(eff.p());
+
+                m_highlightLineAlongExtrusionDir = part;
+            }
+        }
+
+        cvf::ref<cvf::DrawableGeo> polylinePointsGeo = m_crossSectionGenerator->createPointsFromPolylineDrawable(m_rimCrossSection->polyLinesForExtrusionDirection());
+        if (polylinePointsGeo.notNull())
+        {
+            if (useBufferObjects)
+            {
+                polylinePointsGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+            }
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("Cross Section Polyline");
+            part->setDrawable(polylinePointsGeo.p());
+
+            part->updateBoundingBox();
+            part->setPriority(10000);
+
+            // Always show this part, also when mesh is turned off
+            //part->setEnableMask(meshFaultBit);
+
+            cvf::ref<cvf::Effect> eff;
+            caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
+            eff = lineEffGen.generateUnCachedEffect();
+
+            cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+            depth->enableDepthTest(false);
+            eff->setRenderState(depth.p());
+
+            cvf::ref<cvf::RenderStatePoint> pointRendState = new  cvf::RenderStatePoint(cvf::RenderStatePoint::FIXED_SIZE);
+            pointRendState->setSize(5.0f);
+            eff->setRenderState(pointRendState.p());
+
+            part->setEffect(eff.p());
+
+            m_highlightPointsForExtrusionDir = part;
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -485,15 +575,34 @@ void RivIntersectionPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::appendPolylinePartsToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
-    if (m_highlightLineAlongPolyline.notNull())
+    if (m_rimCrossSection->inputPolyLineFromViewerEnabled)
     {
-        m_highlightLineAlongPolyline->setTransform(scaleTransform);
-        model->addPart(m_highlightLineAlongPolyline.p());
+        if (m_highlightLineAlongPolyline.notNull())
+        {
+            m_highlightLineAlongPolyline->setTransform(scaleTransform);
+            model->addPart(m_highlightLineAlongPolyline.p());
+        }
+
+        if (m_highlightPointsForPolyline.notNull())
+        {
+            m_highlightPointsForPolyline->setTransform(scaleTransform);
+            model->addPart(m_highlightPointsForPolyline.p());
+        }
     }
-    if (m_highlightPointsForPolyline.notNull())
+
+    if (m_rimCrossSection->inputExtrusionPointsFromViewerEnabled)
     {
-        m_highlightPointsForPolyline->setTransform(scaleTransform);
-        model->addPart(m_highlightPointsForPolyline.p());
+        if (m_highlightLineAlongExtrusionDir.notNull())
+        {
+            m_highlightLineAlongExtrusionDir->setTransform(scaleTransform);
+            model->addPart(m_highlightLineAlongExtrusionDir.p());
+        }
+
+        if (m_highlightPointsForExtrusionDir.notNull())
+        {
+            m_highlightPointsForExtrusionDir->setTransform(scaleTransform);
+            model->addPart(m_highlightPointsForExtrusionDir.p());
+        }
     }
 }
 

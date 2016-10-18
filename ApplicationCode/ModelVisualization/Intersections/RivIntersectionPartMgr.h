@@ -60,6 +60,10 @@ public:
 private:
     void updatePartEffect();
     void generatePartGeometry();
+
+    void createPolyLineParts(bool useBufferObjects);
+    void createExtrusionDirParts(bool useBufferObjects);
+
     void computeData();
 
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
@@ -86,4 +90,7 @@ private:
 
     cvf::ref<cvf::Part>         m_highlightLineAlongPolyline;
     cvf::ref<cvf::Part>         m_highlightPointsForPolyline;
+
+    cvf::ref<cvf::Part>         m_highlightLineAlongExtrusionDir;
+    cvf::ref<cvf::Part>         m_highlightPointsForExtrusionDir;
 };
