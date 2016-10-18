@@ -55,7 +55,7 @@ public:
     {
         CS_VERTICAL,
         CS_HORIZONTAL,
-        CS_CUSTOM
+        CS_TWO_POINTS
     };
 
 public:
@@ -72,12 +72,14 @@ public:
     caf::PdmPtrField<RimWellPath*>                       wellPath;
     caf::PdmPtrField<RimEclipseWell*>                    simulationWell;
 
-    caf::PdmField< bool >                                inputFromViewerEnabled;
+    caf::PdmField< bool >                                inputPolyLineFromViewerEnabled;
+    caf::PdmField< bool >                                inputExtrusionPointsFromViewerEnabled;
 
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
     RivIntersectionPartMgr*                              crossSectionPartMgr();
 
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
+    void                                                 appendPointToCustomExtrusion(const cvf::Vec3d& point);
 
     cvf::Vec3d                                           extrusionDirection() const;
 

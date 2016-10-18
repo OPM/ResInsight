@@ -133,7 +133,7 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
             cs->crossSectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
             cs->crossSectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
 
-            if (cs->inputFromViewerEnabled)
+            if (cs->inputPolyLineFromViewerEnabled)
             {
                 cs->crossSectionPartMgr()->appendPolylinePartsToModel(model, scaleTransform);
             }

@@ -57,7 +57,7 @@ void caf::AppEnum< RimIntersection::CrossSectionDirEnum >::setUp()
 {
     addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
     addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
-    addItem(RimIntersection::CS_CUSTOM,     "CS_CUSTOM",        "Custom");
+    addItem(RimIntersection::CS_TWO_POINTS, "CS_TWO_POINTS",    "Defined by two points");
     setDefault(RimIntersection::CS_VERTICAL);
 }
 
@@ -83,18 +83,25 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "Extrusion Points", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
 
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&inputFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
-    inputFromViewerEnabled.xmlCapability()->setIOWritable(false);
-    inputFromViewerEnabled.xmlCapability()->setIOReadable(false);
-    inputFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
+    inputPolyLineFromViewerEnabled.xmlCapability()->setIOWritable(false);
+    inputPolyLineFromViewerEnabled.xmlCapability()->setIOReadable(false);
+    inputPolyLineFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
 
-    inputFromViewerEnabled = false;
+    inputPolyLineFromViewerEnabled = false;
+
+    CAF_PDM_InitFieldNoDefault(&inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "", "", "", "");
+    inputExtrusionPointsFromViewerEnabled.xmlCapability()->setIOWritable(false);
+    inputExtrusionPointsFromViewerEnabled.xmlCapability()->setIOReadable(false);
+    inputExtrusionPointsFromViewerEnabled.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+
+    inputExtrusionPointsFromViewerEnabled = false;
 
     uiCapability()->setUiTreeChildrenHidden(true);
 }
@@ -141,8 +148,14 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateName();
     }
 
-    if (changedField == &inputFromViewerEnabled
+    if (changedField == &inputPolyLineFromViewerEnabled
         || changedField == &m_userPolyline)
+    {
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
+
+    if (changedField == &inputExtrusionPointsFromViewerEnabled
+        || changedField == &m_customExtrusionPoints)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -173,12 +186,19 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     else if (type == CS_POLYLINE)
     {
         geometryGroup->add(&m_userPolyline);
-        geometryGroup->add(&inputFromViewerEnabled);
+        geometryGroup->add(&inputPolyLineFromViewerEnabled);
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
 
     optionsGroup->add(&direction);
+
+    if (direction == CS_TWO_POINTS)
+    {
+        optionsGroup->add(&m_customExtrusionPoints);
+        optionsGroup->add(&inputExtrusionPointsFromViewerEnabled);
+    }
+
     optionsGroup->add(&m_extentLength);
     optionsGroup->add(&showInactiveCells);
 
@@ -192,6 +212,7 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
 
     updateWellExtentDefaultValue();
+
 
     uiOrdering.setForgetRemainingFields(true);
 }
@@ -512,11 +533,11 @@ void RimIntersection::clipToReservoir(std::vector<cvf::Vec3d> &polyLine) const
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &inputFromViewerEnabled)
+    if (field == &inputPolyLineFromViewerEnabled)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (inputFromViewerEnabled)
+        if (inputPolyLineFromViewerEnabled)
         {
             attrib->m_buttonText = "Stop picking points";
         }
@@ -528,7 +549,28 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     else if (field == &m_userPolyline)
     {
         caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
-        if (myAttr && inputFromViewerEnabled)
+        if (myAttr && inputPolyLineFromViewerEnabled)
+        {
+            myAttr->m_baseColor.setRgb(255, 220, 255);
+        }
+    }
+    else if (field == &inputExtrusionPointsFromViewerEnabled)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+
+        if (inputExtrusionPointsFromViewerEnabled)
+        {
+            attrib->m_buttonText = "Stop picking points";
+        }
+        else
+        {
+            attrib->m_buttonText = "Start picking points";
+        }
+    }
+    else if (field == &m_customExtrusionPoints)
+    {
+        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
+        if (myAttr && inputExtrusionPointsFromViewerEnabled)
         {
             myAttr->m_baseColor.setRgb(255, 220, 255);
         }
@@ -550,6 +592,23 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersection::appendPointToCustomExtrusion(const cvf::Vec3d& point)
+{
+    if (m_customExtrusionPoints().size() > 1) m_customExtrusionPoints.v().clear();
+
+    m_customExtrusionPoints.v().push_back(point);
+
+    m_customExtrusionPoints.uiCapability()->updateConnectedEditors();
+
+    if (m_customExtrusionPoints().size() == 2)
+    {
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimIntersection::extrusionDirection() const
 {
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
@@ -563,6 +622,10 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
         cvf::Vec3d polyLineDir = m_userPolyline()[m_userPolyline().size() - 1] - m_userPolyline()[0];
         cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
         dir = polyLineDir ^ up;
+    }
+    else if (direction() == RimIntersection::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1)
+    {
+        dir = m_customExtrusionPoints()[m_customExtrusionPoints().size() - 1] - m_customExtrusionPoints()[0];
     }
 
     return dir;
