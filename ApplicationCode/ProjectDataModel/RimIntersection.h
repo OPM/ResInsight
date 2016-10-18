@@ -54,7 +54,8 @@ public:
     enum CrossSectionDirEnum
     {
         CS_VERTICAL,
-        CS_HORIZONTAL
+        CS_HORIZONTAL,
+        CS_CUSTOM
     };
 
 public:
@@ -78,6 +79,8 @@ public:
 
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
 
+    cvf::Vec3d                                           extrusionDirection() const;
+
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
     virtual caf::PdmFieldHandle*            objectToggleField();
@@ -95,7 +98,8 @@ private:
     caf::PdmField<double>                   m_extentLength;
 
     caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
-                                            
+    caf::PdmField< std::vector< cvf::Vec3d> >  m_customExtrusionPoints;
+
     RimEclipseWellCollection*               simulationWellCollection();
     void                                    updateWellCenterline() const;
     void                                    updateWellExtentDefaultValue();

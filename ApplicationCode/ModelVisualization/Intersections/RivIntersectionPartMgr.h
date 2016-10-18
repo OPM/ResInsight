@@ -62,7 +62,6 @@ private:
     void generatePartGeometry();
     void computeData();
 
-    cvf::Vec3d      extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const;
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
                                                    const std::vector<size_t>& triangleToCellIdxMap, 
                                                    const RigResultAccessor* resultAccessor, 

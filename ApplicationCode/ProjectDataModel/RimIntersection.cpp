@@ -57,6 +57,7 @@ void caf::AppEnum< RimIntersection::CrossSectionDirEnum >::setUp()
 {
     addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",      "Vertical");
     addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL",    "Horizontal");
+    addItem(RimIntersection::CS_CUSTOM,     "CS_CUSTOM",        "Custom");
     setDefault(RimIntersection::CS_VERTICAL);
 }
 
@@ -81,6 +82,9 @@ RimIntersection::RimIntersection()
     CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path        ", "", "", "");
     CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "Extrusion Points", "", "", "");
+
     CAF_PDM_InitField         (&m_branchIndex,  "Branch",          -1, "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength, "ExtentLength", 200.0, "Extent length", "", "", "");
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
@@ -541,6 +545,27 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
     m_userPolyline.uiCapability()->updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimIntersection::extrusionDirection() const
+{
+    cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
+
+    if (direction() == RimIntersection::CS_HORIZONTAL &&
+        m_userPolyline().size() > 1)
+    {
+        // Use first and last point of polyline to approximate orientation of polyline
+        // Then cross with Z axis to find extrusion direction
+
+        cvf::Vec3d polyLineDir = m_userPolyline()[m_userPolyline().size() - 1] - m_userPolyline()[0];
+        cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
+        dir = polyLineDir ^ up;
+    }
+
+    return dir;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -505,7 +505,7 @@ void RivIntersectionPartMgr::computeData()
     std::vector< std::vector <cvf::Vec3d> > polyLines = m_rimCrossSection->polyLines();
     if (polyLines.size() > 0)
     {
-        cvf::Vec3d direction = extrusionDirection(polyLines[0]);
+        cvf::Vec3d direction = m_rimCrossSection->extrusionDirection();
         cvf::ref<RivIntersectionHexGridInterface> hexGrid = createHexGridInterface();
         m_crossSectionGenerator = new RivIntersectionGeometryGenerator(m_rimCrossSection, polyLines, direction, hexGrid.p());
     }
@@ -516,7 +516,6 @@ void RivIntersectionPartMgr::computeData()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridInterface()
 {
-
     RimEclipseView* eclipseView;
     m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
     if (eclipseView)
@@ -535,28 +534,5 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
     }
 
     return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivIntersectionPartMgr::extrusionDirection(const std::vector<cvf::Vec3d>& polyline) const
-{
-    CVF_ASSERT(m_rimCrossSection);
-
-    cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
-
-    if (m_rimCrossSection->direction == RimIntersection::CS_HORIZONTAL &&
-        polyline.size() > 1)
-    {
-        // Use first and last point of polyline to approximate orientation of polyline
-        // Then cross with Z axis to find extrusion direction
-        
-        cvf::Vec3d polyLineDir = polyline[polyline.size() - 1] - polyline[0];
-        cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
-        dir = polyLineDir ^ up;
-    }
-
-    return dir;
 }
 
