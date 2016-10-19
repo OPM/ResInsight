@@ -126,13 +126,9 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(uiObjectHandleChild->objectToggleField());
 
-                caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-                if (uiFieldHandle)
-                {
-                    if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
-                    if (state == TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
-                    if (state == TOGGLE_SUBITEMS)     uiFieldHandle->setValueFromUi(!(field->v()));
-                }
+                if (state == TOGGLE_ON)         field->setValueWithFieldChanged(true);
+                if (state == TOGGLE_OFF)        field->setValueWithFieldChanged(false);
+                if (state == TOGGLE_SUBITEMS)   field->setValueWithFieldChanged(!(field->v()));
             }
         }
     }
@@ -146,15 +142,11 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandle->objectToggleField());
 
-                caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-                if (uiFieldHandle)
+                if (state == TOGGLE_ON)  field->setValueWithFieldChanged(true);
+                if (state == TOGGLE_OFF) field->setValueWithFieldChanged(false);
+                if (state == TOGGLE_SUBITEMS || state == TOGGLE)
                 {
-                    if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
-                    if (state == TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
-                    if (state == TOGGLE_SUBITEMS || state == TOGGLE)
-                    {
-                        uiFieldHandle->setValueFromUi(!(field->v()));
-                    }
+                    field->setValueWithFieldChanged(!(field->v()));
                 }
             } 
         }

@@ -63,7 +63,7 @@ void RicShowAllLinkedViewsFeature::onActionTriggered(bool isChecked)
 
         for (size_t j = 0; j < views.size(); j++)
         {
-            views[j]->showWindow.uiCapability()->setValueFromUi(true);
+            views[j]->showWindow.setValueWithFieldChanged(true);
             views[j]->uiCapability()->updateUiIconFromToggleField();
         }
     }
