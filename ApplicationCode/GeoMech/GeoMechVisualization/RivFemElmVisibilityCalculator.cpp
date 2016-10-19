@@ -166,40 +166,75 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                     // Do a "Hack" to use elm nodal and not nodal POR results
                     if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-                    #pragma omp parallel for schedule(dynamic)
-                    for (int cellIndex = 0; cellIndex < elementCount; cellIndex++)
+                    if (resVarAddress.resultPosType != RIG_ELEMENT_NODAL_FACE)
                     {
-                        if ( (*cellVisibility)[cellIndex] )
+                        #pragma omp parallel for schedule(dynamic)
+                        for (int cellIndex = 0; cellIndex < elementCount; cellIndex++)
                         {
-                            RigElementType eType = grid->elementType(cellIndex);
-                            int elmNodeCount = RigFemTypes::elmentNodeCount(eType);
-
-                            const int* elmNodeIndices = grid->connectivities(cellIndex);
-                            for(int enIdx = 0; enIdx < elmNodeCount; ++enIdx)
+                            if ( (*cellVisibility)[cellIndex] )
                             {
-                                size_t resultValueIndex = cvf::UNDEFINED_SIZE_T;
-                                if (resVarAddress.resultPosType == RIG_NODAL)
-                                {
-                                    resultValueIndex = elmNodeIndices[enIdx];
-                                }
-                                else
-                                {
-                                    resultValueIndex = grid->elementNodeResultIdx(cellIndex, enIdx);
-                                }
+                                RigElementType eType = grid->elementType(cellIndex);
+                                int elmNodeCount = RigFemTypes::elmentNodeCount(eType);
 
-                                double scalarValue = resVals[resultValueIndex];
-                                if (lowerBound <= scalarValue && scalarValue <= upperBound)
+                                const int* elmNodeIndices = grid->connectivities(cellIndex);
+                                for(int enIdx = 0; enIdx < elmNodeCount; ++enIdx)
                                 {
-                                    if (filterType == RimCellFilter::EXCLUDE)
+                                    size_t resultValueIndex = cvf::UNDEFINED_SIZE_T;
+                                    if (resVarAddress.resultPosType == RIG_NODAL)
                                     {
-                                        (*cellVisibility)[cellIndex] = false;
+                                        resultValueIndex = elmNodeIndices[enIdx];
+                                    }
+                                    else
+                                    {
+                                        resultValueIndex = grid->elementNodeResultIdx(cellIndex, enIdx);
+                                    }
+
+                                    double scalarValue = resVals[resultValueIndex];
+                                    if (lowerBound <= scalarValue && scalarValue <= upperBound)
+                                    {
+                                        if (filterType == RimCellFilter::EXCLUDE)
+                                        {
+                                            (*cellVisibility)[cellIndex] = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (filterType == RimCellFilter::INCLUDE)
+                                        {
+                                            (*cellVisibility)[cellIndex] = false;
+                                        }
                                     }
                                 }
-                                else
+                            }
+                        }
+                    }
+                    else
+                    {
+                        #pragma omp parallel for schedule(dynamic)
+                        for(int cellIndex = 0; cellIndex < elementCount; cellIndex++)
+                        {
+                            if((*cellVisibility)[cellIndex])
+                            {
+                                RigElementType eType = grid->elementType(cellIndex);
+                                int elmNodeCount = RigFemTypes::elmentNodeCount(eType);
+
+                                const int* elmNodeIndices = grid->connectivities(cellIndex);
+                                for(int fpIdx = 0; fpIdx < 24; ++fpIdx)
                                 {
-                                    if (filterType == RimCellFilter::INCLUDE)
+                                    double scalarValue = resVals[cellIndex*24 + fpIdx];
+                                    if(lowerBound <= scalarValue && scalarValue <= upperBound)
                                     {
-                                        (*cellVisibility)[cellIndex] = false;
+                                        if(filterType == RimCellFilter::EXCLUDE)
+                                        {
+                                            (*cellVisibility)[cellIndex] = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(filterType == RimCellFilter::INCLUDE)
+                                        {
+                                            (*cellVisibility)[cellIndex] = false;
+                                        }
                                     }
                                 }
                             }

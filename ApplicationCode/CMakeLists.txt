@@ -22,6 +22,7 @@ include_directories(
     ${cafPdmCvf_SOURCE_DIR}
     ${CommonCode_SOURCE_DIR}
     ${cafVizExtensions_SOURCE_DIR}
+    ${cafTensor_SOURCE_DIR}
 
 	${ResInsight_SOURCE_DIR}/ThirdParty
     ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well

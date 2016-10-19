@@ -325,7 +325,7 @@ float caf::Tensor3<S>::calculateVonMises() const
 /// Calculates Trot = rotMx*T*transpose(rotMx)
 //--------------------------------------------------------------------------------------------------
 template< typename S>
-Tensor3<S> caf::Tensor3<S>::rotate(const cvf::Matrix3<S>& rotMx) const
+Tensor3<S> caf::Tensor3<S>::rotated(const cvf::Matrix3<S>& rotMx) const
 {
     cvf::Matrix3<S> tensor(m_tensor[SXX], m_tensor[SXY], m_tensor[SZX], 
                            m_tensor[SXY], m_tensor[SYY], m_tensor[SYZ], 

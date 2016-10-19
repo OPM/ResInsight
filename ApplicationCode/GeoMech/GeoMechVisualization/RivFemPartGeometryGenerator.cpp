@@ -156,6 +156,7 @@ void RivFemPartGeometryGenerator::computeArrays()
     
     m_quadVerticesToNodeIdx.clear();
     m_quadVerticesToGlobalElmNodeIdx.clear();
+    m_quadVerticesToGlobalElmFaceNodeIdx.clear();
     trianglesToElements.clear();
     trianglesToElementFaces.clear();
 
@@ -179,6 +180,8 @@ void RivFemPartGeometryGenerator::computeArrays()
             int faceCount = RigFemTypes::elmentFaceCount(eType);
 
             const int* elmNodeIndices =  m_part->connectivities(elmIdx);
+            
+            int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
 
             for (int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
             {
@@ -194,8 +197,6 @@ void RivFemPartGeometryGenerator::computeArrays()
                 if (faceNodeCount == 4)
                 {
  
-                   // Todo: Needs to get rid of opposite faces
-
                    const cvf::Vec3f* quadVxs[4];
 
                    quadVxs[0] = &(nodeCoordinates[ elmNodeIndices[localElmNodeIndicesForFace[0]] ]);
@@ -231,6 +232,13 @@ void RivFemPartGeometryGenerator::computeArrays()
                        m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[1]);
                        m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[2]);
                        m_quadVerticesToGlobalElmNodeIdx.push_back(qElmNodeResIdx[3]);
+
+                       int elmNodFaceResIdxFaceStart =  elmNodFaceResIdxElmStart + lfIdx*4; // HACK
+
+                       m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 0);
+                       m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 1);
+                       m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 2);
+                       m_quadVerticesToGlobalElmFaceNodeIdx.push_back(elmNodFaceResIdxFaceStart + 3);
 
                        trianglesToElements.push_back(elmIdx);
                        trianglesToElements.push_back(elmIdx);

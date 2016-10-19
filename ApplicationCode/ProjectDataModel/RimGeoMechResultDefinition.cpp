@@ -43,6 +43,7 @@ void caf::AppEnum< RigFemResultPosEnum >::setUp()
     addItem(RIG_NODAL,            "NODAL",            "Nodal");
     addItem(RIG_ELEMENT_NODAL,    "ELEMENT_NODAL",    "Element Nodal");
     addItem(RIG_INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
+    addItem(RIG_ELEMENT_NODAL_FACE, "ELEMENT_NODAL_FACE", "Element Nodal On Face");
     addItem(RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
     setDefault(RIG_NODAL);
 }
@@ -293,14 +294,13 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 std::map<std::string, std::vector<std::string> > RimGeoMechResultDefinition::getResultMetaDataForUIFieldSetting()
 {
     RimGeoMechCase* gmCase = m_geomCase;
+    std::map<std::string, std::vector<std::string> > fieldWithComponentNames;
     if (gmCase && gmCase->geoMechData())
     {
-        return gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
+        fieldWithComponentNames = gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
     }
-    else
-    {
-        return std::map<std::string, std::vector<std::string> >() ;
-    }
+
+    return fieldWithComponentNames;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,6 +62,7 @@ public:
 
     const std::vector<size_t>&  quadVerticesToNodeIdxMapping() const   { return m_quadVerticesToNodeIdx;}
     const std::vector<size_t>&  quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx;}
+    const std::vector<size_t>&  quadVerticesToGlobalElmFaceNodeIdx() const { return m_quadVerticesToGlobalElmFaceNodeIdx; }
 
     RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p();}
 
@@ -82,6 +83,7 @@ private:
     //cvf::ref<cvf::Vec3fArray> m_triangleVertices; // If needed, we will do it like this, I think
     std::vector<size_t>         m_quadVerticesToNodeIdx;
     std::vector<size_t>         m_quadVerticesToGlobalElmNodeIdx;
+    std::vector<size_t>         m_quadVerticesToGlobalElmFaceNodeIdx;
 
         // Mappings
     cvf::ref<RivFemPartTriangleToElmMapper> m_triangleMapper;

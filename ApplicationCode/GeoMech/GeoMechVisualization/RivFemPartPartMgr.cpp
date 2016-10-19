@@ -241,6 +241,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
         const std::vector<size_t>* vxToResultMapping = NULL;
+        int vxCount = 0;
 
         if (resVarAddress.resultPosType == RIG_NODAL)
         {
@@ -252,8 +253,13 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }
+        else if(resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE)
+        {
+            vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmFaceNodeIdx());
+        }
 
-        m_surfaceFacesTextureCoords->resize(vxToResultMapping->size());
+        vxCount = static_cast<int>(vxToResultMapping->size());
+        m_surfaceFacesTextureCoords->resize(vxCount);
 
         if (resultValues.size() == 0)
         {
@@ -263,12 +269,10 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         {
             cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
 
-            int vxCount = static_cast<int>(vxToResultMapping->size());
-
             #pragma omp parallel for schedule(dynamic)
             for (int quadStartIdx = 0; quadStartIdx < vxCount; quadStartIdx += 4)
             {
-                float resultValue1 = resultValues[(*vxToResultMapping)[quadStartIdx]];
+                float resultValue1 = resultValues[(*vxToResultMapping)[quadStartIdx + 0]];
                 float resultValue2 = resultValues[(*vxToResultMapping)[quadStartIdx + 1]];
                 float resultValue3 = resultValues[(*vxToResultMapping)[quadStartIdx + 2]];
                 float resultValue4 = resultValues[(*vxToResultMapping)[quadStartIdx + 3]];

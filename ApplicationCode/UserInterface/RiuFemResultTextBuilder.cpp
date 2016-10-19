@@ -215,40 +215,84 @@ void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geo
             resultInfoText->append(resultDefinition->resultFieldUiName()+ ", ") ;
             resultInfoText->append(resultDefinition->resultComponentUiName() + ":\n");
 
-            RigFemPart* femPart = geomData->femParts()->part(gridIndex);
-            RigElementType elmType =  femPart->elementType(cellIndex);
-            const int* elmentConn = femPart->connectivities(cellIndex);
-            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
-            const int* lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping(elmType);
-
-            for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
+            if (resultDefinition->resultPositionType() != RIG_ELEMENT_NODAL_FACE)
             {
-               
-                float scalarValue = std::numeric_limits<float>::infinity();
-                int nodeIdx = elmentConn[lNodeIdx];
-                if (resultDefinition->resultPositionType() == RIG_NODAL)
+                RigFemPart* femPart = geomData->femParts()->part(gridIndex);
+                RigElementType elmType =  femPart->elementType(cellIndex);
+                const int* elmentConn = femPart->connectivities(cellIndex);
+                int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+                const int* lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping(elmType);
+
+                for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
                 {
-                   
-                    scalarValue = scalarResults[nodeIdx];
-                } 
-                else 
-                {
-                    size_t resIdx = femPart->elementNodeResultIdx(cellIndex, lNodeIdx);
-                    scalarValue = scalarResults[resIdx];
-                }
+
+                    float scalarValue = std::numeric_limits<float>::infinity();
+                    int nodeIdx = elmentConn[lNodeIdx];
+                    if (resultDefinition->resultPositionType() == RIG_NODAL)
+                    {
+
+                        scalarValue = scalarResults[nodeIdx];
+                    }
+                    else
+                    {
+                        size_t resIdx = femPart->elementNodeResultIdx(cellIndex, lNodeIdx);
+                        scalarValue = scalarResults[resIdx];
+                    }
 
 
-                if (resultDefinition->resultPositionType() == RIG_INTEGRATION_POINT)
-                {
-                    resultInfoText->append(QString("\tIP:%1 \t: %2 \tAss. Node: \t%3").arg(lElmNodeToIpMap[lNodeIdx] + 1 ).arg(scalarValue).arg(femPart->nodes().nodeIds[nodeIdx]));
+                    if (resultDefinition->resultPositionType() == RIG_INTEGRATION_POINT)
+                    {
+                        resultInfoText->append(QString("\tIP:%1 \t: %2 \tAss. Node: \t%3").arg(lElmNodeToIpMap[lNodeIdx] + 1 ).arg(scalarValue).arg(femPart->nodes().nodeIds[nodeIdx]));
+                    }
+                    else
+                    {
+                        resultInfoText->append(QString("\tN:%1 \t: %2").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                    }
+
+                    cvf::Vec3f nodeCoord = femPart->nodes().coordinates[nodeIdx];
+                    resultInfoText->append(QString("\t( %3, %4, %5)\n").arg(nodeCoord[0]).arg(nodeCoord[1]).arg(nodeCoord[2]));
                 }
-                else
+            }
+            else
+            {
+                int elmNodeFaceStartResIdx = cellIndex *24;
+ 
+                resultInfoText->append(QString("Pos I Face:\n"));
+                for (int ptIdx = 0; ptIdx < 4; ++ptIdx)
                 {
-                    resultInfoText->append(QString("\tN:%1 \t: %2").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Neg I Face:\n"));
+                for(int ptIdx = 4; ptIdx < 8; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Pos J Face:\n"));
+                for(int ptIdx = 8; ptIdx < 12; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Neg J Face:\n"));
+                for(int ptIdx = 12; ptIdx < 16; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Pos K Face:\n"));
+                for(int ptIdx = 16; ptIdx < 20; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Neg K Face:\n"));
+                for(int ptIdx = 20; ptIdx < 24; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
                 }
 
-                cvf::Vec3f nodeCoord = femPart->nodes().coordinates[nodeIdx];
-                resultInfoText->append(QString("\t( %3, %4, %5)\n").arg(nodeCoord[0]).arg(nodeCoord[1]).arg(nodeCoord[2]));
             }
         }
     }

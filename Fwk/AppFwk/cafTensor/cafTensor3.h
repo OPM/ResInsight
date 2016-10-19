@@ -49,7 +49,7 @@ public:
     cvf::Vec3f          calculatePrincipals(cvf::Vec3f principalDirections[3]) const;
     float               calculateVonMises() const;
 
-    Tensor3             rotate(const cvf::Matrix3<S>& rotMx) const;
+    Tensor3             rotated(const cvf::Matrix3<S>& rotMx) const;
 };
 
 typedef Tensor3<float> Ten3f;

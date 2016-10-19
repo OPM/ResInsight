@@ -77,6 +77,7 @@ private:
     RigFemScalarResultFrames*                        calculateMeanStressSTM(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateDeviatoricStress(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateVolumetricStrain(int partIndex, const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        calculateSurfaceAlignedStress(int partIndex, const RigFemResultAddress& resVarAddr);
 
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;

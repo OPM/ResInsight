@@ -40,6 +40,7 @@
 #include "cafTensor3.h"
 #include "cafProgressInfo.h"
 #include "RigFemPartGrid.h"
+#include "cvfGeometryTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -289,7 +290,18 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["NE"].push_back("E13");
             fieldCompNames["NE"].push_back("E23");
 
-       }
+        }
+        else if(resPos == RIG_ELEMENT_NODAL_FACE)
+        {
+
+            fieldCompNames["SE"].push_back("SNorm");
+            fieldCompNames["SE"].push_back("SHor");
+            fieldCompNames["SE"].push_back("SVert");
+
+            fieldCompNames["ST"].push_back("SNorm");
+            fieldCompNames["ST"].push_back("SHor");
+            fieldCompNames["ST"].push_back("SVert");
+        }
     }
 
     return fieldCompNames;
@@ -552,11 +564,117 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedStress(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.componentName == "SHor" || resVarAddr.componentName == "SVert" || resVarAddr.componentName == "SNorm");
+
+    RigFemScalarResultFrames * s11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11"));
+    RigFemScalarResultFrames * s22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22"));
+    RigFemScalarResultFrames * s33Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S33"));
+    RigFemScalarResultFrames * s12Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S12"));
+    RigFemScalarResultFrames * s23Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23"));
+    RigFemScalarResultFrames * s13Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13"));
+
+    RigFemScalarResultFrames * sNormFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SNorm"));
+    RigFemScalarResultFrames * sHoriFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SHor"));
+    RigFemScalarResultFrames * sVertFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SVert"));
+    
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
+
+    int frameCount = s11Frames->frameCount();
+    for(int fIdx = 0; fIdx < frameCount; ++fIdx)
+    {
+        const std::vector<float>& s11 = s11Frames->frameData(fIdx);
+        const std::vector<float>& s22 = s22Frames->frameData(fIdx);
+        const std::vector<float>& s33 = s33Frames->frameData(fIdx);
+        const std::vector<float>& s12 = s12Frames->frameData(fIdx);
+        const std::vector<float>& s23 = s23Frames->frameData(fIdx);
+        const std::vector<float>& s13 = s13Frames->frameData(fIdx);
+
+        std::vector<float>& sNorm = sNormFrames->frameData(fIdx);
+        std::vector<float>& sHori = sHoriFrames->frameData(fIdx);
+        std::vector<float>& sVert = sVertFrames->frameData(fIdx);
+
+        // HACK ! Todo : make it robust against other elements than Hex8
+        size_t valCount = s11.size() * 3; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes 
+        sNorm.resize(valCount);
+        sHori.resize(valCount);
+        sVert.resize(valCount);
+
+        int elementCount = femPart->elementCount();
+        for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+            int faceCount = RigFemTypes::elmentFaceCount(elmType);
+            const int* elmNodeIndices =  femPart->connectivities(elmIdx);
+
+            int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
+
+            for(int lfIdx = 0; lfIdx < faceCount; ++lfIdx)
+            {
+                int faceNodeCount = 0;
+                const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(elmType, lfIdx, &faceNodeCount);
+                if(faceNodeCount == 4)
+                {
+                    int elmNodFaceResIdxFaceStart =  elmNodFaceResIdxElmStart + lfIdx*4; // HACK
+                    cvf::Vec3f quadVxs[4];
+
+                    quadVxs[0] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]);
+                    quadVxs[1] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]);
+                    quadVxs[2] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
+                    quadVxs[3] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
+
+                    cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx(quadVxs[2] -quadVxs[0], quadVxs[3] - quadVxs[1] );
+
+                    size_t qElmNodeResIdx[4];
+                    qElmNodeResIdx[0] = femPart->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[0]);
+                    qElmNodeResIdx[1] = femPart->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[1]);
+                    qElmNodeResIdx[2] = femPart->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[2]);
+                    qElmNodeResIdx[3] = femPart->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[3]);
+                    
+                    for (int qIdx = 0; qIdx < 4; ++qIdx)
+                    {
+                        size_t elmNodResIdx = qElmNodeResIdx[qIdx];
+                        float t11 = s11[elmNodResIdx];
+                        float t22 = s22[elmNodResIdx];
+                        float t33 = s33[elmNodResIdx];
+                        float t12 = s12[elmNodResIdx];
+                        float t23 = s23[elmNodResIdx];
+                        float t13 = s13[elmNodResIdx];
+
+                        caf::Ten3f tensor(t11, t22, t33,
+                                          t12, t23, t13);
+                        caf::Ten3f xfTen = tensor.rotated(rotMx);
+                        int elmNodFaceResIdx = elmNodFaceResIdxFaceStart + qIdx;
+
+                        sHori[elmNodFaceResIdx]= xfTen[caf::Ten3f::SXX];
+                        sVert[elmNodFaceResIdx]= xfTen[caf::Ten3f::SYY];
+                        sNorm[elmNodFaceResIdx]= xfTen[caf::Ten3f::SZZ];
+
+                    }
+                }
+            }
+        }
+    }
+
+    RigFemScalarResultFrames* requestedSurfStress = this->findOrLoadScalarResult(partIndex,resVarAddr);
+    return requestedSurfStress;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     if (resVarAddr.isTimeLapse())
     {
         return calculateTimeLapseResult(partIndex, resVarAddr);    
+    }
+
+    if(resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
+    {
+        return calculateSurfaceAlignedStress(partIndex, resVarAddr);
     }
 
     if(resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV")

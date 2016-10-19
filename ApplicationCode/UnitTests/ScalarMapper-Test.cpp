@@ -135,7 +135,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(1, 0, 0), cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(1.0f, rotT[caf::Ten3f::SXX], 1e-4);
         EXPECT_NEAR(0.5f, rotT[caf::Ten3f::SYY], 1e-4);
@@ -150,7 +150,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(1, 0, 0), 0.5*cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(1.0f, rotT[caf::Ten3f::SXX], 1e-4);
         EXPECT_NEAR(0.2f, rotT[caf::Ten3f::SYY], 1e-4);
@@ -165,7 +165,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(0, 0, 1), 0.5*cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(0.5f, rotT[caf::Ten3f::SXX], 1e-4);
         EXPECT_NEAR(1.0f, rotT[caf::Ten3f::SYY], 1e-4);
@@ -180,7 +180,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(0, 0, 1), 0.25*cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(0.75f,rotT[caf::Ten3f::SXX],  1e-4);
         EXPECT_NEAR(0.75f,rotT[caf::Ten3f::SYY],  1e-4);
@@ -195,7 +195,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(0, 0, 1), -0.25*cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(1.0f, rotT[caf::Ten3f::SXX], 1e-4);
         EXPECT_NEAR(0.5f, rotT[caf::Ten3f::SYY], 1e-4);
@@ -210,7 +210,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(1, 1, 1), 0.2*cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(0.8320561f, rotT[caf::Ten3f::SXX], 1e-4);
         EXPECT_NEAR(0.5584094f, rotT[caf::Ten3f::SYY], 1e-4);
@@ -225,7 +225,7 @@ TEST(TensorRotation, TensorRotation)
 
         cvf::Mat3f rotMx = cvf::Mat3f::fromRotation(cvf::Vec3f(1, 1, 1), -0.2*cvf::PI_F);
 
-        caf::Ten3f rotT = orgT.rotate(rotMx);
+        caf::Ten3f rotT = orgT.rotated(rotMx);
 
         EXPECT_NEAR(1.0f, rotT[caf::Ten3f::SXX], 1e-4);
         EXPECT_NEAR(0.5f, rotT[caf::Ten3f::SYY], 1e-4);
