@@ -634,15 +634,20 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
 {
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
 
-    if (direction() == RimIntersection::CS_HORIZONTAL &&
-        m_userPolyline().size() > 1)
+    if (direction() == RimIntersection::CS_HORIZONTAL)
     {
-        // Use first and last point of polyline to approximate orientation of polyline
-        // Then cross with Z axis to find extrusion direction
+        std::vector< std::vector <cvf::Vec3d> > lines = this->polyLines();
+        if (lines.size() > 0 && lines[0].size() > 1)
+        {
+            std::vector <cvf::Vec3d> firstLine = lines[0];
 
-        cvf::Vec3d polyLineDir = m_userPolyline()[m_userPolyline().size() - 1] - m_userPolyline()[0];
-        cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
-        dir = polyLineDir ^ up;
+            // Use first and last point of polyline to approximate orientation of polyline
+            // Then cross with Z axis to find extrusion direction
+
+            cvf::Vec3d polyLineDir = firstLine[firstLine.size() - 1] - firstLine[0];
+            cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
+            dir = polyLineDir ^ up;
+        }
     }
     else if (direction() == RimIntersection::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1)
     {
