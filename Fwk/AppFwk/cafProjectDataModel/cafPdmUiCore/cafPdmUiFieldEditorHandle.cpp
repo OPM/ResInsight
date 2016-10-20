@@ -93,9 +93,7 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Well this is food for thought. How do we spawn commands, without making us
-/// dependent on the command system. It should be optional to use, and not depending on the command "library"
-/// JJS
+/// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
 {

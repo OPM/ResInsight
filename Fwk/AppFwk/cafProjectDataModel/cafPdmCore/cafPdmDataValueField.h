@@ -38,10 +38,13 @@
 #endif
 
 #include "cafPdmValueField.h"
+
 #include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmUiFieldHandleInterface.h"
+
+#include <QVariant>
 
 #include <vector>
-#include <QVariant>
 #include <assert.h>
 
 
@@ -116,16 +119,16 @@ void caf::PdmDataValueField<DataType>::setValueWithFieldChanged(const DataType& 
 {
     assert(isInitializedByInitFieldMacro());
 
-    PdmUiFieldHandle*  uiFieldHandle = uiCapability();
-    if (uiFieldHandle)
+    PdmUiFieldHandleInterface* uiFieldHandleInterface = capability<PdmUiFieldHandleInterface>();
+    if (uiFieldHandleInterface)
     {
-        QVariant oldValue = uiFieldHandle->toUiBasedQVariant();
+        QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();
 
         m_fieldValue = fieldValue;
 
-        QVariant newUiBasedQVariant = uiFieldHandle->toUiBasedQVariant();
+        QVariant newUiBasedQVariant = uiFieldHandleInterface->toUiBasedQVariant();
 
-        uiFieldHandle->notifyFieldChanged(oldValue, newUiBasedQVariant);
+        uiFieldHandleInterface->notifyFieldChanged(oldValue, newUiBasedQVariant);
     }
     else
     {

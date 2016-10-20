@@ -89,7 +89,7 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
         }
         else
         {
-            uiFieldHandle->setValueFromUi(newUiValue);
+            uiFieldHandle->setValueFromUiEditor(newUiValue);
         }
     }
 }
