@@ -285,9 +285,9 @@ void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArr
     
     caf::Ten3f::TensorComponentEnum resultComponent = caf::Ten3f::SZZ;
 
-    if (resVarAddress.componentName == "SNorm") resultComponent = caf::Ten3f::SZZ;
-    if (resVarAddress.componentName == "SHor")  resultComponent = caf::Ten3f::SXX;
-    if (resVarAddress.componentName == "SVert") resultComponent = caf::Ten3f::SYY;
+    if (resVarAddress.componentName == "SN") resultComponent = caf::Ten3f::SZZ;
+    if (resVarAddress.componentName == "STH")  resultComponent = caf::Ten3f::SXX;
+    if (resVarAddress.componentName == "STQV") resultComponent = caf::Ten3f::SYY;
 
     if(tens11.size() == 0)
     {

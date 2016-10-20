@@ -294,13 +294,13 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         else if(resPos == RIG_ELEMENT_NODAL_FACE)
         {
 
-            fieldCompNames["SE"].push_back("SNorm");
-            fieldCompNames["SE"].push_back("SHor");
-            fieldCompNames["SE"].push_back("SVert");
+            fieldCompNames["SE"].push_back("SN");
+            fieldCompNames["SE"].push_back("STH");
+            fieldCompNames["SE"].push_back("STQV");
 
-            fieldCompNames["ST"].push_back("SNorm");
-            fieldCompNames["ST"].push_back("SHor");
-            fieldCompNames["ST"].push_back("SVert");
+            fieldCompNames["ST"].push_back("SN");
+            fieldCompNames["ST"].push_back("STH");
+            fieldCompNames["ST"].push_back("STQV");
         }
     }
 
@@ -566,7 +566,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedStress(int partIndex, const RigFemResultAddress& resVarAddr)
 {
-    CVF_ASSERT(resVarAddr.componentName == "SHor" || resVarAddr.componentName == "SVert" || resVarAddr.componentName == "SNorm");
+    CVF_ASSERT(resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN");
 
     RigFemScalarResultFrames * s11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11"));
     RigFemScalarResultFrames * s22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22"));
@@ -575,9 +575,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
     RigFemScalarResultFrames * s23Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23"));
     RigFemScalarResultFrames * s13Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13"));
 
-    RigFemScalarResultFrames * sNormFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SNorm"));
-    RigFemScalarResultFrames * sHoriFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SHor"));
-    RigFemScalarResultFrames * sVertFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SVert"));
+    RigFemScalarResultFrames * sNormFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SN"));
+    RigFemScalarResultFrames * sHoriFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "STH"));
+    RigFemScalarResultFrames * sVertFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "STQV"));
     
     const RigFemPart * femPart = m_femParts->part(partIndex);
     const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
