@@ -394,14 +394,14 @@ void RimView::setMeshOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        meshMode.uiCapability()->setValueFromUi(FULL_MESH);
+        meshMode.setValueWithFieldChanged(FULL_MESH);
     }
     else
     {
-        meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+        meshMode.setValueWithFieldChanged(FAULTS_MESH);
     }
 
-    surfaceMode.uiCapability()->setValueFromUi(NO_SURFACE);
+    surfaceMode.setValueWithFieldChanged(NO_SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,13 +411,13 @@ void RimView::setMeshSurfDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode.uiCapability()->setValueFromUi(SURFACE);
-        meshMode.uiCapability()->setValueFromUi(FULL_MESH);
+        surfaceMode.setValueWithFieldChanged(SURFACE);
+        meshMode.setValueWithFieldChanged(FULL_MESH);
     }
     else
     {
-        surfaceMode.uiCapability()->setValueFromUi(FAULTS);
-        meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+        surfaceMode.setValueWithFieldChanged(FAULTS);
+        meshMode.setValueWithFieldChanged(FAULTS_MESH);
     }
 }
 
@@ -433,14 +433,14 @@ void RimView::setFaultMeshSurfDrawstyle()
     //  Mesh SF  SF    SF
     if (this->isGridVisualizationMode())
     {
-        surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+        surfaceMode.setValueWithFieldChanged(SURFACE);
     }
     else
     {
-        surfaceMode.uiCapability()->setValueFromUi(FAULTS);
+        surfaceMode.setValueWithFieldChanged(FAULTS);
     }
 
-    meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+    meshMode.setValueWithFieldChanged(FAULTS_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -450,14 +450,14 @@ void RimView::setSurfOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+        surfaceMode.setValueWithFieldChanged(SURFACE);
     }
     else
     {
-        surfaceMode.uiCapability()->setValueFromUi(FAULTS);
+        surfaceMode.setValueWithFieldChanged(FAULTS);
     }
 
-    meshMode.uiCapability()->setValueFromUi(NO_MESH);
+    meshMode.setValueWithFieldChanged(NO_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,13 +468,13 @@ void RimView::showGridCells(bool enableGridCells)
     if (!enableGridCells)
     {
         m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
-        if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(FAULTS);
-        if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(FAULTS);
+        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(FAULTS_MESH);
     }
     else
     {
-        if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
-        if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(SURFACE);
+        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
     }
 
     m_gridCollection->isActive = enableGridCells;
@@ -487,7 +487,7 @@ void RimView::showGridCells(bool enableGridCells)
 //--------------------------------------------------------------------------------------------------
 void RimView::setSurfaceDrawstyle()
 {
-    if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+    if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------

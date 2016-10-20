@@ -16,7 +16,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 
 template<typename FieldType >
-void caf::PdmFieldUiCap<FieldType>::setValueFromUi(const QVariant& uiValue)
+void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue)
 {
     QVariant oldUiBasedQVariant = toUiBasedQVariant();
 

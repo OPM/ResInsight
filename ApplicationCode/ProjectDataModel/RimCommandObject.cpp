@@ -28,6 +28,7 @@
 #include "cafPdmObjectGroup.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmValueField.h"
 
 #include <QFile>
 
@@ -227,9 +228,16 @@ void RimCommandIssueFieldChanged::redo()
 
         if (fieldHandle && fieldHandle->uiCapability())
         {
+            caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
+            CVF_ASSERT(valueField);
+
+            QVariant oldValue = valueField->toQVariant();
+            QVariant newValue(this->fieldValueToApply);
+
+            valueField->setFromQVariant(newValue);
+
             caf::PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
-            QVariant variantValue(this->fieldValueToApply);
-            uiFieldHandle->setValueFromUi(variantValue);
+            uiFieldHandle->notifyFieldChanged(oldValue, newValue);
         }
     }
 }

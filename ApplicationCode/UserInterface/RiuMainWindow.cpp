@@ -1129,8 +1129,7 @@ void RiuMainWindow::slotFramerateChanged(double frameRate)
 {
     if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
-        caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->maximumFrameRate.uiCapability();
-        uiFieldHandle->setValueFromUi(QVariant(frameRate));
+        RiaApplication::instance()->activeReservoirView()->maximumFrameRate.setValueWithFieldChanged(frameRate);
     }
 }
 
@@ -1385,8 +1384,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
     RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeRiv) return;
 
-    caf::PdmUiFieldHandle* uiFieldHandle = activeRiv->faultCollection->showFaultLabel.uiCapability();
-    uiFieldHandle->setValueFromUi(showLabels);
+    activeRiv->faultCollection->showFaultLabel.setValueWithFieldChanged(showLabels);
 
     refreshDrawStyleActions();
 }
@@ -1488,8 +1486,7 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
     {
-        caf::PdmUiFieldHandle* uiFieldHandle = RiaApplication::instance()->activeReservoirView()->scaleZ.uiCapability();
-        uiFieldHandle->setValueFromUi(scaleValue);
+        RiaApplication::instance()->activeReservoirView()->scaleZ.setValueWithFieldChanged(scaleValue);
     }
 }
 
@@ -1629,11 +1626,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
         caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
 
-        caf::PdmUiFieldHandle* pdmUiFieldHandle = riv->wellCollection()->wellCellsToRangeFilterMode.uiCapability();
-        if (pdmUiFieldHandle)
-        {
-            pdmUiFieldHandle->setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
-        }
+        riv->wellCollection()->wellCellsToRangeFilterMode.setValueWithFieldChanged(rangeAddType);
     }
 }
 
