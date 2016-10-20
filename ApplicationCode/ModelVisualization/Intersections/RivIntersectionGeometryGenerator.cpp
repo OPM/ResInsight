@@ -30,6 +30,7 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
+#include "cvfGeometryTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -377,6 +378,19 @@ const std::vector<RivIntersectionVertexWeights>& RivIntersectionGeometryGenerato
 {
     CVF_ASSERT(m_triangleVxes->size());
     return m_triVxToCellCornerWeights;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Mat3f RivIntersectionGeometryGenerator::calculateTriangleOrientation(int triangleIndex)
+{
+    int triVxStartIdx = triangleIndex*3;
+    cvf::Vec3f p0 = m_triangleVxes->get(triVxStartIdx);
+    cvf::Vec3f p1 = m_triangleVxes->get(triVxStartIdx + 1);
+    cvf::Vec3f p2 = m_triangleVxes->get(triVxStartIdx + 2);
+
+    return cvf::GeometryTools::computePlaneHorizontalRotationMx(p1 - p0, p2 - p0);
 }
 
 //--------------------------------------------------------------------------------------------------

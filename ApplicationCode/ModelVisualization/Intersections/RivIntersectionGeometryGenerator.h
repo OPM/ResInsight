@@ -69,6 +69,8 @@ public:
     const std::vector<size_t>&           triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
 
+    cvf::Mat3f calculateTriangleOrientation(int triangleIndex);
+
     const RimIntersection* crossSection() const;
 
 private:

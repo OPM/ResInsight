@@ -38,6 +38,8 @@ class RigMainGrid;
 class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RimIntersection;
+class RigGeoMechCaseData;
+class RigFemResultAddress;
 
 //==================================================================================================
 ///
@@ -76,6 +78,13 @@ private:
                                               bool isElementNodalResult, 
                                               const RigFemPart* femPart, 
                                               const cvf::ScalarMapper* mapper);
+    void calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                 const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
+                                                 RigGeoMechCaseData* caseData,
+                                                 const RigFemResultAddress& resVarAddress,
+                                                 int   timeStepIdx,
+                                                 const cvf::ScalarMapper* mapper);
+
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
 
@@ -94,3 +103,4 @@ private:
     cvf::ref<cvf::Part>         m_highlightLineAlongExtrusionDir;
     cvf::ref<cvf::Part>         m_highlightPointsForExtrusionDir;
 };
+

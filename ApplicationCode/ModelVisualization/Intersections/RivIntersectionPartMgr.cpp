@@ -50,6 +50,7 @@
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
+#include "cafTensor3.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -161,21 +162,36 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
 
         RigFemResultAddress      resVarAddress = cellResultColors->resultAddress();
 
-        // Do a "Hack" to show elm nodal and not nodal POR results
-        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
-
         const std::vector<RivIntersectionVertexWeights> &vertexWeights = m_crossSectionGenerator->triangleVxToCellCornerInterpolationWeights();
-        const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
-        bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
-        RigFemPart* femPart                                = caseData->femParts()->part(0);
         const cvf::ScalarMapper* mapper                    = cellResultColors->legendConfig()->scalarMapper();
 
-        RivIntersectionPartMgr::calculateGeoMechTextureCoords(m_crossSectionFacesTextureCoords.p(), 
-                                                              vertexWeights, 
-                                                              resultValues, 
-                                                              isElementNodalResult, 
-                                                              femPart, 
-                                                              mapper);
+        if(!(resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE) )
+        {
+            // Do a "Hack" to show elm nodal and not nodal POR results
+            if(resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+
+            const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+            RigFemPart* femPart                                = caseData->femParts()->part(0);
+            bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
+
+            RivIntersectionPartMgr::calculateGeoMechTextureCoords(m_crossSectionFacesTextureCoords.p(),
+                                                                  vertexWeights,
+                                                                  resultValues,
+                                                                  isElementNodalResult,
+                                                                  femPart,
+                                                                  mapper);
+        }
+        else
+        {
+            // Special direction sensitive result calculation
+            // Normal, Horizontal, Semi Vertical, max shear
+            RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_crossSectionFacesTextureCoords.p(), 
+                                                                          vertexWeights,
+                                                                          caseData,
+                                                                          resVarAddress,
+                                                                          (int)timeStepIndex,
+                                                                          mapper);
+        }
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(), 
                                                         m_crossSectionFacesTextureCoords.p(), 
@@ -234,6 +250,102 @@ void RivIntersectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* text
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                                   const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
+                                                                   RigGeoMechCaseData* caseData, 
+                                                                   const RigFemResultAddress& resVarAddress, 
+                                                                   int   timeStepIdx,
+                                                                   const cvf::ScalarMapper* mapper)
+{
+    RigFemResultAddress tensComp = resVarAddress;
+    tensComp.resultPosType = RIG_ELEMENT_NODAL;
+
+    tensComp.componentName = "S11";
+    const std::vector<float>& tens11 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+    tensComp.componentName = "S22";
+    const std::vector<float>& tens22 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+    tensComp.componentName = "S33";
+    const std::vector<float>& tens33 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+    tensComp.componentName = "S12";
+    const std::vector<float>& tens12 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+    tensComp.componentName = "S23";
+    const std::vector<float>& tens23 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+    tensComp.componentName = "S13";
+    const std::vector<float>& tens13 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+
+    textureCoords->resize(vertexWeights.size());
+    
+    caf::Ten3f::TensorComponentEnum resultComponent = caf::Ten3f::SZZ;
+
+    if (resVarAddress.componentName == "SNorm") resultComponent = caf::Ten3f::SZZ;
+    if (resVarAddress.componentName == "SHor")  resultComponent = caf::Ten3f::SXX;
+    if (resVarAddress.componentName == "SVert") resultComponent = caf::Ten3f::SYY;
+
+    if(tens11.size() == 0)
+    {
+        textureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
+    }
+    else
+    {
+        cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+        int vxCount = static_cast<int>(vertexWeights.size());
+        int triCount = vxCount/3;
+
+//#pragma omp parallel for schedule(dynamic)
+        for (int triangleIdx = 0; triangleIdx < triCount; ++triangleIdx)
+        {
+            cvf::Mat3f triangleXf = m_crossSectionGenerator->calculateTriangleOrientation(triangleIdx);
+            int triangleVxStartIdx =  triangleIdx*3;
+
+            for(int triangleVxIdx = triangleVxStartIdx; triangleVxIdx < triangleVxStartIdx+3; ++triangleVxIdx)
+            {
+                float ipT11 = 0;
+                float ipT22 = 0;
+                float ipT33 = 0;
+                float ipT12 = 0;
+                float ipT23 = 0;
+                float ipT13 = 0;
+
+                int weightCount = vertexWeights[triangleVxIdx].size();
+                for(int wIdx = 0; wIdx < weightCount; ++wIdx)
+                {
+                    size_t resIdx = vertexWeights[triangleVxIdx].vxId(wIdx) ;
+                    float interpolationWeight = vertexWeights[triangleVxIdx].weight(wIdx);
+                    ipT11 += tens11[resIdx] * interpolationWeight;
+                    ipT22 += tens22[resIdx] * interpolationWeight;
+                    ipT33 += tens33[resIdx] * interpolationWeight;
+                    ipT12 += tens12[resIdx] * interpolationWeight;
+                    ipT23 += tens23[resIdx] * interpolationWeight;
+                    ipT13 += tens13[resIdx] * interpolationWeight;
+                }
+
+                if (   ipT11 == HUGE_VAL || ipT11 != ipT11
+                    || ipT22 == HUGE_VAL || ipT22 != ipT22
+                    || ipT33 == HUGE_VAL || ipT33 != ipT33
+                    || ipT12 == HUGE_VAL || ipT12 != ipT12
+                    || ipT23 == HUGE_VAL || ipT23 != ipT23
+                    || ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is true for NAN's
+                {
+                    rawPtr[triangleVxIdx][1]       = 1.0f;
+                }
+                else
+                {
+                    caf::Ten3f tensor(ipT11, ipT22, ipT33,
+                                      ipT12, ipT23, ipT13);
+                    caf::Ten3f xfTen = tensor.rotated(triangleXf);
+
+
+                    rawPtr[triangleVxIdx] = mapper->mapToTextureCoord(xfTen[resultComponent]);
+                }
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 
