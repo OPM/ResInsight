@@ -68,22 +68,26 @@ private:
 
     void computeData();
 
+public:
     static void calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
                                                    const std::vector<size_t>& triangleToCellIdxMap, 
                                                    const RigResultAccessor* resultAccessor, 
                                                    const cvf::ScalarMapper* mapper);
+
     static void calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
                                               const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
                                               const std::vector<float> &resultValues, 
                                               bool isElementNodalResult, 
                                               const RigFemPart* femPart, 
                                               const cvf::ScalarMapper* mapper);
-    void calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArray* textureCoords, 
-                                                 const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
-                                                 RigGeoMechCaseData* caseData,
-                                                 const RigFemResultAddress& resVarAddress,
-                                                 int   timeStepIdx,
-                                                 const cvf::ScalarMapper* mapper);
+
+    static void calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                      const cvf::Vec3fArray* triangelVertices,
+                                                      const std::vector<RivIntersectionVertexWeights> &vertexWeights,
+                                                      RigGeoMechCaseData* caseData,
+                                                      const RigFemResultAddress& resVarAddress,
+                                                      int   timeStepIdx,
+                                                      const cvf::ScalarMapper* mapper);
 
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:

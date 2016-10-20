@@ -66,10 +66,9 @@ public:
 
 
     // Mapping between cells and geometry
-    const std::vector<size_t>&           triangleToCellIndex() const;
+    const std::vector<size_t>&                       triangleToCellIndex() const;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const;
-
-    cvf::Mat3f calculateTriangleOrientation(int triangleIndex);
+    const cvf::Vec3fArray*                           triangleVxes() const;
 
     const RimIntersection* crossSection() const;
 

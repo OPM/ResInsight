@@ -51,6 +51,7 @@
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
 #include "cafTensor3.h"
+#include "cvfGeometryTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -184,8 +185,10 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         else
         {
             // Special direction sensitive result calculation
-            // Normal, Horizontal, Semi Vertical, max shear
+            const cvf::Vec3fArray* triangelVxes = m_crossSectionGenerator->triangleVxes();
+
             RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_crossSectionFacesTextureCoords.p(), 
+                                                                          triangelVxes,
                                                                           vertexWeights,
                                                                           caseData,
                                                                           resVarAddress,
@@ -255,6 +258,7 @@ void RivIntersectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* text
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                                   const cvf::Vec3fArray* triangelVertices,
                                                                    const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
                                                                    RigGeoMechCaseData* caseData, 
                                                                    const RigFemResultAddress& resVarAddress, 
@@ -296,11 +300,15 @@ void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArr
         int vxCount = static_cast<int>(vertexWeights.size());
         int triCount = vxCount/3;
 
-//#pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic)
         for (int triangleIdx = 0; triangleIdx < triCount; ++triangleIdx)
         {
-            cvf::Mat3f triangleXf = m_crossSectionGenerator->calculateTriangleOrientation(triangleIdx);
             int triangleVxStartIdx =  triangleIdx*3;
+            cvf::Vec3f p0 = triangelVertices->get(triangleVxStartIdx);
+            cvf::Vec3f p1 = triangelVertices->get(triangleVxStartIdx + 1);
+            cvf::Vec3f p2 = triangelVertices->get(triangleVxStartIdx + 2);
+
+            cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx(p1 - p0, p2 - p0);
 
             for(int triangleVxIdx = triangleVxStartIdx; triangleVxIdx < triangleVxStartIdx+3; ++triangleVxIdx)
             {

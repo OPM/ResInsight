@@ -113,6 +113,19 @@ const std::vector<RivIntersectionVertexWeights>& RivIntersectionBoxGeometryGener
     return m_triVxToCellCornerWeights;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3fArray* RivIntersectionBoxGeometryGenerator::triangleVxes() const
+{
+    CVF_ASSERT(m_triangleVxes->size());
+
+    return m_triangleVxes.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 
 class Box
 {

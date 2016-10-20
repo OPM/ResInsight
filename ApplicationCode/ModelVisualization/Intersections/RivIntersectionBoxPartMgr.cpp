@@ -49,6 +49,7 @@
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
+#include "RivIntersectionPartMgr.h"
 
 
 
@@ -131,7 +132,7 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
                                                                                     cellResultColors);
                 }
 
-                RivIntersectionBoxPartMgr::calculateEclipseTextureCoordinates(m_intersectionBoxFacesTextureCoords.p(),
+                RivIntersectionPartMgr::calculateEclipseTextureCoordinates(m_intersectionBoxFacesTextureCoords.p(),
                                                                             m_intersectionBoxGenerator->triangleToCellIndex(),
                                                                             resultAccessor.p(),
                                                                             mapper);
@@ -159,21 +160,38 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
 
         RigFemResultAddress      resVarAddress = cellResultColors->resultAddress();
 
-        // Do a "Hack" to show elm nodal and not nodal POR results
-        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
-
         const std::vector<RivIntersectionVertexWeights> &vertexWeights = m_intersectionBoxGenerator->triangleVxToCellCornerInterpolationWeights();
-        const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
-        bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
-        RigFemPart* femPart                                = caseData->femParts()->part(0);
         const cvf::ScalarMapper* mapper                    = cellResultColors->legendConfig()->scalarMapper();
+        
+        if (!(resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE) )
+        {
+            // Do a "Hack" to show elm nodal and not nodal POR results
+            if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" ) resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-        RivIntersectionBoxPartMgr::calculateGeoMechTextureCoords(m_intersectionBoxFacesTextureCoords.p(), 
-                                                              vertexWeights, 
-                                                              resultValues, 
-                                                              isElementNodalResult, 
-                                                              femPart, 
-                                                              mapper);
+            const std::vector<float>& resultValues             = caseData->femPartResults()->resultValues(resVarAddress, 0, (int)timeStepIndex);
+            RigFemPart* femPart                                = caseData->femParts()->part(0);
+            bool isElementNodalResult                          = !(resVarAddress.resultPosType == RIG_NODAL);
+
+            RivIntersectionPartMgr::calculateGeoMechTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
+                                                                  vertexWeights,
+                                                                  resultValues,
+                                                                  isElementNodalResult,
+                                                                  femPart,
+                                                                  mapper);
+        }
+        else
+        {
+            // Special direction sensitive result calculation
+            const cvf::Vec3fArray* triangelVxes = m_intersectionBoxGenerator->triangleVxes();
+
+            RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
+                                                                          triangelVxes,
+                                                                          vertexWeights,
+                                                                          caseData,
+                                                                          resVarAddress,
+                                                                          (int)timeStepIndex,
+                                                                          mapper);
+        }
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_intersectionBoxFaces.p(), 
                                                         m_intersectionBoxFacesTextureCoords.p(), 
@@ -184,90 +202,6 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* textureCoords, 
-                                                           const std::vector<RivIntersectionVertexWeights> &vertexWeights, 
-                                                           const std::vector<float> &resultValues, 
-                                                           bool isElementNodalResult, 
-                                                           const RigFemPart* femPart, 
-                                                           const cvf::ScalarMapper* mapper)
-{
-    textureCoords->resize(vertexWeights.size());
-
-    if (resultValues.size() == 0)
-    {
-        textureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
-    }
-    else
-    {
-        cvf::Vec2f* rawPtr = textureCoords->ptr();
-
-        int vxCount = static_cast<int>(vertexWeights.size());
-
-#pragma omp parallel for schedule(dynamic)
-        for (int triangleVxIdx = 0; triangleVxIdx < vxCount; ++triangleVxIdx)
-        {
-            float resValue = 0;
-            int weightCount = vertexWeights[triangleVxIdx].size();
-            for (int wIdx = 0; wIdx < weightCount; ++wIdx)
-            {
-                size_t resIdx = isElementNodalResult ? vertexWeights[triangleVxIdx].vxId(wIdx) :
-                    femPart->nodeIdxFromElementNodeResultIdx(vertexWeights[triangleVxIdx].vxId(wIdx));
-                resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight(wIdx);
-            }
-
-            if (resValue == HUGE_VAL || resValue != resValue) // a != a is true for NAN's
-            {
-                rawPtr[triangleVxIdx][1]       = 1.0f;
-            }
-            else
-            {
-                rawPtr[triangleVxIdx] = mapper->mapToTextureCoord(resValue);
-            }
-        }
-    }
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// Calculates the texture coordinates in a "nearly" one dimensional texture. 
-/// Undefined values are coded with a y-texture coordinate value of 1.0 instead of the normal 0.5
-//--------------------------------------------------------------------------------------------------
-void RivIntersectionBoxPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray* textureCoords, 
-                                                          const std::vector<size_t>& triangleToCellIdxMap,
-                                                          const RigResultAccessor* resultAccessor, 
-                                                          const cvf::ScalarMapper* mapper) 
-{
-    if (!resultAccessor) return;
-
-    size_t numVertices = triangleToCellIdxMap.size()*3;
-
-    textureCoords->resize(numVertices);
-    cvf::Vec2f* rawPtr = textureCoords->ptr();
-
-    int triangleCount = static_cast<int>(triangleToCellIdxMap.size());
-
-#pragma omp parallel for
-    for (int tIdx = 0; tIdx < triangleCount; tIdx++)
-    {
-        double cellScalarValue = resultAccessor->cellScalarGlobIdx(triangleToCellIdxMap[tIdx]);
-        cvf::Vec2f texCoord = mapper->mapToTextureCoord(cellScalarValue);
-        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
-        {
-            texCoord[1] = 1.0f;
-        }
-
-        size_t j;
-        for (j = 0; j < 3; j++)
-        {   
-            rawPtr[tIdx*3 + j] = texCoord;
-        }
-    }
-}
 
 const int priCrossSectionGeo = 1;
 const int priNncGeo = 2;

@@ -383,14 +383,10 @@ const std::vector<RivIntersectionVertexWeights>& RivIntersectionGeometryGenerato
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Mat3f RivIntersectionGeometryGenerator::calculateTriangleOrientation(int triangleIndex)
+const cvf::Vec3fArray* RivIntersectionGeometryGenerator::triangleVxes() const
 {
-    int triVxStartIdx = triangleIndex*3;
-    cvf::Vec3f p0 = m_triangleVxes->get(triVxStartIdx);
-    cvf::Vec3f p1 = m_triangleVxes->get(triVxStartIdx + 1);
-    cvf::Vec3f p2 = m_triangleVxes->get(triVxStartIdx + 2);
-
-    return cvf::GeometryTools::computePlaneHorizontalRotationMx(p1 - p0, p2 - p0);
+    CVF_ASSERT(m_triangleVxes->size());
+    return m_triangleVxes.p();
 }
 
 //--------------------------------------------------------------------------------------------------
