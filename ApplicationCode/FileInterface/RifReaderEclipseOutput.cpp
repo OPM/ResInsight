@@ -387,7 +387,8 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     {
         cvf::Collection<RigFault> faults;
 
-        importFaultsOpmParser(fileSet, &faults);
+        //importFaultsOpmParser(fileSet, &faults);
+        importFaults(fileSet, &faults);
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
         mainGrid->setFaults(faults);
@@ -454,13 +455,11 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
 {
     if (this->filenamesWithFaults().size() > 0)
     {
-        std::vector< RifKeywordAndFilePos > fileKeywords;
-
         for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
         {
             QString faultFilename = this->filenamesWithFaults()[i];
 
-            RifEclipseInputFileTools::readFaults(faultFilename, fileKeywords, faults);
+            RifEclipseInputFileTools::parseAndReadFaults(faultFilename, faults);
         }
     }
     else
@@ -469,9 +468,8 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
         {
             if (fname.endsWith(".DATA"))
             {
-                cvf::Collection<RigFault> faults;
                 std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection(fname, &faults, &filenamesWithFaults);
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults);
 
                 std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
                 std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
@@ -483,6 +481,9 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)
 {
     if (!m_ecl_init_file ) return;

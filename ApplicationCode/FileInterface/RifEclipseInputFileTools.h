@@ -62,9 +62,9 @@ public:
     static bool                       readProperty  (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
     static bool                       readPropertyAtFilePosition (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
     
-    
     static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults);
     static void                       readFaults(const QString& fileName, const std::vector< RifKeywordAndFilePos >& fileKeywords, cvf::Collection<RigFault>* faults);
+    static void                       parseAndReadFaults(const QString& fileName, cvf::Collection<RigFault>* faults);
 
     static void                       readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault>* faults, bool* isEditKeywordDetected);
     static void                       findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >* keywords);

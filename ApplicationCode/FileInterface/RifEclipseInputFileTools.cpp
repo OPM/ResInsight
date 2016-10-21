@@ -634,20 +634,6 @@ void RifEclipseInputFileTools::readFaults(const QString& fileName, const std::ve
         return;
     }
 
-    // Parse complete file if no keywords are parsed
-    if (fileKeywords.size() == 0)
-    {
-        qint64 filePos = findKeyword(faultsKeyword, data, 0);
-        
-        while (filePos != -1)
-        {
-            readFaults(data, filePos, faults, NULL);
-            filePos = findKeyword(faultsKeyword, data, filePos);
-        }
-        
-        return;
-    }
-
     for (size_t i = 0; i < fileKeywords.size(); i++)
     {
         if (fileKeywords[i].keyword.compare(editKeyword, Qt::CaseInsensitive) == 0)
@@ -671,6 +657,25 @@ void RifEclipseInputFileTools::readFaults(const QString& fileName, const std::ve
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::parseAndReadFaults(const QString& fileName, cvf::Collection<RigFault>* faults)
+{
+    QFile data(fileName);
+    if (!data.open(QFile::ReadOnly))
+    {
+        return;
+    }
+
+    qint64 filePos = findKeyword(faultsKeyword, data, 0);
+
+    while (filePos != -1)
+    {
+        readFaults(data, filePos, faults, NULL);
+        filePos = findKeyword(faultsKeyword, data, filePos);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
