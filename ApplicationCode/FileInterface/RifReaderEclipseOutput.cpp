@@ -862,7 +862,6 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     CVF_ASSERT(ert_connection);
     CVF_ASSERT(grid);
 
-    RigWellResultPoint resultPoint;
     int cellI = well_conn_get_i( ert_connection );
     int cellJ = well_conn_get_j( ert_connection );
     int cellK = well_conn_get_k( ert_connection );
@@ -900,23 +899,25 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 
         cellK = 0;
     }
+    
+    RigWellResultPoint resultPoint;
 
     // Introduced based on discussion with Håkon Høgstøl 08.09.2016
     if (cellK >= static_cast<int>(grid->cellCountK()))
     {
         int maxCellKIndex = static_cast<int>(grid->cellCountK() - 1);
-        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to " + cvf::String(maxCellKIndex));
-
-        cellK = maxCellKIndex;
+        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName));
     }
+    else
+    {
+        resultPoint.m_gridIndex = grid->gridIndex();
+        resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
 
-    resultPoint.m_gridIndex = grid->gridIndex();
-    resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
+        resultPoint.m_isOpen = isCellOpen;
 
-    resultPoint.m_isOpen = isCellOpen;
-
-    resultPoint.m_ertBranchId = ertBranchId;
-    resultPoint.m_ertSegmentId = ertSegmentId;
+        resultPoint.m_ertBranchId = ertBranchId;
+        resultPoint.m_ertSegmentId = ertSegmentId;
+    }
 
     return resultPoint;
 }
