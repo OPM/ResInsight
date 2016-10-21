@@ -74,57 +74,6 @@ set( APPLICATION_FILES
     Application/RiaRegressionTest.cpp
 )
 
-set( USER_INTERFACE_FILES
-    UserInterface/RiuCursors.cpp
-    UserInterface/RiuResultTextBuilder.cpp
-	UserInterface/RiuFemResultTextBuilder.cpp
-    UserInterface/RiuMainWindow.cpp
-    UserInterface/RiuMainPlotWindow.cpp
-    UserInterface/RiuResultInfoPanel.cpp
-    UserInterface/RiuViewer.cpp
-    UserInterface/RiuSimpleHistogramWidget.cpp
-    UserInterface/RiuMultiCaseImportDialog.cpp
-    UserInterface/RiuProcessMonitor.cpp
-    UserInterface/RiuViewerCommands.cpp
-    UserInterface/RiuCadNavigation.cpp
-    UserInterface/RiuRmsNavigation.cpp
-	UserInterface/RiuGeoQuestNavigation.cpp
-	UserInterface/RiuDragDrop.cpp
-	UserInterface/RiuDragDrop.h
-	UserInterface/RiuTreeViewEventFilter.cpp
-	UserInterface/RiuTreeViewEventFilter.h
-	UserInterface/RiuWellLogPlot.cpp
-	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuLineSegmentQwtPlotCurve.cpp
-	UserInterface/RiuLineSegmentQwtPlotCurve.h
-	UserInterface/RiuWellLogTrack.cpp
-	UserInterface/RiuWellLogTrack.h
-	UserInterface/RiuProjectPropertyView.h
-	UserInterface/RiuProjectPropertyView.cpp
-	UserInterface/RiuResultQwtPlot.h
-	UserInterface/RiuResultQwtPlot.cpp
-	UserInterface/RiuSummaryQwtPlot.h
-	UserInterface/RiuSummaryQwtPlot.cpp
-	UserInterface/RiuSelectionManager.h
-	UserInterface/RiuSelectionManager.cpp
-	UserInterface/RiuSelectionColors.h
-	UserInterface/RiuSelectionColors.cpp
-	UserInterface/RiuSelectionChangedHandler.h
-	UserInterface/RiuSelectionChangedHandler.cpp
-	UserInterface/RiuToolTipMenu.h
-	UserInterface/RiuToolTipMenu.cpp
-	UserInterface/RiuMdiSubWindow.h
-	UserInterface/RiuMdiSubWindow.cpp
-	UserInterface/RiuMainWindowBase.h
-	UserInterface/RiuMainWindowBase.cpp
-	UserInterface/RiuPropertyViewTabWidget.h
-	UserInterface/RiuPropertyViewTabWidget.cpp
-	UserInterface/RiuRecentFileActionProvider.h
-	UserInterface/RiuRecentFileActionProvider.cpp
-	UserInterface/RiuQwtScalePicker.h
-	UserInterface/RiuQwtScalePicker.cpp
-)
-
 set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketServer.cpp
     SocketInterface/RiaProjectInfoCommands.cpp
@@ -138,7 +87,6 @@ set( SOCKET_INTERFACE_FILES
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
-     ${USER_INTERFACE_FILES}
      ${SOCKET_INTERFACE_FILES}
      ${UNIT_TEST_FILES}
 )
@@ -153,6 +101,8 @@ list( APPEND REFERENCED_CMAKE_FILES
     ModelVisualization/CMakeLists_files.cmake
     ModelVisualization/GridBox/CMakeLists_files.cmake
     ModelVisualization/Intersections/CMakeLists_files.cmake
+    
+    UserInterface/CMakeLists_files.cmake
 	
     Commands/CMakeLists_files.cmake
 	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
@@ -222,29 +172,10 @@ set ( QT_MOC_HEADERS
     ProjectDataModel/RimMimeData.h
     ProjectDataModel/RimIntersectionBox.h
     
-    UserInterface/RiuMainWindowBase.h
-    UserInterface/RiuMainWindow.h
-    UserInterface/RiuMainPlotWindow.h
-    UserInterface/RiuResultInfoPanel.h
-    UserInterface/RiuViewer.h
-    UserInterface/RiuProcessMonitor.h
     SocketInterface/RiaSocketServer.h
-    UserInterface/RiuMultiCaseImportDialog.h
-    UserInterface/RiuViewerCommands.h
-	UserInterface/RiuTreeViewEventFilter.h
-	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogTrack.h
-	UserInterface/RiuRecentFileActionProvider.h
-    UserInterface/RiuSummaryQwtPlot.h
-    UserInterface/RiuQwtScalePicker.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
-
-# Define files for the uic compiler
-set ( QT_UI_FILES
-    UserInterface/RiuMultiCaseImportDialog.ui
-)
 
 qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
@@ -274,7 +205,6 @@ endif()
 ################################################################################
 source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
-source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
