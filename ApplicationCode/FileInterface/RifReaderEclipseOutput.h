@@ -48,6 +48,7 @@ public:
     virtual ~RifReaderEclipseOutput();
 
     bool                    open(const QString& fileName, RigCaseData* eclipseCase);
+
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase);
     void                    close();
 
@@ -66,6 +67,8 @@ private:
 
     static RigWellResultPoint createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
     
+    void                    importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const;
+    void                    importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults);
 
 
     void                    openInitFile();

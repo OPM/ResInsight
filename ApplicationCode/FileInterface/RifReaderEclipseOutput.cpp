@@ -37,6 +37,7 @@
 #include <iostream>
 #include <map>
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include "RifEclipseInputFileTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -384,18 +385,12 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     if (isFaultImportEnabled())
     {
-        foreach (QString fname, fileSet)
-        {
-            if (fname.endsWith(".DATA"))
-            {
-                cvf::Collection<RigFault> faults;
+        cvf::Collection<RigFault> faults;
 
-                RifReaderOpmParserInput::readFaults(fname, faults);
+        importFaultsOpmParser(fileSet, &faults);
 
-                RigMainGrid* mainGrid = eclipseCase->mainGrid();
-                mainGrid->setFaults(faults);
-            }
-        }
+        RigMainGrid* mainGrid = eclipseCase->mainGrid();
+        mainGrid->setFaults(faults);
     }
 
     progInfo.incrementProgress();
@@ -436,6 +431,56 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.incrementProgress();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const
+{
+    foreach(QString fname, fileSet)
+    {
+        if (fname.endsWith(".DATA"))
+        {
+            RifReaderOpmParserInput::readFaults(fname, faults);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults)
+{
+    if (this->filenamesWithFaults().size() > 0)
+    {
+        std::vector< RifKeywordAndFilePos > fileKeywords;
+
+        for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
+        {
+            QString faultFilename = this->filenamesWithFaults()[i];
+
+            RifEclipseInputFileTools::readFaults(faultFilename, fileKeywords, faults);
+        }
+    }
+    else
+    {
+        foreach(QString fname, fileSet)
+        {
+            if (fname.endsWith(".DATA"))
+            {
+                cvf::Collection<RigFault> faults;
+                std::vector<QString> filenamesWithFaults;
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, &faults, &filenamesWithFaults);
+
+                std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                filenamesWithFaults.erase(last, filenamesWithFaults.end());
+
+                this->setFilenamesWithFaults(filenamesWithFaults);
+            }
+        }
+    }
 }
 
 void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)

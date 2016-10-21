@@ -63,18 +63,18 @@ public:
     static bool                       readPropertyAtFilePosition (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
     
     
-    static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults);
-    static void                       readFaults(const QString& fileName, cvf::Collection<RigFault>& faults, const std::vector< RifKeywordAndFilePos >& fileKeywords);
+    static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults);
+    static void                       readFaults(const QString& fileName, const std::vector< RifKeywordAndFilePos >& fileKeywords, cvf::Collection<RigFault>* faults);
 
-    static void                       readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault> &faults, bool* isEditKeywordDetected);
-    static void                       findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >& keywords);
+    static void                       readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault>* faults, bool* isEditKeywordDetected);
+    static void                       findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >* keywords);
 
     static const std::vector<QString>& knownPropertyKeywords(); 
 
     static bool     writePropertyToTextFile(const QString& fileName, RigCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
     static bool     writeBinaryResultToTextFile(const QString& fileName, RigCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
 
-    static bool     readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults, bool* isEditKeywordDetected);
+    static bool     readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults, bool* isEditKeywordDetected);
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 

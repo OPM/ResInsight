@@ -138,7 +138,7 @@ void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName
                     if (caseData->mainGrid())
                     {
                         cvf::Collection<RigFault> faults;
-                        importFaults(*deck, faults);
+                        importFaults(*deck, &faults);
                         if (faults.size() > 0)
                         {
                             caseData->mainGrid()->setFaults(faults);
@@ -198,7 +198,7 @@ void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmParserInput::readFaults(const QString& fileName, cvf::Collection<RigFault>& faults)
+void RifReaderOpmParserInput::readFaults(const QString& fileName, cvf::Collection<RigFault>* faults)
 {
     {
         std::string errorMessage;
@@ -231,7 +231,7 @@ void RifReaderOpmParserInput::readFaults(const QString& fileName, cvf::Collectio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmParserInput::importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>& faults)
+void RifReaderOpmParserInput::importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>* faults)
 {
     {
         std::string errorMessage;
@@ -267,22 +267,22 @@ void RifReaderOpmParserInput::importFaults(const Opm::Deck& deck, cvf::Collectio
 
                     if (!(fault && fault->name() == name))
                     {
-                        if (findFaultByName(faults, name) == cvf::UNDEFINED_SIZE_T)
+                        if (findFaultByName(*faults, name) == cvf::UNDEFINED_SIZE_T)
                         {
                             RigFault* newFault = new RigFault;
                             newFault->setName(name);
 
-                            faults.push_back(newFault);
+                            faults->push_back(newFault);
                         }
 
-                        size_t faultIndex = findFaultByName(faults, name);
+                        size_t faultIndex = findFaultByName(*faults, name);
                         if (faultIndex == cvf::UNDEFINED_SIZE_T)
                         {
                             CVF_ASSERT(faultIndex != cvf::UNDEFINED_SIZE_T);
                             continue;
                         }
 
-                        fault = faults.at(faultIndex);
+                        fault = faults->at(faultIndex);
                     }
 
                     CVF_ASSERT(fault);

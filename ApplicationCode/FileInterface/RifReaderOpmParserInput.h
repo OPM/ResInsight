@@ -48,12 +48,12 @@ class RifReaderOpmParserInput
 public:
     static void importGridPropertiesFaults(const QString& fileName, RigCaseData* eclipseCase);
 
-    static void readFaults(const QString& fileName, cvf::Collection<RigFault>& faults);
+    static void readFaults(const QString& fileName, cvf::Collection<RigFault>* faults);
     
     static std::vector<std::string> knownPropertyKeywords();
 
 private:
-    static void importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>& faults);
+    static void importFaults(const Opm::Deck& deck, cvf::Collection<RigFault>* faults);
     static std::vector<std::string> allParserConfigKeys();
     static size_t findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);

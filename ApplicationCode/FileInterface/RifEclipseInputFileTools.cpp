@@ -143,7 +143,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
     CVF_ASSERT(eclipseCase);
 
     std::vector< RifKeywordAndFilePos > keywordsAndFilePos;
-    findKeywordsOnFile(fileName, keywordsAndFilePos);
+    findKeywordsOnFile(fileName, &keywordsAndFilePos);
 
     qint64 coordPos = -1;
     qint64 zcornPos = -1;
@@ -241,7 +241,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
     if (readFaultData)
     {
         cvf::Collection<RigFault> faults;
-        RifEclipseInputFileTools::readFaults(fileName, faults, keywordsAndFilePos);
+        RifEclipseInputFileTools::readFaults(fileName, keywordsAndFilePos, &faults);
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
         mainGrid->setFaults(faults);
@@ -281,7 +281,7 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
     caf::ProgressInfo startProgress(knownKeywordSet.size(), "Scanning for known properties");
 
     std::vector<RifKeywordAndFilePos> fileKeywords;
-    RifEclipseInputFileTools::findKeywordsOnFile(fileName, fileKeywords);
+    RifEclipseInputFileTools::findKeywordsOnFile(fileName, &fileKeywords);
 
     mainProgress.setProgress(1);
     caf::ProgressInfo progress(fileKeywords.size(), "Reading properties");
@@ -332,7 +332,7 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
 // https://bugreports.qt-project.org/browse/QTBUG-9814
 //
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >& keywords)
+void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >* keywords)
 {
     char buf[1024];
 
@@ -356,7 +356,7 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
                 filepos = data.pos() - lineLength;
                 keyPos.filePos = filepos;
                 keyPos.keyword = line.left(8).trimmed();
-                keywords.push_back(keyPos);
+                keywords->push_back(keyPos);
                 //qDebug() << keyPos.keyword << " - " << keyPos.filePos;
             }
         }
@@ -366,7 +366,7 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
 
 //--------------------------------------------------------------------------------------------------
 /// Reads the property data requested into the \a reservoir, overwriting any previous 
-/// propeties with the same name.
+/// properties with the same name.
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData* caseData, const QString& eclipseKeyWord, const QString& resultName)
 {
@@ -626,7 +626,7 @@ bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readFaults(const QString& fileName, cvf::Collection<RigFault>& faults, const std::vector<RifKeywordAndFilePos>& fileKeywords)
+void RifEclipseInputFileTools::readFaults(const QString& fileName, const std::vector<RifKeywordAndFilePos>& fileKeywords, cvf::Collection<RigFault>* faults)
 {
     QFile data(fileName);
     if (!data.open(QFile::ReadOnly))
@@ -675,7 +675,7 @@ void RifEclipseInputFileTools::readFaults(const QString& fileName, cvf::Collecti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults)
+void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults)
 {
     QFile data(fileName);
     if (!data.open(QFile::ReadOnly))
@@ -748,7 +748,7 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults, bool* isEditKeywordDetected)
+bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults, bool* isEditKeywordDetected)
 {
     QString line;
 
@@ -824,7 +824,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
             if (!line.contains("/"))
             {
                 readFaults(file, file.pos(), faults, isEditKeywordDetected);
-                filenamesWithFaults.push_back(file.fileName());
+                filenamesWithFaults->push_back(file.fileName());
             }
         }
 
@@ -866,7 +866,7 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(co
 /// Parse content of this keyword until end of file or
 /// end of keyword when a single line with '/' is found
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault> &faults, bool* isEditKeywordDetected)
+void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault>* faults, bool* isEditKeywordDetected)
 {
     if (!data.seek(filePos))
     {
@@ -936,22 +936,22 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
 
         if (!(fault && fault->name() == name))
         {
-            if (findFaultByName(faults, name) == cvf::UNDEFINED_SIZE_T)
+            if (findFaultByName(*faults, name) == cvf::UNDEFINED_SIZE_T)
             {
                 RigFault* newFault = new RigFault;
                 newFault->setName(name);
 
-                faults.push_back(newFault);
+                faults->push_back(newFault);
             }
 
-            size_t faultIndex = findFaultByName(faults, name);
+            size_t faultIndex = findFaultByName(*faults, name);
             if (faultIndex == cvf::UNDEFINED_SIZE_T)
             {
                 CVF_ASSERT(faultIndex != cvf::UNDEFINED_SIZE_T);
                 continue;
             }
 
-            fault = faults.at(faultIndex);
+            fault = faults->at(faultIndex);
         }
 
         CVF_ASSERT(fault);
