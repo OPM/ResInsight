@@ -22,6 +22,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultDefinition.h"
 

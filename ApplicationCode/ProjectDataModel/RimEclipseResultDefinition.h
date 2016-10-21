@@ -27,11 +27,11 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-
-class RimEclipseView;
 class RigCaseCellResultsData;
-class RimReservoirCellResultsStorage;
 class RimEclipseCase;
+class RimEclipseView;
+class RimReservoirCellResultsStorage;
+
 //==================================================================================================
 ///  
 ///  
@@ -62,20 +62,18 @@ public:
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-
-
-    virtual void initAfterRead();
+    virtual void                    initAfterRead();
     
-    virtual void updateLegendCategorySettings() {};
+    virtual void                    updateLegendCategorySettings() {};
 
-    void            updateResultNameHasChanged();
-    void            updateAnyFieldHasChanged();
+    void                            updateResultNameHasChanged();
+    void                            updateAnyFieldHasChanged();
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 protected:
-    void            updateFieldVisibility();
+    void                            updateFieldVisibility();
 
 protected:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
