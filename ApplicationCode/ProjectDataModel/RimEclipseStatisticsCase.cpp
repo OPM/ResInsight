@@ -318,7 +318,6 @@ RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
-
     updateSelectionSummaryLabel();
     updateSelectionListVisibilities();
     updatePercentileUiVisibility();
@@ -341,6 +340,9 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_selectedFractureStaticProperties);
     group->add(&m_selectedFractureGeneratedProperties);
     group->add(&m_selectedFractureInputProperties);
+    
+    uiOrdering.add(&m_useZeroAsInactiveCellValue);
+    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden(hasComputedStatistics());
 
     group = uiOrdering.addNewGroup("Percentile setup");
     group->setUiHidden(hasComputedStatistics());
@@ -350,7 +352,6 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_midPercentile);
     group->add(&m_highPercentile);
 
-    uiOrdering.add(&m_useZeroAsInactiveCellValue);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
