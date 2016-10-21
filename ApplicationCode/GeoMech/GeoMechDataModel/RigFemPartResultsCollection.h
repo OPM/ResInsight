@@ -46,6 +46,8 @@ public:
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>                         stepNames();
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
+    void                                             deleteResult(const RigFemResultAddress& resVarAddr);
+
     const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
     int                                              partCount() const;
     int                                              frameCount();

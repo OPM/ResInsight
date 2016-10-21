@@ -18,6 +18,7 @@
 #include "RimFormationNamesCollection.h"
 
 #include "RimFormationNames.h"
+#include "QMessageBox"
 
 CAF_PDM_SOURCE_INIT(RimFormationNamesCollection, "FormationNamesCollectionObject");
 
@@ -87,9 +88,23 @@ void RimFormationNamesCollection::importFiles(const QStringList& fileNames)
         formNamesObjsToReload.push_back(newFNs);
     }
 
+    QString totalErrorMessage;
+
     for (RimFormationNames* fmNames: formNamesObjsToReload)
     {
-        fmNames->readFormationNamesFile(nullptr);
+        QString errormessage;
+
+        fmNames->readFormationNamesFile(&errormessage);
+        if (!errormessage.isEmpty())
+        {
+            totalErrorMessage += "\nError in: " + fmNames->fileName() 
+                               + "\n\t" + errormessage;
+        }
+    }
+
+    if (!totalErrorMessage.isEmpty())
+    {
+        QMessageBox::warning(nullptr, "Import Formation Names", totalErrorMessage);
     }
 }
 

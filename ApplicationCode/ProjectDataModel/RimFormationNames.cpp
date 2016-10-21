@@ -28,6 +28,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include "QMessageBox"
 
 CAF_PDM_SOURCE_INIT(RimFormationNames, "FormationNames");
 
@@ -60,8 +61,12 @@ void RimFormationNames::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     if (&m_formationNamesFileName == changedField)
     {
         updateUiTreeName();
-
-        readFormationNamesFile(nullptr);
+        QString errorMessage;
+        readFormationNamesFile(&errorMessage);
+        if (!errorMessage.isEmpty())
+        {
+            QMessageBox::warning(nullptr, "Formation Names", errorMessage);
+        }
     }
 }
 
@@ -131,7 +136,12 @@ void RimFormationNames::updateConnectedViews()
 void RimFormationNames::readFormationNamesFile(QString * errorMessage)
 {
     QFile dataFile(m_formationNamesFileName());
-    if (!dataFile.open(QFile::ReadOnly)){ if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_formationNamesFileName()) + "\n"; return;}
+
+    if (!dataFile.open(QFile::ReadOnly)) 
+    { 
+       if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_formationNamesFileName()) + "\n"; 
+       return;
+    }
 
     m_formationNamesData = new RigFormationNames;
 
@@ -158,13 +168,13 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
             QString numberString = lineSegs[2];
             if (commentMarkPos >= 0) numberString.truncate(commentMarkPos);
 
-            QStringList numberWords = numberString.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-            if (numberWords.size() == 3)
+            QStringList numberWords = numberString.split(QRegExp("-"), QString::SkipEmptyParts);
+            if (numberWords.size() == 2)
             {
                 bool isNumber1 = false;
                 bool isNumber2 = false;
                 int startK = numberWords[0].toInt(&isNumber1);
-                int endK = numberWords[2].toInt(&isNumber2);
+                int endK = numberWords[1].toInt(&isNumber2);
 
                 if (!(isNumber2 && isNumber1))
                 {
@@ -176,6 +186,19 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
                 endK = tmp > endK ? tmp: endK;
 
                 m_formationNamesData->appendFormationRange(formationName, startK-1, endK-1);
+            }
+            else if (numberWords.size() == 1)
+            {
+                bool isNumber1 = false;
+                int kLayerCount = numberWords[0].toInt(&isNumber1);
+
+                if ( !isNumber1 )
+                {
+                    if ( errorMessage ) (*errorMessage) += "Format error on line: " + QString::number(lineNumber) + "\n";
+                    continue;
+                }
+
+                m_formationNamesData->appendFormationRangeHeight(formationName, kLayerCount);
             }
             else
             {

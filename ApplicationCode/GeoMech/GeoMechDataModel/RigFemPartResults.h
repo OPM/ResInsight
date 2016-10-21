@@ -41,6 +41,7 @@ public:
 
     RigFemScalarResultFrames* createScalarResult(const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames* findScalarResult(const RigFemResultAddress& resVarAddr);
+    void                      deleteScalarResult(const RigFemResultAddress& resVarAddr);
 
 private:
 

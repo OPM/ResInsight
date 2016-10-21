@@ -23,6 +23,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "QMessageBox"
 
 CAF_CMD_SOURCE_INIT(RicReloadFormationNamesFeature, "RicReloadFormationNamesFeature");
 
@@ -62,7 +63,13 @@ void RicReloadFormationNamesFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesObjs);
     for (RimFormationNames* fnames:  selectedFormationNamesObjs)
     {
-        fnames->readFormationNamesFile(nullptr);
+        QString errorMessage;
+        fnames->readFormationNamesFile(&errorMessage);
+        if ( !errorMessage.isEmpty() )
+        {
+            QMessageBox::warning(nullptr, "Reload Formation Names", errorMessage);
+        }
+        
         fnames->updateConnectedViews();
     }
 }

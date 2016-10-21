@@ -65,3 +65,11 @@ RigFemScalarResultFrames* RigFemPartResults::findScalarResult(const RigFemResult
 {
     return resultSets[resVarAddr].p();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResults::deleteScalarResult(const RigFemResultAddress& resVarAddr)
+{
+    resultSets.erase(resVarAddr); // Refcounting is supposed to destroy the data.
+}

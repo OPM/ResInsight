@@ -75,6 +75,7 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 void RigFemPartResultsCollection::setActiveFormationNames(RigFormationNames* activeFormationNames)
 {
     m_activeFormationNamesData  = activeFormationNames;
+    this->deleteResult(RigFemResultAddress(RIG_FORMATION_NAMES, "Active Formation Names", ""));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,10 +298,16 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["SE"].push_back("SN");
             fieldCompNames["SE"].push_back("STH");
             fieldCompNames["SE"].push_back("STQV");
+            fieldCompNames["SE"].push_back("TNH" );
+            fieldCompNames["SE"].push_back("TNQV");
+            fieldCompNames["SE"].push_back("THQV");
 
             fieldCompNames["ST"].push_back("SN");
             fieldCompNames["ST"].push_back("STH");
             fieldCompNames["ST"].push_back("STQV");
+            fieldCompNames["ST"].push_back("TNH");
+            fieldCompNames["ST"].push_back("TNQV");
+            fieldCompNames["ST"].push_back("THQV");
         }
     }
 
@@ -566,7 +573,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedStress(int partIndex, const RigFemResultAddress& resVarAddr)
 {
-    CVF_ASSERT(resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN");
+    CVF_ASSERT(   resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN"
+               || resVarAddr.componentName == "TNH" || resVarAddr.componentName == "TNQV" || resVarAddr.componentName == "THQV");
 
     RigFemScalarResultFrames * s11Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11"));
     RigFemScalarResultFrames * s22Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22"));
@@ -578,7 +586,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
     RigFemScalarResultFrames * sNormFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SN"));
     RigFemScalarResultFrames * sHoriFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "STH"));
     RigFemScalarResultFrames * sVertFrames = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "STQV"));
-    
+    RigFemScalarResultFrames * sNHFrames   = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TNH" ));
+    RigFemScalarResultFrames * sNVFrames   = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TNQV"));
+    RigFemScalarResultFrames * sHVFrames   = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "THQV"));
+
     const RigFemPart * femPart = m_femParts->part(partIndex);
     const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
 
@@ -595,12 +606,18 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
         std::vector<float>& sNorm = sNormFrames->frameData(fIdx);
         std::vector<float>& sHori = sHoriFrames->frameData(fIdx);
         std::vector<float>& sVert = sVertFrames->frameData(fIdx);
+        std::vector<float>& sNH = sNHFrames->frameData(fIdx);
+        std::vector<float>& sHV = sNVFrames->frameData(fIdx);
+        std::vector<float>& sNV = sHVFrames->frameData(fIdx);
 
         // HACK ! Todo : make it robust against other elements than Hex8
         size_t valCount = s11.size() * 3; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes 
         sNorm.resize(valCount);
         sHori.resize(valCount);
         sVert.resize(valCount);
+        sNH.resize(valCount);
+        sHV.resize(valCount);
+        sNV.resize(valCount);
 
         int elementCount = femPart->elementCount();
         for(int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
@@ -651,7 +668,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
                         sHori[elmNodFaceResIdx]= xfTen[caf::Ten3f::SXX];
                         sVert[elmNodFaceResIdx]= xfTen[caf::Ten3f::SYY];
                         sNorm[elmNodFaceResIdx]= xfTen[caf::Ten3f::SZZ];
-
+                        sNH[elmNodFaceResIdx]= xfTen[caf::Ten3f::SZX];
+                        sHV[elmNodFaceResIdx]= xfTen[caf::Ten3f::SXY];
+                        sNV[elmNodFaceResIdx]= xfTen[caf::Ten3f::SYZ];
                     }
                 }
             }
@@ -1190,6 +1209,24 @@ bool RigFemPartResultsCollection::assertResultsLoaded(const RigFemResultAddress&
     }
 
     return foundResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT ( resVarAddr.isValid() );
+
+    for ( int pIdx = 0; pIdx < static_cast<int>(m_femPartResults.size()); ++pIdx )
+    {
+        if ( m_femPartResults[pIdx].notNull() )
+        {
+            m_femPartResults[pIdx]->deleteScalarResult(resVarAddr);
+        }
+    }
+
+    m_resultStatistics.erase(resVarAddr);
 }
 
 //--------------------------------------------------------------------------------------------------
