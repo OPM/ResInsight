@@ -64,9 +64,15 @@ public:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+
+
     virtual void initAfterRead();
     
     virtual void updateLegendCategorySettings() {};
+
+    void            updateResultNameHasChanged();
+    void            updateAnyFieldHasChanged();
 
 protected:
     void            updateFieldVisibility();

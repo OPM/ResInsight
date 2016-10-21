@@ -102,7 +102,7 @@ QStringList RimEclipseResultDefinition::getResultVariableListForCurrentUIFieldSe
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResults() const
 {
-    if (!m_eclipseCase ) return NULL;
+    if (!m_eclipseCase ) return nullptr;
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModel());
 
@@ -133,87 +133,118 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     }
 
-    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
-    RimView* view = NULL;
-    this->firstAncestorOrThisOfType(view);
-    RimWellLogCurve* curve = NULL;
-    this->firstAncestorOrThisOfType(curve);
-
-    RimCellEdgeColors* cellEdgeColors = NULL;
-    this->firstAncestorOrThisOfType(cellEdgeColors);
-
     if (&m_resultVariableUiField == changedField)
     {
         m_porosityModel  = m_porosityModelUiField;
         m_resultType     = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
         
-        loadResult();
-
-        if (propFilter)
-        {
-            propFilter->setToDefaultValues();
-            propFilter->updateFilterName();
-
-            if (view)
-            {
-                view->scheduleGeometryRegen(PROPERTY_FILTERED);
-                view->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-
-        if (dynamic_cast<RimEclipseCellColors*>(this))
-        {
-            this->updateLegendCategorySettings();
-
-            if (view)
-            {
-                RimViewLinker* viewLinker = view->assosiatedViewLinker();
-                if (viewLinker)
-                {
-                    viewLinker->updateCellResult();
-                }
-            }
-        }
-
-        if (cellEdgeColors)
-        {
-            cellEdgeColors->singleVarEdgeResultColors()->updateLegendCategorySettings();
-            cellEdgeColors->loadResult();
-
-            if (view)
-            {
-                view->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-
-        if (curve) 
-        {
-            curve->loadDataAndUpdate();
-        }
+        updateResultNameHasChanged();
     }
 
+    updateAnyFieldHasChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateAnyFieldHasChanged()
+{
+    RimEclipsePropertyFilter* propFilter = nullptr;
+    this->firstAncestorOrThisOfType(propFilter);
     if (propFilter)
     {
         propFilter->updateConnectedEditors();
     }
-
-    RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
+    
+    RimEclipseFaultColors* faultColors = nullptr;
+    this->firstAncestorOrThisOfType(faultColors);
     if (faultColors)
     {
         faultColors->updateConnectedEditors();
     }
 
+    RimCellEdgeColors* cellEdgeColors = nullptr;
+    this->firstAncestorOrThisOfType(cellEdgeColors);
     if (cellEdgeColors)
     {
         cellEdgeColors->updateConnectedEditors();
     }
 
+    RimEclipseCellColors* cellColors = nullptr;
+    this->firstAncestorOrThisOfType(cellColors);
+    if (cellColors)
+    {
+        cellColors->updateConnectedEditors();
+    }
+
+    RimWellLogCurve* curve = nullptr;
+    this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
         curve->updateConnectedEditors();
     }
- 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateResultNameHasChanged()
+{
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    loadResult();
+
+    RimEclipsePropertyFilter* propFilter = nullptr;
+    this->firstAncestorOrThisOfType(propFilter);
+    if (propFilter)
+    {
+        propFilter->setToDefaultValues();
+        propFilter->updateFilterName();
+
+        if (view)
+        {
+            view->scheduleGeometryRegen(PROPERTY_FILTERED);
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    RimEclipseCellColors* cellColors = nullptr;
+    this->firstAncestorOrThisOfType(cellColors);
+    if (cellColors)
+    {
+        this->updateLegendCategorySettings();
+
+        if (view)
+        {
+            RimViewLinker* viewLinker = view->assosiatedViewLinker();
+            if (viewLinker)
+            {
+                viewLinker->updateCellResult();
+            }
+        }
+    }
+
+    RimCellEdgeColors* cellEdgeColors = nullptr;
+    this->firstAncestorOrThisOfType(cellEdgeColors);
+    if (cellEdgeColors)
+    {
+        cellEdgeColors->singleVarEdgeResultColors()->updateLegendCategorySettings();
+        cellEdgeColors->loadResult();
+
+        if (view)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    RimWellLogCurve* curve = nullptr;
+    this->firstAncestorOrThisOfType(curve);
+    if (curve)
+    {
+        curve->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,19 +254,19 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 {
     bool showPerFaceResultsFirst = false;
 
-    RimEclipseFaultColors* rimEclipseFaultColors = NULL;
+    RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
     this->firstAncestorOrThisOfType(rimEclipseFaultColors);
     if (rimEclipseFaultColors) showPerFaceResultsFirst = true;
 
     QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(showPerFaceResultsFirst, fieldNeedingOptions, useOptionsOnly);
 
-    RimWellLogCurve* curve = NULL;
+    RimWellLogCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
 
-    RimEclipsePropertyFilter* propFilter = NULL;
+    RimEclipsePropertyFilter* propFilter = nullptr;
     this->firstAncestorOrThisOfType(propFilter);
 
-    RimCellEdgeColors* cellEdge = NULL;
+    RimCellEdgeColors* cellEdge = nullptr;
     this->firstAncestorOrThisOfType(cellEdge);
 
     if (propFilter || curve || cellEdge)

@@ -522,6 +522,25 @@ RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName)
+{
+    bool anyNameUpdated = false;
+
+    for (auto& it : m_resultInfos)
+    {
+        if (it.m_resultType == resultType && it.m_resultName == oldName)
+        {
+            anyNameUpdated = true;
+            it.m_resultName = newName;
+        }
+    }
+
+    return anyNameUpdated;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 {
     std::vector<ResultInfo>::const_iterator it;

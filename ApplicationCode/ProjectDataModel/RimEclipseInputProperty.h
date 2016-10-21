@@ -57,8 +57,6 @@ public:
 
     // PdmObject Overrides
     virtual caf::PdmFieldHandle*    userDescriptionField()  { return &resultName;}
-
-private:
-    // Possibly the resultIndex, but it should be superfluous
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 };

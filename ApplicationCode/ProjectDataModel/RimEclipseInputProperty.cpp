@@ -20,6 +20,11 @@
 
 #include "RimEclipseInputProperty.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseResultDefinition.h"
+
 #include "cafPdmUiLineEditor.h"
 #include "cvfAssert.h"
 
@@ -67,5 +72,59 @@ RimEclipseInputProperty::RimEclipseInputProperty()
 RimEclipseInputProperty::~RimEclipseInputProperty()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputProperty::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &resultName)
+    {
+        RimEclipseInputCase* rimCase = nullptr;
+        this->firstAncestorOrThisOfType(rimCase);
+        if (rimCase)
+        {
+            bool anyNameUpdated = false;
+
+            QString oldName = oldValue.toString();
+            QString newName = newValue.toString();
+
+            RigCaseCellResultsData* matrixResults = rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
+            if (matrixResults)
+            {
+                if (matrixResults->updateResultName(RimDefines::INPUT_PROPERTY, oldName, newName))
+                {
+                    anyNameUpdated = true;
+                }
+            }
+
+            RigCaseCellResultsData* fracResults = rimCase->reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS);
+            if (fracResults)
+            {
+                if (fracResults->updateResultName(RimDefines::INPUT_PROPERTY, oldName, newName))
+                {
+                    anyNameUpdated = true;
+                }
+            }
+
+            if (anyNameUpdated)
+            {
+                std::vector<RimEclipseResultDefinition*> resDefs;
+                rimCase->descendantsIncludingThisOfType(resDefs);
+
+                for (auto it : resDefs)             
+                {
+                    if (it->resultVariable() == oldName)
+                    {
+                        it->setResultVariable(newName);
+                    }
+
+                    it->updateResultNameHasChanged();
+                    it->updateAnyFieldHasChanged();
+                }
+            }
+        }
+    }
 }
 

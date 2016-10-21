@@ -96,6 +96,8 @@ public:
 
     static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
 
+    bool                                               updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+
 public:
     class ResultInfo
     {
