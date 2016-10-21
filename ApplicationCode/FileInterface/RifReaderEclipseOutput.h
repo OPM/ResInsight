@@ -21,10 +21,12 @@
 #pragma once
 
 #include "RifReaderInterface.h"
+
+#include "RigFault.h"
+#include "RigSingleWellResultsData.h"
+
 #include <QList>
 #include <QDateTime>
-
-#include "RigSingleWellResultsData.h"
 
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
