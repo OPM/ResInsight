@@ -822,6 +822,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
 
+    RiuMainWindow::instance()->show();
+
     analysisModels->cases.push_back(rimResultReservoir);
 
     RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
@@ -842,6 +844,11 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
         if(sumCaseColl)
         {
+            if (sumCaseColl->summaryCaseCount() == 0 && m_mainPlotWindow)
+            {
+                m_mainPlotWindow->hide();
+            }
+
             RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
             if (newSumCase)
             {
@@ -849,8 +856,6 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
                 if (m_preferences->autoCreatePlotsOnImport())
                 {
-                    getOrCreateAndShowMainPlotWindow();
-
                     RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
                     RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
                 
@@ -1875,6 +1880,15 @@ bool RiaApplication::openFile(const QString& fileName)
         if (loadingSucceded)
         {
             getOrCreateAndShowMainPlotWindow();
+
+            std::vector<RimCase*> cases;
+            m_project->allCases(cases);
+
+            if (cases.size() == 0)
+            {
+                RiuMainWindow::instance()->close();
+            }
+
             m_project->updateConnectedEditors();
         }
     }

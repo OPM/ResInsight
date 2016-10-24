@@ -28,6 +28,8 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuMainWindow.h"
+
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
@@ -68,6 +70,14 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
     }
 
     app->getOrCreateAndShowMainPlotWindow();
+
+    std::vector<RimCase*> cases;
+    app->project()->allCases(cases);
+
+    if (cases.size() == 0)
+    {
+        RiuMainWindow::instance()->close();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
