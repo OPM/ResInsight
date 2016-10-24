@@ -190,6 +190,8 @@ void RiuMainPlotWindow::createMenus()
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu("&Edit");
     editMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+    editMenu->addSeparator();
+    editMenu->addAction(cmdFeatureMgr->action("RicEditPreferencesFeature"));
 
     // View menu
     QMenu* viewMenu = menuBar()->addMenu("&View");

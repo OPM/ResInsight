@@ -16,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RicSaveProjectAsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExitApplicationFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCloseProjectFeature.h
 ${CEE_CURRENT_LIST_DIR}RicHelpFeatures.h
+${CEE_CURRENT_LIST_DIR}RicEditPreferencesFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -30,6 +31,7 @@ ${CEE_CURRENT_LIST_DIR}RicSaveProjectAsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExitApplicationFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseProjectFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicHelpFeatures.cpp
+${CEE_CURRENT_LIST_DIR}RicEditPreferencesFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

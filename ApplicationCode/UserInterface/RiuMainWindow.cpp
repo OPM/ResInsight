@@ -231,10 +231,6 @@ void RiuMainWindow::createActions()
     connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
     connect(m_executePaintEventPerformanceTest, SIGNAL(triggered()), SLOT(slotExecutePaintEventPerformanceTest()));
     
-    // Edit actions
-    m_editPreferences                = new QAction("&Preferences...", this);
-    connect(m_editPreferences,      SIGNAL(triggered()), SLOT(slotEditPreferences()));
-
     // View actions
     m_viewFromNorth                = new QAction(QIcon(":/SouthViewArrow.png"), "Look South", this);
     m_viewFromNorth->setToolTip("Look South");
@@ -364,7 +360,7 @@ void RiuMainWindow::createMenus()
     QMenu* editMenu = menuBar()->addMenu("&Edit");
     editMenu->addAction(m_snapshotToClipboard);
     editMenu->addSeparator();
-    editMenu->addAction(m_editPreferences);
+    editMenu->addAction(cmdFeatureMgr->action("RicEditPreferencesFeature"));
 
     connect(editMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshEditActions()));
 
@@ -1084,29 +1080,6 @@ void RiuMainWindow::slotUseShaders(bool enable)
 void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 {
     RiaApplication::instance()->setShowPerformanceInfo(enable);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotEditPreferences()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    QStringList tabNames = app->preferences()->tabNames();
-    RiuPropertyViewTabWidget propertyDialog(this, app->preferences(), "Preferences", tabNames);
-    if (propertyDialog.exec() == QDialog::Accepted)
-    {
-        // Write preferences using QSettings  and apply them to the application
-        caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
-        app->applyPreferences();
-    }
-    else
-    {
-        // Read back currently stored values using QSettings
-        caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

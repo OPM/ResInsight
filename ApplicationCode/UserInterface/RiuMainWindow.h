@@ -129,7 +129,6 @@ private:
 
 private:
     // Edit actions
-    QAction*            m_editPreferences;
     QAction*            m_newPropertyView;
 
     // View actions
@@ -177,7 +176,6 @@ private slots:
 
     // Edit slots
     void    slotRefreshEditActions();
-    void    slotEditPreferences();
     void    slotNewObjectPropertyView();
 
     // View slots
