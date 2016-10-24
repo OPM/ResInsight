@@ -45,6 +45,7 @@ QString includeKeyword("INCLUDE");
 QString faultsKeyword("FAULTS");
 QString editKeyword("EDIT");
 QString gridKeyword("GRID");
+QString pathsKeyword("PATHS");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -362,6 +363,72 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
         }
     }
     while (lineLength != -1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::parseAndReadPathAliasKeyword(const QString &fileName, std::vector< std::pair<QString, QString> >* pathAliasDefinitions)
+{
+    char buf[1024];
+
+    QFile data(fileName);
+    data.open(QFile::ReadOnly);
+
+    QString line;
+    qint64 lineLength = -1;
+
+    bool foundPathsKeyword = false;
+
+    do
+    {
+        lineLength = data.readLine(buf, sizeof(buf));
+        if (lineLength > 0)
+        {
+            line = QString::fromAscii(buf);
+            if (line.size() && (line[0].isLetter() || foundPathsKeyword))
+            {
+                line = line.trimmed();
+                
+                if (line == gridKeyword)
+                {
+                    return;
+                }
+                else if (line == pathsKeyword)
+                {
+                    foundPathsKeyword = true;
+                }
+                else if (foundPathsKeyword)
+                {
+                    if (line.startsWith("/", Qt::CaseInsensitive))
+                    {
+                        // Detected end of keyword data section
+                        return;
+                    }
+                    else if (line.startsWith("--", Qt::CaseInsensitive))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // Replace tab with space to be able to split the string using space as splitter
+                        line.replace("\t", " ");
+
+                        // Remove character ' used to mark start and end of fault name, possibly also around face definition; 'I+'
+                        line.remove("'");
+
+                        QStringList entries = line.split(" ", QString::SkipEmptyParts);
+                        if (entries.size() < 2)
+                        {
+                            continue;
+                        }
+
+                        pathAliasDefinitions->push_back(std::make_pair(entries[0], entries[1]));
+                    }
+                }
+            }
+        }
+    }  while (!data.atEnd());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -688,10 +755,7 @@ void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, 
         return;
     }
 
-    QString gridKeyword("GRID");
-
     // Search for keyword grid
-
     qint64 gridPos = findKeyword(gridKeyword, data, 0);
     if (gridPos < 0)
     {
@@ -700,7 +764,10 @@ void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, 
 
     bool isEditKeywordDetected = false;
 
-    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, faults, filenamesWithFaults, &isEditKeywordDetected);
+    std::vector< std::pair<QString, QString> > pathAliasDefinitions;
+    parseAndReadPathAliasKeyword(fileName, &pathAliasDefinitions);
+
+    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, pathAliasDefinitions, faults, filenamesWithFaults, &isEditKeywordDetected);
 }
 
 
@@ -753,7 +820,12 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults, bool* isEditKeywordDetected)
+bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(  QFile& file, 
+                                                                                qint64 startPos, 
+                                                                                const std::vector< std::pair<QString, QString> >& pathAliasDefinitions, 
+                                                                                cvf::Collection<RigFault>* faults, 
+                                                                                std::vector<QString>* filenamesWithFaults, 
+                                                                                bool* isEditKeywordDetected)
 {
     QString line;
 
@@ -807,6 +879,13 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
                 
                 // Read include file name, and both relative and absolute path is supported
                 QString includeFilename = line.mid(firstQuote + 1, lastQuote - firstQuote - 1);
+
+                for (auto entry : pathAliasDefinitions)
+                {
+                    QString textToReplace = "$" + entry.first;
+                    includeFilename.replace(textToReplace, entry.second);
+                }
+
                 QFileInfo fi(currentFileFolder, includeFilename);
                 if (fi.exists())
                 {
@@ -816,7 +895,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
                     {
                         //qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
 
-                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, faults, filenamesWithFaults, isEditKeywordDetected))
+                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, pathAliasDefinitions, faults, filenamesWithFaults, isEditKeywordDetected))
                         {
                             qDebug() << "Error when parsing include file : " << absoluteFilename;
                         }

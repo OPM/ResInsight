@@ -4,7 +4,32 @@
 
 #include "RifEclipseInputFileTools.h"
 
+#include <QDebug>
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+/*
+TEST(RifEclipseInputFileToolsTest, PathsKeyword)
+{
+    QString filename = "d:/Models/Statoil/troll_Ref2014/T07-4A-W2014-06.DATA";
+    //QString filename = "d:/Models/Statoil/!myTestWithWellLog/TEST10K_FLT_LGR_NNC.DATA";
+
+    std::vector<std::pair<QString, QString>> pathEntries;
+
+    RifEclipseInputFileTools::parseAndReadPathAliasKeyword(filename, &pathEntries);
+
+    for (auto entry : pathEntries)
+    {
+        qDebug() << entry.first << " " << entry.second;
+    }
+
+    std::vector<QString> filenamesWithFaults;
+    cvf::Collection<RigFault> faults;
+    RifEclipseInputFileTools::readFaultsInGridSection(filename, &faults, &filenamesWithFaults);
+
+}
+*/
 
 //--------------------------------------------------------------------------------------------------
 /// 
