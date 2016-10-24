@@ -75,6 +75,12 @@ public: // Pdm Fields
 
     caf::PdmChildField<RifReaderSettings*> readerSettings;
 
+    // Summary
+
+    caf::PdmField<bool>     autoCreatePlotsOnImport;
+    caf::PdmField<QString>  defaultCurveFilter;
+
+
 protected:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

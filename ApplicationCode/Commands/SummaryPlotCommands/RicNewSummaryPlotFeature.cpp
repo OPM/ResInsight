@@ -19,6 +19,7 @@
 #include "RicNewSummaryPlotFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -102,7 +103,7 @@ void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* su
 
     if (summaryCase)
     {
-        newCurveFilter->createCurves(summaryCase, "F*PT");
+        newCurveFilter->createCurves(summaryCase, RiaApplication::instance()->preferences()->defaultCurveFilter());
     }
 
     plot->addCurveFilter(newCurveFilter);

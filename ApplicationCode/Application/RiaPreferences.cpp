@@ -86,8 +86,14 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
     readerSettings = new RifReaderSettings;
 
+    CAF_PDM_InitField(&autoCreatePlotsOnImport,         "AutoCreatePlotsOnImport", true, "Create Summary Plots When Importing Eclipse Case", "", "", "");
+    autoCreatePlotsOnImport.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    
+    CAF_PDM_InitField(&defaultCurveFilter,              "DefaultCurveFilter", QString("F*PT"), "Default Vector Selection Filter", "", "", "");
+
     m_tabNames << "General";
     m_tabNames << "Octave";
+    m_tabNames << "Summary";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +126,8 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &useShaders ||
             field == &showHud ||
             field == &appendClassNameToUiText ||
-            field == &showLasCurveWithoutTvdWarning )
+            field == &showLasCurveWithoutTvdWarning ||
+            field == &autoCreatePlotsOnImport)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -177,6 +184,11 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script files");
         scriptGroup->add(&scriptDirectories);
         scriptGroup->add(&scriptEditorExecutable);
+    }
+    else if (uiConfigName == m_tabNames[2])
+    {
+        uiOrdering.add(&autoCreatePlotsOnImport);
+        uiOrdering.add(&defaultCurveFilter);
     }
 
     uiOrdering.setForgetRemainingFields(true);
