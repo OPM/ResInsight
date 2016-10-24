@@ -39,6 +39,8 @@ public:
     RimSummaryTimeAxisProperties();
 
     caf::PdmField<int>          fontSize;
+    caf::PdmField<QString>      title;
+    caf::PdmField<bool>         showTitle;
 
     double visibleRangeMin() const;
     double visibleRangeMax() const;

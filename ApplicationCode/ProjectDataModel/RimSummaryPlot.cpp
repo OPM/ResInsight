@@ -235,10 +235,28 @@ void RimSummaryPlot::updateTimeAxis()
 {
     if (!m_qwtPlot) return;
 
-    QFont timeAxisFont = m_qwtPlot->axisFont(QwtPlot::xBottom);
-    timeAxisFont.setBold(false);
-    timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
-    m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
+    {
+        QString axisTitle;
+        if (m_timeAxisProperties->showTitle) axisTitle = m_timeAxisProperties->title();
+
+        QwtText timeAxisTitle = m_qwtPlot->axisTitle(QwtPlot::xBottom);
+
+        QFont font = timeAxisTitle.font();
+        font.setBold(true);
+        font.setPixelSize(m_timeAxisProperties->fontSize);
+        timeAxisTitle.setFont(font);
+
+        timeAxisTitle.setText(axisTitle);
+
+        m_qwtPlot->setAxisTitle(QwtPlot::xBottom, timeAxisTitle);
+    }
+
+    {
+        QFont timeAxisFont = m_qwtPlot->axisFont(QwtPlot::xBottom);
+        timeAxisFont.setBold(false);
+        timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
+        m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

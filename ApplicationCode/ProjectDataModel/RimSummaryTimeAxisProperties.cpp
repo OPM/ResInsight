@@ -34,6 +34,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 {
     CAF_PDM_InitObject("Time Axis", ":/SummaryPlot16x16.png", "", "");
 
+    CAF_PDM_InitField(&showTitle, "ShowTitle", false, "Show Title", "", "", "");
+    CAF_PDM_InitField(&title, "Title", QString("Time"), "Title", "", "", "");
     CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_visibleRangeMax, "VisibleRangeMax", "Max", "", "", "");
