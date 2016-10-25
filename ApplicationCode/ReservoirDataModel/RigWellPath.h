@@ -23,10 +23,7 @@
 #include "cvfMath.h"
 #include "cvfVector3.h"
 
-#include "RimDefines.h"
-#include <QDateTime>
 #include <vector>
-
 
 
 //==================================================================================================
@@ -35,6 +32,16 @@
 class RigWellPath : public cvf::Object
 {
 public:
-    std::vector<cvf::Vec3d>             m_wellPathPoints;
-    std::vector<double>                 m_measuredDepths;
+    RigWellPath();
+
+    std::vector<cvf::Vec3d>     m_wellPathPoints;
+    std::vector<double>         m_measuredDepths;
+
+    void                        setDatumElevation(double value);
+    bool                        hasDatumElevation() const;
+    double                      datumElevation() const;
+
+private:
+    bool    m_hasDatumElevation;
+    double  m_datumElevation;
 };
