@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QDateTime>
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -73,6 +74,11 @@ RimWellPath::RimWellPath()
     m_surveyType.uiCapability()->setUiReadOnly(true);
     m_surveyType.xmlCapability()->setIOWritable(false);
     m_surveyType.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "");
+    m_datumElevation.uiCapability()->setUiReadOnly(true);
+    m_datumElevation.xmlCapability()->setIOWritable(false);
+    m_datumElevation.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "Filepath", "", "", "");
     filepath.uiCapability()->setUiReadOnly(true);
@@ -237,6 +243,7 @@ void RimWellPath::readJsonWellPathFile()
     // Well path points
 
     double datumElevation = jsonMap["datumElevation"].toDouble();
+    wellPathGeom->setDatumElevation(datumElevation);
 
     QList<QVariant> pathList = jsonMap["path"].toList();
     foreach (QVariant point, pathList)
@@ -287,6 +294,17 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     ssihubGroup->add(&updateDate);
     ssihubGroup->add(&updateUser);
     ssihubGroup->add(&m_surveyType);
+    ssihubGroup->add(&m_datumElevation);
+
+    if (m_wellPath.notNull() && m_wellPath->hasDatumElevation())
+    {
+        m_datumElevation = m_wellPath->datumElevation();
+        m_datumElevation.uiCapability()->setUiHidden(false);
+    }
+    else
+    {
+        m_datumElevation.uiCapability()->setUiHidden(true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

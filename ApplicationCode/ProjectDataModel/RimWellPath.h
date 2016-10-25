@@ -99,6 +99,7 @@ private:
     caf::PdmField<QString>              updateUser;
  
     caf::PdmField<QString>              m_surveyType;
+    caf::PdmField<double>               m_datumElevation;
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
