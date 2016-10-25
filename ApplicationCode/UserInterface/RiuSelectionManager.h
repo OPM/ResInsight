@@ -132,7 +132,12 @@ public:
 class RiuGeoMechSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuGeoMechSelectionItem(RimGeoMechView* view, size_t gridIndex, size_t cellIndex, cvf::Color3f color, const cvf::Vec3d& localIntersectionPoint);
+    explicit RiuGeoMechSelectionItem(RimGeoMechView* view, 
+                                     size_t gridIndex, 
+                                     size_t cellIndex, 
+                                     cvf::Color3f color, 
+                                     int elementFace, 
+                                     const cvf::Vec3d& localIntersectionPoint);
     virtual ~RiuGeoMechSelectionItem() {};
 
     virtual RiuSelectionType type() const
@@ -145,6 +150,7 @@ public:
     size_t m_gridIndex;
     size_t m_cellIndex;
     cvf::Color3f m_color;
+    int m_elementFace;
     cvf::Vec3d m_localIntersectionPoint;
 };
 

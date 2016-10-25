@@ -1368,3 +1368,91 @@ int RigFemPartResultsCollection::partCount() const
     return m_femParts->partCount();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPart* femPart,
+                                                                       RigFemResultPosEnum resultPosition,
+                                                                       int elementIndex,
+                                                                       int m_face,
+                                                                       const cvf::Vec3d& m_intersectionPoint)
+{
+    m_resultIndexToClosestResult = -1;
+    m_closestNodeId = -1;
+
+    if ( resultPosition != RIG_ELEMENT_NODAL_FACE )
+    {
+        RigElementType elmType =  femPart->elementType(elementIndex);
+        const int* elmentConn = femPart->connectivities(elementIndex);
+        int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+
+        // Find the closest node
+        int closestLocalNode = -1;
+        float minDist = std::numeric_limits<float>::infinity();
+        for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
+        {
+            int nodeIdx = elmentConn[lNodeIdx];
+            cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
+            float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
+            if ( dist < minDist )
+            {
+                closestLocalNode = lNodeIdx;
+                minDist = dist;
+            }
+        }
+
+        if ( closestLocalNode >= 0 )
+        {
+            float scalarValue = std::numeric_limits<float>::infinity();
+            int nodeIdx = elmentConn[closestLocalNode];
+            if ( resultPosition == RIG_NODAL )
+            {
+                m_resultIndexToClosestResult = nodeIdx;
+            }
+            else
+            {
+                m_resultIndexToClosestResult = static_cast<int>(femPart->elementNodeResultIdx(elementIndex, closestLocalNode));
+            }
+
+            m_closestNodeId = femPart->nodes().nodeIds[nodeIdx];
+        }
+    }
+    else if ( m_face != -1 )
+    {
+        int elmNodFaceResIdx = -1;
+        int closestNodeIdx = -1;
+        {
+            int closestLocFaceNode = -1;
+            {
+                RigElementType elmType =  femPart->elementType(elementIndex);
+                int faceCount = RigFemTypes::elmentFaceCount(elmType);
+                const int* elmNodeIndices =  femPart->connectivities(elementIndex);
+                int faceNodeCount = 0;
+                const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(elmType, m_face, &faceNodeCount);
+
+                float minDist = std::numeric_limits<float>::infinity();
+                for ( int faceNodIdx = 0; faceNodIdx < faceNodeCount; ++faceNodIdx )
+                {
+                    int nodeIdx = elmNodeIndices[localElmNodeIndicesForFace[faceNodIdx]];
+                    cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
+                    float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
+                    if ( dist < minDist )
+                    {
+                        closestLocFaceNode = faceNodIdx;
+                        closestNodeIdx = nodeIdx;
+                        minDist = dist;
+                    }
+                }
+            }
+
+            int elmNodFaceResIdxElmStart = elementIndex * 24; // HACK should get from part
+            int elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + 4*m_face;
+
+            if ( closestLocFaceNode >= 0 ) elmNodFaceResIdx = elmNodFaceResIdxFaceStart + closestLocFaceNode;
+        }
+
+        m_resultIndexToClosestResult = elmNodFaceResIdx;
+        m_closestNodeId = femPart->nodes().nodeIds[closestNodeIdx];
+    }
+}

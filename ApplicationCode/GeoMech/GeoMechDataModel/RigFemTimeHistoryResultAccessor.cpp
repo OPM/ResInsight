@@ -31,12 +31,17 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, RigFemResultAddress femResultAddress,
-    size_t gridIndex, size_t cellIndex, const cvf::Vec3d& intersectionPoint)
+RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+                                                                 RigFemResultAddress femResultAddress,
+                                                                 size_t gridIndex, 
+                                                                 size_t cellIndex, 
+                                                                 int face,
+                                                                 const cvf::Vec3d& intersectionPoint)
     : m_geoMechCaseData(geomData),
     m_femResultAddress(femResultAddress),
     m_gridIndex(gridIndex),
     m_cellIndex(cellIndex),
+    m_face(face),
     m_intersectionPoint(intersectionPoint)
 {
     computeTimeHistoryData();
@@ -66,7 +71,7 @@ QString RigFemTimeHistoryResultAccessor::topologyText() const
             k++;
 
             cvf::Vec3d domainCoord = m_intersectionPoint;
-            text += QString(", ijk[%1, %2, %3]").arg(i).arg(j).arg(k);
+            text += QString(", ijk[%1, %2, %3] ").arg(i).arg(j).arg(k);
 
             QString formattedText;
             formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
@@ -93,46 +98,15 @@ void RigFemTimeHistoryResultAccessor::computeTimeHistoryData()
 {
     m_timeHistoryValues.clear();
     
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+    RigFemClosestResultIndexCalculator closestCalc(m_geoMechCaseData->femParts()->part(m_gridIndex),
+                                                   m_femResultAddress.resultPosType,
+                                                   m_cellIndex,
+                                                   m_face,
+                                                   m_intersectionPoint );
+    
+    int scalarResultIndex = closestCalc.resultIndexToClosestResult();
 
-    // Compute scalar result index from geometry
-    {
-        RigFemPart* femPart = m_geoMechCaseData->femParts()->part(m_gridIndex);
-        RigElementType elmType =  femPart->elementType(m_cellIndex);
-        const int* elmentConn = femPart->connectivities(m_cellIndex);
-        int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
-
-        // Find the closest node
-        int closestLocalNode = -1;
-        float minDist = std::numeric_limits<float>::infinity();
-        for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
-        {
-            int nodeIdx = elmentConn[lNodeIdx];
-            cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-            float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
-            if (dist < minDist) 
-            {
-                closestLocalNode = lNodeIdx;
-                minDist = dist;
-            }
-        }
-
-        // Create a text showing the results from the closest node
-        if (closestLocalNode >= 0)
-        {
-            int nodeIdx = elmentConn[closestLocalNode];
-            if (m_femResultAddress.resultPosType == RIG_NODAL)
-            {
-                scalarResultIndex = static_cast<size_t>(nodeIdx);
-            } 
-            else 
-            {
-                scalarResultIndex = femPart->elementNodeResultIdx(static_cast<int>(m_cellIndex), closestLocalNode);
-            }
-        }
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
+    if (scalarResultIndex < 0) return;
     
     RigFemPartResultsCollection* femPartResultsColl = m_geoMechCaseData->femPartResults();
     for (int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++)

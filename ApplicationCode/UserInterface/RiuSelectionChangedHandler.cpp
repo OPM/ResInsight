@@ -143,8 +143,12 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         geoMechView->geoMechCase() &&
         geoMechView->geoMechCase()->geoMechData())
     {
-        RigFemTimeHistoryResultAccessor timeHistResultAccessor(geoMechView->geoMechCase()->geoMechData(), geoMechView->cellResultResultDefinition()->resultAddress(),
-            geomSelectionItem->m_gridIndex, geomSelectionItem->m_cellIndex, geomSelectionItem->m_localIntersectionPoint);
+        RigFemTimeHistoryResultAccessor timeHistResultAccessor(geoMechView->geoMechCase()->geoMechData(), 
+                                                               geoMechView->cellResultResultDefinition()->resultAddress(),
+                                                               geomSelectionItem->m_gridIndex, 
+                                                               geomSelectionItem->m_cellIndex, 
+                                                               geomSelectionItem->m_elementFace,
+                                                               geomSelectionItem->m_localIntersectionPoint);
 
         QString curveName;
         curveName.append(geoMechView->geoMechCase()->caseUserDescription() + ", ");
@@ -152,7 +156,15 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = geoMechView->cellResultResultDefinition()->resultPositionType();
         curveName.append(resPosAppEnum.uiText() + ", ");
         curveName.append(geoMechView->cellResultResultDefinition()->resultFieldUiName()+ ", ") ;
-        curveName.append(geoMechView->cellResultResultDefinition()->resultComponentUiName() + ":\n");
+        curveName.append(geoMechView->cellResultResultDefinition()->resultComponentUiName() + " ");
+        
+        if ( resPosAppEnum == RIG_ELEMENT_NODAL_FACE && geomSelectionItem->m_elementFace >= 0 ) 
+        { 
+            curveName.append(", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex(geomSelectionItem->m_elementFace));
+        }
+
+        curveName.append(":\n");
+
         curveName.append(timeHistResultAccessor.topologyText());
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
@@ -245,7 +257,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
             RimGeoMechView* geomView = geomSelectionItem->m_view.p();
             RiuFemResultTextBuilder textBuilder(geomView, (int)geomSelectionItem->m_gridIndex, (int)geomSelectionItem->m_cellIndex, geomView->currentTimeStep());
             textBuilder.setIntersectionPoint(geomSelectionItem->m_localIntersectionPoint);
-
+            textBuilder.setFace(geomSelectionItem->m_elementFace);
             resultInfo = textBuilder.mainResultText();
 
             pickInfo = textBuilder.topologyText(", ");

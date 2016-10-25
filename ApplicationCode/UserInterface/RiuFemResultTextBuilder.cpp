@@ -59,7 +59,7 @@ void RiuFemResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::setFace(cvf::StructGridInterface::FaceType face)
+void RiuFemResultTextBuilder::setFace(int face)
 {
     m_face = face;
 }
@@ -328,50 +328,37 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinitio
         RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
 
         const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), m_gridIndex, m_timeStepIndex);
+
         if (scalarResults.size())
         {
-
             RigFemPart* femPart = geomData->femParts()->part(m_gridIndex);
-            RigElementType elmType =  femPart->elementType(m_cellIndex);
-            const int* elmentConn = femPart->connectivities(m_cellIndex);
-            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+            RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();
 
-            // Find the closest node
-            int closestLocalNode = -1;
-            float minDist = std::numeric_limits<float>::infinity();
-            for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
+            RigFemClosestResultIndexCalculator closestIndexCalc(femPart, 
+                                                             activeResultPosition, 
+                                                             m_cellIndex, 
+                                                             m_face, 
+                                                             m_intersectionPoint);
+            int resultIndex = closestIndexCalc.resultIndexToClosestResult();
+            int closestNodeId = closestIndexCalc.closestNodeId();
+            
+            float scalarValue = (resultIndex >= 0) ? scalarResults[resultIndex]: std::numeric_limits<float>::infinity();
+
+
+            if (activeResultPosition != RIG_ELEMENT_NODAL_FACE)
             {
-                int nodeIdx = elmentConn[lNodeIdx];
-                cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-                float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
-                if (dist < minDist) 
-                {
-                    closestLocalNode = lNodeIdx;
-                    minDist = dist;
-                }
+                text.append(QString("Closest result: N[%1], %2\n").arg(closestNodeId)
+                                                                  .arg(scalarValue));
             }
-
-            // Create a text showing the results from the closest node
-            if (closestLocalNode >= 0)
+            else if ( m_face != -1 )
             {
-               
-                float scalarValue = std::numeric_limits<float>::infinity();
-                int nodeIdx = elmentConn[closestLocalNode];
-                if (resultColors->resultPositionType() == RIG_NODAL)
-                {
-                   
-                    scalarValue = scalarResults[nodeIdx];
-                } 
-                else 
-                {
-                    size_t resIdx = femPart->elementNodeResultIdx(m_cellIndex, closestLocalNode);
-                    scalarValue = scalarResults[resIdx];
-                }
-
-                text.append(QString("Closest result: N[%1], %2\n").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                text.append(QString("Closest result: N[%1], on face: %2, %3\n").arg(closestNodeId)
+                                                                               .arg(caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex(m_face))
+                                                                               .arg(scalarValue));
             }
         }
     }
    
     return text;
 }
+

@@ -42,7 +42,7 @@ class RiuFemResultTextBuilder
 {
 public:
     RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
-    void setFace(cvf::StructGridInterface::FaceType face);
+    void setFace(int face);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
 
     QString mainResultText();
@@ -66,7 +66,7 @@ private:
     int m_cellIndex;
     int m_timeStepIndex;
 
-    cvf::StructGridInterface::FaceType m_face;
+    int m_face;
 
     cvf::Vec3d m_intersectionPoint;
 };

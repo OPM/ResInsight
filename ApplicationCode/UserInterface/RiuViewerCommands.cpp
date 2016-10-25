@@ -469,6 +469,8 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
     cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
+    int gmFace = -1;
+
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
     // Extract all the above information from the pick
@@ -517,6 +519,8 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             {
                 gridIndex = femSourceInfo->femPartIndex();
                 cellIndex = femSourceInfo->triangleToElmMapper()->elementIndex(firstPartTriangleIndex);
+                gmFace = femSourceInfo->triangleToElmMapper()->elementFace(firstPartTriangleIndex);
+
             }
             else if (crossSectionSourceInfo)
             {
@@ -578,7 +582,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
             if (geomView)
             {
-                selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, localIntersectionPoint);
+                selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint);
             }
         }
 

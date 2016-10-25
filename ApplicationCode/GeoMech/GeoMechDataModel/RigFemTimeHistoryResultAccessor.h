@@ -30,8 +30,12 @@ class RigGeoMechCaseData;
 class RigFemTimeHistoryResultAccessor
 {
 public:
-    RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, RigFemResultAddress femResultAddress,
-        size_t gridIndex, size_t cellIndex, const cvf::Vec3d& intersectionPoint);
+    RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+                                    RigFemResultAddress femResultAddress,
+                                    size_t gridIndex, 
+                                    size_t cellIndex,
+                                    int face, 
+                                    const cvf::Vec3d& intersectionPoint);
 
     QString             topologyText() const;
     std::vector<double> timeHistoryValues() const;
@@ -46,6 +50,7 @@ private:
     size_t                  m_gridIndex;
     size_t                  m_cellIndex;
     size_t                  m_scalarResultIndex;
+    int                     m_face;
 
     cvf::Vec3d              m_intersectionPoint;
 

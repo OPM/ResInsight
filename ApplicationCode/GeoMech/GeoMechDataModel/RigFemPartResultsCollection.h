@@ -124,3 +124,22 @@ public:
 private:
     std::array<float, 3> incAziR;
 };
+
+class RigFemPart;
+
+class RigFemClosestResultIndexCalculator
+{
+public:
+    RigFemClosestResultIndexCalculator(RigFemPart* femPart,
+                                       RigFemResultPosEnum resultPosition,
+                                       int elementIndex,
+                                       int m_face,
+                                       const cvf::Vec3d& m_intersectionPoint);
+
+    int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
+    int closestNodeId() { return m_closestNodeId; }
+
+private:
+    int m_resultIndexToClosestResult;
+    int m_closestNodeId;
+};
