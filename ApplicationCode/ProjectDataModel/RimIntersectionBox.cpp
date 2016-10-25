@@ -82,6 +82,8 @@ RimIntersectionBox::RimIntersectionBox()
     m_maxDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
+    CAF_PDM_InitField         (&m_xySliderStepSize, "xySliderStepSize", 1.0, "XY Slider Step Size", "", "", "");
+    CAF_PDM_InitField         (&m_depthSliderStepSize, "DepthSliderStepSize", 0.5, "Depth Slider Step Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_show3DManipulator, "show3DManipulator", "", "", "", "");
     m_show3DManipulator.xmlCapability()->setIOWritable(false);
@@ -360,8 +362,7 @@ void RimIntersectionBox::updateBoxManipulatorGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    caf::PdmUiDoubleSliderEditorAttribute* myAttr = static_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
-
+    caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
     if (myAttr)
     {
         cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
@@ -369,16 +370,31 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
         {
             myAttr->m_minimum = cellsBoundingBox.min().x();
             myAttr->m_maximum = cellsBoundingBox.max().x();
+
+            int range = cellsBoundingBox.extent().x();
+            int tickCount = range / m_xySliderStepSize;
+            
+            myAttr->m_sliderTickCount = cvf::Math::abs(tickCount);
         }
         else if (field == &m_minYCoord || field == &m_maxYCoord)
         {
             myAttr->m_minimum = cellsBoundingBox.min().y();
             myAttr->m_maximum = cellsBoundingBox.max().y();
+
+            int range = cellsBoundingBox.extent().y();
+            int tickCount = range / m_xySliderStepSize;
+
+            myAttr->m_sliderTickCount = cvf::Math::abs(tickCount);
         }
         else if (field == &m_minDepth || field == &m_maxDepth)
         {
             myAttr->m_minimum = -cellsBoundingBox.max().z();
             myAttr->m_maximum = -cellsBoundingBox.min().z();
+
+            int range = cellsBoundingBox.extent().z();
+            int tickCount = range / m_depthSliderStepSize;
+
+            myAttr->m_sliderTickCount = cvf::Math::abs(tickCount);
         }
     }
 
@@ -429,8 +445,13 @@ void RimIntersectionBox::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
         group->add(&m_maxDepth);
     }
 
-    uiOrdering.add(&m_show3DManipulator);
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Slider Options");
+        group->add(&m_xySliderStepSize);
+        group->add(&m_depthSliderStepSize);
+    }
 
+    uiOrdering.add(&m_show3DManipulator);
 }
 
 

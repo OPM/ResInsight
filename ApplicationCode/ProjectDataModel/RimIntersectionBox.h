@@ -63,8 +63,8 @@ public:
     // Fields
     caf::PdmField<QString>          name;
     caf::PdmField<bool>             isActive;
-    caf::PdmField< bool >           showInactiveCells;
-
+    caf::PdmField<bool>             showInactiveCells;
+    
     cvf::Mat4d                      boxOrigin() const;
     cvf::Vec3d                      boxSize()   const;
     SinglePlaneState                singlePlaneState() const; 
@@ -115,7 +115,12 @@ private:
     caf::PdmField<double>           m_maxYCoord;
     caf::PdmField<double>           m_maxDepth;
 
+    caf::PdmField<double>           m_xySliderStepSize;
+    caf::PdmField<double>           m_depthSliderStepSize;
+
     caf::PdmField<bool>             m_show3DManipulator;
+
+
 
     cvf::ref<RivIntersectionBoxPartMgr>     m_intersectionBoxPartMgr;
     QPointer<RicBoxManipulatorEventHandler> m_boxManipulator;
