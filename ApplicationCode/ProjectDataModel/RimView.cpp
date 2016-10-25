@@ -7,10 +7,10 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -534,6 +534,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
         if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
+
+        crossSectionCollection->updateIntersectionBoxGeometry();
 
         if (m_viewer)
         {

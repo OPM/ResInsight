@@ -53,6 +53,8 @@ public:
 
     bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 
+    void updateIntersectionBoxGeometry();
+
     // Visualization interface
 
     void applySingleColorEffect();

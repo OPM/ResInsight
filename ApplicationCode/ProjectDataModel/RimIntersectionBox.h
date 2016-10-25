@@ -68,7 +68,6 @@ public:
     cvf::Mat4d                      boxOrigin() const;
     cvf::Vec3d                      boxSize()   const;
     SinglePlaneState                singlePlaneState() const; 
-    void                            setFromOriginAndSize(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
     bool                            show3dManipulator() const;
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
@@ -91,12 +90,16 @@ protected slots:
     void                            slotUpdateGeometry(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
 private:
+    friend class RimIntersectionCollection;
     void                            updateBoxManipulatorGeometry();
+    
     void                            rebuildGeometryAndScheduleCreateDisplayModel();
     void                            updateVisibility();
     void                            clampSinglePlaneValues();
     void                            switchSingelPlaneState();
     
+    void                            setFromOriginAndSize(const cvf::Vec3d& origin, const cvf::Vec3d& size);
+
     cvf::BoundingBox                currentCellBoundingBox();
 
     RiuViewer*                      viewer();

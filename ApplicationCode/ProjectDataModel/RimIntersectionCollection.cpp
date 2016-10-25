@@ -215,3 +215,14 @@ bool RimIntersectionCollection::hasActiveCrossSectionForSimulationWell(RimEclips
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::updateIntersectionBoxGeometry()
+{
+    for (auto intersectionBox : m_intersectionBoxes)
+    {
+        intersectionBox->updateBoxManipulatorGeometry();
+    }
+}
