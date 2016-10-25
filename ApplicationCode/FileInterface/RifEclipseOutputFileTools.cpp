@@ -114,8 +114,9 @@ void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* 
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps)
 {
+    if (!ecl_file) return;
+
     CVF_ASSERT(timeSteps);
-    CVF_ASSERT(ecl_file);
 
     // Get the number of occurrences of the INTEHEAD keyword
     int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
