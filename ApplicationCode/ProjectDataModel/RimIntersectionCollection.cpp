@@ -19,15 +19,15 @@
 
 #include "RimIntersectionCollection.h"
 
-#include "RimIntersection.h"
 #include "RimEclipseWell.h"
+#include "RimIntersection.h"
+#include "RimIntersectionBox.h"
 #include "RimView.h"
 
 #include "RiuMainWindow.h"
 
-#include "RivIntersectionPartMgr.h"
-#include "RimIntersectionBox.h"
 #include "RivIntersectionBoxPartMgr.h"
+#include "RivIntersectionPartMgr.h"
 
 
 CAF_PDM_SOURCE_INIT(RimIntersectionCollection, "CrossSectionCollection");
@@ -39,8 +39,8 @@ RimIntersectionCollection::RimIntersectionCollection()
 {
     CAF_PDM_InitObject("Intersections", ":/CrossSections16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_crossSections, "CrossSections", "Intersections", "", "", "");
-    m_crossSections.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_intersections, "CrossSections", "Intersections", "", "", "");
+    m_intersections.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes", "", "", "");
     m_intersectionBoxes.uiCapability()->setUiHidden(true);
@@ -54,7 +54,7 @@ RimIntersectionCollection::RimIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection::~RimIntersectionCollection()
 {
-    m_crossSections.deleteAllChildObjects();
+    m_intersections.deleteAllChildObjects();
     m_intersectionBoxes.deleteAllChildObjects();
 }
 
@@ -73,18 +73,16 @@ void RimIntersectionCollection::applySingleColorEffect()
 {
     if(!this->isActive()) return;
 
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    for (RimIntersection* cs : m_intersections)
     {
-        RimIntersection* cs = m_crossSections[csIdx];
         if (cs->isActive)
         {
-            cs->crossSectionPartMgr()->applySingleColorEffect();
+            cs->intersectionPartMgr()->applySingleColorEffect();
         }
     }
 
-    for(size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    for (RimIntersectionBox* cs : m_intersectionBoxes)
     {
-        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if(cs->isActive)
         {
             cs->intersectionBoxPartMgr()->applySingleColorEffect();
@@ -99,18 +97,16 @@ void RimIntersectionCollection::updateCellResultColor(size_t timeStepIndex)
 {
     if(!this->isActive()) return;
 
-    for(size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    for (RimIntersection* cs : m_intersections)
     {
-        RimIntersection* cs = m_crossSections[csIdx];
         if(cs->isActive)
         {
-            cs->crossSectionPartMgr()->updateCellResultColor(timeStepIndex);
+            cs->intersectionPartMgr()->updateCellResultColor(timeStepIndex);
         }
     }
 
-    for(size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    for (RimIntersectionBox* cs : m_intersectionBoxes)
     {
-        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if(cs->isActive)
         {
             cs->intersectionBoxPartMgr()->updateCellResultColor(timeStepIndex);
@@ -125,20 +121,18 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 {
     if (!isActive) return;
 
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    for (RimIntersection* cs : m_intersections)
     {
-        RimIntersection* cs = m_crossSections[csIdx];
         if (cs->isActive)
         {
-            cs->crossSectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
-            cs->crossSectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
-            cs->crossSectionPartMgr()->appendPolylinePartsToModel(model, scaleTransform);
+            cs->intersectionPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
+            cs->intersectionPartMgr()->appendMeshLinePartsToModel(model, scaleTransform);
+            cs->intersectionPartMgr()->appendPolylinePartsToModel(model, scaleTransform);
         }
     }
 
-    for(size_t csIdx = 0; csIdx < m_intersectionBoxes.size(); ++csIdx)
+    for (RimIntersectionBox* cs : m_intersectionBoxes)
     {
-        RimIntersectionBox* cs = m_intersectionBoxes[csIdx];
         if(cs->isActive)
         {
             cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel(model, scaleTransform);
@@ -155,12 +149,12 @@ void RimIntersectionCollection::appendPartsToModel(cvf::ModelBasicList* model, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendCrossSection(RimIntersection* crossSection)
+void RimIntersectionCollection::appendIntersection(RimIntersection* intersection)
 {
-    m_crossSections.push_back(crossSection);
+    m_intersections.push_back(intersection);
 
     updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(crossSection);
+    RiuMainWindow::instance()->selectAsCurrentItem(intersection);
 
     RimView* rimView = NULL;
     firstAncestorOrThisOfType(rimView);
@@ -197,14 +191,12 @@ void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionCollection::hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const
+bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell(RimEclipseWell* eclipseWell) const
 {
     if (!isActive) return false;
 
-    for (size_t csIdx = 0; csIdx < m_crossSections.size(); ++csIdx)
+    for (RimIntersection* cs : m_intersections)
     {
-        RimIntersection* cs = m_crossSections[csIdx];
-
         if (cs->isActive &&
             cs->type() == RimIntersection::CS_SIMULATION_WELL &&
             cs->simulationWell() == eclipseWell)
@@ -221,7 +213,7 @@ bool RimIntersectionCollection::hasActiveCrossSectionForSimulationWell(RimEclips
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::updateIntersectionBoxGeometry()
 {
-    for (auto intersectionBox : m_intersectionBoxes)
+    for (RimIntersectionBox* intersectionBox : m_intersectionBoxes)
     {
         intersectionBox->updateBoxManipulatorGeometry();
     }

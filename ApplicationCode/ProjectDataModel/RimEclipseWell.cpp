@@ -180,7 +180,7 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
         return true;
 
-    if (m_reservoirView->crossSectionCollection()->hasActiveCrossSectionForSimulationWell(this))
+    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)

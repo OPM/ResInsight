@@ -33,7 +33,7 @@ class RimWellPath;
 class RicNewWellPathIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath);
+    RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection, RimWellPath* wellPath);
     virtual ~RicNewWellPathIntersectionFeatureCmd();
 
     virtual QString name();
@@ -41,7 +41,7 @@ public:
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
+    caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
     caf::PdmPointer<RimWellPath> m_wellPath;
 };
 

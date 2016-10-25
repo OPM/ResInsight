@@ -32,7 +32,7 @@ class RimIntersectionCollection;
 class RicAppendIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicAppendIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
+    RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
     virtual ~RicAppendIntersectionFeatureCmd();
 
     virtual QString name();
@@ -40,7 +40,7 @@ public:
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
+    caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
 };
 
 

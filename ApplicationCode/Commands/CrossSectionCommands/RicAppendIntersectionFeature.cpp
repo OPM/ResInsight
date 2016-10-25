@@ -48,12 +48,12 @@ void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimIntersectionCollection* crossSectionCollection = NULL;
-    collection[0]->firstAncestorOrThisOfType(crossSectionCollection);
+    RimIntersectionCollection* intersectionCollection = NULL;
+    collection[0]->firstAncestorOrThisOfType(intersectionCollection);
 
-    CVF_ASSERT(crossSectionCollection);
+    CVF_ASSERT(intersectionCollection);
 
-    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd(crossSectionCollection);
+    RicAppendIntersectionFeatureCmd* cmd = new RicAppendIntersectionFeatureCmd(intersectionCollection);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -69,9 +69,9 @@ void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
+RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
     : CmdExecuteCommand(NULL),
-    m_crossSectionCollection(crossSectionCollection)
+    m_intersectionCollection(intersectionCollection)
 {
 }
 
@@ -95,11 +95,11 @@ QString RicAppendIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT(m_crossSectionCollection);
+    CVF_ASSERT(m_intersectionCollection);
 
-    RimIntersection* crossSection = new RimIntersection();
-    crossSection->name = QString("Intersection");
-    m_crossSectionCollection->appendCrossSection(crossSection);
+    RimIntersection* intersection = new RimIntersection();
+    intersection->name = QString("Intersection");
+    m_intersectionCollection->appendIntersection(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,7 +33,7 @@ class RimEclipseWell;
 class RicNewSimWellIntersectionCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewSimWellIntersectionCmd(RimIntersectionCollection* crossSectionCollection, RimEclipseWell* simWell);
+    RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimEclipseWell* simWell);
     virtual ~RicNewSimWellIntersectionCmd();
 
     virtual QString name();
@@ -41,7 +41,7 @@ public:
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
+    caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
     caf::PdmPointer<RimEclipseWell> m_wellPath;
 };
 

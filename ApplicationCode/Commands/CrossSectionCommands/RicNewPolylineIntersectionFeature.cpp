@@ -88,22 +88,22 @@ bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
         RicViewerEventObject* polylineUiEvent = dynamic_cast<RicViewerEventObject*>(eventObject);
         if (polylineUiEvent)
         {
-            RimIntersection* crossSection = selection[0];
+            RimIntersection* intersection = selection[0];
 
             RimCase* rimCase = NULL;
-            crossSection->firstAncestorOrThisOfType(rimCase);
+            intersection->firstAncestorOrThisOfType(rimCase);
             CVF_ASSERT(rimCase);
 
-            if (crossSection->inputPolyLineFromViewerEnabled())
+            if (intersection->inputPolyLineFromViewerEnabled())
             {
-                crossSection->appendPointToPolyLine(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
+                intersection->appendPointToPolyLine(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
 
                 // Further Ui processing is stopped when true is returned
                 return true;
             }
-            else if (crossSection->inputExtrusionPointsFromViewerEnabled())
+            else if (intersection->inputExtrusionPointsFromViewerEnabled())
             {
-                crossSection->appendPointToExtrusionDirection(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
+                intersection->appendPointToExtrusionDirection(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
 
                 // Further Ui processing is stopped when true is returned
                 return true;
@@ -117,9 +117,9 @@ bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineIntersectionFeatureCmd::RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection)
+RicNewPolylineIntersectionFeatureCmd::RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
     : CmdExecuteCommand(NULL),
-    m_crossSectionCollection(crossSectionCollection)
+    m_intersectionCollection(intersectionCollection)
 {
 }
 
@@ -143,18 +143,18 @@ QString RicNewPolylineIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT(m_crossSectionCollection);
+    CVF_ASSERT(m_intersectionCollection);
 
-    RimIntersection* crossSection = new RimIntersection();
-    crossSection->name = "Polyline";
-    crossSection->type = RimIntersection::CS_POLYLINE;
-    crossSection->inputPolyLineFromViewerEnabled = true;
+    RimIntersection* intersection = new RimIntersection();
+    intersection->name = "Polyline";
+    intersection->type = RimIntersection::CS_POLYLINE;
+    intersection->inputPolyLineFromViewerEnabled = true;
 
-    m_crossSectionCollection->appendCrossSection(crossSection);
+    m_intersectionCollection->appendIntersection(intersection);
 
     RiuSelectionManager::instance()->deleteAllItems();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(crossSection);
+    RiuMainWindow::instance()->selectAsCurrentItem(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -78,7 +78,7 @@ public:
     std::vector< std::vector <cvf::Vec3d> >              polyLines() const;
     void                                                 appendPointToPolyLine(const cvf::Vec3d& point);
 
-    RivIntersectionPartMgr*                              crossSectionPartMgr();
+    RivIntersectionPartMgr*                              intersectionPartMgr();
 
     std::vector< std::vector <cvf::Vec3d> >              polyLinesForExtrusionDirection() const;
     void                                                 appendPointToExtrusionDirection(const cvf::Vec3d& point);

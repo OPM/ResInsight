@@ -48,10 +48,10 @@ public:
 
     caf::PdmField<bool> isActive;
 
-    void appendCrossSection(RimIntersection* crossSection);
+    void appendIntersection(RimIntersection* intersection);
     void appendIntersectionBox(RimIntersectionBox* intersectionBox);
 
-    bool hasActiveCrossSectionForSimulationWell(RimEclipseWell* eclipseWell) const;
+    bool hasActiveIntersectionForSimulationWell(RimEclipseWell* eclipseWell) const;
 
     void updateIntersectionBoxGeometry();
 
@@ -66,6 +66,6 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
 
 private:
-    caf::PdmChildArrayField<RimIntersection*> m_crossSections;
+    caf::PdmChildArrayField<RimIntersection*>    m_intersections;
     caf::PdmChildArrayField<RimIntersectionBox*> m_intersectionBoxes;
 };

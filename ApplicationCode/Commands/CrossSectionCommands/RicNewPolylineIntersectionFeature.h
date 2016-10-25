@@ -37,7 +37,7 @@ class RimIntersectionCollection;
 class RicNewPolylineIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection);
+    RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
     virtual ~RicNewPolylineIntersectionFeatureCmd();
 
     virtual QString name();
@@ -45,7 +45,7 @@ public:
     virtual void undo();
 
 private:
-    caf::PdmPointer<RimIntersectionCollection> m_crossSectionCollection;
+    caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
 };
 
 

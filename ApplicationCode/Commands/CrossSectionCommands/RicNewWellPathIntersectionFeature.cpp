@@ -81,9 +81,9 @@ void RicNewWellPathIntersectionFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* crossSectionCollection, RimWellPath* wellPath)
+RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection, RimWellPath* wellPath)
     : CmdExecuteCommand(NULL),
-    m_crossSectionCollection(crossSectionCollection),
+    m_intersectionCollection(intersectionCollection),
     m_wellPath(wellPath)
 {
 }
@@ -108,15 +108,15 @@ QString RicNewWellPathIntersectionFeatureCmd::name()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeatureCmd::redo()
 {
-    CVF_ASSERT(m_crossSectionCollection);
+    CVF_ASSERT(m_intersectionCollection);
     CVF_ASSERT(m_wellPath);
 
-    RimIntersection* crossSection = new RimIntersection();
-    crossSection->name = m_wellPath->name;
-    crossSection->type = RimIntersection::CS_WELL_PATH;
-    crossSection->wellPath = m_wellPath;
+    RimIntersection* intersection = new RimIntersection();
+    intersection->name = m_wellPath->name;
+    intersection->type = RimIntersection::CS_WELL_PATH;
+    intersection->wellPath = m_wellPath;
 
-    m_crossSectionCollection->appendCrossSection(crossSection);
+    m_intersectionCollection->appendIntersection(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------

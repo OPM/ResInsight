@@ -370,7 +370,7 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivIntersectionPartMgr* RimIntersection::crossSectionPartMgr()
+RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 {
     if (m_crossSectionPartMgr.isNull()) m_crossSectionPartMgr = new RivIntersectionPartMgr(this);
 
