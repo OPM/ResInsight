@@ -74,7 +74,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void fixup(QString& stringValue) const
+    virtual void fixup(QString& stringValue) const override
     {
         double doubleValue = stringValue.toDouble();
         doubleValue = qBound(bottom(), doubleValue, top());
@@ -116,15 +116,18 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
         uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
     }
     
-    m_slider->setMaximum(m_attributes.m_sliderResolution);
+    QString textValue = field()->uiValue().toString();
+
+    m_slider->blockSignals(true);
+    m_slider->setMaximum(m_attributes.m_sliderTickCount);
+    m_slider->blockSignals(false);
 
     PdmDoubleValidator* pdmValidator = new PdmDoubleValidator(m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this);
-    m_lineEdit->setValidator(pdmValidator);
-
-    QString textValue = field()->uiValue().toString();
     pdmValidator->fixup(textValue);
-
+    
+    m_lineEdit->setValidator(pdmValidator);
     m_lineEdit->setText(textValue);
+
     updateSliderPosition();
 }
 
@@ -144,7 +147,6 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget(QWidget * parent)
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
 
     m_slider = new QSlider(Qt::Horizontal, containerWidget);
-    
 
     layout->addWidget(m_lineEdit);
     layout->addWidget(m_slider);
