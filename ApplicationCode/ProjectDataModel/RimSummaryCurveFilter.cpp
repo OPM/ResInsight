@@ -102,6 +102,8 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&m_autoApplyFilterChanges, "AutoApplyFilterChanges", false, "Auto Apply Changes", "", "", "");
+
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
 
@@ -219,6 +221,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     }
 
     uiOrdering.add(&m_plotAxis);
+    uiOrdering.add(&m_autoApplyFilterChanges);
     uiOrdering.add(&m_applyButtonField);
 
     uiOrdering.setForgetRemainingFields(true);
@@ -231,17 +234,16 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 {
     if(changedField == &m_uiFilterResultMultiSelection)
     {
-        
+        if (m_autoApplyFilterChanges)
+        {
+            loadDataAndUpdatePlot();
+        }
     }
     else if (changedField == &m_applyButtonField)
     {
-        syncCurvesFromUiSelection();
-        loadDataAndUpdate();
         m_applyButtonField = false;
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType(plot);
-        plot->updateAxes();
+        loadDataAndUpdatePlot();
     }
     else if (changedField == &m_showCurves)
     {
@@ -255,6 +257,19 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         updatePlotAxisForCurves();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::loadDataAndUpdatePlot()
+{
+    syncCurvesFromUiSelection();
+    loadDataAndUpdate();
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType(plot);
+    plot->updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,8 +310,6 @@ RimSummaryCurve* RimSummaryCurveFilter::findRimCurveFromQwtCurve(const QwtPlotCu
 
     return NULL;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -500,8 +513,6 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
     }
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -513,7 +524,6 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
         curve->updateConnectedEditors();
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -532,6 +542,17 @@ void RimSummaryCurveFilter::setPlotAxis(RimDefines::PlotAxis plotAxis)
     updateConnectedEditors();
 
     updatePlotAxisForCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::updateCompleteVariableStringFilterChanged()
+{
+    if (m_autoApplyFilterChanges)
+    {
+        loadDataAndUpdatePlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

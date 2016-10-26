@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimSummaryFilter.h"
+
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
 
 namespace caf
 {
@@ -351,14 +353,22 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSummaryFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
-    caf::PdmObject* parent = dynamic_cast<caf::PdmObject*>( this->parentField()->ownerObject());
+    caf::PdmObject* parent = dynamic_cast<caf::PdmObject*>(this->parentField()->ownerObject());
 
     if (parent)
     {
         parent->updateConnectedEditors();
     }
 
+    if (changedField == &m_completeVarStringFilter)
+    {
+        RimSummaryCurveFilter* curveFilter = nullptr;
+        this->firstAncestorOrThisOfType(curveFilter);
+        if (curveFilter)
+        {
+            curveFilter->updateCompleteVariableStringFilterChanged();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

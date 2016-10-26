@@ -74,6 +74,8 @@ public:
     RimDefines::PlotAxis                    associatedPlotAxis() const;
     void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
 
+    void                                    updateCompleteVariableStringFilterChanged();
+
 private:
     void                                    syncCurvesFromUiSelection();
     void                                    createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
@@ -88,10 +90,12 @@ private:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*            objectToggleField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly); 
+
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
     void                                    updatePlotAxisForCurves();
+    void                                    loadDataAndUpdatePlot();
 
 private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
@@ -111,6 +115,7 @@ private:
     caf::PdmField<std::vector<RifEclipseSummaryAddress> > 
                                             m_uiFilterResultMultiSelection;
 
+    caf::PdmField<bool>                     m_autoApplyFilterChanges;
     caf::PdmField<bool>                     m_applyButtonField;
 
     caf::PdmField<bool>                     m_useAutoAppearanceAssignment;
