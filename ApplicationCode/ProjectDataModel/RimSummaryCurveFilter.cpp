@@ -250,6 +250,20 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         updatePlotAxisForCurves();
     }
+    else if (changedField == &m_selectedSummaryCases)
+    {
+        if (newValue.toList().size() < 1)
+        {
+            if (m_selectionCache.size() > 0)
+            {
+                m_selectedSummaryCases.setValue(m_selectionCache);
+            }
+        }
+        else
+        {
+            m_selectionCache = m_selectedSummaryCases.value();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

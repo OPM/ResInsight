@@ -123,5 +123,7 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >  m_wellAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >  m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
+
+    std::vector< caf::PdmPointer<RimSummaryCase> > m_selectionCache;
 };
 
