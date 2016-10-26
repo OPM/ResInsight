@@ -78,7 +78,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_summaryFilter.uiCapability()->setUiHidden(true);
     m_summaryFilter = new RimSummaryFilter();
 
-    CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
     m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
     m_uiFilterResultMultiSelection.xmlCapability()->setIOReadable(false);
     m_uiFilterResultMultiSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
