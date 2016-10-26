@@ -28,17 +28,17 @@
 class RigGeoMechCaseData;
 
 
-class RigFemTimeHistoryResultAccessor
+class RiuFemTimeHistoryResultAccessor
 {
 public:
-    RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+    RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
                                     RigFemResultAddress femResultAddress,
                                     size_t gridIndex, 
                                     int elementIndex,
                                     int face, 
                                     const cvf::Vec3d& intersectionPoint);
 
-    RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData,
+    RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData,
                                     RigFemResultAddress femResultAddress,
                                     size_t gridIndex,
                                     int elementIndex,

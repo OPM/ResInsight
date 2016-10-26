@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigFemTimeHistoryResultAccessor.h"
+#include "RiuFemTimeHistoryResultAccessor.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
                                                                  RigFemResultAddress femResultAddress,
                                                                  size_t gridIndex, 
                                                                  int elementIndex, 
@@ -52,7 +52,7 @@ RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
                                                                  RigFemResultAddress femResultAddress, 
                                                                  size_t gridIndex, 
                                                                  int elementIndex, 
@@ -74,7 +74,7 @@ RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigFemTimeHistoryResultAccessor::topologyText() const
+QString RiuFemTimeHistoryResultAccessor::topologyText() const
 {
     QString text;
 
@@ -110,7 +110,7 @@ QString RigFemTimeHistoryResultAccessor::topologyText() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigFemTimeHistoryResultAccessor::timeHistoryValues() const
+std::vector<double> RiuFemTimeHistoryResultAccessor::timeHistoryValues() const
 {
     return m_timeHistoryValues;
 }
@@ -118,7 +118,7 @@ std::vector<double> RigFemTimeHistoryResultAccessor::timeHistoryValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFemTimeHistoryResultAccessor::computeTimeHistoryData()
+void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
 {
     m_timeHistoryValues.clear();
     

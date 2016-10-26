@@ -37,6 +37,7 @@ ${CEE_CURRENT_LIST_DIR}RiuViewerCommands.h
 ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -72,7 +73,7 @@ ${CEE_CURRENT_LIST_DIR}RiuViewerCommands.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.cpp
-
+${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

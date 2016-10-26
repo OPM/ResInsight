@@ -23,7 +23,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RigFemTimeHistoryResultAccessor.h"
+#include "RiuFemTimeHistoryResultAccessor.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"
 
@@ -145,12 +145,12 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         geoMechView->geoMechCase() &&
         geoMechView->geoMechCase()->geoMechData())
     {
-        std::unique_ptr<RigFemTimeHistoryResultAccessor> timeHistResultAccessor;
+        std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor;
 
         if ( geomSelectionItem->m_hasIntersectionTriangle )
         {
-            timeHistResultAccessor = std::unique_ptr<RigFemTimeHistoryResultAccessor>(
-                new RigFemTimeHistoryResultAccessor(geoMechView->geoMechCase()->geoMechData(),
+            timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
+                new RiuFemTimeHistoryResultAccessor(geoMechView->geoMechCase()->geoMechData(),
                                                     geoMechView->cellResultResultDefinition()->resultAddress(),
                                                     geomSelectionItem->m_gridIndex,
                                                     static_cast<int>(geomSelectionItem->m_cellIndex),
@@ -160,8 +160,8 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         }
         else
         {
-            timeHistResultAccessor = std::unique_ptr<RigFemTimeHistoryResultAccessor>(
-                new RigFemTimeHistoryResultAccessor(geoMechView->geoMechCase()->geoMechData(),
+            timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
+                new RiuFemTimeHistoryResultAccessor(geoMechView->geoMechCase()->geoMechData(),
                                                     geoMechView->cellResultResultDefinition()->resultAddress(),
                                                     geomSelectionItem->m_gridIndex,
                                                     static_cast<int>(geomSelectionItem->m_cellIndex),
