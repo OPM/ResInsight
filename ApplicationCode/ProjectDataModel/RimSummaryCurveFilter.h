@@ -105,8 +105,6 @@ private:
     caf::PdmPtrArrayField<RimSummaryCase*>    m_selectedSummaryCases;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
-    caf::PdmField<QString>                  m_selectedVariableDisplayField;
-    
     caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
 
 

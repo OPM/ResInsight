@@ -73,12 +73,6 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedSummaryCases.xmlCapability()->setIOReadable(false);
     m_selectedSummaryCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Variables", "", "", "");
-    m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
-    m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);
-    m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
-    m_selectedVariableDisplayField.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
@@ -192,7 +186,6 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 {
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vectors");
     curveDataGroup->add(&m_selectedSummaryCases);
-    curveDataGroup->add(&m_selectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
 
