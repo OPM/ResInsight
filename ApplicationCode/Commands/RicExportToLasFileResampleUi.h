@@ -33,7 +33,7 @@ class RicExportToLasFileObj : public caf::PdmObject
 public:
     RicExportToLasFileObj(void);
 
-    caf::PdmField<double> tvdrkbOffset;
+    caf::PdmField<QString> tvdrkbOffset;
 };
 
 

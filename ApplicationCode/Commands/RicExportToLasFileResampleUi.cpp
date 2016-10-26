@@ -30,7 +30,7 @@ RicExportToLasFileObj::RicExportToLasFileObj(void)
 {
     CAF_PDM_InitObject("RicExportToLasFileObj", "", "", "");
 
-    CAF_PDM_InitField(&tvdrkbOffset, "tvdrkbOffset", 0.0, "TVDRKB offset (RKB - MSL) [m]", "", "", "");
+    CAF_PDM_InitField(&tvdrkbOffset, "tvdrkbOffset", QString(""), "TVDRKB offset (RKB - MSL) [m]", "", "", "");
 }
 
 CAF_PDM_SOURCE_INIT(RicExportToLasFileResampleUi, "RicExportToLasFileResampleUi");
@@ -73,7 +73,12 @@ void RicExportToLasFileResampleUi::tvdrkbDiffForWellPaths(std::vector<double>* r
 {
     for (size_t i = 0; i < m_tvdrkbOffsets.size(); i++)
     {
-        rkbDiffs->push_back(m_tvdrkbOffsets()[i]->tvdrkbOffset);
+        double value = HUGE_VAL;
+        if (!m_tvdrkbOffsets()[i]->tvdrkbOffset().isEmpty())
+        {
+            value = m_tvdrkbOffsets()[i]->tvdrkbOffset().toDouble();
+        }
+        rkbDiffs->push_back(value);
     }
 }
 
@@ -85,11 +90,16 @@ void RicExportToLasFileResampleUi::setRkbDiffs(const std::vector<QString>& wellN
     for (size_t i = 0; i < wellNames.size(); i++)
     {
         RicExportToLasFileObj* obj = new RicExportToLasFileObj;
-        obj->tvdrkbOffset = rkbDiffs[i];
+        if (rkbDiffs[i] != HUGE_VAL)
+        {
+            obj->tvdrkbOffset = QString::number(rkbDiffs[i]);
+        }
         obj->tvdrkbOffset.uiCapability()->setUiName(wellNames[i]);
 
         m_tvdrkbOffsets.push_back(obj);
     }
+
+    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,6 +148,10 @@ void RicExportToLasFileResampleUi::updateFieldVisibility()
         resampleInterval.uiCapability()->setUiReadOnly(true);
     }
 
+    for (RicExportToLasFileObj* obj : m_tvdrkbOffsets)
+    {
+        obj->tvdrkbOffset.uiCapability()->setUiReadOnly(!exportTvdrkb);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,7 +172,7 @@ void RicExportToLasFileResampleUi::defineUiOrdering(QString uiConfigName, caf::P
     caf::PdmUiGroup* tvdrkbGroup = uiOrdering.addNewGroup("TVDRKB");
     tvdrkbGroup->add(&exportTvdrkb);
 
-    caf::PdmUiGroup* group = tvdrkbGroup->addNewGroup("Difference between TVDRKB and TVDMSL");
+    caf::PdmUiGroup* group = tvdrkbGroup->addNewGroup("Difference between TVDRKB and TVDMSL, clear diff for no export");
     for (auto& obj : m_tvdrkbOffsets)
     {
         group->add(&obj->tvdrkbOffset);

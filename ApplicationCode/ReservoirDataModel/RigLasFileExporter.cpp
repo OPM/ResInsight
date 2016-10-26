@@ -557,7 +557,7 @@ double RigLasFileExporter::rkbDiff(RimWellLogCurve* curve)
         return extractionCurve->rkbDiff();
     }
 
-    return -1.0;
+    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -569,8 +569,11 @@ void RigLasFileExporter::applyUserDefinedRkbOffsets(std::vector<SingleLasFileMet
     {
         for (size_t i = 0; i < m_userDefinedRkbOffsets.size(); i++)
         {
-            lasFileDescriptions->at(i).setRkbDiff(m_userDefinedRkbOffsets[i]);
-            lasFileDescriptions->at(i).enableTvdrkbExport();
+            if (m_userDefinedRkbOffsets[i] != HUGE_VAL)
+            {
+                lasFileDescriptions->at(i).setRkbDiff(m_userDefinedRkbOffsets[i]);
+                lasFileDescriptions->at(i).enableTvdrkbExport();
+            }
         }
     }
 }
