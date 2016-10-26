@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicExportToLasFileResampleUi.h"
+
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmUiCheckBoxEditor.h"
+
+#include <cmath>
+
 
 CAF_PDM_SOURCE_INIT(RicExportToLasFileObj, "RicExportToLasFileObj");
 
