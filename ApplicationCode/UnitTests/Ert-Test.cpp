@@ -20,31 +20,40 @@
 
 
 
-#include <time.h>
-#include <stdbool.h>
-
 /*
-#include <util.h>
-#include <int_vector.h>
-#include <ecl_file.h>
-#include <ecl_kw.h>
-#include <ecl_kw_magic.h>
-#include <ecl_util.h>
+#include "gtest/gtest.h"
+#include "ert/ecl/ecl_file.h"
 
-#include <well_state.h>
-#include <well_info.h>
-#include <well_conn.h>
-#include <well_ts.h>
+
+//--------------------------------------------------------------------------------------------------
+TEST(RigReservoirTest, WellTestErt)
+{
+
+    {
+        char filename[1024] = "d:/Models/Statoil_multipleRealisations/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.X0000";
+        ecl_file_type* ecl_file = ecl_file_open(filename, ECL_FILE_CLOSE_STREAM);
+        ecl_file_close(ecl_file);
+    }
+
+    {
+        char filename[1024] = "d:/Models/Statoil/kapoCoulibaly/data/15K_080910_AS1.X0000";
+        ecl_file_type* ecl_file = ecl_file_open(filename, ECL_FILE_CLOSE_STREAM);
+        if (ecl_file) ecl_file_close(ecl_file);
+    }
+
+    {
+        char filename[1024] = "d:/Models/Statoil/kapoCoulibaly/data/15K_080910_AS1.X0000";
+        ecl_file_type* ecl_file = ecl_file_open(filename, ECL_FILE_WRITABLE);
+        if (ecl_file) ecl_file_close(ecl_file);
+    }
+}
 */
 
 
-#include "gtest/gtest.h"
 
-#include "RigCaseData.h"
-#include "RifReaderEclipseInput.h"
-#include "RifEclipseInputFileTools.h"
 
-#include <QFile>
+
+
 
 #if 0
 //--------------------------------------------------------------------------------------------------
