@@ -24,6 +24,7 @@
 #include "cvfStructGrid.h"
 
 #include <QString>
+#include <array>
 
 class RigGeoMechCaseData;
 class RimEclipseCellColors;
@@ -44,6 +45,7 @@ public:
     RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
     void setFace(int face);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
+    void setIntersectionTriangle(const std::array<cvf::Vec3f, 3>& triangle);
 
     QString mainResultText();
 
@@ -67,6 +69,8 @@ private:
     int m_timeStepIndex;
 
     int m_face;
+    bool m_isIntersectionTriangleSet; 
+    std::array<cvf::Vec3f, 3> m_intersectionTriangle;
 
     cvf::Vec3d m_intersectionPoint;
 };

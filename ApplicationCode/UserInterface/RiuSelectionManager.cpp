@@ -140,6 +140,29 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
         m_cellIndex(cellIndex),
         m_color(color),
         m_elementFace(elementFace),
-        m_localIntersectionPoint(localIntersectionPoint)
+        m_localIntersectionPoint(localIntersectionPoint),
+        m_hasIntersectionTriangle(false)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view, 
+                                                 size_t gridIndex, 
+                                                 size_t cellIndex, 
+                                                 cvf::Color3f color, 
+                                                 int elementFace, 
+                                                 const cvf::Vec3d& localIntersectionPoint, 
+                                                 const std::array<cvf::Vec3f, 3>& intersectionTriangle)
+    : m_view(view),
+    m_gridIndex(gridIndex),
+    m_cellIndex(cellIndex),
+    m_color(color),
+    m_elementFace(elementFace),
+    m_localIntersectionPoint(localIntersectionPoint), 
+    m_hasIntersectionTriangle(true),
+    m_intersectionTriangle(m_intersectionTriangle)
+{
+
 }

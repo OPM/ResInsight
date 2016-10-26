@@ -25,6 +25,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigFemTypes.h"
 #include "RigGeoMechCaseData.h"
+#include "RiuGeoMechXfTensorResultAccessor.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -34,15 +35,38 @@
 RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
                                                                  RigFemResultAddress femResultAddress,
                                                                  size_t gridIndex, 
-                                                                 size_t cellIndex, 
+                                                                 int elementIndex, 
                                                                  int face,
                                                                  const cvf::Vec3d& intersectionPoint)
     : m_geoMechCaseData(geomData),
     m_femResultAddress(femResultAddress),
     m_gridIndex(gridIndex),
-    m_cellIndex(cellIndex),
+    m_elementIndex(elementIndex),
     m_face(face),
-    m_intersectionPoint(intersectionPoint)
+    m_intersectionPoint(intersectionPoint),
+    m_hasIntersectionTriangle(false)
+{
+    computeTimeHistoryData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemTimeHistoryResultAccessor::RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+                                                                 RigFemResultAddress femResultAddress, 
+                                                                 size_t gridIndex, 
+                                                                 int elementIndex, 
+                                                                 int face, 
+                                                                 const cvf::Vec3d& intersectionPoint, 
+                                                                 const std::array<cvf::Vec3f, 3>& intersectionTriangle)
+    : m_geoMechCaseData(geomData),
+    m_femResultAddress(femResultAddress),
+    m_gridIndex(gridIndex),
+    m_elementIndex(elementIndex),
+    m_face(face),
+    m_intersectionPoint(intersectionPoint),
+    m_hasIntersectionTriangle(true),
+    m_intersectionTriangle(intersectionTriangle)
 {
     computeTimeHistoryData();
 }
@@ -57,13 +81,13 @@ QString RigFemTimeHistoryResultAccessor::topologyText() const
     if (m_geoMechCaseData)
     {
         RigFemPart* femPart = m_geoMechCaseData->femParts()->part(m_gridIndex);
-        int elementId = femPart->elmId(m_cellIndex);
+        int elementId = femPart->elmId(m_elementIndex);
         text += QString("Element : Id[%1]").arg(elementId);
 
         size_t i = 0;
         size_t j = 0;
         size_t k = 0;
-        if (m_geoMechCaseData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+        if (m_geoMechCaseData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_elementIndex, &i, &j, &k))
         {
             // Adjust to 1-based Eclipse indexing
             i++;
@@ -100,23 +124,40 @@ void RigFemTimeHistoryResultAccessor::computeTimeHistoryData()
     
     RigFemClosestResultIndexCalculator closestCalc(m_geoMechCaseData->femParts()->part(m_gridIndex),
                                                    m_femResultAddress.resultPosType,
-                                                   m_cellIndex,
+                                                   m_elementIndex,
                                                    m_face,
                                                    m_intersectionPoint );
     
     int scalarResultIndex = closestCalc.resultIndexToClosestResult();
+    m_closestNodeId = closestCalc.closestNodeId();
 
-    if (scalarResultIndex < 0) return;
-    
     RigFemPartResultsCollection* femPartResultsColl = m_geoMechCaseData->femPartResults();
-    for (int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++)
-    {
-        const std::vector<float>& scalarResults = m_geoMechCaseData->femPartResults()->resultValues(m_femResultAddress, static_cast<int>(m_gridIndex), frameIdx);
-        if (scalarResults.size())
-        {
-            float scalarValue = scalarResults[scalarResultIndex];
 
+    if (m_femResultAddress.resultPosType == RIG_ELEMENT_NODAL_FACE && m_hasIntersectionTriangle)
+    {
+        int closestElmNodeResIndex = closestCalc.closestElementNodeResIdx();
+
+        for ( int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++ )
+        {
+            RiuGeoMechXfTensorResultAccessor stressXfAccessor(femPartResultsColl, m_femResultAddress, frameIdx);
+            float scalarValue = stressXfAccessor.calculateElmNodeValue(m_intersectionTriangle, closestElmNodeResIndex);
             m_timeHistoryValues.push_back(scalarValue);
         }
     }
+    else
+    {
+        if ( scalarResultIndex < 0 ) return;
+
+        for ( int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++ )
+        {
+            const std::vector<float>& scalarResults = m_geoMechCaseData->femPartResults()->resultValues(m_femResultAddress, static_cast<int>(m_gridIndex), frameIdx);
+            if ( scalarResults.size() )
+            {
+                float scalarValue = scalarResults[scalarResultIndex];
+
+                m_timeHistoryValues.push_back(scalarValue);
+            }
+        }
+    }
+
 }

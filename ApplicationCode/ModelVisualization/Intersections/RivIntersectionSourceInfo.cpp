@@ -44,6 +44,19 @@ const std::vector<size_t>& RivIntersectionSourceInfo::triangleToCellIndex() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3f, 3> RivIntersectionSourceInfo::triangle(int triangleIdx) const
+{
+    std::array<cvf::Vec3f, 3> tri;
+    tri[0] = (*m_crossSectionGeometryGenerator->triangleVxes())[triangleIdx*3];
+    tri[1] = (*m_crossSectionGeometryGenerator->triangleVxes())[triangleIdx*3+1];
+    tri[2] = (*m_crossSectionGeometryGenerator->triangleVxes())[triangleIdx*3+2];
+
+    return tri;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RimIntersection* RivIntersectionSourceInfo::crossSection() const
 {
     return m_crossSectionGeometryGenerator->crossSection();

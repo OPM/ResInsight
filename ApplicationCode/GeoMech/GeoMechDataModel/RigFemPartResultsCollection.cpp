@@ -1380,8 +1380,9 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
 {
     m_resultIndexToClosestResult = -1;
     m_closestNodeId = -1;
+    m_closestElementNodeResIdx = -1;
 
-    if ( resultPosition != RIG_ELEMENT_NODAL_FACE )
+    if ( resultPosition != RIG_ELEMENT_NODAL_FACE  ||  m_face == -1 )
     {
         RigElementType elmType =  femPart->elementType(elementIndex);
         const int* elmentConn = femPart->connectivities(elementIndex);
@@ -1406,13 +1407,19 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
         {
             float scalarValue = std::numeric_limits<float>::infinity();
             int nodeIdx = elmentConn[closestLocalNode];
+            m_closestElementNodeResIdx = static_cast<int>(femPart->elementNodeResultIdx(elementIndex, closestLocalNode));
+
             if ( resultPosition == RIG_NODAL )
             {
                 m_resultIndexToClosestResult = nodeIdx;
             }
+            else if (resultPosition == RIG_ELEMENT_NODAL_FACE)
+            {
+                m_resultIndexToClosestResult = -1;   
+            }
             else
             {
-                m_resultIndexToClosestResult = static_cast<int>(femPart->elementNodeResultIdx(elementIndex, closestLocalNode));
+                m_resultIndexToClosestResult = m_closestElementNodeResIdx;
             }
 
             m_closestNodeId = femPart->nodes().nodeIds[nodeIdx];
@@ -1424,6 +1431,7 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
         int closestNodeIdx = -1;
         {
             int closestLocFaceNode = -1;
+            int closestLocalElmNode = -1;
             {
                 RigElementType elmType =  femPart->elementType(elementIndex);
                 int faceCount = RigFemTypes::elmentFaceCount(elmType);
@@ -1441,6 +1449,7 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
                     {
                         closestLocFaceNode = faceNodIdx;
                         closestNodeIdx = nodeIdx;
+                        closestLocalElmNode = localElmNodeIndicesForFace[faceNodIdx];
                         minDist = dist;
                     }
                 }
@@ -1449,7 +1458,11 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
             int elmNodFaceResIdxElmStart = elementIndex * 24; // HACK should get from part
             int elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + 4*m_face;
 
-            if ( closestLocFaceNode >= 0 ) elmNodFaceResIdx = elmNodFaceResIdxFaceStart + closestLocFaceNode;
+            if ( closestLocFaceNode >= 0 )
+            {
+                elmNodFaceResIdx = elmNodFaceResIdxFaceStart + closestLocFaceNode;
+                m_closestElementNodeResIdx = static_cast<int>(femPart->elementNodeResultIdx(elementIndex, closestLocalElmNode));
+            }
         }
 
         m_resultIndexToClosestResult = elmNodFaceResIdx;

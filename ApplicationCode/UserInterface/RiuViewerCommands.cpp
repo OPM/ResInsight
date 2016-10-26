@@ -80,6 +80,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
+#include <array>
 
 
 
@@ -470,6 +471,8 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     size_t nncIndex = cvf::UNDEFINED_SIZE_T;
     cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::NO_FACE;
     int gmFace = -1;
+    bool intersectionHit = false;
+    std::array<cvf::Vec3f, 3> intersectionTriangleHit;
 
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
 
@@ -525,14 +528,20 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             else if (crossSectionSourceInfo)
             {
                 findCellAndGridIndex(crossSectionSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
+                intersectionHit = true;
+                intersectionTriangleHit = crossSectionSourceInfo->triangle(firstPartTriangleIndex);
 
                 RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersection*>(crossSectionSourceInfo->crossSection()));
+
             }
             else if (intersectionBoxSourceInfo)
             {
                 findCellAndGridIndex(intersectionBoxSourceInfo, firstPartTriangleIndex, &cellIndex, &gridIndex);
+                intersectionHit = true;
+                intersectionTriangleHit = intersectionBoxSourceInfo->triangle(firstPartTriangleIndex);
 
                 RiuMainWindow::instance()->selectAsCurrentItem(const_cast<RimIntersectionBox*>(intersectionBoxSourceInfo->intersectionBox()));
+
             }
             else if (eclipseWellSourceInfo)
             {
@@ -580,9 +589,10 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             }
 
             RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-            if (geomView)
+            if (geomView )
             {
-                selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint);
+                if(intersectionHit)   selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint, intersectionTriangleHit);
+                else                  selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint);
             }
         }
 

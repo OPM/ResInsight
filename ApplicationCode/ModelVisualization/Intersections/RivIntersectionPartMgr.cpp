@@ -52,6 +52,7 @@
 #include "cvfRenderStatePoint.h"
 #include "cafTensor3.h"
 #include "cvfGeometryTools.h"
+#include "RiuGeoMechXfTensorResultAccessor.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -252,8 +253,6 @@ void RivIntersectionPartMgr::calculateGeoMechTextureCoords(cvf::Vec2fArray* text
     }
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -264,98 +263,28 @@ void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArr
                                                                    const RigFemResultAddress& resVarAddress, 
                                                                    int   timeStepIdx,
                                                                    const cvf::ScalarMapper* mapper)
-{
-    RigFemResultAddress tensComp = resVarAddress;
-    tensComp.resultPosType = RIG_ELEMENT_NODAL;
+{  
 
-    tensComp.componentName = "S11";
-    const std::vector<float>& tens11 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
-    tensComp.componentName = "S22";
-    const std::vector<float>& tens22 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
-    tensComp.componentName = "S33";
-    const std::vector<float>& tens33 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
-    tensComp.componentName = "S12";
-    const std::vector<float>& tens12 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
-    tensComp.componentName = "S23";
-    const std::vector<float>& tens23 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
-    tensComp.componentName = "S13";
-    const std::vector<float>& tens13 = caseData->femPartResults()->resultValues(tensComp, 0, timeStepIdx);
+    RiuGeoMechXfTensorResultAccessor accessor(caseData->femPartResults(), resVarAddress, timeStepIdx);
 
     textureCoords->resize(vertexWeights.size());
-    
-    caf::Ten3f::TensorComponentEnum resultComponent = caf::Ten3f::SZZ;
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+    int vxCount = static_cast<int>(vertexWeights.size());
+    int triCount = vxCount/3;
 
-    if ( resVarAddress.componentName == "SN"   ) resultComponent = caf::Ten3f::SZZ;
-    if ( resVarAddress.componentName == "STH"  ) resultComponent = caf::Ten3f::SXX;
-    if ( resVarAddress.componentName == "STQV" ) resultComponent = caf::Ten3f::SYY;
-    if ( resVarAddress.componentName == "TNH" )  resultComponent = caf::Ten3f::SZX;
-    if ( resVarAddress.componentName == "TNQV" ) resultComponent = caf::Ten3f::SYZ;
-    if ( resVarAddress.componentName == "THQV" ) resultComponent = caf::Ten3f::SXY;
-
-    if(tens11.size() == 0)
+    #pragma omp parallel for schedule(dynamic)
+    for ( int triangleIdx = 0; triangleIdx < triCount; ++triangleIdx )
     {
-        textureCoords->setAll(cvf::Vec2f(0.0, 1.0f));
+        int triangleVxStartIdx =  triangleIdx*3;
+        float values[3];
+
+        accessor.calculateInterpolatedValue(&((*triangelVertices)[triangleVxStartIdx]), &(vertexWeights[triangleVxStartIdx]), values );
+
+        rawPtr[triangleVxStartIdx + 0] = (values[0] != std::numeric_limits<float>::infinity()) ? mapper->mapToTextureCoord(values[0]) : cvf::Vec2f(0.0f, 1.0f);
+        rawPtr[triangleVxStartIdx + 1] = (values[1] != std::numeric_limits<float>::infinity()) ? mapper->mapToTextureCoord(values[1]) : cvf::Vec2f(0.0f, 1.0f);
+        rawPtr[triangleVxStartIdx + 2] = (values[2] != std::numeric_limits<float>::infinity()) ? mapper->mapToTextureCoord(values[2]) : cvf::Vec2f(0.0f, 1.0f);
     }
-    else
-    {
-        cvf::Vec2f* rawPtr = textureCoords->ptr();
 
-        int vxCount = static_cast<int>(vertexWeights.size());
-        int triCount = vxCount/3;
-
-        #pragma omp parallel for schedule(dynamic)
-        for (int triangleIdx = 0; triangleIdx < triCount; ++triangleIdx)
-        {
-            int triangleVxStartIdx =  triangleIdx*3;
-            cvf::Vec3f p0 = triangelVertices->get(triangleVxStartIdx);
-            cvf::Vec3f p1 = triangelVertices->get(triangleVxStartIdx + 1);
-            cvf::Vec3f p2 = triangelVertices->get(triangleVxStartIdx + 2);
-
-            cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx(p1 - p0, p2 - p0);
-
-            for(int triangleVxIdx = triangleVxStartIdx; triangleVxIdx < triangleVxStartIdx+3; ++triangleVxIdx)
-            {
-                float ipT11 = 0;
-                float ipT22 = 0;
-                float ipT33 = 0;
-                float ipT12 = 0;
-                float ipT23 = 0;
-                float ipT13 = 0;
-
-                int weightCount = vertexWeights[triangleVxIdx].size();
-                for(int wIdx = 0; wIdx < weightCount; ++wIdx)
-                {
-                    size_t resIdx = vertexWeights[triangleVxIdx].vxId(wIdx) ;
-                    float interpolationWeight = vertexWeights[triangleVxIdx].weight(wIdx);
-                    ipT11 += tens11[resIdx] * interpolationWeight;
-                    ipT22 += tens22[resIdx] * interpolationWeight;
-                    ipT33 += tens33[resIdx] * interpolationWeight;
-                    ipT12 += tens12[resIdx] * interpolationWeight;
-                    ipT23 += tens23[resIdx] * interpolationWeight;
-                    ipT13 += tens13[resIdx] * interpolationWeight;
-                }
-
-                if (   ipT11 == HUGE_VAL || ipT11 != ipT11
-                    || ipT22 == HUGE_VAL || ipT22 != ipT22
-                    || ipT33 == HUGE_VAL || ipT33 != ipT33
-                    || ipT12 == HUGE_VAL || ipT12 != ipT12
-                    || ipT23 == HUGE_VAL || ipT23 != ipT23
-                    || ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is true for NAN's
-                {
-                    rawPtr[triangleVxIdx][1]       = 1.0f;
-                }
-                else
-                {
-                    caf::Ten3f tensor(ipT11, ipT22, ipT33,
-                                      ipT12, ipT23, ipT13);
-                    caf::Ten3f xfTen = tensor.rotated(triangleXf);
-
-
-                    rawPtr[triangleVxIdx] = mapper->mapToTextureCoord(xfTen[resultComponent]);
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

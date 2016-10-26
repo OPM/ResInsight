@@ -29,13 +29,18 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RiuGeoMechXfTensorResultAccessor.h"
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex)
+RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, 
+                                                 int gridIndex, 
+                                                 int cellIndex, 
+                                                 int timeStepIndex)
+                                                 : m_isIntersectionTriangleSet(false)
 {
     CVF_ASSERT(reservoirView);
     
@@ -54,6 +59,15 @@ RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, 
 void RiuFemResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
 {
     m_intersectionPoint = intersectionPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFemResultTextBuilder::setIntersectionTriangle(const std::array<cvf::Vec3f, 3>& triangle)
+{
+    m_intersectionTriangle = triangle;
+    m_isIntersectionTriangleSet = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,7 +355,8 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinitio
                                                              m_intersectionPoint);
             int resultIndex = closestIndexCalc.resultIndexToClosestResult();
             int closestNodeId = closestIndexCalc.closestNodeId();
-            
+            int closestElmNodResIdx = closestIndexCalc.closestElementNodeResIdx();
+
             float scalarValue = (resultIndex >= 0) ? scalarResults[resultIndex]: std::numeric_limits<float>::infinity();
 
 
@@ -355,6 +370,16 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinitio
                 text.append(QString("Closest result: N[%1], on face: %2, %3\n").arg(closestNodeId)
                                                                                .arg(caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex(m_face))
                                                                                .arg(scalarValue));
+            }
+            else if (m_isIntersectionTriangleSet && activeResultPosition == RIG_ELEMENT_NODAL_FACE)
+            {
+                RiuGeoMechXfTensorResultAccessor tensAccessor(geomData->femPartResults(), resultColors->resultAddress(), m_timeStepIndex);
+                float tensValue = tensAccessor.calculateElmNodeValue(m_intersectionTriangle, closestElmNodResIdx);
+
+                text.append(QString("Closest result: N[%1], in Element[%2] transformed onto intersection: %3 \n")
+                            .arg(closestNodeId)
+                            .arg(femPart->elmId(m_cellIndex))
+                            .arg(tensValue));
             }
         }
     }

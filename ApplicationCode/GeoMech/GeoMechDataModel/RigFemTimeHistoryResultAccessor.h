@@ -23,6 +23,7 @@
 
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
+#include <array>
 
 class RigGeoMechCaseData;
 
@@ -33,12 +34,21 @@ public:
     RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
                                     RigFemResultAddress femResultAddress,
                                     size_t gridIndex, 
-                                    size_t cellIndex,
+                                    int elementIndex,
                                     int face, 
                                     const cvf::Vec3d& intersectionPoint);
 
+    RigFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData,
+                                    RigFemResultAddress femResultAddress,
+                                    size_t gridIndex,
+                                    int elementIndex,
+                                    int face,
+                                    const cvf::Vec3d& intersectionPoint, 
+                                    const std::array<cvf::Vec3f, 3>& m_intersectionTriangle);
+
     QString             topologyText() const;
     std::vector<double> timeHistoryValues() const;
+    int                 closestNodeId() const { return m_closestNodeId; }
 
 private:
     void                computeTimeHistoryData();
@@ -48,11 +58,15 @@ private:
     RigFemResultAddress     m_femResultAddress;
 
     size_t                  m_gridIndex;
-    size_t                  m_cellIndex;
+    int                     m_elementIndex;
     size_t                  m_scalarResultIndex;
     int                     m_face;
+    int                     m_closestNodeId;
 
     cvf::Vec3d              m_intersectionPoint;
+
+    bool                      m_hasIntersectionTriangle;
+    std::array<cvf::Vec3f, 3> m_intersectionTriangle;
 
     std::vector<double>     m_timeHistoryValues;
 };
