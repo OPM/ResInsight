@@ -20,7 +20,8 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
-#include "QPointer"
+
+#include <vector>
 
 struct RimMdiWindowGeometry 
 {
@@ -47,16 +48,9 @@ public:
     virtual QImage      snapshotWindowContent() = 0;
     virtual void        zoomAll() = 0;
 
-protected:
-    void                 setViewWidget(QWidget* viewWidget);
-
-    // Possible abilities of this class
-
-    //caf::PdmField<QString>                  name;
-    //caf::PdmField<bool>                     showWindow;
+    virtual QWidget*    viewWidget() = 0;
 
 private:
     caf::PdmField< std::vector<int> > m_windowGeometry;
-    QPointer<QWidget>                 m_viewWidget;
 };
 

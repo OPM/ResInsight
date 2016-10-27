@@ -944,3 +944,11 @@ cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform()
     return coordTrans;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* RimView::viewWidget()
+{
+    return m_viewer;
+}
+

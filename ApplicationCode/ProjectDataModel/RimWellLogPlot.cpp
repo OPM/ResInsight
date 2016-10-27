@@ -49,6 +49,7 @@ namespace caf {
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -271,14 +272,6 @@ void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::ve
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlot* RimWellLogPlot::viewer()
-{
-    return m_viewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter)
 {
     double newMinimum = zoomCenter - (zoomCenter - m_minVisibleDepth)*zoomFactor;
@@ -378,6 +371,14 @@ void RimWellLogPlot::zoomAll()
     m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
 
     updateDepthZoom();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellLogPlot::viewWidget()
+{
+    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -534,6 +535,14 @@ void RimWellLogPlot::detachAllCurves()
 void RimWellLogPlot::setDescription(const QString& description)
 {
     m_userName = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot::description() const
+{
+    return m_userName();
 }
 
 //--------------------------------------------------------------------------------------------------

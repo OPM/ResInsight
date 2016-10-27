@@ -101,7 +101,12 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         {
             wellLogPlot->calculateAvailableDepthRange();
             wellLogPlot->updateDepthZoom();
-            if (wellLogPlot->viewer()) wellLogPlot->viewer()->updateChildrenLayout();
+
+            RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
+            if (wellLogPlotViewer)
+            {
+                wellLogPlotViewer->updateChildrenLayout();
+            }
         }
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)

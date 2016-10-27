@@ -165,6 +165,8 @@ public:
 
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
 
+    virtual QWidget*                        viewWidget() override;
+
 public:
     virtual void                            loadDataAndUpdate() = 0;
     virtual RimCase*                        ownerCase() = 0;

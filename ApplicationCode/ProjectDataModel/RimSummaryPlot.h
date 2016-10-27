@@ -55,6 +55,8 @@ public:
     virtual ~RimSummaryPlot();
 
     void                                            setDescription(const QString& description);
+    QString                                         description() const;
+
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
 
@@ -64,8 +66,6 @@ public:
 
     void                                            handleViewerDeletion();
     void                                            updateCaseNameHasChanged();
-
-    QWidget*                                        viewer();
 
     void                                            updateAxes();
     virtual void                                    zoomAll() override;
@@ -80,6 +80,8 @@ public:
     bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
     void                                            selectAxisInPropertyEditor(int axis);
+
+    virtual QWidget*                                viewWidget() override;
 
 protected:
     // Overridden PDM methods

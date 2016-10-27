@@ -21,7 +21,13 @@
 #include "RiaApplication.h"
 
 #include "RimProject.h"
+#include "RimSummaryPlot.h"
 #include "RimViewWindow.h"
+#include "RimWellLogPlot.h"
+#include "RiuMainPlotWindow.h"
+#include "RiuWellLogPlot.h"
+
+#include "cafUtils.h"
 
 #include <QAction>
 #include <QClipboard>
@@ -147,6 +153,107 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 void RicSnapshotViewToFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Snapshot To File");
+    actionToSetup->setIcon(QIcon(":/SnapShotSave.png"));
+}
+
+
+
+
+
+CAF_CMD_SOURCE_INIT(RicSnapshotAllPlotsToFileFeature, "RicSnapshotAllPlotsToFileFeature");
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    RiuMainPlotWindow* mainPlotWindow = app->mainPlotWindow();
+    if (!mainPlotWindow) return;
+
+    RimProject* proj = app->project();
+    if (!proj) return;
+
+    // Save images in snapshot catalog relative to project directory
+    QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath("snapshots");
+
+    QDir snapshotPath(snapshotFolderName);
+    if (!snapshotPath.exists())
+    {
+        if (!snapshotPath.mkpath(".")) return;
+    }
+
+    const QString absSnapshotPath = snapshotPath.absolutePath();
+
+
+    QWidget* currentActiveWidget = nullptr;
+    if (RiaApplication::activeViewWindow())
+    {
+        currentActiveWidget = RiaApplication::activeViewWindow()->viewWidget();
+    }
+
+    // Well log plots
+    {
+        std::vector<RimWellLogPlot*> wellLogPlots;
+        proj->descendantsIncludingThisOfType(wellLogPlots);
+        for (RimWellLogPlot* wellLogPlot : wellLogPlots)
+        {
+            if (wellLogPlot && wellLogPlot->viewWidget())
+            {
+                mainPlotWindow->setActiveViewer(wellLogPlot->viewWidget());
+
+                QString fileName = wellLogPlot->description();
+                fileName.replace(" ", "_");
+
+                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName);
+            }
+        }
+    }
+
+    // Summary plots
+    {
+        std::vector<RimSummaryPlot*> summaryPlots;
+        proj->descendantsIncludingThisOfType(summaryPlots);
+        for (RimSummaryPlot* summaryPlot : summaryPlots)
+        {
+            if (summaryPlot && summaryPlot->viewWidget())
+            {
+                mainPlotWindow->setActiveViewer(summaryPlot->viewWidget());
+
+                QString fileName = summaryPlot->description();
+                fileName.replace(" ", "_");
+
+                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName);
+            }
+        }
+    }
+
+    if (currentActiveWidget)
+    {
+        mainPlotWindow->setActiveViewer(currentActiveWidget);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotAllPlotsToFileFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Snapshot All Plots To File");
     actionToSetup->setIcon(QIcon(":/SnapShotSave.png"));
 }
 

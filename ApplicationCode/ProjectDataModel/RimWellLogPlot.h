@@ -54,6 +54,7 @@ public:
     virtual ~RimWellLogPlot();
 
     void                                            setDescription(const QString& description);
+    QString                                         description() const;
 
     DepthTypeEnum                                   depthType() const;
 
@@ -73,8 +74,6 @@ public:
     void                                            updateTracks();
     void                                            updateTrackNames();
 
-    RiuWellLogPlot*                                 viewer();
-
     void                                            updateDepthZoom();
     void                                            setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter);
     void                                            panDepth(double panFactor);
@@ -86,6 +85,7 @@ public:
     bool                                            hasAvailableDepthRange() const;
 
     virtual void                                    zoomAll() override;
+    virtual QWidget*                                viewWidget() override;
 
 protected:
 

@@ -129,9 +129,7 @@ void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createActions()
 {
-    m_snapshotAllViewsToFile = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
-    connect(m_snapshotAllViewsToFile, SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,6 +235,7 @@ void RiuMainPlotWindow::createToolBars()
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotAllPlotsToFileFeature"));
     }
 
     {
@@ -549,10 +548,9 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         if (selectedWellLogPlot)
         {
-            if (selectedWellLogPlot->viewer())
+            if (selectedWellLogPlot->viewWidget())
             {
-                setActiveViewer(selectedWellLogPlot->viewer());
-
+                setActiveViewer(selectedWellLogPlot->viewWidget());
             }
             isActiveWellLogPlotChanged = true;
         }
@@ -575,9 +573,9 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         if (selectedSummaryPlot)
         {
-            if (selectedSummaryPlot->viewer())
+            if (selectedSummaryPlot->viewWidget())
             {
-                setActiveViewer(selectedSummaryPlot->viewer());
+                setActiveViewer(selectedSummaryPlot->viewWidget());
             }
             isActiveSummaryPlotChanged = true;
         }
@@ -595,18 +593,6 @@ void RiuMainPlotWindow::selectedObjectsChanged()
             m_projectTreeView->treeView()->setFocus();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::slotSnapshotAllViewsToFile()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    // Save images in snapshot catalog relative to project directory
-    QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath("snapshots");
-    app->saveSnapshotForAllViews(absolutePathToSnapshotDir);
 }
 
 //--------------------------------------------------------------------------------------------------
