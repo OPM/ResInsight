@@ -94,8 +94,6 @@ private:
     QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
 private:
-    QAction*            m_snapshotToFile;
-    QAction*            m_snapshotToClipboard;
     QAction*            m_snapshotAllViewsToFile;
 
     QMdiArea*           m_mdiArea;
@@ -109,8 +107,6 @@ private slots:
 
     friend class RiuMdiSubWindow;
 
-    void    slotSnapshotToFile();
-    void    slotSnapshotToClipboard();
     void    slotSnapshotAllViewsToFile();
 
     void    slotBuildWindowActions();

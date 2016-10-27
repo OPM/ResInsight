@@ -129,12 +129,8 @@ void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createActions()
 {
-    m_snapshotToFile = new QAction(QIcon(":/SnapShotSave.png"), "Snapshot To File", this);
-    m_snapshotToClipboard = new QAction(QIcon(":/SnapShot.png"), "Copy Snapshot To Clipboard", this);
     m_snapshotAllViewsToFile = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
-    connect(m_snapshotToFile, SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
-    connect(m_snapshotToClipboard, SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
     connect(m_snapshotAllViewsToFile, SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 }
 
@@ -190,6 +186,7 @@ void RiuMainPlotWindow::createMenus()
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu("&Edit");
     editMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+    editMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     editMenu->addSeparator();
     editMenu->addAction(cmdFeatureMgr->action("RicEditPreferencesFeature"));
 
@@ -598,26 +595,6 @@ void RiuMainPlotWindow::selectedObjectsChanged()
             m_projectTreeView->treeView()->setFocus();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::slotSnapshotToFile()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    app->saveSnapshotPromtpForFilename();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainPlotWindow::slotSnapshotToClipboard()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    app->copySnapshotToClipboard();
 }
 
 //--------------------------------------------------------------------------------------------------

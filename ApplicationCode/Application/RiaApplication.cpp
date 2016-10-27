@@ -79,6 +79,7 @@
 #include "RiuWellLogPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
+#include "RicSnapshotViewToClipboardFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include "cafFixedAtlasFont.h"
@@ -97,8 +98,6 @@
 #include "cvfqtUtils.h"
 
 #include <QAction>
-#include <QClipboard>
-#include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
@@ -1899,71 +1898,6 @@ bool RiaApplication::openFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::saveSnapshotPromtpForFilename()
-{
-    QString startPath;
-    if (!m_project->fileName().isEmpty())
-    {
-        QFileInfo fi(m_project->fileName());
-        startPath = fi.absolutePath();
-    }
-    else
-    {
-        startPath = lastUsedDialogDirectory("IMAGE_SNAPSHOT");
-    }
-
-    startPath += "/image.png";
-
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
-    if (fileName.isEmpty())
-    {
-        return;
-    }
-
-    // Remember the directory to next time
-    setLastUsedDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
-
-    saveSnapshotAs(fileName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::saveSnapshotAs(const QString& fileName)
-{
-    QImage image = grabFrameBufferImage();
-    if (!image.isNull())
-    {
-        if (image.save(fileName))
-        {
-            qDebug() << "Saved snapshot image to " << fileName;
-        }
-        else
-        {
-            qDebug() << "Error when trying to save snapshot image to " << fileName;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::copySnapshotToClipboard()
-{
-    QClipboard* clipboard = QApplication::clipboard();
-    if (clipboard)
-    {
-        QImage image = grabFrameBufferImage();
-        if (!image.isNull())
-        {
-            clipboard->setImage(image);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -2011,12 +1945,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 fileName.replace(" ", "_");
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-                saveSnapshotAs(absoluteFileName);
+                
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName);
             }
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -2046,7 +1980,9 @@ void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileNam
     mainWnd->loadWinGeoAndDockToolBarLayout();
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void removeDirectoryWithContent(QDir dirToDelete )
 {
     QStringList files = dirToDelete.entryList();
@@ -2056,7 +1992,6 @@ void removeDirectoryWithContent(QDir dirToDelete )
     }
     dirToDelete.rmdir(".");
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -2326,33 +2261,6 @@ cvf::Font* RiaApplication::customFont()
     CVF_ASSERT(m_customFont.notNull());
 
     return m_customFont.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QImage RiaApplication::grabFrameBufferImage()
-{
-    // TODO: Create a general solution that also works with well log plots and summary plots
-    // For now, only reservoir views are supported by this solution
-    /*
-        RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
-        if (viewWindow)
-        {
-            return viewWindow->snapshotWindowContent();
-        }
-
-        return QImage();
-    */
-    
-    QImage image;
-    if (m_activeReservoirView && m_activeReservoirView->viewer())
-    {
-        return m_activeReservoirView->snapshotWindowContent();
-    }
-
-    return image;
-    
 }
 
 //--------------------------------------------------------------------------------------------------

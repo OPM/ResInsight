@@ -146,8 +146,6 @@ private:
     QAction*            m_mockModelCustomizedAction;
     QAction*            m_mockInputModelAction;
 
-    QAction*            m_snapshotToFile;
-    QAction*            m_snapshotToClipboard;
     QAction*            m_snapshotAllViewsToFile;
 
     QAction*            m_createCommandObject;
@@ -199,8 +197,6 @@ private slots:
     void    slotUseShaders(bool enable);
     void    slotShowPerformanceInfo(bool enable);
     
-    void    slotSnapshotToFile();
-    void    slotSnapshotToClipboard();
     void    slotSnapshotAllViewsToFile();
 
     void    slotCreateCommandObject();

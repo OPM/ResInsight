@@ -209,8 +209,6 @@ void RiuMainWindow::createActions()
     m_mockModelCustomizedAction = new QAction("Customized Mock Model", this);
     m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
-    m_snapshotToFile            = new QAction(QIcon(":/SnapShotSave.png"), "Snapshot To File", this);
-    m_snapshotToClipboard       = new QAction(QIcon(":/SnapShot.png"), "Copy Snapshot To Clipboard", this);
     m_snapshotAllViewsToFile    = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
     m_createCommandObject       = new QAction("Create Command Object", this);
@@ -223,8 +221,6 @@ void RiuMainWindow::createActions()
     connect(m_mockModelCustomizedAction,    SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
     connect(m_mockInputModelAction,        SIGNAL(triggered()), SLOT(slotInputMockModel()));
 
-    connect(m_snapshotToFile,            SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
-    connect(m_snapshotToClipboard,        SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
     connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 
     connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
@@ -333,7 +329,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
-    exportMenu->addAction(m_snapshotToFile);
+    exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     exportMenu->addAction(m_snapshotAllViewsToFile);
 
     fileMenu->addSeparator();
@@ -358,7 +354,7 @@ void RiuMainWindow::createMenus()
 
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu("&Edit");
-    editMenu->addAction(m_snapshotToClipboard);
+    editMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
     editMenu->addSeparator();
     editMenu->addAction(cmdFeatureMgr->action("RicEditPreferencesFeature"));
 
@@ -433,8 +429,8 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar(tr("View Snapshots"));
         toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(m_snapshotToClipboard);
-        toolbar->addAction(m_snapshotToFile);
+        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
         toolbar->addAction(m_snapshotAllViewsToFile);
     }
 
@@ -1229,26 +1225,6 @@ void RiuMainWindow::slotNewObjectPropertyView()
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
     additionalProjectViews.push_back(dockWidget);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSnapshotToFile()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    app->saveSnapshotPromtpForFilename();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotSnapshotToClipboard()
-{
-    RiaApplication* app = RiaApplication::instance();
-
-    app->copySnapshotToClipboard();
 }
 
 //--------------------------------------------------------------------------------------------------
