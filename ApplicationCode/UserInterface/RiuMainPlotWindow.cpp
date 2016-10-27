@@ -166,6 +166,10 @@ void RiuMainPlotWindow::createMenus()
     importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
 
+    QMenu* exportMenu = fileMenu->addMenu("&Export");
+    exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
+    exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotAllPlotsToFileFeature"));
+
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectAsFeature"));
