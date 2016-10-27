@@ -514,6 +514,8 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
         curve->setParentQwtPlot(m_parentQwtPlot);
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(caseAddrPair.second);
+        curve->setPlotAxis(m_plotAxis());
+
         m_curves.push_back(curve);
 
         curveLookCalc.setupCurveLook(curve);
