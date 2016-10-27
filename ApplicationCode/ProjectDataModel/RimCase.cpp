@@ -85,10 +85,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmField
             }
         }
 
-        if(optionList.size() > 0)
-        {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
-        }
+        optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
     }
 
     return optionList;
