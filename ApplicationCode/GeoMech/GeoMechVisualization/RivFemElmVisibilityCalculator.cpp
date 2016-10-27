@@ -119,9 +119,12 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
 
             RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resultAddress();
 
+            // Do a "Hack" to use elm nodal and not nodal POR results
+            if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" ) resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+
             const std::vector<float>& resVals = caseData->femPartResults()->resultValues(resVarAddress,
-                grid->elementPartId(),
-                timeStepIndex);
+                                                                                         grid->elementPartId(),
+                                                                                         timeStepIndex);
 
             if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult())
             {
@@ -163,9 +166,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                     const double lowerBound = propertyFilter->lowerBound();
                     const double upperBound = propertyFilter->upperBound();
 
-                    // Do a "Hack" to use elm nodal and not nodal POR results
-                    if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
-
+ 
                     if (resVarAddress.resultPosType != RIG_ELEMENT_NODAL_FACE)
                     {
                         #pragma omp parallel for schedule(dynamic)
