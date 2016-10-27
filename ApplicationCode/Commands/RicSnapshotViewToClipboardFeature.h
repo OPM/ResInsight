@@ -30,10 +30,28 @@ class RicSnapshotViewToClipboardFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
+};
+
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicSnapshotViewToFileFeature : public caf::CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+public:
+    static void saveSnapshotAs(const QString& fileName);
+
+protected:
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 };
 
 

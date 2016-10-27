@@ -239,6 +239,7 @@ void RiuMainPlotWindow::createToolBars()
         QToolBar* toolbar = addToolBar(tr("View Snapshots"));
         toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     }
 
     {
