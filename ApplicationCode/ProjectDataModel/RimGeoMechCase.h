@@ -73,6 +73,7 @@ public:
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     virtual void                            updateFormationNamesData() override;
 
@@ -82,4 +83,8 @@ private:
 private:
     cvf::ref<RigGeoMechCaseData>            m_geoMechCaseData;
     caf::PdmField<QString>                  m_caseFileName;
+    caf::PdmField<double>                   m_cohesion;
+    caf::PdmField<double>                   m_frictionAngleDeg;
+protected:
+
 };

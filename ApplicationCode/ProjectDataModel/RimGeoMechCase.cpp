@@ -50,6 +50,10 @@ RimGeoMechCase::RimGeoMechCase(void)
     m_caseFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
     geoMechViews.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "");
+    CAF_PDM_InitField(&m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,6 +258,25 @@ void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateFormationNamesData();
     }
+
+    if (changedField == &m_cohesion || changedField == &m_frictionAngleDeg)
+    {
+
+        RigGeoMechCaseData* rigCaseData = geoMechData();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->setCalculationParameters(m_cohesion(), cvf::Math::toRadians(m_frictionAngleDeg()));
+        }
+
+        std::vector<RimView*> views = this->views();
+        for ( RimView* view : views )
+        {
+            if ( view  ) // Todo: only those using the variable actively
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,5 +334,21 @@ QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int number
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+   uiOrdering.add(&caseUserDescription);
+   uiOrdering.add(&caseId);
+   uiOrdering.add(&m_caseFileName);
+
+   auto group = uiOrdering.addNewGroup("Case Options");
+   group->add(&activeFormationNames);
+   group->add(&m_cohesion);
+   group->add(&m_frictionAngleDeg);
+
 }
 

@@ -29,31 +29,36 @@
 class RigFemResultAddress
 {
 public:
-RigFemResultAddress(RigFemResultPosEnum resPosType,
-                    const std::string& aFieldName,
-                    const std::string& aComponentName) 
-                    : resultPosType(resPosType), 
-                      fieldName(aFieldName), 
-                      componentName(aComponentName),
-                      timeLapseBaseFrameIdx(-1)
-                    {}
+    RigFemResultAddress(RigFemResultPosEnum resPosType,
+                        const std::string& aFieldName,
+                        const std::string& aComponentName)
+        : resultPosType(resPosType),
+        fieldName(aFieldName),
+        componentName(aComponentName),
+        timeLapseBaseFrameIdx(-1)
+    {
+    }
 
-RigFemResultAddress(RigFemResultPosEnum resPosType,
-                    const std::string& aFieldName,
-                    const std::string& aComponentName,
-                    int aTimeLapseBaseFrame)
-                    : resultPosType(resPosType),
-                      fieldName(aFieldName),
-                      componentName(aComponentName),
-                      timeLapseBaseFrameIdx(aTimeLapseBaseFrame)
-                    {}
+    RigFemResultAddress(RigFemResultPosEnum resPosType,
+                        const std::string& aFieldName,
+                        const std::string& aComponentName,
+                        int aTimeLapseBaseFrame)
+        : resultPosType(resPosType),
+        fieldName(aFieldName),
+        componentName(aComponentName),
+        timeLapseBaseFrameIdx(aTimeLapseBaseFrame)
+    {
+    }
 
     RigFemResultPosEnum resultPosType;
     std::string fieldName;
     std::string componentName;
     int         timeLapseBaseFrameIdx;
 
+    static const int ALL_TIME_LAPSES = -2;
+
     bool isTimeLapse() const { return timeLapseBaseFrameIdx >= 0;}
+    bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
 
     bool isValid() const
     {

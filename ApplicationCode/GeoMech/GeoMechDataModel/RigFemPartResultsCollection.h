@@ -42,6 +42,7 @@ public:
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
+    void                                             setCalculationParameters(double cohesion, double frictionAngleRad);
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>                         stepNames();
@@ -81,6 +82,7 @@ private:
     RigFemScalarResultFrames*                        calculateEnIpPorBarResult(int partIndex, const RigFemResultAddress &convertedResultAddr);
     RigFemScalarResultFrames*                        calculateTimeLapseResult(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateMeanStressSEM(int partIndex, const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        calculateSFI(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateMeanStressSTM(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateDeviatoricStress(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateVolumetricStrain(int partIndex, const RigFemResultAddress& resVarAddr);
@@ -90,6 +92,9 @@ private:
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
     cvf::cref<RigFemPartCollection>                  m_femParts;
     cvf::ref<RigFormationNames>                      m_activeFormationNamesData;
+
+    double                                           m_cohesion;
+    double                                           m_frictionAngleRad;
 
     RigStatisticsDataCache*                          statistics(const RigFemResultAddress& resVarAddr);
     std::vector< RigFemResultAddress>                getResAddrToComponentsToRead(const RigFemResultAddress& resVarAddr);

@@ -72,4 +72,23 @@ RigFemScalarResultFrames* RigFemPartResults::findScalarResult(const RigFemResult
 void RigFemPartResults::deleteScalarResult(const RigFemResultAddress& resVarAddr)
 {
     resultSets.erase(resVarAddr); // Refcounting is supposed to destroy the data.
+    
+    if (resVarAddr.representsAllTimeLapses())
+    {
+        std::vector<RigFemResultAddress> addressesToDelete;
+        for (auto it : resultSets)
+        {
+            if (it.first.resultPosType == resVarAddr.resultPosType
+                && it.first.fieldName == resVarAddr.fieldName
+                &&  it.first.componentName == resVarAddr.componentName)
+                { 
+                    addressesToDelete. push_back(it.first);
+                }
+        }
+
+        for (RigFemResultAddress& addr: addressesToDelete)
+        {
+            resultSets.erase(addr);
+        }
+    }
 }

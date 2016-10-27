@@ -41,6 +41,7 @@
 #include "cafProgressInfo.h"
 #include "RigFemPartGrid.h"
 #include "cvfGeometryTools.h"
+#include "cvfMath.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +60,10 @@ RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterfa
         m_femPartResults[pIdx] = new RigFemPartResults;
         m_femPartResults[pIdx]->initResultSteps(stepNames);
     }
+
+    m_cohesion = 10.0;
+    m_frictionAngleRad = cvf::Math::toRadians(30.0);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +89,20 @@ void RigFemPartResultsCollection::setActiveFormationNames(RigFormationNames* act
 RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
 {
     return m_activeFormationNamesData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setCalculationParameters(double cohesion, double frictionAngleRad)
+{
+    m_cohesion = cohesion;
+    m_frictionAngleRad = frictionAngleRad;
+
+    // Todo, delete all dependent results
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL, "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +206,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
 
             fieldCompNames["SE"].push_back("SEM");
+            fieldCompNames["SE"].push_back("SFI");
 
             fieldCompNames["SE"].push_back("S11");
             fieldCompNames["SE"].push_back("S22");
@@ -242,6 +262,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
            
             fieldCompNames["SE"].push_back("SEM");
+            fieldCompNames["SE"].push_back("SFI");
 
             fieldCompNames["SE"].push_back("S11");
             fieldCompNames["SE"].push_back("S22");
@@ -479,6 +500,55 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM(in
 
     return dstDataFrames;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI");
+
+    RigFemScalarResultFrames * se1Frames = nullptr;
+    RigFemScalarResultFrames * se3Frames = nullptr;
+
+    se1Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S1"));
+    se3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S3"));
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+    
+    float cohPrFricAngle = (float)(m_cohesion/tan(m_frictionAngleRad));
+    float sinFricAng = sin(m_frictionAngleRad);
+     
+    int frameCount = se1Frames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& se1Data = se1Frames->frameData(fIdx);
+        const std::vector<float>& se3Data = se3Frames->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = se1Data.size();
+        dstFrameData.resize(valCount);
+
+        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+        {
+            float se1 = se1Data[vIdx];
+            float se3 = se3Data[vIdx];
+            float se1Se3Diff = se1-se3;
+
+            if ( fabs(se1Se3Diff) < 1e-7 )
+            {
+                dstFrameData[vIdx] = std::numeric_limits<float>::infinity();
+            }
+            else
+            {
+                dstFrameData[vIdx] =  ((cohPrFricAngle + 0.5*(se1Data[vIdx] + se3Data[vIdx])) * sin(m_frictionAngleRad)) / (0.5*(se1Data[vIdx] - se3Data[vIdx]));
+            }
+        }
+    }
+
+    return dstDataFrames;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -722,6 +792,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     if(resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
     {
         return calculateSurfaceAlignedStress(partIndex, resVarAddr);
+    }
+
+    if (resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI")
+    {
+        return calculateSFI(partIndex, resVarAddr);    
     }
 
     if(resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV")
@@ -1265,6 +1340,25 @@ void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVar
     }
 
     m_resultStatistics.erase(resVarAddr);
+    
+    if ( resVarAddr.representsAllTimeLapses() )
+    {
+        std::vector<RigFemResultAddress> addressesToDelete;
+        for ( auto it : m_resultStatistics )
+        {
+            if ( it.first.resultPosType == resVarAddr.resultPosType
+                && it.first.fieldName == resVarAddr.fieldName
+                &&  it.first.componentName == resVarAddr.componentName )
+            {
+                addressesToDelete.push_back(it.first);
+            }
+        }
+
+        for ( RigFemResultAddress& addr: addressesToDelete )
+        {
+            m_resultStatistics.erase(addr);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
