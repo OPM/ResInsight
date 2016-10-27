@@ -50,7 +50,7 @@ void RigFemScalarResultFrames::enableAsSingleFrameResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RigFemScalarResultFrames::frameCount()
+int RigFemScalarResultFrames::frameCount() const
 {
     return static_cast<int>(m_dataForEachFrame.size());
 }
@@ -62,6 +62,21 @@ int RigFemScalarResultFrames::frameCount()
 std::vector<float>& RigFemScalarResultFrames::frameData(size_t frameIndex)
 {
     if (m_isSingleFrameResult)
+    {
+        return m_dataForEachFrame[0];
+    }
+    else
+    {
+        return m_dataForEachFrame[frameIndex];
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<float>& RigFemScalarResultFrames::frameData(size_t frameIndex) const
+{
+    if ( m_isSingleFrameResult )
     {
         return m_dataForEachFrame[0];
     }

@@ -390,29 +390,57 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
 {
     CVF_ASSERT(resVarAddr.isTimeLapse());
 
-    RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName);
-    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, resVarNative);
-    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
-
-    int frameCount = srcDataFrames->frameCount();
-    int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
-    if (baseFrameIdx >= frameCount) return dstDataFrames;
-    const std::vector<float>& baseFrameData = srcDataFrames->frameData(baseFrameIdx);
-
-    for(int fIdx = 0; fIdx < frameCount; ++fIdx)
+    if (resVarAddr.fieldName != "Gamma")
     {
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
-        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
-        size_t valCount = srcFrameData.size();
-        dstFrameData.resize(valCount);
-    
-        for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
-        {
-            dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
-        }
-    }
+        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName);
+        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, resVarNative);
+        RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
-    return dstDataFrames;
+        int frameCount = srcDataFrames->frameCount();
+        int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
+        if ( baseFrameIdx >= frameCount ) return dstDataFrames;
+        const std::vector<float>& baseFrameData = srcDataFrames->frameData(baseFrameIdx);
+
+        for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+        {
+            const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+            size_t valCount = srcFrameData.size();
+            dstFrameData.resize(valCount);
+
+            for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+            {
+                dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
+            }
+        }
+
+        return dstDataFrames;
+    }
+    else
+    {
+        // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github issue #937
+
+        RigFemResultAddress totStressCompAddr(resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseFrameIdx);
+        {
+            std::string scomp;
+            std::string gcomp = resVarAddr.componentName;
+            if ( gcomp == "Gamma1" )       scomp =  "S1";
+            else if ( gcomp == "Gamma2" )  scomp =  "S2";
+            else if ( gcomp == "Gamma3" )  scomp =  "S3";
+            else if ( gcomp == "Gamma11" ) scomp =  "S11";
+            else if ( gcomp == "Gamma22" ) scomp =  "S22";
+            else if ( gcomp == "Gamma33" ) scomp =  "S33";
+            totStressCompAddr.componentName = scomp;
+        }
+
+        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, totStressCompAddr);
+        RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", "", resVarAddr.timeLapseBaseFrameIdx));
+        RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+        calculateGammaFromFrames(partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames); 
+
+        return dstDataFrames;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1005,71 +1033,25 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
              || resVarAddr.componentName == "Gamma33"
              ))
     {
-        RigFemScalarResultFrames * srcDataFrames = NULL;
-        if (resVarAddr.componentName == "Gamma1"){
-            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S1"));
-        }else if (resVarAddr.componentName == "Gamma2"){
-            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S2"));
-        }else if (resVarAddr.componentName == "Gamma3"){
-            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S3"));
-        }else if (resVarAddr.componentName == "Gamma11"){
-            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S11"));
-        }else if (resVarAddr.componentName == "Gamma22"){
-            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S22"));
-        }else if (resVarAddr.componentName == "Gamma33"){
-            srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S33"));
+        RigFemResultAddress totStressCompAddr(resVarAddr.resultPosType, "ST", "");
+        {
+            std::string scomp;
+            std::string gcomp = resVarAddr.componentName;
+            if ( gcomp == "Gamma1" )       scomp =  "S1";
+            else if ( gcomp == "Gamma2" )  scomp =  "S2";
+            else if ( gcomp == "Gamma3" )  scomp =  "S3";
+            else if ( gcomp == "Gamma11" ) scomp =  "S11";
+            else if ( gcomp == "Gamma22" ) scomp =  "S22";
+            else if ( gcomp == "Gamma33" ) scomp =  "S33";
+            totStressCompAddr.componentName = scomp;
         }
 
+        RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, totStressCompAddr);
         RigFemScalarResultFrames * srcPORDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR-Bar", ""));
-
         RigFemScalarResultFrames * dstDataFrames =  m_femPartResults[partIndex]->createScalarResult(resVarAddr);
         
-        const RigFemPart * femPart = m_femParts->part(partIndex);
-        int frameCount = srcDataFrames->frameCount();
-        float inf = std::numeric_limits<float>::infinity();
-        
-        for (int fIdx = 0; fIdx < frameCount; ++fIdx)
-        {
-            const std::vector<float>& srcSTFrameData = srcDataFrames->frameData(fIdx);
-            const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
-            
-            std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        calculateGammaFromFrames(partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames);
 
-            size_t valCount = srcSTFrameData.size();
-            dstFrameData.resize(valCount);
-
-            int elementCount = femPart->elementCount();
-            for (int elmIdx = 0; elmIdx < elementCount; ++elmIdx)
-            {
-                RigElementType elmType = femPart->elementType(elmIdx);
-
-                int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
-
-                if (elmType == HEX8P)
-                {
-                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                    {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
-
-                        float por = srcPORFrameData[nodeIdx];
-
-                        if (por == inf || abs(por) < 0.01e6*1.0e-5)
-                            dstFrameData[elmNodResIdx] = inf;
-                        else
-                            dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;
-                    }
-                }
-                else 
-                {
-                    for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
-                    {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                        dstFrameData[elmNodResIdx] = inf;
-                    }
-                }
-            }
-        }
         return dstDataFrames; 
     }
 
@@ -1121,6 +1103,62 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
         return resFrames;
     }
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex, 
+                                                           const RigFemScalarResultFrames * totalStressComponentDataFrames, 
+                                                           const RigFemScalarResultFrames * srcPORDataFrames, 
+                                                           RigFemScalarResultFrames * dstDataFrames)
+{
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    int frameCount = totalStressComponentDataFrames->frameCount();
+    float inf = std::numeric_limits<float>::infinity();
+
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& srcSTFrameData = totalStressComponentDataFrames->frameData(fIdx);
+        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+
+        size_t valCount = srcSTFrameData.size();
+        dstFrameData.resize(valCount);
+
+        int elementCount = femPart->elementCount();
+        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount(femPart->elementType(elmIdx));
+
+            if ( elmType == HEX8P )
+            {
+                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+
+                    float por = srcPORFrameData[nodeIdx];
+
+                    if ( por == inf || abs(por) < 0.01e6*1.0e-5 )
+                        dstFrameData[elmNodResIdx] = inf;
+                    else
+                        dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;
+                }
+            }
+            else
+            {
+                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                    dstFrameData[elmNodResIdx] = inf;
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

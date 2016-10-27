@@ -72,6 +72,11 @@ private:
 
     RigFemScalarResultFrames*                        calculateDerivedResult(int partIndex, const RigFemResultAddress& resVarAddr);
 
+    void                                             calculateGammaFromFrames(int partIndex, 
+                                                                              const RigFemScalarResultFrames * totalStressComponentDataFrames, 
+                                                                              const RigFemScalarResultFrames * srcPORDataFrames, 
+                                                                              RigFemScalarResultFrames * dstDataFrames);
+
     RigFemScalarResultFrames*                        calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string fieldNameToConvert);
     RigFemScalarResultFrames*                        calculateEnIpPorBarResult(int partIndex, const RigFemResultAddress &convertedResultAddr);
     RigFemScalarResultFrames*                        calculateTimeLapseResult(int partIndex, const RigFemResultAddress& resVarAddr);

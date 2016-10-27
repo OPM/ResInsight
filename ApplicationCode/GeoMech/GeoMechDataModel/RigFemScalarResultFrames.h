@@ -36,7 +36,8 @@ public:
     void enableAsSingleFrameResult();
 
     std::vector<float>& frameData(size_t frameIndex);
-    int frameCount();
+    const std::vector<float>& frameData(size_t frameIndex) const;
+    int frameCount() const;
 
 private:
     std::vector< std::vector<float> > m_dataForEachFrame;
