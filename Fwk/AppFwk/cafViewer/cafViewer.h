@@ -231,6 +231,8 @@ private:
     // Offscreen render objects
     cvf::ref<cvf::FramebufferObject>    m_offscreenFbo;
     cvf::ref<cvf::Texture>              m_offscreenTexture;
+    int                                 m_offscreenViewportWidth;
+    int                                 m_offscreenViewportHeight;
     cvf::ref<cvf::Rendering>            m_quadRendering;
 };
 

@@ -119,7 +119,9 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
     m_navigationPolicyEnabled(true),
-    m_isOverlayPaintingEnabled(true)
+    m_isOverlayPaintingEnabled(true),
+    m_offscreenViewportWidth(0),
+    m_offscreenViewportHeight(0)
 {
     m_layoutWidget = parentWidget();
 
@@ -497,6 +499,9 @@ void caf::Viewer::resizeGL(int width, int height)
         m_offscreenFbo->resizeAttachedBuffers(width, height);
     
         m_quadRendering->camera()->viewport()->set(0, 0, width, height);
+
+        m_offscreenViewportWidth = width;
+        m_offscreenViewportHeight = height;
     }
 
     updateCamera(width, height);
@@ -810,9 +815,30 @@ bool caf::Viewer::isShadersSupported()
 QImage caf::Viewer::snapshotImage()
 {
     QImage image;
-    if (m_offscreenTexture.notNull() && m_offscreenTexture->image())
+    if (m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0)
     {
-        image = cvfqt::Utils::toQImage(*(m_offscreenTexture->image()));
+        cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
+
+        // TODO: Is this required???
+        //m_offscreenFbo->bind(myOglContext.p());
+
+        GLint iOldPackAlignment = 0;
+        glGetIntegerv(GL_PACK_ALIGNMENT, &iOldPackAlignment);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        CVF_CHECK_OGL(myOglContext.p());
+
+        cvf::UByteArray arr(3 * m_offscreenViewportWidth * m_offscreenViewportHeight);
+
+        glReadPixels(0, 0, static_cast<GLsizei>(m_offscreenViewportWidth), static_cast<GLsizei>(m_offscreenViewportHeight), GL_RGB, GL_UNSIGNED_BYTE, arr.ptr());
+        CVF_CHECK_OGL(myOglContext.p());
+
+        glPixelStorei(GL_PACK_ALIGNMENT, iOldPackAlignment);
+        CVF_CHECK_OGL(myOglContext.p());
+
+        cvf::TextureImage texImage;
+        texImage.setFromRgb(arr.ptr(), m_offscreenViewportWidth, m_offscreenViewportHeight);
+
+        image = cvfqt::Utils::toQImage(texImage);
     }
     else
     {
