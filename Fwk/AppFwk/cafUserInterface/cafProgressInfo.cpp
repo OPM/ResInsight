@@ -56,7 +56,7 @@ namespace caf {
     /// When the method returns, the ProgressInfo destructor will clean up and finish.
     /// The real beauty is that this class will magically interact with possible ProgressInfo instances
     /// in functions that your method calls, providing a complete, consistent and detailed progress bar 
-    /// 
+    ///
     /// caf::ProgressInfo progInfo(3, "Open File");
     /// progInfo.setProgressDescription("Reading");
     /// ...readFile()
@@ -67,6 +67,26 @@ namespace caf {
     /// progInfo.setProgressDescription("Building geometry");
     ///  ... buildGeometry();
     /// progInfo.incrementProgress(); // not needed really, because the destructor will send the progress to top.
+    ///
+    /// There are one particular limitation: The progress will not work correctly if the higher level 
+    /// ProgressInfo object does not increment progress between the creation and operation of two (or more) 
+    /// independent lower level ProgressInfo objects. If not, the progress will restart (within its limits) 
+    /// for each progress object that is operating.
+    ///
+    /// caf::ProgressInfo progInfoHighLevel(3, "Open File");
+    /// 
+    /// {
+    ///     caf::ProgressInfo progInfoLowLevel(10, "");
+    /// }
+    /// // NEEDS progInfoHighLevel.incrementProgress() here !!
+    /// {
+    ///     caf::ProgressInfo progInfoLowLevel(10, "");
+    /// }
+    ///
+    /// It is not allowed to have several ProgressInfo objects in the same scope level 
+    /// 
+    /// caf::ProgressInfo progInfo1(10, "");
+    /// caf::ProgressInfo progInfo2(10, ""); //<-- Will not work well
     //==================================================================================================
 
     //--------------------------------------------------------------------------------------------------
@@ -233,6 +253,8 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     static size_t currentTotalMaxProgressValue()
     {
+        std::vector<size_t>& maxProgressStack_v = maxProgressStack();
+
         size_t levCount = 1;
         for (size_t levelDepth = 0; levelDepth < maxProgressStack().size(); ++levelDepth)
         {
@@ -247,6 +269,11 @@ namespace caf {
     static size_t currentTotalProgress()
     {
         double progress = 0;
+        
+        std::vector<size_t>& progressStack_v     = progressStack();
+        std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
+
         for (int i = static_cast<int>(progressStack().size()) - 1; i >= 0; --i)
         {
             size_t span = (i < 1) ? 1 : progressSpanStack()[i - 1];
@@ -301,6 +328,10 @@ namespace caf {
     {
         if (!isUpdatePossible()) return;
 
+        std::vector<size_t>& progressStack_v     = progressStack();
+        std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
+
         if (!maxProgressStack().size())
         {
             //progressDialog()->setWindowModality(Qt::ApplicationModal);
@@ -347,6 +378,10 @@ namespace caf {
     {
         if (!isUpdatePossible()) return;
 
+        std::vector<size_t>& progressStack_v     = progressStack();
+        std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
+
         if (progressValue == progressStack().back()) return; // Do nothing if no progress.
 
         // Guard against the max value set for this level
@@ -375,6 +410,10 @@ namespace caf {
     {
         if (!isUpdatePossible()) return;
 
+        std::vector<size_t>& progressStack_v     = progressStack();
+        std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
+
         assert(progressStack().size());
         ProgressInfoStatic::setProgress(progressStack().back() + progressSpanStack().back());
     }
@@ -399,6 +438,10 @@ namespace caf {
     void ProgressInfoStatic::finished()
     {
         if (!isUpdatePossible()) return;
+
+        std::vector<size_t>& progressStack_v     = progressStack();
+        std::vector<size_t>& progressSpanStack_v = progressSpanStack();
+        std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
 
         assert(maxProgressStack().size() && progressStack().size() && progressSpanStack().size() && titleStack().size() && descriptionStack().size());
 
