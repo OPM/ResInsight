@@ -33,6 +33,10 @@ class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
 class RigFormationNames;
+namespace caf
+{
+    class ProgressInfo;
+}
 
 class RigFemPartResultsCollection: public cvf::Object
 {
@@ -76,7 +80,8 @@ private:
     void                                             calculateGammaFromFrames(int partIndex, 
                                                                               const RigFemScalarResultFrames * totalStressComponentDataFrames, 
                                                                               const RigFemScalarResultFrames * srcPORDataFrames, 
-                                                                              RigFemScalarResultFrames * dstDataFrames);
+                                                                              RigFemScalarResultFrames * dstDataFrames,
+                                                                              caf::ProgressInfo* frameCountProgress);
 
     RigFemScalarResultFrames*                        calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string fieldNameToConvert);
     RigFemScalarResultFrames*                        calculateEnIpPorBarResult(int partIndex, const RigFemResultAddress &convertedResultAddr);
