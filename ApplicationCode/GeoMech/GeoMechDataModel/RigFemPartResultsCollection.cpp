@@ -253,6 +253,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["Gamma"].push_back("Gamma33");
 
             fieldCompNames["NE"].push_back("EV");
+            fieldCompNames["NE"].push_back("ED");
             fieldCompNames["NE"].push_back("E11");
             fieldCompNames["NE"].push_back("E22");
             fieldCompNames["NE"].push_back("E33");
@@ -316,6 +317,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["Gamma"].push_back("Gamma33");
 
             fieldCompNames["NE"].push_back("EV");
+            fieldCompNames["NE"].push_back("ED");
             fieldCompNames["NE"].push_back("E11");
             fieldCompNames["NE"].push_back("E22");
             fieldCompNames["NE"].push_back("E33");
@@ -718,15 +720,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStress
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain(int partIndex, const RigFemResultAddress& resVarAddr)
 {
-    RigFemScalarResultFrames * ea11 = nullptr;
-    RigFemScalarResultFrames * ea22 = nullptr;
-    RigFemScalarResultFrames * ea33 = nullptr;
-
     CVF_ASSERT(resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV");
 
     caf::ProgressInfo frameCountProgress(this->frameCount() * 4, "");
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * ea11 = nullptr;
+    RigFemScalarResultFrames * ea22 = nullptr;
+    RigFemScalarResultFrames * ea33 = nullptr;
 
     {
         ea11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NE", "E11"));
@@ -754,6 +756,50 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain
         for(size_t vIdx = 0; vIdx < valCount; ++vIdx)
         {
             dstFrameData[vIdx] = (ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx]);
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStrain(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == "NE" && resVarAddr.componentName == "ED");
+
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * ea11 = nullptr;
+    RigFemScalarResultFrames * ea33 = nullptr;
+    {
+        ea11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NE", "E1"));
+        frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
+        ea33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "NE", "E3"));
+    }
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    int frameCount = ea11->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& ea11Data = ea11->frameData(fIdx);
+        const std::vector<float>& ea33Data = ea33->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = ea11Data.size();
+        dstFrameData.resize(valCount);
+
+        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+        {
+            dstFrameData[vIdx] = 0.666666666666667f*(ea11Data[vIdx] - ea33Data[vIdx]);
         }
 
         frameCountProgress.incrementProgress();
@@ -1109,6 +1155,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     if(resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV")
     {
         return calculateVolumetricStrain(partIndex, resVarAddr);
+    }
+
+    if ( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "ED" )
+    {
+        return calculateDeviatoricStrain(partIndex, resVarAddr);
     }
 
     if(resVarAddr.fieldName == "ST" && resVarAddr.componentName == "Q" )
