@@ -89,6 +89,8 @@ private:
     RigFemScalarResultFrames*                        calculateTimeLapseResult(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateMeanStressSEM(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateSFI(int partIndex, const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        calculateDSM(int partIndex, const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        calculateFOS(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateMeanStressSTM(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateDeviatoricStress(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateVolumetricStrain(int partIndex, const RigFemResultAddress& resVarAddr);

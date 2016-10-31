@@ -100,8 +100,12 @@ void RigFemPartResultsCollection::setCalculationParameters(double cohesion, doub
     m_frictionAngleRad = frictionAngleRad;
 
     // Todo, delete all dependent results
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL, "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
     this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
 
 }
 
@@ -207,6 +211,8 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
 
             fieldCompNames["SE"].push_back("SEM");
             fieldCompNames["SE"].push_back("SFI");
+            fieldCompNames["SE"].push_back("DSM");
+            fieldCompNames["SE"].push_back("FOS");
 
             fieldCompNames["SE"].push_back("S11");
             fieldCompNames["SE"].push_back("S22");
@@ -271,6 +277,8 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
            
             fieldCompNames["SE"].push_back("SEM");
             fieldCompNames["SE"].push_back("SFI");
+            fieldCompNames["SE"].push_back("DSM");
+            fieldCompNames["SE"].push_back("FOS");
 
             fieldCompNames["SE"].push_back("S11");
             fieldCompNames["SE"].push_back("S22");
@@ -606,6 +614,99 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI(int partInde
             {
                 dstFrameData[vIdx] =  ((cohPrFricAngle + 0.5*(se1Data[vIdx] + se3Data[vIdx])) * sin(m_frictionAngleRad)) / (0.5*(se1Data[vIdx] - se3Data[vIdx]));
             }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+#define M_PI_4     0.785398163397448309616  // pi/4
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM");
+
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 3, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * se1Frames = nullptr;
+    RigFemScalarResultFrames * se3Frames = nullptr;
+
+    se1Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S1"));
+    frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
+    se3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S3"));
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    float tanFricAng = tan(m_frictionAngleRad);
+    float cohPrFricAngle = (float)(m_cohesion/tanFricAng);
+    int frameCount = se1Frames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& se1Data = se1Frames->frameData(fIdx);
+        const std::vector<float>& se3Data = se3Frames->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = se1Data.size();
+        dstFrameData.resize(valCount);
+
+        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+        {
+            float se1 = se1Data[vIdx];
+            float se3 = se3Data[vIdx];
+            float rho = 2.0f * atan( sqrt(( se1 + cohPrFricAngle)/(se3 + cohPrFricAngle)) - M_PI_4);
+
+            {
+                dstFrameData[vIdx] =  tan(rho)/tanFricAng;
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFOS(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS");
+
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+    frameCountProgress.setNextProgressIncrement(this->frameCount());
+
+    RigFemScalarResultFrames * dsmFrames = nullptr;
+    RigFemScalarResultFrames * se3Frames = nullptr;
+
+    dsmFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "DSM"));
+
+    RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
+
+    frameCountProgress.incrementProgress();
+
+    int frameCount = dsmFrames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& dsmData = dsmFrames->frameData(fIdx);
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
+        size_t valCount = dsmData.size();
+        dstFrameData.resize(valCount);
+
+        for ( size_t vIdx = 0; vIdx < valCount; ++vIdx )
+        {
+            float dsm = dsmData[vIdx];
+            dstFrameData[vIdx] = 1.0f/dsm;
         }
 
         frameCountProgress.incrementProgress();
@@ -1150,6 +1251,16 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
     if (resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI")
     {
         return calculateSFI(partIndex, resVarAddr);    
+    }
+
+    if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" )
+    {
+        return calculateDSM(partIndex, resVarAddr);
+    }
+
+    if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS" )
+    {
+        return calculateFOS(partIndex, resVarAddr);
     }
 
     if(resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV")
