@@ -657,11 +657,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStress
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * st11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S11"));
+    RigFemScalarResultFrames * st11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S1"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    RigFemScalarResultFrames * st22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S22"));
+    RigFemScalarResultFrames * st22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S2"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    RigFemScalarResultFrames * st33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S33"));
+    RigFemScalarResultFrames * st33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S3"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
 
     RigFemScalarResultFrames * stm = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "STM"));
