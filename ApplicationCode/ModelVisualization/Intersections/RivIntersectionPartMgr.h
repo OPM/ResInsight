@@ -89,6 +89,11 @@ public:
                                                       int   timeStepIdx,
                                                       const cvf::ScalarMapper* mapper);
 
+    static void calculatePlaneAngleTextureCoords(cvf::Vec2fArray* textureCoords, 
+                                                 const cvf::Vec3fArray* triangelVertices, 
+                                                 const RigFemResultAddress& resVarAddress, 
+                                                 const cvf::ScalarMapper* mapper);
+
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 private:
 

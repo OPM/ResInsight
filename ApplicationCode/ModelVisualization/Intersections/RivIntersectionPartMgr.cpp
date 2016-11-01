@@ -188,13 +188,23 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
             // Special direction sensitive result calculation
             const cvf::Vec3fArray* triangelVxes = m_crossSectionGenerator->triangleVxes();
 
-            RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_crossSectionFacesTextureCoords.p(), 
-                                                                          triangelVxes,
-                                                                          vertexWeights,
-                                                                          caseData,
-                                                                          resVarAddress,
-                                                                          (int)timeStepIndex,
-                                                                          mapper);
+            if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
+            {
+                RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(m_crossSectionFacesTextureCoords.p(),
+                                                                         triangelVxes, 
+                                                                         resVarAddress,
+                                                                         mapper);
+            }
+            else
+            {
+                RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_crossSectionFacesTextureCoords.p(),
+                                                                              triangelVxes,
+                                                                              vertexWeights,
+                                                                              caseData,
+                                                                              resVarAddress,
+                                                                              (int)timeStepIndex,
+                                                                              mapper);
+            }
         }
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_crossSectionFaces.p(), 
@@ -286,6 +296,51 @@ void RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(cvf::Vec2fArr
     }
 
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(cvf::Vec2fArray* textureCoords,
+                                                                   const cvf::Vec3fArray* triangelVertices,
+                                                                   const RigFemResultAddress& resVarAddress,
+                                                                   const cvf::ScalarMapper* mapper)
+{
+
+    textureCoords->resize(triangelVertices->size());
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+    int vxCount = static_cast<int>(triangelVertices->size());
+    int triCount = vxCount/3;
+
+    std::function<float (const OffshoreSphericalCoords& )> operation;
+    if (resVarAddress.componentName == "Pazi")
+    {
+        operation = [](const OffshoreSphericalCoords& sphCoord) { return sphCoord.azi();};
+    }
+    else if ( resVarAddress.componentName == "Pinc" )
+    {
+        operation = [](const OffshoreSphericalCoords& sphCoord) { return sphCoord.inc();};
+    }
+
+    #pragma omp parallel for schedule(dynamic)
+    for ( int triangleIdx = 0; triangleIdx < triCount; ++triangleIdx )
+    {
+        int triangleVxStartIdx =  triangleIdx*3;
+        
+        const cvf::Vec3f* triangle = &((*triangelVertices)[triangleVxStartIdx]);
+        cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx(triangle[1] - triangle[0], triangle[2] - triangle[0]);
+
+        OffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0, 2), rotMx.rowCol(1, 2), rotMx.rowCol(2, 2))); // Use Ez from the matrix as plane normal
+
+        float angle = cvf::Math::toDegrees( operation(sphCoord));
+        cvf::Vec2f texCoord = (angle != std::numeric_limits<float>::infinity()) ? mapper->mapToTextureCoord(angle) : cvf::Vec2f(0.0f, 1.0f);
+        rawPtr[triangleVxStartIdx + 0] = texCoord;
+        rawPtr[triangleVxStartIdx + 1] = texCoord;
+        rawPtr[triangleVxStartIdx + 2] = texCoord;
+    }
+
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 

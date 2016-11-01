@@ -98,6 +98,7 @@ private:
     RigFemScalarResultFrames*                        calculateVolumetricStrain(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateDeviatoricStrain(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculateSurfaceAlignedStress(int partIndex, const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*                        calculateSurfaceAngles(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStressValues(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStrainValues(int partIndex, const RigFemResultAddress &resVarAddr);
 
@@ -140,9 +141,9 @@ public:
 
     }
 
-    float inc() { return incAziR[0];}
-    float azi() { return incAziR[1];}
-    float r()   { return incAziR[2];}
+    float inc() const { return incAziR[0];}
+    float azi() const { return incAziR[1];}
+    float r()   const { return incAziR[2];}
 
 private:
     std::array<float, 3> incAziR;

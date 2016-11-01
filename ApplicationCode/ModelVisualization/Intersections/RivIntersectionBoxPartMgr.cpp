@@ -184,13 +184,23 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
             // Special direction sensitive result calculation
             const cvf::Vec3fArray* triangelVxes = m_intersectionBoxGenerator->triangleVxes();
 
-            RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
+            if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
+            {
+                RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
+                                                                         triangelVxes,
+                                                                         resVarAddress,
+                                                                         mapper);
+            }
+            else
+            {
+                RivIntersectionPartMgr::calculateGeoMechTensorXfTextureCoords(m_intersectionBoxFacesTextureCoords.p(),
                                                                           triangelVxes,
                                                                           vertexWeights,
                                                                           caseData,
                                                                           resVarAddress,
                                                                           (int)timeStepIndex,
                                                                           mapper);
+            }
         }
 
         RivScalarMapperUtils::applyTextureResultsToPart(m_intersectionBoxFaces.p(), 

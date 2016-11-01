@@ -339,6 +339,8 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         }
         else if(resPos == RIG_ELEMENT_NODAL_FACE)
         {
+            fieldCompNames["Plane"].push_back("Pinc");
+            fieldCompNames["Plane"].push_back("Pazi");
 
             fieldCompNames["SE"].push_back("SN");
             fieldCompNames["SE"].push_back("STH");
@@ -631,7 +633,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI(int partInde
     return dstDataFrames;
 }
 
-#define M_PI_4     0.785398163397448309616  // pi/4
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -670,7 +671,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM(int partInde
         {
             float se1 = se1Data[vIdx];
             float se3 = se3Data[vIdx];
-            float rho = 2.0f * atan( sqrt(( se1 + cohPrTanFricAngle)/(se3 + cohPrTanFricAngle)) - M_PI_4);
+            float pi_4 = 0.785398163397448309616f;
+            float rho = 2.0f * atan( sqrt(( se1 + cohPrTanFricAngle)/(se3 + cohPrTanFricAngle)) - pi_4);
 
             {
                 dstFrameData[vIdx] =  tan(rho)/tanFricAng;
@@ -1084,6 +1086,78 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles(int partIndex, const RigFemResultAddress& resVarAddr)
+{
+    CVF_ASSERT(resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc");
+
+    caf::ProgressInfo frameCountProgress(this->frameCount() * 1, "");
+    frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
+
+    RigFemScalarResultFrames * PaziFrames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "Pazi"));
+    RigFemScalarResultFrames * PincFrames =  m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "Pinc"));
+
+    const RigFemPart * femPart = m_femParts->part(partIndex);
+    const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
+    int frameCount = this->frameCount();
+
+    // HACK ! Todo : make it robust against other elements than Hex8
+    size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes 
+
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        std::vector<float>& Pazi = PaziFrames->frameData(fIdx);
+        std::vector<float>& Pinc = PincFrames->frameData(fIdx);
+
+        Pazi.resize(valCount);
+        Pinc.resize(valCount);
+
+        int elementCount = femPart->elementCount();
+        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
+        {
+            RigElementType elmType = femPart->elementType(elmIdx);
+            int faceCount = RigFemTypes::elmentFaceCount(elmType);
+            const int* elmNodeIndices =  femPart->connectivities(elmIdx);
+
+            int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
+
+            for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
+            {
+                int faceNodeCount = 0;
+                const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(elmType, lfIdx, &faceNodeCount);
+                if ( faceNodeCount == 4 )
+                {
+                    int elmNodFaceResIdxFaceStart =  elmNodFaceResIdxElmStart + lfIdx*4; // HACK
+                    cvf::Vec3f quadVxs[4];
+
+                    quadVxs[0] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]]);
+                    quadVxs[1] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]]);
+                    quadVxs[2] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
+                    quadVxs[3] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
+
+                    cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx(quadVxs[2] -quadVxs[0], quadVxs[3] - quadVxs[1]);
+                    OffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0,2), rotMx.rowCol(1,2), rotMx.rowCol(2,2))); // Use Ez from the matrix as plane normal
+
+                    for ( int qIdx = 0; qIdx < 4; ++qIdx )
+                    {
+                        int elmNodFaceResIdx = elmNodFaceResIdxFaceStart + qIdx;
+                        Pazi[elmNodFaceResIdx] = cvf::Math::toDegrees( sphCoord.azi() ); 
+                        Pinc[elmNodFaceResIdx] = cvf::Math::toDegrees( sphCoord.inc() ); 
+                    }
+                }
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    RigFemScalarResultFrames* requestedPlaneAngle = this->findOrLoadScalarResult(partIndex, resVarAddr);
+    return requestedPlaneAngle;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressValues(int partIndex, const RigFemResultAddress &resVarAddr )
 {
     CVF_ASSERT(resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3"
@@ -1291,7 +1365,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
     if(resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
     {
-        return calculateSurfaceAlignedStress(partIndex, resVarAddr);
+        if (resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" )
+            return calculateSurfaceAngles(partIndex, resVarAddr);
+        else
+            return calculateSurfaceAlignedStress(partIndex, resVarAddr);
     }
 
     if (resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI")
