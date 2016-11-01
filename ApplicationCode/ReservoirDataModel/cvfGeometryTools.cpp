@@ -39,7 +39,7 @@ cvf::Vec3d GeometryTools::computeFaceCenter(const cvf::Vec3d& v0, const cvf::Vec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Ez = Plane normal, Ex = in XY plane (horizontal), Ey = semi vertical
+/// Ez = Plane normal, Ex = in XY plane (horizontal), Ey = semi vertical upwards
 //--------------------------------------------------------------------------------------------------
 cvf::Mat3f GeometryTools::computePlaneHorizontalRotationMx(const cvf::Vec3f& inPlaneVec0, const cvf::Vec3f& inPlaneVec1)
 { 
