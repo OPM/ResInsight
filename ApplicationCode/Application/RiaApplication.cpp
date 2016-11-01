@@ -1903,8 +1903,11 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd) return;
 
-    if (m_project.isNull()) return;
+    // Activate RiuMainWindow to make sure there is an active main window used from snapshot code in
+    // RicSnapshotViewToFileFeature::saveSnapshotAs()
+    QApplication::setActiveWindow(mainWnd);
 
+    if (m_project.isNull()) return;
 
     QDir snapshotPath(snapshotFolderName);
     if (!snapshotPath.exists())
