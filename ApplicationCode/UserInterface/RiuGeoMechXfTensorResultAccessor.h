@@ -21,6 +21,7 @@
 #include <array>
 
 #include "cafTensor3.h"
+#include <functional>
 
 class RigFemPartResultsCollection;
 class RigFemResultAddress;
@@ -29,7 +30,9 @@ class RivIntersectionVertexWeights;
 class RiuGeoMechXfTensorResultAccessor
 {
 public:
-    RiuGeoMechXfTensorResultAccessor(RigFemPartResultsCollection * femResCollection, const RigFemResultAddress& resVarAddress, int timeStepIdx);
+    RiuGeoMechXfTensorResultAccessor(RigFemPartResultsCollection * femResCollection, 
+                                     const RigFemResultAddress& resVarAddress, 
+                                     int timeStepIdx);
 
     void calculateInterpolatedValue(const cvf::Vec3f triangle[3], const RivIntersectionVertexWeights vertexWeights[3], float returnValues[3]);
 
@@ -45,7 +48,21 @@ private:
     const std::vector<float>* tens23;
     const std::vector<float>* tens13;
 
-    caf::Ten3f::TensorComponentEnum resultComponent;
+    float m_tanFricAng ;
+    float m_cohPrTanFricAngle;
+
+    std::function<float (const RiuGeoMechXfTensorResultAccessor&, const caf::Ten3f&) > m_tensorOperation;
+   
+   float SN      (const caf::Ten3f& t) const;
+   float STH     (const caf::Ten3f& t) const;
+   float STQV    (const caf::Ten3f& t) const;
+   float TNH     (const caf::Ten3f& t) const;
+   float TNQV    (const caf::Ten3f& t) const;
+   float THQV    (const caf::Ten3f& t) const;
+   float TP      (const caf::Ten3f& t) const;
+   float TPinc   (const caf::Ten3f& t) const;
+   float FAULTMOB(const caf::Ten3f& t) const;
+   float PCRIT   (const caf::Ten3f& t) const;
 };
 
 

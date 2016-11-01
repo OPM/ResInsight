@@ -47,6 +47,8 @@ public:
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
     void                                             setCalculationParameters(double cohesion, double frictionAngleRad);
+    double                                           parameterCohesion() const { return m_cohesion;}
+    double                                           parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
     std::vector<std::string>                         stepNames();

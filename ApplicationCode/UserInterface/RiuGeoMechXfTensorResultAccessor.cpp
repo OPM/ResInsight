@@ -20,13 +20,64 @@
 #include "RigFemPartResultsCollection.h"
 #include "cvfGeometryTools.h"
 #include "RivHexGridIntersectionTools.h"
+#include "cvfAssert.h"
+
+float RiuGeoMechXfTensorResultAccessor::SN      (const caf::Ten3f& t) const { return t[caf::Ten3f::SZZ];}
+float RiuGeoMechXfTensorResultAccessor::STH     (const caf::Ten3f& t) const { return t[caf::Ten3f::SXX]; }
+float RiuGeoMechXfTensorResultAccessor::STQV    (const caf::Ten3f& t) const { return t[caf::Ten3f::SYY]; }
+float RiuGeoMechXfTensorResultAccessor::TNH     (const caf::Ten3f& t) const { return t[caf::Ten3f::SZX]; }
+float RiuGeoMechXfTensorResultAccessor::TNQV    (const caf::Ten3f& t) const { return t[caf::Ten3f::SYZ]; }
+float RiuGeoMechXfTensorResultAccessor::THQV    (const caf::Ten3f& t) const { return t[caf::Ten3f::SXY]; }
+
+float RiuGeoMechXfTensorResultAccessor::TP      (const caf::Ten3f& t) const 
+{ 
+    float szx = t[caf::Ten3f::SZX];
+    float szy = t[caf::Ten3f::SYZ];
+    float tp = sqrt(szx*szx + szy*szy);
+    
+    return tp;
+}
+
+float RiuGeoMechXfTensorResultAccessor::TPinc   (const caf::Ten3f& t) const 
+{ 
+    float szy = t[caf::Ten3f::SYZ];
+
+    float tp = TP(t);
+
+    if ( tp > 1e-5 )
+    {
+       return cvf::Math::toDegrees(acos(szy/tp));
+    }
+    else
+    {
+        return std::numeric_limits<float>::infinity();
+    }
+}
+
+float RiuGeoMechXfTensorResultAccessor::FAULTMOB(const caf::Ten3f& t) const 
+{ 
+    float szz = t[caf::Ten3f::SZZ];
+    float tp = TP(t);
+
+    return tp/(m_tanFricAng * (szz + m_cohPrTanFricAngle));
+}
+
+float RiuGeoMechXfTensorResultAccessor::PCRIT   (const caf::Ten3f& t) const 
+{
+    float szz = t[caf::Ten3f::SZZ];
+    float tp = TP(t);
+
+    return  szz - tp/m_tanFricAng; 
+}
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuGeoMechXfTensorResultAccessor::RiuGeoMechXfTensorResultAccessor(RigFemPartResultsCollection * femResCollection, const RigFemResultAddress& resVarAddress, int timeStepIdx)
+RiuGeoMechXfTensorResultAccessor::RiuGeoMechXfTensorResultAccessor(RigFemPartResultsCollection * femResCollection, 
+                                                                   const RigFemResultAddress& resVarAddress, 
+                                                                   int timeStepIdx)
 {
     RigFemResultAddress tensComp = resVarAddress;
     tensComp.resultPosType = RIG_ELEMENT_NODAL;
@@ -44,14 +95,19 @@ RiuGeoMechXfTensorResultAccessor::RiuGeoMechXfTensorResultAccessor(RigFemPartRes
     tensComp.componentName = "S13";
     tens13 = &femResCollection->resultValues(tensComp, 0, timeStepIdx);
 
-    resultComponent = caf::Ten3f::SZZ;
+    if ( resVarAddress.componentName == "SN" )       { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::SN      ;}
+    if ( resVarAddress.componentName == "STH" )      { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::STH     ;}
+    if ( resVarAddress.componentName == "STQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::STQV    ;}
+    if ( resVarAddress.componentName == "TNH" )      { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TNH     ;}
+    if ( resVarAddress.componentName == "TNQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TNQV    ;}
+    if ( resVarAddress.componentName == "THQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::THQV    ;}
+    if ( resVarAddress.componentName == "TP" )       { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TP      ;}
+    if ( resVarAddress.componentName == "TPinc" )    { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TPinc   ;}
+    if ( resVarAddress.componentName == "FAULTMOB" ) { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::FAULTMOB;}
+    if ( resVarAddress.componentName == "PCRIT" )    { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::PCRIT   ;}
 
-    if ( resVarAddress.componentName == "SN" ) resultComponent = caf::Ten3f::SZZ;
-    if ( resVarAddress.componentName == "STH" ) resultComponent = caf::Ten3f::SXX;
-    if ( resVarAddress.componentName == "STQV" ) resultComponent = caf::Ten3f::SYY;
-    if ( resVarAddress.componentName == "TNH" )  resultComponent = caf::Ten3f::SZX;
-    if ( resVarAddress.componentName == "TNQV" ) resultComponent = caf::Ten3f::SYZ;
-    if ( resVarAddress.componentName == "THQV" ) resultComponent = caf::Ten3f::SXY;
+    m_tanFricAng = tan((float)femResCollection->parameterFrictionAngleRad());
+    m_cohPrTanFricAngle = (float)((float)femResCollection->parameterCohesion()/m_tanFricAng);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +160,7 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue(const cvf::Vec
                               ipT12, ipT23, ipT13);
             caf::Ten3f xfTen = tensor.rotated(triangleXf);
 
-            returnValues[triangleVxIdx] = xfTen[resultComponent];
+            returnValues[triangleVxIdx] = m_tensorOperation(*this, xfTen);
         }
     }
 }
@@ -140,8 +196,7 @@ float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue(const std::array<c
                           ipT12, ipT23, ipT13);
         caf::Ten3f xfTen = tensor.rotated(triangleXf);
 
-        float scalarValue = xfTen[resultComponent];
-
+        float scalarValue = m_tensorOperation(*this, xfTen);
         return scalarValue;
     }
 }
