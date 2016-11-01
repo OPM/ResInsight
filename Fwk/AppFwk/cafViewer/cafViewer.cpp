@@ -498,10 +498,14 @@ void caf::Viewer::resizeGL(int width, int height)
     {
         m_offscreenFbo->resizeAttachedBuffers(width, height);
     
-        m_quadRendering->camera()->viewport()->set(0, 0, width, height);
 
         m_offscreenViewportWidth = width;
         m_offscreenViewportHeight = height;
+    }
+
+    if (m_quadRendering.notNull())
+    {
+        m_quadRendering->camera()->viewport()->set(0, 0, width, height);
     }
 
     updateCamera(width, height);
@@ -814,13 +818,17 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
+
     QImage image;
     if (m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0)
     {
         cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
 
-        // TODO: Is this required???
-        //m_offscreenFbo->bind(myOglContext.p());
+        m_offscreenFbo->bind(myOglContext.p());
+
+        // TODO: Consider refactor this code
+        // Creating a QImage from the bits in current frame buffer can be done by
+        // this->grabFrameBuffer() 
 
         GLint iOldPackAlignment = 0;
         glGetIntegerv(GL_PACK_ALIGNMENT, &iOldPackAlignment);
@@ -834,6 +842,8 @@ QImage caf::Viewer::snapshotImage()
 
         glPixelStorei(GL_PACK_ALIGNMENT, iOldPackAlignment);
         CVF_CHECK_OGL(myOglContext.p());
+
+        cvf::FramebufferObject::useDefaultWindowFramebuffer(myOglContext.p());
 
         cvf::TextureImage texImage;
         texImage.setFromRgb(arr.ptr(), m_offscreenViewportWidth, m_offscreenViewportHeight);
