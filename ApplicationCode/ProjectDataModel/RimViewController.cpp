@@ -873,9 +873,11 @@ bool RimViewController::isPropertyFilterOveridden()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter)
 {
+    if (!m_managedView) return;
+
     if (!isRangeFiltersControlled())
     {
-        managedView()->setOverrideRangeFilterCollection(NULL);
+        m_managedView->setOverrideRangeFilterCollection(NULL);
 
         return;
     }
@@ -930,10 +932,8 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
             }
         }
 
-        managedView()->setOverrideRangeFilterCollection(overrideRangeFilterColl);
+        m_managedView->setOverrideRangeFilterCollection(overrideRangeFilterColl);
     }
-   
- 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -941,6 +941,8 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 //--------------------------------------------------------------------------------------------------
 void RimViewController::applyRangeFilterCollectionByUserChoice()
 {
+    if (!m_managedView) return;
+
     if (!m_managedView->hasOverridenRangeFilterCollection())
     {
         return;
