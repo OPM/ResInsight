@@ -369,7 +369,7 @@ void RimEclipsePropertyFilter::updateFilterName()
         {
             newFiltername += " (";
 
-            if (m_selectedCategoryValues().size() == m_categoryValues.size())
+            if ( m_selectedCategoryValues().size() && m_selectedCategoryValues().size() == m_categoryValues.size() )
             {
                 newFiltername += QString::number(m_selectedCategoryValues()[0]);
                 newFiltername += "..";

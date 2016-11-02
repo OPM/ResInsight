@@ -503,7 +503,6 @@ void RigCaseData::computeActiveCellsGeometryBoundingBox()
 void RigCaseData::setActiveFormationNames(RigFormationNames* activeFormationNames)
 {
     m_activeFormationNamesData  = activeFormationNames;
-    if (!activeFormationNames) return;
 
     size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
     size_t resIndex = m_matrixModelResults->addStaticScalarResult(RimDefines::FORMATION_NAMES, 
@@ -512,6 +511,17 @@ void RigCaseData::setActiveFormationNames(RigFormationNames* activeFormationName
                                                                   totalGlobCellCount);
 
     std::vector<double>& fnData =  m_matrixModelResults->cellScalarResults(resIndex,0);
+
+    if (m_activeFormationNamesData.isNull())
+    {
+        for ( size_t cIdx = 0; cIdx < totalGlobCellCount; ++cIdx )
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+
+        return;
+    }
+
     size_t localCellCount = m_mainGrid->cellCount();
     for (size_t cIdx = 0; cIdx < localCellCount; ++cIdx)
     {
