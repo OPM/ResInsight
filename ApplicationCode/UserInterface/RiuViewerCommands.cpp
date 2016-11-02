@@ -144,6 +144,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
+    cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
 
     cvf::Part* firstHitPart = NULL;
     cvf::Part* nncFirstHitPart = NULL;
@@ -153,7 +154,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     cvf::HitItemCollection hitItems;
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
-        extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &nncFirstHitPart, NULL);
+        extractIntersectionData(hitItems, &localIntersectionPoint, &globalIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &nncFirstHitPart, NULL);
 
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
@@ -475,6 +476,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     std::array<cvf::Vec3f, 3> intersectionTriangleHit;
 
     cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
+    cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
 
     // Extract all the above information from the pick
     {
@@ -487,9 +489,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         cvf::HitItemCollection hitItems;
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
-            extractIntersectionData(hitItems, &localIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
+            extractIntersectionData(hitItems, &localIntersectionPoint, &globalIntersectionPoint, &firstHitPart, &firstPartTriangleIndex, &firstNncHitPart, &nncPartTriangleIndex);
 
-            cvf::ref<RicViewerEventObject> eventObj = new RicViewerEventObject(localIntersectionPoint, firstHitPart, firstPartTriangleIndex);
+            cvf::ref<RicViewerEventObject> eventObj = new RicViewerEventObject(globalIntersectionPoint, firstHitPart, firstPartTriangleIndex);
             for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
             {
                 if (m_viewerEventHandlers[i]->handleEvent(eventObj.p()))
@@ -675,7 +677,9 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo*
 /// Perform picking and return the index of the face that was hit, if a drawable geo was hit
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hitItems, 
-                                        cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, 
+                                        cvf::Vec3d* localIntersectionPoint,
+                                        cvf::Vec3d* globalIntersectionPoint,
+                                        cvf::Part** firstPart, uint* firstPartFaceHit, 
                                         cvf::Part** nncPart, uint* nncPartFaceHit)
 {
     CVF_ASSERT(hitItems.count() > 0);
@@ -748,6 +752,11 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
         const cvf::Transform* xf = pickedPart->transform();
         cvf::Vec3d globalPickedPoint = firstNonNncHitItem->intersectionPoint();
 
+        if (globalIntersectionPoint)
+        {
+            *globalIntersectionPoint = globalPickedPoint;
+        }
+
         if (localIntersectionPoint)
         {
             if (xf)
@@ -774,6 +783,11 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
         if (localIntersectionPoint && nncPart && *nncPart)
         {
             cvf::Vec3d globalPickedPoint = firstItemIntersectionPoint;
+
+            if (globalIntersectionPoint)
+            {
+                *globalIntersectionPoint = globalPickedPoint;
+            }
 
             const cvf::Transform* xf = (*nncPart)->transform();
             if (xf)

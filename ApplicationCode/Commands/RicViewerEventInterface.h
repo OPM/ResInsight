@@ -39,14 +39,14 @@ public:
 class RicViewerEventObject : public cvf::Object
 {
 public:
-    RicViewerEventObject(cvf::Vec3d localIntersectionPoint, cvf::Part* firstHitPart,  cvf::uint firstPartTriangleIndex)
-        : localIntersectionPoint(localIntersectionPoint),
+    RicViewerEventObject(cvf::Vec3d globalIntersectionPoint, cvf::Part* firstHitPart,  cvf::uint firstPartTriangleIndex)
+        : globalIntersectionPoint(globalIntersectionPoint),
         firstHitPart(firstHitPart),
         firstPartTriangleIndex(firstPartTriangleIndex)
     {
     }
 
-    cvf::Vec3d  localIntersectionPoint;
+    cvf::Vec3d  globalIntersectionPoint;
     cvf::Part*  firstHitPart;
     cvf::uint   firstPartTriangleIndex;
 };

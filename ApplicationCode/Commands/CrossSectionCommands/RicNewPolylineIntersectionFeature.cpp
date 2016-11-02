@@ -28,8 +28,10 @@
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
+#include "RiuViewer.h"
 
 #include "cafCmdExecCommandManager.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -90,20 +92,24 @@ bool RicNewPolylineIntersectionFeature::handleEvent(cvf::Object* eventObject)
         {
             RimIntersection* intersection = selection[0];
 
-            RimCase* rimCase = NULL;
-            intersection->firstAncestorOrThisOfType(rimCase);
-            CVF_ASSERT(rimCase);
+            RimView* rimView = nullptr;
+            intersection->firstAncestorOrThisOfType(rimView);
+            CVF_ASSERT(rimView);
+
+            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(polylineUiEvent->globalIntersectionPoint);
 
             if (intersection->inputPolyLineFromViewerEnabled())
             {
-                intersection->appendPointToPolyLine(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
+                intersection->appendPointToPolyLine(domainCoord);
 
                 // Further Ui processing is stopped when true is returned
                 return true;
             }
             else if (intersection->inputExtrusionPointsFromViewerEnabled())
             {
-                intersection->appendPointToExtrusionDirection(rimCase->displayModelOffset() + polylineUiEvent->localIntersectionPoint);
+
+                intersection->appendPointToExtrusionDirection(domainCoord);
 
                 // Further Ui processing is stopped when true is returned
                 return true;
