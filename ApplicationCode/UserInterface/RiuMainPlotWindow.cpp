@@ -97,6 +97,8 @@ void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot(RiaApplication::instance()->project());
     restoreTreeViewState();
+
+    refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,6 +210,42 @@ void RiuMainPlotWindow::createMenus()
     helpMenu->addAction(cmdFeatureMgr->action("RicHelpOpenUsersGuideFeature"));
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
+{
+    QStringList commandIds;
+
+    if (toolbarName.isEmpty() || toolbarName == "Standard")
+    {
+        commandIds << "RicImportEclipseCaseFeature";
+        commandIds << "RicImportInputEclipseCaseFeature";
+        commandIds << "RicImportSummaryCaseFeature";
+        commandIds << "RicOpenProjectFeature";
+        commandIds << "RicSaveProjectFeature";
+    }
+
+    if (toolbarName.isEmpty() || toolbarName == "Window Management")
+    {
+        commandIds << "RicShowMainWindowFeature";
+        commandIds << "RicTilePlotWindowsFeature";
+    }
+
+    if (toolbarName.isEmpty() || toolbarName == "View Snapshots")
+    {
+        commandIds << "RicSnapshotViewToClipboardFeature";
+        commandIds << "RicSnapshotViewToFileFeature";
+        commandIds << "RicSnapshotAllPlotsToFileFeature";
+    }
+
+    if (toolbarName.isEmpty() || toolbarName == "View")
+    {
+        commandIds << "RicViewZoomAllFeature";
+    }
+
+    return commandIds;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -217,43 +255,35 @@ void RiuMainPlotWindow::createToolBars()
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
 
-    {
-        QToolBar* toolbar = addToolBar(tr("Standard"));
-        toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicOpenProjectFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
-    }
+    QStringList toolbarNames;
+    toolbarNames << "Standard" << "Window Management" << "View Snapshots" << "View";
 
+    for (QString toolbarName : toolbarNames)
     {
-        QToolBar* toolbar = addToolBar(tr("Window Management"));
+        QToolBar* toolbar = addToolBar(toolbarName);
         toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(cmdFeatureMgr->action("RicShowMainWindowFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicTileWindowsFeature"));
-    }
 
-    {
-        QToolBar* toolbar = addToolBar(tr("View Snapshots"));
-        toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicSnapshotAllPlotsToFileFeature"));
-    }
-
-    {
-        QToolBar* toolbar = addToolBar(tr("View"));
-        toolbar->setObjectName(toolbar->windowTitle());
-        toolbar->addAction(cmdFeatureMgr->action("RicViewZoomAllFeature"));
+        QStringList toolbarCommands = toolbarCommandIds(toolbarName);
+        for (QString s : toolbarCommands)
+        {
+            toolbar->addAction(cmdFeatureMgr->action(s));
+        }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuMainPlotWindow::refreshToolbars()
+{
+    QStringList allToolbarCommandNames = toolbarCommandIds();
 
+    caf::CmdFeatureManager::instance()->refreshEnabledState(allToolbarCommandNames);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::createDockPanels()
 {
     {
@@ -343,6 +373,8 @@ void RiuMainPlotWindow::removeViewer(QWidget* viewer)
     m_blockSlotSubWindowActivated = true;
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
     m_blockSlotSubWindowActivated = false;
+
+    refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,6 +436,8 @@ void RiuMainPlotWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
     {
         subWin->showMaximized();
     }
+
+    refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -506,7 +540,7 @@ void RiuMainPlotWindow::slotBuildWindowActions()
     QAction* closeAllSubWindowsAction = new QAction("Close All Windows", this);
     connect(closeAllSubWindowsAction, SIGNAL(triggered()), m_mdiArea, SLOT(closeAllSubWindows()));
 
-    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTileWindowsFeature"));
+    m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTilePlotWindowsFeature"));
     m_windowMenu->addAction(cascadeWindowsAction);
     m_windowMenu->addAction(closeAllSubWindowsAction);
 }

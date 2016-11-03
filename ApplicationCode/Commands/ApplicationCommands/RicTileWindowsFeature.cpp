@@ -24,6 +24,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include "RiaApplication.h"
 
 CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
 
@@ -32,17 +33,10 @@ CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandEnabled()
 {
-    QWidget* topLevelWidget = QApplication::activeWindow();
-
-    RiuMainWindow* mainWindow = dynamic_cast<RiuMainWindow*>(topLevelWidget);
-    RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if (mainWindow)
     {
         return mainWindow->isAnyMdiSubWindowVisible();
-    }
-    else if (mainPlotWindow)
-    {
-        return mainPlotWindow->isAnyMdiSubWindowVisible();
     }
 
     return false;
@@ -53,15 +47,47 @@ bool RicTileWindowsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsFeature::onActionTriggered(bool isChecked)
 {
-    QWidget* topLevelWidget = QApplication::activeWindow();
-
-    RiuMainWindow* mainWindow = dynamic_cast<RiuMainWindow*>(topLevelWidget);
-    RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if (mainWindow)
     {
         mainWindow->tileWindows();
     }
-    else if (mainPlotWindow)
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicTileWindowsFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Tile Windows");
+    actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));
+}
+
+
+
+CAF_CMD_SOURCE_INIT(RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicTilePlotWindowsFeature::isCommandEnabled()
+{
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    if (mainPlotWindow)
+    {
+        return mainPlotWindow->isAnyMdiSubWindowVisible();
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicTilePlotWindowsFeature::onActionTriggered(bool isChecked)
+{
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    if (mainPlotWindow)
     {
         mainPlotWindow->tileWindows();
     }
@@ -70,7 +96,7 @@ void RicTileWindowsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicTileWindowsFeature::setupActionLook(QAction* actionToSetup)
+void RicTilePlotWindowsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Tile Windows");
     actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));

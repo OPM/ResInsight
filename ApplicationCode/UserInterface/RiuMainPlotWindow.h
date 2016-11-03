@@ -52,71 +52,71 @@ class RiuMainPlotWindow : public RiuMainWindowBase
 public:
     RiuMainPlotWindow();
     
-    virtual QString mainWindowName()            { return "RiuMainPlotWindow";  }
+    virtual QString     mainWindowName()            { return "RiuMainPlotWindow";  }
     
-    void            initializeGuiNewProjectLoaded();
-    void            cleanupGuiBeforeProjectClose();
+    void                initializeGuiNewProjectLoaded();
+    void                cleanupGuiBeforeProjectClose();
 
-    void            removeViewer( QWidget* viewer );
-    void            addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
-    void            setActiveViewer(QWidget* subWindow);
+    void                removeViewer( QWidget* viewer );
+    void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
+    void                setActiveViewer(QWidget* subWindow);
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
 
-    void            hideAllDockWindows();
+    void                hideAllDockWindows();
 
-    void            selectAsCurrentItem(caf::PdmObject* object);
+    void                selectAsCurrentItem(caf::PdmObject* object);
 
-    void            setDefaultWindowSize();
+    void                setDefaultWindowSize();
 
-    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
+    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
-    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
-    RimMdiWindowGeometry    windowGeometryForWidget(QWidget* widget);
+    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer);
+    RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
 
-    void            tileWindows();
-    bool            isAnyMdiSubWindowVisible();
-    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
+    void                tileWindows();
+    bool                isAnyMdiSubWindowVisible();
+    QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
 protected:
-    virtual void    closeEvent(QCloseEvent* event);
+    virtual void        closeEvent(QCloseEvent* event);
 
 private:
-    void            createActions();
-    void            createMenus();
-    void            createToolBars();
-    void            createDockPanels();
+    void                setPdmRoot(caf::PdmObject* pdmRoot);
 
-    void            restoreTreeViewState();
+    void                createActions();
+    void                createMenus();
+    void                createToolBars();
+    void                createDockPanels();
+
+    void                restoreTreeViewState();
+
+    void                refreshToolbars();
+    
+    static QStringList  toolbarCommandIds(const QString& toolbarName = "");
+
+
+private slots:
+
+    friend class RiuMdiSubWindow;
+
+    void                slotBuildWindowActions();
+
+    void                slotSubWindowActivated(QMdiSubWindow* subWindow);
+
+    void                selectedObjectsChanged();
+    void                customMenuRequested(const QPoint& pos);
 
 private:
-    QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
+    QByteArray          m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
-private:
     QMdiArea*           m_mdiArea;
     RiuViewer*          m_mainViewer;
     
     QMenu*              m_windowMenu;
 
-
-// Menu and action slots
-private slots:
-
-    friend class RiuMdiSubWindow;
-
-    void    slotBuildWindowActions();
-
-    void    slotSubWindowActivated(QMdiSubWindow* subWindow);
-
-    void    selectedObjectsChanged();
-    void    customMenuRequested(const QPoint& pos);
-
-public:
-    void setPdmRoot(caf::PdmObject* pdmRoot);
-
-private:
-    caf::PdmUiTreeView*            m_projectTreeView;
+    caf::PdmUiTreeView* m_projectTreeView;
     
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     

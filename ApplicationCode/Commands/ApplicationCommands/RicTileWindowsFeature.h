@@ -36,4 +36,17 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 };
 
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicTilePlotWindowsFeature : public caf::CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered(bool isChecked);
+    virtual void setupActionLook(QAction* actionToSetup);
+};
 
