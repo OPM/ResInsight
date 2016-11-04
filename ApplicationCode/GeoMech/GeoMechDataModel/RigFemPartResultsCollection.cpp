@@ -343,24 +343,18 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["Plane"].push_back("Pazi");
 
             fieldCompNames["SE"].push_back("SN");
-            fieldCompNames["SE"].push_back("STH");
-            fieldCompNames["SE"].push_back("STQV");
             fieldCompNames["SE"].push_back("TP");
             fieldCompNames["SE"].push_back("TPinc");
             fieldCompNames["SE"].push_back("TNH" );
             fieldCompNames["SE"].push_back("TNQV");
-            fieldCompNames["SE"].push_back("THQV");
             fieldCompNames["SE"].push_back("FAULTMOB");
             fieldCompNames["SE"].push_back("PCRIT");
 
             fieldCompNames["ST"].push_back("SN");
-            fieldCompNames["ST"].push_back("STH");
-            fieldCompNames["ST"].push_back("STQV");
             fieldCompNames["ST"].push_back("TP");
             fieldCompNames["ST"].push_back("TPinc");
             fieldCompNames["ST"].push_back("TNH");
             fieldCompNames["ST"].push_back("TNQV");
-            fieldCompNames["ST"].push_back("THQV");
             fieldCompNames["ST"].push_back("FAULTMOB");
             fieldCompNames["ST"].push_back("PCRIT");
 
