@@ -1728,7 +1728,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult(in
 
             size_t i, j, k;
             femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-            int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
+            int formNameIdx = -1;
+            if (activeFormNames)
+            {
+                formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
+            }
 
             for(int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
             {

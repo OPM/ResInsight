@@ -265,7 +265,11 @@ void RimGeoMechPropertyFilter::computeResultValueRange()
     {
         if (resultDefinition->hasCategoryResult())
         {
-            const std::vector<QString>& fnVector = resultDefinition->ownerCaseData()->femPartResults()->activeFormationNames()->formationNames();
+            std::vector<QString> fnVector;
+            if (resultDefinition->ownerCaseData()->femPartResults()->activeFormationNames())
+            {
+                fnVector = resultDefinition->ownerCaseData()->femPartResults()->activeFormationNames()->formationNames();
+            }
             setCategoryNames(fnVector);
         }
         else

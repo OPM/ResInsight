@@ -429,7 +429,11 @@ void RimGeoMechView::updateLegends()
     
     if (cellResult()->hasCategoryResult())
     {
-        const std::vector<QString>& fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames(); 
+        std::vector<QString> fnVector;
+        if (gmCase->femPartResults()->activeFormationNames())
+        {
+            fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames(); 
+        }
         cellResult()->legendConfig->setNamedCategoriesInverse(fnVector);
     }
     
