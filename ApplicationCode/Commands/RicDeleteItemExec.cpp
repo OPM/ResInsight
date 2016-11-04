@@ -39,6 +39,8 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
+#include "RimFormationNamesCollection.h"
+#include "RimCase.h"
 
 
 namespace caf
@@ -68,6 +70,9 @@ void RicDeleteItemExec::redo()
         PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
 
+        std::vector<caf::PdmObjectHandle*> referringObjects;
+        obj->objectsWithReferringPtrFields(referringObjects);
+
         if (m_commandData->m_deletedObjectAsXml().isEmpty())
         {
             m_commandData->m_deletedObjectAsXml = xmlObj(obj)->writeObjectToXmlString();
@@ -83,6 +88,8 @@ void RicDeleteItemExec::redo()
         RimView* view = NULL;
         parentObj->firstAncestorOrThisOfType(view);
 
+        // Range Filters
+
         RimCellRangeFilterCollection* rangeFilterColl;
         parentObj->firstAncestorOrThisOfType(rangeFilterColl);
 
@@ -90,6 +97,8 @@ void RicDeleteItemExec::redo()
         {
             rangeFilterColl->updateDisplayModeNotifyManagedViews(NULL);
         }
+
+        // Prop Filter
 
         RimEclipsePropertyFilterCollection* eclipsePropColl;
         parentObj->firstAncestorOrThisOfType(eclipsePropColl);
@@ -103,6 +112,8 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        // Intersections
+
         RimIntersectionCollection* crossSectionColl;
         parentObj->firstAncestorOrThisOfType(crossSectionColl);
         if (view && crossSectionColl)
@@ -110,6 +121,7 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        // Well paths
 
         RimWellPathCollection* wellPathColl;
         parentObj->firstAncestorOrThisOfType(wellPathColl);
@@ -153,6 +165,8 @@ void RicDeleteItemExec::redo()
             }
         }
         
+        // Linked views
+
         RimViewLinkerCollection* viewLinkerCollection = NULL;
         parentObj->firstAncestorOrThisOfType(viewLinkerCollection);
         if (viewLinkerCollection)
@@ -166,6 +180,19 @@ void RicDeleteItemExec::redo()
                 // Update visibility of top level Linked Views item in the project tree
                 // Not visible if no views are linked
                 project->uiCapability()->updateConnectedEditors();
+            }
+        }
+
+        // Formation names
+
+        RimFormationNamesCollection* formationNamesCollection;
+        parentObj->firstAncestorOrThisOfType(formationNamesCollection);
+        if (formationNamesCollection)
+        {
+            for(caf::PdmObjectHandle* reffingObj :referringObjects)
+            {
+                RimCase* aCase = dynamic_cast<RimCase*>(reffingObj);
+                if (aCase) aCase->updateFormationNamesData();
             }
         }
     }

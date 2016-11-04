@@ -319,6 +319,7 @@ void RimEclipseCase::updateFormationNamesData()
                     if (eclView->cellResult()->resultType() == RimDefines::FORMATION_NAMES) 
                     {
                         eclView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+                        eclView->cellResult()->updateConnectedEditors();
                     }
 
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
@@ -334,9 +335,14 @@ void RimEclipseCase::updateFormationNamesData()
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                 for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                 {
-                    if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES ) propFilter->setToDefaultValues();
+                    if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES )
+                    {
+                        propFilter->setToDefaultValues();
+                        propFilter->updateConnectedEditors();
+                    }
                 }
 
+                view->scheduleGeometryRegen(PROPERTY_FILTERED);
                 view->scheduleCreateDisplayModelAndRedraw();
             }
         }
