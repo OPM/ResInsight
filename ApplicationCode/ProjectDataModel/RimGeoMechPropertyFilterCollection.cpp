@@ -118,6 +118,24 @@ bool RimGeoMechPropertyFilterCollection::hasActiveDynamicFilters() const
     return hasActiveFilters();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPropertyFilterCollection::isUsingFormationNames() const
+{
+    if ( !isActive ) return false;
+
+    for ( size_t i = 0; i < propertyFilters.size(); i++ )
+    {
+        RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
+        if (   propertyFilter->isActive() 
+            && propertyFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES 
+            && propertyFilter->resultDefinition->resultFieldName() != "") return true;
+    }
+
+    return false;
+}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

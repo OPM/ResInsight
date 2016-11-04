@@ -35,6 +35,10 @@
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimFormationNames.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechPropertyFilter.h"
 
 #include <QFile>
 
@@ -122,7 +126,14 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
     }
     else
     {
-        this->updateFormationNamesData();
+        if ( activeFormationNames() )
+        {
+            m_geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            m_geoMechCaseData->femPartResults()->setActiveFormationNames(nullptr);
+        }
     }
     return fileOpenSuccess;
 }
@@ -299,8 +310,41 @@ void RimGeoMechCase::updateFormationNamesData()
         std::vector<RimView*> views = this->views();
         for(RimView* view : views)
         {
-            if(view && view->isUsingFormationNames())
+            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(view);
+
+            if ( geomView && geomView->isUsingFormationNames() )
             {
+                if ( !activeFormationNames() )
+                {
+                    if ( geomView->cellResult()->resultPositionType() == RIG_FORMATION_NAMES )
+                    {
+                        geomView->cellResult()->setResultAddress(RigFemResultAddress(RIG_FORMATION_NAMES, "", ""));
+                        geomView->cellResult()->updateConnectedEditors();
+                    }
+
+                    RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
+                    for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    {
+                        if ( propFilter->resultDefinition()->resultPositionType() == RIG_FORMATION_NAMES )
+                        {
+                            propFilter->resultDefinition()->setResultAddress(RigFemResultAddress(RIG_FORMATION_NAMES, "", ""));
+                        }
+                    }
+                }
+
+                RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
+                for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
+                {
+                    if ( propFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES )
+                    {
+                        propFilter->setToDefaultValues();
+                        propFilter->updateConnectedEditors();
+                    }
+                }
+
+                geomView->cellResult()->updateConnectedEditors();
+
+                view->scheduleGeometryRegen(PROPERTY_FILTERED);
                 view->scheduleCreateDisplayModelAndRedraw();
             }
         }

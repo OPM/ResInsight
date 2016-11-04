@@ -672,7 +672,9 @@ void RimGeoMechView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isUsingFormationNames() const
 {
-    return cellResult()->hasCategoryResult(); // Correct for now
+    if (cellResult()->hasCategoryResult()) return true; // Correct for now
+
+    return geoMechPropertyFilterCollection()->isUsingFormationNames(); 
 }
 
 //--------------------------------------------------------------------------------------------------
