@@ -621,10 +621,7 @@ void RimIntersection::appendPointToExtrusionDirection(const cvf::Vec3d& point)
 
     m_customExtrusionPoints.uiCapability()->updateConnectedEditors();
 
-    if (m_customExtrusionPoints().size() == 2)
-    {
-        rebuildGeometryAndScheduleCreateDisplayModel();
-    }
+    rebuildGeometryAndScheduleCreateDisplayModel();
 }
 
 //--------------------------------------------------------------------------------------------------
