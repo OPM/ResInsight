@@ -28,6 +28,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
@@ -156,7 +157,8 @@ RimSummaryCurve::RimSummaryCurve()
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilter = new RimSummaryFilter();
+    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
+    m_summaryFilter = m_summaryFilterObject.get();
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
     m_uiFilterResultSelection.xmlCapability()->setIOWritable(false);
@@ -165,18 +167,22 @@ RimSummaryCurve::RimSummaryCurve()
     m_uiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_uiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
     
-
     CAF_PDM_InitFieldNoDefault(&m_curveVariable, "SummaryAddress", "SummaryAddress", "", "", "");
     m_curveVariable.uiCapability()->setUiHidden(true);
     m_curveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
+    m_curveVariableObject = std::unique_ptr<RimSummaryAddress>(new RimSummaryAddress);
+    m_curveVariable = m_curveVariableObject.get();
+
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
-    m_curveVariable = new RimSummaryAddress;
+    CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
+    m_curveNameConfig.uiCapability()->setUiHidden(true);
+    m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    // Add some space before name to indicate these belong to the Auto Name field
-    CAF_PDM_InitField(&m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "");
-    
+    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
+    m_curveNameConfig = m_curveNameConfigObject.get();
+
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
     updateOptionSensitivity();
@@ -187,8 +193,6 @@ RimSummaryCurve::RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve::~RimSummaryCurve()
 {
-    delete m_curveVariable();
-    delete m_summaryFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,19 +341,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    QString generatedCurveName = QString::fromStdString( m_curveVariable->address().uiText()) + "["+ this->unitName().c_str() + "]";
-
-    if (m_addCaseNameToCurveName && m_summaryCase())
-    {
-        if (!generatedCurveName.isEmpty())
-        {
-            generatedCurveName += ", ";
-        }
-
-        generatedCurveName += m_summaryCase->shortName();
-    }
-
-    return generatedCurveName;
+    return m_curveNameConfig->curveName(m_curveVariable->address());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,9 +412,11 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
     appearanceGroup->add(&m_isUsingAutoName);
+
     if (m_isUsingAutoName)
     {
-        appearanceGroup->add(&m_addCaseNameToCurveName);
+        caf::PdmUiGroup* autoNameGroup = appearanceGroup->addNewGroup("Auto Name Config");
+        m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
     }
 
     uiOrdering.add(&m_plotAxis);
@@ -477,11 +471,6 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (&m_showCurve == changedField)
     {
         plot->updateAxes();
-    }
-    else if (changedField == &m_addCaseNameToCurveName)
-    {
-        this->uiCapability()->updateConnectedEditors();
-        updateCurveName();
     }
     else if (changedField == &m_plotAxis)
     {
