@@ -345,16 +345,16 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["SE"].push_back("SN");
             fieldCompNames["SE"].push_back("TP");
             fieldCompNames["SE"].push_back("TPinc");
-            fieldCompNames["SE"].push_back("TNH" );
-            fieldCompNames["SE"].push_back("TNQV");
+            fieldCompNames["SE"].push_back("TPH" );
+            fieldCompNames["SE"].push_back("TPQV");
             fieldCompNames["SE"].push_back("FAULTMOB");
             fieldCompNames["SE"].push_back("PCRIT");
 
             fieldCompNames["ST"].push_back("SN");
             fieldCompNames["ST"].push_back("TP");
             fieldCompNames["ST"].push_back("TPinc");
-            fieldCompNames["ST"].push_back("TNH");
-            fieldCompNames["ST"].push_back("TNQV");
+            fieldCompNames["ST"].push_back("TPH");
+            fieldCompNames["ST"].push_back("TPQV");
             fieldCompNames["ST"].push_back("FAULTMOB");
             fieldCompNames["ST"].push_back("PCRIT");
 
@@ -920,7 +920,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStrain
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedStress(int partIndex, const RigFemResultAddress& resVarAddr)
 {
     CVF_ASSERT(   resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN"
-               || resVarAddr.componentName == "TNH" || resVarAddr.componentName == "TNQV" || resVarAddr.componentName == "THQV"
+               || resVarAddr.componentName == "TPH" || resVarAddr.componentName == "TPQV" || resVarAddr.componentName == "THQV"
                || resVarAddr.componentName == "TP"  || resVarAddr.componentName == "TPinc"
                || resVarAddr.componentName == "FAULTMOB" || resVarAddr.componentName == "PCRIT");
 
@@ -943,8 +943,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
     RigFemScalarResultFrames * SNFrames       = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "SN"));
     RigFemScalarResultFrames * STHFrames      = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "STH"));
     RigFemScalarResultFrames * STQVFrames     = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "STQV"));
-    RigFemScalarResultFrames * TNHFrames      = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TNH" ));
-    RigFemScalarResultFrames * TNQVFrames     = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TNQV"));
+    RigFemScalarResultFrames * TNHFrames      = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TPH" ));
+    RigFemScalarResultFrames * TNQVFrames     = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TPQV"));
     RigFemScalarResultFrames * THQVFrames     = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "THQV"));
     RigFemScalarResultFrames * TPFrames       = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TP"));
     RigFemScalarResultFrames * TPincFrames    = m_femPartResults[partIndex]->createScalarResult(RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, "TPinc"));

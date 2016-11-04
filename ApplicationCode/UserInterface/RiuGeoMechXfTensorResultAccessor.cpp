@@ -98,8 +98,8 @@ RiuGeoMechXfTensorResultAccessor::RiuGeoMechXfTensorResultAccessor(RigFemPartRes
     if ( resVarAddress.componentName == "SN" )       { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::SN      ;}
     if ( resVarAddress.componentName == "STH" )      { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::STH     ;}
     if ( resVarAddress.componentName == "STQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::STQV    ;}
-    if ( resVarAddress.componentName == "TNH" )      { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TNH     ;}
-    if ( resVarAddress.componentName == "TNQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TNQV    ;}
+    if ( resVarAddress.componentName == "TPH" )      { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TNH     ;}
+    if ( resVarAddress.componentName == "TPQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TNQV    ;}
     if ( resVarAddress.componentName == "THQV" )     { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::THQV    ;}
     if ( resVarAddress.componentName == "TP" )       { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TP      ;}
     if ( resVarAddress.componentName == "TPinc" )    { m_tensorOperation = &RiuGeoMechXfTensorResultAccessor::TPinc   ;}
