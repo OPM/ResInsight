@@ -272,7 +272,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                     // Handle a single value field with valueOptions: Make a combobox
 
-                    if (field->uiValue().type() != QVariant::List)
+                    if (field->toUiBasedQVariant().type() != QVariant::List)
                     {
                         bool useOptionsOnly = true; 
                         QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);

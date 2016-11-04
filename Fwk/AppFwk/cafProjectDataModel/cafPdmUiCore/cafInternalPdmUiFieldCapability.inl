@@ -102,6 +102,12 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
 //--------------------------------------------------------------------------------------------------
 /// Extracts a QVariant representation of the data in the field to be used in the UI. 
 /// 
+/// Note : You have to call valueOptions() before this method to make sure that the m_optionEntryCache is updated and valid !!!
+///        We should find a way to enforce this, but JJS and MSJ could not think of a way to catch the situation
+///        that would always be valid. Could invalidate cache when all editors are removed. That would help.
+///        It is not considered to be healthy to always call valueOptions() from this method either -> double calls to valueOptions() 
+///        The solution might actually be to merge the two ino one method, making uiValues and valueOptions directly connected.
+///
 /// Note : For fields with a none-empty m_optionEntryCache list, the returned QVariant contains the 
 ///        _indexes_ to the selected options rather than the actual values, if they can be found.
 ///
@@ -122,7 +128,10 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
         {
             if (isAutoAddingOptionFromValue() && indexesToFoundOptions.size() != static_cast<size_t>(uiBasedQVariant.toList().size())) 
             {
-                assert(false); // Did not find all the field values among the options available, even though we should. The "core" data type in the field is probably not supported by QVariant::toString() 
+                assert(false); // Did not find all the field values among the options available, even though we should. 
+                               // Reasons might be:
+                               //    The "core" data type in the field is probably not supported by QVariant::toString() 
+                               //    You forgot to call valueOptions() before the call to uiValue().
             }
             else
             {
