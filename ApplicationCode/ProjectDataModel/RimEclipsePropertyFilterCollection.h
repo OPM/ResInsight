@@ -45,6 +45,7 @@ public:
     // Methods
     bool                    hasActiveFilters() const; 
     bool                    hasActiveDynamicFilters() const; 
+    bool                    isUsingFormationNames() const;
 
     void                    loadAndInitializePropertyFilters();
 

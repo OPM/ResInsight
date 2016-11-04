@@ -310,8 +310,33 @@ void RimEclipseCase::updateFormationNamesData()
         std::vector<RimView*> views = this->views();
         for(RimView* view : views)
         {
-            if(view && view->isUsingFormationNames())
+            RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
+
+            if(eclView && eclView->isUsingFormationNames())
             {
+                if (!activeFormationNames())
+                {
+                    if (eclView->cellResult()->resultType() == RimDefines::FORMATION_NAMES) 
+                    {
+                        eclView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+                    }
+
+                    RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
+                    for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    {
+                        if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES ) 
+                        {
+                            propFilter->resultDefinition()->setResultVariable(RimDefines::undefinedResultName());
+                        }
+                    }
+                }
+
+                RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
+                for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                {
+                    if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES ) propFilter->setToDefaultValues();
+                }
+
                 view->scheduleCreateDisplayModelAndRedraw();
             }
         }
@@ -342,7 +367,15 @@ void RimEclipseCase::computeCachedData()
         pInf.incrementProgress();
         
         pInf.setProgressDescription("Calculating Formation Names Result");
-        this->updateFormationNamesData();
+        if ( activeFormationNames() )
+        {
+            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            rigEclipseCase->setActiveFormationNames(nullptr);
+        }
+
         pInf.incrementProgress();
     }
 }
