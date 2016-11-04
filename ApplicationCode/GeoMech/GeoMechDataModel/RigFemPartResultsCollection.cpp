@@ -1047,9 +1047,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAlignedSt
                         STHDat[elmNodFaceResIdx]    = xfTen[caf::Ten3f::SXX];
                         STQVDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SYY];
                         SNDat[elmNodFaceResIdx]     = xfTen[caf::Ten3f::SZZ];
+
                         TNHDat[elmNodFaceResIdx]    = xfTen[caf::Ten3f::SZX];
-                        TNQVDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SXY];
-                        THQVDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SYZ];
+                        TNQVDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SYZ];
+                        THQVDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SXY];
 
                         float TP = sqrt(szx*szx + syz*syz);
                         TPDat[elmNodFaceResIdx] = TP;
