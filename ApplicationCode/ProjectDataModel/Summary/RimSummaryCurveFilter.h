@@ -28,11 +28,11 @@
 #include "cafAppEnum.h"
 #include "cafPdmPtrArrayField.h"
 
-#include "RifEclipseSummaryAddress.h"
 #include "RimDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-#include "qwt_plot.h"
+
+#include <memory>
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -41,8 +41,8 @@ class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
+class RimSummaryCurveAutoName;
 
-#include <QPointer>
 
 
 Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
@@ -75,6 +75,8 @@ public:
     void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
 
     void                                    updateCompleteVariableStringFilterChanged();
+    
+    void                                    updateCurveNames();
 
 private:
     void                                    syncCurvesFromUiSelection();
@@ -113,6 +115,8 @@ private:
     caf::PdmField<std::vector<RifEclipseSummaryAddress> > 
                                             m_uiFilterResultMultiSelection;
 
+    caf::PdmChildField<RimSummaryCurveAutoName*>   m_curveNameConfig;
+
     caf::PdmField<bool>                     m_autoApplyFilterChanges;
     caf::PdmField<bool>                     m_applyButtonField;
 
@@ -125,5 +129,9 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
 
     std::vector< caf::PdmPointer<RimSummaryCase> > m_selectionCache;
+
+    // Internal objects managed by unique_ptr
+    std::unique_ptr<RimSummaryFilter>        m_summaryFilterObject;
+    std::unique_ptr<RimSummaryCurveAutoName> m_curveNameConfigObject;
 };
 

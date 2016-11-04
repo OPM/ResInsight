@@ -22,6 +22,7 @@
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCurveFilter.h"
 
 
 
@@ -190,6 +191,22 @@ QString RimSummaryCurveAutoName::curveName(const RifEclipseSummaryAddress& summa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAutoName::applySettings(const RimSummaryCurveAutoName& other)
+{
+    m_caseName          = other.m_caseName;
+    m_vectorName        = other.m_vectorName;
+    m_unit              = other.m_unit;
+    m_regionNumber      = other.m_regionNumber;
+    m_wellGroupName     = other.m_wellGroupName;
+    m_wellName          = other.m_wellName;
+    m_wellSegmentNumber = other.m_wellSegmentNumber;
+    m_lgrName           = other.m_lgrName;
+    m_completion        = other.m_completion;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const
 {
     if (m_wellName)
@@ -216,12 +233,21 @@ void RimSummaryCurveAutoName::appendLgrName(std::string& text, const RifEclipseS
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimSummaryCurve* summaryCurve = nullptr;
-    this->firstAncestorOrThisOfType(summaryCurve);
+    // NOTE: The curve filter is parent object of a summary curve, and the update is supposed to update
+    // the first parent, not the grandparent. This is the reason for not using firstAncestorOrThisOfType()
+
+    RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(this->parentField()->ownerObject());
     if (summaryCurve)
     {
         summaryCurve->updateCurveName();
         summaryCurve->updateConnectedEditors();
+    }
+
+    RimSummaryCurveFilter* summaryCurveFilter = dynamic_cast<RimSummaryCurveFilter*>(this->parentField()->ownerObject());
+    if (summaryCurveFilter)
+    {
+        summaryCurveFilter->updateCurveNames();
+        summaryCurveFilter->updateConnectedEditors();
     }
 }
 

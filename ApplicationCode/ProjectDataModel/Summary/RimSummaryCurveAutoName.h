@@ -33,10 +33,15 @@ public:
 
     QString         curveName(const RifEclipseSummaryAddress& summaryAddress) const;
 
+    void            applySettings(const RimSummaryCurveAutoName& other);
+
     virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+
 
 protected:
     friend RimSummaryCurve;
+    friend RimSummaryCurveFilter;
 
     virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

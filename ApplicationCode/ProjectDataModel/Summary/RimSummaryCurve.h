@@ -92,6 +92,8 @@ public:
     RimDefines::PlotAxis                    associatedPlotAxis() const;
     void                                    updateQwtPlotAxis();
 
+    void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
+
 protected:
     // RimPlotCurve overrides
 

@@ -30,6 +30,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryCurveAutoName.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -76,7 +77,9 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
-    m_summaryFilter = new RimSummaryFilter();
+
+    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
+    m_summaryFilter = m_summaryFilterObject.get();
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
     m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
@@ -110,6 +113,13 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType,   "RegionAppearanceType",   "Region", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
+    m_curveNameConfig.uiCapability()->setUiHidden(true);
+    m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
+
+    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
+    m_curveNameConfig = m_curveNameConfigObject.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +127,6 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveFilter::~RimSummaryCurveFilter()
 {
-    delete m_summaryFilter();
     m_curves.deleteAllChildObjects();
 }
 
@@ -212,6 +221,9 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
         m_groupAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
         m_regionAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
     }
+
+    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroup("Curve Name Configuration");
+    m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
 
     uiOrdering.add(&m_plotAxis);
     uiOrdering.add(&m_autoApplyFilterChanges);
@@ -515,6 +527,7 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(caseAddrPair.second);
         curve->setPlotAxis(m_plotAxis());
+        curve->applyCurveAutoNameSettings(*m_curveNameConfig());
 
         m_curves.push_back(curve);
 
@@ -561,6 +574,18 @@ void RimSummaryCurveFilter::updateCompleteVariableStringFilterChanged()
     if (m_autoApplyFilterChanges)
     {
         loadDataAndUpdatePlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::updateCurveNames()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->applyCurveAutoNameSettings(*m_curveNameConfig());
+        curve->updateCurveName();
     }
 }
 
