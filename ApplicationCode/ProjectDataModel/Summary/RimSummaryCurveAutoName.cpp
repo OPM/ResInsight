@@ -34,16 +34,16 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 {
     CAF_PDM_InitObject("RimSummaryCurveAutoName", "", "", "");
 
-    CAF_PDM_InitField(&m_quantity,          "Quantity",           true, "Quantity", "", "", "");
+    CAF_PDM_InitField(&m_vectorName,        "VectorName",         true, "Vector Name", "", "", "");
     CAF_PDM_InitField(&m_unit,              "Unit",               true, "Unit", "", "", "");
-    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true, "RegionNumber", "", "", "");
-    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",      true, "WellGroupName", "", "", "");
-    CAF_PDM_InitField(&m_wellName,          "WellName",           true, "WellName", "", "", "");
-    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",  true, "WellSegmentNumber", "", "", "");
-    CAF_PDM_InitField(&m_lgrName,           "LgrName",            true, "LgrName", "", "", "");
+    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true, "Region Number", "", "", "");
+    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",      true, "Well Group Name", "", "", "");
+    CAF_PDM_InitField(&m_wellName,          "WellName",           true, "Well Name", "", "", "");
+    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",  true, "Well Segment Number", "", "", "");
+    CAF_PDM_InitField(&m_lgrName,           "LgrName",            true, "Lgr Name", "", "", "");
     CAF_PDM_InitField(&m_completion,        "Completion",         true, "Completion", "", "", "");
     
-    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "CaseName", "", "", "");
+    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ QString RimSummaryCurveAutoName::curveName(const RifEclipseSummaryAddress& summa
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType(summaryCurve);
 
-    if (m_quantity)
+    if (m_vectorName)
     {
         text += summaryAddress.quantityName();
 
@@ -231,7 +231,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
 void RimSummaryCurveAutoName::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_caseName);
-    uiOrdering.add(&m_quantity);
+    uiOrdering.add(&m_vectorName);
     uiOrdering.add(&m_unit);
     uiOrdering.add(&m_regionNumber);
     uiOrdering.add(&m_wellGroupName);

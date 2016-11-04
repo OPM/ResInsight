@@ -31,21 +31,21 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();;
 
-    QString curveName(const RifEclipseSummaryAddress& summaryAddress) const;
+    QString         curveName(const RifEclipseSummaryAddress& summaryAddress) const;
 
-
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
     friend RimSummaryCurve;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+    virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;
-    void appendLgrName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;
+    void            appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;
+    void            appendLgrName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;
 
 private:
-    caf::PdmField<bool> m_quantity;
+    caf::PdmField<bool> m_vectorName;
     caf::PdmField<bool> m_unit;
     caf::PdmField<bool> m_regionNumber;
     caf::PdmField<bool> m_wellGroupName;
