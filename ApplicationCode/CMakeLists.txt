@@ -46,6 +46,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
@@ -96,7 +97,10 @@ list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
+    
     ProjectDataModel/CMakeLists_files.cmake
+    ProjectDataModel/Summary/CMakeLists_files.cmake
+    
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
     ModelVisualization/CMakeLists_files.cmake
