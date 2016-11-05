@@ -11,6 +11,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFilterFeature.h
 ${CEE_CURRENT_LIST_DIR}RicViewZoomAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveSwitchAxisFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteSummaryPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -19,6 +20,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSummaryCurveFilterFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicViewZoomAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveSwitchAxisFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteSummaryPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

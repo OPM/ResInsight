@@ -249,6 +249,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
         {
             commandIds << "RicNewSummaryPlotFeature";
+            commandIds << "RicPasteSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
@@ -275,6 +276,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicViewZoomAllFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
+            commandIds << "RicCopyReferencesToClipboardFeature";
         }
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {

@@ -37,23 +37,18 @@
 
 
 
-namespace caf
-{
-
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicPasteFeatureImpl::populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup)
 {
-    PdmObjectHandle* referenceRoot = RiaApplication::instance()->project();
+    caf::PdmObjectHandle* referenceRoot = RiaApplication::instance()->project();
 
     for (size_t i = 0; i < referenceList.size(); i++)
     {
         QString reference = referenceList[i];
 
-        PdmObjectHandle* pdmObj = PdmReferenceHelper::objectFromReference(referenceRoot, reference);
+        caf::PdmObjectHandle* pdmObj = caf::PdmReferenceHelper::objectFromReference(referenceRoot, reference);
         if (pdmObj)
         {
             objectGroup->objects.push_back(pdmObj);
@@ -89,7 +84,7 @@ void RicPasteFeatureImpl::findObjectsFromClipboardRefs(caf::PdmObjectGroup* obje
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(PdmObjectHandle* objectHandle)
+RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(caf::PdmObjectHandle* objectHandle)
 {
     if (dynamic_cast<RimIdenticalGridCaseGroup*>(objectHandle))
     {
@@ -110,7 +105,7 @@ RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(PdmObjectHandl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicPasteFeatureImpl::findEclipseCase(PdmObjectHandle* objectHandle)
+RimEclipseCase* RicPasteFeatureImpl::findEclipseCase(caf::PdmObjectHandle* objectHandle)
 {
     if (dynamic_cast<RimEclipseCase*>(objectHandle))
     {
@@ -129,7 +124,7 @@ RimEclipseCase* RicPasteFeatureImpl::findEclipseCase(PdmObjectHandle* objectHand
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(PdmObjectHandle* objectHandle)
+RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(caf::PdmObjectHandle* objectHandle)
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(objectHandle);
     if (!geomCase)
@@ -140,5 +135,3 @@ RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(PdmObjectHandle* objectHand
 
     return geomCase;
 }
-
-} // end namespace caf
