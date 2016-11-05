@@ -37,11 +37,9 @@ public:
 
     virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-
-
 protected:
-    friend RimSummaryCurve;
-    friend RimSummaryCurveFilter;
+    friend class RimSummaryCurve;
+    friend class RimSummaryCurveFilter;
 
     virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
