@@ -152,8 +152,6 @@ RimSummaryCurve::RimSummaryCurve()
     m_selectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
-    m_summaryFilter.xmlCapability()->setIOWritable(false);
-    m_summaryFilter.xmlCapability()->setIOReadable(false);
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
@@ -363,6 +361,20 @@ void RimSummaryCurve::onLoadDataAndUpdate()
     this->RimPlotCurve::updateCurvePresentation();
 
     m_selectedVariableDisplayField = QString::fromStdString(m_curveVariable->address().uiText());
+
+    RifReaderEclipseSummary* reader = summaryReader();
+    if (reader)
+    {
+        const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+
+        for (size_t i = 0; i < allAddresses.size(); i++)
+        {
+            if (allAddresses[i].uiText() == m_curveVariable->address().uiText())
+            {
+                m_uiFilterResultSelection = static_cast<int>(i);
+            }
+        }
+    }
 
     if (isCurveVisible())
     {
