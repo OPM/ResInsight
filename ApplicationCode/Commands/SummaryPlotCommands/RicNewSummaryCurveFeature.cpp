@@ -85,7 +85,6 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +93,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Curve");
+    actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
