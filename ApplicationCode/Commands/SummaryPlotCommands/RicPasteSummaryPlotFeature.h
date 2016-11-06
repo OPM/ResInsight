@@ -19,6 +19,9 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+#include "cafPdmPointer.h"
+
+#include <vector>
 
 class RimSummaryPlot;
 
