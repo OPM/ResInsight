@@ -277,6 +277,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
             commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteCurveFeature";
         }
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {
@@ -285,6 +286,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicSummaryCurveSwitchAxisFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteItemFeature";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicPasteCurveFeature";
         }
         else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
         {

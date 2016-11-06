@@ -372,6 +372,7 @@ void RimSummaryCurve::onLoadDataAndUpdate()
             if (allAddresses[i].uiText() == m_curveVariable->address().uiText())
             {
                 m_uiFilterResultSelection = static_cast<int>(i);
+                updateConnectedEditors();
             }
         }
     }
