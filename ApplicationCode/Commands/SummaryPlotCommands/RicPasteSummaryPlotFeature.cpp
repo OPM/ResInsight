@@ -90,6 +90,7 @@ void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicPasteSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Summary Plot");
+    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

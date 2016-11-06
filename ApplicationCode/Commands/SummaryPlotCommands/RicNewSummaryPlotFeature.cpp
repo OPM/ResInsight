@@ -87,6 +87,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Plot");
+    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

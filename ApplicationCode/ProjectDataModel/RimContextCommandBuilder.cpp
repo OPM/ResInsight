@@ -272,6 +272,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicPasteSummaryCurveFeature";
             commandIds << "RicPasteSummaryCurveFilterFeature";
+            commandIds << "RicPasteSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
