@@ -60,6 +60,8 @@
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewLinker.h"
@@ -848,20 +850,69 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
                 m_mainPlotWindow->hide();
             }
 
-            RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
-            if (newSumCase)
+            if (!sumCaseColl->findSummaryCaseFromEclipseResultCase(rimResultReservoir))
             {
-                newSumCase->loadCase();
+                RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
 
-                if (m_preferences->autoCreatePlotsOnImport())
+                if (newSumCase)
                 {
-                    RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
-                    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-                
-                    RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
-                }
+                    newSumCase->loadCase();
 
-                sumCaseColl->updateConnectedEditors();
+                    RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
+                    if (existingFileSummaryCase)
+                    {
+                        // Replace all occurrences of file sum with ecl sum
+
+                        std::vector<caf::PdmObjectHandle*> referringObjects;
+                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
+
+                        std::set<RimSummaryCurveFilter*> curveFilters;
+
+                        for (caf::PdmObjectHandle* objHandle : referringObjects)
+                        {
+                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
+                            if (summaryCurve)
+                            {
+                                summaryCurve->setSummaryCase(newSumCase);
+                                summaryCurve->updateConnectedEditors();
+
+                                RimSummaryCurveFilter* parentFilter = nullptr;
+                                summaryCurve->firstAncestorOrThisOfType(parentFilter);
+                                if (parentFilter)
+                                {
+                                    curveFilters.insert(parentFilter);
+                                }
+                            }
+                        }
+
+                        // UI settings of a curve filter is updated based
+                        // on the new case association for the curves in the curve filter
+                        // UI is updated by loadDataAndUpdate()
+
+                        for (RimSummaryCurveFilter* curveFilter : curveFilters)
+                        {
+                            curveFilter->loadDataAndUpdate();
+                            curveFilter->updateConnectedEditors();
+                        }
+
+                        sumCaseColl->deleteCase(existingFileSummaryCase);
+
+                        delete existingFileSummaryCase;
+
+                    }
+                    else
+                    {
+                        if (m_preferences->autoCreatePlotsOnImport())
+                        {
+                            RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+                            RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+                
+                            RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+                        }
+                    }
+
+                    sumCaseColl->updateConnectedEditors();
+                }
             }
         }
     }

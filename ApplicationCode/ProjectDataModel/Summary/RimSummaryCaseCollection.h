@@ -36,10 +36,18 @@ public:
     void                createSummaryCasesFromRelevantEclipseResultCases();
     RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
     RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);
+    
+    RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
+    RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
+
+    void                deleteCase(RimSummaryCase* summaryCase);
+
 
     void                loadAllSummaryCaseData();
 
     QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
+
+private:
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

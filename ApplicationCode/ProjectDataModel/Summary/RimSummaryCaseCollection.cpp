@@ -16,14 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimSummaryCaseCollection.h"
-#include "RimSummaryCase.h"
+
+#include "RifEclipseSummaryTools.h"
+#include "RimEclipseResultCase.h"
+#include "RimFileSummaryCase.h"
+#include "RimGridSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimEclipseResultCase.h"
-#include "RimGridSummaryCase.h"
-#include "RifEclipseSummaryTools.h"
+#include "RimSummaryCase.h"
+
 #include <QDir>
-#include "RimFileSummaryCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection,"SummaryCaseCollection");
@@ -88,8 +90,60 @@ void RimSummaryCaseCollection::createSummaryCasesFromRelevantEclipseResultCases(
                 }
             }
         }
-
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclipseResultCase) const
+{
+    for (RimSummaryCase* summaryCase : m_cases)
+    {
+        RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(summaryCase);
+        if (gridSummaryCase)
+        {
+            if (gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName())
+            {
+                return gridSummaryCase;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromFileName(const QString& fileName) const
+{
+    // Use QFileInfo object to compare two file names to avoid mix of / and \\
+
+    QFileInfo incomingFileInfo(fileName);
+
+    for (RimSummaryCase* summaryCase : m_cases)
+    {
+        RimFileSummaryCase* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>(summaryCase);
+        if (fileSummaryCase)
+        {
+            QFileInfo summaryFileInfo(fileSummaryCase->summaryHeaderFilename());
+            if (incomingFileInfo == summaryFileInfo)
+            {
+                return fileSummaryCase;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::deleteCase(RimSummaryCase* summaryCase)
+{
+    m_cases.removeChildObject(summaryCase);
 }
 
 //--------------------------------------------------------------------------------------------------

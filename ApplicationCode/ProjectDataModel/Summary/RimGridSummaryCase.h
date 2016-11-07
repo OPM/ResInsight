@@ -37,7 +37,7 @@ public:
     void                            setAssociatedEclipseCase(RimEclipseCase* eclipseCase);
     RimEclipseCase*                 associatedEclipseCase();
 
-    virtual QString                 summaryHeaderFilename() const  override;
+    virtual QString                 summaryHeaderFilename() const override;
     virtual QString                 caseName() const override;
 
 private:
