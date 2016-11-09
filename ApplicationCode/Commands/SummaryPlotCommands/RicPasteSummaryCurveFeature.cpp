@@ -78,6 +78,11 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         // Resolve references after object has been inserted into the project data model
         newObject->resolveReferencesRecursively();
+
+        // If source curve is part of a curve filter, resolve of references to the summary case does not
+        // work when pasting the new curve into a plot. Must set summary case manually.
+        newObject->setSummaryCase(sourceObjects[i]->summaryCase());
+
         newObject->initAfterReadRecursively();
 
         newObject->loadDataAndUpdate();
