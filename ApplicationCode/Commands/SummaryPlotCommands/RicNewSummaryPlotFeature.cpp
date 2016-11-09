@@ -112,8 +112,10 @@ void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* su
     summaryPlotColl->updateConnectedEditors();
     plot->loadDataAndUpdate();
 
-    if (RiaApplication::instance()->mainPlotWindow())
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    if (mainPlotWindow)
     {
-        RiaApplication::instance()->mainPlotWindow()->selectAsCurrentItem(newCurveFilter);
+        mainPlotWindow->selectAsCurrentItem(newCurveFilter);
+        mainPlotWindow->setExpanded(newCurveFilter, true);
     }
 }
