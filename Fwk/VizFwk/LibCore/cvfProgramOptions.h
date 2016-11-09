@@ -94,9 +94,10 @@ public:
 
     enum ValueReq
     {
-        NO_VALUE,           // A flag option that does not accept any values
-        SINGLE_VALUE,       // Option requires exactly one single value, no more, no less
-        MULTI_VALUE         // Option requires one or more values
+        NO_VALUE,               // A flag option that does not accept any values
+        SINGLE_VALUE,           // Option requires exactly one single value, no more, no less
+        MULTI_VALUE,            // Option requires one or more values
+        OPTIONAL_MULTI_VALUE    // Option can have none, one or more values
     };
 
     enum OptionFlag
