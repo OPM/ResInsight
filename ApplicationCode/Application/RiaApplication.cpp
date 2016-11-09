@@ -1172,7 +1172,7 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension.)", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("savesnapshots",             "",                                 "Save snapshot of all views to 'snapshots' folder. Application closes after snapshots have been written.");
+    progOpt.registerOption("savesnapshots",             "all|views|plots",                  "Save snapshot of all views or plots to project file location sub folder 'snapshots'. Option 'all' will include both views and plots. Application closes after snapshots have been written.", cvf::ProgramOptions::OPTIONAL_MULTI_VALUE);
     progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file.", cvf::ProgramOptions::MULTI_VALUE);
@@ -1345,18 +1345,64 @@ bool RiaApplication::parseArguments()
     }
 
 
-    if (progOpt.hasOption("savesnapshots"))
+    if (cvf::Option o = progOpt.option("savesnapshots"))
     {
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        if (m_project.notNull() && !m_project->fileName().isEmpty() && mainWnd)
+        bool snapshotViews = false;
+        bool snapshotPlots = false;
+
+        QStringList snapshotItemTexts = cvfqt::Utils::toQStringList(o.values());
+        if (snapshotItemTexts.size() == 0)
         {
-            mainWnd->hideAllDockWindows();
+            // No options will keep backwards compability before we introduced snapshot of plots
+            snapshotViews = true;
+        }
 
-            // Will be saved relative to current directory
-            saveSnapshotForAllViews("snapshots");
+        for (QString s : snapshotItemTexts)
+        {
+            if (s.toLower() == "all")
+            {
+                snapshotViews = true;
+                snapshotPlots = true;
+            }
+            else if (s.toLower() == "views")
+            {
+                snapshotViews = true;
+            }
+            else if (s.toLower() == "plots")
+            {
+                snapshotPlots = true;
+            }
+        }
 
-            mainWnd->loadWinGeoAndDockToolBarLayout();
+        if (m_project.notNull() && !m_project->fileName().isEmpty())
+        {
+            if (snapshotViews)
+            {
+                RiuMainWindow* mainWnd = RiuMainWindow::instance();
+                CVF_ASSERT(mainWnd);
+                mainWnd->hideAllDockWindows();
 
+                // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder 
+                // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
+                QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath("snapshots");
+                saveSnapshotForAllViews(absolutePathToSnapshotDir);
+
+                mainWnd->loadWinGeoAndDockToolBarLayout();
+            }
+
+            if (snapshotPlots)
+            {
+                if (m_mainPlotWindow)
+                {
+                    m_mainPlotWindow->hideAllDockWindows();
+
+                    // Will be saved relative to current directory
+                    RicSnapshotAllPlotsToFileFeature::saveAllPlots();
+
+                    m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
+                }
+            }
+            
             closeProject();
         }
 
@@ -1954,10 +2000,6 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd) return;
 
-    // Activate RiuMainWindow to make sure there is an active main window used from snapshot code in
-    // RicSnapshotViewToFileFeature::saveSnapshotAs()
-    QApplication::setActiveWindow(mainWnd);
-
     if (m_project.isNull()) return;
 
     QDir snapshotPath(snapshotFolderName);
@@ -2000,7 +2042,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName);
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
             }
         }
     }

@@ -20,6 +20,7 @@
 
 #include "cafCmdFeature.h"
 
+class RimViewWindow;
 
 //==================================================================================================
 /// 
@@ -45,7 +46,7 @@ class RicSnapshotViewToFileFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void saveSnapshotAs(const QString& fileName);
+    static void saveSnapshotAs(const QString& fileName, RimViewWindow* viewWindow);
 
 protected:
     // Overrides
@@ -61,6 +62,9 @@ protected:
 class RicSnapshotAllPlotsToFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void saveAllPlots();
 
 protected:
     // Overrides
