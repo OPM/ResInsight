@@ -74,10 +74,15 @@ void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
         RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(sourceObjects[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         CVF_ASSERT(newSummaryPlot);
 
+        plotColl->m_summaryPlots.push_back(newSummaryPlot);
+
+        // Resolve references after object has been inserted into the data model
+        newSummaryPlot->resolveReferencesRecursively();
+        newSummaryPlot->initAfterReadRecursively();
+
         QString nameOfCopy = QString("Copy of ") + newSummaryPlot->description();
         newSummaryPlot->setDescription(nameOfCopy);
 
-        plotColl->m_summaryPlots.push_back(newSummaryPlot);
         plotColl->updateConnectedEditors();
 
         newSummaryPlot->loadDataAndUpdate();
