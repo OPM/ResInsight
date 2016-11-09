@@ -117,6 +117,8 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     m_zoomerRight = new QwtPlotZoomer(canvas());
     m_zoomerRight->setAxis(xTop, yRight);
     m_zoomerRight->setTrackerMode(QwtPicker::AlwaysOff);
+    m_zoomerRight->initMousePattern(1);
+
 
     RiuQwtScalePicker* scalePicker = new RiuQwtScalePicker(this);
     connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
