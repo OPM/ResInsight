@@ -27,6 +27,8 @@ class QwtPlotCurve;
 class QwtPlotGrid;
 class QwtPlotZoomer;
 class QwtInterval;
+class QwtPicker;
+class QwtPlotMarker;
 
 class RimSummaryPlot;
 
@@ -52,12 +54,16 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
+    QPointF                         closestCurvePoint(const QPoint& pos, int* yAxis) const;
+    void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
+
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event);
 
 private:
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
+    void                            showToolTip(const QPoint& pos);
 
 private slots:
     void                            onZoomedSlot( );
@@ -65,6 +71,9 @@ private slots:
 
 private:
     QwtPlotGrid*                    m_grid;
+    QwtPicker*                      m_plotPicker;
+    QwtPlotMarker*                  m_plotMarker;
+
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
 
     QPointer<QwtPlotZoomer>         m_zoomerLeft;

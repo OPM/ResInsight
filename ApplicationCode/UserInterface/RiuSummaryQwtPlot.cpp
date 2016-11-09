@@ -32,14 +32,59 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_marker.h"
 #include "qwt_plot_panner.h"
+#include "qwt_plot_picker.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_scale_engine.h"
+#include "qwt_symbol.h"
 
 #include <QEvent>
 #include <QWheelEvent>
 
 #include <float.h>
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RiuQwtPlotPicker : public QwtPlotPicker
+{
+public:
+    RiuQwtPlotPicker(QWidget *canvas)
+        : QwtPlotPicker(canvas)
+    {
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QwtText trackerText(const QPoint& pos) const override
+    {
+        QwtText txt;
+
+        const RiuSummaryQwtPlot* sumPlot = dynamic_cast<const RiuSummaryQwtPlot*>(this->plot());
+        if (sumPlot)
+        {
+            int closestYAxis = QwtPlot::yLeft;
+            QPointF closestPoint = sumPlot->closestCurvePoint(pos, &closestYAxis);
+            if (!closestPoint.isNull())
+            {
+                QString str = QString::number(closestPoint.y());
+
+                txt.setText(str);
+            }
+
+            RiuSummaryQwtPlot* nonConstPlot = const_cast<RiuSummaryQwtPlot*>(sumPlot);
+            nonConstPlot->updateClosestCurvePointMarker(closestPoint, closestYAxis);
+        }
+
+        return txt;
+    }
+};
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -75,6 +120,15 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
 
     RiuQwtScalePicker* scalePicker = new RiuQwtScalePicker(this);
     connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
+
+    // Create a plot picker to display values next to mouse cursor
+    m_plotPicker = new RiuQwtPlotPicker(this->canvas());
+    m_plotPicker->setTrackerMode(QwtPicker::AlwaysOn);
+
+    m_plotMarker = new QwtPlotMarker;
+
+    // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
+    m_plotMarker->setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::NoBrush, QPen(Qt::black), QSize(9, 9)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +143,9 @@ RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
     {
         m_plotDefinition->handleViewerDeletion();
     }
+
+    m_plotMarker->detach();
+    delete m_plotMarker;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,6 +190,84 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
 
         m_zoomerRight->zoom(zoomWindow);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& pos, int* yAxis) const
+{
+    QPointF p;
+
+    QwtPlotCurve* closestCurve = nullptr;
+    double distMin = DBL_MAX;
+    int closestPointIndex = -1;
+
+    const QwtPlotItemList& itmList = itemList();
+    for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
+    {
+        if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
+        {
+            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
+            double dist = DBL_MAX;
+            int pointIndexCandidate = candidateCurve->closestPoint(pos, &dist);
+            if (dist < distMin)
+            {
+                closestCurve = candidateCurve;
+                distMin = dist;
+                closestPointIndex = pointIndexCandidate;
+            }
+        }
+    }
+
+    if (closestCurve && distMin < 50)
+    {
+        p = closestCurve->sample(closestPointIndex);
+
+        if (yAxis) *yAxis = closestCurve->yAxis();
+    }
+
+    return p;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::updateClosestCurvePointMarker(const QPointF& closestPoint, int yAxis)
+{
+    bool replotRequired = false;
+
+    if (!closestPoint.isNull())
+    {
+        if (!m_plotMarker->plot())
+        {
+            m_plotMarker->attach(this);
+            
+            replotRequired = true;
+        }
+
+        if (m_plotMarker->value() != closestPoint)
+        {
+            m_plotMarker->setValue(closestPoint.x(), closestPoint.y());
+
+            // Set y-axis to be able to support more than one y-axis. Default y-axis is left axis.
+            // TODO : Should use a color or other visual indicator to show what axis the curve relates to
+            m_plotMarker->setYAxis(yAxis);
+
+            replotRequired = true;
+        }
+    }
+    else
+    {
+        if (m_plotMarker->plot())
+        {
+            m_plotMarker->detach();
+            
+            replotRequired = true;
+        }
+    }
+
+    if (replotRequired) this->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,47 +342,12 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
 {
     if(watched == canvas())
     {
-        QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>(event);
-        if(wheelEvent)
+        QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+        if(mouseEvent)
         {
-        #if 0
-            if(!m_plotDefinition)
+            if(mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
             {
-                return QwtPlot::eventFilter(watched, event);
-            }
-
-            if(wheelEvent->modifiers() & Qt::ControlModifier)
-            {
-                QwtScaleMap scaleMap = canvasMap(QwtPlot::yLeft);
-                double zoomCenter = scaleMap.invTransform(wheelEvent->pos().y());
-
-                if(wheelEvent->delta() > 0)
-                {
-                    plotDefinition->setDepthZoomByFactorAndCenter(RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
-                }
-                else
-                {
-                    plotDefinition->setDepthZoomByFactorAndCenter(1.0/RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter);
-                }
-            }
-            else
-            {
-                plotDefinition->panDepth(wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR : -RIU_SCROLLWHEEL_PANFACTOR);
-            }
-
-            event->accept();
-            return true;
-            #endif
-        }
-        else
-        {
-            QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
-            if(mouseEvent)
-            {
-                if(mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
-                {
-                    selectClosestCurve(mouseEvent->pos());
-                }
+                selectClosestCurve(mouseEvent->pos());
             }
         }
     }
