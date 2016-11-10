@@ -265,12 +265,21 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 {
     if (m_options.isEmpty()) return;
 
-    //QModelIndexList idxList = selected.indexes();
-    QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
-
     QVariant fieldValue = field()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
     {
+        // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
+        // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
+        // in a single selection list to not work as expected.
+        //
+        // NOTE: Multi select in selection lists do still have issues similar to the above description.
+        //
+        // See also https://github.com/OPM/ResInsight/issues/879
+        //
+        // WORKAROUND : The list view is in single selection mode, and the selection is set based on current index
+        m_listView->selectionModel()->select(m_listView->currentIndex(), QItemSelectionModel::SelectCurrent);
+
+        QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
         if (idxList.size() >= 1)
         {
             if (idxList[0].row() < m_options.size())
@@ -283,6 +292,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
     {
         QList<QVariant> valuesToSetInField;
 
+        QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
         for (int i = 0; i < idxList.size(); ++i)
         {
             if (idxList[i].row() < m_options.size())
