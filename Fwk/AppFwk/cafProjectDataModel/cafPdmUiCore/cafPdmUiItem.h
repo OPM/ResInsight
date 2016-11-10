@@ -124,13 +124,28 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
 
         if (valuesSelectedInField.size())
         {
-            for (int i= 0 ; i < valuesSelectedInField.size(); ++i)
+            // Create a list to be able to remove items as they are matched with values
+            std::list<std::pair<QVariant, unsigned int> > optionVariantAndIndexPairs;
+
+            for (int i= 0 ; i < optionList.size(); ++i)
             {
-                for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(optionList.size()); ++opIdx)
+                optionVariantAndIndexPairs.push_back(std::make_pair(optionList[i].value, i));
+            }
+
+            for (int i = 0; i < valuesSelectedInField.size(); ++i)
+            {
+                std::list<std::pair<QVariant, unsigned int> >::iterator it;
+                for (it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); it++)
                 {
-                    if (PdmUiFieldSpecialization<T>::isDataElementEqual(valuesSelectedInField[i], optionList[opIdx].value))
+                    if (PdmUiFieldSpecialization<T>::isDataElementEqual(valuesSelectedInField[i], it->first))
                     {
-                        foundIndexes.push_back(opIdx);
+                        foundIndexes.push_back(it->second);
+
+                        // Assuming that one option is referenced only once, the option is erased. Then break
+                        // out of the inner loop, as this operation can be costly for fields with many options and many values
+
+                        optionVariantAndIndexPairs.erase(it);
+                        break;
                     }
                 }
             }
