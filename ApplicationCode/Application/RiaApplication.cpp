@@ -382,7 +382,15 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     if (m_project->showPlotWindow())
     {
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+        if (!m_mainPlotWindow)
+        {
+            createMainPlotWindow();
+        }
+        else
+        {
+            m_mainPlotWindow->show();
+            m_mainPlotWindow->raise();
+        }
     }
     else if (mainPlotWindow())
     {
