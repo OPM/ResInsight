@@ -395,6 +395,8 @@ void RimSummaryCurveFilter::syncUiSelectionFromCurves()
     {
         m_uiFilterResultMultiSelection.v().push_back(addr);
     }
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
