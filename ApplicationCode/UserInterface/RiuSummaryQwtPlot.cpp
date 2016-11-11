@@ -69,10 +69,17 @@ protected:
         if (sumPlot)
         {
             int closestYAxis = QwtPlot::yLeft;
-            QPointF closestPoint = sumPlot->closestCurvePoint(pos, &closestYAxis);
+            QString timeString;
+            QString valueString;
+            QPointF closestPoint = sumPlot->closestCurvePoint(pos, &valueString, &timeString, &closestYAxis);
             if (!closestPoint.isNull())
             {
-                QString str = QString::number(closestPoint.y());
+                QString str = valueString;
+
+                if (!timeString.isEmpty())
+                {
+                    str += QString(" (%1)").arg(timeString);
+                }
 
                 txt.setText(str);
             }
@@ -197,13 +204,13 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& pos, int* yAxis) const
+QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& cursorPosition, QString* valueString, QString* timeString, int* yAxis) const
 {
-    QPointF p;
+    QPointF samplePoint;
 
     QwtPlotCurve* closestCurve = nullptr;
     double distMin = DBL_MAX;
-    int closestPointIndex = -1;
+    int closestPointSampleIndex = -1;
 
     const QwtPlotItemList& itmList = itemList();
     for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
@@ -212,24 +219,43 @@ QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& pos, int* yAxis) cons
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
             double dist = DBL_MAX;
-            int pointIndexCandidate = candidateCurve->closestPoint(pos, &dist);
+            int candidateSampleIndex = candidateCurve->closestPoint(cursorPosition, &dist);
             if (dist < distMin)
             {
                 closestCurve = candidateCurve;
                 distMin = dist;
-                closestPointIndex = pointIndexCandidate;
+                closestPointSampleIndex = candidateSampleIndex;
             }
         }
     }
 
     if (closestCurve && distMin < 50)
     {
-        p = closestCurve->sample(closestPointIndex);
+        samplePoint = closestCurve->sample(closestPointSampleIndex);
 
         if (yAxis) *yAxis = closestCurve->yAxis();
     }
 
-    return p;
+
+    if (timeString)
+    {
+        const QwtScaleDraw* timeAxisScaleDraw = axisScaleDraw(QwtPlot::xBottom);
+        if (timeAxisScaleDraw)
+        {
+            *timeString = timeAxisScaleDraw->label(samplePoint.x()).text();
+        }
+    }
+
+    if (valueString && closestCurve)
+    {
+        const QwtScaleDraw* yAxisScaleDraw = axisScaleDraw(closestCurve->yAxis());
+        if (yAxisScaleDraw)
+        {
+            *valueString = yAxisScaleDraw->label(samplePoint.y()).text();
+        }
+    }
+
+    return samplePoint;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
-    QPointF                         closestCurvePoint(const QPoint& pos, int* yAxis) const;
+    QPointF                         closestCurvePoint(const QPoint& pos, QString* valueString, QString* timeString, int* yAxis) const;
     void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
 
 protected:
