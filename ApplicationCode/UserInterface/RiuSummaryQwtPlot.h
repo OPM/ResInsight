@@ -58,7 +58,8 @@ public:
     void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
 
 protected:
-    virtual bool                    eventFilter(QObject* watched, QEvent* event);
+    virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
+    virtual void                    leaveEvent(QEvent *) override;
 
 private:
     void                            setDefaults();

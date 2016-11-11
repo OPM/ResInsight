@@ -361,6 +361,19 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::leaveEvent(QEvent *)
+{
+    if (m_plotMarker->plot())
+    {
+        m_plotMarker->detach();
+
+        replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
 {
     QwtPlotCurve* closestCurve = NULL;
