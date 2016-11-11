@@ -48,11 +48,15 @@ public:
     void setVisibleRangeMin(double value);
     void setVisibleRangeMax(double value);
 
+    bool isActive() const;
+
+protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    //virtual caf::PdmFieldHandle*            userDescriptionField() override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*            objectToggleField() override;
 
 private:
-    caf::PdmField<QDateTime>       m_visibleRangeMin;
-    caf::PdmField<QDateTime>       m_visibleRangeMax;
+    caf::PdmField<bool>         m_isActive;
+    caf::PdmField<QDateTime>    m_visibleRangeMin;
+    caf::PdmField<QDateTime>    m_visibleRangeMax;
 };

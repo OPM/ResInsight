@@ -61,17 +61,20 @@ public:
 
     caf::PdmField<bool>         isLogarithmicScaleEnabled;
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*            userDescriptionField() override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    bool                        isActive() const;
 
 protected:
     virtual void                            initAfterRead() override;
+    virtual caf::PdmFieldHandle*            userDescriptionField() override;
+    virtual caf::PdmFieldHandle*            objectToggleField() override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 private:
     void                                    updateOptionSensitivity();
 
 private:
+    caf::PdmField<bool>         m_isActive;
     caf::PdmField<QString>      m_name;
     QwtPlot::Axis               m_axis;
 };

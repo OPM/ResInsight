@@ -44,6 +44,9 @@ RimSummaryYAxisProperties::RimSummaryYAxisProperties()
 {
     CAF_PDM_InitObject("Y-Axis Properties", ":/SummaryPlot16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
     m_name.uiCapability()->setUiHidden(true);
 
@@ -116,6 +119,14 @@ QwtPlot::Axis RimSummaryYAxisProperties::axis() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryYAxisProperties::isActive() const
+{
+    return m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* rimSummaryPlot = nullptr;
@@ -162,5 +173,13 @@ void RimSummaryYAxisProperties::updateOptionSensitivity()
 void RimSummaryYAxisProperties::initAfterRead()
 {
     updateOptionSensitivity();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryYAxisProperties::objectToggleField()
+{
+    return &m_isActive;
 }
 

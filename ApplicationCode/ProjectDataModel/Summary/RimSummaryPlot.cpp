@@ -178,17 +178,6 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
 
-    std::vector<RimSummaryCurve*> curves = curvesForAxis(plotAxis);
-
-    std::vector<RimSummaryCurveFilter*> curveFiltersForAxis;
-    for (RimSummaryCurveFilter* cs : m_curveFilters)
-    {
-        if (cs->associatedPlotAxis() == plotAxis)
-        {
-            curveFiltersForAxis.push_back(cs);
-        }
-    }
-
     QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
     RimSummaryYAxisProperties* yAxisProperties = nullptr;
     if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
@@ -202,16 +191,34 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
         yAxisProperties = m_rightYAxisProperties();
     }
 
-    if (curves.size() > 0)
+    if (!yAxisProperties->isActive())
     {
-        m_qwtPlot->enableAxis(qwtAxis, true);
-
-        RimSummaryCurvesCalculator calc(yAxisProperties, curves, curveFiltersForAxis);
-        calc.applyPropertiesToPlot(m_qwtPlot);
+        m_qwtPlot->enableAxis(qwtAxis, false);
     }
     else
     {
-        m_qwtPlot->enableAxis(qwtAxis, false);
+        std::vector<RimSummaryCurve*> curves = curvesForAxis(plotAxis);
+
+        std::vector<RimSummaryCurveFilter*> curveFiltersForAxis;
+        for (RimSummaryCurveFilter* cs : m_curveFilters)
+        {
+            if (cs->associatedPlotAxis() == plotAxis)
+            {
+                curveFiltersForAxis.push_back(cs);
+            }
+        }
+
+        if (curves.size() > 0)
+        {
+            m_qwtPlot->enableAxis(qwtAxis, true);
+
+            RimSummaryCurvesCalculator calc(yAxisProperties, curves, curveFiltersForAxis);
+            calc.applyPropertiesToPlot(m_qwtPlot);
+        }
+        else
+        {
+            m_qwtPlot->enableAxis(qwtAxis, false);
+        }
     }
 }
 
@@ -242,6 +249,15 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForAxis(RimDefines::PlotAxis
 void RimSummaryPlot::updateTimeAxis()
 {
     if (!m_qwtPlot) return;
+
+    if (!m_timeAxisProperties->isActive())
+    {
+        m_qwtPlot->enableAxis(QwtPlot::xBottom, false);
+
+        return;
+    }
+
+    m_qwtPlot->enableAxis(QwtPlot::xBottom, true);
 
     {
         QString axisTitle;

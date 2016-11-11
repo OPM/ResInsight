@@ -34,6 +34,9 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 {
     CAF_PDM_InitObject("Time Axis", ":/SummaryPlot16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&showTitle, "ShowTitle", false, "Show Title", "", "", "");
     CAF_PDM_InitField(&title, "Title", QString("Time"), "Title", "", "", "");
     CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
@@ -80,6 +83,14 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryTimeAxisProperties::isActive() const
+{
+    return m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -103,6 +114,14 @@ QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOption
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryTimeAxisProperties::objectToggleField()
+{
+    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
