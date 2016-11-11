@@ -290,7 +290,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
-        if (idxList.size() <= 1)
+        if (idxList.size() == 1)
         {
             // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
             // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
