@@ -462,11 +462,15 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.add(&m_timeAxisProperties);
-    uiTreeOrdering.add(&m_leftYAxisProperties);
-    uiTreeOrdering.add(&m_rightYAxisProperties);
+    caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axis", ":/Folder.png");
+    axisFolder->add(&m_timeAxisProperties);
+    axisFolder->add(&m_leftYAxisProperties);
+    axisFolder->add(&m_rightYAxisProperties);
+
     uiTreeOrdering.add(&m_curveFilters);
     uiTreeOrdering.add(&m_curves);
+
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
