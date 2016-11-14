@@ -42,6 +42,7 @@ protected:
     friend class RimSummaryCurveFilter;
 
     virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute);
 
 private:
     void            appendWellName(std::string& text, const RifEclipseSummaryAddress& summaryAddress) const;

@@ -24,6 +24,8 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurveFilter.h"
 
+#include "cafPdmUiPushButtonEditor.h"
+
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurveAutoName, "SummaryCurveAutoName");
@@ -47,6 +49,8 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
 
     CAF_PDM_InitField(&m_showAdvancedProperties, "ShowAdvancedProperties", false, "Show Advanced Properties", "", "", "");
+    m_showAdvancedProperties.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_showAdvancedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,5 +279,27 @@ void RimSummaryCurveAutoName::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     }
 
     uiOrdering.add(&m_showAdvancedProperties);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAutoName::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (&m_showAdvancedProperties == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            if (m_showAdvancedProperties)
+            {
+                attrib->m_buttonText = "Hide Advanced Options";
+            }
+            else
+            {
+                attrib->m_buttonText = "Show Advanced Options";
+            }
+        }
+    }
 }
 
