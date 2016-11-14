@@ -666,8 +666,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM(int partInde
             float se1 = se1Data[vIdx];
             float se3 = se3Data[vIdx];
             float pi_4 = 0.785398163397448309616f;
-            float rho = 2.0f * atan( sqrt(( se1 + cohPrTanFricAngle)/(se3 + cohPrTanFricAngle)) - pi_4);
-
+            float rho = 2.0f * ( atan( sqrt(( se1 + cohPrTanFricAngle)/(se3 + cohPrTanFricAngle)) ) - pi_4);
+            
             {
                 dstFrameData[vIdx] =  tan(rho)/tanFricAng;
             }
