@@ -58,5 +58,7 @@ private:
     caf::PdmField<bool> m_completion;
 
     caf::PdmField<bool> m_caseName;
+
+    caf::PdmField<bool> m_showAdvancedProperties;
 };
 
