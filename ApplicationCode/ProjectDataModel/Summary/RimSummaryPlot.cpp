@@ -159,7 +159,7 @@ void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
     }
     else if (axis == QwtPlot::xBottom)
     {
-        plotwindow->selectAsCurrentItem(this);
+        plotwindow->selectAsCurrentItem(m_timeAxisProperties);
     }
 }
 
