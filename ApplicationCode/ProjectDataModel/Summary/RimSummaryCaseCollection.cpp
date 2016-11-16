@@ -101,7 +101,7 @@ RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromEclipseResultCase(R
     for (RimSummaryCase* summaryCase : m_cases)
     {
         RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(summaryCase);
-        if (gridSummaryCase)
+        if (gridSummaryCase && gridSummaryCase->associatedEclipseCase())
         {
             if (gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName())
             {
