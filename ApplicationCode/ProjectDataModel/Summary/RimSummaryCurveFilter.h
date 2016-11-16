@@ -117,7 +117,7 @@ private:
 
     caf::PdmChildField<RimSummaryCurveAutoName*>   m_curveNameConfig;
 
-    caf::PdmField<bool>                     m_autoApplyFilterChanges;
+    caf::PdmField<bool>                     m_autoApplyChangesToPlot;
     caf::PdmField<bool>                     m_applyButtonField;
 
     caf::PdmField<bool>                     m_useAutoAppearanceAssignment;

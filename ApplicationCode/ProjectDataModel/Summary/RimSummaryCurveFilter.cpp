@@ -99,7 +99,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&m_autoApplyFilterChanges, "AutoApplyFilterChanges", false, "Auto Apply Changes", "", "", "");
+    CAF_PDM_InitField(&m_autoApplyChangesToPlot, "AutoApplyFilterChanges", false, "Auto Apply Changes", "", "", "");
 
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
@@ -226,7 +226,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
 
     uiOrdering.add(&m_plotAxis);
-    uiOrdering.add(&m_autoApplyFilterChanges);
+    uiOrdering.add(&m_autoApplyChangesToPlot);
     uiOrdering.add(&m_applyButtonField);
 
     uiOrdering.setForgetRemainingFields(true);
@@ -237,12 +237,11 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if(changedField == &m_uiFilterResultMultiSelection)
+    bool plotNeedsRedraw = false;
+
+    if (changedField == &m_uiFilterResultMultiSelection)
     {
-        if (m_autoApplyFilterChanges)
-        {
-            loadDataAndUpdatePlot();
-        }
+        plotNeedsRedraw = true;
     }
     else if (changedField == &m_applyButtonField)
     {
@@ -274,6 +273,20 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         else
         {
             m_selectionCache = m_selectedSummaryCases.value();
+        }
+
+        plotNeedsRedraw = true;
+    }
+    else
+    {
+        plotNeedsRedraw = true;
+    }
+
+    if (plotNeedsRedraw)
+    {
+        if (m_autoApplyChangesToPlot)
+        {
+            loadDataAndUpdatePlot();
         }
     }
 }
@@ -407,7 +420,7 @@ void RimSummaryCurveFilter::defineEditorAttribute(const caf::PdmFieldHandle* fie
     if(&m_applyButtonField == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        attrib->m_buttonText = "Apply" ;
+        attrib->m_buttonText = "Apply";
     }
 }
 
@@ -573,7 +586,7 @@ void RimSummaryCurveFilter::setPlotAxis(RimDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::updateCompleteVariableStringFilterChanged()
 {
-    if (m_autoApplyFilterChanges)
+    if (m_autoApplyChangesToPlot)
     {
         loadDataAndUpdatePlot();
     }
