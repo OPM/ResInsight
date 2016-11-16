@@ -35,10 +35,12 @@
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
@@ -58,8 +60,6 @@
 
 #include <QDir>
 #include <QMenu>
-#include "RimGridSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");

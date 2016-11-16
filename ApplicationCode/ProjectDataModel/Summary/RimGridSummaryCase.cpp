@@ -38,6 +38,14 @@ CAF_PDM_SOURCE_INIT(RimGridSummaryCase,"GridSummaryCase");
 RimGridSummaryCase::RimGridSummaryCase()
 {
     CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "Associated3DCase", "Main View", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_eclipseGridFileName, "Associated3DCaseGridFileName", "Grid File Name", "", "", "");
+    m_eclipseGridFileName.registerGetMethod(this, &RimGridSummaryCase::eclipseGridFileName);
+    m_eclipseGridFileName.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_eclipseSummaryFileName, "SummaryFileName", "Summary File Name", "", "", "");
+    m_eclipseSummaryFileName.registerGetMethod(this, &RimGridSummaryCase::summaryHeaderFilename);
+    m_eclipseSummaryFileName.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,5 +97,15 @@ QString RimGridSummaryCase::caseName() const
     if (!m_eclipseCase()) return QString();
 
     return m_eclipseCase()->caseUserDescription();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGridSummaryCase::eclipseGridFileName() const
+{
+    if (!m_eclipseCase()) return QString();
+
+    return m_eclipseCase()->gridFileName();
 }
 

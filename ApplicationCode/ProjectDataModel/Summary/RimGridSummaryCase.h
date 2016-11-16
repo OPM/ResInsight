@@ -19,6 +19,8 @@
 
 #include "RimSummaryCase.h"
 
+#include "cafPdmProxyValueField.h"
+
 class RimEclipseCase;
 
 //==================================================================================================
@@ -41,7 +43,12 @@ public:
     virtual QString                 caseName() const override;
 
 private:
-    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    QString                         eclipseGridFileName() const;
+
+private:
+    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
+    caf::PdmProxyValueField<QString>    m_eclipseGridFileName;
+    caf::PdmProxyValueField<QString>    m_eclipseSummaryFileName;
 };
 
 
