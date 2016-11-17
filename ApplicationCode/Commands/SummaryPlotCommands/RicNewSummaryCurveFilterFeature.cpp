@@ -91,7 +91,9 @@ void RicNewSummaryCurveFilterFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryCurveFilterFeature::selectedSummaryPlot() const
 {
-    std::vector<RimSummaryPlot*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : NULL;
+    caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    RimSummaryPlot * sumPlot;
+    selObj->firstAncestorOrThisOfType(sumPlot);
+
+    return sumPlot;
 }
