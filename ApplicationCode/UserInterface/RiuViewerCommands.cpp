@@ -223,6 +223,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
 
                 menu.addSeparator();
+                menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewPolylineIntersectionFeature"));
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxAtPosFeature"));
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
                 menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
@@ -316,12 +317,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     if (!firstHitPart)
     {
         commandIds << "RicLinkViewFeature";
-        commandIds << "RicUnLinkViewFeature";
         commandIds << "RicShowLinkOptionsFeature";
         commandIds << "RicSetMasterViewFeature";
+        commandIds << "RicUnLinkViewFeature";
     }
 
-    commandIds << "RicNewPolylineIntersectionFeature";
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
