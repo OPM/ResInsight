@@ -32,23 +32,71 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "RimGeoMechView.h"
+#include "RimEclipseView.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimEclipseInputProperty.h"
+#include "RimCellRangeFilter.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimViewController.h"
+#include "RimWellLogCurve.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimIntersection.h"
+#include "RimIntersectionBox.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
+#include "RimSummaryPlot.h"
 
 namespace caf
 {
     CAF_CMD_SOURCE_INIT(RicDeleteItemFeature, "RicDeleteItemFeature");
 
+bool isDeletable(PdmUiItem * uiItem)
+{
+    if (dynamic_cast<RimGeoMechView*>(uiItem))               return true;
+    if (dynamic_cast<RimEclipseView*>(uiItem))               return true;
+    if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))    return true;
+    if (dynamic_cast<RimEclipseInputProperty*>(uiItem))      return true;
+    if (dynamic_cast<RimCellRangeFilter*>(uiItem))           return true;
+    if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))     return true;
+    if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))     return true;
+    if (dynamic_cast<RimViewController*>(uiItem))            return true;
+    if (dynamic_cast<RimWellLogPlot*>(uiItem))               return true;
+    if (dynamic_cast<RimWellLogCurve*>(uiItem))              return true;
+    if (dynamic_cast<RimSummaryPlot*>(uiItem))               return true;
+    if (dynamic_cast<RimSummaryCurve*>(uiItem))              return true;
+    if (dynamic_cast<RimSummaryCurveFilter*>(uiItem))        return true;
+    if (dynamic_cast<RimIntersection*>(uiItem))              return true;
+    if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
+    if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
+    if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
+
+    return false;    
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteItemFeature::isCommandEnabled() 
 {
-    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
-    if (!currentPdmObject) return false;
+    std::vector<PdmUiItem*> items;
+    caf::SelectionManager::instance()->selectedItems(items);
+    
+    if (items.empty() ) return false;
 
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(currentPdmObject->parentField());
-    if (!childArrayFieldHandle) return false;
+    for (PdmUiItem* item : items)
+    {
+        if (!isDeletable(item)) return false;
 
+        caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(item);
+        if ( !currentPdmObject ) return false;
+
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(currentPdmObject->parentField());
+        if ( !childArrayFieldHandle ) return false;
+    }
+    
     return true;
 }
 
@@ -61,36 +109,42 @@ void RicDeleteItemFeature::onActionTriggered(bool isChecked)
     SelectionManager::instance()->selectedItems(items);
     assert(items.size() > 0);
 
-    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(items[0]);
-    assert(currentPdmObject);
-
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(currentPdmObject->parentField());
-
-    int indexAfter = -1;
-
-    std::vector<PdmObjectHandle*> childObjects;
-    childArrayFieldHandle->childObjects(&childObjects);
-
-    for (size_t i = 0; i < childObjects.size(); i++)
+    for (PdmUiItem* item: items)
     {
-        if (childObjects[i] == currentPdmObject)
+        if (!isDeletable(item)) continue;
+
+        caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(item);
+        if ( !currentPdmObject) continue;
+
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(currentPdmObject->parentField());
+        if ( !childArrayFieldHandle) continue;
+
+        int indexAfter = -1;
+
+        std::vector<PdmObjectHandle*> childObjects;
+        childArrayFieldHandle->childObjects(&childObjects);
+
+        for ( size_t i = 0; i < childObjects.size(); i++ )
         {
-            indexAfter = static_cast<int>(i);
+            if ( childObjects[i] == currentPdmObject )
+            {
+                indexAfter = static_cast<int>(i);
+            }
         }
+
+        // Did not find currently selected pdm object in the current list field
+        assert(indexAfter != -1);
+
+        RicDeleteItemExec* executeCmd = new RicDeleteItemExec(SelectionManager::instance()->notificationCenter());
+
+        RicDeleteItemExecData* data = executeCmd->commandData();
+        data->m_rootObject = PdmReferenceHelper::findRoot(childArrayFieldHandle);
+        data->m_pathToField = PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, childArrayFieldHandle);
+        data->m_indexToObject = indexAfter;
+
+
+        CmdExecCommandManager::instance()->processExecuteCommand(executeCmd);
     }
-
-    // Did not find currently selected pdm object in the current list field
-    assert(indexAfter != -1);
-
-    RicDeleteItemExec* executeCmd = new RicDeleteItemExec(SelectionManager::instance()->notificationCenter());
-
-    RicDeleteItemExecData* data = executeCmd->commandData();
-    data->m_rootObject = PdmReferenceHelper::findRoot(childArrayFieldHandle);
-    data->m_pathToField = PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, childArrayFieldHandle);
-    data->m_indexToObject = indexAfter;
-
-
-    CmdExecCommandManager::instance()->processExecuteCommand(executeCmd);
 }
 
 //--------------------------------------------------------------------------------------------------

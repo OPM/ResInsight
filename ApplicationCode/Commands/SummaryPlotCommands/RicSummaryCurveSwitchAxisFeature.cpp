@@ -34,7 +34,12 @@ CAF_CMD_SOURCE_INIT(RicSummaryCurveSwitchAxisFeature, "RicSummaryCurveSwitchAxis
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled()
 {
-    return true;
+    std::set<RimSummaryCurveFilter*> selectedCurveFilters;
+    std::set<RimSummaryCurve*> selectedSoloCurves;
+
+    RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(&selectedCurveFilters,
+                                                                               &selectedSoloCurves);
+    return (selectedCurveFilters.size() || selectedSoloCurves.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,13 +47,33 @@ bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 {
-    RimSummaryCurve* summaryCurve = RicSummaryCurveSwitchAxisFeature::selectedSummaryCurve();
-    RimSummaryCurveFilter* summaryCurveFilter = RicSummaryCurveSwitchAxisFeature::selectedSummaryCurveFilter();
-    if (summaryCurve)
+    std::set<RimSummaryCurveFilter*> selectedCurveFilters;
+    std::set<RimSummaryCurve*> selectedSoloCurves;
+
+    RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(&selectedCurveFilters, 
+                                                                               &selectedSoloCurves);
+    
+    for (RimSummaryCurveFilter* summaryCurveFilter: selectedCurveFilters)
+    {
+        RimDefines::PlotAxis plotAxis = summaryCurveFilter->associatedPlotAxis();
+
+        if ( plotAxis == RimDefines::PLOT_AXIS_LEFT )
+        {
+            summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_RIGHT);
+        }
+        else
+        {
+            summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_LEFT);
+        }
+
+        summaryCurveFilter->updateConnectedEditors();
+    }
+
+    for (RimSummaryCurve* summaryCurve : selectedSoloCurves)
     {
         RimDefines::PlotAxis plotAxis = summaryCurve->associatedPlotAxis();
 
-        if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+        if ( plotAxis == RimDefines::PLOT_AXIS_LEFT )
         {
             summaryCurve->setPlotAxis(RimDefines::PLOT_AXIS_RIGHT);
         }
@@ -62,22 +87,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 
         RimSummaryPlot* plot = nullptr;
         summaryCurve->firstAncestorOrThisOfType(plot);
-        if (plot) plot->updateAxes();
-    }
-    else if (summaryCurveFilter)
-    {
-        RimDefines::PlotAxis plotAxis = summaryCurveFilter->associatedPlotAxis();
-         
-        if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
-        {
-            summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_RIGHT);
-        }
-        else
-        {
-            summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_LEFT);
-        }
-
-        summaryCurveFilter->updateConnectedEditors();
+        if ( plot ) plot->updateAxes();
     }
 }
 
@@ -90,22 +100,50 @@ void RicSummaryCurveSwitchAxisFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Solo curves means selected curves that does not have a selected curvefilter as parent 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryCurveSwitchAxisFeature::selectedSummaryCurve()
+void RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(std::set<RimSummaryCurveFilter*>* selectedCurveFilters, 
+                                                                                std::set<RimSummaryCurve*>* selectedSoloCurves)
 {
-    std::vector<RimSummaryCurve*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryCurveFilter* RicSummaryCurveSwitchAxisFeature::selectedSummaryCurveFilter()
-{
-    std::vector<RimSummaryCurveFilter*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
+    selectedSoloCurves->clear();
+    {
+        std::vector<RimSummaryCurve*> selection;
+        caf::SelectionManager::instance()->objectsByType(&selection);
+        for (RimSummaryCurve* curve: selection)
+        {
+            selectedSoloCurves->insert(curve);
+        }
+    }
 
+    selectedCurveFilters->clear();
+    {
+        std::vector<RimSummaryCurveFilter*> selection;
+        caf::SelectionManager::instance()->objectsByType(&selection);
+        for ( RimSummaryCurveFilter* curveFilter: selection )
+        {
+            selectedCurveFilters->insert(curveFilter);
+        }
+    }
+
+    std::vector<RimSummaryCurve*> curvesToRemove;
+
+    for (RimSummaryCurve* curve: (*selectedSoloCurves))
+    {
+        RimSummaryCurveFilter* parentCurveFilter;
+        curve->firstAncestorOrThisOfType(parentCurveFilter);
+        if (parentCurveFilter)
+        {
+            if (selectedCurveFilters->count(parentCurveFilter) > 0 )
+            {
+                curvesToRemove.push_back(curve);
+            }
+        }
+    }
+
+    for  (RimSummaryCurve* curve: curvesToRemove)
+    {
+        selectedSoloCurves->erase(curve);
+    }
+
+}

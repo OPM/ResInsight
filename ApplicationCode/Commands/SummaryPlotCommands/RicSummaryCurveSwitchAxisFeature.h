@@ -20,8 +20,12 @@
 
 #include "cafCmdFeature.h"
 
+#include <set>
+
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
+
+
 
 //==================================================================================================
 /// 
@@ -36,6 +40,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimSummaryCurve* selectedSummaryCurve();
-    static RimSummaryCurveFilter* selectedSummaryCurveFilter();
+    static void extractSelectedCurveFiltersAndSoloCurves(std::set<RimSummaryCurveFilter*>* selectedCurveFilters, 
+                                                         std::set<RimSummaryCurve*>* selectedSoloCurves);
 };

@@ -374,9 +374,12 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExecuteScriptForCasesFeature";
         }
-        else if (dynamic_cast<RimSummaryCurve*>(uiItem))
+        else if (dynamic_cast<RimSummaryCurve*>(uiItem) ||
+                 dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
         {
             commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicSummaryCurveSwitchAxisFeature";
+
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
@@ -385,6 +388,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportToLasFileFeature";
         }
+    }
+
+    if (uiItems.size() > 1)
+    {
+        commandIds << "RicDeleteItemFeature";
     }
 
     if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
