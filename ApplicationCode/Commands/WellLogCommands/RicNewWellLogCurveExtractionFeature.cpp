@@ -88,6 +88,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Well Log Extraction Curve");
+    actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,4 +60,5 @@ void RicNewWellLogPlotFeature::onActionTriggered(bool isChecked)
 void RicNewWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Well Log Plot");
+    actionToSetup->setIcon(QIcon(":/WellLogPlot16x16.png"));
 }
