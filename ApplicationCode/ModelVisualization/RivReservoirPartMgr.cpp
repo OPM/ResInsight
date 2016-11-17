@@ -191,11 +191,11 @@ void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* mode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
+void RivReservoirPartMgr::forceWatertightGeometryOn(bool forceWatertightGeometry)
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->setFaultForceVisibility(isGeneratedByFilter);
+        m_faultsPartMgr->forceWatertightGeometryOn(forceWatertightGeometry);
     }
 }
 

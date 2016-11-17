@@ -50,7 +50,7 @@ public:
     void   clearAndSetReservoir(const RigCaseData* eclipseCase, RimEclipseView* reservoirView);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
-    void   setFaultForceVisibility(bool isGeneratedByFilter);
+    void   forceWatertightGeometryOn(bool forceWatertightGeometry);
 
     //size_t gridCount() { return m_allGrids.size(); }
     cvf::ref<cvf::UByteArray>  

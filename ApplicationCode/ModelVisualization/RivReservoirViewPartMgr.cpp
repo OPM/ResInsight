@@ -43,6 +43,8 @@
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
+#include <QDebug>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1044,11 +1046,11 @@ void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::setFaultForceVisibilityForGeometryType(RivCellSetEnum geometryType, bool forceVisibility)
+void RivReservoirViewPartMgr::forceWatertightGeometryOnForType(RivCellSetEnum geometryType, bool forceWatertightGeometry)
 {
     if (m_geometriesNeedsRegen[geometryType])
     {
         createGeometry(geometryType);
     }
-    m_geometries[geometryType].setFaultForceVisibility(forceVisibility);
+    m_geometries[geometryType].forceWatertightGeometryOn(forceWatertightGeometry);
 }

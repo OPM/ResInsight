@@ -405,7 +405,7 @@ void RimEclipseView::createDisplayModel()
 
     if (faultCollection()->showFaultsOutsideFilters() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
-        forceFaultVisibilityOn();
+        forceWatertightGeometryOn();
 
         std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
@@ -1349,11 +1349,11 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 ///     
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::forceFaultVisibilityOn()
+void RimEclipseView::forceWatertightGeometryOn()
 {
     if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(OVERRIDDEN_CELL_VISIBILITY, true);
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(OVERRIDDEN_CELL_VISIBILITY, true);
         return;
     }
 
@@ -1363,12 +1363,12 @@ void RimEclipseView::forceFaultVisibilityOn()
 
     if (!faultCollection->showFaultCollection)
     {
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(ALL_WELL_CELLS, true);
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(ALL_WELL_CELLS, true);
     }
 
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RANGE_FILTERED, true);
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(VISIBLE_WELL_FENCE_CELLS, true);
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(RANGE_FILTERED, true);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS, true);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
 }
 
 //--------------------------------------------------------------------------------------------------

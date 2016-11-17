@@ -49,7 +49,7 @@ public:
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
-    void setFaultForceVisibility(bool isFilterGenerated);
+    void forceWatertightGeometryOn(bool forceWatertightGeometry);
 
     void setOpacityLevel(float opacity);
     void applySingleColorEffect();
@@ -66,5 +66,5 @@ private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
-    bool                                m_forceVisibility;
+    bool                                m_forceWatertightGeometry;
 };
