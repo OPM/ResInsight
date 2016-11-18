@@ -78,7 +78,7 @@ public:
     void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType);
     void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex);
 
-    void                        forceWatertightGeometryForType(RivCellSetEnum geometryType, bool forceVisibility);
+    void                        forceWatertightGeometryOnForType(RivCellSetEnum geometryType);
 
 private:
     void                        createGeometry(RivCellSetEnum geometryType);

@@ -1372,7 +1372,7 @@ void RimEclipseView::forceWatertightGeometryOn()
 {
     if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
-        m_reservoirGridPartManager->forceWatertightGeometryForType(OVERRIDDEN_CELL_VISIBILITY, true);
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(OVERRIDDEN_CELL_VISIBILITY);
         return;
     }
 
@@ -1382,18 +1382,18 @@ void RimEclipseView::forceWatertightGeometryOn()
 
     if (!faultCollection->showFaultCollection)
     {
-        m_reservoirGridPartManager->forceWatertightGeometryForType(ALL_WELL_CELLS, true);
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(ALL_WELL_CELLS);
     }
 
-    m_reservoirGridPartManager->forceWatertightGeometryForType(RANGE_FILTERED, true);
-    m_reservoirGridPartManager->forceWatertightGeometryForType(VISIBLE_WELL_CELLS, true);
-    m_reservoirGridPartManager->forceWatertightGeometryForType(VISIBLE_WELL_FENCE_CELLS, true);
-    m_reservoirGridPartManager->forceWatertightGeometryForType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(RANGE_FILTERED);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_CELLS);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS);
+    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
 
     if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
     {
-        m_reservoirGridPartManager->forceWatertightGeometryForType(PROPERTY_FILTERED, true);
-        m_reservoirGridPartManager->forceWatertightGeometryForType(PROPERTY_FILTERED_WELL_CELLS, true);
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(PROPERTY_FILTERED);
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(PROPERTY_FILTERED_WELL_CELLS);
     }
 }
 

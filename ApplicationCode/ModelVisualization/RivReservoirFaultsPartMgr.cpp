@@ -283,9 +283,9 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::forceWatertightGeometryOn(bool forceWatertightGeometry)
+void RivReservoirFaultsPartMgr::forceWatertightGeometryOn()
 {
-    m_forceWatertightGeometry = forceWatertightGeometry;
+    m_forceWatertightGeometry = true;
 }
 
 //--------------------------------------------------------------------------------------------------

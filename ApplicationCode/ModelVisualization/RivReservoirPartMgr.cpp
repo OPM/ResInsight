@@ -191,11 +191,11 @@ void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* mode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::forceWatertightGeometryOn(bool forceWatertightGeometry)
+void RivReservoirPartMgr::forceWatertightGeometryOn()
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->forceWatertightGeometryOn(forceWatertightGeometry);
+        m_faultsPartMgr->forceWatertightGeometryOn();
     }
 }
 
