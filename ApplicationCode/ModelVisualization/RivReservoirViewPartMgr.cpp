@@ -1035,11 +1035,28 @@ void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::forceWatertightGeometryOnForType(RivCellSetEnum geometryType, bool forceWatertightGeometry)
+void RivReservoirViewPartMgr::forceWatertightGeometryForType(RivCellSetEnum geometryType, bool forceWatertightGeometry)
 {
-    if (m_geometriesNeedsRegen[geometryType])
+    if (geometryType == PROPERTY_FILTERED)
     {
-        createGeometry(geometryType);
+        for (size_t i = 0; i < m_propFilteredGeometryFrames.size(); ++i)
+        {
+            if (m_propFilteredGeometryFrames[i].p()) m_propFilteredGeometryFrames[i]->forceWatertightGeometryOn(forceWatertightGeometry);
+        }
     }
-    m_geometries[geometryType].forceWatertightGeometryOn(forceWatertightGeometry);
+    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        for (size_t i = 0; i < m_propFilteredWellGeometryFrames.size(); ++i)
+        {
+            if (m_propFilteredWellGeometryFrames[i].p()) m_propFilteredWellGeometryFrames[i]->forceWatertightGeometryOn(forceWatertightGeometry);
+        }
+    }
+    else
+    {
+        if (forceWatertightGeometry && m_geometriesNeedsRegen[geometryType])
+        {
+            createGeometry(geometryType);
+        }
+        m_geometries[geometryType].forceWatertightGeometryOn(forceWatertightGeometry);
+    }
 }
