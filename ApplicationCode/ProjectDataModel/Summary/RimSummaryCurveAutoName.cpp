@@ -38,9 +38,9 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitObject("RimSummaryCurveAutoName", "", "", "");
 
     CAF_PDM_InitField(&m_vectorName,        "VectorName",         true, "Vector Name", "", "", "");
-    CAF_PDM_InitField(&m_unit,              "Unit",               true, "Unit", "", "", "");
-    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true, "Region Number", "", "", "");
-    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",      true, "Well Group Name", "", "", "");
+    CAF_PDM_InitField(&m_unit,              "Unit",               false, "Unit", "", "", "");
+    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true,  "Region Number", "", "", "");
+    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",      true, "Group Name", "", "", "");
     CAF_PDM_InitField(&m_wellName,          "WellName",           true, "Well Name", "", "", "");
     CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",  true, "Well Segment Number", "", "", "");
     CAF_PDM_InitField(&m_lgrName,           "LgrName",            true, "Lgr Name", "", "", "");
@@ -266,16 +266,16 @@ void RimSummaryCurveAutoName::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 {
     uiOrdering.add(&m_caseName);
     uiOrdering.add(&m_vectorName);
-    uiOrdering.add(&m_unit);
+    uiOrdering.add(&m_wellGroupName);
     uiOrdering.add(&m_wellName);
     
     if (m_showAdvancedProperties)
     {
         uiOrdering.add(&m_regionNumber);
-        uiOrdering.add(&m_wellGroupName);
-        uiOrdering.add(&m_wellSegmentNumber);
         uiOrdering.add(&m_lgrName);
         uiOrdering.add(&m_completion);
+        uiOrdering.add(&m_wellSegmentNumber);
+        uiOrdering.add(&m_unit);
     }
 
     uiOrdering.add(&m_showAdvancedProperties);
