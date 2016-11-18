@@ -38,13 +38,13 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitObject("RimSummaryCurveAutoName", "", "", "");
 
     CAF_PDM_InitField(&m_vectorName,        "VectorName",         true, "Vector Name", "", "", "");
-    CAF_PDM_InitField(&m_unit,              "Unit",               false, "Unit", "", "", "");
-    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true,  "Region Number", "", "", "");
+    CAF_PDM_InitField(&m_unit,              "Unit",               false,"Unit", "", "", "");
+    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true, "Region Number", "", "", "");
     CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",      true, "Group Name", "", "", "");
     CAF_PDM_InitField(&m_wellName,          "WellName",           true, "Well Name", "", "", "");
     CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",  true, "Well Segment Number", "", "", "");
     CAF_PDM_InitField(&m_lgrName,           "LgrName",            true, "Lgr Name", "", "", "");
-    CAF_PDM_InitField(&m_completion,        "Completion",         true, "Completion", "", "", "");
+    CAF_PDM_InitField(&m_completion,        "Completion",         true, "I, J, K", "", "", "");
     
     CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
 
