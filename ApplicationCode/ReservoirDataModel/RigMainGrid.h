@@ -61,6 +61,9 @@ public:
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults() { return m_faults; }
     void                                    calculateFaults(const RigActiveCellInfo* activeCellInfo);
+
+    void distributeNNCsToFaults();
+
     const RigFault*                         findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;
     bool                                    isFaceNormalsOutwards() const;
 
