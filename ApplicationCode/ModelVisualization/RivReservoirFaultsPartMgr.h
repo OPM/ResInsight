@@ -49,7 +49,9 @@ public:
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
+
     void forceWatertightGeometryOn();
+    void clearWatertightGeometryFlag();
 
     void setOpacityLevel(float opacity);
     void applySingleColorEffect();

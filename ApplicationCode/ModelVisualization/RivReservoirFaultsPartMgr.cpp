@@ -291,6 +291,14 @@ void RivReservoirFaultsPartMgr::forceWatertightGeometryOn()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivReservoirFaultsPartMgr::clearWatertightGeometryFlag()
+{
+    m_forceWatertightGeometry = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::setOpacityLevel(float opacity)
 {
     for (size_t i = 0; i < m_faultParts.size(); i++)

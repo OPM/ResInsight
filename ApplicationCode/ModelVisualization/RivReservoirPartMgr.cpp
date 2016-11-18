@@ -202,6 +202,17 @@ void RivReservoirPartMgr::forceWatertightGeometryOn()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::clearWatertightGeometryFlag()
+{
+    if (m_faultsPartMgr.notNull())
+    {
+        m_faultsPartMgr->clearWatertightGeometryFlag();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
     if (m_faultsPartMgr.notNull())

@@ -1124,3 +1124,24 @@ void RivReservoirViewPartMgr::forceWatertightGeometryOnForType(RivCellSetEnum ge
         m_geometries[geometryType].forceWatertightGeometryOn();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::clearWatertightGeometryFlags()
+{
+    for (size_t i = 0; i < m_propFilteredGeometryFrames.size(); ++i)
+    {
+        if (m_propFilteredGeometryFrames[i].p()) m_propFilteredGeometryFrames[i]->clearWatertightGeometryFlag();
+    }
+
+    for (size_t i = 0; i < m_propFilteredWellGeometryFrames.size(); ++i)
+    {
+        if (m_propFilteredWellGeometryFrames[i].p()) m_propFilteredWellGeometryFrames[i]->clearWatertightGeometryFlag();
+    }
+
+    for (int i = 0; i < PROPERTY_FILTERED; i++)
+    {
+        m_geometries[RivCellSetEnum(i)].clearWatertightGeometryFlag();
+    }
+}
