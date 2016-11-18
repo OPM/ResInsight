@@ -478,7 +478,7 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axis", ":/Folder.png");
+    caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add("Axes", ":/Axes16x16.png");
     axisFolder->add(&m_timeAxisProperties);
     axisFolder->add(&m_leftYAxisProperties);
     axisFolder->add(&m_rightYAxisProperties);

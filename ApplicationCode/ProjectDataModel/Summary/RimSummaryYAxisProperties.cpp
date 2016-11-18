@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryYAxisProperties, "SummaryYAxisProperties");
 //--------------------------------------------------------------------------------------------------
 RimSummaryYAxisProperties::RimSummaryYAxisProperties()
 {
-    CAF_PDM_InitObject("Y-Axis Properties", ":/SummaryPlot16x16.png", "", "");
+    CAF_PDM_InitObject("Y-Axis Properties", ":/LeftAxis16x16.png", "", "");
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
@@ -106,6 +106,8 @@ void RimSummaryYAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axi
 {
     m_name = name;
     m_axis = axis;
+
+    if (axis == QwtPlot::yRight) this->setUiIcon(QIcon(":/RightAxis16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
