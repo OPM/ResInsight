@@ -25,6 +25,20 @@
 #include "qwt_date.h"
 
 
+namespace caf
+{
+template<>
+void caf::AppEnum< RimSummaryTimeAxisProperties::AxisTitlePositionType >::setUp()
+{
+    addItem(RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
+    addItem(RimSummaryTimeAxisProperties::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
+
+    setDefault(RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER);
+}
+}
+
+
+
 CAF_PDM_SOURCE_INIT(RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties");
 
 //--------------------------------------------------------------------------------------------------
@@ -39,6 +53,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitField(&showTitle, "ShowTitle", false, "Show Title", "", "", "");
     CAF_PDM_InitField(&title, "Title", QString("Time"), "Title", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
+
     CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_visibleRangeMax, "VisibleRangeMax", "Max", "", "", "");

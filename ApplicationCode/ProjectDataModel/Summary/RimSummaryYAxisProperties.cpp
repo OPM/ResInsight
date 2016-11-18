@@ -35,6 +35,19 @@ namespace caf
     }
 }
 
+namespace caf
+{
+template<>
+void caf::AppEnum< RimSummaryYAxisProperties::AxisTitlePositionType >::setUp()
+{
+    addItem(RimSummaryYAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
+    addItem(RimSummaryYAxisProperties::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
+
+    setDefault(RimSummaryYAxisProperties::AXIS_TITLE_CENTER);
+}
+}
+
+
 CAF_PDM_SOURCE_INIT(RimSummaryYAxisProperties, "SummaryYAxisProperties");
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +65,7 @@ RimSummaryYAxisProperties::RimSummaryYAxisProperties()
 
     CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
     CAF_PDM_InitFieldNoDefault(&customTitle, "CustomTitle", "Title", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
     CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
 
     CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RimDefines::maximumDefaultValuePlot(), "Max", "", "", "");

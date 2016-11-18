@@ -212,8 +212,8 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
         {
             m_qwtPlot->enableAxis(qwtAxis, true);
 
-            RimSummaryCurvesCalculator calc(yAxisProperties, curves, curveFiltersForAxis);
-            calc.applyPropertiesToPlot(m_qwtPlot);
+            RimSummaryPlotYAxisFormater calc(yAxisProperties, curves, curveFiltersForAxis);
+            calc.applyYAxisPropertiesToPlot(m_qwtPlot);
         }
         else
         {
@@ -272,6 +272,16 @@ void RimSummaryPlot::updateTimeAxis()
 
         timeAxisTitle.setText(axisTitle);
 
+        switch ( m_timeAxisProperties->titlePositionEnum() )
+        {
+            case RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER:
+            timeAxisTitle.setRenderFlags(Qt::AlignCenter);
+            break;
+            case RimSummaryTimeAxisProperties::AXIS_TITLE_END:
+            timeAxisTitle.setRenderFlags(Qt::AlignRight);
+            break;
+        }
+
         m_qwtPlot->setAxisTitle(QwtPlot::xBottom, timeAxisTitle);
     }
 
@@ -281,6 +291,7 @@ void RimSummaryPlot::updateTimeAxis()
         timeAxisFont.setPixelSize(m_timeAxisProperties->fontSize);
         m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,7 +361,7 @@ void RimSummaryPlot::zoomAll()
             std::vector<RimSummaryCurve*> curves = curvesForAxis(RimDefines::PLOT_AXIS_LEFT);
 
             double min, max;
-            RimSummaryCurvesCalculator calc(m_leftYAxisProperties, curves);
+            RimSummaryPlotYAxisRangeCalculator calc(m_leftYAxisProperties, curves);
             calc.computeYRange(&min, &max);
 
             m_qwtPlot->setAxisScale(m_leftYAxisProperties->axis(), min, max);
@@ -365,7 +376,7 @@ void RimSummaryPlot::zoomAll()
             std::vector<RimSummaryCurve*> curves = curvesForAxis(RimDefines::PLOT_AXIS_RIGHT);
 
             double min, max;
-            RimSummaryCurvesCalculator calc(m_rightYAxisProperties, curves);
+            RimSummaryPlotYAxisRangeCalculator calc(m_rightYAxisProperties, curves);
             calc.computeYRange(&min, &max);
 
             m_qwtPlot->setAxisScale(m_rightYAxisProperties->axis(), min, max);

@@ -97,7 +97,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurvesCalculator::RimSummaryCurvesCalculator(RimSummaryYAxisProperties* axisProperties,
+RimSummaryPlotYAxisFormater::RimSummaryPlotYAxisFormater(RimSummaryYAxisProperties* axisProperties,
     const std::vector<RimSummaryCurve*>& curves, 
     const std::vector<RimSummaryCurveFilter*>& curveFilters)
 :   m_axisProperties(axisProperties),
@@ -106,27 +106,19 @@ RimSummaryCurvesCalculator::RimSummaryCurvesCalculator(RimSummaryYAxisProperties
 {
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryCurvesCalculator::RimSummaryCurvesCalculator(RimSummaryYAxisProperties* axisProperties, const std::vector<RimSummaryCurve*>& curves)
-    : m_axisProperties(axisProperties),
-    m_singleCurves(curves)
-{
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtPlot)
+void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot)
 {
-    if (!m_qwtPlot) return;
+    if (!qwtPlot) return;
 
     {
         QString axisTitle = m_axisProperties->customTitle;
         if (m_axisProperties->isAutoTitle) axisTitle = autoAxisTitle();
 
-        QwtText axisTitleY = m_qwtPlot->axisTitle(m_axisProperties->axis());
+        QwtText axisTitleY = qwtPlot->axisTitle(m_axisProperties->axis());
 
         QFont axisTitleYFont = axisTitleY.font();
         axisTitleYFont.setBold(true);
@@ -134,28 +126,39 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
         axisTitleY.setFont(axisTitleYFont);
 
         axisTitleY.setText(axisTitle);
-        m_qwtPlot->setAxisTitle(m_axisProperties->axis(), axisTitleY);
+
+        switch (m_axisProperties->titlePositionEnum())
+        {
+            case RimSummaryYAxisProperties::AXIS_TITLE_CENTER:
+            axisTitleY.setRenderFlags(Qt::AlignCenter);
+            break;
+            case RimSummaryYAxisProperties::AXIS_TITLE_END:
+            axisTitleY.setRenderFlags(Qt::AlignRight);
+            break;
+        }
+
+        qwtPlot->setAxisTitle(m_axisProperties->axis(), axisTitleY);
     }
 
     {
-        QFont yAxisFont = m_qwtPlot->axisFont(m_axisProperties->axis());
+        QFont yAxisFont = qwtPlot->axisFont(m_axisProperties->axis());
         yAxisFont.setBold(false);
         yAxisFont.setPixelSize(m_axisProperties->fontSize);
-        m_qwtPlot->setAxisFont(m_axisProperties->axis(), yAxisFont);
+        qwtPlot->setAxisFont(m_axisProperties->axis(), yAxisFont);
     }
 
     {
         if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO)
         {
-            m_qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new QwtScaleDraw);
+            qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new QwtScaleDraw);
         }
         else if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_DECIMAL)
         {
-            m_qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new DecimalScaleDraw);
+            qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new DecimalScaleDraw);
         }
         else if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
         {
-            m_qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new ScientificScaleDraw());
+            qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new ScientificScaleDraw());
         }
 
     }
@@ -163,21 +166,21 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
     {
         if (m_axisProperties->isLogarithmicScaleEnabled)
         {
-            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(m_qwtPlot->axisScaleEngine(m_axisProperties->axis()));
+            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->axis()));
             if (!currentScaleEngine)
             {
-                m_qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLogScaleEngine);
-                m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 5);
+                qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLogScaleEngine);
+                qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 5);
             }
 
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(m_qwtPlot->axisScaleEngine(m_axisProperties->axis()));
+            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->axis()));
             if (!currentScaleEngine)
             {
-                m_qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLinearScaleEngine);
-                m_qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 3);
+                qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLinearScaleEngine);
+                qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 3);
             }
         }
     }
@@ -186,7 +189,7 @@ void RimSummaryCurvesCalculator::applyPropertiesToPlot(RiuSummaryQwtPlot* m_qwtP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurvesCalculator::autoAxisTitle() const
+QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
 {
     std::set<std::string> unitNames;
 
@@ -211,10 +214,26 @@ QString RimSummaryCurvesCalculator::autoAxisTitle() const
     return assembledYAxisText;
 }
 
+
+
+
+
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesCalculator::computeYRange(double* min, double* max) const
+RimSummaryPlotYAxisRangeCalculator::RimSummaryPlotYAxisRangeCalculator(RimSummaryYAxisProperties* axisProperties, const std::vector<RimSummaryCurve*>& curves)
+    : m_axisProperties(axisProperties),
+    m_singleCurves(curves)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotYAxisRangeCalculator::computeYRange(double* min, double* max) const
 {
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -273,7 +292,7 @@ void RimSummaryCurvesCalculator::computeYRange(double* min, double* max) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCurvesCalculator::curveValueRangeY(const QwtPlotCurve* qwtCurve, double* min, double* max) const
+bool RimSummaryPlotYAxisRangeCalculator::curveValueRangeY(const QwtPlotCurve* qwtCurve, double* min, double* max) const
 {
     if (!qwtCurve) return false;
 

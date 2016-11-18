@@ -36,11 +36,20 @@ class RimSummaryTimeAxisProperties : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+
+    enum AxisTitlePositionType
+    {
+        AXIS_TITLE_CENTER,
+        AXIS_TITLE_END
+    };
+
+public:
     RimSummaryTimeAxisProperties();
 
     caf::PdmField<int>          fontSize;
     caf::PdmField<QString>      title;
     caf::PdmField<bool>         showTitle;
+    caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
 
     double visibleRangeMin() const;
     double visibleRangeMax() const;

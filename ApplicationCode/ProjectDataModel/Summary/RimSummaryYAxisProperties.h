@@ -28,6 +28,8 @@
 
 #include <QString>
 
+
+
 //==================================================================================================
 ///  
 ///  
@@ -44,6 +46,12 @@ public:
         NUMBER_FORMAT_SCIENTIFIC
     };
 
+    enum AxisTitlePositionType
+    {
+        AXIS_TITLE_CENTER,
+        AXIS_TITLE_END
+    };
+
 public:
     RimSummaryYAxisProperties();
 
@@ -53,6 +61,7 @@ public:
     caf::PdmField<bool>         isAutoTitle;
     caf::PdmField<QString>      customTitle;
     caf::PdmField<int>          fontSize;
+    caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
 
     caf::PdmField<double>       visibleRangeMin;
     caf::PdmField<double>       visibleRangeMax;
