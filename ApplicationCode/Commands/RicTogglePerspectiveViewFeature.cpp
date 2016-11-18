@@ -62,11 +62,11 @@ void RicTogglePerspectiveViewFeature::setupActionLook(QAction* actionToSetup)
         if (RiaApplication::instance()->activeReservoirView()->isPerspectiveView())
         {
             actionToSetup->setText("Parallel View");
-            actionToSetup->setIcon(QIcon(":/Parallel16x16.png"));
+            actionToSetup->setIcon(QIcon(":/Parallel24x24.png"));
             return;
         }
     }
 
     actionToSetup->setText("Perspective View");
-    actionToSetup->setIcon(QIcon(":/Perspective16x16.png"));
+    actionToSetup->setIcon(QIcon(":/Perspective24x24.png"));
 }
