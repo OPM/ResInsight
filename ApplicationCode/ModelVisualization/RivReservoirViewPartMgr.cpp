@@ -915,7 +915,10 @@ cvf::cref<cvf::UByteArray> RivReservoirViewPartMgr::cellVisibility(RivCellSetEnu
     return pmgr->cellVisibility(gridIndex).p();
 }
 
-RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(RivCellSetEnum geometryType, size_t timeStepIndex )
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivReservoirPartMgr* RivReservoirViewPartMgr::reservoirPartManager(RivCellSetEnum geometryType, size_t timeStepIndex)
 {
     if (geometryType == PROPERTY_FILTERED)
     {
@@ -955,10 +958,67 @@ void RivReservoirViewPartMgr::updateFaultColors(RivCellSetEnum geometryType, siz
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType)
 {
+    //CVF_ASSERT(geometryType < PROPERTY_FILTERED);
+    if (geometryType >= PROPERTY_FILTERED) return;
+
     if (m_geometriesNeedsRegen[geometryType])
     {
         createGeometry(geometryType);
     }
+
+/*
+    QString text;
+    switch (geometryType)
+    {
+    case OVERRIDDEN_CELL_VISIBILITY:
+        text = "OVERRIDDEN_CELL_VISIBILITY";
+        break;
+    case ALL_CELLS:
+        text = "ALL_CELLS";
+        break;
+    case ACTIVE:
+        text = "ACTIVE";
+        break;
+    case ALL_WELL_CELLS:
+        text = "ALL_WELL_CELLS";
+        break;
+    case VISIBLE_WELL_CELLS:
+        text = "VISIBLE_WELL_CELLS";
+        break;
+    case VISIBLE_WELL_FENCE_CELLS:
+        text = "VISIBLE_WELL_FENCE_CELLS";
+        break;
+    case INACTIVE:
+        text = "INACTIVE";
+        break;
+    case RANGE_FILTERED:
+        text = "RANGE_FILTERED";
+        break;
+    case RANGE_FILTERED_INACTIVE:
+        text = "RANGE_FILTERED_INACTIVE";
+        break;
+    case RANGE_FILTERED_WELL_CELLS:
+        text = "RANGE_FILTERED_WELL_CELLS";
+        break;
+    case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
+        text = "VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER";
+        break;
+    case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:
+        text = "VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER";
+        break;
+    case PROPERTY_FILTERED:
+        text = "PROPERTY_FILTERED";
+        break;
+    case PROPERTY_FILTERED_WELL_CELLS:
+        text = "PROPERTY_FILTERED_WELL_CELLS";
+        break;
+    default:
+        break;
+    }
+
+    qDebug() << text;
+*/
+
     m_geometries[geometryType].appendFaultPartsToModel(model);
 }
 
@@ -969,10 +1029,14 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::Model
 {
     if (geometryType == PROPERTY_FILTERED)
     {
+        //qDebug() << "PROPERTY_FILTERED";
+
         m_propFilteredGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
     }
     else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
     {
+        //qDebug() << "PROPERTY_FILTERED_WELL_CELLS";
+
         m_propFilteredWellGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
     }
 }

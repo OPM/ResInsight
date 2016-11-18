@@ -413,14 +413,14 @@ void RimEclipseView::createDisplayModel()
 
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
-            for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAppend.size(); ++gtIdx)
+            for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
             {
-                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAppend[gtIdx]);
+                if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS) continue;
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryType);
             }
 
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
-
     }
 
 
@@ -528,13 +528,23 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
+        forceWatertightGeometryOn();
+
         if (faultCollection()->showFaultsOutsideFilters())
         {
             std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
-            for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
+            for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
             {
-                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
+                if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
+                {
+                    m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), geometryType, m_currentTimeStep);
+                    m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), geometryType, m_currentTimeStep);
+                }
+                else
+                {
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), geometryType);
+                }
             }
 
             RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
@@ -1362,7 +1372,7 @@ void RimEclipseView::forceWatertightGeometryOn()
 {
     if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
     {
-        m_reservoirGridPartManager->forceWatertightGeometryOnForType(OVERRIDDEN_CELL_VISIBILITY, true);
+        m_reservoirGridPartManager->forceWatertightGeometryForType(OVERRIDDEN_CELL_VISIBILITY, true);
         return;
     }
 
@@ -1372,12 +1382,19 @@ void RimEclipseView::forceWatertightGeometryOn()
 
     if (!faultCollection->showFaultCollection)
     {
-        m_reservoirGridPartManager->forceWatertightGeometryOnForType(ALL_WELL_CELLS, true);
+        m_reservoirGridPartManager->forceWatertightGeometryForType(ALL_WELL_CELLS, true);
     }
 
-    m_reservoirGridPartManager->forceWatertightGeometryOnForType(RANGE_FILTERED, true);
-    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS, true);
-    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
+    m_reservoirGridPartManager->forceWatertightGeometryForType(RANGE_FILTERED, true);
+    m_reservoirGridPartManager->forceWatertightGeometryForType(VISIBLE_WELL_CELLS, true);
+    m_reservoirGridPartManager->forceWatertightGeometryForType(VISIBLE_WELL_FENCE_CELLS, true);
+    m_reservoirGridPartManager->forceWatertightGeometryForType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
+
+    if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
+    {
+        m_reservoirGridPartManager->forceWatertightGeometryForType(PROPERTY_FILTERED, true);
+        m_reservoirGridPartManager->forceWatertightGeometryForType(PROPERTY_FILTERED_WELL_CELLS, true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1416,14 +1433,49 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
     }
     else if (this->faultCollection()->showFaultsOutsideFilters())
     {
-        faultParts.push_back(ACTIVE);
-        faultParts.push_back(ALL_WELL_CELLS);
-        /// Why are these added ? JJS -->
-        faultParts.push_back(RANGE_FILTERED);
-        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
-        faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-        /// <-- JJS
+        if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
+        {
+            faultParts.push_back(PROPERTY_FILTERED);
+            faultParts.push_back(PROPERTY_FILTERED_WELL_CELLS);
+            faultParts.push_back(ACTIVE);
+            faultParts.push_back(ALL_WELL_CELLS);
+        }
+        else
+        {
+            faultParts.push_back(ACTIVE);
+            faultParts.push_back(ALL_WELL_CELLS);
+
+            faultParts.push_back(VISIBLE_WELL_CELLS);
+            faultParts.push_back(VISIBLE_WELL_FENCE_CELLS);
+
+            if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+            {
+                faultParts.push_back(RANGE_FILTERED);
+                faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
+                faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+                faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+
+                if (this->showInactiveCells())
+                {
+                    faultParts.push_back(RANGE_FILTERED_INACTIVE);
+                }
+            }
+            else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+            {
+                faultParts.push_back(VISIBLE_WELL_CELLS);
+                faultParts.push_back(VISIBLE_WELL_FENCE_CELLS);
+            }
+            else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
+            {
+                faultParts.push_back(RANGE_FILTERED);
+                faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
+
+                if (this->showInactiveCells())
+                {
+                    faultParts.push_back(RANGE_FILTERED_INACTIVE);
+                }
+            }
+        }
 
         if (this->showInactiveCells())
         {
