@@ -105,6 +105,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
 
             commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             //commandIds << "RicDeleteItemFeature";
             //commandIds << "Separator";
@@ -114,6 +115,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteEclipseViewsFeature";
             commandIds << "Separator";
             commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             //commandIds << "RicDeleteItemFeature";
             //commandIds << "Separator";
@@ -121,6 +123,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
             commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "Separator";
             commandIds << "RicNewStatisticsCaseFeature";
         }
         else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
@@ -139,6 +142,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
 
             commandIds << "RicNewViewFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
+            commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "Separator";
 
@@ -147,6 +151,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
         {
             commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "Separator";
             commandIds << "RicNewViewFeature";
             commandIds << "Separator";
 
@@ -154,8 +159,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {
-            commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "Separator";
+            commandIds << "RicEclipseCaseNewGroupFeature";
             //commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
@@ -227,6 +233,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
             commandIds << "RicEditScriptFeature";
+            commandIds << "Separator";
             commandIds << "RicNewScriptFeature";
             commandIds << "Separator";
             commandIds << "RicExecuteScriptFeature";
@@ -234,6 +241,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimScriptCollection*>(uiItem))
         {
             commandIds << "RicNewScriptFeature";
+            commandIds << "Separator";
             commandIds << "RicAddScriptPathFeature";
             commandIds << "RicRefreshScriptsFeature";
             commandIds << "Separator";
@@ -257,8 +265,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
         {
-            commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicPasteSummaryPlotFeature";
+            commandIds << "Separator";
+            commandIds << "RicNewSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
@@ -286,6 +295,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             //commandIds << "RicDeleteItemFeature";
             commandIds << "Separator";
@@ -297,6 +307,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             //commandIds << "RicDeleteItemFeature";
             commandIds << "Separator";
@@ -308,6 +319,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             //commandIds << "RicDeleteItemFeature";
             commandIds << "Separator";
@@ -354,10 +366,13 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if(dynamic_cast<RimFormationNamesCollection*>(uiItem))
         {
             commandIds << "RicImportFormationNamesFeature";
+            commandIds << "Separator";
             commandIds << "RicReloadFormationNamesFeature";
             //commandIds << "Separator";
             //commandIds << "RicDeleteItemFeature";
         }
+
+
         if (dynamic_cast<RimView*>(uiItem))
         {
             commandIds << "Separator";
