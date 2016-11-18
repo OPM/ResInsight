@@ -153,6 +153,7 @@ void RicDeleteItemFeature::onActionTriggered(bool isChecked)
 void RicDeleteItemFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 } // end namespace caf

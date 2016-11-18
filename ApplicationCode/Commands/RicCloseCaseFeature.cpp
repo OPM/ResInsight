@@ -85,6 +85,7 @@ void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Close");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 

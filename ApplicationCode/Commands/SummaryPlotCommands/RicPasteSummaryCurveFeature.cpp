@@ -98,7 +98,7 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 void RicPasteSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Summary Curve");
-    actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
+    actionToSetup->setIcon(QIcon(":/clipboard.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ void RicPasteSummaryCurveFilterFeature::onActionTriggered(bool isChecked)
 void RicPasteSummaryCurveFilterFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Summary Curve Filter");
-    actionToSetup->setIcon(QIcon(":/SummaryCurveFilter16x16.png"));
+    actionToSetup->setIcon(QIcon(":/clipboard.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

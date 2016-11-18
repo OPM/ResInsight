@@ -64,5 +64,6 @@ void RicDeleteAllLinkedViewsFeature::onActionTriggered(bool isChecked)
 void RicDeleteAllLinkedViewsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete All Linked Views");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 

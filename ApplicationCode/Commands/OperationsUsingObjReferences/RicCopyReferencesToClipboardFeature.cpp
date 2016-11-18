@@ -67,6 +67,7 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
 void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Copy");
+    actionToSetup->setIcon(QIcon(":/Copy.png"));
 }
 
 } // end namespace caf

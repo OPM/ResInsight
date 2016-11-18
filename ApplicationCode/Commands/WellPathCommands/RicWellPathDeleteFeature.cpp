@@ -76,6 +76,7 @@ void RicWellPathDeleteFeature::onActionTriggered(bool isChecked)
 void RicWellPathDeleteFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete Well Path");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 } // end namespace caf

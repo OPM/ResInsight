@@ -79,6 +79,6 @@ void RicReloadFormationNamesFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicReloadFormationNamesFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/FormationCollection16x16.png"));
     actionToSetup->setText("Reload");
+    actionToSetup->setIcon(QIcon(":/Refresh-32.png"));
 }
