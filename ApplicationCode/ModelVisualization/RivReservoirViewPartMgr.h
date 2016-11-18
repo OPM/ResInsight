@@ -57,7 +57,6 @@ public:
     void                        appendStaticGeometryPartsToModel (cvf::ModelBasicList* model, RivCellSetEnum geometryType, const std::vector<size_t>& gridIndices);
     void                        appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex, const std::vector<size_t>& gridIndices);
 
-    void                        updateCellColor          (RivCellSetEnum geometryType, cvf::Color4f color);
     void                        updateCellColor          (RivCellSetEnum geometryType, size_t timeStepIndex, 
                                                           cvf::Color4f color);
     void                        updateCellResultColor    (RivCellSetEnum geometryType, size_t timeStepIndex, 

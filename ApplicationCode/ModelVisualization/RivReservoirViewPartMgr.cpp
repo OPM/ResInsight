@@ -882,17 +882,6 @@ void RivReservoirViewPartMgr::updateCellColor(RivCellSetEnum geometryType, size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellColor(RivCellSetEnum geometryType, cvf::Color4f color)
-{
-    //CVF_ASSERT(geometryType != PROPERTY_FILTERED);
-    //CVF_ASSERT(geometryType != PROPERTY_FILTERED_WELL_CELLS);
-
-    updateCellColor(geometryType, 0 , color);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellResultColor(RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );

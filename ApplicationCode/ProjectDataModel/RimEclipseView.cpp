@@ -767,7 +767,16 @@ void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
         case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
     }
 
-    m_reservoirGridPartManager->updateCellColor(geometryType, color);
+    if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        // Always use current time step when updating color of property geometry
+        m_reservoirGridPartManager->updateCellColor(geometryType, m_currentTimeStep, color);
+    }
+    else
+    {
+        // Use static timestep (timestep 0) for geometry with no change between time steps
+        m_reservoirGridPartManager->updateCellColor(geometryType, 0, color);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
