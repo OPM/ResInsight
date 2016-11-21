@@ -403,6 +403,8 @@ void RimEclipseView::createDisplayModel()
         m_visibleGridParts = geometryTypesToAdd;
     }
 
+    m_reservoirGridPartManager->clearWatertightGeometryFlags();
+
     if (faultCollection()->showFaultsOutsideFilters() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
         forceWatertightGeometryOn();
@@ -1386,15 +1388,8 @@ void RimEclipseView::forceWatertightGeometryOn()
     }
 
     m_reservoirGridPartManager->forceWatertightGeometryOnForType(RANGE_FILTERED);
-    m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_CELLS);
     m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS);
     m_reservoirGridPartManager->forceWatertightGeometryOnForType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-
-    if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
-    {
-        m_reservoirGridPartManager->forceWatertightGeometryOnForType(PROPERTY_FILTERED);
-        m_reservoirGridPartManager->forceWatertightGeometryOnForType(PROPERTY_FILTERED_WELL_CELLS);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1409,7 +1404,7 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
         {
             faultParts.push_back(ACTIVE);
             faultParts.push_back(ALL_WELL_CELLS);
-          
+
             if (this->showInactiveCells())
             {
                 faultParts.push_back(INACTIVE);
@@ -1433,49 +1428,14 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
     }
     else if (this->faultCollection()->showFaultsOutsideFilters())
     {
-        if (this->eclipsePropertyFilterCollection()->hasActiveFilters())
-        {
-            faultParts.push_back(PROPERTY_FILTERED);
-            faultParts.push_back(PROPERTY_FILTERED_WELL_CELLS);
-            faultParts.push_back(ACTIVE);
-            faultParts.push_back(ALL_WELL_CELLS);
-        }
-        else
-        {
-            faultParts.push_back(ACTIVE);
-            faultParts.push_back(ALL_WELL_CELLS);
-
-            faultParts.push_back(VISIBLE_WELL_CELLS);
-            faultParts.push_back(VISIBLE_WELL_FENCE_CELLS);
-
-            if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
-            {
-                faultParts.push_back(RANGE_FILTERED);
-                faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
-                faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-                faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-
-                if (this->showInactiveCells())
-                {
-                    faultParts.push_back(RANGE_FILTERED_INACTIVE);
-                }
-            }
-            else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
-            {
-                faultParts.push_back(VISIBLE_WELL_CELLS);
-                faultParts.push_back(VISIBLE_WELL_FENCE_CELLS);
-            }
-            else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
-            {
-                faultParts.push_back(RANGE_FILTERED);
-                faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
-
-                if (this->showInactiveCells())
-                {
-                    faultParts.push_back(RANGE_FILTERED_INACTIVE);
-                }
-            }
-        }
+        faultParts.push_back(ACTIVE);
+        faultParts.push_back(ALL_WELL_CELLS);
+        /// Why are these added ? JJS -->
+        faultParts.push_back(RANGE_FILTERED);
+        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+        /// <-- JJS
 
         if (this->showInactiveCells())
         {
