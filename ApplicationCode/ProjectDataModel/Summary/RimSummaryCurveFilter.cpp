@@ -255,7 +255,7 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         {
             curve->updateCurveVisibility();
         }
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        updatePlotAxisForCurves();
     }
     else if (changedField == &m_plotAxis)
     {
@@ -431,7 +431,7 @@ void RimSummaryCurveFilter::updatePlotAxisForCurves()
 {
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->setPlotAxis(m_plotAxis());
+        curve->setYAxis(m_plotAxis());
         curve->updateQwtPlotAxis();
     }
 
@@ -464,6 +464,21 @@ std::set<std::string> RimSummaryCurveFilter::unitNames()
         if (curve->isCurveVisible()) unitNames.insert( curve->unitName());
     }
     return unitNames;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryCurveFilter::curves()
+{
+    std::vector<RimSummaryCurve*> myCurves;
+    for ( RimSummaryCurve* curve: m_curves)
+    {
+        myCurves.push_back(curve);
+    }
+
+    return myCurves;    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -541,7 +556,7 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
         curve->setParentQwtPlot(m_parentQwtPlot);
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(caseAddrPair.second);
-        curve->setPlotAxis(m_plotAxis());
+        curve->setYAxis(m_plotAxis());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
 
         m_curves.push_back(curve);

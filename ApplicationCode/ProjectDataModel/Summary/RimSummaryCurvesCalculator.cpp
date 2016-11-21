@@ -191,24 +191,41 @@ void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* 
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
 {
-    std::set<std::string> unitNames;
+    std::map<std::string, std::set<std::string> > unitToQuantityNameMap;
 
-    for (RimSummaryCurve* rimCurve : m_singleCurves)
+    for ( RimSummaryCurve* rimCurve : m_singleCurves )
     {
-        if (rimCurve->isCurveVisible()) unitNames.insert(rimCurve->unitName());
+        if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->axis() )
+        {
+            unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
+        }
     }
 
-    for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
+    for ( RimSummaryCurveFilter* curveFilter : m_curveFilters )
     {
-        std::set<std::string> filterUnitNames = curveFilter->unitNames();
-        unitNames.insert(filterUnitNames.begin(), filterUnitNames.end());
+        if ( curveFilter->isCurvesVisible() )
+        {
+            std::vector<RimSummaryCurve*> curveFilterCurves = curveFilter->curves();
+
+            for ( RimSummaryCurve* rimCurve : curveFilterCurves )
+            {
+                if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->axis() )
+                {
+                    unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
+                }
+            }
+        }
     }
 
     QString assembledYAxisText;
 
-    for (const std::string& unitName : unitNames)
+    for ( auto unitIt : unitToQuantityNameMap )
     {
-        assembledYAxisText += "[" + QString::fromStdString(unitName) + "] ";
+        for (const auto &quantIt: unitIt.second)
+        {
+            assembledYAxisText += QString::fromStdString(quantIt) + " ";
+        }
+        assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + "] ";
     }
 
     return assembledYAxisText;

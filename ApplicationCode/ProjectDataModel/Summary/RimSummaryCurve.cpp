@@ -259,7 +259,7 @@ std::vector<double> RimSummaryCurve::yPlotValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setPlotAxis(RimDefines::PlotAxis plotAxis)
+void RimSummaryCurve::setYAxis(RimDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
 }
@@ -267,7 +267,7 @@ void RimSummaryCurve::setPlotAxis(RimDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::PlotAxis RimSummaryCurve::associatedPlotAxis() const
+RimDefines::PlotAxis RimSummaryCurve::yAxis() const
 {
     return m_plotAxis();
 }
@@ -384,7 +384,7 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
-        bool isLogCurve = plot->isLogarithmicScaleEnabled(this->associatedPlotAxis());
+        bool isLogCurve = plot->isLogarithmicScaleEnabled(this->yAxis());
 
         if(this->curveData(&dateTimes, &values))
         {
@@ -444,7 +444,7 @@ void RimSummaryCurve::updateQwtPlotAxis()
 {
     if (m_qwtPlotCurve)
     {
-        if (this->associatedPlotAxis() == RimDefines::PLOT_AXIS_LEFT)
+        if (this->yAxis() == RimDefines::PLOT_AXIS_LEFT)
         {
             m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
         }

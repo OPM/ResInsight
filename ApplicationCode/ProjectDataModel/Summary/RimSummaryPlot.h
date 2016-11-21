@@ -101,6 +101,7 @@ private:
     
     void                                            updateAxis(RimDefines::PlotAxis plotAxis);
     std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
+    bool                                            hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
 
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();

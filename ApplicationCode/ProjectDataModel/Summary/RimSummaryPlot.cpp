@@ -197,22 +197,17 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
     }
     else
     {
-        std::vector<RimSummaryCurve*> curves = curvesForAxis(plotAxis);
-
-        std::vector<RimSummaryCurveFilter*> curveFiltersForAxis;
-        for (RimSummaryCurveFilter* cs : m_curveFilters)
+        if (hasVisibleCurvesForAxis(plotAxis))
         {
-            if (cs->associatedPlotAxis() == plotAxis)
-            {
-                curveFiltersForAxis.push_back(cs);
-            }
-        }
+            std::vector<RimSummaryCurve*> curves;
+            curves.insert(curves.begin(), m_curves.begin(), m_curves.end());
 
-        if (curves.size() > 0)
-        {
+            std::vector<RimSummaryCurveFilter*> curveFilters;
+            curveFilters.insert(curveFilters.begin(), m_curveFilters.begin(), m_curveFilters.end());
+
             m_qwtPlot->enableAxis(qwtAxis, true);
 
-            RimSummaryPlotYAxisFormater calc(yAxisProperties, curves, curveFiltersForAxis);
+            RimSummaryPlotYAxisFormater calc(yAxisProperties, curves, curveFilters);
             calc.applyYAxisPropertiesToPlot(m_qwtPlot);
         }
         else
@@ -234,13 +229,37 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForAxis(RimDefines::PlotAxis
 
     for (RimSummaryCurve* curve : childCurves)
     {
-        if (curve->associatedPlotAxis() == plotAxis)
+        if (curve->yAxis() == plotAxis)
         {
             curves.push_back(curve);
         }
     }
 
     return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) const
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        if (curve->isCurveVisible() && curve->yAxis() == plotAxis) return true;
+    }
+
+    for (RimSummaryCurveFilter * curveFilter : m_curveFilters)
+    {
+        if (curveFilter->isCurvesVisible())
+        {
+            for ( RimSummaryCurve* curve : curveFilter->curves() )
+            {
+                if ( curve->isCurveVisible() && curve->yAxis() == plotAxis ) return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

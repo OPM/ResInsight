@@ -88,8 +88,8 @@ public:
 
     std::vector<double>                     yPlotValues() const;
 
-    void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
-    RimDefines::PlotAxis                    associatedPlotAxis() const;
+    void                                    setYAxis(RimDefines::PlotAxis plotAxis);
+    RimDefines::PlotAxis                    yAxis() const;
     void                                    updateQwtPlotAxis();
 
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
