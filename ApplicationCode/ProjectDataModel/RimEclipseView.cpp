@@ -540,7 +540,6 @@ void RimEclipseView::updateCurrentTimeStep()
             if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
             {
                 m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), geometryType, m_currentTimeStep);
-                m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), geometryType, m_currentTimeStep);
             }
             else
             {
@@ -549,7 +548,14 @@ void RimEclipseView::updateCurrentTimeStep()
         }
 
         RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
-        m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
+        if (faultLabelType == PROPERTY_FILTERED)
+        {
+            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), faultLabelType, m_currentTimeStep);
+        }
+        else
+        {
+            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
+        }
 
 
         // Set the transparency on all the Wellcell parts before setting the result color
