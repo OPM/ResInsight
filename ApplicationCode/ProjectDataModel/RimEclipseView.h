@@ -162,8 +162,7 @@ private:
     virtual void                                    resetLegendsInViewer();
     virtual void                                    updateViewerWidgetWindowTitle();
 
-    std::vector<RivCellSetEnum>                     visibleFaultGeometryTypes() const;
-    void                                            forceWatertightGeometryOn();
+    std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();
