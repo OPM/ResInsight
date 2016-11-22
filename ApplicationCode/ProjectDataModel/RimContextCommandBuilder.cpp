@@ -241,6 +241,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
+            commandIds << "RicPasteWellLogPlotFeature";
+            commandIds << "Separator";
             commandIds << "RicNewWellLogPlotFeature";
         }
         else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
@@ -251,6 +253,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
+            commandIds << "RicPasteWellLogPlotFeature";
             commandIds << "RicPasteWellLogTrackFeature";
             commandIds << "Separator";
             commandIds << "RicNewWellLogPlotTrackFeature";
