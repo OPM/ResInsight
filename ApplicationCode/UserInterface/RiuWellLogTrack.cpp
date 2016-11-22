@@ -19,6 +19,8 @@
 
 #include "RiuWellLogTrack.h"
 
+#include "RiaApplication.h"
+
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogCurve.h"
@@ -29,8 +31,11 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_marker.h"
+#include "qwt_plot_picker.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
+#include "qwt_symbol.h"
 #include "qwt_text.h"
 
 #include <QFont>
@@ -39,10 +44,56 @@
 #include <QWheelEvent>
 
 #include <float.h>
-#include "RiaApplication.h"
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RiuWellLogTrackQwtPicker : public QwtPlotPicker
+{
+public:
+    RiuWellLogTrackQwtPicker(QWidget *canvas)
+        : QwtPlotPicker(canvas)
+    {
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QwtText trackerText(const QPoint& pos) const override
+    {
+        QwtText txt;
+
+        const RiuWellLogTrack* wellLogTrack = dynamic_cast<const RiuWellLogTrack*>(this->plot());
+        if (wellLogTrack)
+        {
+            QString depthString;
+            QString valueString;
+            QPointF closestPoint = wellLogTrack->closestCurvePoint(pos, &valueString, &depthString);
+            if (!closestPoint.isNull())
+            {
+                QString str = valueString;
+
+                if (!depthString.isEmpty())
+                {
+                    str += QString(" (%1)").arg(depthString);
+                }
+
+                txt.setText(str);
+            }
+
+            RiuWellLogTrack* nonConstPlot = const_cast<RiuWellLogTrack*>(wellLogTrack);
+            nonConstPlot->updateClosestCurvePointMarker(closestPoint);
+        }
+
+        return txt;
+    }
+};
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -58,6 +109,16 @@ RiuWellLogTrack::RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* 
    
     setFocusPolicy(Qt::ClickFocus);
     setDefaults();
+
+    // Create a plot picker to display values next to mouse cursor
+    m_plotPicker = new RiuWellLogTrackQwtPicker(this->canvas());
+    m_plotPicker->setTrackerMode(QwtPicker::AlwaysOn);
+
+    m_plotMarker = new QwtPlotMarker;
+
+    // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
+    QwtSymbol* mySymbol = new QwtSymbol(QwtSymbol::Ellipse, Qt::NoBrush, QPen(Qt::black, 2.0), QSize(12, 12));
+    m_plotMarker->setSymbol(mySymbol);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +128,99 @@ RiuWellLogTrack::~RiuWellLogTrack()
 {
     m_grid->detach();
     delete m_grid;
+
+    m_plotMarker->detach();
+    delete m_plotMarker;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QPointF RiuWellLogTrack::closestCurvePoint(const QPoint& pos, QString* valueString, QString* depthString) const
+{
+    QPointF samplePoint;
+
+    QwtPlotCurve* closestCurve = nullptr;
+    double distMin = DBL_MAX;
+    int closestPointSampleIndex = -1;
+
+    const QwtPlotItemList& itmList = itemList();
+    for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
+    {
+        if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
+        {
+            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
+            double dist = DBL_MAX;
+            int candidateSampleIndex = candidateCurve->closestPoint(pos, &dist);
+            if (dist < distMin)
+            {
+                closestCurve = candidateCurve;
+                distMin = dist;
+                closestPointSampleIndex = candidateSampleIndex;
+            }
+        }
+    }
+
+    if (closestCurve && distMin < 50)
+    {
+        samplePoint = closestCurve->sample(closestPointSampleIndex);
+    }
+
+    if (depthString)
+    {
+        const QwtScaleDraw* depthAxisScaleDraw = axisScaleDraw(QwtPlot::yLeft);
+        if (depthAxisScaleDraw)
+        {
+            *depthString = depthAxisScaleDraw->label(samplePoint.y()).text();
+        }
+    }
+
+    if (valueString && closestCurve)
+    {
+        const QwtScaleDraw* xAxisScaleDraw = axisScaleDraw(closestCurve->xAxis());
+        if (xAxisScaleDraw)
+        {
+            *valueString = xAxisScaleDraw->label(samplePoint.x()).text();
+        }
+    }
+
+    return samplePoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::updateClosestCurvePointMarker(const QPointF& pos)
+{
+    bool replotRequired = false;
+
+    if (!pos.isNull())
+    {
+        if (!m_plotMarker->plot())
+        {
+            m_plotMarker->attach(this);
+
+            replotRequired = true;
+        }
+
+        if (m_plotMarker->value() != pos)
+        {
+            m_plotMarker->setValue(pos.x(), pos.y());
+
+            replotRequired = true;
+        }
+    }
+    else
+    {
+        if (m_plotMarker->plot())
+        {
+            m_plotMarker->detach();
+
+            replotRequired = true;
+        }
+    }
+
+    if (replotRequired) this->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,6 +428,19 @@ QSize RiuWellLogTrack::sizeHint() const
 QSize RiuWellLogTrack::minimumSizeHint() const
 {
     return QSize(0, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::leaveEvent(QEvent *)
+{
+    if (m_plotMarker->plot())
+    {
+        m_plotMarker->detach();
+
+        replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

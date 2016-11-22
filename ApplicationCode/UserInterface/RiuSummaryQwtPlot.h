@@ -57,14 +57,16 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
-    QPointF                         closestCurvePoint(const QPoint& pos, QString* valueString, QString* timeString, int* yAxis) const;
-    void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
 
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
     virtual void                    leaveEvent(QEvent *) override;
 
 private:
+    friend class RiuQwtPlotPicker;
+    QPointF                         closestCurvePoint(const QPoint& pos, QString* valueString, QString* timeString, int* yAxis) const;
+    void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
+
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
     void                            showToolTip(const QPoint& pos);
