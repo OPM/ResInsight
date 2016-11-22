@@ -351,7 +351,10 @@ void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_t
         int reportStepCount = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
         for (int reportStepIndex = 0; reportStepIndex < reportStepCount; reportStepIndex++)
         {
-            ecl_rsthead_type* restart_header = ecl_rsthead_ialloc(ecl_file, reportStepIndex);
+            ecl_file_view_type* rst_view = ecl_file_get_global_view(ecl_file);
+            if (!rst_view) continue;
+
+            ecl_rsthead_type* restart_header = ecl_rsthead_alloc(rst_view, reportStepIndex);
             if (restart_header)
             {
                 ecl_file_push_block(ecl_file);
