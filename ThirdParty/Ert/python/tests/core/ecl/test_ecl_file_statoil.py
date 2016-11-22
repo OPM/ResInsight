@@ -56,7 +56,7 @@ class EclFileStatoilTest(ExtendedTestCase):
     def test_iget_named(self):
         f = EclFile(self.test_file)
         N = f.num_named_kw( "SWAT" )
-        with self.assertRaises(KeyError):
+        with self.assertRaises(IndexError):
             s = f.iget_named_kw( "SWAT" , N + 1)
 
 
@@ -144,6 +144,12 @@ class EclFileStatoilTest(ExtendedTestCase):
             with self.assertRaises(IOError):
                 rst_file = EclFile("ECLIPSE.UNRST", flags=EclFileFlagEnum.ECL_FILE_WRITABLE)
                 
-                
-        
-            
+    def test_restart_view(self):
+        f = EclFile( self.test_file )
+        with self.assertRaises(ValueError):
+            v = f.restartView( )
+
+        v = f.restartView( sim_days = 274 )
+        v = f.restartView( sim_time = datetime.date( 2004,1,1) )
+        v = f.restartView( report_step = 30 )
+        v = f.restartView( seqnum_index = 30 )

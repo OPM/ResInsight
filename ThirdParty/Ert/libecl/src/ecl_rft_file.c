@@ -96,8 +96,10 @@ ecl_rft_file_type * ecl_rft_file_alloc(const char * filename) {
   int block_nr = 0;
 
   while (true) {
-    if (ecl_file_select_block( ecl_file , TIME_KW , block_nr)) {
-      ecl_rft_node_type * rft_node = ecl_rft_node_alloc( ecl_file );
+    ecl_file_view_type * rft_view = ecl_file_alloc_global_blockview(ecl_file, TIME_KW, block_nr);
+
+    if (rft_view) {
+      ecl_rft_node_type * rft_node = ecl_rft_node_alloc( rft_view );
       if (rft_node != NULL) {
         const char * well_name = ecl_rft_node_get_well_name( rft_node );
         ecl_rft_file_add_node(rft_vector , rft_node);
@@ -111,7 +113,9 @@ ecl_rft_file_type * ecl_rft_file_alloc(const char * filename) {
       }
     } else
       break;
+
     block_nr++;
+    ecl_file_view_free( rft_view );
   }
   ecl_file_close( ecl_file );
   return rft_vector;

@@ -424,3 +424,8 @@ class SumTest(ExtendedTestCase):
         
         writer.addTStep( 1 , 100 )
         
+    def test_aquifer(self):
+        case = EclSum( self.createTestPath( "Statoil/ECLIPSE/Aquifer/06_PRESSURE_R009-0"))
+        self.assertTrue( "AAQR:2" in case )
+                       
+        

@@ -99,3 +99,64 @@ class EclFileTest(ExtendedTestCase):
 
             for kw1,kw2 in zip(kw_list,kw_list2):
                 self.assertEqual( kw1, kw2 )
+
+
+                
+    def test_block_view(self):
+        with TestAreaContext("python/ecl_file/view"):
+            with openFortIO("TEST" , mode = FortIO.WRITE_MODE) as f:
+                for i in range(5):
+                    header = EclKW("HEADER" , 1 , EclTypeEnum.ECL_INT_TYPE )
+                    header[0] = i
+                    
+                    data1 = EclKW("DATA1" , 100 , EclTypeEnum.ECL_INT_TYPE )
+                    data1.assign( i )
+
+
+                    data2 = EclKW("DATA2" , 100 , EclTypeEnum.ECL_INT_TYPE )
+                    data2.assign( i*10 )
+
+                    header.fwrite( f )
+                    data1.fwrite( f )
+                    data2.fwrite( f )
+
+                    
+            ecl_file = EclFile("TEST")
+            with self.assertRaises(KeyError):
+                ecl_file.blockView("NO" , 1)
+
+            with self.assertRaises(IndexError):
+                ecl_file.blockView("HEADER" , 100)
+
+            for i in range(5):
+                view = ecl_file.blockView("HEADER" , i)
+                self.assertEqual( len(view) , 3)
+                header = view["HEADER"][0]
+                data1 = view["DATA1"][0]
+                data2 = view["DATA2"][0]
+                
+                self.assertEqual( header[0] , i )
+                self.assertEqual( data1[99] , i )
+                self.assertEqual( data2[99] , i*10 )
+
+
+            for i in range(5):
+                view = ecl_file.blockView2("HEADER" , "DATA2", i )
+                self.assertEqual( len(view) , 2)
+                header = view["HEADER"][0]
+                data1 = view["DATA1"][0]
+                
+                self.assertEqual( header[0] , i )
+                self.assertEqual( data1[99] , i )
+
+                self.assertFalse( "DATA2" in view )
+
+            view = ecl_file.blockView2("HEADER" , None, 0 )
+            self.assertEqual( len(view) , len(ecl_file))
+
+            view = ecl_file.blockView2(None , "DATA2", 0 )
+            #self.assertEqual( len(view) , 2)
+            #self.assertTrue( "HEADER" in view )
+            #self.assertTrue( "DATA1" in view )
+            #self.assertFalse( "DATA2" in view )
+

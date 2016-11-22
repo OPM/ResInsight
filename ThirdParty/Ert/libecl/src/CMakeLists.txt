@@ -10,7 +10,8 @@ set( source_files
      ecl_grid_cache.c 
      smspec_node.c 
      ecl_kw_grdecl.c 
-     ecl_file_kw.c 
+     ecl_file_kw.c
+     ecl_file_view.c 
      ecl_grav.c 
      ecl_grav_calc.c 
      ecl_smspec.c 
@@ -66,7 +67,8 @@ set( header_files
      ecl_coarse_cell.h 
      ecl_grid.h 
      ecl_io_config.h 
-     ecl_file.h 
+     ecl_file.h
+     ecl_file_view.h 
      ecl_region.h 
      ecl_kw_magic.h 
      ecl_subsidence.h 

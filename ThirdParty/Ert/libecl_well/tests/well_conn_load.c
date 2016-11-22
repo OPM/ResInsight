@@ -37,7 +37,7 @@ int main(int argc , char ** argv) {
   const char * Xfile = argv[1];
   bool MSW;
   ecl_file_type * rst_file = ecl_file_open( Xfile , 0 );
-  ecl_rsthead_type * rst_head = ecl_rsthead_alloc( rst_file );
+  ecl_rsthead_type * rst_head = ecl_rsthead_alloc( ecl_file_get_global_view(rst_file) , ecl_util_filename_report_nr( Xfile ));
   
   test_install_SIGNALS();
   test_assert_true( util_sscanf_bool( argv[2] , &MSW ));

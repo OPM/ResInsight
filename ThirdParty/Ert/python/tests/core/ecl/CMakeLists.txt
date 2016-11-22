@@ -4,6 +4,7 @@ set(RSH_SERVERS "" CACHE STRING  "List of nodes which will be used to test the R
 set(TEST_SOURCES
     __init__.py
     test_deprecation.py
+    test_removed.py
     test_ecl_3dkw.py
     test_ecl_file_statoil.py
     test_ecl_file.py
@@ -54,6 +55,7 @@ addPythonTest(ecl.faults ecl.test_faults.FaultTest )
 addPythonTest(ecl.fault_blocks ecl.test_fault_blocks.FaultBlockTest )
 addPythonTest(ecl.ecl_deprecation1.9 ecl.test_deprecation.Deprecation_1_9_Test )
 addPythonTest(ecl.ecl_deprecation2.0 ecl.test_deprecation.Deprecation_2_0_Test )
+addPythonTest(ecl.ecl_removed2.1 ecl.test_removed.Removed_2_1_Test )
 addPythonTest(ecl.ecl_util ecl.test_ecl_util.EclUtilTest )
 addPythonTest(ecl.fortio ecl.test_fortio.FortIOTest)
 addPythonTest(ecl.ecl_file ecl.test_ecl_file.EclFileTest)

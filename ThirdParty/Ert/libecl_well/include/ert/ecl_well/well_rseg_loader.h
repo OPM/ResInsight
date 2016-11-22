@@ -24,12 +24,12 @@
 extern "C" {
 #endif
 
-#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 
 
   typedef struct well_rseg_loader_struct well_rseg_loader_type;
 
-  well_rseg_loader_type *  well_rseg_loader_alloc(ecl_file_type * rst_file);
+  well_rseg_loader_type *  well_rseg_loader_alloc(ecl_file_view_type * rst_view);
   void                     well_rseg_loader_free(well_rseg_loader_type * well_rseg_loader);
 
   int                      well_rseg_loader_element_count(const well_rseg_loader_type * well_rseg_loader);

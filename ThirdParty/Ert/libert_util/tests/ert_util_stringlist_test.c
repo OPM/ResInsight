@@ -56,6 +56,14 @@ void test_join() {
   const char * elt5 = "FFF";
 
   stringlist_type * s = stringlist_alloc_new();
+
+  {
+    // empty join
+    const char* empty_join = stringlist_alloc_joined_string(s, "!!!");
+    test_assert_not_NULL(empty_join);
+    test_assert_string_equal("", empty_join);
+  }
+
   stringlist_append_ref( s , elt0 );
   stringlist_append_ref( s , elt1 );
   stringlist_append_ref( s , elt2 );

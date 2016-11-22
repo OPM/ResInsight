@@ -25,6 +25,7 @@
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/nnc_info.h>
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_kw_magic.h>
 
 
@@ -36,9 +37,7 @@ void test_scan( const char * grid_filename) {
   for (block_nr = 0; block_nr < ecl_file_get_num_named_kw( grid_file , NNCHEAD_KW ); block_nr++) {
     ecl_grid_type * lgr = ecl_grid;
     int lgr_nr;
-    ecl_file_push_block( grid_file );
-    ecl_file_select_block(grid_file , NNCHEAD_KW , block_nr );
-    
+    ecl_file_view_type * nnc_view = ecl_file_alloc_global_blockview(grid_file, NNCHEAD_KW, block_nr);
     {
       if (block_nr > 0)
       lgr = ecl_grid_iget_lgr( ecl_grid , block_nr - 1);
@@ -46,9 +45,9 @@ void test_scan( const char * grid_filename) {
 
       /* Internal nnc */
       {
-        if (ecl_file_has_kw( grid_file , NNC1_KW)) {
-          ecl_kw_type * nnc1_kw = ecl_file_iget_named_kw(grid_file , NNC1_KW , 0 );
-          ecl_kw_type * nnc2_kw = ecl_file_iget_named_kw(grid_file , NNC2_KW , 0 );
+        if (ecl_file_view_has_kw( nnc_view , NNC1_KW)) {
+          ecl_kw_type * nnc1_kw = ecl_file_view_iget_named_kw(nnc_view , NNC1_KW , 0 );
+          ecl_kw_type * nnc2_kw = ecl_file_view_iget_named_kw(nnc_view , NNC2_KW , 0 );
           int i;
           for (i=0; i < ecl_kw_get_size(nnc1_kw); i++) {
             const int g1 = ecl_kw_iget_int( nnc1_kw , i ) - 1;
@@ -67,10 +66,10 @@ void test_scan( const char * grid_filename) {
 
     /* Global -> lgr */
     {
-      if (ecl_file_has_kw( grid_file , NNCG_KW)) {
-        ecl_kw_type * nnchead_kw = ecl_file_iget_named_kw( grid_file , NNCHEAD_KW , 0);
-        ecl_kw_type * nncg_kw = ecl_file_iget_named_kw(grid_file , NNCG_KW , 0 );
-        ecl_kw_type * nncl_kw = ecl_file_iget_named_kw(grid_file , NNCL_KW , 0 );
+      if (ecl_file_view_has_kw( nnc_view , NNCG_KW)) {
+        ecl_kw_type * nnchead_kw = ecl_file_view_iget_named_kw( nnc_view , NNCHEAD_KW , 0);
+        ecl_kw_type * nncg_kw    = ecl_file_view_iget_named_kw(nnc_view , NNCG_KW , 0 );
+        ecl_kw_type * nncl_kw    = ecl_file_view_iget_named_kw(nnc_view , NNCL_KW , 0 );
         int i;
         int lgr_nr = ecl_kw_iget_int( nnchead_kw , NNCHEAD_LGR_INDEX);
         for (i=0; i < ecl_kw_get_size(nncg_kw); i++) {
@@ -90,10 +89,10 @@ void test_scan( const char * grid_filename) {
     
     /* Amalgamated: LGR -> LGR */
     {
-      if (ecl_file_has_kw( grid_file , NNCHEADA_KW)) {
-        ecl_kw_type * nncheada_kw = ecl_file_iget_named_kw( grid_file , NNCHEADA_KW , 0);
-        ecl_kw_type * nnc1_kw = ecl_file_iget_named_kw(grid_file , NNA1_KW , 0 );
-        ecl_kw_type * nnc2_kw = ecl_file_iget_named_kw(grid_file , NNA2_KW , 0 );
+      if (ecl_file_view_has_kw( nnc_view , NNCHEADA_KW)) {
+        ecl_kw_type * nncheada_kw = ecl_file_view_iget_named_kw(nnc_view , NNCHEADA_KW , 0);
+        ecl_kw_type * nnc1_kw     = ecl_file_view_iget_named_kw(nnc_view , NNA1_KW , 0 );
+        ecl_kw_type * nnc2_kw     = ecl_file_view_iget_named_kw(nnc_view , NNA2_KW , 0 );
         int lgr_nr1 = ecl_kw_iget_int( nncheada_kw , NNCHEADA_ILOC1_INDEX); 
         int lgr_nr2 = ecl_kw_iget_int( nncheada_kw , NNCHEADA_ILOC2_INDEX);
         
@@ -109,7 +108,8 @@ void test_scan( const char * grid_filename) {
         } 
       }
     }
-    ecl_file_pop_block( grid_file );
+
+    ecl_file_view_free( nnc_view );
   }
 }
 

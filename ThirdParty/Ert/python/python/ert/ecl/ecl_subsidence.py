@@ -45,9 +45,9 @@ class EclSubsidence(BaseCClass):
     TYPE_NAME = "ecl_subsidence"
     _alloc               = EclPrototype("void* ecl_subsidence_alloc( ecl_grid , ecl_file )" , bind = False)
     _free                = EclPrototype("void ecl_subsidence_free( ecl_subsidence )")
-    _add_survey_PRESSURE = EclPrototype("void*  ecl_subsidence_add_survey_PRESSURE( ecl_subsidence , char* , ecl_file )")
+    _add_survey_PRESSURE = EclPrototype("void*  ecl_subsidence_add_survey_PRESSURE( ecl_subsidence , char* , ecl_file_view )")
     _eval                = EclPrototype("double ecl_subsidence_eval( ecl_subsidence , char* , char* , ecl_region , double , double , double, double, double)")
-
+    _has_survey          = EclPrototype("bool  ecl_subsidence_has_survey( ecl_subsidence , char*)")
 
     def __init__( self, grid, init_file ):
         """
@@ -60,7 +60,11 @@ class EclSubsidence(BaseCClass):
         c_ptr = self._alloc( grid , init_file )
         super( EclSubsidence , self ).__init__( c_ptr )
 
-        
+
+    def __contains__(self , survey_name):
+        return self._has_survey( survey_name )
+
+    
 
     def add_survey_PRESSURE( self, survey_name, restart_file ):
         """
@@ -111,6 +115,15 @@ class EclSubsidence(BaseCClass):
 
         The argument @compressibility is the total reservoir compressibility.
         """
-        return self._eval(self, base_survey, monitor_survey, region, pos[0], pos[1], pos[2], compressibility,
-                          poisson_ratio)
+        if not base_survey in self:
+            raise KeyError("No such survey: %s" % base_survey)
 
+        if not monitor_survey in self:
+            raise KeyError("No such survey: %s" % monitor_survey)
+        
+        return self._eval(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], compressibility,poisson_ratio)
+
+
+    
+    def free(self):
+        self._free( )

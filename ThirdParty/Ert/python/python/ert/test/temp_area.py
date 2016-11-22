@@ -39,6 +39,9 @@ class TempArea(TestArea):
         super(TempArea, self).__init__(name , c_ptr = c_ptr , store_area = store_area)
 
 
+    def __str__(self):
+        return self.getPath()
+
     
     def get_cwd(self):
         """

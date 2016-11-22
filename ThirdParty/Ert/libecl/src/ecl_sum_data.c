@@ -915,17 +915,17 @@ ecl_sum_tstep_type * ecl_sum_data_add_new_tstep( ecl_sum_data_type * data , int 
 static void ecl_sum_data_add_ecl_file(ecl_sum_data_type * data         ,
                                       time_t load_end ,
                                       int   report_step                ,
-                                      const ecl_file_type   * ecl_file ,
+                                      const ecl_file_view_type * summary_view,
                                       const ecl_smspec_type * smspec) {
 
 
-  int num_ministep  = ecl_file_get_num_named_kw( ecl_file , PARAMS_KW);
+  int num_ministep  = ecl_file_view_get_num_named_kw( summary_view , PARAMS_KW);
   if (num_ministep > 0) {
     int ikw;
 
     for (ikw = 0; ikw < num_ministep; ikw++) {
-      ecl_kw_type * ministep_kw = ecl_file_iget_named_kw( ecl_file , MINISTEP_KW , ikw);
-      ecl_kw_type * params_kw   = ecl_file_iget_named_kw( ecl_file , PARAMS_KW   , ikw);
+      ecl_kw_type * ministep_kw = ecl_file_view_iget_named_kw( summary_view , MINISTEP_KW , ikw);
+      ecl_kw_type * params_kw   = ecl_file_view_iget_named_kw( summary_view , PARAMS_KW   , ikw);
 
       {
         ecl_sum_tstep_type * tstep;
@@ -933,7 +933,7 @@ static void ecl_sum_data_add_ecl_file(ecl_sum_data_type * data         ,
         tstep = ecl_sum_tstep_alloc_from_file( report_step ,
                                                ministep_nr ,
                                                params_kw ,
-                                               ecl_file_get_src_file( ecl_file ),
+                                               ecl_file_view_get_src_file( summary_view ),
                                                smspec );
 
         if (tstep != NULL) {
@@ -992,7 +992,7 @@ static bool ecl_sum_data_fread__( ecl_sum_data_type * data , time_t load_end , c
           {
             ecl_file_type * ecl_file = ecl_file_open( data_file , 0);
             if (ecl_file && ecl_sum_data_check_file( ecl_file )) {
-              ecl_sum_data_add_ecl_file( data , load_end , report_step , ecl_file , data->smspec);
+              ecl_sum_data_add_ecl_file( data , load_end , report_step , ecl_file_get_global_view( ecl_file ) , data->smspec);
               ecl_file_close( ecl_file );
             }
           }
@@ -1009,8 +1009,9 @@ static bool ecl_sum_data_fread__( ecl_sum_data_type * data , time_t load_end , c
               SEQHDR block in the unified summary file is block zero (in
               ert counting).
             */
-            if (ecl_file_select_smryblock( ecl_file , report_step - 1)) {
-              ecl_sum_data_add_ecl_file( data , load_end , report_step , ecl_file , data->smspec);
+            ecl_file_view_type * summary_view = ecl_file_get_summary_view(ecl_file , report_step - 1 );
+            if (summary_view) {
+              ecl_sum_data_add_ecl_file( data , load_end , report_step , summary_view , data->smspec);
               report_step++;
             } else break;
           }

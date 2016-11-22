@@ -44,14 +44,13 @@ class EclGrav(BaseCClass):
     TYPE_NAME = "ecl_grav"
     _grav_alloc = EclPrototype("void* ecl_grav_alloc( ecl_grid , ecl_file )" , bind = False)
     _free = EclPrototype("void ecl_grav_free( ecl_grav )")
-    _add_survey_RPORV = EclPrototype("void*  ecl_grav_add_survey_RPORV( ecl_grav , char* , ecl_file )")
-    _add_survey_PORMOD = EclPrototype("void*  ecl_grav_add_survey_PORMOD( ecl_grav , char* , ecl_file )")
-    _add_survey_FIP = EclPrototype("void*  ecl_grav_add_survey_FIP( ecl_grav , char* , ecl_file )")
-    _add_survey_RFIP = EclPrototype("void*  ecl_grav_add_survey_RFIP( ecl_grav , char* , ecl_file )")
+    _add_survey_RPORV = EclPrototype("void*  ecl_grav_add_survey_RPORV( ecl_grav , char* , ecl_file_view )")
+    _add_survey_PORMOD = EclPrototype("void*  ecl_grav_add_survey_PORMOD( ecl_grav , char* , ecl_file_view )")
+    _add_survey_FIP = EclPrototype("void*  ecl_grav_add_survey_FIP( ecl_grav , char* , ecl_file_view )")
+    _add_survey_RFIP = EclPrototype("void*  ecl_grav_add_survey_RFIP( ecl_grav , char* , ecl_file_view )")
     _new_std_density = EclPrototype("void ecl_grav_new_std_density( ecl_grav , int , double)")
     _add_std_density = EclPrototype("void ecl_grav_add_std_density( ecl_grav , int , int , double)")
     _eval = EclPrototype("double ecl_grav_eval( ecl_grav , char* , char* , ecl_region , double , double , double, int)")
-
 
     
 
@@ -67,35 +66,40 @@ class EclGrav(BaseCClass):
         c_ptr = self._grav_alloc( grid , init_file )
         super(EclGrav , self).__init__( c_ptr )
         
+        self.dispatch = {"FIP"    : self.add_survey_FIP,
+                         "RFIP"   : self.add_survey_RFIP,
+                         "PORMOD" : self.add_survey_PORMOD,
+                         "RPORV"  : self.add_survey_RPORV}
 
 
-    def add_survey_RPORV( self, survey_name, restart_file ):
+    def add_survey_RPORV( self, survey_name, restart_view ):
         """
         Add new survey based on RPORV keyword.
 
         Add a new survey; in this context a survey is the state of
         reservoir, i.e. an ECLIPSE restart file. The @survey_name
         input argument will be used when refering to this survey at a
-        later stage. The @restart_file input argument should be an
+        later stage. The @restart_view input argument should be an
         EclFile instance with data from one report step. A typical way
-        to load the @restart_file argument is:
+        to load the @restart_view argument is:
 
            import datetime
-           import ert.ecl.ecl as ecl
+           from ert.ecl import EclRestartFile
            ...
            ...
            date = datetime.datetime( year , month , day )
-           restart_file1 = ecl.EclFile.restart_block( "ECLIPSE.UNRST" , dtime = date)
-           restart_file2 = ecl.EclFile.restart_block( "ECLIPSE.UNRST" , report_step = 67 )
+           rst_file = EclRestartFile( "ECLIPSE.UNRST" )
+           restart_view1 = rst_file.restartView( sim_time = date)
+           restart_view2 = rst_file.restartView( report_step = 67 )
 
         The pore volume of each cell will be calculated based on the
         RPORV keyword from the restart files. The methods
         add_survey_PORMOD() and add_survey_FIP() are alternatives
         which are based on other keywords.
         """
-        self._add_survey_RPORV(survey_name, restart_file)
+        self._add_survey_RPORV(survey_name, restart_view)
 
-    def add_survey_PORMOD( self, survey_name, restart_file ):
+    def add_survey_PORMOD( self, survey_name, restart_view ):
         """
         Add new survey based on PORMOD keyword.
         
@@ -103,9 +107,9 @@ class EclGrav(BaseCClass):
         the PORV_MOD keyword from the restart file; see
         add_survey_RPORV() for further details.
         """
-        self._add_survey_PORMOD(survey_name, restart_file)
+        self._add_survey_PORMOD(survey_name, restart_view)
 
-    def add_survey_FIP( self, survey_name, restart_file ):
+    def add_survey_FIP( self, survey_name, restart_view ):
         """
         Add new survey based on FIP keywords.
 
@@ -118,9 +122,9 @@ class EclGrav(BaseCClass):
         the new_std_density() (and possibly also add_std_density())
         method before calling the add_survey_FIP() method.
         """
-        self._add_survey_FIP(survey_name, restart_file)
+        self._add_survey_FIP(survey_name, restart_view)
 
-    def add_survey_RFIP( self, survey_name, restart_file ):
+    def add_survey_RFIP( self, survey_name, restart_view ):
         """
         Add new survey based on RFIP keywords.
 
@@ -129,8 +133,11 @@ class EclGrav(BaseCClass):
         calculated based on the RFIPxxx keyword along with the
         per-cell mass density of the respective phases.
         """
-        self._add_survey_RFIP( survey_name, restart_file)
+        self._add_survey_RFIP( survey_name, restart_view)
 
+    def addSurvey(self, name , restart_view, method):
+        method = self.dispatch[ method ]
+        return method( name , restart_view )
 
     def eval(self, base_survey, monitor_survey, pos, region=None,
              phase_mask=EclPhaseEnum.ECL_OIL_PHASE + EclPhaseEnum.ECL_GAS_PHASE + EclPhaseEnum.ECL_WATER_PHASE):

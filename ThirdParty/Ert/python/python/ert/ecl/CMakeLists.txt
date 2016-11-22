@@ -5,6 +5,7 @@ set(PYTHON_SOURCES
     ecl_3dkw.py
     ecl_case.py
     ecl_file.py
+    ecl_file_view.py
     ecl_grav.py
     ecl_grav_calc.py
     ecl_grid.py

@@ -23,6 +23,7 @@ extern "C" {
 #endif
 #include <stdbool.h>
 
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_rft_cell.h>
 
@@ -37,7 +38,7 @@ const ecl_rft_cell_type * ecl_rft_node_iget_cell_sorted( ecl_rft_node_type * rft
 const ecl_rft_cell_type * ecl_rft_node_iget_cell( const ecl_rft_node_type * rft_node , int index);
 const ecl_rft_cell_type * ecl_rft_node_lookup_ijk( const ecl_rft_node_type * rft_node , int i, int j , int k);
 void                ecl_rft_node_fprintf_rft_obs(const ecl_rft_node_type * , double , const char * , const char * , double );
-ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_type * file_map );
+ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_view_type * rft_view );
 void                ecl_rft_node_free(ecl_rft_node_type * );
 void                ecl_rft_node_free__(void * );
 time_t              ecl_rft_node_get_date(const ecl_rft_node_type * );

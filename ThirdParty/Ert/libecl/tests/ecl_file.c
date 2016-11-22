@@ -26,6 +26,7 @@
 
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_endian_flip.h>
 

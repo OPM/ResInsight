@@ -44,7 +44,6 @@ class SumTest(ExtendedTestCase):
         self.assertTrue("FOPT" in case)
         self.assertFalse("WWCT:OPX" in case)
 
-
     def test_TIME_special_case(self):
         case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
         keys = case.keys()
@@ -64,10 +63,16 @@ class SumTest(ExtendedTestCase):
         self.assertEqual( EclSum.varType( "WWCT:OP_X") , EclSumVarType.ECL_SMSPEC_WELL_VAR )
         self.assertEqual( EclSum.varType( "RPR") , EclSumVarType.ECL_SMSPEC_REGION_VAR )
         self.assertEqual( EclSum.varType( "WNEWTON") , EclSumVarType.ECL_SMSPEC_MISC_VAR )
-        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
-        node = case.smspec_node( "FOPT" )
+        self.assertEqual( EclSum.varType( "AARQ:4") , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
 
+        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0), ("AARQ" , None , 10)])
+
+        node = case.smspec_node( "FOPT" )
         self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_FIELD_VAR )
+
+        node = case.smspec_node( "AARQ:10" )
+        self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
+        self.assertEqual( node.getNum( ) , 10 )
 
         
 

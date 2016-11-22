@@ -98,7 +98,7 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_empty(const ecl_
 static UTIL_SAFE_CAST_FUNCTION( ecl_subsidence_survey , ECL_SUBSIDENCE_SURVEY_ID )
 
 static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_PRESSURE(ecl_subsidence_type * ecl_subsidence ,
-                                                                         const ecl_file_type * restart_file ,
+                                                                         const ecl_file_view_type * restart_view ,
                                                                          const char * name ) {
 
   ecl_subsidence_survey_type * survey = ecl_subsidence_survey_alloc_empty( ecl_subsidence , name );
@@ -107,7 +107,7 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_PRESSURE(ecl_sub
   const int size = ecl_grid_cache_get_size( grid_cache );
   int active_index;
   ecl_kw_type * init_porv_kw = ecl_file_iget_named_kw( ecl_subsidence->init_file , PORV_KW , 0); /*Global indexing*/
-  ecl_kw_type * pressure_kw = ecl_file_iget_named_kw( restart_file , PRESSURE_KW , 0); /*Active indexing*/
+  ecl_kw_type * pressure_kw = ecl_file_view_iget_named_kw( restart_view , PRESSURE_KW , 0); /*Active indexing*/
   
   for (active_index = 0; active_index < size; active_index++){
     survey->porv[ active_index ] = ecl_kw_iget_float( init_porv_kw , global_index[active_index] );
@@ -186,30 +186,22 @@ static void ecl_subsidence_add_survey__( ecl_subsidence_type * subsidence , cons
   hash_insert_hash_owned_ref( subsidence->surveys , name , survey , ecl_subsidence_survey_free__ );
 }
 
-ecl_subsidence_survey_type * ecl_subsidence_add_survey_PRESSURE( ecl_subsidence_type * subsidence , const char * name , const ecl_file_type * restart_file ) {
-  ecl_subsidence_survey_type * survey = ecl_subsidence_survey_alloc_PRESSURE( subsidence , restart_file , name );
+ecl_subsidence_survey_type * ecl_subsidence_add_survey_PRESSURE( ecl_subsidence_type * subsidence , const char * name , const ecl_file_view_type * restart_view ) {
+  ecl_subsidence_survey_type * survey = ecl_subsidence_survey_alloc_PRESSURE( subsidence , restart_view , name );
   ecl_subsidence_add_survey__( subsidence , name , survey );
   return survey;
+}
+
+
+bool ecl_subsidence_has_survey( const ecl_subsidence_type * subsidence , const char * name) {
+  return hash_has_key( subsidence->surveys , name );
 }
 
 static ecl_subsidence_survey_type * ecl_subsidence_get_survey( const ecl_subsidence_type * subsidence , const char * name) {
   if (name == NULL)
     return NULL;  // Calling scope must determine if this is OK?
-  else {
-    if (hash_has_key( subsidence->surveys , name))
-      return hash_get( subsidence->surveys , name );
-    else {
-      hash_iter_type * survey_iter = hash_iter_alloc( subsidence->surveys );
-      fprintf(stderr,"Survey name:%s not registered. Available surveys are: \n\n     " , name);
-      while (!hash_iter_is_complete( survey_iter )) {
-        const char * survey = hash_iter_get_next_key( survey_iter );
-        fprintf(stderr,"%s ",survey);
-      }
-      fprintf(stderr,"\n\n");
-      hash_iter_free( survey_iter );
-      exit(1);
-    }
-  }
+  else
+    return hash_get( subsidence->surveys , name );
 }
 
 

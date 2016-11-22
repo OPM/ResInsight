@@ -18,15 +18,15 @@ class MeasData(BaseCClass):
         if isinstance(index , str):
             return MeasData.cNamespace().has_block( self , index)
         else:
-            raise TypeError("The in operator expects a string argument")
-            
+            raise TypeError('The in operator expects a string argument, got "%s".' % str(index))
+
 
     def __getitem__(self , index):
         if isinstance(index , str):
             if index in self:
                 return MeasData.cNamespace().get_block( self , index)
             else:
-                raise KeyError("The obs block:%s is not recognized" % index)
+                raise KeyError('The obs block "%s" is not recognized' % index)
         elif isinstance(index,int):
             if index < 0:
                 index += len(self)
@@ -34,17 +34,13 @@ class MeasData(BaseCClass):
             if 0 <= index < len(self):
                 return MeasData.cNamespace().iget_block( self , index)
             else:
-                raise IndexError("Index out of range")
+                raise IndexError("Index out of range, should have 0 <= %d < %d." % (index, len(self)))
         else:
             raise TypeError("The index variable must string or integer")
 
 
     def __str__(self):
-        s = ""
-        for block in self:
-            s += "%s" % block
-            s += "\n"
-        return s
+        return '\n'.join([str(block) for block in self])
 
 
     def createS(self):
@@ -53,9 +49,8 @@ class MeasData(BaseCClass):
         if S is None:
             raise ValueError("Failed to create S active size : [%d,%d]" % (self.getActiveEnsSize() , self.activeObsSize( )))
         return S
-    
 
-    
+
     def deactivateZeroStdSamples(self, obs_data):
         assert isinstance(obs_data, ObsData)
         self.cNamespace().deactivate_outliers(obs_data, self)
@@ -64,11 +59,11 @@ class MeasData(BaseCClass):
     def addBlock(self , obs_key , report_step , obs_size):
         return MeasData.cNamespace().add_block( self , obs_key , report_step , obs_size )
 
-        
+
     def activeObsSize(self):
         return MeasData.cNamespace().get_active_obs_size( self )
 
-    
+
     def getActiveEnsSize(self):
         return MeasData.cNamespace().get_active_ens_size(self)
 
@@ -98,5 +93,3 @@ MeasData.cNamespace().get_block = cwrapper.prototype("meas_block_ref meas_data_g
 MeasData.cNamespace().iget_block = cwrapper.prototype("meas_block_ref meas_data_iget_block( meas_data , int)")
 
 MeasData.cNamespace().deactivate_outliers  = cwrapper.prototype("void enkf_analysis_deactivate_std_zero(obs_data, meas_data)")
-
-

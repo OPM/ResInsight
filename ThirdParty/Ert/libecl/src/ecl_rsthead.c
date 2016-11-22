@@ -20,6 +20,7 @@
 #include <ert/util/util.h>
 
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_rsthead.h>
 #include <ert/ecl/ecl_kw_magic.h>
@@ -86,8 +87,7 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
       // The only derived quantity
       rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );
   }
-  if (doubhead_kw)
-      rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
+  rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
   if (logihead_kw)
     rsthead->dualp    = ecl_kw_iget_bool( logihead_kw , LOGIHEAD_DUALP_INDEX);
 
@@ -95,35 +95,35 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
 }
 
 
- ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occurence) {
-  if (ecl_file_get_num_named_kw( rst_file , INTEHEAD_KW) > occurence) {
-    const ecl_kw_type * intehead_kw = ecl_file_iget_named_kw( rst_file , INTEHEAD_KW , occurence);
-    const ecl_kw_type * doubhead_kw = NULL;
-    const ecl_kw_type * logihead_kw = NULL;
-    int report_step;
-    if (ecl_file_get_num_named_kw(rst_file, LOGIHEAD_KW) > occurence)
-      logihead_kw = ecl_file_iget_named_kw( rst_file , LOGIHEAD_KW , occurence);
+/*
+  - If the rst_view corresponds to a block of an underlying unified
+    restart file the report_step value will be inferred from the
+    SEQNUM keyword.
 
-    if (ecl_file_get_num_named_kw(rst_file, DOUBHEAD_KW) > occurence) {
-        doubhead_kw = ecl_file_iget_named_kw(rst_file, DOUBHEAD_KW, occurence);
-    }
+  - If the rst_view corresponds to an underlying non-unified restart
+    file the report step must have been inferred from the filename
+    *prior* to calling this function.
+*/
 
-    if (ecl_file_get_num_named_kw( rst_file , SEQNUM_KW) > occurence) {
-      const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw( rst_file , SEQNUM_KW , occurence );
-      report_step = ecl_kw_iget_int( seqnum_kw , 0);
-    } else
-      ecl_util_get_file_type( ecl_file_get_src_file(rst_file) , NULL , &report_step);
 
-    return ecl_rsthead_alloc_from_kw( report_step , intehead_kw , doubhead_kw , logihead_kw );
-  } else
-    return NULL;
+ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_view_type * rst_view, int report_step) {
+  const ecl_kw_type * intehead_kw = ecl_file_view_iget_named_kw( rst_view , INTEHEAD_KW , 0);
+  const ecl_kw_type * doubhead_kw = ecl_file_view_iget_named_kw( rst_view , DOUBHEAD_KW , 0);
+  const ecl_kw_type * logihead_kw = NULL;
+
+  if (ecl_file_view_has_kw(rst_view, LOGIHEAD_KW))
+    logihead_kw = ecl_file_view_iget_named_kw( rst_view , LOGIHEAD_KW , 0);
+
+  if (ecl_file_view_has_kw( rst_view , SEQNUM_KW)) {
+    const ecl_kw_type * seqnum_kw = ecl_file_view_iget_named_kw( rst_view , SEQNUM_KW , 0);
+    report_step = ecl_kw_iget_int( seqnum_kw , 0);
+  }
+
+  return ecl_rsthead_alloc_from_kw( report_step , intehead_kw , doubhead_kw , logihead_kw );
 }
 
 
 
-ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_type * rst_file) {
-  return ecl_rsthead_ialloc( rst_file , 0 );
-}
 
 
 

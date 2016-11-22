@@ -100,22 +100,7 @@ class EclSMSPECNode(BaseCClass):
 
     @property
     def num(self):
-        """
-        Returns the NUMS value for this keyword; or None.
-
-        Many of the summary keywords have an integer stored in the
-        vector NUMS as an attribute, i.e. the block properties have
-        the global index of the cell in the nums vector. If the
-        variable in question makes use of the NUMS value this property
-        will return the value, otherwise it will return None:
-
-           sum.smspec_node("FOPT").num     => None
-           sum.smspec_node("BPR:1000").num => 1000
-        """
-        if self._node_need_num( ):
-            return self._node_num( )
-        else:
-            return None
+        return self.getNum( )
 
     def getKey1(self):
         """
@@ -143,3 +128,23 @@ class EclSMSPECNode(BaseCClass):
 
     def varType(self):
         return self._var_type( )
+
+
+    def getNum(self):
+        """
+        Returns the NUMS value for this keyword; or None.
+
+        Many of the summary keywords have an integer stored in the
+        vector NUMS as an attribute, i.e. the block properties have
+        the global index of the cell in the nums vector. If the
+        variable in question makes use of the NUMS value this property
+        will return the value, otherwise it will return None:
+
+           sum.smspec_node("FOPT").num     => None
+           sum.smspec_node("BPR:1000").num => 1000
+
+        """
+        if self._node_need_num( ):
+            return self._node_num( )
+        else:
+            return None

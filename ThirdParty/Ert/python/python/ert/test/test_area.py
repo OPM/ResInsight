@@ -84,22 +84,22 @@ class TestArea(BaseCClass):
         if os.path.exists( self.orgPath(path) ):
             self._copy_parent_directory( path)
         else:
-            raise IOError("No such file or directeory: %s" % path)
+            raise IOError("No such file or directory: %s" % path)
 
         
     def copy_parent_content( self , path):
         if os.path.exists( self.orgPath(path) ):
             self._copy_parent_content(path)
         else:
-            raise IOError("No such file or directeory: %s" % path)
+            raise IOError("No such file or directory: %s" % path)
 
     def copy_directory_content( self, directory):
         if os.path.isdir( self.orgPath(directory) ):
             self._copy_directory_content(directory)
         else:
-            raise IOError("No such directeory: %s" % path)
+            raise IOError("No such directory: %s" % directory )
 
-        
+         
     def copy_file( self, filename):
         if os.path.isfile( self.orgPath(filename) ):
             self._copy_file(filename)

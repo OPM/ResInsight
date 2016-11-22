@@ -816,6 +816,8 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
     break;
   case(ECL_SMSPEC_REGION_2_REGION_VAR):
     break;
+  case(ECL_SMSPEC_AQUIFER_VAR):
+    break;
   default:
     util_abort("%: Internal error - should never be here ?? \n",__func__);
     break;

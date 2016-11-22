@@ -2,10 +2,10 @@
 # spec file for package ert.ecl
 #
 
-%define tag final2
+%define tag final
 
 Name:           ert.ecl
-Version:        2015.10
+Version:        2016.10
 Release:        0
 Summary:        ERT - Ensemble based Reservoir Tool - ECL library
 License:        GPL-3+

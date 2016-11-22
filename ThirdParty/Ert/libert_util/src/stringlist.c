@@ -559,7 +559,7 @@ bool stringlist_equal(const stringlist_type * s1 , const stringlist_type *s2) {
 
 char * stringlist_alloc_joined_substring( const stringlist_type * s , int start_index , int end_index , const char * sep ) {
   if (start_index >= stringlist_get_size( s ))
-    return NULL;
+    return util_alloc_string_copy("");
   {
     char * string = NULL;
     int i;

@@ -19,16 +19,15 @@ from ert.ecl import ECL_LIB , EclFile, Ecl3DKW , Ecl3DFile, EclFileEnum
 from cwrap import CWrapper, BaseCClass
 
 class EclRestartHead(BaseCClass):
-    def __init__(self , kw_arg = None , rst_arg = None):
-        if kw_arg is None and rst_arg is None:
+    def __init__(self , kw_arg = None , rst_view = None):
+        if kw_arg is None and rst_view is None:
             raise Exception("Invalid arguments")
 
         if not kw_arg is None:
             report_step , intehead_kw , doubhead_kw , logihead_kw = kw_arg
             c_ptr = EclRestartHead.cNamespace().alloc_from_kw( report_step , intehead_kw , doubhead_kw , logihead_kw )
         else:
-            rst_file , occurence = rst_arg
-            c_ptr = EclRestartHead.cNamespace().alloc( rst_file , occurence )
+            c_ptr = EclRestartHead.cNamespace().alloc( rst_view , -1 )
 
         super(EclRestartHead, self).__init__(c_ptr)
 
@@ -90,7 +89,7 @@ class EclRestartFile(Ecl3DFile):
             self.rst_headers = []
             if self.unified():
                 for index in range(self.num_named_kw("SEQNUM")):
-                    self.rst_headers.append( EclRestartHead( rst_arg = (self , index )))
+                    self.rst_headers.append( EclRestartHead( rst_view = self.restartView( seqnum_index = index )))
             else:
                 intehead_kw = self["INTEHEAD"][0]
                 doubhead_kw = self["DOUBHEAD"][0]
@@ -127,7 +126,7 @@ class EclRestartFile(Ecl3DFile):
             
 CWrapper.registerObjectType("ecl_rsthead", EclRestartHead)
 cwrapper = CWrapper(ECL_LIB)
-EclRestartHead.cNamespace().alloc           = cwrapper.prototype("c_void_p ecl_rsthead_ialloc(ecl_file , int )")
+EclRestartHead.cNamespace().alloc           = cwrapper.prototype("c_void_p ecl_rsthead_alloc(ecl_file_view , int )")
 EclRestartHead.cNamespace().alloc_from_kw   = cwrapper.prototype("c_void_p ecl_rsthead_alloc_from_kw(int , ecl_kw , ecl_kw , ecl_kw )")
 EclRestartHead.cNamespace().free            = cwrapper.prototype("void ecl_rsthead_free(ecl_rsthead)")
 EclRestartHead.cNamespace().get_report_step = cwrapper.prototype("int ecl_rsthead_get_report_step(ecl_rsthead)")

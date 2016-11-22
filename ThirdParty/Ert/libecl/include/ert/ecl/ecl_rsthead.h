@@ -26,6 +26,7 @@ extern "C" {
 #include <time.h>
 
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_kw.h>
 
 
@@ -81,8 +82,7 @@ extern "C" {
 
   void                ecl_rsthead_free( ecl_rsthead_type * rsthead );
   ecl_rsthead_type  * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_type * intehead_kw , const ecl_kw_type * doubhead_kw , const ecl_kw_type * logihead_kw );
-  ecl_rsthead_type  * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occurence);
-  ecl_rsthead_type  * ecl_rsthead_alloc( const ecl_file_type * rst_file );
+  ecl_rsthead_type  * ecl_rsthead_alloc( const ecl_file_view_type * rst_file , int report_step);
   ecl_rsthead_type  * ecl_rsthead_alloc_empty();
   time_t              ecl_rsthead_date( const ecl_kw_type * intehead_kw );
   void                ecl_rsthead_fprintf( const ecl_rsthead_type * header , FILE * stream);

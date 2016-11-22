@@ -2656,32 +2656,30 @@ static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_fil
   }
 
   for (i = 0; i < num_nnchead_kw; i++) {
-    ecl_file_push_block(ecl_file);               /* <---------------------------------------------------------------- */
-    ecl_file_select_block(ecl_file , NNCHEAD_KW , i);
-    {
-      ecl_kw_type * nnchead_kw = ecl_file_iget_named_kw(ecl_file, NNCHEAD_KW, 0);
-      int lgr_nr = ecl_kw_iget_int(nnchead_kw, NNCHEAD_LGR_INDEX);
+    ecl_file_view_type * lgr_view = ecl_file_alloc_global_blockview(ecl_file , NNCHEAD_KW , i);
+    ecl_kw_type * nnchead_kw = ecl_file_view_iget_named_kw(lgr_view, NNCHEAD_KW, 0);
+    int lgr_nr = ecl_kw_iget_int(nnchead_kw, NNCHEAD_LGR_INDEX);
 
-      if (ecl_file_has_kw(ecl_file , NNC1_KW)) {
-        const ecl_kw_type * nnc1 = ecl_file_iget_named_kw(ecl_file, NNC1_KW, 0);
-        const ecl_kw_type * nnc2 = ecl_file_iget_named_kw(ecl_file, NNC2_KW, 0);
+    if (ecl_file_view_has_kw(lgr_view , NNC1_KW)) {
+      const ecl_kw_type * nnc1 = ecl_file_view_iget_named_kw(lgr_view, NNC1_KW, 0);
+      const ecl_kw_type * nnc2 = ecl_file_view_iget_named_kw(lgr_view, NNC2_KW, 0);
 
-        {
-          ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
-          ecl_grid_init_nnc_cells(grid, grid, nnc1, nnc2);
-        }
-      }
-
-      if (ecl_file_has_kw(ecl_file , NNCL_KW)) {
-        const ecl_kw_type * nncl = ecl_file_iget_named_kw(ecl_file, NNCL_KW, 0);
-        const ecl_kw_type * nncg = ecl_file_iget_named_kw(ecl_file, NNCG_KW, 0);
-        {
-          ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
-          ecl_grid_init_nnc_cells(main_grid, grid , nncg, nncl);
-        }
+      {
+        ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
+        ecl_grid_init_nnc_cells(grid, grid, nnc1, nnc2);
       }
     }
-    ecl_file_pop_block( ecl_file );            /* <------------------------------------------------------------------  */
+
+    if (ecl_file_view_has_kw(lgr_view , NNCL_KW)) {
+      const ecl_kw_type * nncl = ecl_file_view_iget_named_kw(lgr_view, NNCL_KW, 0);
+      const ecl_kw_type * nncg = ecl_file_view_iget_named_kw(lgr_view, NNCG_KW, 0);
+      {
+        ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
+        ecl_grid_init_nnc_cells(main_grid, grid , nncg, nncl);
+      }
+    }
+
+    ecl_file_view_free( lgr_view );
   }
 }
 

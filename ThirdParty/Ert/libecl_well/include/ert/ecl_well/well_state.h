@@ -42,6 +42,12 @@ extern "C" {
   
   well_state_type      * well_state_alloc(const char * well_name , int global_well_nr , bool open, well_type_enum type , int report_nr, time_t valid_from);
   well_state_type      * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_step , int well_nr , bool load_segment_information);
+  well_state_type      * well_state_alloc_from_file2( ecl_file_view_type * file_view , const ecl_grid_type * grid , int report_nr ,  int global_well_nr ,bool load_segment_information);
+  
+  void well_state_add_connections2( well_state_type * well_state ,
+                                    const ecl_grid_type * grid ,
+                                    ecl_file_view_type * rst_view ,
+                                    int well_nr);
 
   void well_state_add_connections( well_state_type * well_state , 
                                    const ecl_grid_type * grid , 
@@ -52,7 +58,13 @@ extern "C" {
                            ecl_file_type * rst_file , 
                            int  well_nr,
                            bool load_segment_information);
-                           
+
+
+  bool well_state_add_MSW2( well_state_type * well_state ,
+                            ecl_file_view_type * rst_view,
+                            int  well_nr,
+                            bool load_segment_information);
+
 
   bool well_state_is_MSW( const well_state_type * well_state);
 

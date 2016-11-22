@@ -66,16 +66,18 @@ void unpack_file(const char * filename) {
     
     
     while (true) {
+      ecl_file_view_type * active_view;
+
       if (block_index == size)
         break;
 
       if (target_type == ECL_SUMMARY_FILE) {
-        ecl_file_select_block( src_file , SEQHDR_KW , block_index );
+        active_view = ecl_file_alloc_global_blockview(src_file, SEQHDR_KW, block_index);
         report_step += 1;
         offset = 0;
       } else {
         ecl_kw_type * seqnum_kw;
-        ecl_file_select_block( src_file , SEQNUM_KW , block_index );
+        active_view = ecl_file_alloc_global_blockview(src_file, SEQNUM_KW, block_index);
         seqnum_kw = ecl_file_iget_named_kw( src_file , SEQNUM_KW , 0);
         report_step = ecl_kw_iget_int( seqnum_kw , 0);
         offset = 1;
@@ -92,12 +94,13 @@ void unpack_file(const char * filename) {
         char * target_file = ecl_util_alloc_filename( NULL , base , target_type , fmt_file , report_step);
         fortio_type * fortio_target = fortio_open_writer( target_file , fmt_file , ECL_ENDIAN_FLIP );
         msg_update(msg , target_file);
-        ecl_file_fwrite_fortio( src_file , fortio_target , offset);
+        ecl_file_view_fwrite( active_view , fortio_target , offset);
         
         fortio_fclose(fortio_target);
         free(target_file);
       }
       block_index++;
+      ecl_file_view_free( active_view );
     } 
     ecl_file_close( src_file );
     util_safe_free(path);

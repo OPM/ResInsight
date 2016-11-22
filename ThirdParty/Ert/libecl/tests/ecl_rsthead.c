@@ -28,14 +28,24 @@
 
 
 void test_file( const char * filename , int occurence , bool exists , const ecl_rsthead_type * true_header) {
+  int report_step = ecl_util_filename_report_nr( filename );
   ecl_file_type * rst_file = ecl_file_open( filename , 0);
-  ecl_rsthead_type * rst_head = ecl_rsthead_ialloc( rst_file , occurence);
+  ecl_file_enum file_type = ecl_util_get_file_type( filename , NULL , NULL );
+  ecl_file_view_type * rst_view;
+  ecl_rsthead_type * rst_head;
+
+  if (file_type == ECL_RESTART_FILE)
+    rst_view = ecl_file_get_global_view( rst_file );
+  else
+    rst_view = ecl_file_get_restart_view( rst_file , occurence , -1 , -1 , -1 );
 
   if (exists) {
+    test_assert_not_NULL( rst_view );
+    rst_head = ecl_rsthead_alloc( rst_view , report_step);
     test_assert_not_NULL( rst_head );
 
     if (occurence == 0) {
-      ecl_rsthead_type * rst_head0 = ecl_rsthead_alloc( rst_file );
+      ecl_rsthead_type * rst_head0 = ecl_rsthead_alloc( rst_view , report_step );
 
       test_assert_true( ecl_rsthead_equal( rst_head , rst_head0 ));
       ecl_rsthead_free( rst_head0 );
@@ -44,7 +54,7 @@ void test_file( const char * filename , int occurence , bool exists , const ecl_
 
     ecl_rsthead_free( rst_head );
   } else
-    test_assert_NULL( rst_head );
+    test_assert_NULL( rst_view );
 
 }
 
@@ -101,8 +111,8 @@ int main(int argc , char ** argv) {
   const char * unified_file = argv[1];
   const char * Xfile        = argv[2];
 
-  //  test_file( unified_file , 0 , true , &true1 );
-  //test_file( unified_file , 100 , false , NULL );
+  test_file( unified_file , 0 , true , &true1 );
+  test_file( unified_file , 100 , false , NULL );
   test_file( Xfile , 0 , true , &true2 );
 
   exit(0);

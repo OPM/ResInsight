@@ -79,6 +79,7 @@ struct smspec_node_struct {
   ecl_sum combined key like 'WWCT:OPX' as input.
 */
 
+#define ECL_SUM_KEYFMT_AQUIFER                "%s%s%d"
 #define ECL_SUM_KEYFMT_BLOCK_IJK              "%s%s%d,%d,%d"
 #define ECL_SUM_KEYFMT_BLOCK_NUM              "%s%s%d"
 #define ECL_SUM_KEYFMT_LOCAL_BLOCK            "%s%s%s%s%d,%d,%d"
@@ -102,6 +103,14 @@ char * smspec_alloc_block_num_key( const char * join_string , const char * keywo
                             join_string ,
                             num );
 }
+
+char * smspec_alloc_aquifer_key( const char * join_string , const char * keyword , int num) {
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_AQUIFER,
+                            keyword ,
+                            join_string ,
+                            num );
+}
+
 
 char * smspec_alloc_local_block_key( const char * join_string , const char * keyword , const char * lgr_name , int i , int j , int k) {
   return util_alloc_sprintf(ECL_SUM_KEYFMT_LOCAL_BLOCK ,
@@ -509,6 +518,9 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
                                                               smspec_node->lgr_ijk[2]);
 
     break;
+  case(ECL_SMSPEC_AQUIFER_VAR):
+    smspec_node->gen_key1 = smspec_alloc_aquifer_key( key_join_string , smspec_node->keyword , smspec_node->num);
+    break;
   default:
     util_abort("%s: internal error - should not be here? \n" , __func__);
   }
@@ -612,6 +624,9 @@ bool smspec_node_init( smspec_node_type * smspec_node,
     if (util_string_equal( keyword ,SMSPEC_YEARS_KEYWORD))
       smspec_node_set_num( smspec_node , grid_dims , SMSPEC_YEARS_NUMS_VALUE );
 
+    break;
+  case(ECL_SMSPEC_AQUIFER_VAR):
+    smspec_node_set_num( smspec_node , grid_dims , num );
     break;
   default:
     /* Lots of legitimate alternatives which are not internalized. */

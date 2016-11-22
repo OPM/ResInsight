@@ -31,6 +31,7 @@
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_rft_node.h>
 #include <ert/ecl/ecl_rft_cell.h>
 
@@ -151,27 +152,27 @@ void ecl_rft_node_append_cell( ecl_rft_node_type * rft_node , ecl_rft_cell_type 
 }
 
 
-static ecl_kw_type * ecl_rft_node_get_pressure_kw( ecl_rft_node_type * rft_node , const ecl_file_type * rft ) {
+static ecl_kw_type * ecl_rft_node_get_pressure_kw( ecl_rft_node_type * rft_node , const ecl_file_view_type * rft ) {
   if (rft_node->data_type == RFT)
-    return ecl_file_iget_named_kw( rft , PRESSURE_KW , 0);
+    return ecl_file_view_iget_named_kw( rft , PRESSURE_KW , 0);
   else {
-    ecl_kw_type * conpres_kw = ecl_file_iget_named_kw( rft , CONPRES_KW , 0);
+    ecl_kw_type * conpres_kw = ecl_file_view_iget_named_kw( rft , CONPRES_KW , 0);
     if (ecl_kw_element_sum_float( conpres_kw ) > 0.0 )
       return conpres_kw;
     else
-      return ecl_file_iget_named_kw( rft , PRESSURE_KW , 0);
+      return ecl_file_view_iget_named_kw( rft , PRESSURE_KW , 0);
   }
 }
 
 
-static void ecl_rft_node_init_RFT_cells( ecl_rft_node_type * rft_node , const ecl_file_type * rft) {
-  const ecl_kw_type * conipos     = ecl_file_iget_named_kw( rft , CONIPOS_KW , 0);
-  const ecl_kw_type * conjpos     = ecl_file_iget_named_kw( rft , CONJPOS_KW , 0);
-  const ecl_kw_type * conkpos     = ecl_file_iget_named_kw( rft , CONKPOS_KW , 0);
-  const ecl_kw_type * depth_kw    = ecl_file_iget_named_kw( rft , DEPTH_KW , 0);
-  const ecl_kw_type * swat_kw     = ecl_file_iget_named_kw( rft , SWAT_KW , 0);
-  const ecl_kw_type * sgas_kw     = ecl_file_iget_named_kw( rft , SGAS_KW , 0);
-  const ecl_kw_type * pressure_kw = ecl_rft_node_get_pressure_kw( rft_node , rft );
+static void ecl_rft_node_init_RFT_cells( ecl_rft_node_type * rft_node , const ecl_file_view_type * rft_view) {
+  const ecl_kw_type * conipos     = ecl_file_view_iget_named_kw( rft_view , CONIPOS_KW , 0);
+  const ecl_kw_type * conjpos     = ecl_file_view_iget_named_kw( rft_view , CONJPOS_KW , 0);
+  const ecl_kw_type * conkpos     = ecl_file_view_iget_named_kw( rft_view , CONKPOS_KW , 0);
+  const ecl_kw_type * depth_kw    = ecl_file_view_iget_named_kw( rft_view , DEPTH_KW , 0);
+  const ecl_kw_type * swat_kw     = ecl_file_view_iget_named_kw( rft_view , SWAT_KW , 0);
+  const ecl_kw_type * sgas_kw     = ecl_file_view_iget_named_kw( rft_view , SGAS_KW , 0);
+  const ecl_kw_type * pressure_kw = ecl_rft_node_get_pressure_kw( rft_node , rft_view );
 
   const float * SW     = ecl_kw_get_float_ptr( swat_kw );
   const float * SG     = ecl_kw_get_float_ptr( sgas_kw );
@@ -196,34 +197,34 @@ static void ecl_rft_node_init_RFT_cells( ecl_rft_node_type * rft_node , const ec
 
 
 
-static void ecl_rft_node_init_PLT_cells( ecl_rft_node_type * rft_node , const ecl_file_type * rft) {
+static void ecl_rft_node_init_PLT_cells( ecl_rft_node_type * rft_node , const ecl_file_view_type * rft_view) {
   /* For PLT there is quite a lot of extra information which is not yet internalized. */
-  const ecl_kw_type * conipos     = ecl_file_iget_named_kw( rft , CONIPOS_KW  , 0);
-  const ecl_kw_type * conjpos     = ecl_file_iget_named_kw( rft , CONJPOS_KW  , 0);
-  const ecl_kw_type * conkpos     = ecl_file_iget_named_kw( rft , CONKPOS_KW  , 0);
+  const ecl_kw_type * conipos     = ecl_file_view_iget_named_kw( rft_view , CONIPOS_KW  , 0);
+  const ecl_kw_type * conjpos     = ecl_file_view_iget_named_kw( rft_view , CONJPOS_KW  , 0);
+  const ecl_kw_type * conkpos     = ecl_file_view_iget_named_kw( rft_view , CONKPOS_KW  , 0);
 
   const int   * i      = ecl_kw_get_int_ptr( conipos );
   const int   * j      = ecl_kw_get_int_ptr( conjpos );
   const int   * k      = ecl_kw_get_int_ptr( conkpos );
 
-  const float * WR               = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONWRAT_KW , 0));
-  const float * GR               = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONGRAT_KW , 0));
-  const float * OR               = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONORAT_KW , 0));
-  const float * P                = ecl_kw_get_float_ptr( ecl_rft_node_get_pressure_kw( rft_node , rft ));
-  const float * depth            = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONDEPTH_KW , 0));
-  const float * flowrate         = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONVTUB_KW , 0));
-  const float * oil_flowrate     = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONOTUB_KW , 0));
-  const float * gas_flowrate     = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONGTUB_KW , 0));
-  const float * water_flowrate   = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONWTUB_KW , 0));
+  const float * WR               = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONWRAT_KW , 0));
+  const float * GR               = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONGRAT_KW , 0));
+  const float * OR               = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONORAT_KW , 0));
+  const float * P                = ecl_kw_get_float_ptr( ecl_rft_node_get_pressure_kw( rft_node , rft_view ));
+  const float * depth            = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONDEPTH_KW , 0));
+  const float * flowrate         = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONVTUB_KW , 0));
+  const float * oil_flowrate     = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONOTUB_KW , 0));
+  const float * gas_flowrate     = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONGTUB_KW , 0));
+  const float * water_flowrate   = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONWTUB_KW , 0));
   const float * connection_start = NULL;
   const float * connection_end   = NULL;
 
   /* The keywords CONLENST_KW and CONLENEN_KW are ONLY present if we are dealing with a MSW well. */
-  if (ecl_file_has_kw( rft , CONLENST_KW))
-    connection_start = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONLENST_KW , 0));
+  if (ecl_file_view_has_kw( rft_view , CONLENST_KW))
+    connection_start = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONLENST_KW , 0));
 
-  if (ecl_file_has_kw( rft , CONLENEN_KW))
-    connection_end = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONLENEN_KW , 0));
+  if (ecl_file_view_has_kw( rft_view , CONLENEN_KW))
+    connection_end = ecl_kw_get_float_ptr( ecl_file_view_iget_named_kw( rft_view , CONLENEN_KW , 0));
 
   {
     int c;
@@ -250,22 +251,22 @@ static void ecl_rft_node_init_PLT_cells( ecl_rft_node_type * rft_node , const ec
 
 
 
-static void ecl_rft_node_init_cells( ecl_rft_node_type * rft_node , const ecl_file_type * rft ) {
+static void ecl_rft_node_init_cells( ecl_rft_node_type * rft_node , const ecl_file_view_type * rft_view ) {
 
   if (rft_node->data_type == RFT)
-    ecl_rft_node_init_RFT_cells( rft_node , rft );
+    ecl_rft_node_init_RFT_cells( rft_node , rft_view );
   else if (rft_node->data_type == PLT)
-    ecl_rft_node_init_PLT_cells( rft_node , rft );
+    ecl_rft_node_init_PLT_cells( rft_node , rft_view );
 
 }
 
 
-ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_type * rft) {
-  ecl_kw_type       * welletc   = ecl_file_iget_named_kw(rft , WELLETC_KW , 0);
+ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_view_type * rft_view) {
+  ecl_kw_type       * welletc   = ecl_file_view_iget_named_kw(rft_view , WELLETC_KW , 0);
   ecl_rft_node_type * rft_node  = ecl_rft_node_alloc_empty(ecl_kw_iget_ptr(welletc , WELLETC_TYPE_INDEX));
 
   if (rft_node != NULL) {
-    ecl_kw_type * date_kw = ecl_file_iget_named_kw( rft , DATE_KW    , 0);
+    ecl_kw_type * date_kw = ecl_file_view_iget_named_kw( rft_view , DATE_KW    , 0);
     rft_node->well_name = util_alloc_strip_copy( ecl_kw_iget_ptr(welletc , WELLETC_NAME_INDEX));
 
     /* Time information. */
@@ -273,13 +274,13 @@ ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_type * rft) {
       int * time = ecl_kw_get_int_ptr( date_kw );
       rft_node->recording_date = ecl_util_make_date( time[DATE_DAY_INDEX] , time[DATE_MONTH_INDEX] , time[DATE_YEAR_INDEX] );
     }
-    rft_node->days = ecl_kw_iget_float( ecl_file_iget_named_kw( rft , TIME_KW , 0 ) , 0);
-    if (ecl_file_has_kw( rft , CONLENST_KW))
+    rft_node->days = ecl_kw_iget_float( ecl_file_view_iget_named_kw( rft_view , TIME_KW , 0 ) , 0);
+    if (ecl_file_view_has_kw( rft_view , CONLENST_KW))
       rft_node->MSW = true;
     else
       rft_node->MSW = false;
 
-    ecl_rft_node_init_cells( rft_node , rft );
+    ecl_rft_node_init_cells( rft_node , rft_view );
   }
   return rft_node;
 }

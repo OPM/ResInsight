@@ -26,6 +26,7 @@
 
 #include <ert/ecl/ecl_rsthead.h>
 #include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_util.h>
@@ -273,25 +274,24 @@ static void well_info_add_state( well_info_type * well_info , well_state_type * 
    determine the number of wells.
  */
 
+
+void well_info_add_wells2( well_info_type * well_info , ecl_file_view_type * rst_view , int report_nr, bool load_segment_information) {
+  bool close_stream = ecl_file_view_drop_flag( rst_view , ECL_FILE_CLOSE_STREAM );
+  ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_view , report_nr );
+  int well_nr;
+  for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
+    well_state_type * well_state = well_state_alloc_from_file2( rst_view , well_info->grid , report_nr , well_nr , load_segment_information );
+    if (well_state != NULL)
+      well_info_add_state( well_info , well_state );
+  }
+  ecl_rsthead_free( global_header );
+  if (close_stream)
+    ecl_file_view_add_flag(rst_view, ECL_FILE_CLOSE_STREAM);
+}
+
+
 void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr, bool load_segment_information) {
-  int flags = ecl_file_get_flags(rst_file);
-  if (ecl_file_flags_set(rst_file, ECL_FILE_CLOSE_STREAM)) {
-    int new_flags = flags & ~ECL_FILE_CLOSE_STREAM;
-    ecl_file_set_flags(rst_file, new_flags);
-  }
-
-  {
-    ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_file );
-    int well_nr;
-    for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
-      well_state_type * well_state = well_state_alloc_from_file( rst_file , well_info->grid , report_nr , well_nr , load_segment_information );
-      if (well_state != NULL)
-        well_info_add_state( well_info , well_state );
-    }
-    ecl_rsthead_free( global_header );
-  }
-
-  ecl_file_set_flags(rst_file, flags);
+  well_info_add_wells2( well_info , ecl_file_get_active_view( rst_file ) , report_nr , load_segment_information );
 }
 
 /**
@@ -300,23 +300,21 @@ void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file 
    not have the SEQNUM keyword.
 */
 
-void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst_file, bool load_segment_information) {
-  {
-    int num_blocks = ecl_file_get_num_named_kw( rst_file , SEQNUM_KW );
-    int block_nr;
-    for (block_nr = 0; block_nr < num_blocks; block_nr++) {
-      ecl_file_push_block( rst_file );      // <-------------------------------------------------------
-      {                                                                                               //
-        ecl_file_subselect_block( rst_file , SEQNUM_KW , block_nr );                                  //  Ensure that the status
-        {                                                                                             //  is not changed as a side
-          const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw( rst_file , SEQNUM_KW , 0);          //  effect.
-          int report_nr = ecl_kw_iget_int( seqnum_kw , 0 );                                           //
-          well_info_add_wells( well_info , rst_file , report_nr , load_segment_information );                                    //
-        }                                                                                             //
-      }                                                                                               //
-      ecl_file_pop_block( rst_file );       // <-------------------------------------------------------
-    }
+void well_info_add_UNRST_wells2( well_info_type * well_info , ecl_file_view_type * rst_view, bool load_segment_information) {
+  int num_blocks = ecl_file_view_get_num_named_kw( rst_view , SEQNUM_KW );
+  int block_nr;
+  for (block_nr = 0; block_nr < num_blocks; block_nr++) {
+    ecl_file_view_type * step_view = ecl_file_view_add_restart_view(rst_view, block_nr , -1 , -1 , -1 );
+    const ecl_kw_type * seqnum_kw = ecl_file_view_iget_named_kw( step_view , SEQNUM_KW , 0);
+    int report_nr = ecl_kw_iget_int( seqnum_kw , 0 );
+    well_info_add_wells2( well_info , step_view , report_nr , load_segment_information );
   }
+}
+
+
+
+void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst_file, bool load_segment_information) {
+  well_info_add_UNRST_wells2( well_info , ecl_file_get_global_view( rst_file ) , load_segment_information);
 }
 
 
