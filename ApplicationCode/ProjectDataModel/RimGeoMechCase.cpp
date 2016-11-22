@@ -193,10 +193,14 @@ QStringList RimGeoMechCase::timeStepStrings()
 {
     QStringList stringList;
 
-    std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
-    for (size_t i = 0; i < stepNames.size(); i++)
+    RigGeoMechCaseData* rigCaseData = geoMechData();
+    if (rigCaseData && rigCaseData->femPartResults())
     {
-        stringList += QString::fromStdString(stepNames[i]);
+        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
+        for (size_t i = 0; i < stepNames.size(); i++)
+        {
+            stringList += QString::fromStdString(stepNames[i]);
+        }
     }
 
     return stringList;
@@ -207,9 +211,15 @@ QStringList RimGeoMechCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::timeStepName(int frameIdx)
 {
-   std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
+    RigGeoMechCaseData* rigCaseData = geoMechData();
+    if (rigCaseData && rigCaseData->femPartResults())
+    {
+       std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
 
-   return QString::fromStdString(stepNames[frameIdx]);
+       return QString::fromStdString(stepNames[frameIdx]);
+    }
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
