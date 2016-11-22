@@ -43,6 +43,21 @@ public:
         AXIS_TITLE_END
     };
 
+    enum TimeModeType
+    {
+        DATE,
+        TIME_FROM_SIMULATION_START
+    };
+
+    enum TimeUnitType
+    {
+        SECONDS, 
+        MINUTES, 
+        HOURS, 
+        DAYS, 
+        YEARS
+    };
+
 public:
     RimSummaryTimeAxisProperties();
 
@@ -50,6 +65,10 @@ public:
     caf::PdmField<QString>      title;
     caf::PdmField<bool>         showTitle;
     caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
+
+    TimeModeType                            timeMode() const              { return m_timeMode(); }
+    void                                    setTimeMode(TimeModeType val) { m_timeMode = val; }
+    double                                  fromTimeTToDisplayUnitScale();
 
     double visibleRangeMin() const;
     double visibleRangeMax() const;
@@ -63,9 +82,20 @@ protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*            objectToggleField() override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+    double                                  fromDateToDisplayTime(const QDateTime& displayTime);
+    QDateTime                               fromDisplayTimeToDate(double displayTime);
+    void                                    updateTimeVisibleRange();
+    void                                    updateDateVisibleRange();
 
 private:
-    caf::PdmField<bool>         m_isActive;
-    caf::PdmField<QDateTime>    m_visibleRangeMin;
-    caf::PdmField<QDateTime>    m_visibleRangeMax;
+    caf::PdmField< caf::AppEnum< TimeModeType > > m_timeMode;
+    caf::PdmField< caf::AppEnum< TimeUnitType > > m_timeUnit;
+
+    caf::PdmField<bool>                     m_isActive;
+    caf::PdmField<QDateTime>                m_visibleDateRangeMin;
+    caf::PdmField<QDateTime>                m_visibleDateRangeMax;
+    caf::PdmField<double>                   m_visibleTimeRangeMin;
+    caf::PdmField<double>                   m_visibleTimeRangeMax;
 };

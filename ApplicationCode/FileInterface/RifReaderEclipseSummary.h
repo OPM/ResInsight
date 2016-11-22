@@ -45,7 +45,7 @@ public:
 
     bool                                         hasAddress(const RifEclipseSummaryAddress& resultAddress);
     const std::vector<RifEclipseSummaryAddress>& allResultAddresses();
-    std::vector<time_t>                          timeSteps() const;
+    const std::vector<time_t>&                   timeSteps() const;
 
     bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values);
     std::string                                  unitName(const RifEclipseSummaryAddress& resultAddress);
@@ -66,6 +66,7 @@ private:
 
     ecl_sum_type*               ecl_sum;
     const ecl_smspec_type *     eclSmSpec;
+    std::vector<time_t>         m_timeSteps;
 
     std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;

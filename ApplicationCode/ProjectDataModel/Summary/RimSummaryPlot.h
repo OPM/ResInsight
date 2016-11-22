@@ -79,6 +79,9 @@ public:
     
     bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
 
+    RimSummaryTimeAxisProperties*                   timeAxisProperties();
+    time_t                                          firstTimeStepOfFirstCurve();
+
     void                                            selectAxisInPropertyEditor(int axis);
 
     virtual QWidget*                                viewWidget() override;

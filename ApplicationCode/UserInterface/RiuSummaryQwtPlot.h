@@ -46,6 +46,9 @@ public:
 
     RimSummaryPlot*                 ownerPlotDefinition();
 
+    void                            useDateBasedTimeAxis();
+    void                            useTimeBasedTimeAxis();
+
     void                            currentVisibleWindow(QwtInterval* leftAxis,
                                                          QwtInterval* rightAxis,
                                                          QwtInterval* timeAxis) const;

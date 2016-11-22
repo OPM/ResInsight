@@ -48,6 +48,8 @@ public:
     virtual ~RiuLineSegmentQwtPlotCurve();
 
     void         setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues);
+    void         setSamplesFromTimeTAndValues(const std::vector<time_t>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues);
+    void         setSamplesFromTimeAndValues(const std::vector<double>& times, const std::vector<double>& timeHistoryValues, bool removeNegativeValues);
 
     void         setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices);
 

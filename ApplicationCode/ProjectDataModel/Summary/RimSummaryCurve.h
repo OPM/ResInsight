@@ -86,7 +86,8 @@ public:
     void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
     std::string                             unitName();
 
-    std::vector<double>                     yPlotValues() const;
+    std::vector<double>                     yValues() const;
+    const std::vector<time_t>&              timeSteps() const;
 
     void                                    setYAxis(RimDefines::PlotAxis plotAxis);
     RimDefines::PlotAxis                    yAxis() const;

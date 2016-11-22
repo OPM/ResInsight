@@ -71,6 +71,14 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
         eclSmSpec = ecl_sum_get_smspec(ecl_sum);
         assert(eclSmSpec != NULL);
 
+        assert(ecl_sum != NULL);
+
+        for ( int time_index = 0; time_index < timeStepCount(); time_index++ )
+        {
+            time_t sim_time = ecl_sum_iget_sim_time(ecl_sum, time_index);
+            m_timeSteps.push_back(sim_time);
+        }
+
         return true;
     }
 
@@ -241,13 +249,15 @@ const std::vector<RifEclipseSummaryAddress>& RifReaderEclipseSummary::allResultA
 bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values)
 {
     assert(ecl_sum != NULL);
+
+    int variableIndex = indexFromAddress(resultAddress);
+
+    if ( variableIndex < 0 ) return false;
+
     values->clear();
     int tsCount = timeStepCount();
     values->reserve(timeStepCount());
 
-    int variableIndex = indexFromAddress(resultAddress);
-
-    if(variableIndex < 0) return false;
 
     const smspec_node_type * ertSumVarNode = ecl_smspec_iget_node(eclSmSpec, variableIndex);
     int paramsIndex = smspec_node_get_params_index(ertSumVarNode);
@@ -274,18 +284,11 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RifReaderEclipseSummary::timeSteps() const
+const std::vector<time_t>& RifReaderEclipseSummary::timeSteps() const
 {
     assert(ecl_sum != NULL);
 
-    std::vector<time_t> steps;
-    for (int time_index = 0; time_index < timeStepCount(); time_index++)
-    {
-        time_t sim_time = ecl_sum_iget_sim_time(ecl_sum , time_index);
-        steps.push_back(sim_time);
-    }
-
-    return steps;
+    return m_timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------

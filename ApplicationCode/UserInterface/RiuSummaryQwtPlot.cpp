@@ -331,12 +331,7 @@ void RiuSummaryQwtPlot::setDefaults()
 
     plotLayout()->setAlignCanvasToScales(true);
 
-    QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw(Qt::UTC);
-    scaleDraw->setDateFormat(QwtDate::Year, QString("dd-MM-yyyy"));
-
-    QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
-    setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
-    setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
+    useDateBasedTimeAxis();
 
     QFont xAxisFont = axisFont(QwtPlot::xBottom);
     xAxisFont.setPixelSize(11);
@@ -362,6 +357,30 @@ void RiuSummaryQwtPlot::setDefaults()
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
     this->insertLegend(legend, BottomLegend);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::useDateBasedTimeAxis()
+{
+    QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw(Qt::UTC);
+    scaleDraw->setDateFormat(QwtDate::Year, QString("dd-MM-yyyy"));
+
+    QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
+    setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
+    setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
+{
+    setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine());
+    setAxisScaleDraw(QwtPlot::xBottom, new QwtScaleDraw());
 }
 
 //--------------------------------------------------------------------------------------------------

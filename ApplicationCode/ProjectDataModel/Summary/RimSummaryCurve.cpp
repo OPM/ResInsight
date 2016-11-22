@@ -41,6 +41,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
+#include "RimSummaryTimeAxisProperties.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
@@ -246,14 +247,31 @@ std::string RimSummaryCurve::unitName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimSummaryCurve::yPlotValues() const
+std::vector<double> RimSummaryCurve::yValues() const
 {
-    std::vector<QDateTime> dateTimes;
     std::vector<double> values;
 
-    this->curveData(&dateTimes, &values);
+    RifReaderEclipseSummary* reader = summaryReader();
+
+    if ( !reader ) return values;
+
+    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    reader->values(addr, &values);
 
     return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<time_t>& RimSummaryCurve::timeSteps() const
+{
+    static std::vector<time_t> emptyVector;
+    RifReaderEclipseSummary* reader = summaryReader();
+
+    if ( !reader ) return emptyVector;
+
+    return reader->timeSteps();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,20 +397,40 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 
     if (isCurveVisible())
     {
-        std::vector<QDateTime> dateTimes;
-        std::vector<double> values;
+        std::vector<time_t> dateTimes = this->timeSteps();
+        std::vector<double> values = this->yValues();
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
         bool isLogCurve = plot->isLogarithmicScaleEnabled(this->yAxis());
 
-        if(this->curveData(&dateTimes, &values))
+        if ( dateTimes.size())
         {
-            m_qwtPlotCurve->setSamplesFromDateAndValues(dateTimes, values, isLogCurve);
+            if (  plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
+            {
+                m_qwtPlotCurve->setSamplesFromTimeTAndValues(dateTimes, values, isLogCurve);
+            }
+            else
+            {
+                double timeScale  = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
+
+                std::vector<double> times;
+                if ( dateTimes.size() )
+                {
+                    time_t startDate = dateTimes[0];
+                    for ( time_t& date: dateTimes )
+                    {
+                        times.push_back(timeScale*(date - startDate));
+                    }
+                }
+
+                m_qwtPlotCurve->setSamplesFromTimeAndValues(times, values, isLogCurve);
+            }
+           
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromDateAndValues(std::vector<QDateTime>(), std::vector<double>(), isLogCurve);
+            m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
         }
 
         updateZoomInParentPlot();
@@ -540,3 +578,4 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
     RifEclipseSummaryAddress addr = m_curveVariable()->address();
     return reader->values(addr, values);
 }
+

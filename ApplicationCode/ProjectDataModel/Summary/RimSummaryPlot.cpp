@@ -146,6 +146,14 @@ bool RimSummaryPlot::isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties* RimSummaryPlot::timeAxisProperties()
+{
+    return m_timeAxisProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
 {
     RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
@@ -161,6 +169,40 @@ void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
     {
         plotwindow->selectAsCurrentItem(m_timeAxisProperties);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
+{
+    RimSummaryCurve * firstCurve = nullptr;
+
+    for (RimSummaryCurveFilter* curveFilter : m_curveFilters )
+    {
+        if (curveFilter)
+        {
+            std::vector<RimSummaryCurve *> curves = curveFilter->curves();
+            int i = 0;
+            while (firstCurve == nullptr)
+            {
+                firstCurve = curves[i];
+                i++;
+            }
+
+            if (firstCurve) break;
+        }
+    }
+
+    int i = 0;
+    while (firstCurve == nullptr)
+    {
+        firstCurve = m_curves[i];
+        ++i;
+    }
+
+    if (firstCurve) return firstCurve->timeSteps()[0];
+    else return time_t(0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,6 +317,15 @@ void RimSummaryPlot::updateTimeAxis()
 
         return;
     }
+
+    if (m_timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE)
+    {
+        m_qwtPlot->useDateBasedTimeAxis();
+    }
+    else 
+    {
+        m_qwtPlot->useTimeBasedTimeAxis();
+    }   
 
     m_qwtPlot->enableAxis(QwtPlot::xBottom, true);
 

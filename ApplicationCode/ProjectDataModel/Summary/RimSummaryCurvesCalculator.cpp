@@ -292,7 +292,7 @@ void RimSummaryPlotYAxisRangeCalculator::computeYRange(double* min, double* max)
         {
             if (curve->isCurveVisible())
             {
-                RigStatisticsCalculator::posNegClosestToZero(curve->yPlotValues(), pos, neg);
+                RigStatisticsCalculator::posNegClosestToZero(curve->yValues(), pos, neg);
             }
         }
 
