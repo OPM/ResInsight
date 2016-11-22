@@ -255,6 +255,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogTrack*>(uiItem))
         {
+            commandIds << "RicPasteWellLogCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "Separator";
@@ -262,7 +264,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem))
         {
-            //commandIds << "RicDeleteItemFeature";
+            commandIds << "RicPasteWellLogCurveFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
@@ -376,8 +378,12 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
-                 dynamic_cast<RimWellLogPlot*>(uiItem) ||
-                 dynamic_cast<RimWellLogPlotCollection*>(uiItem))
+                 dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicExportToLasFileFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
             commandIds << "RicExportToLasFileFeature";
         }
