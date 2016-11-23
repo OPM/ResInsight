@@ -57,10 +57,12 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
-
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
     virtual void                    leaveEvent(QEvent *) override;
+
+    virtual QSize                   sizeHint() const override;
+    virtual QSize                   minimumSizeHint() const override;
 
 private:
     friend class RiuQwtPlotPicker;

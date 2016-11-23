@@ -205,6 +205,22 @@ void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QSize RiuSummaryQwtPlot::minimumSizeHint() const
+{
+    return QSize(0, 100);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize RiuSummaryQwtPlot::sizeHint() const
+{
+    return QSize(0, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& cursorPosition, QString* valueString, QString* timeString, int* yAxis) const
 {
     QPointF samplePoint;
