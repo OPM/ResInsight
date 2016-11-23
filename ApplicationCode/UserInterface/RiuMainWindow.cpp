@@ -375,6 +375,8 @@ void RiuMainWindow::createMenus()
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
     // Debug menu
+    testMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
+
     testMenu->addAction(m_mockModelAction);
     testMenu->addAction(m_mockResultsModelAction);
     testMenu->addAction(m_mockLargeResultsModelAction);
