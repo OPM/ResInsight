@@ -378,7 +378,8 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
 
     newStatisticsCase->caseUserDescription = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
     statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);
-
+    
+    newStatisticsCase->populateResultSelectionAfterLoadingGrid();
     newStatisticsCase->openEclipseGridFile();
 
     return newStatisticsCase;

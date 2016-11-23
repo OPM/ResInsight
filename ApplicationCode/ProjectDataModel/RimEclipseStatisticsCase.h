@@ -71,6 +71,8 @@ public:
 
     caf::PdmField< bool >                                          m_calculateEditCommand;
     virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
+
+    void populateResultSelectionAfterLoadingGrid();
  
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
@@ -79,7 +81,7 @@ private:
 
     void getSourceCases(std::vector<RimEclipseCase*>& sourceCases);
 
-    void populateWithDefaultsIfNeeded();
+    void populateResultSelection();
 
     void updateSelectionListVisibilities();
     void updateSelectionSummaryLabel();
@@ -121,4 +123,6 @@ private:
     caf::PdmField<QString>                                          m_wellDataSourceCase;
 
     caf::PdmField< bool >                                           m_useZeroAsInactiveCellValue;
+
+    bool                                                            m_populateSelectionAfterLoadingGrid;
 };

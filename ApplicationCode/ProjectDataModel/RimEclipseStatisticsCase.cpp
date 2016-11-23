@@ -111,6 +111,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitField(&m_wellDataSourceCase, "WellDataSourceCase", RimDefines::undefinedResultName(), "Well Data Source Case", "", "", "" );
 
     CAF_PDM_InitField(&m_useZeroAsInactiveCellValue, "UseZeroAsInactiveCellValue", false, "Use Zero as Inactive Cell Value", "", "", "");
+
+    m_populateSelectionAfterLoadingGrid = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +158,12 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 
     this->setReservoirData( eclipseCase.p() );
 
-    this->populateWithDefaultsIfNeeded();
+    if (m_populateSelectionAfterLoadingGrid)
+    {
+        this->populateResultSelection();
+
+        m_populateSelectionAfterLoadingGrid = false;
+    }
 
     return true;
 }
@@ -167,6 +174,14 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::populateResultSelectionAfterLoadingGrid()
+{
+    m_populateSelectionAfterLoadingGrid = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,12 +699,12 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::populateWithDefaultsIfNeeded()
+void RimEclipseStatisticsCase::populateResultSelection()
 {
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->reservoirData())) 
     {
-        return ;
+        return;
     }
 
     RigCaseData* caseData = idgcg->mainCase()->reservoirData();
