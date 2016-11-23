@@ -81,10 +81,11 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
     assert(RiaApplication::instance()->project());
     RiaApplication::instance()->project()->assignIdToCaseGroup(group);
 
+    group->addCase(mainCase);
     RimEclipseCase* createdCase = group->createAndAppendStatisticsCase();
+
     RiaApplication::instance()->project()->assignCaseIdToCase(createdCase);
 
-    group->addCase(mainCase);
     caseGroups().push_back(group);
 
     return group;
