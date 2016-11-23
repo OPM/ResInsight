@@ -663,6 +663,7 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 
             // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
             // a full display model rebuild is required
+            reservoirViews[i]->hasUserRequestedAnimation = true;
             reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
         }
     }
