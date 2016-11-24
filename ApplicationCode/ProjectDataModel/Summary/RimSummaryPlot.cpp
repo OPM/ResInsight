@@ -183,7 +183,7 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
         if (curveFilter)
         {
             std::vector<RimSummaryCurve *> curves = curveFilter->curves();
-            int i = 0;
+            size_t i = 0;
             while (firstCurve == nullptr && i < curves.size())
             {
                 firstCurve = curves[i];
@@ -194,7 +194,7 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
         }
     }
 
-    int i = 0;
+    size_t i = 0;
     while (firstCurve == nullptr && i < m_curves.size())
     {
         firstCurve = m_curves[i];
