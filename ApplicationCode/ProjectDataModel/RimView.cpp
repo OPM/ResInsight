@@ -708,6 +708,9 @@ void RimView::setScaleZAndUpdate(double scaleZ)
 {
     this->scaleZ = scaleZ;
     updateScaleTransform();
+
+    this->updateGridBoxData();
+
     this->scheduleCreateDisplayModelAndRedraw();
 }
 
