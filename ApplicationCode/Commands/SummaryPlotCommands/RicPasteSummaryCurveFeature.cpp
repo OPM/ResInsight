@@ -98,7 +98,8 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 void RicPasteSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Summary Curve");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------
