@@ -113,7 +113,8 @@ void RicPasteWellLogCurveFeature::onActionTriggered(bool isChecked)
 void RicPasteWellLogCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Well Log Curve");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------

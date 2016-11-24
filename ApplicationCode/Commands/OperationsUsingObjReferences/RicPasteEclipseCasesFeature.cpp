@@ -97,7 +97,8 @@ void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
 void RicPasteEclipseCasesFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste (Eclipse Cases)");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------

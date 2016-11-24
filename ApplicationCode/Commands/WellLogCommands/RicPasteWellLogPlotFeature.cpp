@@ -97,7 +97,8 @@ void RicPasteWellLogPlotFeature::onActionTriggered(bool isChecked)
 void RicPasteWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Well Log Plot");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------

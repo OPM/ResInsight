@@ -34,6 +34,7 @@
 
 #include <QClipboard>
 #include <QString>
+#include "QAction"
 
 
 
@@ -134,4 +135,16 @@ RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(caf::PdmObjectHandle* objec
     }
 
     return geomCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteFeatureImpl::setIconAndShortcuts(QAction* action)
+{
+    if (action)
+    {
+        action->setIcon(QIcon(":/clipboard.png"));
+        action->setShortcuts(QKeySequence::Paste);
+    }
 }

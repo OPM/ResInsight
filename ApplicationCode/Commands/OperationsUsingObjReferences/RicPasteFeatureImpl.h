@@ -24,6 +24,7 @@
 #include <vector>
 
 class QString;
+class QAction;
 
 class RimEclipseCase;
 class RimGeoMechCase;
@@ -46,6 +47,8 @@ public:
     static RimIdenticalGridCaseGroup* findGridCaseGroup(caf::PdmObjectHandle* objectHandle);
     static RimEclipseCase* findEclipseCase(caf::PdmObjectHandle* objectHandle);
     static RimGeoMechCase* findGeoMechCase(caf::PdmObjectHandle* objectHandle);
+
+    static void setIconAndShortcuts(QAction* action);
 
 private:
     static void populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup);

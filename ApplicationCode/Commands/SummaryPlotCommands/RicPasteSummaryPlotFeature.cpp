@@ -21,17 +21,17 @@
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectGroup.h"
+#include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
 #include <QAction>
-#include "RimSummaryPlotCollection.h"
-#include "cafSelectionManager.h"
 
 
 CAF_CMD_SOURCE_INIT(RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature");
@@ -95,7 +95,8 @@ void RicPasteSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicPasteSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Summary Plot");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------

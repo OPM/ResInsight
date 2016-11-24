@@ -94,7 +94,8 @@ void RicPasteWellLogTrackFeature::onActionTriggered(bool isChecked)
 void RicPasteWellLogTrackFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Well Log Track");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------

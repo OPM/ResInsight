@@ -20,6 +20,8 @@
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmDefaultObjectFactory.h"
@@ -30,8 +32,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
 
 
 CAF_CMD_SOURCE_INIT(RicPasteSummaryCurveFeature, "RicPasteSummaryCurveFeature");
@@ -177,7 +177,8 @@ void RicPasteSummaryCurveFilterFeature::onActionTriggered(bool isChecked)
 void RicPasteSummaryCurveFilterFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste Summary Curve Filter");
-    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------
