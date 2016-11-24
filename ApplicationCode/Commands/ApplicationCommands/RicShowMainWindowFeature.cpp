@@ -40,7 +40,17 @@ bool RicShowMainWindowFeature::isCommandEnabled()
 void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    mainWnd->show();
+
+    if (mainWnd->isMinimized())
+    {
+        mainWnd->showNormal();
+        mainWnd->update();
+    }
+    else
+    {
+        mainWnd->show();
+    }
+
     mainWnd->raise();
 }
 

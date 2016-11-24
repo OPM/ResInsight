@@ -1507,7 +1507,16 @@ RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
         loadAndUpdatePlotData();
     }
 
-    m_mainPlotWindow->show();
+    if (m_mainPlotWindow->isMinimized())
+    {
+        m_mainPlotWindow->showNormal();
+        m_mainPlotWindow->update();
+    }
+    else
+    {
+        m_mainPlotWindow->show();
+    }
+
     m_mainPlotWindow->raise();
 
     return m_mainPlotWindow;
