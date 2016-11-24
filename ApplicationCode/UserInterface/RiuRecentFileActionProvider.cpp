@@ -21,8 +21,9 @@
 #include "RiaApplication.h"
 
 #include <QAction>
-#include <QSettings>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QSettings>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -130,6 +131,8 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
         }
         else
         {
+            QMessageBox::warning(NULL, "File open", "Failed to import file located at\n" + filename);
+
             removeFileName(filename);
         }
     }

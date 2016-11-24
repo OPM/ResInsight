@@ -1964,6 +1964,8 @@ void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile(const QString& fileName)
 {
+    if (!QFile::exists(fileName)) return false;
+
     bool loadingSucceded = false;
 
     if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
