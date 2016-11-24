@@ -39,6 +39,7 @@
 
 #include <assert.h>
 #include <map>
+#include <vector>
 #include <cstddef>
 
 // Taken from gtest.h
@@ -132,6 +133,18 @@ namespace caf
             }
         }
 
+        std::vector<KeyType> allKeys()
+        {
+            std::vector<KeyType> keys;
+
+            iterator_type entryIt;
+            for (entryIt = m_factoryMap.begin(); entryIt != m_factoryMap.end(); ++entryIt)
+            {
+                keys.push_back(entryIt->first);
+            }
+
+            return keys;
+        }
 
     private:
         Factory ()  {}

@@ -71,15 +71,20 @@ public:
 
     CmdFeature* getCommandFeature(const std::string& commandId);
 
+    std::vector<CmdFeature*> commandFeaturesMatchingSubString(const std::string& subString) const;
+
 private:
     CmdFeatureManager();
 
-    std::pair<CmdFeature*, size_t> createFeature(const std::string& commandId);
-    std::pair<CmdFeature*, size_t> findExistingCmdFeature(const std::string& commandId);
+    std::pair<CmdFeature*, size_t>  createFeature(const std::string& commandId);
+    std::pair<CmdFeature*, size_t>  findExistingCmdFeature(const std::string& commandId);
 
-    std::vector<CmdFeature*>     m_commandFeatures;
-    std::map<std::string , size_t >     m_commandIdToFeatureIdxMap;
-    std::map<QAction*, size_t >         m_actionToFeatureIdxMap;
+    CmdFeature*                     commandFeature(const std::string& commandId) const;
+
+private:
+    std::vector<CmdFeature*>        m_commandFeatures;
+    std::map<std::string , size_t > m_commandIdToFeatureIdxMap;
+    std::map<QAction*, size_t >     m_actionToFeatureIdxMap;
 
 };
 

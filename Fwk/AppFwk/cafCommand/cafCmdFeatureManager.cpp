@@ -59,6 +59,16 @@ CmdFeatureManager::CmdFeatureManager()
 {
     CmdDeleteItemFeature::idNameStatic();
     CmdAddItemFeature::idNameStatic();
+
+    // Make sure all command features are created. The command feature is registered
+    // in the command factory, and instantiated when required. This will enable possibility
+    // of searching through all command features instead of having to use the string keys to 
+    // be sure all command features are present.
+    std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
+    for (size_t i = 0; i < keys.size(); i++)
+    {
+        action(QString::fromStdString(keys[i]));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,6 +160,26 @@ std::pair<CmdFeature*, size_t>  CmdFeatureManager::findExistingCmdFeature(const 
     {
         return std::make_pair(static_cast<CmdFeature*>(NULL), -1);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::CmdFeature* CmdFeatureManager::commandFeature(const std::string& commandId) const
+{
+    std::map<std::string, size_t>::const_iterator it;
+    it = m_commandIdToFeatureIdxMap.find(commandId);
+
+    if (it != m_commandIdToFeatureIdxMap.end())
+    {
+        size_t itemIndex = it->second;
+
+        CmdFeature* item = m_commandFeatures[itemIndex];
+
+        return item;
+    }
+
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,5 +278,27 @@ CmdFeature* CmdFeatureManager::getCommandFeature(const std::string& commandId)
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingSubString(const std::string& subString) const
+{
+    std::vector<CmdFeature*> matches;
+
+    std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
+    for (size_t i = 0; i < keys.size(); i++)
+    {
+        if (keys[i].find(subString) != std::string::npos)
+        {
+            caf::CmdFeature* cmdFeature = commandFeature(keys[i]);
+            if (cmdFeature)
+            {
+                matches.push_back(cmdFeature);
+            }
+        }
+    }
+
+    return matches;
+}
 
 } // end namespace caf
