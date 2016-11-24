@@ -46,8 +46,11 @@ void RicTogglePerspectiveViewFeature::onActionTriggered(bool isChecked)
     {
         bool isPerspective = RiaApplication::instance()->activeReservoirView()->isPerspectiveView();
         RiaApplication::instance()->activeReservoirView()->isPerspectiveView = !isPerspective;
-        RiaApplication::instance()->activeReservoirView()->viewer()->enableParallelProjection(isPerspective);
         RiaApplication::instance()->activeReservoirView()->isPerspectiveView.uiCapability()->updateConnectedEditors();
+
+        RiaApplication::instance()->activeReservoirView()->viewer()->enableParallelProjection(isPerspective);
+        RiaApplication::instance()->activeReservoirView()->viewer()->navigationPolicyUpdate();
+
         this->action(); // Retrieve the action to update the looks
     }
 }

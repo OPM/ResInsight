@@ -516,19 +516,21 @@ void RimViewLinker::updateCamera(RimView* sourceView)
         sourceSceneBB.transform(trans);
     }
 
-    // Propagate view matrix to all relevant views
-
-    const cvf::Mat4d mat = sourceView->viewer()->mainCamera()->viewMatrix();
-    for (size_t i = 0; i < viewsToUpdate.size(); i++)
+    for (RimView* destinationView : viewsToUpdate)
     {
-        if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
+        if (!destinationView) continue;
+
+        destinationView->isPerspectiveView = sourceView->isPerspectiveView;
+
+        RiuViewer* destinationViewer = destinationView->viewer();
+        if (destinationViewer)
         {
-            RiuViewer* destinationViewer = viewsToUpdate[i]->viewer();
+            destinationViewer->enableParallelProjection(!sourceView->isPerspectiveView);
 
             // Destination bounding box in global coordinates including scaleZ
             cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
 
-            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(viewsToUpdate[i]);
+            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(destinationView);
             if (destEclipseView
                 && destEclipseView->eclipseCase()
                 && destEclipseView->eclipseCase()->reservoirData()
