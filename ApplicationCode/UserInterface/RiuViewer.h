@@ -94,6 +94,8 @@ public:
 
     cvf::OverlayItem*   pickFixedPositionedLegend(int winPosX, int winPosY);
 
+    void            updateParallelProjectionSettings(RiuViewer* sourceViewer);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();

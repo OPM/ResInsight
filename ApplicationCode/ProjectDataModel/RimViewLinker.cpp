@@ -569,6 +569,8 @@ void RimViewLinker::updateCamera(RimView* sourceView)
                 }
             }
 
+            destinationViewer->updateParallelProjectionSettings(sourceView->viewer());
+
             destinationViewer->update();
         }
     }

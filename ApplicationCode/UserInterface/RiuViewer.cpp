@@ -743,6 +743,18 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuViewer::updateParallelProjectionSettings(RiuViewer* sourceViewer)
+{
+    if (!sourceViewer || sourceViewer->m_navigationPolicy.isNull()) return;
+
+    cvf::Vec3d poi = sourceViewer->m_navigationPolicy->pointOfInterest();
+    this->updateParallelProjectionHeightFromMoveZoom(poi);
+    this->updateParallelProjectionCameraPosFromPointOfInterestMove(poi);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 {
     if (m_rimView.isNull()) return;
