@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
