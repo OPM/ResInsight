@@ -55,8 +55,9 @@ public:
 public:
     RimSummaryYAxisProperties();
 
-    void setNameAndAxis(const QString& name, QwtPlot::Axis axis);
-    QwtPlot::Axis axis() const;
+    void                        setNameAndAxis(const QString& name, QwtPlot::Axis axis);
+    QwtPlot::Axis               qwtPlotAxisType() const;
+    RimDefines::PlotAxis        plotAxisType() const;
 
     caf::PdmField<bool>         isAutoTitle;
     caf::PdmField<QString>      customTitle;

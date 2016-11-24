@@ -127,9 +127,19 @@ void RimSummaryYAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QwtPlot::Axis RimSummaryYAxisProperties::axis() const
+QwtPlot::Axis RimSummaryYAxisProperties::qwtPlotAxisType() const
 {
     return m_axis;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDefines::PlotAxis RimSummaryYAxisProperties::plotAxisType() const
+{
+    if (m_axis == QwtPlot::yRight) return RimDefines::PLOT_AXIS_RIGHT;
+
+    return RimDefines::PLOT_AXIS_LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------

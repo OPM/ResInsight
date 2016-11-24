@@ -118,7 +118,7 @@ void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* 
         QString axisTitle = m_axisProperties->customTitle;
         if (m_axisProperties->isAutoTitle) axisTitle = autoAxisTitle();
 
-        QwtText axisTitleY = qwtPlot->axisTitle(m_axisProperties->axis());
+        QwtText axisTitleY = qwtPlot->axisTitle(m_axisProperties->qwtPlotAxisType());
 
         QFont axisTitleYFont = axisTitleY.font();
         axisTitleYFont.setBold(true);
@@ -137,28 +137,28 @@ void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* 
             break;
         }
 
-        qwtPlot->setAxisTitle(m_axisProperties->axis(), axisTitleY);
+        qwtPlot->setAxisTitle(m_axisProperties->qwtPlotAxisType(), axisTitleY);
     }
 
     {
-        QFont yAxisFont = qwtPlot->axisFont(m_axisProperties->axis());
+        QFont yAxisFont = qwtPlot->axisFont(m_axisProperties->qwtPlotAxisType());
         yAxisFont.setBold(false);
         yAxisFont.setPixelSize(m_axisProperties->fontSize);
-        qwtPlot->setAxisFont(m_axisProperties->axis(), yAxisFont);
+        qwtPlot->setAxisFont(m_axisProperties->qwtPlotAxisType(), yAxisFont);
     }
 
     {
         if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_AUTO)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new QwtScaleDraw);
+            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw);
         }
         else if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_DECIMAL)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new DecimalScaleDraw);
+            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new DecimalScaleDraw);
         }
         else if (m_axisProperties->numberFormat == RimSummaryYAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->axis(), new ScientificScaleDraw());
+            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new ScientificScaleDraw());
         }
 
     }
@@ -166,21 +166,21 @@ void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* 
     {
         if (m_axisProperties->isLogarithmicScaleEnabled)
         {
-            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->axis()));
+            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->qwtPlotAxisType()));
             if (!currentScaleEngine)
             {
-                qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLogScaleEngine);
-                qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 5);
+                qwtPlot->setAxisScaleEngine(m_axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine);
+                qwtPlot->setAxisMaxMinor(m_axisProperties->qwtPlotAxisType(), 5);
             }
 
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->axis()));
+            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->qwtPlotAxisType()));
             if (!currentScaleEngine)
             {
-                qwtPlot->setAxisScaleEngine(m_axisProperties->axis(), new QwtLinearScaleEngine);
-                qwtPlot->setAxisMaxMinor(m_axisProperties->axis(), 3);
+                qwtPlot->setAxisScaleEngine(m_axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine);
+                qwtPlot->setAxisMaxMinor(m_axisProperties->qwtPlotAxisType(), 3);
             }
         }
     }
@@ -195,7 +195,7 @@ QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
 
     for ( RimSummaryCurve* rimCurve : m_singleCurves )
     {
-        if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->axis() )
+        if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
         {
             unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
         }
@@ -209,7 +209,7 @@ QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
 
             for ( RimSummaryCurve* rimCurve : curveFilterCurves )
             {
-                if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->axis() )
+                if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
                 {
                     unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
                 }

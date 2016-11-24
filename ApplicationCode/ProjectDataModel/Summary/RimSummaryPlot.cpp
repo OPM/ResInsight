@@ -434,7 +434,7 @@ void RimSummaryPlot::zoomAll()
             RimSummaryPlotYAxisRangeCalculator calc(m_leftYAxisProperties, curves);
             calc.computeYRange(&min, &max);
 
-            m_qwtPlot->setAxisScale(m_leftYAxisProperties->axis(), min, max);
+            m_qwtPlot->setAxisScale(m_leftYAxisProperties->qwtPlotAxisType(), min, max);
         }
         else
         {
@@ -449,7 +449,7 @@ void RimSummaryPlot::zoomAll()
             RimSummaryPlotYAxisRangeCalculator calc(m_rightYAxisProperties, curves);
             calc.computeYRange(&min, &max);
 
-            m_qwtPlot->setAxisScale(m_rightYAxisProperties->axis(), min, max);
+            m_qwtPlot->setAxisScale(m_rightYAxisProperties->qwtPlotAxisType(), min, max);
         }
         else
         {
