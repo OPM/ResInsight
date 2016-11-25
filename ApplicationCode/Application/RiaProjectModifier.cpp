@@ -19,57 +19,31 @@
 
 #include "RiaProjectModifier.h"
 
-#include "RimProject.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimOilField.h"
-#include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
-
-#include "RimEclipseView.h"
-#include "RimWellPathCollection.h"
-#include "RimScriptCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseCellColors.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 
 #include <QFileInfo>
 #include <QDir>
 
 
-
-
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaProjectModifier::RiaProjectModifier()
-:   m_replaceCase_caseId(UNDEFINED),
-    m_replaceSourceCases_caseGroupId(UNDEFINED)
 {
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceCaseFirstOccurence(QString newGridFileName)
+void RiaProjectModifier::setReplaceCaseFirstOccurrence(QString newGridFileName)
 {
-    m_replaceCase_caseId = FIRST_OCCURENCE;
-    m_replaceCase_gridFileName = makeFilePathAbsolute(newGridFileName);
+    m_caseIdToGridFileNameMap[FIRST_OCCURENCE] = makeFilePathAbsolute(newGridFileName);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -78,26 +52,17 @@ void RiaProjectModifier::setReplaceCase(int caseIdToReplace, QString newGridFile
 {
     if (caseIdToReplace >= 0)
     {
-        m_replaceCase_caseId = caseIdToReplace;
-        m_replaceCase_gridFileName = makeFilePathAbsolute(newGridFileName);
+        m_caseIdToGridFileNameMap[caseIdToReplace] = makeFilePathAbsolute(newGridFileName);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceSourceCasesFirstOccurence(std::vector<QString> newGridFileNames)
+void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence(std::vector<QString> newGridFileNames)
 {
-    m_replaceSourceCases_caseGroupId = FIRST_OCCURENCE;
-
-    m_replaceSourceCases_gridFileNames.clear();
-    foreach (QString fn, newGridFileNames)
-    {
-        m_replaceSourceCases_gridFileNames.push_back(makeFilePathAbsolute(fn));
-    }
+    m_groupIdToGridFileNamesMap[FIRST_OCCURENCE] = newGridFileNames;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -106,28 +71,21 @@ void RiaProjectModifier::setReplaceSourceCasesById(int caseGroupIdToReplace, std
 {
     if (caseGroupIdToReplace >= 0)
     {
-        m_replaceSourceCases_caseGroupId = caseGroupIdToReplace;
-
-        m_replaceSourceCases_gridFileNames.clear();
-        foreach (QString fn, newGridFileNames)
-        {
-            m_replaceSourceCases_gridFileNames.push_back(makeFilePathAbsolute(fn));
-        }
+        m_groupIdToGridFileNamesMap[caseGroupIdToReplace] = newGridFileNames;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RiaProjectModifier::applyModificationsToProject(RimProject* project) 
 {
-    if (m_replaceCase_caseId != UNDEFINED && !m_replaceCase_gridFileName.isEmpty())
+    if (m_caseIdToGridFileNameMap.size() > 0)
     {
         replaceCase(project);
     }
 
-    if (m_replaceSourceCases_caseGroupId != UNDEFINED && m_replaceSourceCases_gridFileNames.size() > 0)
+    if (m_groupIdToGridFileNamesMap.size() > 0)
     {
         replaceSourceCases(project);
     }
@@ -135,89 +93,79 @@ bool RiaProjectModifier::applyModificationsToProject(RimProject* project)
     return true;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectModifier::replaceSourceCases(RimProject* project)
+void RiaProjectModifier::replaceSourceCases(RimProject* project)
 {
-    bool didReplacement = false;
-
-    for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
+    for (RimOilField* oilField : project->oilFields())
     {
-        RimOilField* oilField = project->oilFields[oilFieldIdx];
         RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
         if (analysisModels)
         {
-            const size_t numCaseGroups = analysisModels->caseGroups.size();
-            for (size_t caseGrpIdx = 0; caseGrpIdx < numCaseGroups; ++caseGrpIdx)
+            for (RimIdenticalGridCaseGroup* caseGroup : analysisModels->caseGroups)
             {
-                RimIdenticalGridCaseGroup* caseGroup = analysisModels->caseGroups[caseGrpIdx];
-                if (m_replaceSourceCases_caseGroupId == FIRST_OCCURENCE ||
-                    m_replaceSourceCases_caseGroupId == caseGroup->groupId)
+                for (auto item : m_groupIdToGridFileNamesMap)
                 {
-                    RimCaseCollection* caseCollection = caseGroup->caseCollection;
-                    caseCollection->reservoirs.deleteAllChildObjects();
-
-                    for (size_t i = 0; i < m_replaceSourceCases_gridFileNames.size(); i++)
+                    int groupIdToReplace = item.first;
+                    if (groupIdToReplace == FIRST_OCCURENCE)
                     {
-                        QString fileName = m_replaceSourceCases_gridFileNames[i];
-                        QString caseName = caseNameFromGridFileName(fileName);
-
-                        // Use this slightly hackish method in order to get a new unique ID
-                        RimEclipseResultCase* resCase = new RimEclipseResultCase;
-                        resCase->setCaseInfo(caseName, fileName);
-
-                        caseCollection->reservoirs.push_back(resCase);
+                        groupIdToReplace = firstGroupId(project);
                     }
 
-                    didReplacement = true;
-
-                    if (m_replaceSourceCases_caseGroupId == FIRST_OCCURENCE)
+                    if (groupIdToReplace == caseGroup->groupId())
                     {
-                        return true;
+                        RimCaseCollection* caseCollection = caseGroup->caseCollection;
+                        caseCollection->reservoirs.deleteAllChildObjects();
+
+                        for (QString fileName : item.second)
+                        {
+                            QString caseName = caseNameFromGridFileName(fileName);
+
+                            // Use this slightly hackish method in order to get a new unique ID
+                            RimEclipseResultCase* resCase = new RimEclipseResultCase;
+                            resCase->setCaseInfo(caseName, fileName);
+
+                            caseCollection->reservoirs.push_back(resCase);
+                        }
                     }
                 }
             }
         }
     }
-
-    return didReplacement;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaProjectModifier::replaceCase(RimProject* project)
+void RiaProjectModifier::replaceCase(RimProject* project)
 {
-    bool didReplacement = false;
     std::vector<RimCase*> allCases;
     project->allCases(allCases);
-
-    for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
+    
+    for (RimCase* rimCase : allCases)
     {
-        RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(allCases[caseIdx]);
+        RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(rimCase);
         if (resultCase)
         {
-            if (m_replaceCase_caseId == FIRST_OCCURENCE ||
-                m_replaceCase_caseId == resultCase->caseId())
+            for (auto item : m_caseIdToGridFileNameMap)
             {
-                resultCase->setGridFileName(m_replaceCase_gridFileName);
-                resultCase->caseUserDescription = caseNameFromGridFileName(m_replaceCase_gridFileName);
-                didReplacement = true;
-
-                if (m_replaceCase_caseId == FIRST_OCCURENCE)
+                int caseIdToReplace = item.first;
+                if (caseIdToReplace == FIRST_OCCURENCE)
                 {
-                    return true;
+                    caseIdToReplace = firstCaseId(project);
+                }
+
+                if (caseIdToReplace == resultCase->caseId())
+                {
+                    QString replaceFileName = item.second;
+                    resultCase->setGridFileName(replaceFileName);
+                    resultCase->caseUserDescription = caseNameFromGridFileName(replaceFileName);
                 }
             }
         }
     }
-
-    return didReplacement;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Returns absolute path name to the specified file. 
@@ -231,7 +179,6 @@ QString RiaProjectModifier::makeFilePathAbsolute(QString relOrAbsolutePath)
     theFile.makeAbsolute();
     return theFile.filePath();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -248,4 +195,44 @@ QString RiaProjectModifier::caseNameFromGridFileName(QString fullGridFilePathNam
     return deepestDirPlusFileName;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaProjectModifier::firstCaseId(RimProject* project)
+{
+    std::vector<RimCase*> allCases;
+    project->allCases(allCases);
+
+    for (RimCase* rimCase : allCases)
+    {
+        RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(rimCase);
+        if (resultCase)
+        {
+            return resultCase->caseId();
+        }
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaProjectModifier::firstGroupId(RimProject* project)
+{
+    for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
+    {
+        RimOilField* oilField = project->oilFields[oilFieldIdx];
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        if (analysisModels)
+        {
+            if (analysisModels->caseGroups.size() > 0)
+            {
+                return analysisModels->caseGroups[0]->groupId();
+            }
+        }
+    }
+
+    return -1;
+}
 

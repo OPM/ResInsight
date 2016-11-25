@@ -1182,8 +1182,8 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("savesnapshots",             "all|views|plots",                  "Save snapshot of all views or plots to project file location sub folder 'snapshots'. Option 'all' will include both views and plots. Application closes after snapshots have been written.", cvf::ProgramOptions::OPTIONAL_MULTI_VALUE);
     progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>. Repeat option for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
+    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file. Repeat option for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
     progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("help",                      "",                                 "Displays help text.");
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
@@ -1294,16 +1294,26 @@ bool RiaApplication::parseArguments()
         {
             if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
 
-            const int caseId = o.safeValue(0).toInt(-1);
-            if (caseId != -1 && o.valueCount() > 1)
+            if (o.valueCount() == 1)
             {
-                QString gridFileName = cvfqt::Utils::toQString(o.value(1));
-                projectModifier->setReplaceCase(caseId, gridFileName);
+                // One argument is available, use replace case for first occurrence in the project
+
+                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
+                projectModifier->setReplaceCaseFirstOccurrence(gridFileName);
             }
             else
             {
-                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
-                projectModifier->setReplaceCaseFirstOccurence(gridFileName);
+                size_t optionIdx = 0;
+                while (optionIdx < o.valueCount())
+                {
+                    const int caseId = o.safeValue(optionIdx++).toInt(-1);
+                    QString gridFileName = cvfqt::Utils::toQString(o.safeValue(optionIdx++));
+
+                    if (caseId != -1 && !gridFileName.isEmpty())
+                    {
+                        projectModifier->setReplaceCase(caseId, gridFileName);
+                    }
+                }
             }
         }
 
@@ -1311,16 +1321,26 @@ bool RiaApplication::parseArguments()
         {
             if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
 
-            const int caseGroupId = o.safeValue(0).toInt(-1);
-            if (caseGroupId != -1 &&  o.valueCount() > 1)
+            if (o.valueCount() == 1)
             {
-                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.value(1)));
-                projectModifier->setReplaceSourceCasesById(caseGroupId, gridFileNames);
+                // One argument is available, use replace case for first occurrence in the project
+
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
+                projectModifier->setReplaceSourceCasesFirstOccurrence(gridFileNames);
             }
             else
             {
-                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
-                projectModifier->setReplaceSourceCasesFirstOccurence(gridFileNames);
+                size_t optionIdx = 0;
+                while (optionIdx < o.valueCount())
+                {
+                    const int groupId = o.safeValue(optionIdx++).toInt(-1);
+                    std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(optionIdx++)));
+
+                    if (groupId != -1 && gridFileNames.size() > 0)
+                    {
+                        projectModifier->setReplaceSourceCasesById(groupId, gridFileNames);
+                    }
+                }
             }
 
             projectLoadAction = PLA_CALCULATE_STATISTICS;
@@ -2083,7 +2103,7 @@ void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileNam
         QString gridFn = gridFileNames[i];
 
         RiaProjectModifier modifier;
-        modifier.setReplaceCaseFirstOccurence(gridFn);
+        modifier.setReplaceCaseFirstOccurrence(gridFn);
 
         bool loadOk = loadProject(templateProjectFileName, PLA_NONE, &modifier);
         if (loadOk)

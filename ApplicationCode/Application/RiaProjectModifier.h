@@ -25,6 +25,7 @@
 #include <QString>
 
 #include <vector>
+#include <map>
 
 class RimProject;
 
@@ -40,32 +41,27 @@ class RiaProjectModifier : public cvf::Object
 public:
     RiaProjectModifier();
 
-    void            setReplaceCaseFirstOccurence(QString newGridFileName);
+    void            setReplaceCaseFirstOccurrence(QString newGridFileName);
     void            setReplaceCase(int caseIdToReplace, QString newGridFileName);
 
-    void            setReplaceSourceCasesFirstOccurence(std::vector<QString> newGridFileNames);
+    void            setReplaceSourceCasesFirstOccurrence(std::vector<QString> newGridFileNames);
     void            setReplaceSourceCasesById(int caseGroupIdToReplace, std::vector<QString> newGridFileNames);
 
     bool            applyModificationsToProject(RimProject* project);
 
 private:
-    bool            replaceSourceCases(RimProject* project);
-    bool            replaceCase(RimProject* project);
+    void            replaceSourceCases(RimProject* project);
+    void            replaceCase(RimProject* project);
     static QString  makeFilePathAbsolute(QString relOrAbsolutePath);
     static QString  caseNameFromGridFileName(QString fullGridFilePathName);
 
+    static int      firstCaseId(RimProject* project);
+    static int      firstGroupId(RimProject* project);
+
 private:
-    int                     m_replaceCase_caseId;
-    QString                 m_replaceCase_gridFileName;
+    std::map<int, QString>               m_caseIdToGridFileNameMap;
+    std::map<int, std::vector<QString> > m_groupIdToGridFileNamesMap;
 
-    int                     m_replaceSourceCases_caseGroupId;
-    std::vector<QString>    m_replaceSourceCases_gridFileNames;
-
-    static const int UNDEFINED = -1;
     static const int FIRST_OCCURENCE = -999;
 };
-
-
-
-
 
