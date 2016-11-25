@@ -509,8 +509,12 @@ static void ecl_kw_set_shared_ref(ecl_kw_type * ecl_kw , void *data_ptr) {
 static void ecl_kw_initialize(ecl_kw_type * ecl_kw , const char *header ,  int size , ecl_type_enum ecl_type) {
   ecl_kw->ecl_type     = ecl_type;
   ecl_kw->sizeof_ctype = ecl_util_get_sizeof_ctype(ecl_kw->ecl_type);
-  if (strlen(header) > ECL_STRING_LENGTH)
-    util_abort("%s: Fatal error: ecl_header_name:%s is longer than eight characters - aborting \n",__func__,header);
+
+  // NOTE ! Do not abort when reading a keyword with more than eight characters
+  // The keyword is populated with the eight first characters, and import works as expected
+
+        //if (strlen(header) > ECL_STRING_LENGTH)
+        //util_abort("%s: Fatal error: ecl_header_name:%s is longer than eight characters - aborting \n",__func__,header);
 
   ecl_kw_set_header_name(ecl_kw , header);
   ecl_kw->size = size;
