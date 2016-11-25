@@ -1,3 +1,4 @@
+# Keep the values in the first LGR only
 
 CInfo = riGetActiveCellInfo();
 SOIL = riGetActiveCellProperty("SOIL");

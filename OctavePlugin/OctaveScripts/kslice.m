@@ -1,3 +1,4 @@
+# Set all values to "Undefined" exept k-layers from 17 to 20
 
 CInfo = riGetActiveCellInfo();
 SOIL = riGetActiveCellProperty("SOIL");
