@@ -34,6 +34,8 @@ ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
 
+${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.h
+
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.h
@@ -69,6 +71,7 @@ ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
 
+${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.cpp
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.cpp

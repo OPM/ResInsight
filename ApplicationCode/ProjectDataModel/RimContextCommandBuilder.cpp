@@ -71,6 +71,7 @@
 #include <vector>
 
 #include <QMenu>
+#include "RimFault.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -346,6 +347,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
             commandIds << "RicReloadFormationNamesFeature";
         }
+        else if ( dynamic_cast<RimFault*>(uiItem) )
+        {
+            commandIds << "RicExportFaultsFeature";
+        }
 
 
         if (dynamic_cast<RimView*>(uiItem))
@@ -392,6 +397,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
             commandIds << "RicExportToLasFileFeature";
+        }
+        else if (dynamic_cast<RimFault*>(uiItem) )
+        {
+            commandIds << "RicExportFaultsFeature";
         }
     }
 
