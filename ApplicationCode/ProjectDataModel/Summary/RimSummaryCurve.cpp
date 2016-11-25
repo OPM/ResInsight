@@ -404,9 +404,9 @@ void RimSummaryCurve::onLoadDataAndUpdate()
         firstAncestorOrThisOfType(plot);
         bool isLogCurve = plot->isLogarithmicScaleEnabled(this->yAxis());
 
-        if ( dateTimes.size())
+        if (dateTimes.size() > 0 && dateTimes.size() == values.size())
         {
-            if (  plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
+            if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
             {
                 m_qwtPlotCurve->setSamplesFromTimeTAndValues(dateTimes, values, isLogCurve);
             }
