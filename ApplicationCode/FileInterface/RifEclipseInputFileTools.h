@@ -60,7 +60,6 @@ public:
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigCaseData* eclipseCase);
     static bool                       readProperty  (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
-    static bool                       readPropertyAtFilePosition (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
     
     static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults);
     static void                       readFaults(const QString& fileName, const std::vector< RifKeywordAndFilePos >& fileKeywords, cvf::Collection<RigFault>* faults);

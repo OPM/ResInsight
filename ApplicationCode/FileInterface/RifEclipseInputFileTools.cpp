@@ -664,35 +664,6 @@ void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector< RifKe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigCaseData* caseData, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
-{
-    CVF_ASSERT(caseData);
-
-    FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
-    if (!filePointer) return false;
-
-    fseek(filePointer, filePos, SEEK_SET);
-    ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(filePointer, false , ECL_FLOAT_TYPE);
-    bool isOk = false;
-    if (eclipseKeywordData)
-    {
-        size_t resultIndex = findOrCreateResult(resultName, caseData);
-        if (resultIndex != cvf::UNDEFINED_SIZE_T)
-        {
-            isOk = readDoubleValues(caseData, resultIndex, eclipseKeywordData);
-        }
-
-        ecl_kw_free(eclipseKeywordData);
-    }
-
-    util_fclose(filePointer);
-    return isOk;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RifEclipseInputFileTools::readFaults(const QString& fileName, const std::vector<RifKeywordAndFilePos>& fileKeywords, cvf::Collection<RigFault>* faults)
 {
     QFile data(fileName);
