@@ -243,16 +243,14 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
     std::vector<QString> filenames = m_additionalFileNames;
     filenames.push_back(m_gridFileName);
 
-    const std::vector<QString>& knownKeywords = RifEclipseInputFileTools::knownPropertyKeywords();
-
     size_t inputPropCount = this->m_inputPropertyCollection()->inputProperties.size();
 
-    caf::ProgressInfo progInfo(static_cast<int>(filenames.size() *( inputPropCount + knownKeywords.size())), "Reading Input properties" );
+    caf::ProgressInfo progInfo(static_cast<int>(filenames.size() * inputPropCount), "Reading Input properties" );
     int progress = 0;
 
     for_all(filenames, i)
     {
-        progress = static_cast<int>(i*( inputPropCount + knownKeywords.size()));
+        progress = static_cast<int>(i*inputPropCount);
         // Find all the keywords present on the file
 
         progInfo.setProgressDescription(filenames[i]);
@@ -288,7 +286,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
                 ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
                 if (fileKeywordSet.count(kw))
                 {
-                    if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), kw,  ipsUsingThisFile[ipIdx]->resultName ))
+                    if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), kw, ipsUsingThisFile[ipIdx]->resultName ))
                     {
                         ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::RESOLVED;
                     }
@@ -302,25 +300,22 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         progInfo.setProgress(static_cast<int>(progress +  inputPropCount));
         // Check if there are more known property keywords left on file. If it is, read them and create inputProperty objects
 
-        if (!fileKeywordSet.empty())
+        for (const QString fileKeyword : fileKeywordSet)
         {
-            for_all(knownKeywords, fkIt) 
             {
-                if (fileKeywordSet.count(knownKeywords[fkIt]))
+                QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeyword);
+                if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), fileKeyword, resultName))
                 {
-                    QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(knownKeywords[fkIt]);
-                    if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), knownKeywords[fkIt], resultName))
-                    {
-                        RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-                        inputProperty->resultName = resultName;
-                        inputProperty->eclipseKeyword = knownKeywords[fkIt];
-                        inputProperty->fileName = filenames[i];
-                        inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
-                        m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                    }
+                    RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
+                    inputProperty->resultName = resultName;
+                    inputProperty->eclipseKeyword = fileKeyword;
+                    inputProperty->fileName = filenames[i];
+                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                    m_inputPropertyCollection->inputProperties.push_back(inputProperty);
                 }
-                 progInfo.setProgress(static_cast<int>(progress +  inputPropCount + fkIt));
             }
+
+            progInfo.setProgress(static_cast<int>(progress + inputPropCount));
         }
     }
 

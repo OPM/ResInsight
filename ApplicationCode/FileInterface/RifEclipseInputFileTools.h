@@ -23,11 +23,15 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfLibCore.h"
+
+#include "RifReaderInterface.h"
+#include "RigFault.h"
+
+#include "ert/ecl/ecl_kw.h"
+
 #include <map>
 
 #include <QString>
-#include "RifReaderInterface.h"
-#include "RigFault.h"
 
 
 class RigCaseData;
@@ -60,7 +64,7 @@ public:
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigCaseData* eclipseCase);
     static bool                       readProperty  (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
-    
+
     static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults);
     static void                       readFaults(const QString& fileName, const std::vector< RifKeywordAndFilePos >& fileKeywords, cvf::Collection<RigFault>* faults);
     static void                       parseAndReadFaults(const QString& fileName, cvf::Collection<RigFault>* faults);
@@ -70,7 +74,6 @@ public:
 
     static void                       parseAndReadPathAliasKeyword(const QString &fileName, std::vector< std::pair<QString, QString> >* pathAliasDefinitions);
 
-    static const std::vector<QString>& knownPropertyKeywords(); 
 
     static bool     writePropertyToTextFile(const QString& fileName, RigCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
     static bool     writeBinaryResultToTextFile(const QString& fileName, RigCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
@@ -85,10 +88,16 @@ public:
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 
 private:
+    static bool     readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigCaseData* caseData, const QString& resultName);
     static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
     static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
 
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
 
     static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
+    static size_t   findOrCreateResult(const QString& newResultName, RigCaseData* reservoir);
+    static bool     isValidDataKeyword(const QString& keyword);
+    
+private:
+    static const std::vector<QString>& invalidPropertyDataKeywords(); 
 };
