@@ -676,8 +676,15 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::clearComputedStatistics()
 {
-    reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
-    reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
+    if (reservoirData() && reservoirData()->results(RifReaderInterface::MATRIX_RESULTS))
+    {
+        reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
+    }
+
+    if (reservoirData() && reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS))
+    {
+        reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
+    }
 
     updateConnectedEditorsAndReservoirViews();
 }
