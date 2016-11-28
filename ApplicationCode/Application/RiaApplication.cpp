@@ -970,6 +970,11 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
 
+    if (fileNames.size() == 1)
+    {
+        addToRecentFiles(fileNames[0]);
+    }
+
     return true;
 }
 
@@ -2004,6 +2009,10 @@ bool RiaApplication::openFile(const QString& fileName)
     else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
     {
         loadingSucceded = openEclipseCaseFromFile(fileName);
+    }
+    else if (fileName.contains(".grdecl", Qt::CaseInsensitive))
+    {
+        loadingSucceded = openInputEclipseCaseFromFileNames(QStringList(fileName));
     }
     else if (fileName.contains(".odb", Qt::CaseInsensitive))
     {
