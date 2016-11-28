@@ -1192,9 +1192,9 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("help",                      "",                                 "Displays help text.");
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
-    progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("unittest",                  "",                                 "Execute unit tests");
+    progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("unittest",                  "",                                 "System command");
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
