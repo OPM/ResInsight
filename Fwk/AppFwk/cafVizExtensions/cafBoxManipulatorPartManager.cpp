@@ -249,7 +249,7 @@ void BoxManipulatorPartManager::createAllHandleParts()
 //--------------------------------------------------------------------------------------------------
 void BoxManipulatorPartManager::createCubeFaceHandlePart(BoxFace face, cvf::Vec3f p1, cvf::Vec3f p2, cvf::Vec3f p3, cvf::Vec3f p4)
 {
-    float handleSize = static_cast<float>(m_sizeOnStartManipulation.length() * 0.02);
+    float handleSize = static_cast<float>(m_sizeOnStartManipulation.length() * 0.05);
 
     Vec3f center = (p1 + p2 + p3 + p4) / 4.0f;
 
