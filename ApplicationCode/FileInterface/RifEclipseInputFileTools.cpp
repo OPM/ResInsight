@@ -437,64 +437,6 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
     return keywords;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-/*
-const std::vector<QString>& RifEclipseInputFileTools::knownPropertyKeywords()
-{
-    static std::vector<QString> knownKeywords;
-    static bool isInitialized = false;
-    if (!isInitialized)
-    {
-        knownKeywords.push_back("AQUIFERA");
-        knownKeywords.push_back("ACTNUM");
-        knownKeywords.push_back("EQLNUM");
-        knownKeywords.push_back("FIPNUM");
-        knownKeywords.push_back("KRG");
-        knownKeywords.push_back("KRGR");
-        knownKeywords.push_back("KRO");
-        knownKeywords.push_back("KRORG");
-        knownKeywords.push_back("KRORW");
-        knownKeywords.push_back("KRW");
-        knownKeywords.push_back("KRWR");
-        knownKeywords.push_back("MINPVV");
-        knownKeywords.push_back("MULTPV");
-        knownKeywords.push_back("MULTX");
-        knownKeywords.push_back("MULTX-");
-        knownKeywords.push_back("MULTY");
-        knownKeywords.push_back("MULTY-");
-        knownKeywords.push_back("MULTZ");
-        knownKeywords.push_back("NTG");
-        knownKeywords.push_back("PCG");
-        knownKeywords.push_back("PCW");
-        knownKeywords.push_back("PERMX");
-        knownKeywords.push_back("PERMY");
-        knownKeywords.push_back("PERMZ");
-        knownKeywords.push_back("PORO");
-        knownKeywords.push_back("PVTNUM");
-        knownKeywords.push_back("SATNUM");
-        knownKeywords.push_back("SGCR");
-        knownKeywords.push_back("SGL");
-        knownKeywords.push_back("SGLPC");
-        knownKeywords.push_back("SGU");
-        knownKeywords.push_back("SGWCR");
-        knownKeywords.push_back("SWATINIT");
-        knownKeywords.push_back("SWCR");
-        knownKeywords.push_back("SWGCR");
-        knownKeywords.push_back("SWL");
-        knownKeywords.push_back("SWLPC");
-        knownKeywords.push_back("TRANX");
-        knownKeywords.push_back("TRANY");
-        knownKeywords.push_back("TRANZ");
-
-        isInitialized = true;
-    }
-    return knownKeywords;
-}
-*/
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
