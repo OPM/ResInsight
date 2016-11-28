@@ -277,6 +277,9 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigCaseData* caseData, const QString& resultName)
 {
+    CVF_ASSERT(caseData);
+    CVF_ASSERT(eclipseKeywordData);
+
     bool mathingItemCount = false;
     {
         int itemCount = ecl_kw_get_size(eclipseKeywordData);
@@ -336,7 +339,7 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
 
                 filepos = data.pos() - lineLength;
                 keyPos.filePos = filepos;
-                keyPos.keyword = line.left(8).trimmed();
+                keyPos.keyword = line.trimmed();
                 keywords->push_back(keyPos);
                 //qDebug() << keyPos.keyword << " - " << keyPos.filePos;
             }
