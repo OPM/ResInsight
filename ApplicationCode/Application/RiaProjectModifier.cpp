@@ -42,7 +42,7 @@ RiaProjectModifier::RiaProjectModifier()
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplaceCaseFirstOccurrence(QString newGridFileName)
 {
-    m_caseIdToGridFileNameMap[FIRST_OCCURENCE] = makeFilePathAbsolute(newGridFileName);
+    m_caseIdToGridFileNameMap[RiaProjectModifier::firstOccurrenceId()] = makeFilePathAbsolute(newGridFileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void RiaProjectModifier::setReplaceCase(int caseIdToReplace, QString newGridFile
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence(std::vector<QString> newGridFileNames)
 {
-    m_groupIdToGridFileNamesMap[FIRST_OCCURENCE] = newGridFileNames;
+    m_groupIdToGridFileNamesMap[RiaProjectModifier::firstOccurrenceId()] = newGridFileNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ void RiaProjectModifier::replaceSourceCases(RimProject* project)
                 for (auto item : m_groupIdToGridFileNamesMap)
                 {
                     int groupIdToReplace = item.first;
-                    if (groupIdToReplace == FIRST_OCCURENCE)
+                    if (groupIdToReplace == RiaProjectModifier::firstOccurrenceId())
                     {
                         groupIdToReplace = firstGroupId(project);
                     }
@@ -151,7 +151,7 @@ void RiaProjectModifier::replaceCase(RimProject* project)
             for (auto item : m_caseIdToGridFileNameMap)
             {
                 int caseIdToReplace = item.first;
-                if (caseIdToReplace == FIRST_OCCURENCE)
+                if (caseIdToReplace == RiaProjectModifier::firstOccurrenceId())
                 {
                     caseIdToReplace = firstCaseId(project);
                 }
@@ -234,5 +234,13 @@ int RiaProjectModifier::firstGroupId(RimProject* project)
     }
 
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaProjectModifier::firstOccurrenceId()
+{
+    return -999;
 }
 

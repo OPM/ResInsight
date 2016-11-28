@@ -58,10 +58,10 @@ private:
     static int      firstCaseId(RimProject* project);
     static int      firstGroupId(RimProject* project);
 
+    static int      firstOccurrenceId();
+
 private:
     std::map<int, QString>               m_caseIdToGridFileNameMap;
     std::map<int, std::vector<QString> > m_groupIdToGridFileNamesMap;
-
-    static const int FIRST_OCCURENCE = -999;
 };
 
