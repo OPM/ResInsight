@@ -40,8 +40,6 @@ public:
     RiaPreferences(void);
     virtual ~RiaPreferences(void);
 
-    void configureForRegressionTests();
-
     QStringList tabNames();
 
 public: // Pdm Fields

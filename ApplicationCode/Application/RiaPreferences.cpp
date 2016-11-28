@@ -221,22 +221,6 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This function is called as part of the regression test system to make sure the configuration
-/// for regression tests is consistent
-//--------------------------------------------------------------------------------------------------
-void RiaPreferences::configureForRegressionTests()
-{
-    useShaders = true;
-    showHud = false;
-
-    autocomputeDepthRelatedProperties = true;
-    loadAndShowSoil = true;
-
-    CVF_ASSERT(readerSettings);
-    readerSettings->importFaults = false;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QStringList RiaPreferences::tabNames()
