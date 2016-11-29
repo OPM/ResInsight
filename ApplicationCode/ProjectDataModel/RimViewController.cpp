@@ -23,6 +23,7 @@
 
 #include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
+#include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
 
@@ -44,7 +45,6 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
-#include "RigCaseToCaseRangeFilterMapper.h"
 
 #include <QMessageBox>
 
@@ -64,7 +64,7 @@ RimViewController::RimViewController(void)
     m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View", "", "", "");
-    m_managedView.uiCapability()->setUiChildrenHidden(true);
+    m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
     CAF_PDM_InitField(&m_syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
@@ -108,14 +108,14 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
         }
 
         RimViewLinker* linkedViews = NULL;
-        this->firstAnchestorOrThisOfType(linkedViews);
+        this->firstAncestorOrThisOfType(linkedViews);
 
         for (size_t i = 0; i< views.size(); i++)
         {
             if (views[i] != linkedViews->masterView())
             {
                 RimCase* rimCase = NULL;
-                views[i]->firstAnchestorOrThisOfType(rimCase);
+                views[i]->firstAncestorOrThisOfType(rimCase);
                 QIcon icon;
                 if (rimCase)
                 {
@@ -351,7 +351,7 @@ void RimViewController::removeOverrides(RimView* view)
 void RimViewController::updateOptionSensitivity()
 {
     RimViewLinker* linkedViews = NULL;
-    firstAnchestorOrThisOfType(linkedViews);
+    firstAncestorOrThisOfType(linkedViews);
     CVF_ASSERT(linkedViews);
 
     RimView* mainView = linkedViews->masterView();
@@ -504,7 +504,7 @@ void RimViewController::updateResultColorsControl()
 RimViewLinker* RimViewController::ownerViewLinker()
 {
     RimViewLinker* viewLinker = NULL;
-    this->firstAnchestorOrThisOfType(viewLinker);
+    this->firstAncestorOrThisOfType(viewLinker);
 
     return viewLinker;
 }
@@ -873,9 +873,11 @@ bool RimViewController::isPropertyFilterOveridden()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter)
 {
+    if (!m_managedView) return;
+
     if (!isRangeFiltersControlled())
     {
-        managedView()->setOverrideRangeFilterCollection(NULL);
+        m_managedView->setOverrideRangeFilterCollection(NULL);
 
         return;
     }
@@ -930,10 +932,8 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
             }
         }
 
-        managedView()->setOverrideRangeFilterCollection(overrideRangeFilterColl);
+        m_managedView->setOverrideRangeFilterCollection(overrideRangeFilterColl);
     }
-   
- 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -941,6 +941,8 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 //--------------------------------------------------------------------------------------------------
 void RimViewController::applyRangeFilterCollectionByUserChoice()
 {
+    if (!m_managedView) return;
+
     if (!m_managedView->hasOverridenRangeFilterCollection())
     {
         return;

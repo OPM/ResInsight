@@ -27,13 +27,14 @@
 #include "RigCaseData.h"
 #include "RigResultAccessorFactory.h"
 
-#include "RimEclipseCase.h"
 #include "RimCellEdgeColors.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimTernaryLegendConfig.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimLegendConfig.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimTernaryLegendConfig.h"
 
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivResultToTextureMapper.h"

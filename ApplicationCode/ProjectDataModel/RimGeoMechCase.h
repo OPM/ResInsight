@@ -69,11 +69,22 @@ public:
 
     static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
 
+
+
 private:
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+    virtual void                            updateFormationNamesData() override;
+
     virtual void                            initAfterRead();
     static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
 
 private:
     cvf::ref<RigGeoMechCaseData>            m_geoMechCaseData;
     caf::PdmField<QString>                  m_caseFileName;
+    caf::PdmField<double>                   m_cohesion;
+    caf::PdmField<double>                   m_frictionAngleDeg;
+protected:
+
 };

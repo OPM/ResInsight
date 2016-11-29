@@ -97,13 +97,17 @@ void CmdFieldChangeExec::redo()
     {
         if (m_commandData->m_redoFieldValueSerialized.isEmpty())
         {
+            // We end up here only when the user actually has done something in the actual living Gui editor.
             {
                 QXmlStreamWriter xmlStream(&m_commandData->m_undoFieldValueSerialized);
                 writeFieldDataToValidXmlDocument(xmlStream, xmlFieldHandle);
             }
 
             // This function will notify field change, no need to explicitly call notification
-            uiFieldHandle->setValueFromUi(m_commandData->m_newUiValue);
+            // The ui value might be an index into the option entry cache, so we need to set the value 
+            // and be aware of the option entries, and then serialize the actual field value we ended up with.
+
+            uiFieldHandle->setValueFromUiEditor(m_commandData->m_newUiValue);
 
             {
                 QXmlStreamWriter xmlStream(&m_commandData->m_redoFieldValueSerialized);

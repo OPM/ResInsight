@@ -27,8 +27,5 @@ public:
     RiuCadNavigation();
     virtual ~RiuCadNavigation();
 protected:
-    virtual void   init();
     virtual bool   handleInputEvent(QInputEvent* inputEvent);
-
-    bool           m_navigationUpdated;
 };

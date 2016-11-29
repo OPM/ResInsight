@@ -23,6 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 
+#include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -82,19 +83,26 @@ void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
      updateFieldVisibility();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QStringList RimEclipseResultDefinition::getResultVariableListForCurrentUIFieldSettings()
 {
-    if (!m_eclipseCase  ) return QStringList();
+    RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModelUiField());
+    if (!cellResultsStorage) return QStringList();
 
-    return m_eclipseCase->results(porosityModel)->cellResults()->resultNames(m_resultTypeUiField());
+    if (!cellResultsStorage->cellResults()) return QStringList();
+
+    return cellResultsStorage->cellResults()->resultNames(m_resultTypeUiField());
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResults() const
 {
-    if (!m_eclipseCase ) return NULL;
+    if (!m_eclipseCase ) return nullptr;
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModel());
 
@@ -125,66 +133,118 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     }
 
-    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
-    RimView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
-    RimWellLogCurve* curve = NULL;
-    this->firstAnchestorOrThisOfType(curve);
-
     if (&m_resultVariableUiField == changedField)
     {
         m_porosityModel  = m_porosityModelUiField;
         m_resultType     = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
         
-        loadResult();
-
-        if (propFilter)
-        {
-            propFilter->setToDefaultValues();
-            propFilter->updateFilterName();
-
-            if (view)
-            {
-                view->scheduleGeometryRegen(PROPERTY_FILTERED);
-                view->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-
-        if (dynamic_cast<RimEclipseCellColors*>(this))
-        {
-            if (view)
-            {
-                RimViewLinker* viewLinker = view->assosiatedViewLinker();
-                if (viewLinker)
-                {
-                    viewLinker->updateCellResult();
-                }
-            }
-        }
-
-        if (curve) 
-        {
-            curve->updatePlotData();
-        }
+        updateResultNameHasChanged();
     }
 
+    updateAnyFieldHasChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateAnyFieldHasChanged()
+{
+    RimEclipsePropertyFilter* propFilter = nullptr;
+    this->firstAncestorOrThisOfType(propFilter);
     if (propFilter)
     {
         propFilter->updateConnectedEditors();
     }
-
-    RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>(this->parentField()->ownerObject());
+    
+    RimEclipseFaultColors* faultColors = nullptr;
+    this->firstAncestorOrThisOfType(faultColors);
     if (faultColors)
     {
         faultColors->updateConnectedEditors();
     }
 
+    RimCellEdgeColors* cellEdgeColors = nullptr;
+    this->firstAncestorOrThisOfType(cellEdgeColors);
+    if (cellEdgeColors)
+    {
+        cellEdgeColors->updateConnectedEditors();
+    }
+
+    RimEclipseCellColors* cellColors = nullptr;
+    this->firstAncestorOrThisOfType(cellColors);
+    if (cellColors)
+    {
+        cellColors->updateConnectedEditors();
+    }
+
+    RimWellLogCurve* curve = nullptr;
+    this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
         curve->updateConnectedEditors();
     }
- 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateResultNameHasChanged()
+{
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    loadResult();
+
+    RimEclipsePropertyFilter* propFilter = nullptr;
+    this->firstAncestorOrThisOfType(propFilter);
+    if (propFilter)
+    {
+        propFilter->setToDefaultValues();
+        propFilter->updateFilterName();
+
+        if (view)
+        {
+            view->scheduleGeometryRegen(PROPERTY_FILTERED);
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    RimEclipseCellColors* cellColors = nullptr;
+    this->firstAncestorOrThisOfType(cellColors);
+    if (cellColors)
+    {
+        this->updateLegendCategorySettings();
+
+        if (view)
+        {
+            RimViewLinker* viewLinker = view->assosiatedViewLinker();
+            if (viewLinker)
+            {
+                viewLinker->updateCellResult();
+            }
+        }
+    }
+
+    RimCellEdgeColors* cellEdgeColors = nullptr;
+    this->firstAncestorOrThisOfType(cellEdgeColors);
+    if (cellEdgeColors)
+    {
+        cellEdgeColors->singleVarEdgeResultColors()->updateLegendCategorySettings();
+        cellEdgeColors->loadResult();
+
+        if (view)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    RimWellLogCurve* curve = nullptr;
+    this->firstAncestorOrThisOfType(curve);
+    if (curve)
+    {
+        curve->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,17 +254,22 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 {
     bool showPerFaceResultsFirst = false;
 
-    RimEclipseFaultColors* rimEclipseFaultColors = NULL;
-    this->firstAnchestorOrThisOfType(rimEclipseFaultColors);
+    RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
+    this->firstAncestorOrThisOfType(rimEclipseFaultColors);
     if (rimEclipseFaultColors) showPerFaceResultsFirst = true;
 
     QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(showPerFaceResultsFirst, fieldNeedingOptions, useOptionsOnly);
 
-    RimWellLogCurve* curve = NULL;
-    this->firstAnchestorOrThisOfType(curve);
+    RimWellLogCurve* curve = nullptr;
+    this->firstAncestorOrThisOfType(curve);
 
-    RimEclipsePropertyFilter* propFilter = dynamic_cast<RimEclipsePropertyFilter*>(this->parentField()->ownerObject());
-    if (propFilter || curve)
+    RimEclipsePropertyFilter* propFilter = nullptr;
+    this->firstAncestorOrThisOfType(propFilter);
+
+    RimCellEdgeColors* cellEdge = nullptr;
+    this->firstAncestorOrThisOfType(cellEdge);
+
+    if (propFilter || curve || cellEdge)
     {
         removePerCellFaceOptionItems(optionItems);
     }
@@ -422,6 +487,21 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
                         (m_resultVariable().compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0);
 
     return isTernary;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::hasCategoryResult() const
+{
+    if (this->m_resultType() == RimDefines::FORMATION_NAMES
+        && m_eclipseCase 
+        && m_eclipseCase->reservoirData() 
+        && m_eclipseCase->reservoirData()->activeFormationNames() ) return true;
+
+    if (!this->hasStaticResult()) return false;
+
+    return this->resultVariable().contains("NUM", Qt::CaseInsensitive);
 }
 
 //--------------------------------------------------------------------------------------------------

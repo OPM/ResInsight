@@ -24,6 +24,7 @@
 #include <vector>
 
 class QString;
+class QAction;
 
 class RimEclipseCase;
 class RimGeoMechCase;
@@ -31,9 +32,9 @@ class RimIdenticalGridCaseGroup;
 
 namespace caf 
 {
-
-class PdmObjectGroup;
-class PdmObjectHandle;
+    class PdmObjectGroup;
+    class PdmObjectHandle;
+} 
 
 //==================================================================================================
 /// 
@@ -43,9 +44,11 @@ class RicPasteFeatureImpl
 public:
     static void findObjectsFromClipboardRefs(caf::PdmObjectGroup* objectGroup);
 
-    static RimIdenticalGridCaseGroup* findGridCaseGroup(PdmObjectHandle* objectHandle);
-    static RimEclipseCase* findEclipseCase(PdmObjectHandle* objectHandle);
-    static RimGeoMechCase* findGeoMechCase(PdmObjectHandle* objectHandle);
+    static RimIdenticalGridCaseGroup* findGridCaseGroup(caf::PdmObjectHandle* objectHandle);
+    static RimEclipseCase* findEclipseCase(caf::PdmObjectHandle* objectHandle);
+    static RimGeoMechCase* findGeoMechCase(caf::PdmObjectHandle* objectHandle);
+
+    static void setIconAndShortcuts(QAction* action);
 
 private:
     static void populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup);
@@ -54,4 +57,3 @@ private:
 
 
 
-} // end namespace caf

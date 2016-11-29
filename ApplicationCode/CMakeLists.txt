@@ -21,19 +21,32 @@ include_directories(
     ${cafUserInterface_SOURCE_DIR}
     ${cafPdmCvf_SOURCE_DIR}
     ${CommonCode_SOURCE_DIR}
+    ${cafVizExtensions_SOURCE_DIR}
+    ${cafTensor_SOURCE_DIR}
 
 	${ResInsight_SOURCE_DIR}/ThirdParty
+    ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
+    ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
+	${ERT_INCLUDE_DIRS}
+
+    ${Boost_INCLUDE_DIRS}
+    ${ResInsight_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common/
+    ${custom-opm-parser_SOURCE_DIR}/opm-parser/
+    ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
+    ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
+    ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
@@ -63,42 +76,6 @@ set( APPLICATION_FILES
     Application/RiaRegressionTest.cpp
 )
 
-set( USER_INTERFACE_FILES
-    UserInterface/RiuCursors.cpp
-    UserInterface/RiuResultTextBuilder.cpp
-	UserInterface/RiuFemResultTextBuilder.cpp
-    UserInterface/RiuMainWindow.cpp
-    UserInterface/RiuResultInfoPanel.cpp
-    UserInterface/RiuViewer.cpp
-    UserInterface/RiuSimpleHistogramWidget.cpp
-    UserInterface/RiuMultiCaseImportDialog.cpp
-    UserInterface/RiuProcessMonitor.cpp
-    UserInterface/RiuViewerCommands.cpp
-    UserInterface/RiuCadNavigation.cpp
-    UserInterface/RiuRmsNavigation.cpp
-	UserInterface/RiuGeoQuestNavigation.cpp
-	UserInterface/RiuDragDrop.cpp
-	UserInterface/RiuDragDrop.h
-	UserInterface/RiuTreeViewEventFilter.cpp
-	UserInterface/RiuTreeViewEventFilter.h
-	UserInterface/RiuWellLogPlot.cpp
-	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuLineSegmentQwtPlotCurve.cpp
-	UserInterface/RiuLineSegmentQwtPlotCurve.h
-	UserInterface/RiuWellLogTrack.cpp
-	UserInterface/RiuWellLogTrack.h
-	UserInterface/RiuProjectPropertyView.h
-	UserInterface/RiuProjectPropertyView.cpp
-	UserInterface/RiuResultQwtPlot.h
-	UserInterface/RiuResultQwtPlot.cpp
-	UserInterface/RiuSelectionManager.h
-	UserInterface/RiuSelectionManager.cpp
-	UserInterface/RiuSelectionColors.h
-	UserInterface/RiuSelectionColors.cpp
-	UserInterface/RiuSelectionChangedHandler.h
-	UserInterface/RiuSelectionChangedHandler.cpp
-)
-
 set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketServer.cpp
     SocketInterface/RiaProjectInfoCommands.cpp
@@ -112,7 +89,6 @@ set( SOCKET_INTERFACE_FILES
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
-     ${USER_INTERFACE_FILES}
      ${SOCKET_INTERFACE_FILES}
      ${UNIT_TEST_FILES}
 )
@@ -121,20 +97,30 @@ list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
+    
     ProjectDataModel/CMakeLists_files.cmake
+    ProjectDataModel/Summary/CMakeLists_files.cmake
+    
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
     ModelVisualization/CMakeLists_files.cmake
     ModelVisualization/GridBox/CMakeLists_files.cmake
+    ModelVisualization/Intersections/CMakeLists_files.cmake
+    
+    UserInterface/CMakeLists_files.cmake
 	
     Commands/CMakeLists_files.cmake
-	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
-    Commands/ToggleCommands/CMakeLists_files.cmake
+    Commands/ApplicationCommands/CMakeLists_files.cmake
+    Commands/CrossSectionCommands/CMakeLists_files.cmake
+    Commands/EclipseCommands/CMakeLists_files.cmake
+    Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
+	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
+    Commands/SummaryPlotCommands/CMakeLists_files.cmake
+    Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
-    Commands/CrossSectionCommands/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
@@ -190,25 +176,12 @@ set ( QT_MOC_HEADERS
     Application/RiaApplication.h
     
     ProjectDataModel/RimMimeData.h
+    ProjectDataModel/RimIntersectionBox.h
     
-    UserInterface/RiuMainWindow.h
-    UserInterface/RiuResultInfoPanel.h
-    UserInterface/RiuViewer.h
-    UserInterface/RiuProcessMonitor.h
     SocketInterface/RiaSocketServer.h
-    UserInterface/RiuMultiCaseImportDialog.h
-    UserInterface/RiuViewerCommands.h
-	UserInterface/RiuTreeViewEventFilter.h
-	UserInterface/RiuWellLogPlot.h
-	UserInterface/RiuWellLogTrack.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
-
-# Define files for the uic compiler
-set ( QT_UI_FILES
-    UserInterface/RiuMultiCaseImportDialog.ui
-)
 
 qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
@@ -232,67 +205,12 @@ if ( MSVC )
     set( WIN_RESOURCE Resources/ResInsight.rc )
 endif()
 
-#############################################################################
-# creating PCH's for MSVC and GCC on Linux
-#############################################################################
-
-#set( RAW_SOURCES ${CPP_SOURCES} )
-#
-#list( REMOVE_ITEM RAW_SOURCES 
-#    RiaStdInclude.cpp
-#
-#    ${CODE_SOURCE_FILES}
-#
-#    ModelVisualization/RivCellEdgeEffectGenerator.cpp
-#    ModelVisualization/RivPipeGeometryGenerator.cpp
-#    ModelVisualization/RivWellPipesPartMgr.cpp
-#    ModelVisualization/RivWellHeadPartMgr.cpp
-#
-#    Application/RiaImageFileCompare.cpp
-#    Application/RiaImageCompareReporter.cpp
-#    Application/RiaRegressionTest.cpp
-#
-#    SocketInterface/RiaSocketDataTransfer.cpp
-#
-#    FileInterface/RifEclipseInputFileTools.cpp
-#    FileInterface/RifEclipseOutputFileTools.cpp
-#    FileInterface/RifEclipseRestartFilesetAccess.cpp
-#    FileInterface/RifEclipseRestartDataAccess.cpp
-#    FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
-#    FileInterface/RifReaderEclipseInput.cpp
-#    FileInterface/RifReaderEclipseOutput.cpp
-#
-#    UserInterface/RiuSimpleHistogramWidget.cpp
-#    UserInterface/RiuMultiCaseImportDialog.cpp
-#    UserInterface/RiuResultTextBuilder.cpp
-#)
-#
-#include( CustomPCH.cmake )
-#set( ALL_INCLUDES 
-#    ${LibCore_SOURCE_DIR}
-#    ${LibGeometry_SOURCE_DIR}
-#    ${LibGuiQt_SOURCE_DIR}
-#    ${LibRender_SOURCE_DIR}
-#    ${LibViewing_SOURCE_DIR}
-#    ${QT_INCLUDES}
-#)
-#
-#set( PCH_NAME RiaStdInclude )
-#set( GCC_PCH_TARGET gccPCH )
-#set( PCH_COMPILER_DEFINE EMPTY )
-#IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#    set( PCH_COMPILER_DEFINE CVF_LINUX)
-#ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#
-#precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH_COMPILER_DEFINE} )
-
 
 ################################################################################
 # Create source groups - see also included CMakeLists_files.cmake
 ################################################################################
 source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
-source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
@@ -349,49 +267,40 @@ endif ()
 # Set up libraries and dependent projects to link with
 #############################################################################
 
+if (MSVC)
+  set (RI_BOOST_LIBRARIES
+    debug     ${Boost_SYSTEM_LIBRARY_DEBUG}
+    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
+    debug     ${Boost_FILESYSTEM_LIBRARY_DEBUG}
+    optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE}
+    debug     ${Boost_REGEX_LIBRARY_DEBUG}
+    optimized ${Boost_REGEX_LIBRARY_RELEASE}
+  )
+else()
+  set (RI_BOOST_LIBRARIES ${Boost_LIBRARIES})
+endif()
+
+
 set( LINK_LIBRARIES
+    custom-opm-parser
+    custom-opm-flowdiagnostics
+        
     WellPathImportSsihub
-
-#    cafPdmCvf
-#    cafUserInterface
-#    cafProjectDataModel
-#    cafViewer
-#    cafAnimControl
-#	cafTensor
-#    CommonCode
-
-    #cafPdmCore
-    #cafPdmUiCore
-    cafPdmXml
-    #cafProjectDataModel
-    
-    cafUserInterface
-    cafViewer
-    cafAnimControl
-    cafCommand
-    cafPdmCvf
-
-	cafTensor
-    CommonCode
-    
-    LibGuiQt
-    LibViewing
-    LibRender
-    LibGeometry
-    LibCore
 
 	ResultStatisticsCache
 	RigGeoMechDataModel
 
-    ecl
-    ert_util
-    ert_geometry
-    ecl_well
-
+    ${APP_FWK_LIBRARIES}
+    ${VIZ_FWK_LIBRARIES}
+    
+    ${ERT_LIBRARIES}
+    
     NRLib
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
+    
+    ${RI_BOOST_LIBRARIES}
 
 	Qwt
 )
@@ -411,6 +320,53 @@ IF (${RESINSIGHT_USE_ODB_API})
 ENDIF()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
+
+
+#############################################################################
+# cotire
+#############################################################################
+if(RESINSIGHT_ENABLE_COTIRE)
+
+    # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+    set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc     PROPERTIES COTIRE_EXCLUDED TRUE)
+  
+    # multiple QRC files are not supported
+    set_source_files_properties (qrc_cafAnimControl.cxx                                     PROPERTIES COTIRE_EXCLUDED TRUE)
+
+    # TODO: Revisit why opm-parser is not working
+    set_source_files_properties (UnitTests/opm-parser-Test.cpp                              PROPERTIES COTIRE_EXCLUDED TRUE)
+ 
+    # variables at global file scope
+    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionBoxPartMgr.cpp           PROPERTIES COTIRE_EXCLUDED TRUE)
+    
+    set_source_files_properties (ModelVisualization/GridBox/RivGridBoxGenerator.cpp         PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (Commands/WellLogCommands/RicWellLogPlotCurveFeatureImpl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+
+    # using namespace cvf
+    set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+
+    # opm parser
+    set_source_files_properties (FileInterface/RifReaderOpmParserInput.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (UnitTests/opm-Test.cpp                                 PROPERTIES COTIRE_EXCLUDED TRUE)
+    
+    set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
+   
+    cotire(ResInsight)
+    
+    # make sure the unity target is included in the active builds to trigger rebuild before debug
+    get_target_property(_unityTargetName ResInsight COTIRE_UNITY_TARGET_NAME)
+    set_target_properties(${_unityTargetName} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD FALSE)
+    set_target_properties(ResInsight PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+
+endif()
+
+
 
 #############################################################################
 # Copy Dlls on MSVC
@@ -434,6 +390,12 @@ if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different  
 						   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
 						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        if (_unityTargetName)
+            add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+                               COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+		    				   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
+		    				   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        endif()
     endforeach()
 
 endif()
@@ -448,6 +410,12 @@ if (MSVC)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${QT_BINARY_DIR}/${qtlib}4.dll"
                 "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        if (_unityTargetName)
+           add_custom_command(TARGET ResInsight POST_BUILD
+               COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                   "${QT_BINARY_DIR}/${qtlib}4.dll"
+                   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+        endif()
     endforeach( qtlib )
 
 endif(MSVC)
@@ -466,16 +434,24 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       # tell binary to first attempt to load libraries from its own directory
+      set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
 
 	  if (${RESINSIGHT_USE_ODB_API})
 		# This is a "hack" to make ResInsight runtime find the ODB so files used when compiling.
 		# statoil wanted it this way, but we should probbly make a different installoptions that does things this way,
 		# and really do copy them when doing PRIVATE_INSTALL
-		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN;${RESINSIGHT_ODB_API_DIR}/lib")
-	  else()
-		set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+        set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ODB_API_DIR}/lib)
       endif()
+      
+      if (EXISTS ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}) 
+        # append the external ERT lib root
+        set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT})
+      endif()
+      
+      #message("RESINSIGHT_INSTALL_RPATH : " "${RESINSIGHT_INSTALL_RPATH}")
 
+      set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
+      
         # Find Qt libraries and sym links
         file (GLOB RESINSIGHT_FILES
                 ${QT_LIBRARY_DIR}/libQtCore.so*

@@ -19,13 +19,13 @@
 
 #include "RimWellLogPlot.h"
 
+#include "RiaApplication.h"
+
 #include "RimWellLogTrack.h"
 
+#include "RiuMainPlotWindow.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
-#include "RiuMainWindow.h"
-
-#include "cafPdmUiTreeView.h"
 
 #include "cvfAssert.h"
 
@@ -48,6 +48,7 @@ namespace caf {
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogPlot, "WellLogPlot");
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -76,9 +77,6 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
-    windowGeometry.uiCapability()->setUiHidden(true);
-   
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
 }
@@ -88,7 +86,10 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
-    RiuMainWindow::instance()->removeViewer(m_viewer);
+    if (RiaApplication::instance()->mainPlotWindow())
+    {
+        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_viewer);
+    }
     
     detachAllCurves();
     m_tracks.deleteAllChildObjects();
@@ -101,16 +102,19 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateViewerWidget()
 {
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    if (!mainPlotWindow) return;
+
     if (m_showWindow())
     {
         if (!m_viewer)
         {
-            m_viewer = new RiuWellLogPlot(this, RiuMainWindow::instance());
+            m_viewer = new RiuWellLogPlot(this, mainPlotWindow);
 
             recreateTrackPlots();
 
-            RiuMainWindow::instance()->addViewer(m_viewer, windowGeometry());
-            RiuMainWindow::instance()->setActiveViewer(m_viewer);
+            mainPlotWindow->addViewer(m_viewer, this->mdiWindowGeometry());
+            mainPlotWindow->setActiveViewer(m_viewer);
         }
 
         updateViewerWidgetWindowTitle();
@@ -119,14 +123,13 @@ void RimWellLogPlot::updateViewerWidget()
     {
         if (m_viewer)
         {
-            windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_viewer));
 
-            RiuMainWindow::instance()->removeViewer(m_viewer);
+            mainPlotWindow->removeViewer(m_viewer);
             detachAllCurves();
 
             delete m_viewer;
             m_viewer = NULL;
-           
         }
     }
 }
@@ -176,6 +179,22 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
 {
     return &m_showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage RimWellLogPlot::snapshotWindowContent()
+{
+    QImage image;
+
+    if (m_viewer)
+    {
+        QPixmap pix = QPixmap::grabWidget(m_viewer);
+        image = pix.toImage();
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,7 +250,7 @@ void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::ve
         RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* wellLogPlot;
-        track->firstAnchestorOrThisOfType(wellLogPlot);
+        track->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->removeTrack(track);
@@ -248,14 +267,6 @@ void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::ve
     }
 
     updateTrackNames();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuWellLogPlot* RimWellLogPlot::viewer()
-{
-    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,6 +365,25 @@ bool RimWellLogPlot::hasAvailableDepthRange() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::zoomAll()
+{
+    m_isAutoScaleDepthEnabled = true;
+    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
+
+    updateDepthZoom();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellLogPlot::viewWidget()
+{
+    return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const
 {
     *minimumDepth = m_minVisibleDepth;
@@ -368,7 +398,10 @@ void RimWellLogPlot::setupBeforeSave()
 {
     if (m_viewer)
     {
-        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer);
+        if (RiaApplication::instance()->mainPlotWindow())
+        {
+            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_viewer));
+        }
     }
 }
 
@@ -502,6 +535,14 @@ void RimWellLogPlot::detachAllCurves()
 void RimWellLogPlot::setDescription(const QString& description)
 {
     m_userName = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot::description() const
+{
+    return m_userName();
 }
 
 //--------------------------------------------------------------------------------------------------

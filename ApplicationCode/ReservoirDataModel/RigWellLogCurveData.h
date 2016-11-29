@@ -49,13 +49,17 @@ public:
 
     const std::vector<double>&                xValues() const;
     const std::vector<double>&                measuredDepths() const;
+    const std::vector<double>&                tvDepths() const;
     bool                                      calculateMDRange(double* minMD, double* maxMD) const;
 
     RimDefines::DepthUnitType                 depthUnit() const;
 
     std::vector<double>                       xPlotValues() const;
-    std::vector<double>                       depthPlotValues(RimDefines::DepthUnitType displayDepthUnit) const;
+    std::vector<double>                       trueDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const;
+    std::vector<double>                       measuredDepthPlotValues(RimDefines::DepthUnitType destinationDepthUnit) const;
     std::vector< std::pair<size_t, size_t> >  polylineStartStopIndices() const;
+
+    cvf::ref<RigWellLogCurveData>             calculateResampledCurveData(double newMeasuredDepthStepSize) const;
 
 private:
     void                                      calculateIntervalsOfContinousValidValues();

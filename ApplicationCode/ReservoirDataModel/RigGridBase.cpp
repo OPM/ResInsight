@@ -484,6 +484,15 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k
         return true;
     }
 
+    // Do not show cell geometry if a fault is present to avoid z fighting between surfaces
+    // It will always be a better solution to avoid geometry creation instead of part priority and polygon offset
+    size_t nativeResvCellIndex = m_grid->reservoirCellIndex(cellIndex);
+    const RigFault* fault = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace(nativeResvCellIndex, face);
+    if (fault)
+    {
+        return false;
+    }
+
     // If the neighbour cell is invisible, we need to draw the face
     if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
     {

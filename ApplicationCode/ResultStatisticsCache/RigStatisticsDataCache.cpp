@@ -193,6 +193,51 @@ void RigStatisticsDataCache::meanCellScalarValues(size_t timeStepIndex, double& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::sumCellScalarValues(double& sumValue)
+{
+    if (!m_statsAllTimesteps.m_isValueSumCalculated)
+    {
+        double aggregatedSum = 0.0;
+        for (size_t i = 0; i < m_statisticsCalculator->timeStepCount(); i++)
+        {
+            double valueSum = 0.0;
+            this->sumCellScalarValues(i, valueSum);
+
+            aggregatedSum += valueSum;
+        }
+
+        m_statsAllTimesteps.m_valueSum = aggregatedSum;
+        m_statsAllTimesteps.m_isValueSumCalculated = true;
+    }
+
+    sumValue = m_statsAllTimesteps.m_valueSum;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::sumCellScalarValues(size_t timeStepIndex, double& sumValue)
+{
+    if (timeStepIndex >= m_statsPrTs.size())
+    {
+        m_statsPrTs.resize(timeStepIndex + 1);
+    }
+
+    if (!m_statsPrTs[timeStepIndex].m_isValueSumCalculated)
+    {
+        double valueSum = 0.0;
+        size_t sampleCount = 0;
+        m_statisticsCalculator->valueSumAndSampleCount(timeStepIndex, valueSum, sampleCount);
+        m_statsPrTs[timeStepIndex].m_valueSum = valueSum;
+        m_statsPrTs[timeStepIndex].m_isValueSumCalculated = true;
+    }
+
+    sumValue = m_statsPrTs[timeStepIndex].m_valueSum;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram()
 {
     computeHistogramStatisticsIfNeeded();
@@ -208,6 +253,16 @@ const std::vector<size_t>& RigStatisticsDataCache::cellScalarValuesHistogram(siz
     computeHistogramStatisticsIfNeeded(timeStepIndex);
 
     return m_statsPrTs[timeStepIndex].m_histogram;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues()
+{
+    computeUniqueValuesIfNeeded();
+
+    return m_uniqueValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,6 +326,23 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepI
 
         m_statsPrTs[timeStepIndex].m_p10 = histCalc.calculatePercentil(0.1);
         m_statsPrTs[timeStepIndex].m_p90 = histCalc.calculatePercentil(0.9);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
+{
+    if (m_uniqueValues.size() == 0)
+    {
+        std::set<int> setValues;
+        m_statisticsCalculator->uniqueValues(0, setValues);
+
+        for (auto val : setValues)
+        {
+            m_uniqueValues.push_back(val);
+        }
     }
 }
 

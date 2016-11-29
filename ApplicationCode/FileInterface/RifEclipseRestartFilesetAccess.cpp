@@ -155,15 +155,12 @@ void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::
 {
     CVF_ASSERT(timeStepCount() > 0);
 
-    openTimeStep(0);
-
-    std::vector<size_t> valueCountForOneFile;
-    RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_files[0], resultNames, &valueCountForOneFile);
-
-    for (size_t i = 0; i < valueCountForOneFile.size(); i++)
+    for (int i = 0; i < m_fileNames.size(); i++)
     {
-        resultDataItemCounts->push_back(valueCountForOneFile[i] * timeStepCount());
+        openTimeStep(i);
     }
+
+    RifEclipseOutputFileTools::findKeywordsAndItemCount(m_ecl_files, resultNames, resultDataItemCounts);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +174,11 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
     }
 
     openTimeStep(timeStep);
+
+    if (!m_ecl_files[timeStep])
+    {
+        return false;
+    }
 
     size_t fileGridCount = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toAscii().data());
 
@@ -205,7 +207,6 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
     return true;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -217,11 +218,14 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info, boo
     {
         openTimeStep(i);
 
-        const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
-        int reportNumber = ecl_util_filename_report_nr(fileName);
-        if(reportNumber != -1)
+        if (m_ecl_files[i])
         {
-            well_info_add_wells(well_info, m_ecl_files[i], reportNumber, importCompleteMswData);
+            const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
+            int reportNumber = ecl_util_filename_report_nr(fileName);
+            if(reportNumber != -1)
+            {
+                well_info_add_wells(well_info, m_ecl_files[i], reportNumber, importCompleteMswData);
+            }
         }
     }
 }
@@ -267,11 +271,14 @@ std::vector<int> RifEclipseRestartFilesetAccess::reportNumbers()
 
     for (size_t i = 0; i < m_ecl_files.size(); i++)
     {
-        const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
-        int reportNumber = ecl_util_filename_report_nr(fileName);
-        if (reportNumber != -1)
+        if (m_ecl_files[i])
         {
-            reportNr.push_back(reportNumber);
+            const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
+            int reportNumber = ecl_util_filename_report_nr(fileName);
+            if (reportNumber != -1)
+            {
+                reportNr.push_back(reportNumber);
+            }
         }
     }
 

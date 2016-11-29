@@ -20,6 +20,7 @@
 
 #include "RimEclipseWell.h"
 
+#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 
@@ -177,6 +178,9 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
         return false;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
+        return true;
+
+    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)

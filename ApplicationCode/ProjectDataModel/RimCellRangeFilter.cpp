@@ -292,7 +292,7 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 bool RimCellRangeFilter::isRangeFilterControlled()
 {
     RimView* rimView = NULL;
-    firstAnchestorOrThisOfType(rimView);
+    firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
 
     bool isRangeFilterControlled = false;

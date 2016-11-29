@@ -35,6 +35,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include "cvfUniform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -196,6 +197,8 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
     cvf::ref<cvf::ShaderProgram> prog = shaderGen.generate();
     eff->setShaderProgram(prog.p());
  
+    if(!m_disableLighting) prog->setDefaultUniform(new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0)));
+
     // Set up textures
 
     m_edgeTextureImage = new cvf::TextureImage;

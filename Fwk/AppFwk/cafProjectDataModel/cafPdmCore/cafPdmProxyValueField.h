@@ -32,7 +32,7 @@ public:
 
     // Basic access 
 
-    void                setValue(const DataType& fieldValue)            { if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
+    void                setValue(const DataType& fieldValue)            { assert(isInitializedByInitFieldMacro()); if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
     DataType            value() const                                   { assert(m_valueGetter);  return m_valueGetter->getValue(); }
    
     // Implementation of PdmValueField interface

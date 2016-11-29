@@ -1,3 +1,39 @@
+Coming from OPM??
+-----------------
+
+ERT is a package for handling an ensemble of reservoir models, an
+important part of that is beeing able to read and write the files from
+standard reservoir applications; ert has quite extensive support for
+reading and writing the result files from the ECLIPSE reservoir
+simulator. The capabilities to read and write ECLIPSE result files is
+used by the OPM simulator codes.
+
+The ERT build system has many configuration options, but when
+compiling for OPM you should be able to use the all defaults route:
+
+   git clone https://github.com/Ensembles/ert.git
+   cd ert
+   mkdir build
+   cd build
+   cmake ..
+   make
+
+The OPM build system can find an ERT distribution in the sibling
+location, i.e. if you have cloned ert beside the opm modules like:
+
+   ert/
+   opm-common/
+   opm-parser/
+   opm-material/
+   ....
+
+The opm build system will find the ert distribution in-place,
+otherwise you should install ert with 'make install' and the normal
+cmake machinery of the opm build system should find it.
+
+
+------------------------------------------------------------------------
+
                     _________________________________ 
                    /                                 \ 
                    |   ______   ______   _______     |
@@ -77,14 +113,15 @@ with MinGW.
 3. Building ERT
 
 CMake is the build system for ERT. The top level CMakeLists.txt file
-is located in the devel/ directory, and this CMakeLists.txt file
-includes individual CMakeLists.txt files for the different libraries.
+is located in the top level directory of the repository, and this
+CMakeLists.txt file includes individual CMakeLists.txt files for the
+different libraries.
 
 Building with CMake is performed like this:
 
   1. Create a build directory, this can in principle be anywhere in
-     the filesystem. At the same level as the devel/ directory is a
-     practical choice.
+     the filesystem. One level above the toplevel source directory is
+     a practical choice.
 
   2. Go to the build directory and invoke the command:
   
@@ -205,8 +242,8 @@ orientation'. Most of the code is uses the following conventions:
 Some of the code, in particular the ECLIPSE related functionality, has
 been wrapped for usage in Python. Using these wrappers, it is quite
 easy work with ECLIPSE files. The python wrappers are quite well
-documented both in the directory devel/python/docs and in the Python
-classes themselves.
+documented both in the directory python/docs and in the Python classes
+themselves.
 
 
 5. Tests
@@ -242,10 +279,10 @@ way, and the last line adds it as a test.
 
 5.2 Testing of Python Code
 
-In devel/python/test there are several files with Python tests, these
-files are executable files and they are invoked directly from the
-command line. A limited number of the tests have been integrated in the
-ctest system.
+In python/test there are several files with Python tests, these files
+are executable files and they are invoked directly from the command
+line. A limited number of the tests have been integrated in the ctest
+system.
 
 5.3 Test names
 
@@ -275,8 +312,8 @@ labels currently available in the ERT test setup are:
 
    StatoilData: This implies that the test makes use of Statoil
       internal data. If you are work for the Bergen office of Statoil,
-      you can read the the file devel/test-data/README for
-      instructions on how to make this data available.
+      you can read the the file test-data/README for instructions on
+      how to make this data available.
 
       If you are not for Statoil in Bergen, you must pass the option:
       "-EL StatoilData" to ctest to skip all the tests which require

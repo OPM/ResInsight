@@ -90,6 +90,10 @@ public:
             CVF_ASSERT(numParsedValues <= 1);
             return (numParsedValues == 1) ? true : false;
         }
+        else if (m_spec->m_valueReq == OPTIONAL_MULTI_VALUE)
+        {
+            return true;
+        }
         else
         {
             return (numParsedValues >= 1) ? true : false;

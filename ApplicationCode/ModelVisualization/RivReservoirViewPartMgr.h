@@ -19,18 +19,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RivReservoirPartMgr.h"
-#include "cvfTransform.h"
+
+#include "RivCellSetEnum.h"
+#include "RivReservoirPartMgr.h"    // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
+
 #include "cafFixedArray.h"
 #include "cvfArray.h"
+#include "cvfBase.h"
+#include "cvfTransform.h"
+
 #include "cafPdmObject.h"
-#include "RivCellSetEnum.h"
 
 class RimEclipseView;
 class RigGridBase;
 class RimCellRangeFilterCollection;
 class RimEclipsePropertyFilterCollection;
 class RigActiveCellInfo;
+class RimEclipseCellColors;
+class RimCellEdgeColors;
+
+namespace cvf
+{
+    class ModelBasicList;
+}
 
 class RivReservoirViewPartMgr: public cvf::Object
 {
@@ -46,7 +57,6 @@ public:
     void                        appendStaticGeometryPartsToModel (cvf::ModelBasicList* model, RivCellSetEnum geometryType, const std::vector<size_t>& gridIndices);
     void                        appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex, const std::vector<size_t>& gridIndices);
 
-    void                        updateCellColor          (RivCellSetEnum geometryType, cvf::Color4f color);
     void                        updateCellColor          (RivCellSetEnum geometryType, size_t timeStepIndex, 
                                                           cvf::Color4f color);
     void                        updateCellResultColor    (RivCellSetEnum geometryType, size_t timeStepIndex, 
@@ -64,11 +74,12 @@ public:
                                                             RimCellEdgeColors* cellEdgeResultColors);
 
     // Fault labels
-    RivCellSetEnum  geometryTypeForFaultLabels(const std::vector<RivCellSetEnum>& geometryTypes) const;
+    RivCellSetEnum              geometryTypeForFaultLabels(const std::set<RivCellSetEnum>& geometryTypes, bool showFaultsOutsideFilters) const;
     void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType);
     void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex);
 
-    void                        setFaultForceVisibilityForGeometryType(RivCellSetEnum geometryType, bool forceVisibility);
+    void                        forceWatertightGeometryOnForType(RivCellSetEnum geometryType);
+    void                        clearWatertightGeometryFlags();
 
 private:
     void                        createGeometry(RivCellSetEnum geometryType);

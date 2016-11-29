@@ -58,7 +58,7 @@ void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     if (changedField == &isActive)
     {
         RimView* rimView = NULL;
-        this->firstAnchestorOrThisOfType(rimView);
+        this->firstAncestorOrThisOfType(rimView);
         CVF_ASSERT(rimView);
 
         rimView->showGridCells(isActive);

@@ -56,7 +56,7 @@ RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
     RimEclipseView* eclipseView = NULL;
-    firstAnchestorOrThisOfType(eclipseView);
+    firstAncestorOrThisOfType(eclipseView);
 
     return eclipseView;
 }
@@ -117,12 +117,30 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
+{
+    if ( !isActive ) return false;
+
+    for ( size_t i = 0; i < propertyFilters.size(); i++ )
+    {
+        RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
+        if (   propertyFilter->isActive() 
+            && propertyFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES 
+            && propertyFilter->resultDefinition->resultVariable() != RimDefines::undefinedResultName()) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
     RimEclipseView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimViewController* viewController = view->viewController();
     if (viewController && (viewController->isPropertyFilterOveridden() 
                            || viewController->isVisibleCellsOveridden()))

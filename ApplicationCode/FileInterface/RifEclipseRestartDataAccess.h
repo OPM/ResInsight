@@ -29,9 +29,58 @@
 
 #include <vector>
 
-#include "well_info.h"
+#include "ert/ecl_well/well_info.h"
 
 #include "RifReaderInterface.h"
+
+
+class RifKeywordLocation
+{
+public:
+    RifKeywordLocation(std::string keyword, size_t itemCount, int indexWithinReportStep)
+        : m_keyword(keyword),
+        m_itemCount(itemCount),
+        m_indexWithinReportStep(indexWithinReportStep)
+    {
+    }
+
+    std::string keyword() const         { return m_keyword; }
+    size_t itemCount() const            { return m_itemCount; }
+    int indexWithinReportStep() const   { return m_indexWithinReportStep; }
+
+private:
+    std::string m_keyword;
+    size_t      m_itemCount;
+    int         m_indexWithinReportStep;
+};
+
+class RifRestartReportKeywords
+{
+public:
+    RifRestartReportKeywords();
+
+    void appendKeyword(const std::string& keyword, size_t itemCount, int globalIndex);
+
+    std::vector<std::string> keywordsWithItemCountFactorOf(const std::vector<size_t>& factorCandidates);
+    std::vector<std::pair<std::string, size_t> > keywordsWithAggregatedItemCount();
+
+private:
+    std::vector<RifKeywordLocation> objectsForKeyword(const std::string& keyword);
+    std::set<std::string> uniqueKeywords();
+
+private:
+    std::vector<RifKeywordLocation> m_keywordNameAndItemCount;
+};
+
+
+class RifRestartReportStep
+{
+public:
+    //int globalIndex;
+    QDateTime dateTime;
+
+    RifRestartReportKeywords m_keywords;
+};
 
 //==================================================================================================
 //

@@ -2,6 +2,8 @@
 #include "cafPdmObjectFactory.h"
 #include "cafPdmXmlObjectHandle.h"
 
+#include <QStringList>
+
 #include <iostream>
 
 namespace caf
@@ -100,6 +102,78 @@ template<typename FieldType >
 
      PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(this->fieldHandle(), m_referenceString);
      m_field->setRawPtr(objHandle);
+     m_isResolved = true;
+ }
+
+ //==================================================================================================
+/// XML Implementation for PdmPtrArrayField<>
+//==================================================================================================
+
+ //--------------------------------------------------------------------------------------------------
+ /// 
+ //--------------------------------------------------------------------------------------------------
+
+ template<typename DataType >
+ void caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory*)
+ {
+     this->assertValid();
+
+     PdmFieldIOHelper::skipComments(xmlStream);
+     if(!xmlStream.isCharacters()) return;
+
+     QString dataString = xmlStream.text().toString();
+
+     // Make stream point to end of element
+     QXmlStreamReader::TokenType type;
+     type = xmlStream.readNext();
+     PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
+
+     // This resolving can NOT be done here. 
+     // It must be done when we know that the complete hierarchy is read and created, 
+     // and then we need a traversal of the object hierarchy to resolve all references before initAfterRead.
+
+     m_isResolved = false;
+     m_referenceString = dataString;
+     m_field->clear();
+ }
+
+ //--------------------------------------------------------------------------------------------------
+ /// 
+ //--------------------------------------------------------------------------------------------------
+
+ template<typename DataType >
+ void caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+ {
+     this->assertValid();
+
+     QString dataString;
+     size_t pointerCount = m_field->m_pointers.size();
+     for (size_t i = 0; i < pointerCount; ++i)
+     {
+         dataString += PdmReferenceHelper::referenceFromFieldToObject(m_field, m_field->m_pointers[i].rawPtr());
+         if (!dataString.isEmpty() && i < pointerCount-1) dataString += " | \n\t";
+     }
+     xmlStream.writeCharacters(dataString);
+ }
+
+
+ //--------------------------------------------------------------------------------------------------
+ /// 
+ //--------------------------------------------------------------------------------------------------
+ template < typename DataType>
+ void caf::PdmFieldXmlCap< PdmPtrArrayField<DataType*> >::resolveReferences()
+ {
+     if(m_isResolved) return;
+     if(m_referenceString.isEmpty()) return;
+     m_field->clear();
+     QStringList tokens = m_referenceString.split('|');
+     for(int i = 0; i < tokens.size(); ++i)
+     {
+         PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(this->fieldHandle(), tokens[i]);
+         m_field->m_pointers.push_back(NULL);
+         m_field->m_pointers.back().setRawPtr(objHandle);
+     }
+
      m_isResolved = true;
  }
 

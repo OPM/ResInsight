@@ -59,7 +59,8 @@ public:
     RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases,
                                const std::vector<size_t>& timeStepIndices,
                                const RimStatisticsConfig& statisticsConfig,
-                               RigCaseData* destinationCase);
+                               RigCaseData* destinationCase,
+                               RimIdenticalGridCaseGroup* identicalGridCaseGroup);
 
     struct ResSpec 
     {
@@ -73,13 +74,15 @@ public:
         QString                                     m_resVarName;
     };
 
+    void useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells();
+
     void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
 private:
     void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
     void buildSourceMetaData(RifReaderInterface::PorosityModelResultType poroModel, RimDefines::ResultCatType resultType, const QString& resultName);
 
-    enum StatisticsParamType { MIN, MAX, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
+    enum StatisticsParamType { MIN, MAX, SUM, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
 
 private:
     std::vector<RimEclipseCase*>  m_sourceCases;
@@ -88,5 +91,7 @@ private:
     size_t                 m_reservoirCellCount;
     RimStatisticsConfig    m_statisticsConfig;
     RigCaseData*           m_destinationCase;
+    RimIdenticalGridCaseGroup* m_identicalGridCaseGroup;
+    bool                    m_useZeroAsInactiveCellValue;
 };
 

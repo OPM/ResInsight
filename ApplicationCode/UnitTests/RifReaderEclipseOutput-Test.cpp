@@ -22,12 +22,99 @@
 
 #include "RigCaseData.h"
 
+#include <ert/ecl/ecl_file.h>
+
 #include "RifReaderEclipseOutput.h"
-#include "ecl_file.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RigCaseCellResultsData.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderSettings.h"
+
+#include <QDebug>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigReservoirTest, BasicTest)
+{
+    RifEclipseUnifiedRestartFileAccess unrstAccess;
+
+/*
+    QStringList filenames;
+    //filenames << "d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST";
+    filenames << "d:/Models/MRST/simple/SIMPLE.UNRST";
+
+    unrstAccess.setRestartFiles(filenames);
+
+
+    QStringList resultNames;
+    std::vector<size_t> dataItemCount;
+
+    unrstAccess.resultNames(&resultNames, &dataItemCount);
+
+    for (size_t i = 0; i < resultNames.size(); i++)
+    {
+        qDebug() << resultNames[i] << "\t" << dataItemCount[i];
+    }
+
+    auto reportNums = unrstAccess.reportNumbers();
+    for (auto reportNum : reportNums)
+    {
+        qDebug() << reportNum;
+    }
+*/
+
+/*
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+
+    // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
+#ifdef WIN32
+    QString filename("TEST10K_FLT_LGR_NNC.EGRID");
+#else
+    QString filename("/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
+#endif
+
+    bool result = readerInterfaceEcl->open(filename, reservoir.p());
+    EXPECT_TRUE(result);
+
+    {
+        QStringList staticResults = readerInterfaceEcl->staticResults();
+        EXPECT_EQ(42, staticResults.size());
+        qDebug() << "Static results\n" << staticResults;
+
+        QStringList dynamicResults = readerInterfaceEcl->dynamicResults();
+        EXPECT_EQ(23, dynamicResults.size());
+        qDebug() << "Dynamic results\n" << dynamicResults;
+
+        int numTimeSteps = static_cast<int>(readerInterfaceEcl->numTimeSteps());
+        EXPECT_EQ(9, numTimeSteps);
+
+        QStringList timeStepText = readerInterfaceEcl->timeStepText();
+        EXPECT_EQ(numTimeSteps, timeStepText.size());
+        qDebug() << "Time step texts\n" << timeStepText;
+    }
+
+
+    readerInterfaceEcl->close();
+
+    {
+        QStringList staticResults = readerInterfaceEcl->staticResults();
+        EXPECT_EQ(0, staticResults.size());
+
+        QStringList dynamicResults = readerInterfaceEcl->dynamicResults();
+        EXPECT_EQ(0, dynamicResults.size());
+
+        int numTimeSteps = static_cast<int>(readerInterfaceEcl->numTimeSteps());
+        EXPECT_EQ(0, numTimeSteps);
+
+        QStringList timeStepText = readerInterfaceEcl->timeStepText();
+        EXPECT_EQ(numTimeSteps, timeStepText.size());
+    }
+*/
+
+}
 
 
 #if 0

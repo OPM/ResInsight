@@ -27,11 +27,11 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-
-class RimEclipseView;
 class RigCaseCellResultsData;
-class RimReservoirCellResultsStorage;
 class RimEclipseCase;
+class RimEclipseView;
+class RimReservoirCellResultsStorage;
+
 //==================================================================================================
 ///  
 ///  
@@ -58,12 +58,22 @@ public:
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;
     bool                            isTernarySaturationSelected() const;
+    bool                            hasCategoryResult() const;
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
+    virtual void                    initAfterRead();
+    
+    virtual void                    updateLegendCategorySettings() {};
+
+    void                            updateResultNameHasChanged();
+    void                            updateAnyFieldHasChanged();
+
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void initAfterRead();
+    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+protected:
+    void                            updateFieldVisibility();
 
 protected:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
@@ -80,9 +90,6 @@ protected:
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
-
-protected:
-    void updateFieldVisibility();
 
 private:
     QList<caf::PdmOptionItemInfo>   calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);

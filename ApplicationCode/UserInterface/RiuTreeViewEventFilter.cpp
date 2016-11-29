@@ -28,6 +28,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RiuMainWindow.h"
 
+#include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
@@ -54,64 +55,50 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent *>(event);
 
-        QString featureToActivate;
-
         caf::PdmUiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
         if (uiItem)
         {
-            if (dynamic_cast<RimEclipseCase*>(uiItem)
-                || dynamic_cast<RimEclipseView*>(uiItem)
-                || dynamic_cast<RimGeoMechCase*>(uiItem)
-                || dynamic_cast<RimGeoMechView*>(uiItem))
+            if (keyEvent->matches(QKeySequence::Copy))
             {
-                if (keyEvent->matches(QKeySequence::Copy))
-                {
-                    featureToActivate = "RicCopyReferencesToClipboardFeature";
-                }
-            }
+                QAction* actionToTrigger = caf::CmdFeatureManager::instance()->action("RicCopyReferencesToClipboardFeature");
+                assert(actionToTrigger);
 
-            if (keyEvent->matches(QKeySequence::Paste))
-            {
-                if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem)
-                    || dynamic_cast<RimCaseCollection*>(uiItem))
-                {
-                    featureToActivate = "RicPasteEclipseCasesFeature";
-                }
-                else if (dynamic_cast<RimEclipseCase*>(uiItem)
-                    || dynamic_cast<RimEclipseView*>(uiItem))
-                {
-                    featureToActivate = "RicPasteEclipseViewsFeature";
-                }
-                else if (dynamic_cast<RimGeoMechCase*>(uiItem)
-                    || dynamic_cast<RimGeoMechView*>(uiItem))
-                {
-                    featureToActivate = "RicPasteGeoMechViewsFeature";
-                }
-            }
-        }
-
-        if (!featureToActivate.isEmpty())
-        {
-            QAction* actionToTrigger = caf::CmdFeatureManager::instance()->action(featureToActivate);
-            assert(actionToTrigger);
-
-            actionToTrigger->trigger();
-
-            keyEvent->setAccepted(true);
-            return true;
-        }
-
-        switch (keyEvent->key())
-        {
-            case Qt::Key_Space:
-            case Qt::Key_Enter:
-            case Qt::Key_Return:
-            case Qt::Key_Select:
-            {
-                RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE);
+                actionToTrigger->trigger();
 
                 keyEvent->setAccepted(true);
                 return true;
+            }
+            else if (keyEvent->matches(QKeySequence::Paste))
+            {
+                std::vector<caf::CmdFeature*> matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString("Paste");
+
+                for (caf::CmdFeature* feature : matches)
+                {
+                    if (feature->canFeatureBeExecuted())
+                    {
+                        feature->actionTriggered(false);
+
+                        keyEvent->setAccepted(true);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if (!RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
+        {
+            switch (keyEvent->key())
+            {
+                case Qt::Key_Space:
+                case Qt::Key_Enter:
+                case Qt::Key_Return:
+                case Qt::Key_Select:
+                {
+                    RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(RicToggleItemsFeatureImpl::TOGGLE);
+
+                    keyEvent->setAccepted(true);
+                    return true;
+                }
             }
         }
     }

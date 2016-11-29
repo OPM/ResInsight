@@ -25,11 +25,12 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -73,7 +74,7 @@ RimGeoMechView::RimGeoMechView(void)
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
-    CAF_PDM_InitObject("Geomechanical View", ":/ReservoirView.png", "", "");
+    CAF_PDM_InitObject("Geomechanical View", ":/3DView16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "");
     cellResult = new RimGeoMechCellColors();
@@ -161,7 +162,7 @@ void RimGeoMechView::loadDataAndUpdate()
     updateViewerWidget();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
-
+    
     this->scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();
@@ -263,6 +264,8 @@ void RimGeoMechView::createDisplayModel()
    {
        updateLegends();
        m_vizLogic->updateStaticCellColors(-1);
+       crossSectionCollection->applySingleColorEffect();
+
        m_overlayInfoConfig()->update3DInfo();
    }
 }
@@ -298,14 +301,19 @@ void RimGeoMechView::updateCurrentTimeStep()
             m_vizLogic->updateStaticCellColors(m_currentTimeStep());
 
         if (this->cellResult()->hasResult())
+        {
             crossSectionCollection->updateCellResultColor(m_currentTimeStep);
+        }
         else
+        {
             crossSectionCollection->applySingleColorEffect();
-
+        }
     }
     else
     {
         m_vizLogic->updateStaticCellColors(-1);
+        crossSectionCollection->applySingleColorEffect();
+
         m_viewer->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
 
@@ -418,7 +426,17 @@ void RimGeoMechView::updateLegends()
 
     cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
     cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
+    
+    if (cellResult()->hasCategoryResult())
+    {
+        std::vector<QString> fnVector;
+        if (gmCase->femPartResults()->activeFormationNames())
+        {
+            fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames(); 
+        }
+        cellResult()->legendConfig->setNamedCategoriesInverse(fnVector);
+    }
+    
     m_viewer->addColorLegendToBottomLeftCorner(cellResult()->legendConfig->legend());
 
     cvf::String legendTitle = cvfqt::Utils::toString(
@@ -430,12 +448,13 @@ void RimGeoMechView::updateLegends()
         legendTitle += ", " + cvfqt::Utils::toString(cellResult->resultComponentUiName());
     }
 
-    if (cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar")
+    if (   cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" || cellResult->resultFieldName() == "POR-Bar" 
+        || cellResult->resultFieldName() == "SM" || cellResult->resultFieldName() == "SEM" || cellResult->resultFieldName() == "Q" )
     {
         legendTitle += " [Bar]";
     }
 
-    cellResult()->legendConfig->legend()->setTitle(legendTitle);
+    cellResult()->legendConfig->setTitle(legendTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -500,7 +519,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             if (m_viewer)
             {
-                windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
+                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
 
                 RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
                 delete m_viewer;
@@ -651,6 +670,16 @@ void RimGeoMechView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechView::isUsingFormationNames() const
+{
+    if (cellResult()->hasCategoryResult()) return true; // Correct for now
+
+    return geoMechPropertyFilterCollection()->isUsingFormationNames(); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_overlayInfoConfig());
@@ -662,8 +691,16 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-    
+
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition()
+{
+    return cellResult();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,7 +43,7 @@ public:
 
     void                        setTimeSteps(const std::vector<QDateTime>& timeSteps);
     size_t                      timeStepCount();
-    std::vector<QDateTime>            timeSteps();
+    std::vector<QDateTime>      timeSteps();
     std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
@@ -55,10 +55,9 @@ public:
 private:
     void                        openTimeStep(size_t timeStep);
 
-
 private:
     QStringList                     m_fileNames;
-    std::vector<QDateTime>                m_timeSteps;
+    std::vector<QDateTime>          m_timeSteps;
 
     std::vector< ecl_file_type* >   m_ecl_files;
 };

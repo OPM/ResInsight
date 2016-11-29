@@ -20,19 +20,23 @@
 #pragma once
 
 #include "cvfBase.h"
+#include "cvfArray.h"
+#include "cvfCollection.h"
 #include "cvfObject.h"
 
-#include "RigGridBase.h"
-#include "RivFaultPartMgr.h"
+#include "cafPdmPointer.h"
 
 namespace cvf
 {
     class Transform;
+    class ModelBasicList;
 }
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RimEclipseView;
+class RivFaultPartMgr;
+class RigMainGrid;
 
 //==================================================================================================
 ///
@@ -45,7 +49,9 @@ public:
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
-    void setFaultForceVisibility(bool isFilterGenerated);
+
+    void forceWatertightGeometryOn();
+    void clearWatertightGeometryFlag();
 
     void setOpacityLevel(float opacity);
     void applySingleColorEffect();
@@ -62,5 +68,5 @@ private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
-    bool                                m_forceVisibility;
+    bool                                m_forceWatertightGeometry;
 };

@@ -454,7 +454,7 @@ int calculatePrecision(double value)
 {
   double absVal = fabs(value);
   if (1e-16 < absVal && absVal < 1.0e3){
-      int logVal = static_cast<int>(log(absVal));
+      int logVal = static_cast<int>(log10(absVal));
       int numDigitsAfterPoint = abs(logVal - 6);
       return numDigitsAfterPoint;
   }
@@ -473,7 +473,7 @@ void LasWell::WriteToFile(const std::string              & filename,
   for (size_t i = 0; i < comment_header.size(); ++i) {
     file << "# " << comment_header[i] << "\n";
   }
-  file << "\n";
+  file << "#\n";
 
   // Version information
   file << "~Version information\n";
@@ -481,7 +481,7 @@ void LasWell::WriteToFile(const std::string              & filename,
   WriteLasLine(file, "WRAP", "", (wrap_ ? "YES" : "NO"), "");
   for(size_t i=0;i<version_info_.size();i++)
     file << version_info_[i] << "\n";
-  file << "\n";
+  file << "#\n";
 
   file.setf(std::ios_base::fixed);
   file.precision(5);
@@ -494,7 +494,7 @@ void LasWell::WriteToFile(const std::string              & filename,
   WriteLasLine(file, "NULL", "", GetContMissing(), "");
   for(size_t i=0;i<well_info_.size();i++)
     file << well_info_[i] << "\n";
-  file << "\n";
+  file << "#\n";
 
   if (GetNContLog() == 0) {
     // No log data in file.
@@ -505,7 +505,7 @@ void LasWell::WriteToFile(const std::string              & filename,
   file << "~Parameter information\n";
   for(size_t i=0;i<parameter_info_.size();i++)
     file << parameter_info_[i] << "\n";
-  file << "\n";
+  file << "#\n";
 
 
   // Curve information
@@ -515,7 +515,7 @@ void LasWell::WriteToFile(const std::string              & filename,
   for (size_t i = 0; i < GetNContLog(); ++i) {
     WriteLasLine(file, log_name_[i], log_unit_[i], "", log_comment_[i]);
   }
-  file << "\n";
+  file << "#\n";
 
   // Data section
   file << "~Ascii\n";
@@ -595,6 +595,11 @@ void NRLib::LasWell::setStartDepth(double startDepth)
 void NRLib::LasWell::setStopDepth(double stopDepth)
 {
     stop_depth_ = stopDepth;
+}
+
+void NRLib::LasWell::setDepthStep(double depthStep)
+{
+    depth_increment_ = depthStep;
 }
 
 void NRLib::LasWell::addWellInfo(const std::string& parameter, const std::string& value)

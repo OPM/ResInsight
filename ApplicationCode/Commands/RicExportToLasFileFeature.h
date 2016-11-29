@@ -39,7 +39,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimWellLogCurve* selectedWellLogPlotCurve() const;
+    std::vector<RimWellLogCurve*> selectedWellLogCurves() const;
 };
-
 

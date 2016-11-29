@@ -265,12 +265,19 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 {
     if (m_options.isEmpty()) return;
 
-    //QModelIndexList idxList = selected.indexes();
-    QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
-
     QVariant fieldValue = field()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
     {
+        // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
+        // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
+        // in a single selection list to not work as expected.
+        //
+        // See also https://github.com/OPM/ResInsight/issues/879
+        //
+        // WORKAROUND : The list view is in single selection mode, and the selection is set based on current index
+        m_listView->selectionModel()->select(m_listView->currentIndex(), QItemSelectionModel::SelectCurrent);
+
+        QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
         if (idxList.size() >= 1)
         {
             if (idxList[0].row() < m_options.size())
@@ -281,8 +288,24 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
     }
     else if (fieldValue.type() == QVariant::List)
     {
-        QList<QVariant> valuesToSetInField;
+        QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
+        if (idxList.size() == 1)
+        {
+            // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
+            // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
+            // in a multi selection list to not work as expected.
+            //
+            // See also https://github.com/OPM/ResInsight/issues/879
+            //
+            // WORKAROUND : The list view has one or none items selected, manually set the selection from current index
+            m_listView->selectionModel()->select(m_listView->currentIndex(), QItemSelectionModel::SelectCurrent);
+
+            // Update the list of indexes after selection has been modified
+            idxList = m_listView->selectionModel()->selectedIndexes();
+        }
+
+        QList<QVariant> valuesToSetInField;
         for (int i = 0; i < idxList.size(); ++i)
         {
             if (idxList[i].row() < m_options.size())

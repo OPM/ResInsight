@@ -31,6 +31,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimFormationNames.h"
+#include "RigFormationNames.h"
 
 
 
@@ -109,6 +111,7 @@ QString RiuResultTextBuilder::mainResultText()
 
     QString topoText = this->topologyText("\n");
     text += topoText;
+    appendDetails(text, formationDetails());
     text += "\n";
 
     appendDetails(text, nncDetails());
@@ -220,6 +223,51 @@ QString RiuResultTextBuilder::faultResultDetails()
             {
                 text += "Fault result data:\n";
                 this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->currentFaultResultColors(), &text);
+            }
+        }
+    }
+
+    return text;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuResultTextBuilder::formationDetails()
+{
+    QString text;
+    RimCase* rimCase = m_reservoirView->eclipseCase();
+    if(rimCase)
+    {
+        if(rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData())
+        {
+            RigFormationNames* formNames = rimCase->activeFormationNames()->formationNamesData();
+
+            size_t k =  cvf::UNDEFINED_SIZE_T;
+            {
+                const RigCaseData* eclipseData = m_reservoirView->eclipseCase()->reservoirData();
+                if(eclipseData)
+                {
+                    if(m_cellIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        size_t i = cvf::UNDEFINED_SIZE_T;
+                        size_t j = cvf::UNDEFINED_SIZE_T;
+     
+                        eclipseData->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                    }
+                }
+            }
+
+            if (k != cvf::UNDEFINED_SIZE_T)
+            {
+                QString formName = formNames->formationNameFromKLayerIdx(k);
+                if(!formName.isEmpty())
+                {
+                    //text += "-- Formation details --\n";
+
+                    text += QString("Formation Name: %1\n").arg(formName);
+                }
             }
         }
     }
@@ -463,23 +511,33 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
 
     if (m_reservoirView->cellEdgeResult()->hasResult())
     {
-        size_t resultIndices[6];
-        QStringList resultNames;
-        m_reservoirView->cellEdgeResult()->gridScalarIndices(resultIndices);
-        m_reservoirView->cellEdgeResult()->gridScalarResultNames(&resultNames);
+        std::vector<RimCellEdgeMetaData> metaData;
+        m_reservoirView->cellEdgeResult()->cellEdgeMetaData(&metaData);
+
+        std::set<size_t> uniqueResultIndices;
 
         text += "-- Cell edge result data --\n";
         for (int idx = 0; idx < 6; idx++)
         {
-            if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+            size_t resultIndex = metaData[idx].m_resultIndex;
+            if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
+            
+            if (uniqueResultIndices.find(resultIndex) != uniqueResultIndices.end()) continue;
 
-            // Cell edge results are static, results are loaded for first time step only
+            size_t adjustedTimeStep = m_timeStepIndex;
+            if (metaData[idx].m_isStatic)
+            {
+                adjustedTimeStep = 0;
+            }
+
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_reservoirView->cellResult()->porosityModel());
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(m_reservoirView->eclipseCase()->reservoirData(), m_gridIndex, porosityModel, 0, resultIndices[idx]);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(m_reservoirView->eclipseCase()->reservoirData(), m_gridIndex, porosityModel, adjustedTimeStep, resultIndex);
             if (resultAccessor.notNull())
             {
                 double scalarValue = resultAccessor->cellScalar(m_cellIndex);
-                text.append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                text.append(QString("%1 : %2\n").arg(metaData[idx].m_resultVariable).arg(scalarValue));
+
+                uniqueResultIndices.insert(resultIndex);
             }
         }
     }
@@ -623,7 +681,13 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
         }
         else
         {
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, resultVar);
+            size_t adjustedTimeStep = m_timeStepIndex;
+            if (resultColors->hasStaticResult())
+            {
+                adjustedTimeStep = 0;
+            }
+            
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCaseData, m_gridIndex, porosityModel, adjustedTimeStep, resultVar);
             if (resultAccessor.notNull())
             {
                 double scalarValue = resultAccessor->cellFaceScalar(m_cellIndex, m_face);

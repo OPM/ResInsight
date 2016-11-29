@@ -98,6 +98,8 @@ protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
+    virtual void                                updateFormationNamesData() override;
+
     // Internal methods
 protected:
     void                                        computeCachedData();

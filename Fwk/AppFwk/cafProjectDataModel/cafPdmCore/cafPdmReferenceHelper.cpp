@@ -321,7 +321,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fr
     if (!fromField) return NULL;
     if (reference.isEmpty()) return NULL;
 
-    QStringList decodedReference = reference.split(" ");
+    QStringList decodedReference = reference.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();
     assert(lastCommonAnchestor);
     assert(decodedReference.size());

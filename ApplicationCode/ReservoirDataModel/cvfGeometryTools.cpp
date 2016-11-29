@@ -39,6 +39,35 @@ cvf::Vec3d GeometryTools::computeFaceCenter(const cvf::Vec3d& v0, const cvf::Vec
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Ez = Plane normal, Ex = in XY plane (horizontal), Ey = semi vertical upwards
+//--------------------------------------------------------------------------------------------------
+cvf::Mat3f GeometryTools::computePlaneHorizontalRotationMx(const cvf::Vec3f& inPlaneVec0, const cvf::Vec3f& inPlaneVec1)
+{ 
+    cvf::Vec3f Ez = inPlaneVec0 ^ inPlaneVec1;
+
+    if (!Ez.normalize()) return cvf::Mat3f::IDENTITY;
+    
+    cvf::Vec3f Ex = Ez ^ cvf::Vec3f::Z_AXIS;
+    
+    if (!Ex.normalize()) return cvf::Mat3f::IDENTITY;
+
+    cvf::Vec3f Ey = Ez ^ Ex;
+
+    if(Ey[2] < 0.0f) // Semi vertical is down
+    {
+        return cvf::Mat3f(-Ex[0], -Ey[0], Ez[0],
+                          -Ex[1], -Ey[1], Ez[1],
+                          -Ex[2], -Ey[2], Ez[2]);
+    }
+    else
+    {
+        return cvf::Mat3f(Ex[0], Ey[0], Ez[0],
+                          Ex[1], Ey[1], Ez[1],
+                          Ex[2], Ey[2], Ez[2]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 

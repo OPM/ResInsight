@@ -19,21 +19,28 @@
 
 #include "RiuFemResultTextBuilder.h"
 
-#include "RigGeoMechCaseData.h"
-#include "RimGeoMechView.h"
-#include "RimGeoMechCase.h"
-#include "RigFemPartCollection.h"
 #include "RigFemPart.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
-#include "RimGeoMechCellColors.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigFormationNames.h"
+#include "RigGeoMechCaseData.h"
+#include "RimFormationNames.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
+#include "RiuGeoMechXfTensorResultAccessor.h"
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex)
+RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView, 
+                                                 int gridIndex, 
+                                                 int cellIndex, 
+                                                 int timeStepIndex)
+                                                 : m_isIntersectionTriangleSet(false)
 {
     CVF_ASSERT(reservoirView);
     
@@ -57,7 +64,16 @@ void RiuFemResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::setFace(cvf::StructGridInterface::FaceType face)
+void RiuFemResultTextBuilder::setIntersectionTriangle(const std::array<cvf::Vec3f, 3>& triangle)
+{
+    m_intersectionTriangle = triangle;
+    m_isIntersectionTriangleSet = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFemResultTextBuilder::setFace(int face)
 {
     m_face = face;
 }
@@ -69,12 +85,13 @@ QString RiuFemResultTextBuilder::mainResultText()
 {
     QString text;
 
-    text = closestNodeResultText(m_reservoirView->cellResult());
+    text = closestNodeResultText(m_reservoirView->cellResultResultDefinition());
 
     if (!text.isEmpty()) text += "\n";
 
     QString topoText = this->topologyText("\n");
     text += topoText;
+    appendDetails(text, formationDetails());
     text += "\n";
 
     appendDetails(text, gridResultDetails());
@@ -141,7 +158,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
     {
         RigGeoMechCaseData* eclipseCaseData = m_reservoirView->geoMechCase()->geoMechData();
 
-        this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
+        this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResultResultDefinition(), &text);
 
         if (!text.isEmpty())
         {
@@ -156,58 +173,140 @@ QString RiuFemResultTextBuilder::gridResultDetails()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText)
+QString RiuFemResultTextBuilder::formationDetails()
 {
-    if (!resultColors)
+    QString text;
+    RimCase* rimCase = m_reservoirView->ownerCase();
+    if(rimCase)
+    {
+        if(rimCase->activeFormationNames() && rimCase->activeFormationNames()->formationNamesData())
+        {
+            RigFormationNames* formNames = rimCase->activeFormationNames()->formationNamesData();
+
+            size_t k =  cvf::UNDEFINED_SIZE_T;
+            {
+                RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
+                if(geomData)
+                {
+                    size_t i = 0;
+                    size_t j = 0;
+                    geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                }
+            }
+
+            if(k != cvf::UNDEFINED_SIZE_T)
+            {
+                QString formName = formNames->formationNameFromKLayerIdx(k);
+                if(!formName.isEmpty())
+                {
+                    //text += "-- Formation details --\n";
+
+                    text += QString("Formation Name: %1\n").arg(formName);
+                }
+            }
+        }
+    }
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFemResultTextBuilder::appendTextFromResultColors(RigGeoMechCaseData* geomData, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultDefinition* resultDefinition, QString* resultInfoText)
+{
+    if (!resultDefinition)
     {
         return;
     }
 
-    if (resultColors->hasResult())
+    if (resultDefinition->hasResult())
     {
-        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), gridIndex, timeStepIndex);
+        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultDefinition->resultAddress(), gridIndex, timeStepIndex);
         if (scalarResults.size())
         {
-            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultColors->resultPositionType();
+            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultDefinition->resultPositionType();
             resultInfoText->append(resPosAppEnum.uiText() + ", ");
-            resultInfoText->append(resultColors->resultFieldUiName()+ ", ") ;
-            resultInfoText->append(resultColors->resultComponentUiName() + ":\n");
+            resultInfoText->append(resultDefinition->resultFieldUiName()+ ", ") ;
+            resultInfoText->append(resultDefinition->resultComponentUiName() + ":\n");
 
-
-            RigFemPart* femPart = geomData->femParts()->part(gridIndex);
-            RigElementType elmType =  femPart->elementType(cellIndex);
-            const int* elmentConn = femPart->connectivities(cellIndex);
-            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
-            const int* lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping(elmType);
-
-            for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
+            if (resultDefinition->resultPositionType() != RIG_ELEMENT_NODAL_FACE)
             {
-               
-                float scalarValue = std::numeric_limits<float>::infinity();
-                int nodeIdx = elmentConn[lNodeIdx];
-                if (resultColors->resultPositionType() == RIG_NODAL)
+                RigFemPart* femPart = geomData->femParts()->part(gridIndex);
+                RigElementType elmType =  femPart->elementType(cellIndex);
+                const int* elmentConn = femPart->connectivities(cellIndex);
+                int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+                const int* lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping(elmType);
+
+                for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
                 {
-                   
-                    scalarValue = scalarResults[nodeIdx];
-                } 
-                else 
-                {
-                    size_t resIdx = femPart->elementNodeResultIdx(cellIndex, lNodeIdx);
-                    scalarValue = scalarResults[resIdx];
-                }
+
+                    float scalarValue = std::numeric_limits<float>::infinity();
+                    int nodeIdx = elmentConn[lNodeIdx];
+                    if (resultDefinition->resultPositionType() == RIG_NODAL)
+                    {
+
+                        scalarValue = scalarResults[nodeIdx];
+                    }
+                    else
+                    {
+                        size_t resIdx = femPart->elementNodeResultIdx(cellIndex, lNodeIdx);
+                        scalarValue = scalarResults[resIdx];
+                    }
 
 
-                if (resultColors->resultPositionType() == RIG_INTEGRATION_POINT)
-                {
-                    resultInfoText->append(QString("\tIP:%1 \t: %2 \tAss. Node: \t%3").arg(lElmNodeToIpMap[lNodeIdx] + 1 ).arg(scalarValue).arg(femPart->nodes().nodeIds[nodeIdx]));
+                    if (resultDefinition->resultPositionType() == RIG_INTEGRATION_POINT)
+                    {
+                        resultInfoText->append(QString("\tIP:%1 \t: %2 \tAss. Node: \t%3").arg(lElmNodeToIpMap[lNodeIdx] + 1 ).arg(scalarValue).arg(femPart->nodes().nodeIds[nodeIdx]));
+                    }
+                    else
+                    {
+                        resultInfoText->append(QString("\tN:%1 \t: %2").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                    }
+
+                    cvf::Vec3f nodeCoord = femPart->nodes().coordinates[nodeIdx];
+                    resultInfoText->append(QString("\t( %3, %4, %5)\n").arg(nodeCoord[0]).arg(nodeCoord[1]).arg(nodeCoord[2]));
                 }
-                else
+            }
+            else
+            {
+                int elmNodeFaceStartResIdx = cellIndex *24;
+ 
+                resultInfoText->append(QString("Pos I Face:\n"));
+                for (int ptIdx = 0; ptIdx < 4; ++ptIdx)
                 {
-                    resultInfoText->append(QString("\tN:%1 \t: %2").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Neg I Face:\n"));
+                for(int ptIdx = 4; ptIdx < 8; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Pos J Face:\n"));
+                for(int ptIdx = 8; ptIdx < 12; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Neg J Face:\n"));
+                for(int ptIdx = 12; ptIdx < 16; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Pos K Face:\n"));
+                for(int ptIdx = 16; ptIdx < 20; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
+                }
+ 
+                resultInfoText->append(QString("Neg K Face:\n"));
+                for(int ptIdx = 20; ptIdx < 24; ++ptIdx)
+                {
+                    resultInfoText->append(QString("\t%2\n").arg(scalarResults[elmNodeFaceStartResIdx+ptIdx]));
                 }
 
-                cvf::Vec3f nodeCoord = femPart->nodes().coordinates[nodeIdx];
-                resultInfoText->append(QString("\t( %3, %4, %5)\n").arg(nodeCoord[0]).arg(nodeCoord[1]).arg(nodeCoord[2]));
             }
         }
     }
@@ -228,7 +327,7 @@ void RiuFemResultTextBuilder::appendDetails(QString& text, const QString& detail
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* resultColors)
+QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinition* resultColors)
 {
     QString text;
     if (!resultColors)
@@ -243,50 +342,48 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechCellColors* res
         RigGeoMechCaseData* geomData = m_reservoirView->geoMechCase()->geoMechData();
 
         const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues(resultColors->resultAddress(), m_gridIndex, m_timeStepIndex);
+
         if (scalarResults.size())
         {
-
             RigFemPart* femPart = geomData->femParts()->part(m_gridIndex);
-            RigElementType elmType =  femPart->elementType(m_cellIndex);
-            const int* elmentConn = femPart->connectivities(m_cellIndex);
-            int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
+            RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();
 
-            // Find the closest node
-            int closestLocalNode = -1;
-            float minDist = std::numeric_limits<float>::infinity();
-            for (int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx)
+            RigFemClosestResultIndexCalculator closestIndexCalc(femPart, 
+                                                             activeResultPosition, 
+                                                             m_cellIndex, 
+                                                             m_face, 
+                                                             m_intersectionPoint);
+            int resultIndex = closestIndexCalc.resultIndexToClosestResult();
+            int closestNodeId = closestIndexCalc.closestNodeId();
+            int closestElmNodResIdx = closestIndexCalc.closestElementNodeResIdx();
+
+            float scalarValue = (resultIndex >= 0) ? scalarResults[resultIndex]: std::numeric_limits<float>::infinity();
+
+
+            if (activeResultPosition != RIG_ELEMENT_NODAL_FACE)
             {
-                int nodeIdx = elmentConn[lNodeIdx];
-                cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-                float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
-                if (dist < minDist) 
-                {
-                    closestLocalNode = lNodeIdx;
-                    minDist = dist;
-                }
+                text.append(QString("Closest result: N[%1], %2\n").arg(closestNodeId)
+                                                                  .arg(scalarValue));
             }
-
-            // Create a text showing the results from the closest node
-            if (closestLocalNode >= 0)
+            else if ( m_face != -1 )
             {
-               
-                float scalarValue = std::numeric_limits<float>::infinity();
-                int nodeIdx = elmentConn[closestLocalNode];
-                if (resultColors->resultPositionType() == RIG_NODAL)
-                {
-                   
-                    scalarValue = scalarResults[nodeIdx];
-                } 
-                else 
-                {
-                    size_t resIdx = femPart->elementNodeResultIdx(m_cellIndex, closestLocalNode);
-                    scalarValue = scalarResults[resIdx];
-                }
+                text.append(QString("Closest result: N[%1], on face: %2, %3\n").arg(closestNodeId)
+                                                                               .arg(caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex(m_face))
+                                                                               .arg(scalarValue));
+            }
+            else if (m_isIntersectionTriangleSet && activeResultPosition == RIG_ELEMENT_NODAL_FACE)
+            {
+                RiuGeoMechXfTensorResultAccessor tensAccessor(geomData->femPartResults(), resultColors->resultAddress(), m_timeStepIndex);
+                float tensValue = tensAccessor.calculateElmNodeValue(m_intersectionTriangle, closestElmNodResIdx);
 
-                text.append(QString("Closest result: N[%1], %2\n").arg(femPart->nodes().nodeIds[nodeIdx]).arg(scalarValue));
+                text.append(QString("Closest result: N[%1], in Element[%2] transformed onto intersection: %3 \n")
+                            .arg(closestNodeId)
+                            .arg(femPart->elmId(m_cellIndex))
+                            .arg(tensValue));
             }
         }
     }
    
     return text;
 }
+

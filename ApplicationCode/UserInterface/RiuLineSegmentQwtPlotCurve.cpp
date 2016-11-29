@@ -20,6 +20,10 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "qwt_symbol.h"
+#include "RigCurveDataTools.h"
+#include "qwt_date.h"
+#include "qwt_point_mapper.h"
+#include "qwt_painter.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -28,6 +32,13 @@
 RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
     : QwtPlotCurve(title)
 {
+    this->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
+    this->setLegendAttribute(QwtPlotCurve::LegendShowSymbol, true);
+    this->setLegendAttribute(QwtPlotCurve::LegendShowBrush, true);
+
+    this->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+
+    m_symbolSkipPixelDistance = 10.0f;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,6 +46,107 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
 //--------------------------------------------------------------------------------------------------
 RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSamplesFromDateAndValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
+{
+    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
+
+    QPolygonF points;
+    std::vector< std::pair<size_t, size_t> > filteredIntervals;
+    {
+        std::vector<double> filteredTimeHistoryValues;
+        std::vector<QDateTime> filteredDateTimes;
+
+        {
+            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
+
+            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
+            RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
+
+            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+        }
+
+        for ( size_t i = 0; i < filteredDateTimes.size(); i++ )
+        {
+            double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
+            points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
+        }
+    }
+
+    this->setSamples(points);
+    this->setLineSegmentStartStopIndices(filteredIntervals);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndValues(const std::vector<time_t>& dateTimes, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
+{
+    CVF_ASSERT(dateTimes.size() == timeHistoryValues.size());
+
+    QPolygonF points;
+    std::vector< std::pair<size_t, size_t> > filteredIntervals;
+    {
+        std::vector<double> filteredTimeHistoryValues;
+        std::vector<time_t> filteredDateTimes;
+
+        {
+            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
+
+            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
+            RigCurveDataTools::getValuesByIntervals(dateTimes, intervalsOfValidValues, &filteredDateTimes);
+
+            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+        }
+
+        for (size_t i = 0; i < filteredDateTimes.size(); i++)
+        {
+            double milliSecSinceEpoch = filteredDateTimes[i] * 1000; // This is kind of hack, as the c++ standard does not state what time_t is. "Almost always" secs since epoch according to cppreference.com
+            points << QPointF(milliSecSinceEpoch, filteredTimeHistoryValues[i]);
+        }
+    }
+
+    this->setSamples(points);
+    this->setLineSegmentStartStopIndices(filteredIntervals);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeAndValues(const std::vector<double>& times, const std::vector<double>& timeHistoryValues, bool removeNegativeValues)
+{
+    CVF_ASSERT(times.size() == timeHistoryValues.size());
+
+    QPolygonF points;
+    std::vector< std::pair<size_t, size_t> > filteredIntervals;
+    {
+        std::vector<double> filteredTimeHistoryValues;
+        std::vector<double> filteredTimes;
+
+        {
+            std::vector< std::pair<size_t, size_t> > intervalsOfValidValues;
+            RigCurveDataTools::calculateIntervalsOfValidValues(timeHistoryValues, &intervalsOfValidValues, removeNegativeValues);
+
+            RigCurveDataTools::getValuesByIntervals(timeHistoryValues, intervalsOfValidValues, &filteredTimeHistoryValues);
+            RigCurveDataTools::getValuesByIntervals(times, intervalsOfValidValues, &filteredTimes);
+
+            RigCurveDataTools::computePolyLineStartStopIndices(intervalsOfValidValues, &filteredIntervals);
+        }
+
+        for ( size_t i = 0; i < filteredTimes.size(); i++ )
+        {
+            points << QPointF(filteredTimes[i], filteredTimeHistoryValues[i]);
+        }
+    }
+
+    this->setSamples(points);
+    this->setLineSegmentStartStopIndices(filteredIntervals);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,9 +184,71 @@ void RiuLineSegmentQwtPlotCurve::drawCurve(QPainter* p, int style,
 };
 
 //--------------------------------------------------------------------------------------------------
+/// Drawing symbols but skipping if they are to close to the previous one
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol, 
+                                            const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+                                            const QRectF &canvasRect, int from, int to) const
+{
+    if (m_symbolSkipPixelDistance <= 0)
+    {
+        QwtPlotCurve::drawSymbols(painter, symbol, xMap, yMap, canvasRect, from, to);
+        return;
+    }
+
+    QwtPointMapper mapper;
+    mapper.setFlag(QwtPointMapper::RoundPoints,
+                   QwtPainter::roundingAlignment(painter));
+    mapper.setFlag(QwtPointMapper::WeedOutPoints,
+                   testPaintAttribute(QwtPlotCurve::FilterPoints));
+    mapper.setBoundingRect(canvasRect);
+
+    const QPolygonF points = mapper.toPointsF(xMap, yMap,
+                                              data(), from, to);
+    int pointCount = points.size();
+
+    QPolygonF filteredPoints;
+    QPointF lastDrawnSymbolPos;
+
+    if (pointCount > 0) 
+    {
+        filteredPoints.push_back(points[0]);
+        lastDrawnSymbolPos = points[0];
+    }
+
+    float sqSkipDist = m_symbolSkipPixelDistance*m_symbolSkipPixelDistance;
+
+    for(int pIdx = 1; pIdx < pointCount -1 ; ++pIdx)
+    {
+        QPointF diff = points[pIdx] - lastDrawnSymbolPos;
+        float sqDistBetweenSymbols = diff.x()*diff.x() + diff.y()*diff.y();
+
+        if(sqDistBetweenSymbols > sqSkipDist)
+        {
+            filteredPoints.push_back(points[pIdx]);
+            lastDrawnSymbolPos = points[pIdx];
+        }
+    }
+
+    if(pointCount > 1) filteredPoints.push_back(points.back());
+
+
+    if(filteredPoints.size() > 0)
+        symbol.drawSymbols(painter, filteredPoints);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuLineSegmentQwtPlotCurve::setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices)
 {
     m_polyLineStartStopIndices = lineSegmentStartStopIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuLineSegmentQwtPlotCurve::setSymbolSkipPixelDistance(float distance)
+{
+    m_symbolSkipPixelDistance = distance >= 0.0f ? distance: 0.0f;
 }

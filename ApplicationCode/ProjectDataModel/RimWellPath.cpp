@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QDateTime>
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -74,6 +75,11 @@ RimWellPath::RimWellPath()
     m_surveyType.xmlCapability()->setIOWritable(false);
     m_surveyType.xmlCapability()->setIOReadable(false);
 
+    CAF_PDM_InitFieldNoDefault(&m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "");
+    m_datumElevation.uiCapability()->setUiReadOnly(true);
+    m_datumElevation.xmlCapability()->setIOWritable(false);
+    m_datumElevation.xmlCapability()->setIOReadable(false);
+
     CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "Filepath", "", "", "");
     filepath.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in file", "", "", "");
@@ -105,7 +111,7 @@ RimWellPath::~RimWellPath()
     }
 
     RimProject* project;
-    firstAnchestorOrThisOfType(project);
+    firstAncestorOrThisOfType(project);
     if (project)
     {
         if (project->mainPlotCollection())
@@ -149,7 +155,7 @@ RivWellPathPartMgr* RimWellPath::partMgr()
     if (m_wellPathPartMgr.isNull()) 
     {
         RimWellPathCollection* wpColl;
-        this->firstAnchestorOrThisOfType(wpColl);
+        this->firstAncestorOrThisOfType(wpColl);
         if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(this);
     }
 
@@ -164,7 +170,7 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     partMgr()->scheduleGeometryRegen();
 
     RimProject* proj;
-    this->firstAnchestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 
@@ -210,7 +216,7 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileRe
 void RimWellPath::readJsonWellPathFile()
 {
     RigWellPath* wellPathGeom = new RigWellPath();
-    JsonReader jsonReader;
+    ResInsightInternalJson::JsonReader jsonReader;
     QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filepath);
 
     // General well info
@@ -237,6 +243,7 @@ void RimWellPath::readJsonWellPathFile()
     // Well path points
 
     double datumElevation = jsonMap["datumElevation"].toDouble();
+    wellPathGeom->setDatumElevation(datumElevation);
 
     QList<QVariant> pathList = jsonMap["path"].toList();
     foreach (QVariant point, pathList)
@@ -287,6 +294,17 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     ssihubGroup->add(&updateDate);
     ssihubGroup->add(&updateUser);
     ssihubGroup->add(&m_surveyType);
+    ssihubGroup->add(&m_datumElevation);
+
+    if (m_wellPath.notNull() && m_wellPath->hasDatumElevation())
+    {
+        m_datumElevation = m_wellPath->datumElevation();
+        m_datumElevation.uiCapability()->setUiHidden(false);
+    }
+    else
+    {
+        m_datumElevation.uiCapability()->setUiHidden(true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,13 +383,20 @@ bool RimWellPath::isStoredInCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::updateFilePathsFromProjectPath()
+void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    QString newCacheFileName = getCacheFileName();
-
-    if (QFile::exists(newCacheFileName))
+    if (isStoredInCache())
     {
-        filepath = newCacheFileName;
+        QString newCacheFileName = getCacheFileName();
+
+        if (QFile::exists(newCacheFileName))
+        {
+            filepath = newCacheFileName;
+        }
+    }
+    else
+    {
+        filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, NULL, NULL);
     }
 }
 

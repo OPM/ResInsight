@@ -1,0 +1,13 @@
+####################################################################
+# Dune module information file: This file gets parsed by dunecontrol
+# and by the CMake build scripts.
+####################################################################
+
+Module: opm-flowdiagnostics
+Description: Open Porous Media Initiative flow diagnostics
+Version: 2016.10-pre
+Label: 2016.10-pre
+Maintainer: opm@opm-project.org
+MaintainerName: OPM community
+Url: http://opm-project.org
+Depends: opm-common

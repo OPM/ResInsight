@@ -44,6 +44,9 @@ public:
     PdmUiFieldHandle*  uiCapability();
     PdmXmlFieldHandle* xmlCapability();
 
+protected:
+    bool isInitializedByInitFieldMacro() const { return m_ownerObject != NULL; }
+
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmFieldHandle);
     

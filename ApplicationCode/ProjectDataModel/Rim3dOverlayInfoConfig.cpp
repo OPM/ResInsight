@@ -22,28 +22,29 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimEclipseCase.h"
-#include "RimCellEdgeColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseWellCollection.h"
-#include "RiuViewer.h"
-#include "RimGeoMechView.h"
-#include "RimView.h"
-#include "RimGeoMechCase.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RimGeoMechCellColors.h"
-#include "RigFemResultAddress.h"
-#include "RigFemPartResultsCollection.h"
-
-#include "RigStatisticsDataCache.h"
-#include "RigFemNativeVisibleCellsStatCalc.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
+#include "RigFemNativeVisibleCellsStatCalc.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigFemResultAddress.h"
+#include "RigGeoMechCaseData.h"
+#include "RigStatisticsDataCache.h"
+
+#include "RimCellEdgeColors.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimFaultCollection.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimView.h"
+
+#include "RiuViewer.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
@@ -197,6 +198,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
     double min = HUGE_VAL, max = HUGE_VAL;
     double p10 = HUGE_VAL, p90 = HUGE_VAL;
     double mean = HUGE_VAL;
+    double sum = 0.0;
     const std::vector<size_t>* histogram = NULL;
 
     bool isResultsInfoRelevant  = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
@@ -213,6 +215,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                     eclipseView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
                     eclipseView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
                     eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
+                    eclipseView->currentGridCellResults()->cellResults()->sumCellScalarValues(scalarIndex, sum);
                     histogram = &(eclipseView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
                 }
                 else if (m_statisticsTimeRange == CURRENT_TIMESTEP )
@@ -220,7 +223,8 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                     int timeStepIdx = eclipseView->currentTimeStep();
                     eclipseView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, timeStepIdx, min, max);
                     eclipseView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, timeStepIdx, p10, p90);
-                    eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex,  timeStepIdx, mean);
+                    eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, timeStepIdx, mean);
+                    eclipseView->currentGridCellResults()->cellResults()->sumCellScalarValues(scalarIndex, timeStepIdx, sum);
                     histogram = &(eclipseView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex, timeStepIdx));
                 }
                 else
@@ -237,6 +241,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                     m_visibleCellStatistics->meanCellScalarValues(mean);
                     m_visibleCellStatistics->minMaxCellScalarValues(min, max);
                     m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
+                    m_visibleCellStatistics->sumCellScalarValues(sum);
 
                     histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
                 }
@@ -246,6 +251,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                     m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
                     m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
                     m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
+                    m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
 
                     histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
                 }
@@ -303,9 +309,9 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
             infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
-                                "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5 </td></tr>"
-                                "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                                "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
 
             if (eclipseView->faultResultSettings()->hasValidCustomResult())
             {
@@ -374,20 +380,21 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 {
     RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
     RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : NULL;
-    bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResult()->hasResult();
+    bool isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() && geoMechView->cellResultResultDefinition()->hasResult();
 
     // Retreive result stats if needed
 
     double min = HUGE_VAL, max = HUGE_VAL;
     double p10 = HUGE_VAL, p90 = HUGE_VAL;
     double mean = HUGE_VAL;
+    double sum = 0.0;
     const std::vector<size_t>* histogram = NULL;
 
     if (showResultInfo() || showHistogram())
     {
         if (isResultsInfoRelevant)
         {
-            RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+            RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
             if (m_statisticsCellRange == ALL_CELLS)
             {
                 if (m_statisticsTimeRange == ALL_TIMESTEPS)
@@ -395,6 +402,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     caseData->femPartResults()->meanScalarValue(resAddress, &mean);
                     caseData->femPartResults()->minMaxScalarValues(resAddress, &min, &max);
                     caseData->femPartResults()->p10p90ScalarValues(resAddress, &p10, &p90);
+                    caseData->femPartResults()->sumScalarValue(resAddress, &sum);
 
                     histogram = &(caseData->femPartResults()->scalarValuesHistogram(resAddress));
                 }
@@ -404,6 +412,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     caseData->femPartResults()->meanScalarValue(resAddress, timeStepIdx, &mean);
                     caseData->femPartResults()->minMaxScalarValues(resAddress, timeStepIdx, &min, &max);
                     caseData->femPartResults()->p10p90ScalarValues(resAddress, timeStepIdx, &p10, &p90);
+                    caseData->femPartResults()->sumScalarValue(resAddress, timeStepIdx, &sum);
 
                     histogram = &(caseData->femPartResults()->scalarValuesHistogram(resAddress, timeStepIdx));
                 }
@@ -418,6 +427,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     m_visibleCellStatistics->meanCellScalarValues(mean);
                     m_visibleCellStatistics->minMaxCellScalarValues(min, max);
                     m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
+                    m_visibleCellStatistics->sumCellScalarValues(sum);
 
                     histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
                 }
@@ -427,6 +437,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
                     m_visibleCellStatistics->meanCellScalarValues(timeStepIdx, mean);
                     m_visibleCellStatistics->minMaxCellScalarValues(timeStepIdx, min, max);
                     m_visibleCellStatistics->p10p90CellScalarValues(timeStepIdx, p10, p90);
+                    m_visibleCellStatistics->sumCellScalarValues(timeStepIdx, sum);
 
                     histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(timeStepIdx));
                 }
@@ -462,10 +473,10 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
         {
             {
                 QString resultPos;
-                QString fieldName = geoMechView->cellResult()->resultFieldUiName();
-                QString compName = geoMechView->cellResult()->resultComponentUiName();
+                QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
+                QString compName = geoMechView->cellResultResultDefinition()->resultComponentUiName();
 
-                switch (geoMechView->cellResult()->resultPositionType())
+                switch (geoMechView->cellResultResultDefinition()->resultPositionType())
                 {
                     case RIG_NODAL:
                     resultPos = "Nodal";
@@ -488,10 +499,9 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             {
                 infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
                 infoText += QString("<table border=0 cellspacing=5 >"
-                                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>"
-                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> </tr>"
-                                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
-
+                                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
 
             }
         }
@@ -528,7 +538,7 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
         cvf::ref<RigStatisticsCalculator> calc;
         if (geoMechView)
         {
-            RigFemResultAddress resAddress = geoMechView->cellResult()->resultAddress();
+            RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
             calc = new RigFemNativeVisibleCellsStatCalc(geoMechView->geoMechCase()->geoMechData(),
                                                         resAddress,
                                                         geoMechView->currentTotalCellVisibility().p());

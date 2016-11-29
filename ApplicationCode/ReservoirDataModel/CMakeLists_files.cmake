@@ -19,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifier.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.h
+${CEE_CURRENT_LIST_DIR}RigFormationNames.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogExtractor.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseWellLogExtractor.h
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
@@ -39,6 +40,8 @@ ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
+${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
+${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -55,6 +58,7 @@ ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.cpp
+${CEE_CURRENT_LIST_DIR}RigFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogExtractor.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseWellLogExtractor.cpp
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.cpp
@@ -73,6 +77,8 @@ ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
+${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
+${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

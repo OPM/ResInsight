@@ -25,9 +25,12 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 
 #include "RivCellSetEnum.h"
+
+#include "RimViewWindow.h"
 
 #include "cvfArray.h"
 #include "cvfBase.h"
@@ -36,12 +39,13 @@
 
 #include <QPointer>
 
+
 class Rim3dOverlayInfoConfig;
 class RimCase;
 class RimCellRangeFilter;
-class RimGridCollection;
 class RimCellRangeFilterCollection;
-class RimCrossSectionCollection;
+class RimIntersectionCollection;
+class RimGridCollection;
 class RimPropertyFilterCollection;
 class RimViewController;
 class RimViewLinker;
@@ -57,11 +61,15 @@ namespace cvf
     class Part;
 }
 
+namespace caf
+{
+    class DisplayCoordTransform;
+}
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimView : public caf::PdmObject
+class RimView : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -76,6 +84,7 @@ public:
 
     caf::PdmField<bool>                     showWindow;
     caf::PdmField<cvf::Mat4d>               cameraPosition;
+    caf::PdmField<cvf::Vec3d>               cameraPointOfInterest;
     caf::PdmField<bool>                     isPerspectiveView;
     caf::PdmField< cvf::Color3f >           backgroundColor;
 
@@ -90,9 +99,8 @@ public:
     void                                    setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
     void                                    replaceRangeFilterCollectionWithOverride();
 
-    caf::PdmField< std::vector<int> >       windowGeometry;
 
-    caf::PdmChildField<RimCrossSectionCollection*>      crossSectionCollection;
+    caf::PdmChildField<RimIntersectionCollection*>      crossSectionCollection;
 
     // Draw style 
 
@@ -143,12 +151,21 @@ public:
     bool                                    isMasterView() const;
     RimViewLinker*                          assosiatedViewLinker() const;
 
+    virtual bool                            isUsingFormationNames() const = 0;
     cvf::ref<cvf::UByteArray>               currentTotalCellVisibility();
 
     virtual bool                            showActiveCellsOnly();
     virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
 
     void                                    selectOverlayInfoConfig();
+
+    virtual QImage                          snapshotWindowContent() override;
+
+    virtual void                            zoomAll() override;
+
+    cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
+
+    virtual QWidget*                        viewWidget() override;
 
 public:
     virtual void                            loadDataAndUpdate() = 0;

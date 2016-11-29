@@ -426,7 +426,7 @@ void WBTransparencySurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effec
 {
     if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
@@ -541,7 +541,7 @@ void WBTransparencySurfaceEffectGenerator::initStaticData()
     m_depth->enableDepthWrite(false);
 
     m_renderPassUniform = new UniformInt("isOpaquePass", 1);
-    m_cameraNearUniform = new UniformFloat("cameraNear", 0.01);
+    m_cameraNearUniform = new UniformFloat("cameraNear", 0.01f);
     m_cameraFarUniform = new UniformFloat("cameraFar",1000);
 }
 

@@ -46,7 +46,7 @@ public:
 
     void                setGridCount(size_t gridCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount);
-    void                gridActiveCellCounts(size_t gridIndex, size_t& activeCellCount);
+    void                gridActiveCellCounts(size_t gridIndex, size_t& activeCellCount) const;
     void                computeDerivedData();
 
     void                setIJKBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);

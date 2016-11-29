@@ -19,6 +19,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include <QApplication>
 #include <QProcess>
 #include <QMutex>
@@ -30,19 +31,31 @@
 #include "cvfFont.h"
 
 #include <iostream>
+#include <memory>
+
+class QAction;
+
+class Drawable;
 
 class RIProcess;
-class RigCaseData;
-class RimEclipseCase;
-class Drawable;
-class RiaSocketServer;
+
 class RiaPreferences;
-class RimEclipseView;
-class RimView;
-class RimProject;
-class RimCommandObject;
 class RiaProjectModifier;
+class RiaSocketServer;
+
+class RigCaseData;
+
+class RimCommandObject;
+class RimEclipseCase;
+class RimEclipseView;
+class RimProject;
+class RimSummaryPlot;
+class RimView;
+class RimViewWindow;
 class RimWellLogPlot;
+
+class RiuMainPlotWindow;
+class RiuRecentFileActionProvider;
 
 namespace caf
 {
@@ -84,6 +97,9 @@ public:
     void                    setActiveWellLogPlot(RimWellLogPlot*);
     RimWellLogPlot*         activeWellLogPlot();
 
+    void                    setActiveSummaryPlot(RimSummaryPlot*);
+    RimSummaryPlot*         activeSummaryPlot();
+
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
     RimProject*         project(); 
@@ -94,9 +110,11 @@ public:
     void                createMockModelCustomized();
     void                createInputMockModel();
 
-    QString             defaultFileDialogDirectory(const QString& dialogName);
-    void                setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory);
+    QString             lastUsedDialogDirectory(const QString& dialogName);
+    QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
+    void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
+    bool                openFile(const QString& fileName);
     bool                openEclipseCaseFromFile(const QString& fileName);
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
     bool                addEclipseCases(const QStringList& fileNames);
@@ -104,19 +122,16 @@ public:
 
     bool                openOdbCaseFromFile(const QString& fileName);
 
-    QString             currentProjectFileName() const;
+    QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool                loadProject(const QString& projectFileName);
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
-    bool                closeProject(bool askToSaveIfDirty);
+    void                closeProject();
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
-    void                copySnapshotToClipboard();
-    void                saveSnapshotPromtpForFilename();
-    void                saveSnapshotAs(const QString& fileName);
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
@@ -148,6 +163,7 @@ public:
     void                applyPreferences();
 
     cvf::Font*          standardFont();
+    cvf::Font*          customFont();
 
     QString             commandLineParameterHelp() const;
     void                showFormattedTextInMessageBox(const QString& text);
@@ -163,6 +179,17 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
+    RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
+    RiuMainPlotWindow*  mainPlotWindow();
+
+    static RimViewWindow* activeViewWindow();
+
+    bool                tryCloseMainWindow();
+    bool                tryClosePlotWindow();
+
+    void                  addToRecentFiles(const QString& fileName);
+    std::vector<QAction*> recentFileActions() const;
+
 private:
     enum ProjectLoadAction
     {
@@ -171,12 +198,17 @@ private:
     };
 
     bool                    loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+
     void                    onProjectOpenedOrClosed();
     std::vector<QString>    readFileListFromTextFile(QString listFileName);
     void                    setWindowCaptionFromAppState();
     
-    QImage                  grabFrameBufferImage();
     void                    clearViewsScheduledForUpdate();
+
+    void                    createMainPlotWindow();
+    void                    deleteMainPlotWindow();
+    
+    void                    loadAndUpdatePlotData();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -186,6 +218,7 @@ private slots:
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
     caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
+    caf::PdmPointer<RimSummaryPlot>     m_activeSummaryPlot;
 
     caf::PdmPointer<RimProject>         m_project;
 
@@ -207,6 +240,7 @@ private:
     QString                             m_startupDefaultDirectory;
 
     cvf::ref<cvf::Font>                 m_standardFont;
+    cvf::ref<cvf::Font>                 m_customFont;
 
     QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 
@@ -215,4 +249,8 @@ private:
 
     QString                             m_helpText;
     bool                                m_runningRegressionTests;
+
+    RiuMainPlotWindow*                  m_mainPlotWindow;
+    
+    std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 };

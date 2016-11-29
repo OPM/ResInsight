@@ -43,6 +43,8 @@ void caf::AppEnum< RigFemResultPosEnum >::setUp()
     addItem(RIG_NODAL,            "NODAL",            "Nodal");
     addItem(RIG_ELEMENT_NODAL,    "ELEMENT_NODAL",    "Element Nodal");
     addItem(RIG_INTEGRATION_POINT,"INTEGRATION_POINT","Integration Point");
+    addItem(RIG_ELEMENT_NODAL_FACE, "ELEMENT_NODAL_FACE", "Element Nodal On Face");
+    addItem(RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
     setDefault(RIG_NODAL);
 }
 }
@@ -60,10 +62,18 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionType, "ResultPositionType" , "Result Position", "", "", "");
     m_resultPositionType.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_resultFieldName, "ResultFieldName", QString(""), "Field Name", "", "", "");
     m_resultFieldName.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", QString(""), "Component", "", "", "");
     m_resultComponentName.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_isTimeLapseResult, "IsTimeLapseResult", false, "TimeLapseResult", "", "", "");
+    m_isTimeLapseResult.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", 0, "Base Time Step", "", "", "");
+    m_timeLapseBaseTimestep.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
     m_resultPositionTypeUiField.xmlCapability()->setIOWritable(false);
@@ -73,8 +83,19 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_resultVariableUiField.xmlCapability()->setIOWritable(false);
     m_resultVariableUiField.xmlCapability()->setIOReadable(false);
 
+    CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Relative Result", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
+    m_isTimeLapseResultUiField.xmlCapability()->setIOWritable(false);
+    m_isTimeLapseResultUiField.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField, "TimeLapseBaseTimeStepUI", 0, "Base Time Step", "", "", "");
+    m_timeLapseBaseTimestepUiField.xmlCapability()->setIOWritable(false);
+    m_timeLapseBaseTimestepUiField.xmlCapability()->setIOReadable(false);
+
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +105,22 @@ RimGeoMechResultDefinition::~RimGeoMechResultDefinition(void)
 {
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_resultPositionTypeUiField);
+    uiOrdering.add(&m_resultVariableUiField);
+
+    caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Relative Result Options");
+    timeLapseGr->add(&m_isTimeLapseResultUiField);
+    if (m_isTimeLapseResultUiField())
+        timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
+
+    uiOrdering.setForgetRemainingFields(true);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -100,11 +137,29 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
             std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
             QStringList uiVarNames;
             QStringList varNames;
-            getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames);
+            getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, m_isTimeLapseResultUiField, m_timeLapseBaseTimestepUiField);
 
             for (int oIdx = 0; oIdx < uiVarNames.size(); ++oIdx)
             {
                 options.push_back(caf::PdmOptionItemInfo(uiVarNames[oIdx], varNames[oIdx]));
+            }
+        }
+        else if (&m_isTimeLapseResultUiField == fieldNeedingOptions)
+        {
+            //options.push_back(caf::PdmOptionItemInfo("Absolute", false));
+            //options.push_back(caf::PdmOptionItemInfo("Time Lapse", true));
+        }
+        else if (&m_timeLapseBaseTimestepUiField == fieldNeedingOptions)
+        {
+            std::vector<std::string> stepNames;
+            if(m_geomCase->geoMechData())
+            {
+                 stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
+            }
+
+            for (size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx)
+            {
+                options.push_back(caf::PdmOptionItemInfo(QString::fromStdString(stepNames[stepIdx]), static_cast<int>(stepIdx)));
             }
         }
     }
@@ -127,14 +182,18 @@ void RimGeoMechResultDefinition::setGeoMechCase(RimGeoMechCase* geomCase)
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if(&m_resultPositionTypeUiField == changedField)
+    if(   &m_resultPositionTypeUiField == changedField 
+       || &m_isTimeLapseResultUiField == changedField
+       || &m_timeLapseBaseTimestepUiField == changedField)
     {
         std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
         QStringList uiVarNames;
         QStringList varNames;
-        getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames);
+        getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, m_isTimeLapseResultUiField, m_timeLapseBaseTimestepUiField);
 
         if (m_resultPositionTypeUiField() == m_resultPositionType()
+            && m_isTimeLapseResultUiField() == m_isTimeLapseResult()
+            && m_timeLapseBaseTimestepUiField() == m_timeLapseBaseTimestep()
             && varNames.contains(composeFieldCompString(m_resultFieldName(), m_resultComponentName())))
         {
             m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
@@ -143,15 +202,14 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_resultVariableUiField = "";
         }
-
     }
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
     RimView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimWellLogCurve* curve = NULL;
-    this->firstAnchestorOrThisOfType(curve);
+    this->firstAncestorOrThisOfType(curve);
 
 
     if (&m_resultVariableUiField == changedField)
@@ -160,16 +218,29 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (fieldComponentNames.size() > 0)
         {
             m_resultPositionType = m_resultPositionTypeUiField;
-            m_resultFieldName = fieldComponentNames[0];
-            if (fieldComponentNames.size() > 1)
+            if (m_resultPositionType() == RIG_FORMATION_NAMES)
             {
-                m_resultComponentName = fieldComponentNames[1];
+                // Complete string of selected formation is stored in m_resultFieldName
+                m_resultFieldName = m_resultVariableUiField();
+                m_resultComponentName = "";
+                m_isTimeLapseResult = false;
+                m_timeLapseBaseTimestep = 0;
             }
             else
             {
-                m_resultComponentName = "";
-            }
+                m_resultFieldName = fieldComponentNames[0];
+                if (fieldComponentNames.size() > 1)
+                {
+                    m_resultComponentName = fieldComponentNames[1];
+                }
+                else
+                {
+                    m_resultComponentName = "";
+                }
 
+                m_isTimeLapseResult = m_isTimeLapseResultUiField();
+                m_timeLapseBaseTimestep = m_timeLapseBaseTimestepUiField();
+            }
 
             if (m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress()))
             {
@@ -187,6 +258,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (dynamic_cast<RimGeoMechCellColors*>(this))
             {
+                this->updateLegendCategorySettings();
+
                 if (view)
                 {
                     RimViewLinker* viewLinker = view->assosiatedViewLinker();
@@ -199,7 +272,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (curve)
             {
-                curve->updatePlotData();
+                curve->loadDataAndUpdate();
             }
         }
     }
@@ -221,21 +294,23 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 std::map<std::string, std::vector<std::string> > RimGeoMechResultDefinition::getResultMetaDataForUIFieldSetting()
 {
     RimGeoMechCase* gmCase = m_geomCase;
+    std::map<std::string, std::vector<std::string> > fieldWithComponentNames;
     if (gmCase && gmCase->geoMechData())
     {
-        return gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
+        fieldWithComponentNames = gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(m_resultPositionTypeUiField());
     }
-    else
-    {
-        return std::map<std::string, std::vector<std::string> >() ;
-    }
+
+    return fieldWithComponentNames;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* uiNames, QStringList* variableNames, 
-    const std::map<std::string, std::vector<std::string> >&  fieldCompNames)
+void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* uiNames, 
+                                                                  QStringList* variableNames, 
+                                                                  const std::map<std::string, std::vector<std::string> >&  fieldCompNames,
+                                                                  bool isTimeLapseResultList,
+                                                                  int baseFrameIdx)
 {
     CVF_ASSERT(uiNames && variableNames);
 
@@ -246,7 +321,7 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
 
         if (resultFieldName == "E" || resultFieldName == "S" || resultFieldName == "POR") continue; // We will not show the native POR, Stress and Strain
 
-        QString resultFieldUiName = convertToUiResultFieldName(resultFieldName);
+        QString resultFieldUiName = convertToUiResultFieldName(resultFieldName, isTimeLapseResultList, baseFrameIdx);
 
         uiNames->push_back(resultFieldUiName);
         variableNames->push_back(resultFieldName);
@@ -255,7 +330,7 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
         for (compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
         {
             QString resultCompName = QString::fromStdString(*compIt);
-            uiNames->push_back("   " + convertToUIComponentName(resultCompName));
+            uiNames->push_back("   " + convertToUIComponentName(resultCompName, isTimeLapseResultList, baseFrameIdx));
             variableNames->push_back(composeFieldCompString(resultFieldName, resultCompName));
         }
     }
@@ -280,7 +355,8 @@ void RimGeoMechResultDefinition::initAfterRead()
 {
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
-
+    m_isTimeLapseResultUiField = m_isTimeLapseResult;
+    m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
 }
 
 
@@ -293,6 +369,18 @@ void RimGeoMechResultDefinition::loadResult()
     {
         m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFemResultAddress RimGeoMechResultDefinition::resultAddress()
+{
+    if(m_isTimeLapseResult) 
+        return RigFemResultAddress(resultPositionType(), resultFieldName().toStdString(), resultComponentName().toStdString(), m_timeLapseBaseTimestep);
+    else                     
+        return RigFemResultAddress(resultPositionType(), resultFieldName().toStdString(), resultComponentName().toStdString());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -317,7 +405,7 @@ bool RimGeoMechResultDefinition::hasResult()
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::resultFieldUiName()
 {
-    return convertToUiResultFieldName(m_resultFieldName());
+    return convertToUiResultFieldName(m_resultFieldName(), m_isTimeLapseResult, m_timeLapseBaseTimestep);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,27 +413,37 @@ QString RimGeoMechResultDefinition::resultFieldUiName()
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::resultComponentUiName()
 {
-    return convertToUIComponentName(m_resultComponentName());
+    return convertToUIComponentName(m_resultComponentName(), m_isTimeLapseResult, m_timeLapseBaseTimestep);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFieldName)
+QString RimGeoMechResultDefinition::convertToUiResultFieldName(QString resultFieldName,
+                                                               bool isTimeLapseResultList,
+                                                               int baseFrameIdx)
 {
-    if (resultFieldName == "E") return "NativeAbaqus Strain";
-    if (resultFieldName == "S") return "NativeAbaqus Stress";
-    if (resultFieldName == "NE") return "E"; // Make NE and NS appear as E and SE
-    if (resultFieldName == "POR-Bar") return "POR"; // POR-Bar appear as POR
+    QString newName (resultFieldName);
 
-    return resultFieldName;
+    if (resultFieldName == "E") newName = "NativeAbaqus Strain";
+    if (resultFieldName == "S") newName =  "NativeAbaqus Stress";
+    if (resultFieldName == "NE") newName =  "E"; // Make NE and NS appear as E and SE
+    if (resultFieldName == "POR-Bar") newName =  "POR"; // POR-Bar appear as POR
+
+    if (isTimeLapseResultList) newName += "_D" + QString::number(baseFrameIdx);
+
+    return newName;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::convertToUIComponentName(QString resultComponentName)
+QString RimGeoMechResultDefinition::convertToUIComponentName(QString resultComponentName,
+                                                             bool isTimeLapseResultList,
+                                                             int baseFrameIdx)
 {
+    if(isTimeLapseResultList) resultComponentName += "_D" + QString::number(baseFrameIdx);
+
     return resultComponentName;
 }
 
@@ -357,7 +455,12 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultPositionType    = resultAddress.resultPosType;
     m_resultFieldName       = QString::fromStdString(resultAddress.fieldName);
     m_resultComponentName   = QString::fromStdString(resultAddress.componentName);
+    m_isTimeLapseResult     = resultAddress.isTimeLapse();
+    
+    m_timeLapseBaseTimestep = m_isTimeLapseResult ? resultAddress.timeLapseBaseFrameIdx: 0;
 
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
+    m_isTimeLapseResultUiField = m_isTimeLapseResult;
+    m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
 }

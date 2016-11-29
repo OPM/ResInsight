@@ -10,13 +10,13 @@ namespace caf
 /// This method triggers PdmObject::fieldChangedByUi() and PdmObject::updateConnectedEditors(), an thus
 /// makes the application and the UI aware of the change.
 ///
-/// Note : If the field has optionValues the interface is _index-based_. The QVariant must contain 
+/// Note : If the field has m_optionEntryCache the interface is _index-based_. The QVariant must contain 
 ///        an UInt representing the index to the option selected by the user interface.
 /// 
 //--------------------------------------------------------------------------------------------------
 
 template<typename FieldType >
-void caf::PdmFieldUiCap<FieldType>::setValueFromUi(const QVariant& uiValue)
+void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue)
 {
     QVariant oldUiBasedQVariant = toUiBasedQVariant();
 
@@ -26,10 +26,14 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUi(const QVariant& uiValue)
         // This has an option based GUI, the uiValue is only indexes into the m_optionEntryCache
         if (uiValue.type() == QVariant::UInt)
         {
-            assert(uiValue.toUInt() < static_cast<unsigned int>(m_optionEntryCache.size()));
-            typename FieldType::FieldDataType value;
-            PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(m_optionEntryCache[uiValue.toUInt()].value, value);
-            m_field->setValue(value);
+            uint optionIndex = uiValue.toUInt();
+            assert(optionIndex < static_cast<unsigned int>(m_optionEntryCache.size()));
+
+            QVariant optionVariantValue = m_optionEntryCache[optionIndex].value;
+            
+            typename FieldType::FieldDataType fieldValue;
+            PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(optionVariantValue, fieldValue);
+            m_field->setValue(fieldValue);
         }
         else if (uiValue.type() == QVariant::List)
         {
@@ -98,7 +102,13 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUi(const QVariant& uiValue)
 //--------------------------------------------------------------------------------------------------
 /// Extracts a QVariant representation of the data in the field to be used in the UI. 
 /// 
-/// Note : For fields with a none-empty valueOptions list, the returned QVariant contains the 
+/// Note : You have to call valueOptions() before this method to make sure that the m_optionEntryCache is updated and valid !!!
+///        We should find a way to enforce this, but JJS and MSJ could not think of a way to catch the situation
+///        that would always be valid. Could invalidate cache when all editors are removed. That would help.
+///        It is not considered to be healthy to always call valueOptions() from this method either -> double calls to valueOptions() 
+///        The solution might actually be to merge the two ino one method, making uiValues and valueOptions directly connected.
+///
+/// Note : For fields with a none-empty m_optionEntryCache list, the returned QVariant contains the 
 ///        _indexes_ to the selected options rather than the actual values, if they can be found.
 ///
 ///        If this is a multivalue field, and we cant find all of the field values among the options, 
@@ -116,7 +126,14 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
         PdmOptionItemInfo::findValues<typename FieldType::FieldDataType>(m_optionEntryCache, uiBasedQVariant, indexesToFoundOptions);
         if (uiBasedQVariant.type() == QVariant::List)
         {
-            if (indexesToFoundOptions.size() == static_cast<size_t>(uiBasedQVariant.toList().size()))
+            if (isAutoAddingOptionFromValue() && indexesToFoundOptions.size() != static_cast<size_t>(uiBasedQVariant.toList().size())) 
+            {
+                assert(false); // Did not find all the field values among the options available, even though we should. 
+                               // Reasons might be:
+                               //    The "core" data type in the field is probably not supported by QVariant::toString() 
+                               //    You forgot to call valueOptions() before the call to uiValue().
+            }
+            else
             {
                 QList<QVariant> returnList;
                 for (size_t i = 0; i < indexesToFoundOptions.size(); ++i)
@@ -125,7 +142,6 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
                 }
                 return QVariant(returnList);
             }
-            assert(false); // Did not find all the field values among the options available.
         }
         else
         {
@@ -155,68 +171,71 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
 template<typename FieldType >
 QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOptionsOnly)
 {
-    // First check if the owner PdmObject has a value options specification. 
-    // if it has, use it.
+    m_optionEntryCache.clear();
+
+    // First check if the owner PdmObject has a value options specification. If it has, we use it.
     if (m_field->ownerObject())
     {
         m_optionEntryCache = uiObj(m_field->ownerObject())->calculateValueOptions(this->m_field, useOptionsOnly);
-        if (m_optionEntryCache.size())
+    }
+    
+    // If we got no options, use the options defined by the type. Normally only caf::AppEnum type
+
+    if(!m_optionEntryCache.size())
+    {
+        m_optionEntryCache = PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions(useOptionsOnly, m_field->value());
+    }
+
+    if(m_optionEntryCache.size() && isAutoAddingOptionFromValue())
+    {
+        // Make sure the options contain the field values, event though they not necessarily 
+        // is supplied as possible options by the application. This is a convenience making sure
+        // the actual data in the pdmObject is shown correctly in the UI, and to prevent accidental 
+        // changes of the field values
+
+        // Find the field value(s) in the list if present
+
+        QVariant uiBasedQVariant = toUiBasedQVariant();
+
+        std::vector<unsigned int> foundIndexes;
+        bool foundAllFieldValues = PdmOptionItemInfo::findValues<typename FieldType::FieldDataType>(m_optionEntryCache, uiBasedQVariant, foundIndexes);
+
+        // If not all are found, we have to add the missing to the list, to be able to show it
+        // This will only work if the field data type (or elemnt type for containers) is supported by QVariant.toString(). Custom classes don't
+
+        if( !foundAllFieldValues)
         {
-            // Make sure the options contain the field values, event though they not necessarily 
-            // is supplied as possible options by the application. This is a convenience making sure
-            // the actual data in the pdmObject is shown correctly in the UI, and to prevent accidental 
-            // changes of the field values
-
-            // Find the field value(s) in the list if present
-
-            QVariant uiBasedQVariant = toUiBasedQVariant();
-
-            std::vector<unsigned int> foundIndexes;
-            bool foundAllFieldValues = PdmOptionItemInfo::findValues<typename FieldType::FieldDataType>(m_optionEntryCache, uiBasedQVariant, foundIndexes);
-
-            // If not all are found, we have to add the missing to the list, to be able to show it
-
-            if (!foundAllFieldValues)
+            if(uiBasedQVariant.type() != QVariant::List)  // Single value field
             {
-                if (uiBasedQVariant.type() != QVariant::List)  // Single value field
+                if(!uiBasedQVariant.toString().isEmpty())
                 {
-                    if (!uiBasedQVariant.toString().isEmpty())
-                    {
-                        m_optionEntryCache.push_front(PdmOptionItemInfo(uiBasedQVariant.toString(), uiBasedQVariant, true, QIcon()));
-                    }
+                    m_optionEntryCache.push_front(PdmOptionItemInfo(uiBasedQVariant.toString(), uiBasedQVariant, true, QIcon()));
                 }
-                else // The field value is a list of values 
+            }
+            else // The field value is a list of values 
+            {
+                QList<QVariant> valuesSelectedInField = uiBasedQVariant.toList();
+                for(int i= 0 ; i < valuesSelectedInField.size(); ++i)
                 {
-                    QList<QVariant> valuesSelectedInField = uiBasedQVariant.toList();
-                    for (int i= 0 ; i < valuesSelectedInField.size(); ++i)
+                    bool isFound = false;
+                    for(unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(m_optionEntryCache.size()); ++opIdx)
                     {
-                        bool isFound = false;
-                        for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(m_optionEntryCache.size()); ++opIdx)
+                        if(PdmUiFieldSpecialization<typename FieldType::FieldDataType>::isDataElementEqual(valuesSelectedInField[i], m_optionEntryCache[opIdx].value))
                         {
-                            if (valuesSelectedInField[i] == m_optionEntryCache[opIdx].value) isFound = true;
+                            isFound = true;
                         }
+                    }
 
-                        if (!isFound && !valuesSelectedInField[i].toString().isEmpty())
-                        {
-                            m_optionEntryCache.push_front(PdmOptionItemInfo(valuesSelectedInField[i].toString(), valuesSelectedInField[i], true, QIcon()));
-                        }
+                    if(!isFound && !valuesSelectedInField[i].toString().isEmpty())
+                    {
+                        m_optionEntryCache.push_front(PdmOptionItemInfo(valuesSelectedInField[i].toString(), valuesSelectedInField[i], true, QIcon()));
                     }
                 }
             }
-
-            return m_optionEntryCache;
         }
     }
 
-    // If we have no options, use the options defined by the type. Normally only caf::AppEnum type
-
-#if 0
-    m_optionEntryCache = PdmFieldTypeSpecialization<typename FieldType::FieldDataType>::valueOptions(useOptionsOnly, m_fieldValue);
     return m_optionEntryCache;
-#else
-    return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions(useOptionsOnly, m_field->value());
-#endif
-
 }
 
 //--------------------------------------------------------------------------------------------------

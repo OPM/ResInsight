@@ -38,6 +38,7 @@ class RimViewLinkerCollection;
 class RimMainPlotCollection;
 class RimOilField;
 class RimScriptCollection;
+class RimSummaryCase;
 class RimView;
 class RimWellPathImport;
 
@@ -68,9 +69,12 @@ public:
     caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>        viewLinkerCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
-    caf::PdmField<QString>                              treeViewState;
-    caf::PdmField<QString>                              currentModelIndexPath;
+    
+    caf::PdmField<QString>                              mainWindowTreeViewState;
+    caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;
 
+    caf::PdmField<QString>                              plotWindowTreeViewState;
+    caf::PdmField<QString>                              plotWindowCurrentModelIndexPath;
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
@@ -82,6 +86,7 @@ public:
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
     void            allCases(std::vector<RimCase*>& cases);
+    void            allSummaryCases(std::vector<RimSummaryCase*>& sumCases);
     void            allNotLinkedViews(std::vector<RimView*>& views);
     void            allVisibleViews(std::vector<RimView*>& views);
 
@@ -92,6 +97,9 @@ public:
     RimOilField*    activeOilField();
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
+
+    bool            show3DWindow() const;
+    bool            showPlotWindow() const;
 
 protected:
     // Overridden methods
@@ -105,11 +113,14 @@ private:
     void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
 
 private:
-    caf::PdmField<QString>      m_projectFileVersionString;
+    caf::PdmField<QString>  m_projectFileVersionString;
+
+    caf::PdmField<bool>     m_show3DWindow;
+    caf::PdmField<bool>     m_showPlotWindow;
 
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
     caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
 
-    caf::PdmChildArrayField<RimEclipseCase*>                     casesObsolete; // obsolete
-    caf::PdmChildArrayField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
+    caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
+    caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
 };

@@ -38,10 +38,14 @@
 #endif
 
 #include "cafPdmValueField.h"
+
 #include "cafInternalPdmValueFieldSpecializations.h"
+#include "cafPdmUiFieldHandleInterface.h"
+
+#include <QVariant>
 
 #include <vector>
-#include <QVariant>
+#include <assert.h>
 
 
 namespace caf 
@@ -66,18 +70,19 @@ public:
 
     // Assignment 
 
-    PdmDataValueField&  operator= (const PdmDataValueField& other)      {  m_fieldValue = other.m_fieldValue; return *this; }
-    PdmDataValueField&  operator= (const DataType& fieldValue)          {  m_fieldValue = fieldValue; return *this; }
+    PdmDataValueField&  operator= (const PdmDataValueField& other)      {  assert(isInitializedByInitFieldMacro()); m_fieldValue = other.m_fieldValue; return *this; }
+    PdmDataValueField&  operator= (const DataType& fieldValue)          {  assert(isInitializedByInitFieldMacro()); m_fieldValue = fieldValue; return *this; }
 
     // Basic access 
 
     DataType            value() const                                   { return m_fieldValue;  }
-    void                setValue(const DataType& fieldValue)            { m_fieldValue = fieldValue; }
+    void                setValue(const DataType& fieldValue)            { assert(isInitializedByInitFieldMacro()); m_fieldValue = fieldValue; }
+    void                setValueWithFieldChanged(const DataType& fieldValue);
 
     // Implementation of PdmValueField interface
 
-    virtual QVariant    toQVariant() const                              { return PdmValueFieldSpecialization<DataType>::convert(m_fieldValue); }
-    virtual void        setFromQVariant(const QVariant& variant)        { PdmValueFieldSpecialization<DataType>::setFromVariant(variant, m_fieldValue);   }
+    virtual QVariant    toQVariant() const                              { assert(isInitializedByInitFieldMacro()); return PdmValueFieldSpecialization<DataType>::convert(m_fieldValue); }
+    virtual void        setFromQVariant(const QVariant& variant)        { assert(isInitializedByInitFieldMacro()); PdmValueFieldSpecialization<DataType>::setFromVariant(variant, m_fieldValue);   }
     virtual bool        isReadOnly() const                              { return false;  }
 
     // Access operators
@@ -104,5 +109,31 @@ protected:
     DataType            m_defaultFieldValue;
 
 };
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+void caf::PdmDataValueField<DataType>::setValueWithFieldChanged(const DataType& fieldValue)
+{
+    assert(isInitializedByInitFieldMacro());
+
+    PdmUiFieldHandleInterface* uiFieldHandleInterface = capability<PdmUiFieldHandleInterface>();
+    if (uiFieldHandleInterface)
+    {
+        QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();
+
+        m_fieldValue = fieldValue;
+
+        QVariant newUiBasedQVariant = uiFieldHandleInterface->toUiBasedQVariant();
+
+        uiFieldHandleInterface->notifyFieldChanged(oldValue, newUiBasedQVariant);
+    }
+    else
+    {
+        m_fieldValue = fieldValue;
+    }
+}
 
 } // End of namespace caf

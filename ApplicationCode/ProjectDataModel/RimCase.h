@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "cafPdmPtrField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -28,6 +29,7 @@
 #include <vector>
 
 class RimView;
+class RimFormationNames;
 
 namespace cvf {
     class BoundingBox;
@@ -40,14 +42,14 @@ public:
     RimCase();
     virtual ~RimCase();
     
+    caf::PdmField<int>                          caseId;
     caf::PdmField<QString>                      caseUserDescription;
 
-    caf::PdmField<int>                          caseId;
+    caf::PdmPtrField<RimFormationNames*>        activeFormationNames;
+
     virtual std::vector<RimView*>               views() = 0;
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
-
-    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
 
     virtual QStringList                         timeStepStrings() = 0;
     virtual QString                             timeStepName(int frameIdx) = 0;
@@ -57,10 +59,11 @@ public:
 
     virtual cvf::Vec3d                          displayModelOffset() const;
 
-protected:
-    static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
-                                                             bool* foundFile, std::vector<QString>* searchedPaths);
+    virtual void                                updateFormationNamesData() = 0;
+
 private:
+    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 };
 
 

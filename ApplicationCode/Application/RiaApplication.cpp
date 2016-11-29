@@ -47,6 +47,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -57,6 +58,12 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
@@ -64,10 +71,20 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
+#include "RiuRecentFileActionProvider.h"
 #include "RiuSelectionManager.h"
+#include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
+#include "RiuWellLogPlot.h"
+
+#include "RicImportSummaryCaseFeature.h"
+#include "RicSnapshotViewToClipboardFeature.h"
+#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+
+#include "cafFixedAtlasFont.h"
 
 #include "cafAppEnum.h"
 #include "cafCeetronPlusNavigation.h"
@@ -79,12 +96,10 @@
 #include "cafProgressInfo.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
-#include "cvfFixedAtlasFont.h"
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
-#include <QClipboard>
-#include <QDebug>
+#include <QAction>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
@@ -179,14 +194,19 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_startupDefaultDirectory = QDir::currentPath();
 #endif
 
-    setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
+    setLastUsedDialogDirectory("MULTICASEIMPORT", "/");
 
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
-    m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
+    m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
+
     m_resViewUpdateTimer = NULL;
 
     m_runningRegressionTests = false;
+
+    m_mainPlotWindow = NULL;
+
+    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 }
 
 
@@ -195,6 +215,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 RiaApplication::~RiaApplication()
 {
+    deleteMainPlotWindow();
+
     delete m_preferences;
 }
 
@@ -308,7 +330,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 {
     // First Close the current project
 
-    if (!closeProject(true)) return false;
+    closeProject();
 
     // Open the project file and read the serialized data. 
     // Will initialize itself.
@@ -318,7 +340,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     m_project->fileName = projectFileName;
     m_project->readFile();
 
-    // Apply any modifiactions to the loaded project before we go ahead and load actual data
+    // Apply any modifications to the loaded project before we go ahead and load actual data
     if (projectModifier)
     {
         projectModifier->applyModificationsToProject(m_project);
@@ -332,7 +354,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     if (m_project->projectFileVersionString().isEmpty())
     {
-        closeProject(false);
+        closeProject();
 
         QString tmp = QString("Unknown project file version detected in file \n%1\n\nCould not open project.").arg(projectFileName);
         QMessageBox::warning(NULL, "Error when opening project file", tmp);
@@ -348,6 +370,33 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
         return true;
     }
+
+    if (m_project->show3DWindow())
+    {
+        RiuMainWindow::instance()->show();
+    }
+    else
+    {
+        RiuMainWindow::instance()->hide();
+    }
+
+    if (m_project->showPlotWindow())
+    {
+        if (!m_mainPlotWindow)
+        {
+            createMainPlotWindow();
+        }
+        else
+        {
+            m_mainPlotWindow->show();
+            m_mainPlotWindow->raise();
+        }
+    }
+    else if (mainPlotWindow())
+    {
+        mainPlotWindow()->hide();
+    }
+
 
     ///////
     // Load the external data, and initialize stuff that needs specific ordering
@@ -371,6 +420,18 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
     }
 
+    // Load the formation names
+
+    for(RimOilField* oilField: m_project->oilFields)
+    {
+        if (oilField == NULL) continue; 
+        if(oilField->formationNamesCollection() != NULL)
+        {
+            oilField->formationNamesCollection()->readAllFormationNames();
+        }
+    }
+
+
     // Add well paths for each oil field
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
@@ -385,6 +446,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
+    for (RimOilField* oilField:  m_project->oilFields)
+    {
+        if (oilField == NULL) continue; 
+        // Temporary
+        if(!oilField->summaryCaseCollection())
+        {
+            oilField->summaryCaseCollection = new RimSummaryCaseCollection();
+        }
+        oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
+        oilField->summaryCaseCollection()->loadAllSummaryCaseData();
+    }
 
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
@@ -443,19 +515,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
     }
 
-    {
-        if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
-        {
-            RimWellLogPlotCollection* wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-            caf::ProgressInfo plotProgress(wlpColl->wellLogPlots().size(), "Loading Plot Data");
+    loadAndUpdatePlotData();
 
-            for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
-            {
-                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-    }
     // NB! This function must be called before executing command objects, 
     // because the tree view state is restored from project file and sets
     // current active view ( see restoreTreeViewState() )
@@ -478,7 +539,6 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     return true;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -487,6 +547,45 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     return loadProject(projectFileName, PLA_NONE, NULL);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::loadAndUpdatePlotData()
+{
+    RimWellLogPlotCollection* wlpColl = nullptr;
+    RimSummaryPlotCollection* spColl = nullptr;
+
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
+    {
+        wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+    }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->summaryPlotCollection())
+    {
+        spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+    }
+    size_t plotCount = 0;
+    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
+    plotCount += spColl ? spColl->m_summaryPlots().size() : 0;
+
+    caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
+    if (wlpColl)
+    {
+        for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
+        {
+            wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+
+    if (spColl)
+    {
+        for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
+        {
+            spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
@@ -568,7 +667,7 @@ bool RiaApplication::saveProjectPromptForFileName()
     }
     else
     {
-        startPath = app->defaultFileDialogDirectory("BINARY_GRID");
+        startPath = app->lastUsedDialogDirectory("BINARY_GRID");
         startPath += "/ResInsightProject.rsp";
     }
 
@@ -579,7 +678,7 @@ bool RiaApplication::saveProjectPromptForFileName()
     }
 
     // Remember the directory to next time
-    app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
+    app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
 
     bool bSaveOk = saveProjectAs(fileName);
 
@@ -606,8 +705,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_preferences->lastUsedProjectFileName = fileName;
     caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    mainWnd->addRecentFiles(fileName);
+    m_recentFileActionProvider->addFileName(fileName);
 
     return true;
 }
@@ -616,7 +714,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::closeProject(bool askToSaveIfDirty)
+void RiaApplication::closeProject()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
@@ -624,29 +722,14 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     terminateProcess();
 
-    if (false)
-    {
-        QMessageBox msgBox(mainWnd);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText("The project being closed has been modified.");
-        msgBox.setInformativeText("Do you want to save your changes?");
-        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        //msgBox.setDefaultButton(QMessageBox::Save);
-
-        int ret = msgBox.exec();
-        if (ret == QMessageBox::Save)
-        {
-            //m_sceneManager->saveAll();
-        }
-        else if (ret == QMessageBox::Cancel)
-        {
-            return false;
-        }
-    }
-
     RiuSelectionManager::instance()->deleteAllItems();
 
     mainWnd->cleanupGuiBeforeProjectClose();
+
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->cleanupGuiBeforeProjectClose();
+    }
 
     caf::EffectGenerator::clearEffectCache();
     m_project->close();
@@ -657,8 +740,6 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     // Make sure all project windows are closed down properly before returning
     processEvents();
-
-    return true;    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -667,24 +748,37 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 void RiaApplication::onProjectOpenedOrClosed()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    mainWnd->initializeGuiNewProjectLoaded();
-    //mainWnd->redrawAllViews();
+    if (mainWnd)
+    {
+        mainWnd->initializeGuiNewProjectLoaded();
+    }
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->initializeGuiNewProjectLoaded();
+    }
 
     setWindowCaptionFromAppState();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::currentProjectFileName() const
+QString RiaApplication::currentProjectPath() const
 {
-    return m_project->fileName();
+    QString projectFolder;
+    if (m_project)
+    {
+        QString projectFileName = m_project->fileName();
+
+        if (!projectFileName.isEmpty())
+        {
+            QFileInfo fi(projectFileName);
+            projectFolder = fi.absolutePath();
+        }
+    }
+
+    return projectFolder;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// Create an absolute path from a path that is specified relative to the project directory
@@ -737,6 +831,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
 
+    RiuMainWindow::instance()->show();
+
     analysisModels->cases.push_back(rimResultReservoir);
 
     RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
@@ -752,11 +848,88 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     riv->loadDataAndUpdate();
 
+    // Add a corresponding summary case if it exists
+    {
+        RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
+        if(sumCaseColl)
+        {
+            if (sumCaseColl->summaryCaseCount() == 0 && m_mainPlotWindow)
+            {
+                m_mainPlotWindow->hide();
+            }
+
+            if (!sumCaseColl->findSummaryCaseFromEclipseResultCase(rimResultReservoir))
+            {
+                RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
+
+                if (newSumCase)
+                {
+                    newSumCase->loadCase();
+
+                    RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
+                    if (existingFileSummaryCase)
+                    {
+                        // Replace all occurrences of file sum with ecl sum
+
+                        std::vector<caf::PdmObjectHandle*> referringObjects;
+                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
+
+                        std::set<RimSummaryCurveFilter*> curveFilters;
+
+                        for (caf::PdmObjectHandle* objHandle : referringObjects)
+                        {
+                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
+                            if (summaryCurve)
+                            {
+                                summaryCurve->setSummaryCase(newSumCase);
+                                summaryCurve->updateConnectedEditors();
+
+                                RimSummaryCurveFilter* parentFilter = nullptr;
+                                summaryCurve->firstAncestorOrThisOfType(parentFilter);
+                                if (parentFilter)
+                                {
+                                    curveFilters.insert(parentFilter);
+                                }
+                            }
+                        }
+
+                        // UI settings of a curve filter is updated based
+                        // on the new case association for the curves in the curve filter
+                        // UI is updated by loadDataAndUpdate()
+
+                        for (RimSummaryCurveFilter* curveFilter : curveFilters)
+                        {
+                            curveFilter->loadDataAndUpdate();
+                            curveFilter->updateConnectedEditors();
+                        }
+
+                        sumCaseColl->deleteCase(existingFileSummaryCase);
+
+                        delete existingFileSummaryCase;
+
+                    }
+                    else
+                    {
+                        if (m_preferences->autoCreatePlotsOnImport())
+                        {
+                            RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+                            RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+                
+                            RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+                        }
+                    }
+
+                    sumCaseColl->updateConnectedEditors();
+                }
+            }
+        }
+    }
+
     if (!riv->cellResult()->hasResult())
     {
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
-
+    
     analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
@@ -796,6 +969,11 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
     analysisModels->updateConnectedEditors();
 
     RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
+
+    if (fileNames.size() == 1)
+    {
+        addToRecentFiles(fileNames[0]);
+    }
 
     return true;
 }
@@ -933,6 +1111,22 @@ RimWellLogPlot* RiaApplication::activeWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::setActiveSummaryPlot(RimSummaryPlot* sp)
+{
+    m_activeSummaryPlot = sp;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RiaApplication::activeSummaryPlot()
+{
+    return m_activeSummaryPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
@@ -991,16 +1185,16 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension.)", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("savesnapshots",             "",                                 "Save snapshot of all views to 'snapshots' folder. Application closes after snapshots have been written.");
+    progOpt.registerOption("savesnapshots",             "all|views|plots",                  "Save snapshot of all views or plots to project file location sub folder 'snapshots'. Option 'all' will include both views and plots. Application closes after snapshots have been written.", cvf::ProgramOptions::OPTIONAL_MULTI_VALUE);
     progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
+    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
     progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("help",                      "",                                 "Displays help text.");
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
-    progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("unittest",                  "",                                 "Execute unit tests");
+    progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("unittest",                  "",                                 "System command");
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
@@ -1088,6 +1282,9 @@ bool RiaApplication::parseArguments()
             QString gridListFile = cvfqt::Utils::toQString(o.safeValue(0));
             std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
+
+            closeProject();
+
             return false;
         }
     }
@@ -1102,16 +1299,26 @@ bool RiaApplication::parseArguments()
         {
             if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
 
-            const int caseId = o.safeValue(0).toInt(-1);
-            if (caseId != -1 && o.valueCount() > 1)
+            if (o.valueCount() == 1)
             {
-                QString gridFileName = cvfqt::Utils::toQString(o.value(1));
-                projectModifier->setReplaceCase(caseId, gridFileName);
+                // One argument is available, use replace case for first occurrence in the project
+
+                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
+                projectModifier->setReplaceCaseFirstOccurrence(gridFileName);
             }
             else
             {
-                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
-                projectModifier->setReplaceCaseFirstOccurence(gridFileName);
+                size_t optionIdx = 0;
+                while (optionIdx < o.valueCount())
+                {
+                    const int caseId = o.safeValue(optionIdx++).toInt(-1);
+                    QString gridFileName = cvfqt::Utils::toQString(o.safeValue(optionIdx++));
+
+                    if (caseId != -1 && !gridFileName.isEmpty())
+                    {
+                        projectModifier->setReplaceCase(caseId, gridFileName);
+                    }
+                }
             }
         }
 
@@ -1119,16 +1326,26 @@ bool RiaApplication::parseArguments()
         {
             if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
 
-            const int caseGroupId = o.safeValue(0).toInt(-1);
-            if (caseGroupId != -1 &&  o.valueCount() > 1)
+            if (o.valueCount() == 1)
             {
-                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.value(1)));
-                projectModifier->setReplaceSourceCasesById(caseGroupId, gridFileNames);
+                // One argument is available, use replace case for first occurrence in the project
+
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
+                projectModifier->setReplaceSourceCasesFirstOccurrence(gridFileNames);
             }
             else
             {
-                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
-                projectModifier->setReplaceSourceCasesFirstOccurence(gridFileNames);
+                size_t optionIdx = 0;
+                while (optionIdx < o.valueCount())
+                {
+                    const int groupId = o.safeValue(optionIdx++).toInt(-1);
+                    std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(optionIdx++)));
+
+                    if (groupId != -1 && gridFileNames.size() > 0)
+                    {
+                        projectModifier->setReplaceSourceCasesById(groupId, gridFileNames);
+                    }
+                }
             }
 
             projectLoadAction = PLA_CALCULATE_STATISTICS;
@@ -1161,17 +1378,65 @@ bool RiaApplication::parseArguments()
     }
 
 
-    if (progOpt.hasOption("savesnapshots"))
+    if (cvf::Option o = progOpt.option("savesnapshots"))
     {
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        if (m_project.notNull() && !m_project->fileName().isEmpty() && mainWnd)
+        bool snapshotViews = false;
+        bool snapshotPlots = false;
+
+        QStringList snapshotItemTexts = cvfqt::Utils::toQStringList(o.values());
+        if (snapshotItemTexts.size() == 0)
         {
-            mainWnd->hideAllDockWindows();
+            // No options will keep backwards compability before we introduced snapshot of plots
+            snapshotViews = true;
+        }
 
-            // Will be saved relative to current directory
-            saveSnapshotForAllViews("snapshots");
+        for (QString s : snapshotItemTexts)
+        {
+            if (s.toLower() == "all")
+            {
+                snapshotViews = true;
+                snapshotPlots = true;
+            }
+            else if (s.toLower() == "views")
+            {
+                snapshotViews = true;
+            }
+            else if (s.toLower() == "plots")
+            {
+                snapshotPlots = true;
+            }
+        }
 
-            mainWnd->loadWinGeoAndDockToolBarLayout();
+        if (m_project.notNull() && !m_project->fileName().isEmpty())
+        {
+            if (snapshotViews)
+            {
+                RiuMainWindow* mainWnd = RiuMainWindow::instance();
+                CVF_ASSERT(mainWnd);
+                mainWnd->hideAllDockWindows();
+
+                // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder 
+                // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
+                QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath("snapshots");
+                saveSnapshotForAllViews(absolutePathToSnapshotDir);
+
+                mainWnd->loadWinGeoAndDockToolBarLayout();
+            }
+
+            if (snapshotPlots)
+            {
+                if (m_mainPlotWindow)
+                {
+                    m_mainPlotWindow->hideAllDockWindows();
+
+                    // Will be saved relative to current directory
+                    RicSnapshotAllPlotsToFileFeature::saveAllPlots();
+
+                    m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
+                }
+            }
+            
+            closeProject();
         }
 
         // Returning false will exit the application
@@ -1216,39 +1481,10 @@ int RiaApplication::launchUnitTestsWithConsole()
         // Only one console can be associated with an app, so should fail if a console is already present.
         AllocConsole();
 
-        bool redirStdOut = true;
-        bool redirStdErr = true;
-        bool redirStdIn = false;
+        FILE* consoleFilePointer;
 
-        if (redirStdOut)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "w");
-
-            *stdout = *fp;
-            setvbuf(stdout, NULL, _IONBF, 0);
-        }
-
-        if (redirStdErr)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_ERROR_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "w");
-
-            *stderr = *fp;
-            setvbuf(stderr, NULL, _IONBF, 0);
-        }
-
-        if (redirStdIn)
-        {
-            HANDLE stdHandle = GetStdHandle(STD_INPUT_HANDLE);
-            int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
-            FILE* fp = _fdopen(fileDescriptor, "r");
-
-            *stdin = *fp;
-            setvbuf(stdin, NULL, _IONBF, 0);
-        }
+        freopen_s(&consoleFilePointer, "CONOUT$", "w", stdout);
+        freopen_s(&consoleFilePointer, "CONOUT$", "w", stderr);
 
         // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
         std::ios::sync_with_stdio();
@@ -1256,6 +1492,156 @@ int RiaApplication::launchUnitTestsWithConsole()
 #endif
 
     return launchUnitTests();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::createMainPlotWindow()
+{
+    CVF_ASSERT(m_mainPlotWindow == NULL);
+
+    m_mainPlotWindow = new RiuMainPlotWindow;
+
+    m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
+    m_mainPlotWindow->setDefaultWindowSize();
+    m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
+    m_mainPlotWindow->showWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::deleteMainPlotWindow()
+{
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->deleteLater();
+        m_mainPlotWindow = NULL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
+{
+    if (!m_mainPlotWindow)
+    {
+        createMainPlotWindow();
+        loadAndUpdatePlotData();
+    }
+
+    if (m_mainPlotWindow->isMinimized())
+    {
+        m_mainPlotWindow->showNormal();
+        m_mainPlotWindow->update();
+    }
+    else
+    {
+        m_mainPlotWindow->show();
+    }
+
+    m_mainPlotWindow->raise();
+
+    return m_mainPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMainPlotWindow* RiaApplication::mainPlotWindow()
+{
+    return m_mainPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiaApplication::activeViewWindow()
+{
+    RimViewWindow* viewWindow = NULL;
+
+    QWidget* topLevelWidget = RiaApplication::activeWindow();
+
+    if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
+    {
+        viewWindow = RiaApplication::instance()->activeReservoirView();
+    }
+
+    if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
+    {
+        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+        QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
+        if (subwindows.size() > 0)
+        {
+            RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
+            if (summaryQwtPlot)
+            {
+                viewWindow = summaryQwtPlot->ownerPlotDefinition();
+            }
+
+            RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
+            if (wellLogPlot)
+            {
+                viewWindow = wellLogPlot->ownerPlotDefinition();
+            }
+        }
+    }
+
+    return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::tryCloseMainWindow()
+{
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    if (mainWindow && !mainWindow->isVisible())
+    {
+        mainWindow->close();
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::tryClosePlotWindow()
+{
+    if (!m_mainPlotWindow)
+    {
+        return true;
+    }
+
+    if (m_mainPlotWindow && !m_mainPlotWindow->isVisible())
+    {
+        m_mainPlotWindow->close();
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addToRecentFiles(const QString& fileName)
+{
+    m_recentFileActionProvider->addFileName(fileName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QAction*> RiaApplication::recentFileActions() const
+{
+    return m_recentFileActionProvider->actions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1286,7 +1672,6 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
 
     return fileList;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1506,10 +1891,47 @@ void RiaApplication::applyPreferences()
         RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
+    caf::FixedAtlasFont::FontSize fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
+    if (m_preferences->fontSizeInScene() == "8")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_8;
+    }
+    else if (m_preferences->fontSizeInScene() == "12")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_12;
+    }
+    else if (m_preferences->fontSizeInScene() == "16")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
+    }
+    else if (m_preferences->fontSizeInScene() == "24")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_24;
+    }
+    else if (m_preferences->fontSizeInScene() == "32")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_32;
+    }
+    
+    m_customFont = new caf::FixedAtlasFont(fontSizeType);
+
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         this->project()->updateConnectedEditors();
+
+        std::vector<RimView*> visibleViews;
+        this->project()->allVisibleViews(visibleViews);
+
+        for (auto view : visibleViews)
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+            if (eclipseView)
+            {
+                eclipseView->scheduleReservoirGridGeometryRegen();
+            }
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 
@@ -1529,92 +1951,93 @@ void RiaApplication::terminateProcess()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::defaultFileDialogDirectory(const QString& dialogName)
+QString RiaApplication::lastUsedDialogDirectory(const QString& dialogName)
 {
-    QString defaultDirectory = m_startupDefaultDirectory;
-    std::map<QString, QString>::iterator it;
-    it = m_fileDialogDefaultDirectories.find(dialogName);
-    
-    if ( it != m_fileDialogDefaultDirectories.end())
+    QString lastUsedDirectory = m_startupDefaultDirectory;
+
+    auto it = m_fileDialogDefaultDirectories.find(dialogName);
+    if (it != m_fileDialogDefaultDirectories.end())
     {
-        defaultDirectory = it->second;
+        lastUsedDirectory = it->second;
     }
 
-    return defaultDirectory;
+    return lastUsedDirectory;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory)
+QString RiaApplication::lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory)
 {
-    m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
+    QString lastUsedDirectory = m_startupDefaultDirectory;
+    if (!fallbackDirectory.isEmpty())
+    {
+        lastUsedDirectory = fallbackDirectory;
+    }
+
+    auto it = m_fileDialogDefaultDirectories.find(dialogName);
+    if (it != m_fileDialogDefaultDirectories.end())
+    {
+        lastUsedDirectory = it->second;
+    }
+
+    return lastUsedDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const QString& directory)
+{
+    m_fileDialogDefaultDirectories[dialogName] = directory;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::saveSnapshotPromtpForFilename()
+bool RiaApplication::openFile(const QString& fileName)
 {
-    QString startPath;
-    if (!m_project->fileName().isEmpty())
+    if (!QFile::exists(fileName)) return false;
+
+    bool loadingSucceded = false;
+
+    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
     {
-        QFileInfo fi(m_project->fileName());
-        startPath = fi.absolutePath();
+        loadingSucceded = loadProject(fileName);
     }
-    else
+    else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
     {
-        startPath = defaultFileDialogDirectory("IMAGE_SNAPSHOT");
+        loadingSucceded = openEclipseCaseFromFile(fileName);
     }
-
-    startPath += "/image.png";
-
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
-    if (fileName.isEmpty())
+    else if (fileName.contains(".grdecl", Qt::CaseInsensitive))
     {
-        return;
+        loadingSucceded = openInputEclipseCaseFromFileNames(QStringList(fileName));
     }
-
-    // Remember the directory to next time
-    setDefaultFileDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
-
-    saveSnapshotAs(fileName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::saveSnapshotAs(const QString& fileName)
-{
-    QImage image = grabFrameBufferImage();
-    if (!image.isNull())
+    else if (fileName.contains(".odb", Qt::CaseInsensitive))
     {
-        if (image.save(fileName))
+        loadingSucceded = openOdbCaseFromFile(fileName);
+    }
+    else if (fileName.contains(".smspec", Qt::CaseInsensitive))
+    {
+        loadingSucceded = RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(fileName);
+        if (loadingSucceded)
         {
-            qDebug() << "Saved snapshot image to " << fileName;
+            getOrCreateAndShowMainPlotWindow();
+
+            std::vector<RimCase*> cases;
+            m_project->allCases(cases);
+
+            if (cases.size() == 0)
+            {
+                RiuMainWindow::instance()->close();
+            }
+
+            m_project->updateConnectedEditors();
         }
-        else
-        {
-            qDebug() << "Error when trying to save snapshot image to " << fileName;
-        }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::copySnapshotToClipboard()
-{
-        QClipboard* clipboard = QApplication::clipboard();
-        if (clipboard)
-        {
-        QImage image = grabFrameBufferImage();
-        if (!image.isNull())
-        {
-            clipboard->setImage(image);
-        }
-    }
+    return loadingSucceded;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1626,7 +2049,6 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     if (!mainWnd) return;
 
     if (m_project.isNull()) return;
-
 
     QDir snapshotPath(snapshotFolderName);
     if (!snapshotPath.exists())
@@ -1667,12 +2089,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 fileName.replace(" ", "_");
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-                saveSnapshotAs(absoluteFileName);
+                
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
             }
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1690,7 +2112,7 @@ void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileNam
         QString gridFn = gridFileNames[i];
 
         RiaProjectModifier modifier;
-        modifier.setReplaceCaseFirstOccurence(gridFn);
+        modifier.setReplaceCaseFirstOccurrence(gridFn);
 
         bool loadOk = loadProject(templateProjectFileName, PLA_NONE, &modifier);
         if (loadOk)
@@ -1702,7 +2124,9 @@ void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileNam
     mainWnd->loadWinGeoAndDockToolBarLayout();
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void removeDirectoryWithContent(QDir dirToDelete )
 {
     QStringList files = dirToDelete.entryList();
@@ -1712,7 +2136,6 @@ void removeDirectoryWithContent(QDir dirToDelete )
     }
     dirToDelete.rmdir(".");
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1825,7 +2248,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
                  }
              }
 
-             closeProject(false);
+             closeProject();
         }
     }
 
@@ -1977,23 +2400,11 @@ cvf::Font* RiaApplication::standardFont()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QImage RiaApplication::grabFrameBufferImage()
+cvf::Font* RiaApplication::customFont()
 {
-    QImage image;
-    if (m_activeReservoirView && m_activeReservoirView->viewer())
-    {
-        m_activeReservoirView->viewer()->repaint();
+    CVF_ASSERT(m_customFont.notNull());
 
-        GLint currentReadBuffer;
-        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
-
-        glReadBuffer(GL_FRONT);
-        image = m_activeReservoirView->viewer()->grabFrameBuffer();
-
-        glReadBuffer(currentReadBuffer);
-    }
-
-    return image;
+    return m_customFont.p();
 }
 
 //--------------------------------------------------------------------------------------------------

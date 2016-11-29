@@ -22,8 +22,12 @@
 
 #include <QString>
 
+#include <vector>
+
 class RimTools
 {
 public:
     static QString getCacheRootDirectoryPathFromProject();
+
+    static QString relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, bool* foundFile, std::vector<QString>* searchedPaths);
 };

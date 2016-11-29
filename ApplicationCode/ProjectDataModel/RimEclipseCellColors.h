@@ -21,7 +21,6 @@
 #pragma once
 
 #include "RimDefines.h"
-#include "RimLegendConfig.h"
 #include "RimEclipseResultDefinition.h"
 
 #include "cafPdmChildArrayField.h"
@@ -29,6 +28,7 @@
 #include "cafPdmPtrField.h"
 
 class RimTernaryLegendConfig;
+class RimLegendConfig;
 
 //==================================================================================================
 ///  
@@ -51,11 +51,15 @@ public:
     
     void                                        updateIconState();
 
+    virtual void                                updateLegendCategorySettings() override;
+
 protected:
     // Overridden methods
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     friend class RimEclipseFaultColors;
+    friend class RimCellEdgeColors;
     virtual void                                initAfterRead();
 
 private:

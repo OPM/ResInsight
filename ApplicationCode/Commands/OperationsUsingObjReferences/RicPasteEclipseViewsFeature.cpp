@@ -115,6 +115,8 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
 void RicPasteEclipseViewsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste (Eclipse Views)");
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 

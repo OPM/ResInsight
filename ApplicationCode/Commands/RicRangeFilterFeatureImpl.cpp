@@ -38,7 +38,7 @@ bool RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable()
     if (!rangeFilterCollection) return false;
 
     RimView* view;
-    rangeFilterCollection->firstAnchestorOrThisOfType(view);
+    rangeFilterCollection->firstAncestorOrThisOfType(view);
     if (view)
     {
        RimViewController* vc = view->viewController();    
@@ -80,7 +80,7 @@ RimCellRangeFilterCollection* RicRangeFilterFeatureImpl::findRangeFilterCollecti
     }
     else if (selectedRangeFilter.size() > 0)
     {
-        selectedRangeFilter[0]->firstAnchestorOrThisOfType(rangeFilterCollection);
+        selectedRangeFilter[0]->firstAncestorOrThisOfType(rangeFilterCollection);
     }
 
     assert(rangeFilterCollection);

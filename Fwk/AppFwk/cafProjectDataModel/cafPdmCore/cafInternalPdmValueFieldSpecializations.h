@@ -1,8 +1,10 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmPointer.h"
 
 #include <vector>
+#include <assert.h>
 
 #include <QVariant>
 
@@ -39,9 +41,10 @@ public:
     /// Check equality between QVariants that carries a Field Value. 
     /// The == operator will normally work, but does not support custom types in the QVariant 
     /// See http://qt-project.org/doc/qt-4.8/qvariant.html#operator-eq-eq-64
+    /// Using the == between the real types is more safe.
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return variantValue == variantValue2;
+        return variantValue.value<T>() == variantValue2.value<T>();
     }
 };
 
@@ -70,6 +73,31 @@ public:
     }
 };
 
+
+//==================================================================================================
+/// Partial specialization for caf::PdmPointer<T>
+/// Used internally to avoid havning to declare everything Q_DECLARE_METATYPE()
+/// User must use PdmPtrField or PdmChildField
+//==================================================================================================
+template <typename T>
+class PdmValueFieldSpecialization<PdmPointer<T> >
+{
+public:
+    static QVariant convert(const PdmPointer<T>& value)
+    {
+        return QVariant::fromValue(PdmPointer<PdmObjectHandle>(value.rawPtr()));
+    }
+
+    static void setFromVariant(const QVariant& variantValue, caf::PdmPointer<T>& value)
+    {
+        value.setRawPtr(variantValue.value<PdmPointer<PdmObjectHandle> >().rawPtr());
+    }
+
+    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    {
+        return variantValue.value<PdmPointer<PdmObjectHandle> >() == variantValue2.value<PdmPointer<PdmObjectHandle> >() ;
+    }
+};
 
 //==================================================================================================
 /// Partial specialization for std::vector
@@ -108,6 +136,7 @@ public:
 
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
+        assert(false); // Not sure this actually works JJS
         return variantValue == variantValue2;
     }
 };

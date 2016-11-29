@@ -1,0 +1,39 @@
+Versjon 2.1.0, October 2016
+
+* Made ecl_file_view 1st class citizen, exposed to API
+* Added EXCLUDE_HOSTS to LSF driver with dynamic blacklisting
+* Fixed MAX_RUNTIME is respected by WPRO
+* Added functionality to open restart files in RW mode with seek
+* Improved date handling (all is UTC now)
+* As a result of this the filesystem version has been upgraded to 107, to use an old case you must upgrade it: "ert_upgradefs_107 config_file".
+* Bug fixes (EclKW and EclGrid)
+* Improved jobs and plugin loading
+* The entire source tree was changed with the removal of devel
+* ecl_sum can load aquifer variables.
+
+
+Version 2.0.5, August 2016
+* rel_eps & abs_eps
+
+Version 2.0, July 2016
+* functions to write keywords DEPTH, DX, DY and DZ keyword to the INIT file.
+* failed realizations are correctly propagated back to the main running scope
+* MDA is made first-class citizen and no longer a plugin
+
+Version 1.10, November 2011
+* Set the the verbose flag from the environment variable ERT_VERBOSE.
+* Abort if field transformation does not exist among the supported
+  transformations.
+* Added small class EclCmp for comparing Eclipse simulation cases.
+* Added function ecl_grid_cell_invalid / EclGrid.validCellGeometry( ). Typically
+  interesting for GRID files where not necessarily all cells are entered.
+* Added function util_update_signalse() which will install util_abort_signal()
+  signal handler for all fatal signals in default state; using new function from
+  python ert/__init__py.
+* Removed reference to undefined EnkFMain.__len__() method.
+
+Version 1
+* Fixed crash when stopping running simulations from gui.
+* Ertshell refactored. Implementing shell functionality has been simplified.
+* Ertshell. Added dumping of entries in block mount files.
+* Removed LaTeX reporting

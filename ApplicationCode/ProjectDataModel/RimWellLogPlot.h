@@ -27,6 +27,8 @@
 #include <QPointer>
 #include "RimDefines.h"
 
+#include "RimViewWindow.h"
+
 class RiuWellLogPlot;
 class RimWellLogTrack;
 
@@ -35,7 +37,7 @@ class RimWellLogTrack;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlot : public caf::PdmObject
+class RimWellLogPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 
@@ -46,11 +48,13 @@ public:
         TRUE_VERTICAL_DEPTH
     };
 
+
 public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
 
     void                                            setDescription(const QString& description);
+    QString                                         description() const;
 
     DepthTypeEnum                                   depthType() const;
 
@@ -58,8 +62,6 @@ public:
     void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
 
     QString                                         depthPlotTitle() const;
-
-    caf::PdmField< std::vector<int> >               windowGeometry;
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
@@ -72,8 +74,6 @@ public:
     void                                            updateTracks();
     void                                            updateTrackNames();
 
-    RiuWellLogPlot*                                 viewer();
-
     void                                            updateDepthZoom();
     void                                            setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter);
     void                                            panDepth(double panFactor);
@@ -84,6 +84,9 @@ public:
     void                                            availableDepthRange(double* minimumDepth, double* maximumDepth) const;
     bool                                            hasAvailableDepthRange() const;
 
+    virtual void                                    zoomAll() override;
+    virtual QWidget*                                viewWidget() override;
+
 protected:
 
     // Overridden PDM methods
@@ -92,6 +95,9 @@ protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*                    objectToggleField();
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
+
+    virtual QImage                                  snapshotWindowContent() override;
+
 
 private:
     void                                            updateViewerWidget();

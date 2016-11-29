@@ -55,7 +55,7 @@ class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
 class RivReservoirPipesPartMgr;
-class RivCrossSectionPartMgr;
+class RivIntersectionPartMgr;
 
 namespace cvf
 {
@@ -136,6 +136,8 @@ public:
 
     virtual void                                    axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
 
+    virtual bool                                    isUsingFormationNames() const override;
+
 protected:
     virtual void                                    initAfterRead();
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
@@ -160,8 +162,7 @@ private:
     virtual void                                    resetLegendsInViewer();
     virtual void                                    updateViewerWidgetWindowTitle();
 
-    std::vector<RivCellSetEnum>                     visibleFaultGeometryTypes() const;
-    void                                            forceFaultVisibilityOn();
+    std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();

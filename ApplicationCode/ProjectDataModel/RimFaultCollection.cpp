@@ -21,12 +21,17 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RigCaseData.h"
+
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimFault.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
-#include "RimEclipseView.h"
+
 #include "RiuMainWindow.h"
+
 #include "RivColorTableArray.h"
 
 #include "cafAppEnum.h"
@@ -193,19 +198,33 @@ void RimFaultCollection::syncronizeFaults()
         std::sort(sortedFaults.begin(), sortedFaults.end(), faultComparator);
 
         cvf::ref<RigFault> undefinedFaults;
+        cvf::ref<RigFault> undefinedFaultsWInactive;
+
         for (size_t i = 0; i < sortedFaults.size(); i++)
         {
-            if (sortedFaults[i]->name().compare(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
+            QString faultName = sortedFaults[i]->name();
+            if (faultName.compare(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
             {
                 undefinedFaults = sortedFaults[i];
+            }
+
+            if(faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
+               && faultName.contains("Inactive"))
+            {
+                undefinedFaultsWInactive = sortedFaults[i];
             }
         }
 
         if (undefinedFaults.notNull())
         {
             sortedFaults.erase(undefinedFaults.p());
-
             rigFaults.push_back(undefinedFaults.p());
+        }
+
+        if(undefinedFaultsWInactive.notNull())
+        {
+            sortedFaults.erase(undefinedFaultsWInactive.p());
+            rigFaults.push_back(undefinedFaultsWInactive.p());
         }
 
         for (size_t i = 0; i < sortedFaults.size(); i++)
@@ -228,6 +247,13 @@ void RimFaultCollection::syncronizeFaults()
         {
             rimFault = new RimFault();
             rimFault->faultColor = partColors->get(fIdx % partColors->size());
+            QString faultName = rigFaults[fIdx]->name();
+
+            if (faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
+                && faultName.contains("Inactive"))
+            {
+                rimFault->showFault = false; // Turn fault against inactive cells off by default
+            }
         }
 
         rimFault->setFaultGeometry(rigFaults[fIdx].p());

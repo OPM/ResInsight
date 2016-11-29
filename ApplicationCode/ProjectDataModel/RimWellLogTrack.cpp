@@ -28,8 +28,6 @@
 #include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
 
-#include "cafPdmUiTreeView.h"
-
 #include "cvfAssert.h"
 #include "cvfMath.h"
 
@@ -98,12 +96,17 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         }
 
         RimWellLogPlot* wellLogPlot;
-        this->firstAnchestorOrThisOfType(wellLogPlot);
+        this->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
             wellLogPlot->updateDepthZoom();
-            if (wellLogPlot->viewer()) wellLogPlot->viewer()->updateChildrenLayout();
+
+            RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
+            if (wellLogPlotViewer)
+            {
+                wellLogPlotViewer->updateChildrenLayout();
+            }
         }
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
@@ -116,7 +119,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         if (m_isAutoScaleXEnabled())
         { 
-            this->zoomAllXAxisIfAutoScale();
+            this->updateXZoom();
             computeAndSetXRangeMinForLogarithmicScale();
 
             if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->replot();
@@ -126,7 +129,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         updateAxisScaleEngine();
 
-        this->zoomAllXAxisIfAutoScale();
+        this->updateXZoom();
         computeAndSetXRangeMinForLogarithmicScale();
 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
@@ -160,7 +163,7 @@ void RimWellLogTrack::addCurve(RimWellLogCurve* curve)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setQwtTrack(m_wellLogTrackPlotWidget);
+        curve->setParentQwtPlot(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -174,7 +177,7 @@ void RimWellLogTrack::insertCurve(RimWellLogCurve* curve, size_t index)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setQwtTrack(m_wellLogTrackPlotWidget);
+        curve->setParentQwtPlot(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -238,18 +241,16 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::loadDataAndUpdate()
 {
-    CVF_ASSERT(m_wellLogTrackPlotWidget);
-
     RimWellLogPlot* wellLogPlot;
-    firstAnchestorOrThisOfType(wellLogPlot);
-    if (wellLogPlot)
+    firstAncestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
     }
 
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->updatePlotData();
+        curves[cIdx]->loadDataAndUpdate();
     }
 }
 
@@ -265,7 +266,7 @@ void RimWellLogTrack::recreateViewer()
 
         for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
         {
-            curves[cIdx]->setQwtTrack(this->m_wellLogTrackPlotWidget);
+            curves[cIdx]->setParentQwtPlot(this->m_wellLogTrackPlotWidget);
         }
     }
 }
@@ -284,18 +285,18 @@ void RimWellLogTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
+void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
 {
     if (m_wellLogTrackPlotWidget)
     {
         RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
+        firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
            wellLogPlot->updateDepthZoom();
         }
 
-        zoomAllXAxisIfAutoScale();
+        updateXZoom();
 
         m_wellLogTrackPlotWidget->replot();
     }
@@ -304,9 +305,14 @@ void RimWellLogTrack::zoomAllXAndZoomAllDepthOnOwnerPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::zoomAllXAxisIfAutoScale()
+void RimWellLogTrack::updateXZoom()
 {
-    if (!m_isAutoScaleXEnabled()) return;
+    if (!m_isAutoScaleXEnabled())
+    {
+        m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+        m_wellLogTrackPlotWidget->replot();
+        return;
+    }
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -353,7 +359,7 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 {
     for (size_t idx = 0; idx < curves.size(); idx++)
     {
-        if (curves[idx]->plotCurve() == curve)
+        if (curves[idx]->qwtPlotCurve() == curve)
         {
             return curves[idx];
         }

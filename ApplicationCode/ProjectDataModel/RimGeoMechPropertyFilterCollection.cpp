@@ -19,8 +19,8 @@
 
 #include "RimGeoMechPropertyFilterCollection.h"
 
-#include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -56,7 +56,7 @@ RimGeoMechPropertyFilterCollection::~RimGeoMechPropertyFilterCollection()
 RimGeoMechView* RimGeoMechPropertyFilterCollection::reservoirView()
 {
     RimGeoMechView* geoMechView = NULL;
-    firstAnchestorOrThisOfType(geoMechView);
+    firstAncestorOrThisOfType(geoMechView);
     
     return geoMechView;
 }
@@ -73,6 +73,7 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
         propertyFilter->resultDefinition->setGeoMechCase(reservoirView()->geoMechCase());
         propertyFilter->resultDefinition->loadResult();
         propertyFilter->computeResultValueRange();
+        propertyFilter->updateFieldVisibility();
     }
 }
 
@@ -117,6 +118,24 @@ bool RimGeoMechPropertyFilterCollection::hasActiveDynamicFilters() const
     return hasActiveFilters();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPropertyFilterCollection::isUsingFormationNames() const
+{
+    if ( !isActive ) return false;
+
+    for ( size_t i = 0; i < propertyFilters.size(); i++ )
+    {
+        RimGeoMechPropertyFilter* propertyFilter = propertyFilters[i];
+        if (   propertyFilter->isActive() 
+            && propertyFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES 
+            && propertyFilter->resultDefinition->resultFieldName() != "") return true;
+    }
+
+    return false;
+}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -125,7 +144,7 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
     bool activeIcon = true;
 
     RimGeoMechView* view = NULL;
-    this->firstAnchestorOrThisOfType(view);
+    this->firstAncestorOrThisOfType(view);
     RimViewController* viewController = view->viewController();
     if (viewController && ( viewController->isPropertyFilterOveridden() 
                             || viewController->isVisibleCellsOveridden()))

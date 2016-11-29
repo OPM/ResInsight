@@ -22,25 +22,24 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
 #include "RimWellLogFileCurve.h"
-#include "RimProject.h"
-#include "RimMainPlotCollection.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RiuMainPlotWindow.h"
 
 #include "RigWellLogFile.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
-#include "cafPdmUiTreeView.h"
 
 #include <QAction>
 
@@ -79,10 +78,10 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         RimWellLogFileChannel* wellLog = selection[wlIdx];
 
         RimWellPath* wellPath = NULL;
-        wellLog->firstAnchestorOrThisOfType(wellPath);
+        wellLog->firstAncestorOrThisOfType(wellPath);
 
         RimWellLogFile* wellLogFile = NULL;
-        wellLog->firstAnchestorOrThisOfType(wellLogFile);
+        wellLog->firstAncestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
@@ -102,7 +101,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->setWellPath(wellPath);
             curve->setWellLogChannelName(wellLog->name());
 
-            curve->updatePlotData();
+            curve->loadDataAndUpdate();
         }        
     }
 
@@ -110,9 +109,12 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
     plot->updateDepthZoom();
     plotTrack->viewer()->replot();
 
+    // Make sure the summary plot window is created and visible
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    RiuMainWindow::instance()->projectTreeView()->selectAsCurrentItem(selection.back());
+    plotwindow->selectAsCurrentItem(selection.back());
 }
 
 //--------------------------------------------------------------------------------------------------

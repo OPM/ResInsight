@@ -19,6 +19,12 @@
 
 #pragma once
 
+namespace caf
+{
+    class PdmUiItem;
+    class PdmUiTreeOrdering;
+};
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -37,6 +43,8 @@ public:
   static bool isToggleCommandsAvailable();
   static bool isToggleCommandsForSubItems();
   static void setObjectToggleStateForSelection(SelectionToggleType state);
-  
+
+private:
+  static caf::PdmUiTreeOrdering* findTreeItemFromSelectedUiItem(const caf::PdmUiItem* uiItem);
 };
 

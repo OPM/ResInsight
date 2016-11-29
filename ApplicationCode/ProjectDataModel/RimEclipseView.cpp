@@ -25,14 +25,15 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigFormationNames.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -41,6 +42,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGridCollection.h"
+#include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTernaryLegendConfig.h"
@@ -87,7 +89,7 @@ RimEclipseView::RimEclipseView()
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
-    CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
+    CAF_PDM_InitObject("Reservoir View", ":/3DView16x16.png", "", "");
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
     cellResult = new RimEclipseCellColors();
@@ -210,7 +212,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             if (m_viewer)
             {
-                windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
+                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
                 
                 RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
                 delete m_viewer;
@@ -401,24 +403,28 @@ void RimEclipseView::createDisplayModel()
         m_visibleGridParts = geometryTypesToAdd;
     }
 
+    m_reservoirGridPartManager->clearWatertightGeometryFlags();
+
     if (faultCollection()->showFaultsOutsideFilters() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
-        forceFaultVisibilityOn();
+        for (RivCellSetEnum cellSetType : m_visibleGridParts)
+        {
+            m_reservoirGridPartManager->forceWatertightGeometryOnForType(cellSetType);
+        }
 
-        std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
-
-        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+        std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
+        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
 
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
-            for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAppend.size(); ++gtIdx)
+            for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
             {
-                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAppend[gtIdx]);
+                if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS) continue;
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryType);
             }
 
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
-
     }
 
 
@@ -526,25 +532,31 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
-        if (faultCollection()->showFaultsOutsideFilters())
+        m_visibleGridParts = geometriesToRecolor;
+
+        std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
+        for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
         {
-            std::vector<RivCellSetEnum> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
-
-            for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
+            if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
             {
-                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
+                m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), geometryType, m_currentTimeStep);
             }
+            else
+            {
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), geometryType);
+            }
+        }
 
-            RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
-            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
+        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->showFaultsOutsideFilters());
+        if (faultLabelType == PROPERTY_FILTERED)
+        {
+            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), faultLabelType, m_currentTimeStep);
         }
         else
         {
-            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep);
-            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep);
-
-            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
         }
+
 
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
@@ -586,8 +598,6 @@ void RimEclipseView::updateCurrentTimeStep()
                 frameParts->updateBoundingBoxesRecursive();
             }
         }
-
-        m_visibleGridParts = geometriesToRecolor;
     }
     else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
     {
@@ -765,7 +775,16 @@ void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
         case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
     }
 
-    m_reservoirGridPartManager->updateCellColor(geometryType, color);
+    if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        // Always use current time step when updating color of property geometry
+        m_reservoirGridPartManager->updateCellColor(geometryType, m_currentTimeStep, color);
+    }
+    else
+    {
+        // Use static timestep (timestep 0) for geometry with no change between time steps
+        m_reservoirGridPartManager->updateCellColor(geometryType, 0, color);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -939,16 +958,29 @@ void RimEclipseView::updateLegends()
         this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
         this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
 
-        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
-        this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
+        this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
+        this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
-        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
-        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
+        if (this->cellEdgeResult()->hasCategoryResult())
+        {
+            if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
+            {
+                cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
+            }
+            else
+            {
+                const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                cellEdgeResult()->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+        }
+
+        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
+        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable()));
     }
     else
     {
-        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+        this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
+        this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 }
 
@@ -985,8 +1017,21 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
         resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
+        if (resultColors->hasCategoryResult())
+        {
+            if(resultColors->resultType() != RimDefines::FORMATION_NAMES)
+            {
+                resultColors->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()));
+            }
+            else
+            {
+                const std::vector<QString>& fnVector = eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
+                resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+        }
+
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-        resultColors->legendConfig()->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
     }
 
 
@@ -1059,6 +1104,7 @@ void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
     cellResult()->setEclipseCase(reservoir);
     faultResultSettings()->customFaultResult()->setEclipseCase(reservoir);
     
+    cellEdgeResult()->setEclipseCase(reservoir);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1318,123 +1364,25 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 }
 
 //--------------------------------------------------------------------------------------------------
-///     
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::forceFaultVisibilityOn()
-{
-    if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
-    {
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(OVERRIDDEN_CELL_VISIBILITY, true);
-        return;
-    }
-
-    // Force visibility of faults based on application state
-    // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
-    // even if the fault item is disabled in project tree view
-
-    if (!faultCollection->showFaultCollection)
-    {
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(ALL_WELL_CELLS, true);
-    }
-
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RANGE_FILTERED, true);
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(VISIBLE_WELL_FENCE_CELLS, true);
-    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
+std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
 {
-    std::vector<RivCellSetEnum> faultParts;
-    if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
-    {
-        if (this->faultCollection()->showFaultsOutsideFilters())
-        {
-            faultParts.push_back(ACTIVE);
-            faultParts.push_back(ALL_WELL_CELLS);
-          
-            if (this->showInactiveCells())
-            {
-                faultParts.push_back(INACTIVE);
-            }
-        }
-        else
-        {
-            faultParts.push_back(OVERRIDDEN_CELL_VISIBILITY);
-        }
-    }
-    else if (this->eclipsePropertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
-    {
-        faultParts.push_back(PROPERTY_FILTERED);
-        faultParts.push_back(PROPERTY_FILTERED_WELL_CELLS);
+    std::set<RivCellSetEnum> faultGeoTypes;
+    faultGeoTypes.insert(m_visibleGridParts.begin(), m_visibleGridParts.end());
 
-        if (this->showInactiveCells())
-        {
-            faultParts.push_back(INACTIVE);
-            faultParts.push_back(RANGE_FILTERED_INACTIVE);
-        }
-    }
-    else if (this->faultCollection()->showFaultsOutsideFilters())
+    if (faultCollection()->showFaultsOutsideFilters())
     {
-        faultParts.push_back(ACTIVE);
-        faultParts.push_back(ALL_WELL_CELLS);
-        /// Why are these added ? JJS -->
-        faultParts.push_back(RANGE_FILTERED);
-        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
-        faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-        /// <-- JJS
+        faultGeoTypes.insert(ACTIVE);
+        faultGeoTypes.insert(ALL_WELL_CELLS);
 
-        if (this->showInactiveCells())
+        if (showInactiveCells())
         {
-            faultParts.push_back(INACTIVE);
-            /// Why is this added ? JJS -->
-            faultParts.push_back(RANGE_FILTERED_INACTIVE);
-            /// <-- JJS
-        }
-    }
-    else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
-    {
-        faultParts.push_back(RANGE_FILTERED);
-        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
-        faultParts.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-
-        if (this->showInactiveCells())
-        {
-            faultParts.push_back(RANGE_FILTERED_INACTIVE);
-        }
-    }
-    else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
-    {
-        faultParts.push_back(VISIBLE_WELL_CELLS);
-        faultParts.push_back(VISIBLE_WELL_FENCE_CELLS);
-    }
-    else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
-    {
-        faultParts.push_back(RANGE_FILTERED);
-        faultParts.push_back(RANGE_FILTERED_WELL_CELLS);
-
-        if (this->showInactiveCells())
-        {
-            faultParts.push_back(RANGE_FILTERED_INACTIVE);
-        }
-    }
-    else
-    {
-        faultParts.push_back(ACTIVE);
-        faultParts.push_back(ALL_WELL_CELLS);
-
-        if (this->showInactiveCells())
-        {
-            faultParts.push_back(INACTIVE);
-            faultParts.push_back(RANGE_FILTERED_INACTIVE);
+            faultGeoTypes.insert(INACTIVE);
         }
     }
 
-    return faultParts;
+    return faultGeoTypes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1442,20 +1390,19 @@ std::vector<RivCellSetEnum> RimEclipseView::visibleFaultGeometryTypes() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateFaultColors()
 {
-    // Update all fault geometry
-    std::vector<RivCellSetEnum> faultGeometriesToRecolor = visibleFaultGeometryTypes();
+    std::set<RivCellSetEnum> faultGeometriesToRecolor = allVisibleFaultGeometryTypes();
 
     RimEclipseCellColors* faultResultColors = currentFaultResultColors();
 
-    for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
+    for (RivCellSetEnum cellSetType : faultGeometriesToRecolor)
     {
         if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
         {
-            m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors, this->cellEdgeResult());
+            m_reservoirGridPartManager->updateFaultCellEdgeResultColor(cellSetType, m_currentTimeStep, faultResultColors, this->cellEdgeResult());
         }
         else
         {
-            m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultColors);
+            m_reservoirGridPartManager->updateFaultColors(cellSetType, m_currentTimeStep, faultResultColors);
         }
     }
 }
@@ -1509,13 +1456,13 @@ void RimEclipseView::resetLegendsInViewer()
     if (cellResultNormalLegendConfig) cellResultNormalLegendConfig->recreateLegend();
 
     this->cellResult()->ternaryLegendConfig->recreateLegend();
-    this->cellEdgeResult()->legendConfig->recreateLegend();
+    this->cellEdgeResult()->legendConfig()->recreateLegend();
 
     m_viewer->removeAllColorLegends();
     
     if (cellResultNormalLegendConfig) m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->legend());
 
-    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
+    m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1664,6 +1611,16 @@ void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
     *xLabel = "E(x)";
     *yLabel = "N(y)";
     *zLabel = "Z";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseView::isUsingFormationNames() const
+{
+    if ((cellResult()->resultType() == RimDefines::FORMATION_NAMES)) return true;
+    
+    return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }
 
 //--------------------------------------------------------------------------------------------------

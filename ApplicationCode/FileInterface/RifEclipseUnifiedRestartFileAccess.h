@@ -26,7 +26,9 @@ class RifEclipseOutputFileTools;
 
 //typedef struct ecl_file_struct ecl_file_type;
 
-#include "well_info.h"
+#include "ert/ecl_well/well_info.h"
+
+
 
 //==================================================================================================
 //
@@ -44,7 +46,7 @@ public:
     void                        close();
 
     size_t                      timeStepCount();
-    std::vector<QDateTime>            timeSteps();
+    std::vector<QDateTime>      timeSteps();
     std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
@@ -55,7 +57,6 @@ public:
 
 private:
     bool                        openFile();
-
 
 private:
     QString         m_filename;

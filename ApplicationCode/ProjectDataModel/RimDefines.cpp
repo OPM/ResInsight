@@ -31,7 +31,7 @@ namespace caf
         addItem(RimDefines::STATIC_NATIVE,  "STATIC_NATIVE",    "Static");
         addItem(RimDefines::GENERATED,      "GENERATED",        "Generated");
         addItem(RimDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
-
+        addItem(RimDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
         setDefault(RimDefines::DYNAMIC_NATIVE);
     }
 
@@ -52,6 +52,16 @@ namespace caf
 
         setDefault(RimDefines::UNIT_METER);
     }
+
+    template<>
+    void caf::AppEnum< RimDefines::PlotAxis >::setUp()
+    {
+        addItem(RimDefines::PLOT_AXIS_LEFT,  "PLOT_AXIS_LEFT",  "Left");
+        addItem(RimDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right");
+
+        setDefault(RimDefines::PLOT_AXIS_LEFT);
+    }
+
 }
 
 

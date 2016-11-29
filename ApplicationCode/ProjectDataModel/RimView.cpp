@@ -7,10 +7,10 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -24,8 +24,10 @@
 
 #include "RivWellPathCollectionPartMgr.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmObjectFactory.h"
+
 #include "cvfCamera.h"
 #include "cvfModel.h"
 #include "cvfModelBasicList.h"
@@ -75,11 +77,14 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
     showWindow.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
     
+    CAF_PDM_InitField(&cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "");
+    cameraPointOfInterest.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "");
-    isPerspectiveView.uiCapability()->setUiHidden(true); // For now as this is experimental
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ;
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
@@ -109,8 +114,6 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
-    CAF_PDM_InitFieldNoDefault(&windowGeometry, "WindowGeometry", "", "", "", "");
-    windowGeometry.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "");
     m_rangeFilterCollection.uiCapability()->setUiHidden(true);
@@ -123,7 +126,7 @@ RimView::RimView(void)
 
     CAF_PDM_InitFieldNoDefault(&crossSectionCollection, "CrossSections", "Intersections", "", "", "");
     crossSectionCollection.uiCapability()->setUiHidden(true);
-    crossSectionCollection = new RimCrossSectionCollection();
+    crossSectionCollection = new RimIntersectionCollection();
 
     CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
     m_gridCollection.uiCapability()->setUiHidden(true);
@@ -205,8 +208,8 @@ void RimView::updateViewerWidget()
             m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
 
-            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), windowGeometry());
-            m_viewer->setMinNearPlaneDistance(10);
+            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), mdiWindowGeometry());
+            m_viewer->setDefaultPerspectiveNearPlaneDistance(10);
            
             this->resetLegendsInViewer();
 
@@ -218,10 +221,16 @@ void RimView::updateViewerWidget()
 
         RiuMainWindow::instance()->setActiveViewer(m_viewer->layoutWidget());
 
-        if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+        if(isViewerCreated)
+        {
+            m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+            m_viewer->setPointOfInterest(cameraPointOfInterest());
+            m_viewer->enableParallelProjection(!isPerspectiveView());
+        }
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
 
         this->updateGridBoxData();
+        this->createHighlightAndGridBoxDisplayModel();
 
         m_viewer->update();
     }
@@ -243,6 +252,21 @@ void RimView::updateViewerWidget()
     updateViewerWidgetWindowTitle();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage RimView::snapshotWindowContent()
+{
+    if (m_viewer)
+    {
+        m_viewer->repaint();
+
+        return m_viewer->snapshotImage();
+    }
+
+    return QImage();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -302,6 +326,7 @@ void RimView::createDisplayModelAndRedraw()
         {
             setDefaultView();
             cameraPosition = m_viewer->mainCamera()->viewMatrix();
+            cameraPointOfInterest = m_viewer->pointOfInterest();
         }
     }
 
@@ -340,9 +365,10 @@ void RimView::setupBeforeSave()
     {
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
+        cameraPointOfInterest = m_viewer->pointOfInterest();
 
-        windowGeometry = RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget());
-  }
+       setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,14 +394,14 @@ void RimView::setMeshOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        meshMode.uiCapability()->setValueFromUi(FULL_MESH);
+        meshMode.setValueWithFieldChanged(FULL_MESH);
     }
     else
     {
-        meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+        meshMode.setValueWithFieldChanged(FAULTS_MESH);
     }
 
-    surfaceMode.uiCapability()->setValueFromUi(NO_SURFACE);
+    surfaceMode.setValueWithFieldChanged(NO_SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,13 +411,13 @@ void RimView::setMeshSurfDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode.uiCapability()->setValueFromUi(SURFACE);
-        meshMode.uiCapability()->setValueFromUi(FULL_MESH);
+        surfaceMode.setValueWithFieldChanged(SURFACE);
+        meshMode.setValueWithFieldChanged(FULL_MESH);
     }
     else
     {
-        surfaceMode.uiCapability()->setValueFromUi(FAULTS);
-        meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+        surfaceMode.setValueWithFieldChanged(FAULTS);
+        meshMode.setValueWithFieldChanged(FAULTS_MESH);
     }
 }
 
@@ -407,14 +433,14 @@ void RimView::setFaultMeshSurfDrawstyle()
     //  Mesh SF  SF    SF
     if (this->isGridVisualizationMode())
     {
-        surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+        surfaceMode.setValueWithFieldChanged(SURFACE);
     }
     else
     {
-        surfaceMode.uiCapability()->setValueFromUi(FAULTS);
+        surfaceMode.setValueWithFieldChanged(FAULTS);
     }
 
-    meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+    meshMode.setValueWithFieldChanged(FAULTS_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,14 +450,14 @@ void RimView::setSurfOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+        surfaceMode.setValueWithFieldChanged(SURFACE);
     }
     else
     {
-        surfaceMode.uiCapability()->setValueFromUi(FAULTS);
+        surfaceMode.setValueWithFieldChanged(FAULTS);
     }
 
-    meshMode.uiCapability()->setValueFromUi(NO_MESH);
+    meshMode.setValueWithFieldChanged(NO_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,13 +468,13 @@ void RimView::showGridCells(bool enableGridCells)
     if (!enableGridCells)
     {
         m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
-        if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(FAULTS);
-        if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(FAULTS_MESH);
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(FAULTS);
+        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(FAULTS_MESH);
     }
     else
     {
-        if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
-        if (meshMode() != NO_MESH) meshMode.uiCapability()->setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(SURFACE);
+        if (meshMode() != NO_MESH) meshMode.setValueWithFieldChanged(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH : FULL_MESH);
     }
 
     m_gridCollection->isActive = enableGridCells;
@@ -461,7 +487,7 @@ void RimView::showGridCells(bool enableGridCells)
 //--------------------------------------------------------------------------------------------------
 void RimView::setSurfaceDrawstyle()
 {
-    if (surfaceMode() != NO_SURFACE) surfaceMode.uiCapability()->setValueFromUi(SURFACE);
+    if (surfaceMode() != NO_SURFACE) surfaceMode.setValueWithFieldChanged(SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -508,6 +534,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
         if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
+
+        crossSectionCollection->updateIntersectionBoxGeometry();
 
         if (m_viewer)
         {
@@ -680,6 +708,9 @@ void RimView::setScaleZAndUpdate(double scaleZ)
 {
     this->scaleZ = scaleZ;
     updateScaleTransform();
+
+    this->updateGridBoxData();
+
     this->scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -884,5 +915,43 @@ bool RimView::showActiveCellsOnly()
 void RimView::selectOverlayInfoConfig()
 {
     RiuMainWindow::instance()->selectAsCurrentItem(m_overlayInfoConfig);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::zoomAll()
+{
+    if (m_viewer)
+    {
+        m_viewer->zoomAll();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform()
+{
+    cvf::ref<caf::DisplayCoordTransform> coordTrans = new caf::DisplayCoordTransform;
+
+    cvf::Vec3d scale(1.0, 1.0, scaleZ);
+    coordTrans->setScale(scale);
+
+    RimCase* rimCase = ownerCase();
+    if (rimCase)
+    {
+        coordTrans->setTranslation(rimCase->displayModelOffset());
+    }
+
+    return coordTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* RimView::viewWidget()
+{
+    return m_viewer;
 }
 

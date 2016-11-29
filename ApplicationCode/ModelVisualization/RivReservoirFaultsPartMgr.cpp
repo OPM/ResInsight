@@ -19,20 +19,25 @@
 
 #include "RivReservoirFaultsPartMgr.h"
 
-#include "cvfPart.h"
-#include "cvfModelBasicList.h"
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipseView.h"
+#include "RimFaultCollection.h"
+
+#include "RivFaultPartMgr.h"
+
 #include "cvfColor3.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
 #include "cvfTransform.h"
 
 #include "cafPdmFieldCvfColor.h"
 
-#include "RigMainGrid.h"
-#include "RimFaultCollection.h"
-#include "RimEclipseFaultColors.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseCase.h"
-#include "RigCaseData.h"
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,7 +59,7 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  R
         }
     }
 
-    m_forceVisibility = false;
+    m_forceWatertightGeometry = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,6 +107,20 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
     // Check match between model fault count and fault parts
     CVF_ASSERT(faultCollection->faults.size() == m_faultParts.size());
 
+    // Parts that is overridden by the grid settings
+    bool forceDisplayOfFault = false;
+    if (!faultCollection->showFaultsOutsideFilters())
+    {
+        forceDisplayOfFault = isShowingGrid;
+    }
+
+    if (m_forceWatertightGeometry && isShowingGrid)
+    {
+        forceDisplayOfFault = true;
+    }
+
+    //qDebug() << forceDisplayOfFault;
+
     cvf::ModelBasicList parts;
 
     for (size_t i = 0; i < faultCollection->faults.size(); i++)
@@ -110,18 +129,6 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
         cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
         CVF_ASSERT(rivFaultPart.notNull());
-
-        // Parts that is overridden by the grid settings
-        bool forceDisplayOfFault = false;
-        if (!faultCollection->showFaultsOutsideFilters())
-        {
-            forceDisplayOfFault = isShowingGrid;
-        }
-
-        if (m_forceVisibility && isShowingGrid)
-        {
-            forceDisplayOfFault = true;
-        }
 
         if ( (faultCollection->showFaultCollection() && rimFault->showFault()) || forceDisplayOfFault)
         {
@@ -276,9 +283,17 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::setFaultForceVisibility(bool forceVisibility)
+void RivReservoirFaultsPartMgr::forceWatertightGeometryOn()
 {
-    m_forceVisibility = forceVisibility;
+    m_forceWatertightGeometry = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirFaultsPartMgr::clearWatertightGeometryFlag()
+{
+    m_forceWatertightGeometry = false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -69,47 +69,109 @@ void RivGridBoxGenerator::setDisplayModelOffset(cvf::Vec3d offset)
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& bb)
 {
-    cvf::BoundingBox expandedBB;
-    {
-        double expandFactor = 0.05;
+    double expandFactor = 0.05;
+    
+    // Use ScalarMapperDiscreteLinear to find human readable tick mark positions for grid box sub division coordinate values
+    // Expand the range for ScalarMapperDiscreteLinear until the geometry bounding box has a generated tick mark coords
+    // both below minimum and above maximum bounding box coords
 
-        cvf::Vec3d expandedMin;
-        expandedMin.x() = bb.min().x() - bb.extent().x() * expandFactor;
-        expandedMin.y() = bb.min().y() - bb.extent().y() * expandFactor;
-        expandedMin.z() = bb.min().z() - bb.extent().z() * expandFactor;
+    cvf::Vec3d min = bb.min();
+    cvf::Vec3d max = bb.max();
 
-        cvf::Vec3d expandedMax;
-        expandedMax.x() = bb.max().x() + bb.extent().x() * expandFactor;
-        expandedMax.y() = bb.max().y() + bb.extent().y() * expandFactor;
-        expandedMax.z() = bb.max().z() + bb.extent().z() * expandFactor;
-
-        expandedBB.add(expandedMin);
-        expandedBB.add(expandedMax);
-    }
-
-    m_domainCoordsBoundingBox = expandedBB;
-
-    m_domainCoordsXValues.clear();
-    m_domainCoordsYValues.clear();
-    m_domainCoordsZValues.clear();
-
-    cvf::Vec3d min = m_domainCoordsBoundingBox.min();
-    cvf::Vec3d max = m_domainCoordsBoundingBox.max();
-
-    cvf::ScalarMapperDiscreteLinear m_linDiscreteScalarMapper;
     size_t levelCount = 6;
 
-    m_linDiscreteScalarMapper.setRange(min.x(), max.x());
-    m_linDiscreteScalarMapper.setLevelCount(levelCount, true);
-    m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsXValues);
+    {
+        bool majorTickValuesCoversDomainValues = false;
+        while (!majorTickValuesCoversDomainValues)
+        {
+            m_domainCoordsXValues.clear();
 
-    m_linDiscreteScalarMapper.setRange(min.y(), max.y());
-    m_linDiscreteScalarMapper.setLevelCount(levelCount, true);
-    m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsYValues);
+            cvf::ScalarMapperDiscreteLinear linDiscreteScalarMapper;
+            linDiscreteScalarMapper.setRange(min.x(), max.x());
+            linDiscreteScalarMapper.setLevelCount(levelCount, true);
+            linDiscreteScalarMapper.majorTickValues(&m_domainCoordsXValues);
 
-    m_linDiscreteScalarMapper.setRange(min.z(), max.z());
-    m_linDiscreteScalarMapper.setLevelCount(levelCount, true);
-    m_linDiscreteScalarMapper.majorTickValues(&m_domainCoordsZValues);
+            majorTickValuesCoversDomainValues = true;
+
+            if (m_domainCoordsXValues[1] > bb.min().x())
+            {
+                min.x() = min.x() - bb.extent().x() * expandFactor;
+                max.x() = max.x() + bb.extent().x() * expandFactor;
+                majorTickValuesCoversDomainValues = false;
+            }
+
+            if (m_domainCoordsXValues[m_domainCoordsXValues.size() - 1] < bb.max().x())
+            {
+                min.x() = min.x() - bb.extent().x() * expandFactor;
+                max.x() = max.x() + bb.extent().x() * expandFactor;
+                majorTickValuesCoversDomainValues = false;
+            }
+        }
+    }
+
+    {
+        bool majorTickValuesCoversDomainValues = false;
+        while (!majorTickValuesCoversDomainValues)
+        {
+            m_domainCoordsYValues.clear();
+
+            cvf::ScalarMapperDiscreteLinear linDiscreteScalarMapper;
+            linDiscreteScalarMapper.setRange(min.y(), max.y());
+            linDiscreteScalarMapper.setLevelCount(levelCount, true);
+            linDiscreteScalarMapper.majorTickValues(&m_domainCoordsYValues);
+
+            majorTickValuesCoversDomainValues = true;
+
+            if (m_domainCoordsYValues[1] > bb.min().y())
+            {
+                min.y() = min.y() - bb.extent().y() * expandFactor;
+                max.y() = max.y() + bb.extent().y() * expandFactor;
+                majorTickValuesCoversDomainValues = false;
+            }
+
+            if (m_domainCoordsYValues[m_domainCoordsYValues.size() - 1] < bb.max().y())
+            {
+                min.y() = min.y() - bb.extent().y() * expandFactor;
+                max.y() = max.y() + bb.extent().y() * expandFactor;
+                majorTickValuesCoversDomainValues = false;
+            }
+        }
+    }
+
+    {
+        bool majorTickValuesCoversDomainValues = false;
+        while (!majorTickValuesCoversDomainValues)
+        {
+            m_domainCoordsZValues.clear();
+
+            cvf::ScalarMapperDiscreteLinear linDiscreteScalarMapper;
+            linDiscreteScalarMapper.setRange(min.z(), max.z());
+            linDiscreteScalarMapper.setLevelCount(levelCount, true);
+            linDiscreteScalarMapper.majorTickValues(&m_domainCoordsZValues);
+
+            majorTickValuesCoversDomainValues = true;
+
+            if (m_domainCoordsZValues[1] > bb.min().z())
+            {
+                min.z() = min.z() - bb.extent().z() * expandFactor;
+                max.z() = max.z() + bb.extent().z() * expandFactor;
+                majorTickValuesCoversDomainValues = false;
+            }
+
+            if (m_domainCoordsZValues[m_domainCoordsZValues.size() - 1] < bb.max().z())
+            {
+                min.z() = min.z() - bb.extent().z() * expandFactor;
+                max.z() = max.z() + bb.extent().z() * expandFactor;
+                majorTickValuesCoversDomainValues = false;
+            }
+        }
+    }
+    
+    cvf::BoundingBox expandedBB;
+    expandedBB.add(min);
+    expandedBB.add(max);
+
+    m_domainCoordsBoundingBox = expandedBB;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,12 +197,24 @@ void RivGridBoxGenerator::updateFromCamera(const cvf::Camera* camera)
     std::vector<bool> faceVisibility(6, false);
     for (size_t i = POS_X; i <= NEG_Z; i++)
     {
+        bool isFaceVisible = false;
         cvf::Vec3f sideNorm = sideNormalOutwards((FaceType)i);
 
-        cvf::Vec3d camToSide = camera->position() - pointOnSide((FaceType)i);
-        camToSide.normalize();
+        if (camera->projection() == cvf::Camera::PERSPECTIVE)
+        {
 
-        if (sideNorm.dot(cvf::Vec3f(camToSide)) < 0.0)
+            cvf::Vec3d camToSide = camera->position() - pointOnSide((FaceType)i);
+            camToSide.normalize();
+
+            isFaceVisible = sideNorm.dot(cvf::Vec3f(camToSide)) < 0.0;
+        }
+        else
+        {
+            cvf::Vec3d camToSide = camera->direction();
+            isFaceVisible = sideNorm.dot(cvf::Vec3f(camToSide)) > 0.0;
+        }
+
+        if (isFaceVisible)
         {
             m_gridBoxModel->addPart(m_gridBoxFaceParts[i].p());
             faceVisibility[i] = true;

@@ -54,8 +54,8 @@ public:
     void computeStatistics();
     bool hasComputedStatistics() const;
     void clearComputedStatistics();
+    void computeStatisticsAndUpdateViews();
 
-    void scheduleACTIVEGeometryRegenOnReservoirViews();
     void updateConnectedEditorsAndReservoirViews();
 
     virtual bool openEclipseGridFile();
@@ -71,13 +71,17 @@ public:
 
     caf::PdmField< bool >                                          m_calculateEditCommand;
     virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
+
+    void populateResultSelectionAfterLoadingGrid();
  
 private:
+    void scheduleACTIVEGeometryRegenOnReservoirViews();
+
     RimIdenticalGridCaseGroup* caseGroup();
 
     void getSourceCases(std::vector<RimEclipseCase*>& sourceCases);
 
-    void populateWithDefaultsIfNeeded();
+    void populateResultSelection();
 
     void updateSelectionListVisibilities();
     void updateSelectionSummaryLabel();
@@ -117,4 +121,8 @@ private:
     caf::PdmField<double >                                          m_highPercentile;
 
     caf::PdmField<QString>                                          m_wellDataSourceCase;
+
+    caf::PdmField< bool >                                           m_useZeroAsInactiveCellValue;
+
+    bool                                                            m_populateSelectionAfterLoadingGrid;
 };

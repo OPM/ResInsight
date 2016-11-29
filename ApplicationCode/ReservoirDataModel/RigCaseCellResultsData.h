@@ -59,6 +59,9 @@ public:
     void                                               p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90);
     void                                               meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
     void                                               meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
+    const std::vector<int>&                            uniqueCellScalarValues(size_t scalarResultIndex);
+    void                                               sumCellScalarValues(size_t scalarResultIndex, double& sumValue);
+    void                                               sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue);
 
     // Access meta-information about the results
     size_t                                             resultCount() const;
@@ -92,6 +95,8 @@ public:
     std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
 
     static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
+
+    bool                                               updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:
     class ResultInfo

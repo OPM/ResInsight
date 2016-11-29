@@ -49,12 +49,19 @@ public:
     void                                    meanCellScalarValues(double& meanValue);
     void                                    meanCellScalarValues(size_t timeStepIndex, double& meanValue);
 
+    void                                    sumCellScalarValues(double& sumValue);
+    void                                    sumCellScalarValues(size_t timeStepIndex, double& sumValue);
+
     const std::vector<size_t>&              cellScalarValuesHistogram();
     const std::vector<size_t>&              cellScalarValuesHistogram(size_t timeStepIndex);
+
+    const std::vector<int>&                 uniqueCellScalarValues();
 
 private:
     void                                    computeHistogramStatisticsIfNeeded();
     void                                    computeHistogramStatisticsIfNeeded(size_t timeStepIndex);
+
+    void                                    computeUniqueValuesIfNeeded();
 
 private:
     struct StatisticsValues
@@ -71,6 +78,8 @@ private:
             m_isClosestToZeroCalculated = false;
             m_p10                       = HUGE_VAL;
             m_p90                       = HUGE_VAL;
+            m_valueSum                  = 0.0;
+            m_isValueSumCalculated      = false;
         }
 
         double              m_minValue;
@@ -87,11 +96,15 @@ private:
         double              m_p10;
         double              m_p90;
 
+        double              m_valueSum;
+        bool                m_isValueSumCalculated;
+
         std::vector<size_t> m_histogram;
     };
 
-    StatisticsValues                        m_statsAllTimesteps;
-    std::vector<StatisticsValues>           m_statsPrTs;
+    StatisticsValues                m_statsAllTimesteps;
+    std::vector<StatisticsValues>   m_statsPrTs;
+    std::vector<int>                m_uniqueValues;
 
     cvf::ref<RigStatisticsCalculator>       m_statisticsCalculator;
 };

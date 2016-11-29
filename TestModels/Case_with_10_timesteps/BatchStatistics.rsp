@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ResInsightProject>
-    <PdmObjects/>
-    <DocumentFileName>C:/gitRoot/OPM/ResInsight/TestModels/Case_with_10_timesteps/BatchStatistics.rsp</DocumentFileName>
-    <ProjectFileVersionString>1.1.0</ProjectFileVersionString>
-    <NextValidCaseId>5</NextValidCaseId>
-    <NextValidCaseGroupId>1</NextValidCaseGroupId>
+    <DocumentFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/BatchStatistics.rsp</DocumentFileName>
+    <ProjectFileVersionString>1.6.9-dev</ProjectFileVersionString>
+    <NextValidCaseId>10</NextValidCaseId>
+    <NextValidCaseGroupId>2</NextValidCaseGroupId>
     <OilFields>
         <ResInsightOilField>
             <AnalysisModels>
@@ -12,7 +11,7 @@
                     <Reservoirs/>
                     <CaseGroups>
                         <RimIdenticalGridCaseGroup>
-                            <UserDescription>Grid Case Group</UserDescription>
+                            <UserDescription>Grid Case Group 1</UserDescription>
                             <GroupId>0</GroupId>
                             <StatisticsCaseCollection>
                                 <RimCaseCollection>
@@ -20,26 +19,58 @@
                                         <RimStatisticalCalculation>
                                             <CaseUserDescription>Statistics 1</CaseUserDescription>
                                             <CaseId>1</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
                                             <ReservoirViews>
                                                 <ReservoirView>
+                                                    <WindowGeometry>0 0 1456 852 1 </WindowGeometry>
+                                                    <UserDescription>View 1</UserDescription>
+                                                    <ShowWindow>True </ShowWindow>
+                                                    <CameraPosition>0.985567 -0.130505 -0.107829 -26681.5 0.147857 0.973785 0.172859 -32645.3 0.0824431 -0.186307 0.979026 -63663.2 0 0 0 1</CameraPosition>
+                                                    <CameraPointOfInterest>0 0 0</CameraPointOfInterest>
+                                                    <PerspectiveProjection>True </PerspectiveProjection>
+                                                    <GridZScale>5</GridZScale>
+                                                    <ViewBackgroundColor>0.752941 0.823529 0.870588</ViewBackgroundColor>
+                                                    <MaximumFrameRate>10</MaximumFrameRate>
+                                                    <AnimationMode>False </AnimationMode>
+                                                    <CurrentTimeStep>0</CurrentTimeStep>
+                                                    <OverlayInfoConfig>
+                                                        <View3dOverlayInfoConfig>
+                                                            <Active>True </Active>
+                                                            <ShowAnimProgress>True </ShowAnimProgress>
+                                                            <ShowInfoText>True </ShowInfoText>
+                                                            <ShowResultInfo>True </ShowResultInfo>
+                                                            <ShowHistogram>True </ShowHistogram>
+                                                            <StatisticsTimeRange>ALL_TIMESTEPS</StatisticsTimeRange>
+                                                            <StatisticsCellRange>ALL_CELLS</StatisticsCellRange>
+                                                        </View3dOverlayInfoConfig>
+                                                    </OverlayInfoConfig>
+                                                    <MeshMode>FULL_MESH</MeshMode>
+                                                    <SurfaceMode>SURFACE</SurfaceMode>
+                                                    <ShowGridBox>True </ShowGridBox>
+                                                    <DisableLighting>False </DisableLighting>
+                                                    <RangeFilters>
+                                                        <CellRangeFilterCollection>
+                                                            <RangeFilters/>
+                                                            <Active>True </Active>
+                                                        </CellRangeFilterCollection>
+                                                    </RangeFilters>
+                                                    <CrossSections>
+                                                        <CrossSectionCollection>
+                                                            <CrossSections/>
+                                                            <IntersectionBoxes/>
+                                                            <Active>True </Active>
+                                                        </CrossSectionCollection>
+                                                    </CrossSections>
+                                                    <GridCollection>
+                                                        <GridCollection>
+                                                            <IsActive>True </IsActive>
+                                                        </GridCollection>
+                                                    </GridCollection>
                                                     <GridCellResult>
                                                         <ResultSlot>
                                                             <ResultType>DYNAMIC_NATIVE</ResultType>
                                                             <PorosityModelType>MATRIX_MODEL</PorosityModelType>
                                                             <ResultVariable>PRESSURE_RANGE</ResultVariable>
-                                                            <LegendDefinition>
-                                                                <Legend>
-                                                                    <NumberOfLevels>8</NumberOfLevels>
-                                                                    <Precision>4</Precision>
-                                                                    <TickNumberFormat>FIXED</TickNumberFormat>
-                                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
-                                                                    <MappingMode>LinearContinuous</MappingMode>
-                                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
-                                                                    <UserDefinedMax>1</UserDefinedMax>
-                                                                    <UserDefinedMin>0</UserDefinedMin>
-                                                                    <ResultVariableUsage>PRESSURE_RANGE</ResultVariableUsage>
-                                                                </Legend>
-                                                            </LegendDefinition>
                                                             <ResultVarLegendDefinitionList>
                                                                 <Legend>
                                                                     <NumberOfLevels>8</NumberOfLevels>
@@ -96,11 +127,38 @@
                                                                     <UserDefinedMin>0</UserDefinedMin>
                                                                     <ResultVariableUsage>PRESSURE_DEV</ResultVariableUsage>
                                                                 </Legend>
+                                                                <Legend>
+                                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                                    <Precision>4</Precision>
+                                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                                    <ResultVariableUsage>PRESSURE_RANGE</ResultVariableUsage>
+                                                                </Legend>
                                                             </ResultVarLegendDefinitionList>
+                                                            <TernaryLegendDefinition>
+                                                                <RimTernaryLegendConfig>
+                                                                    <Precision>2</Precision>
+                                                                    <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                                    <ternaryRangeSummary></ternaryRangeSummary>
+                                                                    <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                                    <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                                    <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                                    <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                                    <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                                    <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                                </RimTernaryLegendConfig>
+                                                            </TernaryLegendDefinition>
+                                                            <LegendDefinitionPtrField>ResultVarLegendDefinitionList 5</LegendDefinitionPtrField>
                                                         </ResultSlot>
                                                     </GridCellResult>
                                                     <GridCellEdgeResult>
                                                         <CellEdgeResultSlot>
+                                                            <EnableCellEdgeColors>True </EnableCellEdgeColors>
+                                                            <propertyType>MULTI_AXIS_STATIC_PROPERTY</propertyType>
                                                             <CellEdgeVariable></CellEdgeVariable>
                                                             <UseXVariable>True </UseXVariable>
                                                             <UseYVariable>True </UseYVariable>
@@ -118,21 +176,81 @@
                                                                     <ResultVariableUsage></ResultVariableUsage>
                                                                 </Legend>
                                                             </LegendDefinition>
+                                                            <SingleVarEdgeResult>
+                                                                <ResultSlot>
+                                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                                    <ResultVariable>None</ResultVariable>
+                                                                    <ResultVarLegendDefinitionList>
+                                                                        <Legend>
+                                                                            <NumberOfLevels>8</NumberOfLevels>
+                                                                            <Precision>4</Precision>
+                                                                            <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                            <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                                            <MappingMode>LinearContinuous</MappingMode>
+                                                                            <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                            <UserDefinedMax>1</UserDefinedMax>
+                                                                            <UserDefinedMin>0</UserDefinedMin>
+                                                                            <ResultVariableUsage>None</ResultVariableUsage>
+                                                                        </Legend>
+                                                                    </ResultVarLegendDefinitionList>
+                                                                    <TernaryLegendDefinition>
+                                                                        <RimTernaryLegendConfig>
+                                                                            <Precision>2</Precision>
+                                                                            <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                                            <ternaryRangeSummary></ternaryRangeSummary>
+                                                                            <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                                            <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                                            <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                                            <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                                            <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                                            <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                                        </RimTernaryLegendConfig>
+                                                                    </TernaryLegendDefinition>
+                                                                    <LegendDefinitionPtrField>ResultVarLegendDefinitionList 0</LegendDefinitionPtrField>
+                                                                </ResultSlot>
+                                                            </SingleVarEdgeResult>
                                                         </CellEdgeResultSlot>
                                                     </GridCellEdgeResult>
-                                                    <OverlayInfoConfig>
-                                                        <View3dOverlayInfoConfig>
-                                                            <Active>True </Active>
-                                                            <ShowInfoText>True </ShowInfoText>
-                                                            <ShowAnimProgress>True </ShowAnimProgress>
-                                                            <ShowHistogram>True </ShowHistogram>
-                                                        </View3dOverlayInfoConfig>
-                                                    </OverlayInfoConfig>
-                                                    <UserDescription>View 1</UserDescription>
-                                                    <GridZScale>5</GridZScale>
-                                                    <ShowWindow>True </ShowWindow>
-                                                    <CurrentTimeStep>3</CurrentTimeStep>
-                                                    <AnimationMode>True </AnimationMode>
+                                                    <FaultResultSettings>
+                                                        <RimFaultResultSlot>
+                                                            <ShowCustomFaultResult>False </ShowCustomFaultResult>
+                                                            <CustomResultSlot>
+                                                                <ResultSlot>
+                                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                                    <ResultVariable>None</ResultVariable>
+                                                                    <ResultVarLegendDefinitionList>
+                                                                        <Legend>
+                                                                            <NumberOfLevels>8</NumberOfLevels>
+                                                                            <Precision>4</Precision>
+                                                                            <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                            <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                                            <MappingMode>LinearContinuous</MappingMode>
+                                                                            <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                            <UserDefinedMax>1</UserDefinedMax>
+                                                                            <UserDefinedMin>0</UserDefinedMin>
+                                                                            <ResultVariableUsage>None</ResultVariableUsage>
+                                                                        </Legend>
+                                                                    </ResultVarLegendDefinitionList>
+                                                                    <TernaryLegendDefinition>
+                                                                        <RimTernaryLegendConfig>
+                                                                            <Precision>2</Precision>
+                                                                            <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                                            <ternaryRangeSummary></ternaryRangeSummary>
+                                                                            <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                                            <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                                            <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                                            <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                                            <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                                            <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                                        </RimTernaryLegendConfig>
+                                                                    </TernaryLegendDefinition>
+                                                                    <LegendDefinitionPtrField>ResultVarLegendDefinitionList 0</LegendDefinitionPtrField>
+                                                                </ResultSlot>
+                                                            </CustomResultSlot>
+                                                        </RimFaultResultSlot>
+                                                    </FaultResultSettings>
                                                     <WellCollection>
                                                         <Wells>
                                                             <Active>True </Active>
@@ -155,35 +273,41 @@
                                                     <FaultCollection>
                                                         <Faults>
                                                             <Active>True </Active>
-                                                            <ShowGeometryDetectedFaults>False </ShowGeometryDetectedFaults>
                                                             <ShowFaultFaces>True </ShowFaultFaces>
                                                             <ShowOppositeFaultFaces>True </ShowOppositeFaultFaces>
-                                                            <ShowNNCs>False </ShowNNCs>
-                                                            <LimitFaultsToFilter>True </LimitFaultsToFilter>
+                                                            <ShowFaultsOutsideFilters>True </ShowFaultsOutsideFilters>
                                                             <FaultFaceCulling>FAULT_FRONT_FACE_CULLING</FaultFaceCulling>
                                                             <ShowFaultLabel>True </ShowFaultLabel>
                                                             <FaultLabelColor>0.890196 0.890196 0.890196</FaultLabelColor>
+                                                            <ShowNNCs>False </ShowNNCs>
+                                                            <HideNncsWhenNoResultIsAvailable>True </HideNncsWhenNoResultIsAvailable>
+                                                            <NoCommonAreaNnncCollection>
+                                                                <RimNoCommonAreaNncCollection>
+                                                                    <UserDescription>NNCs With No Common Area (0)</UserDescription>
+                                                                </RimNoCommonAreaNncCollection>
+                                                            </NoCommonAreaNnncCollection>
                                                             <Faults>
                                                                 <Fault>
-                                                                    <FaultName>Unnamed grid faults</FaultName>
+                                                                    <FaultName>Undefined Grid Faults</FaultName>
                                                                     <ShowFault>True </ShowFault>
                                                                     <Color>0.396078 0.517647 0.376471</Color>
+                                                                </Fault>
+                                                                <Fault>
+                                                                    <FaultName>Undefined Grid Faults With Inactive</FaultName>
+                                                                    <ShowFault>False </ShowFault>
+                                                                    <Color>1 0.513726 0.54902</Color>
                                                                 </Fault>
                                                             </Faults>
                                                         </Faults>
                                                     </FaultCollection>
-                                                    <RangeFilters>
-                                                        <CellRangeFilterCollection>
-                                                            <RangeFilters/>
-                                                            <Active>True </Active>
-                                                        </CellRangeFilterCollection>
-                                                    </RangeFilters>
                                                     <PropertyFilters>
                                                         <CellPropertyFilters>
+                                                            <Active>True </Active>
                                                             <PropertyFilters>
                                                                 <CellPropertyFilter>
                                                                     <UserDescription>New Filter (1)</UserDescription>
                                                                     <Active>True </Active>
+                                                                    <SelectedValues></SelectedValues>
                                                                     <FilterType>INCLUDE</FilterType>
                                                                     <ResultDefinition>
                                                                         <ResultDefinition>
@@ -194,122 +318,20 @@
                                                                     </ResultDefinition>
                                                                     <LowerBound>1.81686</LowerBound>
                                                                     <UpperBound>179.869</UpperBound>
+                                                                    <CategorySelection>False </CategorySelection>
                                                                 </CellPropertyFilter>
                                                             </PropertyFilters>
-                                                            <Active>True </Active>
                                                         </CellPropertyFilters>
                                                     </PropertyFilters>
-                                                    <MeshMode>FULL_MESH</MeshMode>
-                                                    <SurfaceMode>SURFACE</SurfaceMode>
-                                                    <MaximumFrameRate>10</MaximumFrameRate>
                                                     <ShowMainGrid>True </ShowMainGrid>
                                                     <ShowInactiveCells>False </ShowInactiveCells>
                                                     <ShowInvalidCells>False </ShowInvalidCells>
-                                                    <ViewBackgroundColor>0.752941 0.823529 0.870588</ViewBackgroundColor>
-                                                    <CameraPosition>0.985567 -0.130505 -0.107829 -26681.5 0.147857 0.973785 0.172859 -32645.3 0.0824431 -0.186307 0.979026 -63663.2 0 0 0 1 </CameraPosition>
                                                 </ReservoirView>
                                             </ReservoirViews>
                                             <MatrixModelResults>
                                                 <ReservoirCellResultStorage>
                                                     <ResultCacheFileName>C:/gitRoot/OPM/ResInsight/TestModels/Case_with_10_timesteps/BatchStatistics_cache/{d2b3579e-720d-4e40-98e1-417eb7a90c12}</ResultCacheFileName>
-                                                    <ResultCacheEntries>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_MIN</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>8</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_MAX</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>3817008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_MEAN</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>7634008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_DEV</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>11451008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_RANGE</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>15268008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_P_10</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>19085008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_P_50</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>22902008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>PRESSURE_P_90</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>26719008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_MIN</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>30536008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_MAX</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>34353008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_MEAN</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>38170008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_DEV</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>41987008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_RANGE</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>45804008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_P_10</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>49621008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_P_50</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>53438008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                        <ResultStorageEntryInfo>
-                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
-                                                            <ResultName>SWAT_P_90</ResultName>
-                                                            <TimeSteps>1997_01_01-00:00:00 1997_01_31-00:00:00 1997_03_02-00:00:00 1997_04_01-00:00:00 1997_05_01-00:00:00 1997_05_31-00:00:00 1997_06_30-00:00:00 1997_07_30-00:00:00 1997_08_29-00:00:00 1997_09_28-00:00:00 1997_10_28-00:00:00 </TimeSteps>
-                                                            <FilePositionDataStart>57255008</FilePositionDataStart>
-                                                        </ResultStorageEntryInfo>
-                                                    </ResultCacheEntries>
+                                                    <ResultCacheEntries/>
                                                 </ReservoirCellResultStorage>
                                             </MatrixModelResults>
                                             <FractureModelResults>
@@ -335,6 +357,7 @@
                                             <MidPercentile>50</MidPercentile>
                                             <HighPercentile>90</HighPercentile>
                                             <WellDataSourceCase>None</WellDataSourceCase>
+                                            <UseZeroAsInactiveCellValue>False </UseZeroAsInactiveCellValue>
                                         </RimStatisticalCalculation>
                                     </Reservoirs>
                                 </RimCaseCollection>
@@ -345,6 +368,7 @@
                                         <EclipseCase>
                                             <CaseUserDescription>BRUGGE_0000</CaseUserDescription>
                                             <CaseId>0</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
                                             <ReservoirViews/>
                                             <MatrixModelResults>
                                                 <ReservoirCellResultStorage>
@@ -361,11 +385,12 @@
                                             <FlipXAxis>False </FlipXAxis>
                                             <FlipYAxis>False </FlipYAxis>
                                             <FilesContainingFaults></FilesContainingFaults>
-                                            <CaseFileName>C:/gitRoot/OPM/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID</CaseFileName>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID</CaseFileName>
                                         </EclipseCase>
                                         <EclipseCase>
                                             <CaseUserDescription>BRUGGE_0010</CaseUserDescription>
                                             <CaseId>2</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
                                             <ReservoirViews/>
                                             <MatrixModelResults>
                                                 <ReservoirCellResultStorage>
@@ -382,11 +407,12 @@
                                             <FlipXAxis>False </FlipXAxis>
                                             <FlipYAxis>False </FlipYAxis>
                                             <FilesContainingFaults></FilesContainingFaults>
-                                            <CaseFileName>C:/gitRoot/OPM/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID</CaseFileName>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID</CaseFileName>
                                         </EclipseCase>
                                         <EclipseCase>
                                             <CaseUserDescription>BRUGGE_0030</CaseUserDescription>
                                             <CaseId>3</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
                                             <ReservoirViews/>
                                             <MatrixModelResults>
                                                 <ReservoirCellResultStorage>
@@ -403,11 +429,12 @@
                                             <FlipXAxis>False </FlipXAxis>
                                             <FlipYAxis>False </FlipYAxis>
                                             <FilesContainingFaults></FilesContainingFaults>
-                                            <CaseFileName>C:/gitRoot/OPM/ResInsight/TestModels/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID</CaseFileName>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID</CaseFileName>
                                         </EclipseCase>
                                         <EclipseCase>
                                             <CaseUserDescription>BRUGGE_0040</CaseUserDescription>
                                             <CaseId>4</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
                                             <ReservoirViews/>
                                             <MatrixModelResults>
                                                 <ReservoirCellResultStorage>
@@ -424,7 +451,392 @@
                                             <FlipXAxis>False </FlipXAxis>
                                             <FlipYAxis>False </FlipYAxis>
                                             <FilesContainingFaults></FilesContainingFaults>
-                                            <CaseFileName>C:/gitRoot/OPM/ResInsight/TestModels/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID</CaseFileName>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID</CaseFileName>
+                                        </EclipseCase>
+                                    </Reservoirs>
+                                </RimCaseCollection>
+                            </CaseCollection>
+                        </RimIdenticalGridCaseGroup>
+                        <RimIdenticalGridCaseGroup>
+                            <UserDescription>Grid Case Group 2</UserDescription>
+                            <GroupId>1</GroupId>
+                            <StatisticsCaseCollection>
+                                <RimCaseCollection>
+                                    <Reservoirs>
+                                        <RimStatisticalCalculation>
+                                            <CaseUserDescription>Statistics 1</CaseUserDescription>
+                                            <CaseId>6</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
+                                            <ReservoirViews>
+                                                <ReservoirView>
+                                                    <WindowGeometry>0 0 1456 852 1 </WindowGeometry>
+                                                    <UserDescription>View 1</UserDescription>
+                                                    <ShowWindow>True </ShowWindow>
+                                                    <CameraPosition>1 0 0 -31314.5 0 1 0 -26550.5 0 0 1 -64067.8 0 0 0 1</CameraPosition>
+                                                    <CameraPointOfInterest>0 0 0</CameraPointOfInterest>
+                                                    <PerspectiveProjection>True </PerspectiveProjection>
+                                                    <GridZScale>5</GridZScale>
+                                                    <ViewBackgroundColor>0.682353 0.768627 0.866667</ViewBackgroundColor>
+                                                    <MaximumFrameRate>10</MaximumFrameRate>
+                                                    <AnimationMode>False </AnimationMode>
+                                                    <CurrentTimeStep>0</CurrentTimeStep>
+                                                    <OverlayInfoConfig>
+                                                        <View3dOverlayInfoConfig>
+                                                            <Active>True </Active>
+                                                            <ShowAnimProgress>True </ShowAnimProgress>
+                                                            <ShowInfoText>True </ShowInfoText>
+                                                            <ShowResultInfo>True </ShowResultInfo>
+                                                            <ShowHistogram>True </ShowHistogram>
+                                                            <StatisticsTimeRange>ALL_TIMESTEPS</StatisticsTimeRange>
+                                                            <StatisticsCellRange>ALL_CELLS</StatisticsCellRange>
+                                                        </View3dOverlayInfoConfig>
+                                                    </OverlayInfoConfig>
+                                                    <MeshMode>FULL_MESH</MeshMode>
+                                                    <SurfaceMode>SURFACE</SurfaceMode>
+                                                    <ShowGridBox>True </ShowGridBox>
+                                                    <DisableLighting>False </DisableLighting>
+                                                    <RangeFilters>
+                                                        <CellRangeFilterCollection>
+                                                            <RangeFilters/>
+                                                            <Active>True </Active>
+                                                        </CellRangeFilterCollection>
+                                                    </RangeFilters>
+                                                    <CrossSections>
+                                                        <CrossSectionCollection>
+                                                            <CrossSections/>
+                                                            <IntersectionBoxes/>
+                                                            <Active>True </Active>
+                                                        </CrossSectionCollection>
+                                                    </CrossSections>
+                                                    <GridCollection>
+                                                        <GridCollection>
+                                                            <IsActive>True </IsActive>
+                                                        </GridCollection>
+                                                    </GridCollection>
+                                                    <GridCellResult>
+                                                        <ResultSlot>
+                                                            <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                            <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                            <ResultVariable>None</ResultVariable>
+                                                            <ResultVarLegendDefinitionList>
+                                                                <Legend>
+                                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                                    <Precision>4</Precision>
+                                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                    <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                                    <ResultVariableUsage>None</ResultVariableUsage>
+                                                                </Legend>
+                                                            </ResultVarLegendDefinitionList>
+                                                            <TernaryLegendDefinition>
+                                                                <RimTernaryLegendConfig>
+                                                                    <Precision>2</Precision>
+                                                                    <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                                    <ternaryRangeSummary></ternaryRangeSummary>
+                                                                    <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                                    <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                                    <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                                    <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                                    <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                                    <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                                </RimTernaryLegendConfig>
+                                                            </TernaryLegendDefinition>
+                                                            <LegendDefinitionPtrField>ResultVarLegendDefinitionList 0</LegendDefinitionPtrField>
+                                                        </ResultSlot>
+                                                    </GridCellResult>
+                                                    <GridCellEdgeResult>
+                                                        <CellEdgeResultSlot>
+                                                            <EnableCellEdgeColors>False </EnableCellEdgeColors>
+                                                            <propertyType>MULTI_AXIS_STATIC_PROPERTY</propertyType>
+                                                            <CellEdgeVariable>MULT</CellEdgeVariable>
+                                                            <UseXVariable>True </UseXVariable>
+                                                            <UseYVariable>True </UseYVariable>
+                                                            <UseZVariable>True </UseZVariable>
+                                                            <LegendDefinition>
+                                                                <Legend>
+                                                                    <NumberOfLevels>8</NumberOfLevels>
+                                                                    <Precision>4</Precision>
+                                                                    <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                    <ColorRangeMode>PINK_WHITE</ColorRangeMode>
+                                                                    <MappingMode>LinearContinuous</MappingMode>
+                                                                    <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                    <UserDefinedMax>1</UserDefinedMax>
+                                                                    <UserDefinedMin>0</UserDefinedMin>
+                                                                    <ResultVariableUsage></ResultVariableUsage>
+                                                                </Legend>
+                                                            </LegendDefinition>
+                                                            <SingleVarEdgeResult>
+                                                                <ResultSlot>
+                                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                                    <ResultVariable>None</ResultVariable>
+                                                                    <ResultVarLegendDefinitionList>
+                                                                        <Legend>
+                                                                            <NumberOfLevels>8</NumberOfLevels>
+                                                                            <Precision>4</Precision>
+                                                                            <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                            <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                                            <MappingMode>LinearContinuous</MappingMode>
+                                                                            <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                            <UserDefinedMax>1</UserDefinedMax>
+                                                                            <UserDefinedMin>0</UserDefinedMin>
+                                                                            <ResultVariableUsage>None</ResultVariableUsage>
+                                                                        </Legend>
+                                                                    </ResultVarLegendDefinitionList>
+                                                                    <TernaryLegendDefinition>
+                                                                        <RimTernaryLegendConfig>
+                                                                            <Precision>2</Precision>
+                                                                            <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                                            <ternaryRangeSummary></ternaryRangeSummary>
+                                                                            <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                                            <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                                            <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                                            <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                                            <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                                            <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                                        </RimTernaryLegendConfig>
+                                                                    </TernaryLegendDefinition>
+                                                                    <LegendDefinitionPtrField>ResultVarLegendDefinitionList 0</LegendDefinitionPtrField>
+                                                                </ResultSlot>
+                                                            </SingleVarEdgeResult>
+                                                        </CellEdgeResultSlot>
+                                                    </GridCellEdgeResult>
+                                                    <FaultResultSettings>
+                                                        <RimFaultResultSlot>
+                                                            <ShowCustomFaultResult>False </ShowCustomFaultResult>
+                                                            <CustomResultSlot>
+                                                                <ResultSlot>
+                                                                    <ResultType>DYNAMIC_NATIVE</ResultType>
+                                                                    <PorosityModelType>MATRIX_MODEL</PorosityModelType>
+                                                                    <ResultVariable>None</ResultVariable>
+                                                                    <ResultVarLegendDefinitionList>
+                                                                        <Legend>
+                                                                            <NumberOfLevels>8</NumberOfLevels>
+                                                                            <Precision>4</Precision>
+                                                                            <TickNumberFormat>FIXED</TickNumberFormat>
+                                                                            <ColorRangeMode>NORMAL</ColorRangeMode>
+                                                                            <MappingMode>LinearContinuous</MappingMode>
+                                                                            <RangeType>AUTOMATIC_ALLTIMESTEPS</RangeType>
+                                                                            <UserDefinedMax>1</UserDefinedMax>
+                                                                            <UserDefinedMin>0</UserDefinedMin>
+                                                                            <ResultVariableUsage>None</ResultVariableUsage>
+                                                                        </Legend>
+                                                                    </ResultVarLegendDefinitionList>
+                                                                    <TernaryLegendDefinition>
+                                                                        <RimTernaryLegendConfig>
+                                                                            <Precision>2</Precision>
+                                                                            <RangeType>USER_DEFINED_MAX_MIN</RangeType>
+                                                                            <ternaryRangeSummary></ternaryRangeSummary>
+                                                                            <UserDefinedMaxSoil>1</UserDefinedMaxSoil>
+                                                                            <UserDefinedMinSoil>0</UserDefinedMinSoil>
+                                                                            <UserDefinedMaxSgas>1</UserDefinedMaxSgas>
+                                                                            <UserDefinedMinSgas>0</UserDefinedMinSgas>
+                                                                            <UserDefinedMaxSwat>1</UserDefinedMaxSwat>
+                                                                            <UserDefinedMinSwat>0</UserDefinedMinSwat>
+                                                                        </RimTernaryLegendConfig>
+                                                                    </TernaryLegendDefinition>
+                                                                    <LegendDefinitionPtrField>ResultVarLegendDefinitionList 0</LegendDefinitionPtrField>
+                                                                </ResultSlot>
+                                                            </CustomResultSlot>
+                                                        </RimFaultResultSlot>
+                                                    </FaultResultSettings>
+                                                    <WellCollection>
+                                                        <Wells>
+                                                            <Active>True </Active>
+                                                            <ShowWellHead>True </ShowWellHead>
+                                                            <ShowWellLabel>True </ShowWellLabel>
+                                                            <WellHeadScale>1</WellHeadScale>
+                                                            <WellHeadPosition>WELLHEAD_POS_TOP_COLUMN</WellHeadPosition>
+                                                            <WellLabelColor>0.919997 0.919997 0.919997</WellLabelColor>
+                                                            <GlobalWellPipeVisibility>OPEN_IN_VISIBLE_CELLS</GlobalWellPipeVisibility>
+                                                            <WellPipeRadiusScale>0.1</WellPipeRadiusScale>
+                                                            <WellPipeVertexCount>12</WellPipeVertexCount>
+                                                            <GlobalWellCellVisibility>FORCE_ALL_OFF</GlobalWellCellVisibility>
+                                                            <ShowWellFences>False </ShowWellFences>
+                                                            <DefaultWellFenceDirection>K_DIRECTION</DefaultWellFenceDirection>
+                                                            <WellCellTransparency>0.5</WellCellTransparency>
+                                                            <IsAutoDetectingBranches>True </IsAutoDetectingBranches>
+                                                            <Wells/>
+                                                        </Wells>
+                                                    </WellCollection>
+                                                    <FaultCollection>
+                                                        <Faults>
+                                                            <Active>True </Active>
+                                                            <ShowFaultFaces>True </ShowFaultFaces>
+                                                            <ShowOppositeFaultFaces>True </ShowOppositeFaultFaces>
+                                                            <ShowFaultsOutsideFilters>True </ShowFaultsOutsideFilters>
+                                                            <FaultFaceCulling>FAULT_BACK_FACE_CULLING</FaultFaceCulling>
+                                                            <ShowFaultLabel>False </ShowFaultLabel>
+                                                            <FaultLabelColor>0.919997 0.919997 0.919997</FaultLabelColor>
+                                                            <ShowNNCs>True </ShowNNCs>
+                                                            <HideNncsWhenNoResultIsAvailable>True </HideNncsWhenNoResultIsAvailable>
+                                                            <NoCommonAreaNnncCollection>
+                                                                <RimNoCommonAreaNncCollection>
+                                                                    <UserDescription>NNCs With No Common Area (0)</UserDescription>
+                                                                </RimNoCommonAreaNncCollection>
+                                                            </NoCommonAreaNnncCollection>
+                                                            <Faults>
+                                                                <Fault>
+                                                                    <FaultName>Undefined Grid Faults</FaultName>
+                                                                    <ShowFault>True </ShowFault>
+                                                                    <Color>0.396078 0.517647 0.376471</Color>
+                                                                </Fault>
+                                                                <Fault>
+                                                                    <FaultName>Undefined Grid Faults With Inactive</FaultName>
+                                                                    <ShowFault>False </ShowFault>
+                                                                    <Color>1 0.513726 0.54902</Color>
+                                                                </Fault>
+                                                                <Fault>
+                                                                    <FaultName>Undefined Grid Faults</FaultName>
+                                                                    <ShowFault>True </ShowFault>
+                                                                    <Color>0.823529 0.690196 0.439216</Color>
+                                                                </Fault>
+                                                                <Fault>
+                                                                    <FaultName>Undefined Grid Faults With Inactive</FaultName>
+                                                                    <ShowFault>False </ShowFault>
+                                                                    <Color>0.54902 0.670588 0.933333</Color>
+                                                                </Fault>
+                                                            </Faults>
+                                                        </Faults>
+                                                    </FaultCollection>
+                                                    <PropertyFilters>
+                                                        <CellPropertyFilters>
+                                                            <Active>True </Active>
+                                                            <PropertyFilters/>
+                                                        </CellPropertyFilters>
+                                                    </PropertyFilters>
+                                                    <ShowMainGrid>True </ShowMainGrid>
+                                                    <ShowInactiveCells>False </ShowInactiveCells>
+                                                    <ShowInvalidCells>False </ShowInvalidCells>
+                                                </ReservoirView>
+                                            </ReservoirViews>
+                                            <MatrixModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </MatrixModelResults>
+                                            <FractureModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </FractureModelResults>
+                                            <FlipXAxis>False </FlipXAxis>
+                                            <FlipYAxis>False </FlipYAxis>
+                                            <FilesContainingFaults></FilesContainingFaults>
+                                            <DynamicPropertiesToCalculate>PRESSURE </DynamicPropertiesToCalculate>
+                                            <StaticPropertiesToCalculate>PERMX PORO </StaticPropertiesToCalculate>
+                                            <GeneratedPropertiesToCalculate></GeneratedPropertiesToCalculate>
+                                            <InputPropertiesToCalculate></InputPropertiesToCalculate>
+                                            <FractureDynamicPropertiesToCalculate></FractureDynamicPropertiesToCalculate>
+                                            <FractureStaticPropertiesToCalculate></FractureStaticPropertiesToCalculate>
+                                            <FractureGeneratedPropertiesToCalculate></FractureGeneratedPropertiesToCalculate>
+                                            <FractureInputPropertiesToCalculate></FractureInputPropertiesToCalculate>
+                                            <CalculatePercentiles>True </CalculatePercentiles>
+                                            <PercentileCalculationType>InterpolatedObservationPercentile</PercentileCalculationType>
+                                            <LowPercentile>10</LowPercentile>
+                                            <MidPercentile>50</MidPercentile>
+                                            <HighPercentile>90</HighPercentile>
+                                            <WellDataSourceCase>None</WellDataSourceCase>
+                                            <UseZeroAsInactiveCellValue>False </UseZeroAsInactiveCellValue>
+                                        </RimStatisticalCalculation>
+                                    </Reservoirs>
+                                </RimCaseCollection>
+                            </StatisticsCaseCollection>
+                            <CaseCollection>
+                                <RimCaseCollection>
+                                    <Reservoirs>
+                                        <EclipseCase>
+                                            <CaseUserDescription>BRUGGE_0000</CaseUserDescription>
+                                            <CaseId>5</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
+                                            <ReservoirViews/>
+                                            <MatrixModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </MatrixModelResults>
+                                            <FractureModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </FractureModelResults>
+                                            <FlipXAxis>False </FlipXAxis>
+                                            <FlipYAxis>False </FlipYAxis>
+                                            <FilesContainingFaults></FilesContainingFaults>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID</CaseFileName>
+                                        </EclipseCase>
+                                        <EclipseCase>
+                                            <CaseUserDescription>BRUGGE_0010</CaseUserDescription>
+                                            <CaseId>7</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
+                                            <ReservoirViews/>
+                                            <MatrixModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </MatrixModelResults>
+                                            <FractureModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </FractureModelResults>
+                                            <FlipXAxis>False </FlipXAxis>
+                                            <FlipYAxis>False </FlipYAxis>
+                                            <FilesContainingFaults></FilesContainingFaults>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID</CaseFileName>
+                                        </EclipseCase>
+                                        <EclipseCase>
+                                            <CaseUserDescription>BRUGGE_0030</CaseUserDescription>
+                                            <CaseId>8</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
+                                            <ReservoirViews/>
+                                            <MatrixModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </MatrixModelResults>
+                                            <FractureModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </FractureModelResults>
+                                            <FlipXAxis>False </FlipXAxis>
+                                            <FlipYAxis>False </FlipYAxis>
+                                            <FilesContainingFaults></FilesContainingFaults>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID</CaseFileName>
+                                        </EclipseCase>
+                                        <EclipseCase>
+                                            <CaseUserDescription>BRUGGE_0040</CaseUserDescription>
+                                            <CaseId>9</CaseId>
+                                            <DefaultFormationNames></DefaultFormationNames>
+                                            <ReservoirViews/>
+                                            <MatrixModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </MatrixModelResults>
+                                            <FractureModelResults>
+                                                <ReservoirCellResultStorage>
+                                                    <ResultCacheFileName></ResultCacheFileName>
+                                                    <ResultCacheEntries/>
+                                                </ReservoirCellResultStorage>
+                                            </FractureModelResults>
+                                            <FlipXAxis>False </FlipXAxis>
+                                            <FlipYAxis>False </FlipYAxis>
+                                            <FilesContainingFaults></FilesContainingFaults>
+                                            <CaseFileName>D:/gitroot/ResInsight/TestModels/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID</CaseFileName>
                                         </EclipseCase>
                                     </Reservoirs>
                                 </RimCaseCollection>
@@ -433,7 +845,25 @@
                     </CaseGroups>
                 </ResInsightAnalysisModels>
             </AnalysisModels>
-            <WellPathCollection/>
+            <GeoMechModels/>
+            <WellPathCollection>
+                <WellPaths>
+                    <Active>True </Active>
+                    <ShowWellPathLabel>True </ShowWellPathLabel>
+                    <WellPathLabelColor>0.919997 0.919997 0.919997</WellPathLabelColor>
+                    <GlobalWellPathVisibility>ALL_ON</GlobalWellPathVisibility>
+                    <WellPathRadiusScale>0.1</WellPathRadiusScale>
+                    <WellPathClip>True </WellPathClip>
+                    <WellPathClipZDistance>100</WellPathClipZDistance>
+                    <WellPaths/>
+                </WellPaths>
+            </WellPathCollection>
+            <SummaryCaseCollection>
+                <SummaryCaseCollection>
+                    <SummaryCases/>
+                </SummaryCaseCollection>
+            </SummaryCaseCollection>
+            <FormationNamesCollection/>
         </ResInsightOilField>
     </OilFields>
     <ScriptCollection>
@@ -442,31 +872,129 @@
             <CalcScripts/>
             <SubDirectories>
                 <ScriptLocation>
-                    <ScriptDirectory>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts</ScriptDirectory>
+                    <ScriptDirectory>D:\Models\Statoil\OctaveScripts</ScriptDirectory>
                     <CalcScripts>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\InputPropTest.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\activeCellProperty.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\kaverage.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\getCurrentCase.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\kslice.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\IJK_index.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\LGRSOIL.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\InputPropTest.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\OctaveInterfaceTest.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\jadda.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\ResInsightIterfaceUnitTest.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\kaverage.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\SatNum.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\kslice.m</AbsolutePath>
                         </CalcScript>
                         <CalcScript>
-                            <AbsolutePath>C:\gitRoot\OPM\ResInsight\OctavePlugin\OctaveScripts\SoilTimeDiff.m</AbsolutePath>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\KvKh.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\LGRSOIL.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\magne_1.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\msj_test_activeCellProperty.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\msj_test_activeCellProperty2.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\PressureForSgas.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\SatNum.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\SetGridProperty_seg_fault.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\SoilTimeDiff.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\SoilTimeDiff_magne.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\testAsciiGrids.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\testSleep - Copy - Copy.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\testSleep - Copy.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\testSleep.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\untitled.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\untitled1.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\untitled2.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\untitled3.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\untitled4.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\Models\Statoil\OctaveScripts\untitled5.m</AbsolutePath>
+                        </CalcScript>
+                    </CalcScripts>
+                    <SubDirectories>
+                        <ScriptLocation>
+                            <ScriptDirectory>D:/Models/Statoil/OctaveScripts/a</ScriptDirectory>
+                            <CalcScripts/>
+                            <SubDirectories/>
+                        </ScriptLocation>
+                        <ScriptLocation>
+                            <ScriptDirectory>D:/Models/Statoil/OctaveScripts/test</ScriptDirectory>
+                            <CalcScripts/>
+                            <SubDirectories/>
+                        </ScriptLocation>
+                    </SubDirectories>
+                </ScriptLocation>
+                <ScriptLocation>
+                    <ScriptDirectory>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts</ScriptDirectory>
+                    <CalcScripts>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\InputPropTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\kaverage.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\kslice.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\LGRSOIL.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\OctaveInterfaceTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\ResInsightIterfaceUnitTest.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\SatNum.m</AbsolutePath>
+                        </CalcScript>
+                        <CalcScript>
+                            <AbsolutePath>D:\gitroot\ResInsight\OctavePlugin\OctaveScripts\SoilTimeDiff.m</AbsolutePath>
                         </CalcScript>
                     </CalcScripts>
                     <SubDirectories/>
@@ -474,7 +1002,6 @@
             </SubDirectories>
         </ScriptLocation>
     </ScriptCollection>
-    <TreeViewState>-1-1000000000060;-1-10000000000;-1-100000000;-1-1000000;-1-1000010;-1-10000;-1-100</TreeViewState>
     <WellPathImport>
         <RimWellPathImport>
             <WellTypeSurvey>True </WellTypeSurvey>
@@ -487,6 +1014,32 @@
             <Regions/>
         </RimWellPathImport>
     </WellPathImport>
+    <MainPlotCollection>
+        <MainPlotCollection>
+            <Show>True </Show>
+            <WellLogPlotCollection>
+                <WellLogPlotCollection>
+                    <WellLogPlots/>
+                </WellLogPlotCollection>
+            </WellLogPlotCollection>
+            <SummaryPlotCollection>
+                <SummaryPlotCollection>
+                    <SummaryPlots/>
+                </SummaryPlotCollection>
+            </SummaryPlotCollection>
+        </MainPlotCollection>
+    </MainPlotCollection>
+    <LinkedViews>
+        <RimViewLinkerCollection>
+            <Active>True </Active>
+            <ViewLinkers/>
+        </RimViewLinkerCollection>
+    </LinkedViews>
     <CommandObjects/>
-    <TreeViewCurrentModelIndexPath>0 0;0 0;0 0;0 0;0 0;6 0;0 0</TreeViewCurrentModelIndexPath>
+    <TreeViewState>-1-100000000;-1-1000000;-1-1000010;-1-10000;-1-1001000;-1-1001010;-1-10010;-1-100</TreeViewState>
+    <TreeViewCurrentModelIndexPath>0 0;1 0;1 0</TreeViewCurrentModelIndexPath>
+    <PlotWindowTreeViewState></PlotWindowTreeViewState>
+    <PlotWindowTreeViewCurrentModelIndexPath></PlotWindowTreeViewCurrentModelIndexPath>
+    <show3DWindow>True </show3DWindow>
+    <showPlotWindow>False </showPlotWindow>
 </ResInsightProject>

@@ -23,8 +23,8 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSection.h"
-#include "RimCrossSectionCollection.h"
+#include "RimIntersection.h"
+#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -35,12 +35,20 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersectionBox.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellLogCurve.h"
@@ -63,6 +71,7 @@
 #include <vector>
 
 #include <QMenu>
+#include "RimFault.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -77,14 +86,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     if (uiItems.size() == 0)
     {
         commandIds << "RicNewWellLogPlotFeature";
-    }
-    else if (uiItems.size() > 1)
-    {
-        caf::PdmUiItem* uiItem = uiItems[0];
-        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
-        {
-            commandIds << "RicAddWellLogToPlotFeature";
-        }
+        commandIds << "RicNewSummaryPlotFeature";
     }
     else if (uiItems.size() == 1)
     {
@@ -100,57 +102,57 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
-            commandIds << "RicNewViewFeature";
-            commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteGeoMechViewsFeature";
-            commandIds << "RicDeleteItemFeature";
             commandIds << "Separator";
+
+            commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
+            commandIds << "RicCopyReferencesToClipboardFeature";
         }
         else if (dynamic_cast<RimEclipseView*>(uiItem))
         {
-            commandIds << "RicNewViewFeature";
-            commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicPasteEclipseViewsFeature";
-            commandIds << "RicDeleteItemFeature";
             commandIds << "Separator";
+            commandIds << "RicNewViewFeature";
+            commandIds << "Separator";
+            commandIds << "RicCopyReferencesToClipboardFeature";
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
             commandIds << "RicPasteEclipseCasesFeature";
+            commandIds << "Separator";
             commandIds << "RicNewStatisticsCaseFeature";
         }
         else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
         {
             commandIds << "RicNewViewFeature";
             commandIds << "RicComputeStatisticsFeature";
-            commandIds << "RicCloseCaseFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
+            commandIds << "Separator";
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
-            commandIds << "RicCopyReferencesToClipboardFeature";
-
             commandIds << "RicPasteEclipseCasesFeature";
             commandIds << "RicPasteEclipseViewsFeature";
+            commandIds << "Separator";
 
-            commandIds << "RicCloseCaseFeature";
             commandIds << "RicNewViewFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
-            commandIds << "RicExecuteScriptForCasesFeature";
+            commandIds << "Separator";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "Separator";
         }
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
         {
             commandIds << "RicPasteGeoMechViewsFeature";
+            commandIds << "Separator";
             commandIds << "RicNewViewFeature";
             commandIds << "Separator";
-
-            commandIds << "RicCloseCaseFeature";
         }
         else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))
         {
-            commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "RicPasteEclipseCasesFeature";
-            commandIds << "RicDeleteItemFeature";
+            commandIds << "Separator";
+            commandIds << "RicEclipseCaseNewGroupFeature";
         }
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
@@ -159,10 +161,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
         {
             commandIds << "RicAddEclipseInputPropertyFeature";
+            commandIds << "RicAddOpmInputPropertyFeature";
         }
         else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
         {
-            commandIds << "RicDeleteItemFeature";
             commandIds << "RicSaveEclipseInputPropertyFeature";
         }
         else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem))
@@ -178,8 +180,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicRangeFilterNewSliceIFeature";
             commandIds << "RicRangeFilterNewSliceJFeature";
             commandIds << "RicRangeFilterNewSliceKFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimEclipsePropertyFilterCollection*>(uiItem))
         {
@@ -188,8 +188,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
             commandIds << "RicEclipsePropertyFilterInsertFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
         {
@@ -198,40 +196,43 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
             commandIds << "RicGeoMechPropertyFilterInsertFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
-            commandIds << "RicWellPathsDeleteAllFeature";
             commandIds << "RicWellPathsImportFileFeature";
             commandIds << "RicWellPathsImportSsihubFeature";
             commandIds << "RicWellLogsImportFileFeature";
+            commandIds << "Separator";
+            commandIds << "RicWellPathsDeleteAllFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
-            commandIds << "RicNewWellPathCrossSectionFeature";
+            commandIds << "RicNewWellPathIntersectionFeature";
+            commandIds << "Separator";
             commandIds << "RicWellPathDeleteFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
             commandIds << "RicEditScriptFeature";
+            commandIds << "Separator";
             commandIds << "RicNewScriptFeature";
             commandIds << "Separator";
             commandIds << "RicExecuteScriptFeature";
         }
         else if (dynamic_cast<RimScriptCollection*>(uiItem))
         {
+            commandIds << "RicNewScriptFeature";
+            commandIds << "Separator";
             commandIds << "RicAddScriptPathFeature";
+            commandIds << "RicRefreshScriptsFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteScriptPathFeature";
         }
         else if (dynamic_cast<RimViewController*>(uiItem))
         {
             commandIds << "RicShowAllLinkedViewsFeature";
-            commandIds << "Separator";
-            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimViewLinker*>(uiItem))
         {
@@ -241,51 +242,168 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
+            commandIds << "RicPasteWellLogPlotFeature";
+            commandIds << "Separator";
             commandIds << "RicNewWellLogPlotFeature";
+        }
+        else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
+        {
+            commandIds << "RicPasteSummaryPlotFeature";
+            commandIds << "Separator";
+            commandIds << "RicNewSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
+            commandIds << "RicPasteWellLogPlotFeature";
+            commandIds << "RicPasteWellLogTrackFeature";
+            commandIds << "Separator";
             commandIds << "RicNewWellLogPlotTrackFeature";
-            commandIds << "RicDeleteItemFeature";
         }
         else if (dynamic_cast<RimWellLogTrack*>(uiItem))
         {
+            commandIds << "RicPasteWellLogTrackFeature";
+            commandIds << "RicPasteWellLogCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellLogFileCurveFeature";
+            commandIds << "Separator";
             commandIds << "RicDeleteWellLogPlotTrackFeature";
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem))
         {
-            commandIds << "RicExportToLasFileFeature";
-            commandIds << "RicDeleteItemFeature";
+            commandIds << "RicPasteWellLogCurveFeature";
+        }
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem))
+        {
+            commandIds << "RicPasteSummaryCurveFeature";
+            commandIds << "RicPasteSummaryCurveFilterFeature";
+            commandIds << "RicPasteSummaryPlotFeature";
+            commandIds << "Separator";
+            commandIds << "RicNewSummaryPlotFeature";
+            commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "Separator";
+            commandIds << "RicViewZoomAllFeature";
+        }
+        else if (dynamic_cast<RimSummaryCurve*>(uiItem))
+        {
+            commandIds << "RicPasteSummaryCurveFeature";
+            commandIds << "Separator";
+            commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "Separator";
+            commandIds << "RicSummaryCurveSwitchAxisFeature";
+        }
+        else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
+        {
+            commandIds << "RicPasteSummaryCurveFilterFeature";
+            commandIds << "Separator";
+            commandIds << "RicNewSummaryCurveFilterFeature";
+            commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "Separator";
+            commandIds << "RicSummaryCurveSwitchAxisFeature";
+        }
+        else if (dynamic_cast<RimSummaryCase*>(uiItem))
+        {
+            commandIds << "RicNewSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
             commandIds << "RicAddWellLogToPlotFeature";
         }
-        else if (dynamic_cast<RimCrossSectionCollection*>(uiItem))
+        else if (dynamic_cast<RimIntersectionCollection*>(uiItem))
         {
-            commandIds << "RicAppendCrossSectionFeature";
+            commandIds << "RicAppendIntersectionFeature";
+            commandIds << "RicAppendIntersectionBoxFeature";
         }
-        else if (dynamic_cast<RimCrossSection*>(uiItem))
+        else if (dynamic_cast<RimIntersection*>(uiItem))
         {
-            commandIds << "RicAppendCrossSectionFeature";
-            commandIds << "RicDeleteItemFeature";
+            commandIds << "RicAppendIntersectionFeature";
+            commandIds << "RicAppendIntersectionBoxFeature";
+        }
+        else if (dynamic_cast<RimIntersectionBox*>(uiItem))
+        {
+            commandIds << "RicAppendIntersectionFeature";
+            commandIds << "RicAppendIntersectionBoxFeature";
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
-            commandIds << "RicNewSimWellCrossSectionFeature";
+            commandIds << "RicNewSimWellIntersectionFeature";
         }
+        else if(dynamic_cast<RimFormationNames*>(uiItem))
+        {
+            commandIds << "RicImportFormationNamesFeature";
+            commandIds << "RicReloadFormationNamesFeature";
+        }
+        else if(dynamic_cast<RimFormationNamesCollection*>(uiItem))
+        {
+            commandIds << "RicImportFormationNamesFeature";
+            commandIds << "Separator";
+            commandIds << "RicReloadFormationNamesFeature";
+        }
+        else if ( dynamic_cast<RimFault*>(uiItem) )
+        {
+            commandIds << "RicExportFaultsFeature";
+        }
+
 
         if (dynamic_cast<RimView*>(uiItem))
         {
+            commandIds << "Separator";
             commandIds << "RicLinkVisibleViewsFeature";
             commandIds << "RicLinkViewFeature";
-            commandIds << "RicUnLinkViewFeature";
             commandIds << "RicShowLinkOptionsFeature";
             commandIds << "RicSetMasterViewFeature";
+            commandIds << "RicUnLinkViewFeature";
         }
     }
+
+    // Command supporting multiple selected objects
+    if (uiItems.size() > 0)
+    {
+        caf::PdmUiItem* uiItem = uiItems[0];
+        if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
+        {
+            commandIds << "RicAddWellLogToPlotFeature";
+        }
+        else if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
+        {
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimEclipseCase*>(uiItem))
+        {
+            commandIds << "RicExecuteScriptForCasesFeature";
+        }
+        else if (dynamic_cast<RimSummaryCurve*>(uiItem) ||
+                 dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicSummaryCurveSwitchAxisFeature";
+
+        }
+        else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
+                 dynamic_cast<RimWellLogTrack*>(uiItem) ||
+                 dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicExportToLasFileFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
+        {
+            commandIds << "RicExportToLasFileFeature";
+        }
+        else if (dynamic_cast<RimFault*>(uiItem) )
+        {
+            commandIds << "RicExportFaultsFeature";
+        }
+    }
+
 
     if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
     {
@@ -293,6 +411,18 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicToggleItemsOnFeature";
         commandIds << "RicToggleItemsOffFeature";
         commandIds << "RicToggleItemsFeature";
+    }
+
+    if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature")->canFeatureBeExecuted() )
+    {
+        commandIds << "Separator";
+        commandIds << "RicDeleteItemFeature";
+    }
+
+    if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicCloseCaseFeature")->canFeatureBeExecuted() )
+    {
+        commandIds << "Separator";
+        commandIds << "RicCloseCaseFeature";
     }
 
     return commandIds;

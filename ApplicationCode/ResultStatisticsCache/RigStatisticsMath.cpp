@@ -27,14 +27,14 @@
 /// A function to do basic statistical calculations 
 //--------------------------------------------------------------------------------------------------
 
-void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* range, double* mean, double* dev)
+void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* sum, double* range, double* mean, double* dev)
 {
     double m_min(HUGE_VAL);
     double m_max(-HUGE_VAL);
     double m_mean(HUGE_VAL);
     double m_dev(HUGE_VAL);
 
-    double sum = 0.0;
+    double m_sum = 0.0;
     double sumSquared = 0.0;
 
     size_t validValueCount = 0;
@@ -49,20 +49,20 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
         if (val < m_min) m_min = val;
         if (val > m_max) m_max = val;
 
-        sum += val;
+        m_sum += val;
         sumSquared += (val * val);
     }
 
     if (validValueCount > 0)
     {
-        m_mean = sum / validValueCount;
+        m_mean = m_sum / validValueCount;
 
 
         // http://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
         // Running standard deviation
 
         double s0 = static_cast<double>(validValueCount);
-        double s1 = sum;
+        double s1 = m_sum;
         double s2 = sumSquared;
 
         m_dev = sqrt( (s0 * s2) - (s1 * s1) ) / s0;
@@ -70,6 +70,7 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
 
     if (min) *min = m_min;
     if (max) *max = m_max;
+    if (sum) *sum = m_sum;
     if (range) *range = m_max - m_min;
 
     if (mean) *mean = m_mean;

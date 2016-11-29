@@ -20,11 +20,9 @@
 
 #include "RifEclipseOutputFileTools.h"
 
-#include "util.h"
-#include "ecl_file.h"
-#include "ecl_kw_magic.h"
-#include "ecl_grid.h"
-#include "ecl_rsthead.h"
+#include "ert/ecl/ecl_file.h"
+#include "ert/ecl/ecl_grid.h"
+#include "ert/ecl/ecl_kw_magic.h"
 
 #include "cafProgressInfo.h"
 
@@ -49,6 +47,59 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 {
 }
 
+struct KeywordItemCounter
+{
+    KeywordItemCounter(std::string keyword, size_t aggregatedItemCount)
+        : m_keyword(keyword),
+        m_aggregatedItemCount(aggregatedItemCount),
+        m_reportStepCount(1)
+    {}
+
+    bool operator==(const std::string& rhs) const
+    {
+        return this->m_keyword == rhs;
+    }
+
+
+    std::string m_keyword;
+    size_t      m_aggregatedItemCount;
+    size_t      m_reportStepCount;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::findKeywordsAndItemCount(std::vector<ecl_file_type*> ecl_files, QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
+{
+    std::vector<RifRestartReportStep> reportSteps;
+    RifEclipseOutputFileTools::createReportStepsMetaData(ecl_files, &reportSteps);
+
+    std::vector<KeywordItemCounter> foundKeywords;
+
+    for (auto reportStep : reportSteps)
+    {
+        for (auto keywordItemCount : reportStep.m_keywords.keywordsWithAggregatedItemCount())
+        {
+            auto it = std::find(foundKeywords.begin(), foundKeywords.end(), keywordItemCount.first);
+            if (it == foundKeywords.end())
+            {
+                foundKeywords.push_back(KeywordItemCounter(keywordItemCount.first, keywordItemCount.second));
+            }
+            else
+            {
+                it->m_aggregatedItemCount += keywordItemCount.second;
+                it->m_reportStepCount++;
+            }
+        }
+    }
+
+    for (auto stdKeyword : foundKeywords)
+    {
+        resultNames->push_back(QString::fromStdString(stdKeyword.m_keyword));
+        resultDataItemCounts->push_back(stdKeyword.m_aggregatedItemCount);
+    }
+}
+
 void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* year)
 {
     assert(day && month && year);
@@ -63,8 +114,9 @@ void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* 
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps)
 {
+    if (!ecl_file) return;
+
     CVF_ASSERT(timeSteps);
-    CVF_ASSERT(ecl_file);
 
     // Get the number of occurrences of the INTEHEAD keyword
     int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
@@ -235,45 +287,6 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file_type* ecl_file, QStringList* keywords, std::vector<size_t>* keywordDataItemCounts)
-{
-    if (!ecl_file || !keywords || !keywordDataItemCounts) return;
-
-    int numKeywords = ecl_file_get_num_distinct_kw(ecl_file);
-
-    caf::ProgressInfo info(numKeywords, "Reading Keywords on file");
-
-    for (int i = 0; i < numKeywords; i++)
-    {
-        const char* kw = ecl_file_iget_distinct_kw(ecl_file , i);
-        int numKeywordOccurrences = ecl_file_get_num_named_kw(ecl_file, kw);
-        bool validData = true;
-        size_t fileResultValueCount = 0;
-        for (int j = 0; j < numKeywordOccurrences; j++)
-        {
-            fileResultValueCount += ecl_file_iget_named_size(ecl_file, kw, j);
-
-            ecl_type_enum dataType = ecl_file_iget_named_type(ecl_file, kw, j);
-            if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE )
-            {
-                validData = false;
-                break;
-            }
-        }
-
-        if (validData)
-        {
-            keywords->append(QString(kw));
-            keywordDataItemCounts->push_back(fileResultValueCount);
-        }
-
-        info.setProgress(i);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions)
 {
     ecl_grid_type * grid         = ecl_grid_alloc(gridFileName.toAscii().data());                               // bootstrap ecl_grid instance
@@ -322,4 +335,68 @@ int RifEclipseOutputFileTools::readUnitsType(ecl_file_type* ecl_file)
     }
 
     return unitsType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps)
+{
+    if (!reportSteps) return;
+
+    for (auto ecl_file : ecl_files)
+    {
+        if (!ecl_file) continue;
+
+        int reportStepCount = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
+        for (int reportStepIndex = 0; reportStepIndex < reportStepCount; reportStepIndex++)
+        {
+            ecl_file_view_type* rst_view = ecl_file_get_global_view(ecl_file);
+            if (!rst_view) continue;
+
+            ecl_rsthead_type* restart_header = ecl_rsthead_alloc(rst_view, reportStepIndex);
+            if (restart_header)
+            {
+                ecl_file_push_block(ecl_file);
+
+                {
+                    ecl_file_select_block(ecl_file, INTEHEAD_KW, reportStepIndex);
+
+                    RifRestartReportStep reportStep;
+
+                    // Set Date
+                    {
+                        QDateTime reportDateTime(QDate(restart_header->year, restart_header->month, restart_header->day));
+                        reportStep.dateTime = reportDateTime;
+                    }
+
+                    // Find number of keywords withing this report step
+                    int numKeywords = ecl_file_get_num_distinct_kw(ecl_file);
+                    for (int iKey = 0; iKey < numKeywords; iKey++)
+                    {
+                        const char* kw = ecl_file_iget_distinct_kw(ecl_file, iKey);
+
+                        int namedKeywordCount = ecl_file_get_num_named_kw(ecl_file, kw);
+                        for (int iOcc = 0; iOcc < namedKeywordCount; iOcc++)
+                        {
+                            ecl_type_enum dataType = ecl_file_iget_named_type(ecl_file, kw, iOcc);
+                            if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE)
+                            {
+                                continue;
+                            }
+
+                            int itemCount = ecl_file_iget_named_size(ecl_file, kw, iOcc);
+                            reportStep.m_keywords.appendKeyword(kw, itemCount, iOcc);
+                        }
+                    }
+
+                    reportSteps->push_back(reportStep);
+                }
+
+                ecl_file_pop_block(ecl_file);
+
+                ecl_rsthead_free(restart_header);
+            }
+        }
+    }
 }

@@ -50,6 +50,34 @@ private:
     bool                        m_isResolved;
 };
 
+template <typename DataType> class PdmPtrArrayField;
+
+template < typename DataType>
+class PdmFieldXmlCap< PdmPtrArrayField<DataType*> >: public PdmXmlFieldHandle
+{
+    typedef PdmPtrArrayField<DataType*> FieldType;
+public:
+    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
+    {
+        m_field = field;
+        m_childClassKeyword = DataType::classKeywordStatic();
+        m_isResolved = false;
+        m_referenceString = "";
+    }
+
+    // Xml Serializing
+public:
+    virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
+    virtual void        writeFieldData(QXmlStreamWriter& xmlStream);
+    virtual void        resolveReferences();
+
+private:
+    FieldType* m_field;
+
+    // Resolving
+    QString                     m_referenceString;
+    bool                        m_isResolved;
+};
 
 
 template <typename DataType> class PdmChildField;

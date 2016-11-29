@@ -55,8 +55,9 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
     case QEvent::MouseButtonPress:
         {
             QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-            int translatedMousePosX = me->x();
-            int translatedMousePosY = m_viewer->height() - me->y();
+
+            int translatedMousePosX, translatedMousePosY;
+            cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
             if (me->button() == Qt::MidButton)
             {
@@ -74,26 +75,9 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
                 }
 
                 m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
-                //m_viewer->setCursor(RICursors::get(RICursors::ROTATE));
                 m_isNavigating = true;
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled = true;
-            }
-            else if (me->button() == Qt::LeftButton)
-            {
-                if (me->modifiers() == Qt::NoModifier)
-                {
-                    QMouseEvent* we = static_cast<QMouseEvent*> ( inputEvent);
-                    m_lastPosX = we->x();
-                    m_lastPosY = we->y();
-
-                    m_zoomRay = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
-
-                    m_isNavigating = true;
-                    m_hasMovedMouseDuringNavigation = false;
-                    isEventHandled = true;
-                    m_isZooming = true;
-                }
             }
             else if (me->button() == Qt::RightButton)
             {
@@ -104,7 +88,24 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_hasMovedMouseDuringNavigation = false;
                     isEventHandled = true;
                 }
+            }            
+            else if (me->button() == Qt::LeftButton)
+            {
+                if (me->modifiers() == Qt::NoModifier)
+                {
+                    QMouseEvent* we = static_cast<QMouseEvent*> ( inputEvent);
+                    m_lastPosX = we->x();
+                    m_lastPosY = we->y();
+
+                    m_zoomRay = createZoomRay(translatedMousePosX, translatedMousePosY);
+
+                    m_isNavigating = true;
+                    m_hasMovedMouseDuringNavigation = false;
+                    isEventHandled = true;
+                    m_isZooming = true;
+                }
             }
+
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -137,8 +138,9 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
             if (m_isRotCenterInitialized)
             {
                 QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-                int translatedMousePosX = me->x();
-                int translatedMousePosY = m_viewer->height() - me->y();
+
+                int translatedMousePosX, translatedMousePosY;
+                cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
                 if (m_isNavigating)
                 {
@@ -171,18 +173,13 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
                 if (m_isRotCenterInitialized)
                 {
                     QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
-                    int translatedMousePosX = we->x();
-                    int translatedMousePosY = m_viewer->height() - we->y();
-                    int delta = we->delta();
 
-                    cvf::ref<cvf::Ray> ray;
-                    if (delta < 0)
-                        ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
-                    else
-                        ray = m_viewer->mainCamera()->rayFromWindowCoordinates((int)(1.0*translatedMousePosX), (int)(1.0*translatedMousePosY));
+                    int translatedMousePosX, translatedMousePosY;
+                    cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 
-                    zoomAlongRay(ray.p(), -delta);
+                    cvf::ref<cvf::Ray> ray = createZoomRay(translatedMousePosX, translatedMousePosY);
 
+                    zoomAlongRay(ray.p(), -we->delta());
                 }
                 isEventHandled = true;
             }

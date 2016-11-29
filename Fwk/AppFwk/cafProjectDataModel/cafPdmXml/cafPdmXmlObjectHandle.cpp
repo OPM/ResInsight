@@ -337,7 +337,7 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively(PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 /// Implementation of xmlCapability() defined in cafPdmObjectHandle.h
 //--------------------------------------------------------------------------------------------------
-PdmXmlObjectHandle* PdmObjectHandle::xmlCapability()
+PdmXmlObjectHandle* PdmObjectHandle::xmlCapability() const
  {
     PdmXmlObjectHandle* xmlField = capability<PdmXmlObjectHandle>();
     assert(xmlField);

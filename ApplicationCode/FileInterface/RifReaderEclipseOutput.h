@@ -21,10 +21,12 @@
 #pragma once
 
 #include "RifReaderInterface.h"
+
+#include "RigFault.h"
+#include "RigSingleWellResultsData.h"
+
 #include <QList>
 #include <QDateTime>
-
-#include "RigSingleWellResultsData.h"
 
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
@@ -48,6 +50,7 @@ public:
     virtual ~RifReaderEclipseOutput();
 
     bool                    open(const QString& fileName, RigCaseData* eclipseCase);
+
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase);
     void                    close();
 
@@ -64,8 +67,10 @@ private:
 
     std::string             ertGridName( size_t gridNr );
 
-    static RigWellResultPoint createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId);
+    static RigWellResultPoint createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
     
+    void                    importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const;
+    void                    importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults);
 
 
     void                    openInitFile();

@@ -25,7 +25,7 @@ enum RivCellSetEnum
     ALL_CELLS,
     ACTIVE,                                         ///< All Active cells without ALL_WELL_CELLS
     ALL_WELL_CELLS,                                 ///< All cells ever having a connection to a well (Might be inactive cells as well. Wellhead cells typically)
-    VISIBLE_WELL_CELLS,                             ///< ALL_WELL_CELLS && visible well cells including Fence
+    VISIBLE_WELL_CELLS,                             ///< ALL_WELL_CELLS && visible well cells (including Fence <-- is this correct? MSJ/JJS )
     VISIBLE_WELL_FENCE_CELLS,                       ///< (! ALL_WELL_CELLS) && visible well cells including Fence
     INACTIVE,                                       ///< All inactive cells, but invalid cells might or might not be included
     RANGE_FILTERED,                                 ///< ACTIVE Filtered by the set of range filters

@@ -31,9 +31,16 @@ public:
 
     /// The field referencing this object as a child
     PdmFieldHandle*         parentField() const;
-    /// Convenience function. Traverses from parent to parents parent to find first object of the requested type.
+
+    /// Returns _this_ if _this_ is of requested type
+    /// Traverses parents recursively and returns first parent of the requested type.
     template <typename T>
-    void                    firstAnchestorOrThisOfType(T*& ancestor) const;
+    void                    firstAncestorOrThisOfType(T*& ancestor) const;
+
+    /// Traverses all children recursively to find objects of the requested type. This object is also 
+    /// included if it is of the requested type.
+    template <typename T>
+    void                    descendantsIncludingThisOfType(std::vector<T*>& descendants) const;
 
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
@@ -46,7 +53,7 @@ public:
     void                    addCapability(PdmObjectCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
 
     template <typename CapabilityType>
-    CapabilityType* capability() 
+    CapabilityType* capability() const
     {
         for (size_t i = 0; i < m_capabilities.size(); ++i)
         {
@@ -56,8 +63,8 @@ public:
         return NULL;
     }
 
-    PdmUiObjectHandle*  uiCapability();     // Implementation is in cafPdmUiObjectHandle.cpp
-    PdmXmlObjectHandle* xmlCapability();    // Implementation is in cafPdmXmlObjectHandle.cpp
+    PdmUiObjectHandle*  uiCapability() const;     // Implementation is in cafPdmUiObjectHandle.cpp
+    PdmXmlObjectHandle* xmlCapability() const;    // Implementation is in cafPdmXmlObjectHandle.cpp
 
 protected: 
     void addField(PdmFieldHandle* field, const QString& keyword);
@@ -84,6 +91,7 @@ private:
     // Give access to set/removeAsParentField
     template < class T > friend class PdmChildArrayField;
     template < class T > friend class PdmChildField;
+    template < class T > friend class PdmPtrArrayField;
     template < class T > friend class PdmPtrField;
     template < class T > friend class PdmField; // For backwards compatibility layer
 
@@ -105,7 +113,7 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
+void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 {
     ancestor = NULL;
 
@@ -118,7 +126,7 @@ void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
         return;
     }
 
-    // Search anchestors
+    // Search parents for first type match
 
     PdmObjectHandle* parent = NULL;
     PdmFieldHandle* parentField = this->parentField();
@@ -144,6 +152,30 @@ void PdmObjectHandle::firstAnchestorOrThisOfType(T*& ancestor) const
         else
         {
             parent = NULL;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::descendantsIncludingThisOfType(std::vector<T*>& descendants) const
+{
+    const T* objectOfType = dynamic_cast<const T*>(this);
+    if (objectOfType)
+    {
+        descendants.push_back(const_cast<T*>(objectOfType));
+    }
+
+    for (auto f : m_fields)
+    {
+        std::vector<PdmObjectHandle*> childObjects;
+        f->childObjects(&childObjects);
+
+        for (auto childObject : childObjects)
+        {
+            childObject->descendantsIncludingThisOfType(descendants);
         }
     }
 }

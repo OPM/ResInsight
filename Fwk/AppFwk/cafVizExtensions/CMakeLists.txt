@@ -15,9 +15,24 @@ include_directories(
 )
 
 add_library( ${PROJECT_NAME}
+    cafDisplayCoordTransform.cpp
+    cafDisplayCoordTransform.h
+    cafBoxManipulatorPartManager.cpp
+    cafBoxManipulatorPartManager.h
+    cafBoxManipulatorGeometryGenerator.cpp
+    cafBoxManipulatorGeometryGenerator.h
+    cafCategoryLegend.cpp
+    cafCategoryLegend.h
+    cafCategoryMapper.cpp
+    cafCategoryMapper.h
+    cafFixedAtlasFont.h
+    cafFixedAtlasFont.cpp
 	cafTransparentWBRenderConfiguration.h
 	cafTransparentWBRenderConfiguration.cpp
 	TranspWB_CombinationFrag.glsl
 	TranspWB_PartlyTranspPartsFrag.glsl
 	TranspWB_TransparentPartsFrag.glsl
+  
+    cafHexGridIntersectionTools/cafHexGridIntersectionTools.h
+    cafHexGridIntersectionTools/cafHexGridIntersectionTools.cpp
 )

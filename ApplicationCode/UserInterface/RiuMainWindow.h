@@ -20,40 +20,36 @@
 
 #pragma once
 
+#include "RiuMainWindowBase.h"
+
+#include "cafPdmUiDragDropInterface.h"
+
 #include <QEvent>
-#include <QMainWindow>
 #include <QPointer>
 #include <QMdiArea>
 
+#include <memory>
+#include <vector>
+
 class QActionGroup;
-class QComboBox;
-class QFrame;
-class QItemSelection;
-class QLabel;
-class QLineEdit;
 class QMdiSubWindow;
 class QSpinBox;
-class QTreeView;
 class QUndoView;
 
 class RimCase;
-class RimEclipseCase;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuViewer;
-class RiuWellLogPlot;
 class RiuResultQwtPlot;
+struct RimMdiWindowGeometry;
 
 namespace caf
 {
     class PdmUiTreeView;
     class AnimationToolBar;
-    class FrameAnimationControl;
-    class PdmObject;
+     class PdmObject;
     class PdmUiPropertyView;
-    class UiPropertyCreatorPdm;
     class PdmUiItem;
-    class PdmUiDragDropInterface;
 }
 
 namespace ssihub
@@ -66,19 +62,23 @@ namespace ssihub
 // 
 //
 //==================================================================================================
-class RiuMainWindow : public QMainWindow
+class RiuMainWindow : public RiuMainWindowBase
 {
     Q_OBJECT
 
 public:
     RiuMainWindow();
+
     static RiuMainWindow* instance();
+
+    virtual QString mainWindowName()        { return "RiuMainWindow";  }
     
     void            initializeGuiNewProjectLoaded();
+    void            cleanupGuiCaseClose();
     void            cleanupGuiBeforeProjectClose();
 
     void            removeViewer( QWidget* viewer );
-    void            addViewer(QWidget* viewer, const std::vector<int>& windowsGeometry);
+    void            addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
     void            setActiveViewer(QWidget* subWindow);
 
     void            setResultInfo(const QString& info) const;
@@ -90,8 +90,6 @@ public:
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
-    void            loadWinGeoAndDockToolBarLayout();
-    void            showWindow();
 
     void            selectAsCurrentItem(caf::PdmObject* object);
 
@@ -103,11 +101,8 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
-    void            addRecentFiles(const QString& file);
-    void            removeRecentFiles(const QString& file);
-
-    std::vector<int>    windowGeometryForViewer(QWidget* viewer);
-    std::vector<int>    windowGeometryForWidget(QWidget* widget);
+    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
+    RimMdiWindowGeometry    windowGeometryForWidget(QWidget* widget);
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
@@ -124,13 +119,7 @@ private:
     void            createMenus();
     void            createToolBars();
     void            createDockPanels();
-    void            saveWinGeoAndDockToolBarLayout();
 
-    bool            checkForDocumentModifications();
-
-    void            updateRecentFileActions();
-
-    void            storeTreeViewState();
     void            restoreTreeViewState();
 
 private:
@@ -139,24 +128,7 @@ private:
     QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
 private:
-    // File actions
-    QAction*            m_importGeoMechCaseAction;
-    QAction*            m_openProjectAction;
-    QAction*            m_openLastUsedProjectAction;
-    QAction*            m_saveProjectAction;
-    QAction*            m_saveProjectAsAction;
-    QAction*            m_closeProjectAction;
-    QAction*            m_exitAction;
-
-    // Recent files
-    enum { MaxRecentFiles = 5 };
-    QAction*            m_recentFilesSeparatorAction;
-    QMenu*              m_recentFilesMenu;
-    QAction*            m_recentFileActions[MaxRecentFiles];
-
-
     // Edit actions
-    QAction*            m_editPreferences;
     QAction*            m_newPropertyView;
 
     // View actions
@@ -166,7 +138,6 @@ private:
     QAction*            m_viewFromWest;
     QAction*            m_viewFromAbove;
     QAction*            m_viewFromBelow;
-    QAction*            m_zoomAll;
 
     // Mock actions
     QAction*            m_mockModelAction;
@@ -175,27 +146,13 @@ private:
     QAction*            m_mockModelCustomizedAction;
     QAction*            m_mockInputModelAction;
 
-    QAction*            m_snapshotToFile;
-    QAction*            m_snapshotToClipboard;
     QAction*            m_snapshotAllViewsToFile;
 
     QAction*            m_createCommandObject;
     QAction*            m_showRegressionTestDialog;
     QAction*            m_executePaintEventPerformanceTest;
 
-    // Help actions
-    QAction*            m_aboutAction;
-    QAction*            m_commandLineHelpAction;
-    QAction*            m_openUsersGuideInBrowserAction;
-
-    // Animation
     caf::AnimationToolBar* m_animationToolBar;
-
-    // Toolbars
-    QToolBar*           m_viewToolBar;
-    QToolBar*           m_standardToolBar;
-    QToolBar*           m_snapshotToolbar;
-
 
     QMdiArea*           m_mdiArea;
     RiuViewer*          m_mainViewer;
@@ -213,20 +170,10 @@ private slots:
     friend class RiuMdiSubWindow;
 
     // File slots
-    void    slotImportGeoMechModel();
-    void    slotOpenProject();
-    void    slotOpenLastUsedProject();
-    void    slotSaveProject();
-    void    slotSaveProjectAs();
-    void    slotCloseProject();
-
-    void    slotOpenRecentFile();
-
     void    slotRefreshFileActions();
 
     // Edit slots
     void    slotRefreshEditActions();
-    void    slotEditPreferences();
     void    slotNewObjectPropertyView();
 
     // View slots
@@ -237,7 +184,6 @@ private slots:
     void    slotViewFromWest();
     void    slotViewFromAbove();
     void    slotViewFromBelow();
-    void    slotZoomAll();
     void    slotScaleChanged(int scaleValue);
 
     void slotDrawStyleChanged(QAction* activatedAction);
@@ -251,8 +197,6 @@ private slots:
     void    slotUseShaders(bool enable);
     void    slotShowPerformanceInfo(bool enable);
     
-    void    slotSnapshotToFile();
-    void    slotSnapshotToClipboard();
     void    slotSnapshotAllViewsToFile();
 
     void    slotCreateCommandObject();
@@ -270,11 +214,6 @@ private slots:
     // Windows slots
     void    slotBuildWindowActions();
 
-    // Help slots
-    void    slotAbout();
-    void    slotShowCommandLineHelp();
-    void    slotOpenUsersGuideInBrowserAction();
-
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
 
     void    selectedObjectsChanged();
@@ -290,7 +229,7 @@ public:
 private:
     caf::PdmUiTreeView*            m_projectTreeView;
     
-    caf::PdmUiDragDropInterface* m_dragDropInterface;
+    std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
     QUndoView*                  m_undoView;
 

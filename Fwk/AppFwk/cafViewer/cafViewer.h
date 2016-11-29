@@ -49,15 +49,17 @@
 
 namespace cvf {
     class Camera;
+    class FramebufferObject;
     class HitItemCollection;
     class Model;
     class OverlayImage;
+    class OverlayItem;
     class OverlayScalarMapperLegend;
     class RenderSequence;
     class Rendering;
     class Scene;
+    class Texture;
     class TextureImage;
-    class OverlayItem;
 }
 
 namespace caf {
@@ -73,6 +75,7 @@ class QInputEvent;
 namespace caf
 {
 
+class GlobalViewerDynUniformSet;
 
 class Viewer : public caf::OpenGLWidget
 {
@@ -126,8 +129,8 @@ public:
     virtual void            navigationPolicyUpdate();
 
     // Min max near far plane. 
-    void                    setMinNearPlaneDistance(double dist);
-    void                    setMaxFarPlaneDistance(double dist);
+    void                    setDefaultPerspectiveNearPlaneDistance(double dist);
+    void                    setMaxClipPlaneDistance(double dist);
 
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
@@ -149,6 +152,7 @@ public:
     // Find out whether the system supports shaders
     static bool             isShadersSupported();
 
+    QImage                  snapshotImage();
 
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
@@ -179,8 +183,8 @@ protected:
     cvf::ref<cvf::Camera>               m_mainCamera;
     cvf::ref<cvf::Rendering>            m_mainRendering;
 
-    double                              m_minNearPlaneDistance;
-    double                              m_maxFarPlaneDistance;
+    double                              m_defaultPerspectiveNearPlaneDistance;
+    double                              m_maxClipPlaneDistance; //< Max far plane distance and max negative near plane distance in orthographic projection 
     double                              m_cameraFieldOfViewYDeg;
 
 private:
@@ -219,6 +223,17 @@ private:
     caf::FrameAnimationControl*         m_animationControl;
     cvf::Collection<cvf::Scene>         m_frameScenes;
     cvf::Collection<cvf::Model>         m_staticModels;
+
+    // Parallel projection light modification
+
+    cvf::ref<GlobalViewerDynUniformSet> m_globalUniformSet;
+
+    // Offscreen render objects
+    cvf::ref<cvf::FramebufferObject>    m_offscreenFbo;
+    cvf::ref<cvf::Texture>              m_offscreenTexture;
+    int                                 m_offscreenViewportWidth;
+    int                                 m_offscreenViewportHeight;
+    cvf::ref<cvf::Rendering>            m_quadRendering;
 };
 
 } // End namespace caf

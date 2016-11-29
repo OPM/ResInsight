@@ -46,10 +46,11 @@ public:
     void                setFromInternalLayout(S* tensorData); 
     void                setFromAbaqusLayout(S* tensorData);
 
-    cvf::Vec3f          calculatePrincipals(cvf::Vec3f principalDirections[3]);
-    float               calculateVonMises();
-};
+    cvf::Vec3f          calculatePrincipals(cvf::Vec3f principalDirections[3]) const;
+    float               calculateVonMises() const;
 
+    Tensor3             rotated(const cvf::Matrix3<S>& rotMx) const;
+};
 
 typedef Tensor3<float> Ten3f;
 

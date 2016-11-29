@@ -16,7 +16,7 @@ public:
     // Gui generalized interface
 public:
     virtual QVariant    uiValue() const;
-    virtual void        setValueFromUi(const QVariant& uiValue);
+    virtual void        setValueFromUiEditor(const QVariant& uiValue);
     virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly);
 
     virtual QVariant    toUiBasedQVariant() const;
@@ -43,7 +43,7 @@ public:
     // Gui generalized interface
 public:
     virtual QVariant    uiValue() const { return QVariant();}
-    virtual void        setValueFromUi(const QVariant& uiValue) { }
+    virtual void        setValueFromUiEditor(const QVariant& uiValue) { }
     virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly)  { return  QList<PdmOptionItemInfo>(); }
 
     virtual QVariant    toUiBasedQVariant() const { return QVariant(); }
@@ -62,7 +62,7 @@ public:
     // Gui generalized interface
 public:
     virtual QVariant    uiValue() const { return QVariant(); }
-    virtual void        setValueFromUi(const QVariant& uiValue) { }
+    virtual void        setValueFromUiEditor(const QVariant& uiValue) { }
     virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly)  { return  QList<PdmOptionItemInfo>(); }
 
     virtual QVariant    toUiBasedQVariant() const { return QVariant(); }

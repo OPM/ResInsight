@@ -37,6 +37,7 @@
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
+#include "cafCategoryLegend.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
 
@@ -182,6 +183,7 @@ RiuViewer::~RiuViewer()
         m_rimView->uiCapability()->updateUiIconFromToggleField();
 
         m_rimView->cameraPosition = m_mainCamera->viewMatrix();
+        m_rimView->cameraPointOfInterest = pointOfInterest();
     }
     delete m_infoLabel;
     delete m_animationProgress;
@@ -196,7 +198,7 @@ RiuViewer::~RiuViewer()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setDefaultView()
 {
-    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if (!bb.isValid())
     {
         bb.add(cvf::Vec3d(-1, -1, -1));
@@ -269,7 +271,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::slotEndAnimation()
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
     if (m_rimView) m_rimView->endAnimation();
@@ -484,17 +486,72 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
     if (legend)
     {
         updateLegendTextAndTickMarkColor(legend);
 
-        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
         firstRendering->addOverlayItem(legend);
 
         m_visibleLegends.push_back(legend);
+    }
+
+    // Category count used to switch between standard height and full height of legend
+    const size_t categoryThreshold = 13;
+
+    std::vector<caf::CategoryLegend*> categoryLegends;
+    std::vector<cvf::OverlayItem*> overlayItems;
+    for (auto legend : m_visibleLegends)
+    {
+        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+
+        caf::CategoryLegend* catLegend = dynamic_cast<caf::CategoryLegend*>(legend.p());
+        if (catLegend)
+        {
+            if (catLegend->categoryCount() > categoryThreshold)
+            {
+                categoryLegends.push_back(catLegend);
+            }
+            else
+            {
+                catLegend->setSizeHint(cvf::Vec2ui(200, 200));
+            }
+        }
+        else
+        {
+            overlayItems.push_back(legend.p());
+        }
+    }
+
+    if (categoryLegends.size() > 0)
+    {
+        const int border = 3;
+        const int categoryWidth = 150;
+
+        // This value is taken from OverlayAxisCross, as the axis cross is always shown in the lower left corner
+        const int axisCrossHeight = 120;
+
+        int height = static_cast<int>(m_mainCamera->viewport()->height());
+        int xPos = border;
+
+        int yPos = axisCrossHeight + 2*border;
+
+        for (auto catLegend : categoryLegends)
+        {
+            catLegend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+            catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2*border - axisCrossHeight));
+
+            xPos += categoryWidth + border;
+        }
+
+        for (auto item : overlayItems)
+        {
+            item->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+
+            yPos += item->sizeHint().y() + border;
+        }
     }
 }
 
@@ -549,7 +606,7 @@ void RiuViewer::navigationPolicyUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::setCurrentFrame(int frameIndex)
 {
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
     if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
@@ -573,6 +630,29 @@ void RiuViewer::optimizeClippingPlanes()
     m_gridBoxGenerator->updateFromCamera(mainCamera());
 
     caf::Viewer::optimizeClippingPlanes();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::resizeGL(int width, int height)
+{
+    caf::Viewer::resizeGL(width, height);
+
+    bool hasCategoryLegend = false;
+    for (size_t i = 0; i < m_visibleLegends.size(); i++)
+    {
+        caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(m_visibleLegends.at(i));
+        if (categoryLegend)
+        {
+            hasCategoryLegend = true;
+        }
+    }
+
+    if (hasCategoryLegend)
+    {
+        m_rimView->updateCurrentTimeStepAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -623,6 +703,58 @@ void RiuViewer::setAxisLabels(const cvf::String& xLabel, const cvf::String& yLab
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RiuViewer::lastPickPositionInDomainCoords() const
+{
+    CVF_ASSERT(m_viewerCommands);
+
+    return m_viewerCommands->lastPickPositionInDomainCoords();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* RiuViewer::lastPickedObject() const
+{
+    CVF_ASSERT(m_viewerCommands);
+
+    return m_viewerCommands->currentPickedObject();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
+{
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
+
+    for (auto overlayItem : m_visibleLegends)
+    {
+        if (overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
+            overlayItem->pick(translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->sizeHint()))
+        {
+            return overlayItem.p();
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateParallelProjectionSettings(RiuViewer* sourceViewer)
+{
+    if (!sourceViewer || sourceViewer->m_navigationPolicy.isNull()) return;
+
+    cvf::Vec3d poi = sourceViewer->m_navigationPolicy->pointOfInterest();
+    this->updateParallelProjectionHeightFromMoveZoom(poi);
+    this->updateParallelProjectionCameraPosFromPointOfInterestMove(poi);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 {
     if (m_rimView.isNull()) return;
@@ -634,6 +766,13 @@ void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
     {
         scalarMapperLegend->setColor(contrastColor);
         scalarMapperLegend->setLineColor(contrastColor);
+    }
+
+    caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(legend);
+    if (categoryLegend)
+    {
+        categoryLegend->setColor(contrastColor);
+        categoryLegend->setLineColor(contrastColor);
     }
 }
 

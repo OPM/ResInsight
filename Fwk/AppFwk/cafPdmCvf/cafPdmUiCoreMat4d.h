@@ -64,7 +64,7 @@ public:
         PdmValueFieldSpecialization< cvf::Mat4d >::setFromVariant(variantValue, value);
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return PdmValueFieldSpecialization< cvf::Mat4d >::isEqual(variantValue, variantValue2);
     }

@@ -19,16 +19,20 @@
 
 #include "RicNewScriptFeature.h"
 
+#include "RiaApplication.h"
+
+#include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
 
 #include "RimCalcScript.h"
 #include "RimScriptCollection.h"
-#include "RiaApplication.h"
- 
+
 #include "RiuMainWindow.h"
- 
+
 #include <QAction>
 #include <QFileInfo>
+#include <QInputDialog>
+#include <QLineEdit>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicNewScriptFeature, "RicNewScriptFeature");
@@ -38,8 +42,7 @@ CAF_CMD_SOURCE_INIT(RicNewScriptFeature, "RicNewScriptFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    return selection.size() > 0;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +58,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
 
     QString fullPathNewScript;
 
-    if (calcScript )
+    if (calcScript)
     {
         QFileInfo existingScriptFileInfo(calcScript->absolutePath());
         fullPathNewScript = existingScriptFileInfo.absolutePath();
@@ -79,19 +82,40 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
         num++;
     }
 
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptEditor = app->scriptEditorPath();
-    if (!scriptEditor.isEmpty())
+    bool ok;
+    fullPathFilenameNewScript = QInputDialog::getText(NULL, "Specify new script file", "File name", QLineEdit::Normal, fullPathFilenameNewScript, &ok);
+
+    if (ok && !fullPathFilenameNewScript.isEmpty())
     {
-        QStringList arguments;
-        arguments << fullPathFilenameNewScript;
-
-        QProcess* myProcess = new QProcess(this);
-        myProcess->start(scriptEditor, arguments);
-
-        if (!myProcess->waitForStarted(1000))
+        QFile file(fullPathFilenameNewScript);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to create file\n" + fullPathFilenameNewScript);
+
+            return;
+        }
+        
+        RicRefreshScriptsFeature::refreshScriptFolders();
+
+        if (calcScript)
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem(calcScript);
+        }
+
+        RiaApplication* app = RiaApplication::instance();
+        QString scriptEditor = app->scriptEditorPath();
+        if (!scriptEditor.isEmpty())
+        {
+            QStringList arguments;
+            arguments << fullPathFilenameNewScript;
+
+            QProcess* myProcess = new QProcess(this);
+            myProcess->start(scriptEditor, arguments);
+
+            if (!myProcess->waitForStarted(1000))
+            {
+                QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            }
         }
     }
 }

@@ -24,22 +24,20 @@
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifReaderInterface.h"
+#include "RifReaderOpmParserInput.h"
 
 #include "cafProgressInfo.h"
 
-#include "ecl_grid.h"
-#include "well_state.h"
-#include "ecl_kw_magic.h"
-#include "ecl_nnc_export.h"
+#include "ert/ecl/ecl_nnc_export.h"
+#include "ert/ecl/ecl_kw_magic.h"
 
 #include <iostream>
 #include <map>
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include "RifEclipseInputFileTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -387,42 +385,13 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     if (isFaultImportEnabled())
     {
-        if (this->filenamesWithFaults().size() > 0)
-        {
-            cvf::Collection<RigFault> faults;
-            std::vector< RifKeywordAndFilePos > fileKeywords;
-        
-            for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
-            {
-                QString faultFilename = this->filenamesWithFaults()[i];
+        cvf::Collection<RigFault> faults;
 
-                RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
-            }
-            
-            RigMainGrid* mainGrid = eclipseCase->mainGrid();
-            mainGrid->setFaults(faults);
-        }
-        else
-        {
-            foreach (QString fname, fileSet)
-            {
-                if (fname.endsWith(".DATA"))
-                {
-                    cvf::Collection<RigFault> faults;
-                    std::vector<QString> filenamesWithFaults;
-                    RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, filenamesWithFaults);
+        //importFaultsOpmParser(fileSet, &faults);
+        importFaults(fileSet, &faults);
 
-                    RigMainGrid* mainGrid = eclipseCase->mainGrid();
-                    mainGrid->setFaults(faults);
-
-                    std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
-                    std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
-                    filenamesWithFaults.erase(last, filenamesWithFaults.end());
-
-                    this->setFilenamesWithFaults(filenamesWithFaults);
-                }
-            }
-        }
+        RigMainGrid* mainGrid = eclipseCase->mainGrid();
+        mainGrid->setFaults(faults);
     }
 
     progInfo.incrementProgress();
@@ -465,6 +434,56 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const
+{
+    foreach(QString fname, fileSet)
+    {
+        if (fname.endsWith(".DATA"))
+        {
+            RifReaderOpmParserInput::readFaults(fname, faults);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults)
+{
+    if (this->filenamesWithFaults().size() > 0)
+    {
+        for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
+        {
+            QString faultFilename = this->filenamesWithFaults()[i];
+
+            RifEclipseInputFileTools::parseAndReadFaults(faultFilename, faults);
+        }
+    }
+    else
+    {
+        foreach(QString fname, fileSet)
+        {
+            if (fname.endsWith(".DATA"))
+            {
+                std::vector<QString> filenamesWithFaults;
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults);
+
+                std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+                filenamesWithFaults.erase(last, filenamesWithFaults.end());
+
+                this->setFilenamesWithFaults(filenamesWithFaults);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)
 {
     if (!m_ecl_init_file ) return;
@@ -710,7 +729,10 @@ void RifReaderEclipseOutput::buildMetaData()
     {
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
-        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_init_file, &resultNames, &resultNamesDataItemCounts);
+        std::vector< ecl_file_type* > filesUsedToFindAvailableKeywords;
+        filesUsedToFindAvailableKeywords.push_back(m_ecl_init_file);
+
+        RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
         {
             QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
@@ -881,12 +903,11 @@ struct SegmentPositionContribution
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId)
+RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName)
 {
     CVF_ASSERT(ert_connection);
     CVF_ASSERT(grid);
 
-    RigWellResultPoint resultPoint;
     int cellI = well_conn_get_i( ert_connection );
     int cellJ = well_conn_get_j( ert_connection );
     int cellK = well_conn_get_k( ert_connection );
@@ -899,18 +920,50 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         cellK -= static_cast<int>(grid->cellCountK());
     }
 
+    // See description for keyword ICON at page 54/55 of Rile Formats Reference Manual 2010.2
+    /*
+        Integer completion data array
+        ICON(NICONZ,NCWMAX,NWELLS) with dimensions
+        defined by INTEHEAD. The following items are required for each completion in each well:
+        Item 1 - Well connection index ICON(1,IC,IWELL) = IC (set to -IC if connection is not in current LGR)
+        Item 2 - I-coordinate (<= 0 if not in this LGR)
+        Item 3 - J-coordinate (<= 0 if not in this LGR)
+        Item 4 - K-coordinate (<= 0 if not in this LGR)
+        Item 6 - Connection status > 0 open, <= 0 shut
+        Item 14 - Penetration direction (1=x, 2=y, 3=z, 4=fractured in x-direction, 5=fractured in y-direction)
+        If undefined or zero, assume Z
+        Item 15 - Segment number containing connection (for multi-segment wells, =0 for ordinary wells)
+        Undefined items in this array may be set to zero.
+    */
+
     // The K value might also be -1. It is not yet known why, or what it is supposed to mean, 
     // but for now we will interpret as 0.
     // TODO: Ask Joakim Haave regarding this.
-    if (cellK < 0) cellK = 0;
+    if (cellK < 0)
+    {
+        //cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected negative K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to 0");
 
-    resultPoint.m_gridIndex = grid->gridIndex();
-    resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
+        cellK = 0;
+    }
+    
+    RigWellResultPoint resultPoint;
 
-    resultPoint.m_isOpen = isCellOpen;
+    // Introduced based on discussion with Håkon Høgstøl 08.09.2016
+    if (cellK >= static_cast<int>(grid->cellCountK()))
+    {
+        int maxCellKIndex = static_cast<int>(grid->cellCountK() - 1);
+        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName));
+    }
+    else
+    {
+        resultPoint.m_gridIndex = grid->gridIndex();
+        resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
 
-    resultPoint.m_ertBranchId = ertBranchId;
-    resultPoint.m_ertSegmentId = ertSegmentId;
+        resultPoint.m_isOpen = isCellOpen;
+
+        resultPoint.m_ertBranchId = ertBranchId;
+        resultPoint.m_ertSegmentId = ertSegmentId;
+    }
 
     return resultPoint;
 }
@@ -1178,7 +1231,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                     if (ert_wellhead)
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
 
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
@@ -1238,7 +1291,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 {
                                     well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
                                     wellResultBranch.m_branchResultPoints.push_back(
-                                        createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment)));
+                                        createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment), wellName));
                                 }
 
                                 segmentHasConnections = true;
@@ -1246,7 +1299,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 // Prepare data for segment position calculation
 
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, 0);
-                                RigWellResultPoint point       = createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment));
+                                RigWellResultPoint point       = createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment), wellName);
                                 lastConnectionPos              = grids[gridNr]->cell(point.m_gridCellIndex).center();
                                 cvf::Vec3d cellVxes[8];
                                 grids[gridNr]->cellCornerVertices(point.m_gridCellIndex, cellVxes);
@@ -1318,7 +1371,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 // Select the deepest connection 
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, connectionCount-1);
                                 wellResultBranch.m_branchResultPoints.push_back(
-                                    createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(outletSegment)));
+                                    createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(outletSegment), wellName));
 
                                 outletSegmentHasConnections = true;
                                 break; // Stop looping over grids
@@ -1531,7 +1584,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                     if (ert_wellhead)
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
                         wellResFrame.m_wellHead.m_isOpen = false; 
@@ -1565,7 +1618,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                             {
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
                                 wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = 
-                                    createWellResultPoint(grids[gridNr], ert_connection, -1, -1);
+                                    createWellResultPoint(grids[gridNr], ert_connection, -1, -1, wellName);
                             }
                         }
                     }
@@ -1590,18 +1643,21 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, 
-                                                                  const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, 
-                                                                  PorosityModelResultType matrixOrFracture, size_t timeStepCount) const
+QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, 
+                                                                  const std::vector<size_t>& keywordDataItemCounts, 
+                                                                  const RigActiveCellInfo* matrixActiveCellInfo, 
+                                                                  const RigActiveCellInfo* fractureActiveCellInfo, 
+                                                                  PorosityModelResultType porosityModel, 
+                                                                  size_t timeStepCount) const
 {
-    CVF_ASSERT(activeCellInfo);
+    CVF_ASSERT(matrixActiveCellInfo);
 
     if (keywords.size() != static_cast<int>(keywordDataItemCounts.size()))
     {
         return QStringList();
     }
 
-    if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
+    if (porosityModel == RifReaderInterface::FRACTURE_RESULTS)
     {
         if (fractureActiveCellInfo->reservoirActiveCellCount() == 0)
         {
@@ -1614,47 +1670,72 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
     for (int i = 0; i < keywords.size(); i++)
     {
         QString keyword = keywords[i];
+        size_t keywordDataItemCount = keywordDataItemCounts[i];
 
-        if (activeCellInfo->reservoirActiveCellCount() > 0)
+        bool validKeyword = false;
+
+        size_t timeStepsAllCellsRest = keywordDataItemCount % matrixActiveCellInfo->reservoirCellCount();
+        if (timeStepsAllCellsRest == 0 && keywordDataItemCount <= timeStepCount * matrixActiveCellInfo->reservoirCellCount())
         {
-            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
+            // Found result for all cells for N time steps, usually a static dataset for one time step
+            validKeyword = true;
+        }
+        else 
+        {
+            size_t timeStepsMatrixRest = keywordDataItemCount % matrixActiveCellInfo->reservoirActiveCellCount();
 
-            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->reservoirActiveCellCount();
-            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->reservoirActiveCellCount();
-        
-            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
-            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
-
-            if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+            size_t timeStepsFractureRest = 0;
+            if (fractureActiveCellInfo->reservoirActiveCellCount() > 0)
             {
-                if (timeStepsMatrixRest == 0 || timeStepsMatrixAndFractureRest == 0)
-                {
-                    if (timeStepCount == timeStepsMatrix || timeStepCount == timeStepsMatrixAndFracture)
-                    {
-                        keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
-                    }
-                }
-                else if (timeStepsAllCellsRest == 0)
-                {
-                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
-                }
-
+                timeStepsFractureRest = keywordDataItemCount % fractureActiveCellInfo->reservoirActiveCellCount();
             }
-            else
+
+            size_t sumFractureMatrixActiveCellCount = matrixActiveCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount();
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCount % sumFractureMatrixActiveCellCount;
+
+            if (porosityModel == RifReaderInterface::MATRIX_RESULTS && timeStepsMatrixRest == 0)
             {
-                if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
+                if (keywordDataItemCount <= timeStepCount * std::max(matrixActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount))
                 {
-                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    validKeyword = true;
                 }
-                else if (timeStepsAllCellsRest == 0)
+            }
+            else if (porosityModel == RifReaderInterface::FRACTURE_RESULTS && fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0)
+            {
+                if (keywordDataItemCount <= timeStepCount * std::max(fractureActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount))
                 {
-                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    validKeyword = true;
+                }
+            }
+            else if (timeStepsMatrixAndFractureRest == 0)
+            {
+                if (keywordDataItemCount <= timeStepCount * sumFractureMatrixActiveCellCount)
+                {
+                    validKeyword = true;
                 }
             }
         }
-        else
+
+        // Check for INIT values that has only values for main grid active cells
+        if (!validKeyword)
         {
-            keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+            if (timeStepCount == 1)
+            {
+                size_t mainGridMatrixActiveCellCount;   matrixActiveCellInfo->gridActiveCellCounts(0, mainGridMatrixActiveCellCount);
+                size_t mainGridFractureActiveCellCount; fractureActiveCellInfo->gridActiveCellCounts(0, mainGridFractureActiveCellCount);
+
+                if (   keywordDataItemCount == mainGridMatrixActiveCellCount 
+                    || keywordDataItemCount == mainGridFractureActiveCellCount 
+                    || keywordDataItemCount == mainGridMatrixActiveCellCount + mainGridFractureActiveCellCount )
+                {
+                    validKeyword = true;
+                }
+            }
+        }
+
+        if (validKeyword)
+        {
+            keywordsWithCorrectNumberOfDataItems.push_back(keyword);
         }
     }
 
@@ -1667,8 +1748,9 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* destinationResultValues, const std::vector<double>& sourceResultValues)
 {
-    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
+    if (sourceResultValues.size() == 0) return;
 
+    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
 
     if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->reservoirActiveCellCount() == 0)
     {

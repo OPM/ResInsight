@@ -88,7 +88,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
                                             cvf::BoundingBox wellPathClipBoundingBox)
 {
     RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
 
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
@@ -196,10 +196,10 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     m_wellLabelPart = NULL;
     if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
-        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        cvf::Font* font = RiaApplication::instance()->customFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(standardFont);
+        drawableText->setFont(font);
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
@@ -234,7 +234,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
                                                           double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
 {
     RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAnchestorOrThisOfType(wellPathCollection);
+    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
 
     if (m_rimWellPath.isNull()) return;

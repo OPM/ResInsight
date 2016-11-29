@@ -180,6 +180,10 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RigCaseData* rigCaseData = mainCase->reservoirData();
     CVF_ASSERT(rigCaseData);
 
+    RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
+    mainCase->results(poroModel)->cellResults()->createPlaceholderResultEntries();
+
+
     // Action A : Read active cell info
     // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
     // is copied from main case to all other cases (see "Action B")
@@ -245,11 +249,15 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                 RimDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
                 QString resultName = resultInfos[resIdx].m_resultName;
                 bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
+                bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
 
                 size_t scalarResultIndex = cellResultsStorage->cellResults()->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
                     size_t scalarResultIndex = cellResultsStorage->cellResults()->addEmptyScalarResult(resultType, resultName, needsToBeStored);
+                    
+                    if (mustBeCalculated) cellResultsStorage->cellResults()->setMustBeCalculated(scalarResultIndex);
+
                     cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates);
 
                     std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellResults()->cellScalarResults(scalarResultIndex);
@@ -370,7 +378,8 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
 
     newStatisticsCase->caseUserDescription = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
     statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);
-
+    
+    newStatisticsCase->populateResultSelectionAfterLoadingGrid();
     newStatisticsCase->openEclipseGridFile();
 
     return newStatisticsCase;
@@ -420,7 +429,7 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         {
             RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
             rimReservoirView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
-            rimReservoirView->cellEdgeResult()->resultVariable = RimDefines::undefinedResultName();
+            rimReservoirView->cellEdgeResult()->setResultVariable(RimDefines::undefinedResultName());
             rimReservoirView->loadDataAndUpdate();
         }
     }

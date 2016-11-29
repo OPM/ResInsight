@@ -85,6 +85,16 @@ void RigFemNativeVisibleCellsStatCalc::addDataToHistogramCalculator(size_t timeS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFemNativeVisibleCellsStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
+{
+    UniqueValueAccumulator acc;
+    traverseElementNodes(acc, timeStepIndex);
+    values = acc.uniqueValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigFemNativeVisibleCellsStatCalc::timeStepCount()
 {
     return m_resultsData->frameCount();

@@ -413,6 +413,8 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
 
         if (m_cellResults->mustBeCalculated(soilScalarResultIndex))
         {
+            m_cellResults->cellScalarResults(soilScalarResultIndex).resize(m_cellResults->maxTimeStepCount());
+
             std::vector<double>& values = m_cellResults->cellScalarResults(soilScalarResultIndex)[timeStepIndex];
             if (values.size() == 0)
             {
@@ -1512,7 +1514,7 @@ double RimReservoirCellResultsStorage::darchysValue()
     double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
     RimEclipseCase* rimCase = NULL;
-    this->firstAnchestorOrThisOfType(rimCase);
+    this->firstAncestorOrThisOfType(rimCase);
 
     if (rimCase && rimCase->reservoirData())
     {

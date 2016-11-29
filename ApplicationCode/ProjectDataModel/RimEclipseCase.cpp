@@ -33,6 +33,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimFormationNames.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
@@ -75,11 +76,11 @@ RimEclipseCase::RimEclipseCase()
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_matrixModelResults.uiCapability()->setUiHidden(true);
-    m_matrixModelResults.uiCapability()->setUiChildrenHidden(true);
+    m_matrixModelResults.uiCapability()->setUiTreeChildrenHidden(true);
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults.uiCapability()->setUiHidden(true);
-    m_fractureModelResults.uiCapability()->setUiChildrenHidden(true);
+    m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden(true);
 
     this->setReservoirData( NULL );
 }
@@ -157,7 +158,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
     RimEclipseView* riv = new RimEclipseView();
     riv->setEclipseCase(this);
-    riv->cellEdgeResult()->resultVariable = "MULT";
+    riv->cellEdgeResult()->setResultVariable("MULT");
     riv->cellEdgeResult()->enableCellEdgeColors = false;
 
     caf::PdmDocument::updateUiIconStateRecursively(riv);
@@ -243,7 +244,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 RimCellEdgeColors* cellEdgeResult = reservoirView->cellEdgeResult;
                 CVF_ASSERT(cellEdgeResult);
 
-                cellEdgeResult->resultVariable.v() = RimDefines::undefinedResultName();
+                cellEdgeResult->setResultVariable(RimDefines::undefinedResultName());
                 cellEdgeResult->loadResult();
 
                 reservoirView->createDisplayModelAndRedraw();
@@ -283,6 +284,69 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             }
         }
     }
+    else if(changedField == &activeFormationNames)
+    {
+        updateFormationNamesData();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::updateFormationNamesData()
+{
+    RigCaseData* rigEclipseCase = reservoirData();
+    if(rigEclipseCase)
+    {
+        if(activeFormationNames())
+        {
+            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            rigEclipseCase->setActiveFormationNames(nullptr);
+        }
+        std::vector<RimView*> views = this->views();
+        for(RimView* view : views)
+        {
+            RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
+
+            if(eclView && eclView->isUsingFormationNames())
+            {
+                if (!activeFormationNames())
+                {
+                    if (eclView->cellResult()->resultType() == RimDefines::FORMATION_NAMES) 
+                    {
+                        eclView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+                        eclView->cellResult()->updateConnectedEditors();
+                    }
+
+                    RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
+                    for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    {
+                        if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES ) 
+                        {
+                            propFilter->resultDefinition()->setResultVariable(RimDefines::undefinedResultName());
+                        }
+                    }
+                }
+
+                RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
+                for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                {
+                    if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES )
+                    {
+                        propFilter->setToDefaultValues();
+                        propFilter->updateConnectedEditors();
+                    }
+                }
+
+                view->scheduleGeometryRegen(PROPERTY_FILTERED);
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,11 +363,25 @@ void RimEclipseCase::computeCachedData()
         pInf.incrementProgress();
 
         pInf.setNextProgressIncrement(10);
+        pInf.setProgressDescription("Calculating Cell Search Tree");
         rigEclipseCase->mainGrid()->computeCachedData();
         pInf.incrementProgress();
 
+        pInf.setNextProgressIncrement(17);
         pInf.setProgressDescription("Calculating faults");
-        rigEclipseCase->mainGrid()->calculateFaults();
+        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        pInf.incrementProgress();
+        
+        pInf.setProgressDescription("Calculating Formation Names Result");
+        if ( activeFormationNames() )
+        {
+            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            rigEclipseCase->setActiveFormationNames(nullptr);
+        }
+
         pInf.incrementProgress();
     }
 }

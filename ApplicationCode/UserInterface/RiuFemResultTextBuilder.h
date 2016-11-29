@@ -22,12 +22,14 @@
 #include "cvfBase.h"
 #include "cafPdmPointer.h"
 #include "cvfStructGrid.h"
-#include <QString>
 
-class RimGeoMechView;
-class RimEclipseCellColors;
+#include <QString>
+#include <array>
+
 class RigGeoMechCaseData;
-class RimGeoMechCellColors;
+class RimEclipseCellColors;
+class RimGeoMechResultDefinition;
+class RimGeoMechView;
 
 namespace cvf {
     class Part;
@@ -41,8 +43,9 @@ class RiuFemResultTextBuilder
 {
 public:
     RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
-    void setFace(cvf::StructGridInterface::FaceType face);
+    void setFace(int face);
     void setIntersectionPoint(cvf::Vec3d intersectionPoint);
+    void setIntersectionTriangle(const std::array<cvf::Vec3f, 3>& triangle);
 
     QString mainResultText();
 
@@ -52,10 +55,11 @@ private:
     void appendDetails(QString& text, const QString& details);
 
     QString gridResultDetails();
+    QString formationDetails();
 
-    QString closestNodeResultText(RimGeoMechCellColors* resultColors);
+    QString closestNodeResultText(RimGeoMechResultDefinition* resultDefinition);
 
-    void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechCellColors* resultColors, QString* resultInfoText);
+    void appendTextFromResultColors(RigGeoMechCaseData* eclipseCase, int gridIndex, int cellIndex, int timeStepIndex, RimGeoMechResultDefinition* resultDefinition, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;
@@ -64,7 +68,9 @@ private:
     int m_cellIndex;
     int m_timeStepIndex;
 
-    cvf::StructGridInterface::FaceType m_face;
+    int m_face;
+    bool m_isIntersectionTriangleSet; 
+    std::array<cvf::Vec3f, 3> m_intersectionTriangle;
 
     cvf::Vec3d m_intersectionPoint;
 };

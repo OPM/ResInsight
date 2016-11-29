@@ -45,9 +45,12 @@
 #include "cvfDebugTimer.h"
 #include "cvfDrawable.h"
 #include "cvfDrawableGeo.h"
+#include "cvfDynamicUniformSet.h"
+#include "cvfFramebufferObject.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
 #include "cvfModel.h"
+#include "cvfOpenGLCapabilities.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayImage.h"
 #include "cvfPart.h"
@@ -55,10 +58,15 @@
 #include "cvfRayIntersectSpec.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
+#include "cvfRenderbufferObject.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
+#include "cvfShaderSourceProvider.h"
+#include "cvfSingleQuadRenderingGenerator.h"
 #include "cvfTextureImage.h"
 #include "cvfTransform.h"
+#include "cvfUniform.h"
+#include "cvfUniformSet.h"
 
 #include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
@@ -67,6 +75,34 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
+
+namespace caf
+{
+
+class GlobalViewerDynUniformSet: public cvf::DynamicUniformSet
+{
+public:
+    GlobalViewerDynUniformSet()
+    {
+        m_headlightPosition = new cvf::UniformFloat("u_ecLightPosition", cvf::Vec3f(0.5, 5.0, 7.0));
+        m_uniformSet = new cvf::UniformSet();
+        m_uniformSet->setUniform(m_headlightPosition.p());
+    }
+
+    virtual ~GlobalViewerDynUniformSet() {}
+
+    void setHeadLightPosition(const cvf::Vec3f posRelativeToCamera) { m_headlightPosition->set(posRelativeToCamera);}
+
+
+    virtual cvf::UniformSet* uniformSet() { return m_uniformSet.p(); }
+    virtual void        update(cvf::Rendering* rendering){};      
+
+private:
+    cvf::ref<cvf::UniformSet>   m_uniformSet;
+    cvf::ref<cvf::UniformFloat> m_headlightPosition;
+};
+
+}
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -77,13 +113,15 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     :   caf::OpenGLWidget(contextGroup(), format, new QWidget(parent), sharedWidget()),
     m_navigationPolicy(NULL),
-    m_minNearPlaneDistance(0.05),
-    m_maxFarPlaneDistance(cvf::UNDEFINED_DOUBLE),
+    m_defaultPerspectiveNearPlaneDistance(0.05),
+    m_maxClipPlaneDistance(cvf::UNDEFINED_DOUBLE),
     m_cameraFieldOfViewYDeg(40.0),
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
     m_navigationPolicyEnabled(true),
-    m_isOverlayPaintingEnabled(true)
+    m_isOverlayPaintingEnabled(true),
+    m_offscreenViewportWidth(0),
+    m_offscreenViewportHeight(0)
 {
     m_layoutWidget = parentWidget();
 
@@ -98,9 +136,13 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     // Needed to get keystrokes
     setFocusPolicy(Qt::ClickFocus);
 
+    m_globalUniformSet = new GlobalViewerDynUniformSet();
+
     m_mainCamera = new cvf::Camera;
     m_mainCamera->setFromLookAt(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,0,0), cvf::Vec3d(0,1,0));
     m_renderingSequence = new cvf::RenderSequence();
+    m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+
     m_mainRendering = new cvf::Rendering();
 
     m_animationControl = new caf::FrameAnimationControl(this);
@@ -141,11 +183,26 @@ void caf::Viewer::setupMainRendering()
 {
     m_mainRendering->setCamera(m_mainCamera.p());
     m_mainRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
+    m_mainRendering->addGlobalDynamicUniformSet(m_globalUniformSet.p());
 
     // Set fixed function rendering if QGLFormat does not support directRendering
     if (!this->format().directRendering())
     {
         m_mainRendering->renderEngine()->enableForcedImmediateMode(true);
+    }
+
+    if (contextGroup()->capabilities() &&
+        contextGroup()->capabilities()->hasCapability(cvf::OpenGLCapabilities::FRAMEBUFFER_OBJECT))
+    {
+        m_offscreenFbo = new cvf::FramebufferObject;
+        m_mainRendering->setTargetFramebuffer(m_offscreenFbo.p());
+
+        cvf::ref<cvf::RenderbufferObject> rbo = new cvf::RenderbufferObject(cvf::RenderbufferObject::DEPTH_COMPONENT24, 1, 1);
+        m_offscreenFbo->attachDepthRenderbuffer(rbo.p());
+
+        m_offscreenTexture = new cvf::Texture(cvf::Texture::TEXTURE_2D, cvf::Texture::RGBA);
+        m_offscreenTexture->setSize(1, 1);
+        m_offscreenFbo->attachColorTexture2d(0, m_offscreenTexture.p());
     }
 
     updateOverlayImagePresence();
@@ -156,7 +213,25 @@ void caf::Viewer::setupMainRendering()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setupRenderingSequence()
 {
-    m_renderingSequence->addRendering(m_mainRendering.p());  
+    m_renderingSequence->addRendering(m_mainRendering.p());
+
+    if (m_offscreenFbo.notNull())
+    {
+        // Setup second rendering drawing the texture on the screen
+        // -------------------------------------------------------------------------
+        cvf::SingleQuadRenderingGenerator quadRenderGen;
+        cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
+        sampler->setWrapMode(cvf::Sampler::CLAMP_TO_EDGE);
+        sampler->setMinFilter(cvf::Sampler::NEAREST);
+        sampler->setMagFilter(cvf::Sampler::NEAREST);
+
+        quadRenderGen.addTexture(m_offscreenTexture.p(), sampler.p(), "u_texture2D");
+        quadRenderGen.addFragmentShaderCode(cvf::ShaderSourceProvider::instance()->getSourceFromRepository(cvf::ShaderSourceRepository::fs_Unlit));
+        quadRenderGen.addFragmentShaderCode(cvf::ShaderSourceProvider::instance()->getSourceFromRepository(cvf::ShaderSourceRepository::src_Texture));
+
+        m_quadRendering = quadRenderGen.generate();
+        m_renderingSequence->addRendering(m_quadRendering.p());
+    }
 
     updateCamera(width(), height());
 }
@@ -219,7 +294,7 @@ cvf::Scene* caf::Viewer::mainScene()
 //--------------------------------------------------------------------------------------------------
 cvf::Scene* caf::Viewer::currentScene()
 {
-    return m_renderingSequence->firstRendering()->scene();
+    return m_mainRendering->scene();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,7 +316,6 @@ void caf::Viewer::updateCamera(int width, int height)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -262,25 +336,69 @@ bool caf::Viewer::canRender() const
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::optimizeClippingPlanes()
 {
-    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if (!bb.isValid()) return;
 
-    cvf::Vec3d eye, vrp, up;
-    m_mainCamera->toLookAt(&eye, &vrp, &up);
+    cvf::Vec3d eye     = m_mainCamera->position();
+    cvf::Vec3d viewdir = m_mainCamera->direction();
 
-    cvf::Vec3d viewdir = (vrp - eye).getNormalized();
+    cvf::Vec3d bboxCorners[8];
+    bb.cornerVertices(bboxCorners);
 
-    double distEyeBoxCenterAlongViewDir = (bb.center() - eye)*viewdir;
+    // Find the distance to the bbox corners most behind and most in front of camera
 
-    double farPlaneDist = distEyeBoxCenterAlongViewDir + bb.radius() * 1.2;
-    farPlaneDist = CVF_MIN(farPlaneDist, m_maxFarPlaneDistance);
-
-    double nearPlaneDist = distEyeBoxCenterAlongViewDir - bb.radius();
-    if (nearPlaneDist < m_minNearPlaneDistance) nearPlaneDist = m_minNearPlaneDistance;
-    if (m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+    double maxDistEyeToCornerAlongViewDir = -HUGE_VAL;
+    double minDistEyeToCornerAlongViewDir = HUGE_VAL;
+    for (int bcIdx = 0; bcIdx < 8; ++bcIdx )
     {
-        double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
-        nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+        double distEyeBoxCornerAlongViewDir = (bboxCorners[bcIdx] - eye)*viewdir;
+
+        if (distEyeBoxCornerAlongViewDir > maxDistEyeToCornerAlongViewDir)
+        {
+            maxDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir;
+        }
+
+        if (distEyeBoxCornerAlongViewDir < minDistEyeToCornerAlongViewDir)
+        {
+            minDistEyeToCornerAlongViewDir = distEyeBoxCornerAlongViewDir; // Sometimes negative-> behind camera
+        }
+    }
+
+    double farPlaneDist  = CVF_MIN(maxDistEyeToCornerAlongViewDir * 1.2, m_maxClipPlaneDistance);
+
+    // Near-plane:
+
+    bool isOrthoNearPlaneFollowingCamera = false;
+    double nearPlaneDist = HUGE_VAL;
+
+    // If we have perspective projection, set the near plane just in front of camera, and not behind
+
+    if (m_mainCamera->projection() == cvf::Camera::PERSPECTIVE || isOrthoNearPlaneFollowingCamera)
+    {
+        // Choose the one furthest from the camera of: 0.8*bbox distance, m_minPerspectiveNearPlaneDistance.
+        nearPlaneDist = CVF_MAX( m_defaultPerspectiveNearPlaneDistance, 0.8*minDistEyeToCornerAlongViewDir);
+
+        // If we are zooming into a detail, allow the near-plane to move towards camera beyond the m_minPerspectiveNearPlaneDistance
+        if (   nearPlaneDist == m_defaultPerspectiveNearPlaneDistance // We are inside the bounding box
+            && m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
+        {
+            double pointOfInterestDist = (eye - m_navigationPolicy->pointOfInterest()).length();
+            nearPlaneDist = CVF_MIN(nearPlaneDist, pointOfInterestDist*0.2);
+        }
+
+        // Guard against the zero nearplane possibility
+        if (nearPlaneDist <= 0) nearPlaneDist = m_defaultPerspectiveNearPlaneDistance;
+    }
+    else // Orthographic projection. Set to encapsulate the complete boundingbox, possibly setting a negative nearplane
+    {
+        if(minDistEyeToCornerAlongViewDir >= 0) 
+        {
+            nearPlaneDist = CVF_MIN(0.8 * minDistEyeToCornerAlongViewDir,  m_maxClipPlaneDistance); 
+        }
+        else
+        {
+            nearPlaneDist = CVF_MAX(1.2 * minDistEyeToCornerAlongViewDir, -m_maxClipPlaneDistance);
+        }
     }
 
     if (farPlaneDist <= nearPlaneDist) farPlaneDist = nearPlaneDist + 1.0;
@@ -376,6 +494,20 @@ void caf::Viewer::resizeGL(int width, int height)
 {
     if (width < 1 || height < 1) return;
 
+    if (m_offscreenFbo.notNull())
+    {
+        m_offscreenFbo->resizeAttachedBuffers(width, height);
+    
+
+        m_offscreenViewportWidth = width;
+        m_offscreenViewportHeight = height;
+    }
+
+    if (m_quadRendering.notNull())
+    {
+        m_quadRendering->camera()->viewport()->set(0, 0, width, height);
+    }
+
     updateCamera(width, height);
 }
 
@@ -388,7 +520,6 @@ void caf::Viewer::enablePerfInfoHud(bool enable)
     updateOverlayImagePresence();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -396,8 +527,6 @@ bool caf::Viewer::isPerfInfoHudEnabled()
 {
     return m_showPerfInfoHud;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///  
@@ -496,17 +625,17 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::setMinNearPlaneDistance(double dist)
+void caf::Viewer::setDefaultPerspectiveNearPlaneDistance(double dist)
 {
-    m_minNearPlaneDistance = dist;
+    m_defaultPerspectiveNearPlaneDistance = dist;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::setMaxFarPlaneDistance(double dist)
+void caf::Viewer::setMaxClipPlaneDistance(double dist)
 {
-    m_maxFarPlaneDistance = dist;
+    m_maxClipPlaneDistance = dist;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,7 +656,7 @@ void caf::Viewer::setView(const cvf::Vec3d& alongDirection, const cvf::Vec3d& up
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::zoomAll()
 {
-    cvf::BoundingBox bb = m_renderingSequence->boundingBox();
+    cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if (!bb.isValid())
     {
       return;
@@ -536,7 +665,10 @@ void caf::Viewer::zoomAll()
     cvf::Vec3d eye, vrp, up;
     m_mainCamera->toLookAt(&eye, &vrp, &up);
 
-    m_mainCamera->fitView(bb, vrp-eye, up);
+    cvf::Vec3d newEye = m_mainCamera->computeFitViewEyePosition(bb, vrp-eye, up, 0.9, m_cameraFieldOfViewYDeg, m_mainCamera->viewport()->aspectRatio());
+    m_mainCamera->setFromLookAt(newEye, bb.center(), up);
+
+    updateParallelProjectionHeightFromMoveZoom(bb.center());
 
     navigationPolicyUpdate();
 }
@@ -559,7 +691,7 @@ void caf::Viewer::removeAllFrames()
 {
     m_frameScenes.clear();
     m_animationControl->setNumFrames(0);
-    m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
+    m_mainRendering->setScene(m_mainScene.p());
 }
 
 
@@ -568,7 +700,7 @@ void caf::Viewer::removeAllFrames()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::isAnimationActive()
 {
-    cvf::Scene* currentScene = m_renderingSequence->firstRendering()->scene();
+    cvf::Scene* currentScene = m_mainRendering->scene();
 
     if (!currentScene)
     {
@@ -599,7 +731,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(clampedFrameIndex));
+    m_mainRendering->setScene(m_frameScenes.at(clampedFrameIndex));
 
     update();
 }
@@ -608,7 +740,7 @@ void caf::Viewer::releaseOGlResourcesForCurrentFrame()
 {
     if (isAnimationActive())
     {
-        cvf::Scene* currentScene = m_renderingSequence->firstRendering()->scene();
+        cvf::Scene* currentScene = m_mainRendering->scene();
         makeCurrent();
         cvf::uint modelCount = currentScene->modelCount();
         for (cvf::uint i = 0; i < modelCount; ++i)
@@ -636,7 +768,7 @@ void caf::Viewer::slotEndAnimation()
         releaseOGlResourcesForCurrentFrame();
     }
 
-    m_renderingSequence->firstRendering()->setScene(m_mainScene.p());
+    m_mainRendering->setScene(m_mainScene.p());
 
     update();
 }
@@ -679,6 +811,59 @@ bool caf::Viewer::isShadersSupported()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage caf::Viewer::snapshotImage()
+{
+
+    QImage image;
+    if (m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0)
+    {
+        cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
+
+        m_offscreenFbo->bind(myOglContext.p());
+
+        // TODO: Consider refactor this code
+        // Creating a QImage from the bits in current frame buffer can be done by
+        // this->grabFrameBuffer() 
+
+        GLint iOldPackAlignment = 0;
+        glGetIntegerv(GL_PACK_ALIGNMENT, &iOldPackAlignment);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        CVF_CHECK_OGL(myOglContext.p());
+
+        cvf::UByteArray arr(3 * m_offscreenViewportWidth * m_offscreenViewportHeight);
+
+        glReadPixels(0, 0, static_cast<GLsizei>(m_offscreenViewportWidth), static_cast<GLsizei>(m_offscreenViewportHeight), GL_RGB, GL_UNSIGNED_BYTE, arr.ptr());
+        CVF_CHECK_OGL(myOglContext.p());
+
+        glPixelStorei(GL_PACK_ALIGNMENT, iOldPackAlignment);
+        CVF_CHECK_OGL(myOglContext.p());
+
+        cvf::FramebufferObject::useDefaultWindowFramebuffer(myOglContext.p());
+
+        cvf::TextureImage texImage;
+        texImage.setFromRgb(arr.ptr(), m_offscreenViewportWidth, m_offscreenViewportHeight);
+
+        image = cvfqt::Utils::toQImage(texImage);
+    }
+    else
+    {
+        // Code moved from RimView::snapshotWindowContent()
+
+        GLint currentReadBuffer;
+        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
+
+        glReadBuffer(GL_FRONT);
+        image = this->grabFrameBuffer();
+
+        glReadBuffer(currentReadBuffer);
+    }
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -946,6 +1131,11 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
         this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
 
+        // Set the light position behind us, far away from the scene
+        float sceneDepth = m_mainCamera->farPlane() -  m_mainCamera->nearPlane();
+        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0,0, 2 * sceneDepth));
+        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0,0, 2 * sceneDepth));
+
         this->update();
     }
     else if (!enableOrtho && m_mainCamera->projection() == cvf::Camera::ORTHO)
@@ -954,7 +1144,12 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
         // We assume the camera is in a sensible position.
 
-        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
+        // Set dummy near and far plane. These wll be updated by the optimize clipping planes
+        m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, 0.1, 1.0);
+
+        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
+        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0.5, 5.0, 7.0));
+
         this->update();
     }
 }
@@ -971,7 +1166,7 @@ double calculateOrthoHeight(double perspectiveViewAngleYDeg, double focusPlaneDi
 /// 
 //--------------------------------------------------------------------------------------------------
 
-double calculateDistToPlaneOfInterest(double perspectiveViewAngleYDeg, double orthoHeight)
+double calculateDistToPlaneOfOrthoHeight(double perspectiveViewAngleYDeg, double orthoHeight)
 {
    return orthoHeight / (2 * (cvf::Math::tan( cvf::Math::toRadians(0.5 * perspectiveViewAngleYDeg) )));
 }
@@ -1009,8 +1204,9 @@ void caf::Viewer::updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& p
 
     if (!camera || camera->projection() != Camera::ORTHO) return;
 
+    // Negative distance can occur. If so, do not set a negative ortho.
 
-    double distToFocusPlane = distToPlaneOfInterest(camera, pointOfInterest);
+    double distToFocusPlane = cvf::Math::abs( distToPlaneOfInterest(camera, pointOfInterest));    
 
     double orthoHeight = calculateOrthoHeight(m_cameraFieldOfViewYDeg, distToFocusPlane);
 
@@ -1032,7 +1228,7 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
     double orthoHeight = camera->frontPlaneFrustumHeight();
     //Trace::show(String::number(orthoHeight));
 
-    double neededDistToFocusPlane = calculateDistToPlaneOfInterest(m_cameraFieldOfViewYDeg, orthoHeight);
+    double neededDistToFocusPlane = calculateDistToPlaneOfOrthoHeight(m_cameraFieldOfViewYDeg, orthoHeight);
 
     Vec3d eye, vrp, up;
     camera->toLookAt(&eye, &vrp, &up);
@@ -1053,17 +1249,18 @@ void caf::Viewer::updateParallelProjectionCameraPosFromPointOfInterestMove(const
 //--------------------------------------------------------------------------------------------------
 int caf::Viewer::clampFrameIndex(int frameIndex) const
 {
-    size_t clampedFrameIndex = static_cast<size_t>(frameIndex);
+    int clampedFrameIndex = frameIndex;
+    int frameCountInt = static_cast<int>(frameCount());
 
-    if (clampedFrameIndex >= frameCount())
+    if (clampedFrameIndex >= frameCountInt)
     {
-        clampedFrameIndex = frameCount() - 1;
+        clampedFrameIndex = frameCountInt - 1;
     }
     else if (clampedFrameIndex < 0)
     {
         clampedFrameIndex = 0;
     }
 
-    return static_cast<int>(clampedFrameIndex);
+    return clampedFrameIndex;
 }
 

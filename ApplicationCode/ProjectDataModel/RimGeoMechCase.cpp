@@ -27,11 +27,18 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigFormationNames.h"
 
 #include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimFormationNames.h"
+#include "RimGeoMechPropertyFilterCollection.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechPropertyFilter.h"
 
 #include <QFile>
 
@@ -47,6 +54,10 @@ RimGeoMechCase::RimGeoMechCase(void)
     m_caseFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
     geoMechViews.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "");
+    CAF_PDM_InitField(&m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +124,17 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
         // Also, several places is checked for this data to validate availability of data
         m_geoMechCaseData = NULL;
     }
-
+    else
+    {
+        if ( activeFormationNames() )
+        {
+            m_geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            m_geoMechCaseData->femPartResults()->setActiveFormationNames(nullptr);
+        }
+    }
     return fileOpenSuccess;
 }
 
@@ -126,7 +147,7 @@ void RimGeoMechCase::updateFilePathsFromProjectPath(const QString& newProjectPat
     std::vector<QString> searchedPaths;
 
     // Update filename and folder paths when opening project from a different file location
-    m_caseFileName = relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    m_caseFileName = RimTools::relocateFile(m_caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)
@@ -172,10 +193,14 @@ QStringList RimGeoMechCase::timeStepStrings()
 {
     QStringList stringList;
 
-    std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
-    for (size_t i = 0; i < stepNames.size(); i++)
+    RigGeoMechCaseData* rigCaseData = geoMechData();
+    if (rigCaseData && rigCaseData->femPartResults())
     {
-        stringList += QString::fromStdString(stepNames[i]);
+        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
+        for (size_t i = 0; i < stepNames.size(); i++)
+        {
+            stringList += QString::fromStdString(stepNames[i]);
+        }
     }
 
     return stringList;
@@ -186,9 +211,15 @@ QStringList RimGeoMechCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::timeStepName(int frameIdx)
 {
-   std::vector<std::string> stepNames = geoMechData()->femPartResults()->stepNames();
+    RigGeoMechCaseData* rigCaseData = geoMechData();
+    if (rigCaseData && rigCaseData->femPartResults())
+    {
+       std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
 
-   return QString::fromStdString(stepNames[frameIdx]);
+       return QString::fromStdString(stepNames[frameIdx]);
+    }
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,6 +273,97 @@ std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if(changedField == &activeFormationNames)
+    {
+        updateFormationNamesData();
+    }
+
+    if (changedField == &m_cohesion || changedField == &m_frictionAngleDeg)
+    {
+
+        RigGeoMechCaseData* rigCaseData = geoMechData();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->setCalculationParameters(m_cohesion(), cvf::Math::toRadians(m_frictionAngleDeg()));
+        }
+
+        std::vector<RimView*> views = this->views();
+        for ( RimView* view : views )
+        {
+            if ( view  ) // Todo: only those using the variable actively
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::updateFormationNamesData()
+{
+    RigGeoMechCaseData* rigCaseData = geoMechData();
+    if(rigCaseData && rigCaseData->femPartResults())
+    {
+        if(activeFormationNames())
+        {
+            rigCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        }
+        else
+        {
+            rigCaseData->femPartResults()->setActiveFormationNames(nullptr);
+        }
+
+        std::vector<RimView*> views = this->views();
+        for(RimView* view : views)
+        {
+            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(view);
+
+            if ( geomView && geomView->isUsingFormationNames() )
+            {
+                if ( !activeFormationNames() )
+                {
+                    if ( geomView->cellResult()->resultPositionType() == RIG_FORMATION_NAMES )
+                    {
+                        geomView->cellResult()->setResultAddress(RigFemResultAddress(RIG_FORMATION_NAMES, "", ""));
+                        geomView->cellResult()->updateConnectedEditors();
+                    }
+
+                    RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
+                    for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    {
+                        if ( propFilter->resultDefinition()->resultPositionType() == RIG_FORMATION_NAMES )
+                        {
+                            propFilter->resultDefinition()->setResultAddress(RigFemResultAddress(RIG_FORMATION_NAMES, "", ""));
+                        }
+                    }
+                }
+
+                RimGeoMechPropertyFilterCollection* eclFilColl = geomView->geoMechPropertyFilterCollection();
+                for ( RimGeoMechPropertyFilter* propFilter : eclFilColl->propertyFilters )
+                {
+                    if ( propFilter->resultDefinition->resultPositionType() == RIG_FORMATION_NAMES )
+                    {
+                        propFilter->setToDefaultValues();
+                        propFilter->updateConnectedEditors();
+                    }
+                }
+
+                geomView->cellResult()->updateConnectedEditors();
+
+                view->scheduleGeometryRegen(PROPERTY_FILTERED);
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int numberOfDigitsToFind)
 {
     for (int j = 0; j < inputString.size(); j++)
@@ -266,5 +388,21 @@ QString RimGeoMechCase::subStringOfDigits(const QString& inputString, int number
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+   uiOrdering.add(&caseUserDescription);
+   uiOrdering.add(&caseId);
+   uiOrdering.add(&m_caseFileName);
+
+   auto group = uiOrdering.addNewGroup("Case Options");
+   group->add(&activeFormationNames);
+   group->add(&m_cohesion);
+   group->add(&m_frictionAngleDeg);
+
 }
 

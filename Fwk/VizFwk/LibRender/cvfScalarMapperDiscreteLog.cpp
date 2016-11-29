@@ -37,8 +37,10 @@
 
 #include "cvfScalarMapperDiscreteLog.h"
 #include "cvfScalarMapperDiscreteLinear.h"
-#include <cmath>
 #include "cvfMath.h"
+
+#include <assert.h>
+#include <cmath>
 
 namespace cvf {
 
@@ -59,14 +61,19 @@ ScalarMapperDiscreteLog::ScalarMapperDiscreteLog()
 }
 
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 Color3ub ScalarMapperDiscreteLog::mapToColor(double scalarValue) const
 {
+    assert(m_sortedLevels.size() > 0);
+
     double discVal = ScalarMapperDiscreteLinear::discretizeToLevelBelow(scalarValue, m_sortedLevels);
     std::set<double>::reverse_iterator it = m_sortedLevels.rbegin();
-    it++;
+
+    if (m_sortedLevels.size() > 1) it++;
+
     double levelUnderMax = *it;
     double normDiscVal = normalizedValue(discVal);
     double normSemiMaxVal = normalizedValue(levelUnderMax);

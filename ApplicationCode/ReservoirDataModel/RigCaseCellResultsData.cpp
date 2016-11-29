@@ -130,6 +130,30 @@ void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex)
+{
+    return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, double& sumValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(sumValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue)
+{
+    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(timeStepIndex, sumValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::resultCount() const
 {
     return m_cellScalarResults.size();
@@ -213,6 +237,11 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
         scalarResultIndex = this->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
+    }
+
+    if(scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::FORMATION_NAMES, resultName);
     }
 
     return scalarResultIndex;
@@ -446,6 +475,7 @@ void RigCaseCellResultsData::clearAllResults()
 {
     m_cellScalarResults.clear();
     m_resultInfos.clear();
+    m_statisticsDataCache.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -487,6 +517,25 @@ RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromP
     if (porosityModel == RimDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
     
     return RifReaderInterface::FRACTURE_RESULTS;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName)
+{
+    bool anyNameUpdated = false;
+
+    for (auto& it : m_resultInfos)
+    {
+        if (it.m_resultType == resultType && it.m_resultName == oldName)
+        {
+            anyNameUpdated = true;
+            it.m_resultName = newName;
+        }
+    }
+
+    return anyNameUpdated;
 }
 
 //--------------------------------------------------------------------------------------------------

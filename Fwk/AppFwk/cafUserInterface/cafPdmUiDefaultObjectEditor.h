@@ -36,12 +36,15 @@
 
 
 #pragma once
+
 #include "cafPdmUiObjectEditorHandle.h"
+
 #include <map>
+
+#include <QGroupBox>
+#include <QPointer>
 #include <QString>
 #include <QWidget>
-#include <QPointer>
-#include <QGroupBox>
 
 class QGridLayout;
 
@@ -61,13 +64,15 @@ public:
     ~PdmUiDefaultObjectEditor();
 
 protected:
-    virtual QWidget* createWidget(QWidget* parent);
-    virtual void     configureAndUpdateUi(const QString& uiConfigName);
+    virtual QWidget*    createWidget(QWidget* parent) override;
+    virtual void        configureAndUpdateUi(const QString& uiConfigName) override;
+    virtual void        cleanupBeforeSettingPdmObject() override;
 
 private:
-    void recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName );
+    void recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
+    void recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames);
 
-    std::map<QString, PdmUiFieldEditorHandle*>  m_fieldViews; 
+    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 
     std::map<QString, QPointer<QGroupBox> >     m_groupBoxes;
     std::map<QString, QPointer<QGroupBox> >     m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
 

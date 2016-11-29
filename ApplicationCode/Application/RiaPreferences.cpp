@@ -58,7 +58,9 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
 
-    CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
+    CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Default Z scale factor", "", "", "");
+    CAF_PDM_InitField(&fontSizeInScene,                 "fontSizeInScene", QString("8"), "Font size", "", "", "");
+
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS curve without TVD warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
@@ -81,8 +83,17 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and show SOIL", "", "", "");
     loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
+    readerSettings = new RifReaderSettings;
+
+    CAF_PDM_InitField(&autoCreatePlotsOnImport,         "AutoCreatePlotsOnImport", true, "Create Summary Plots When Importing Eclipse Case", "", "", "");
+    autoCreatePlotsOnImport.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    
+    CAF_PDM_InitField(&defaultCurveFilter,              "DefaultCurveFilter", QString("F*PT"), "Default Vector Selection Filter", "", "", "");
+
+    m_tabNames << "General";
+    m_tabNames << "Octave";
+    m_tabNames << "Summary";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +126,8 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &useShaders ||
             field == &showHud ||
             field == &appendClassNameToUiText ||
-            field == &showLasCurveWithoutTvdWarning )
+            field == &showLasCurveWithoutTvdWarning ||
+            field == &autoCreatePlotsOnImport)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -130,51 +142,89 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
-    uiOrdering.add(&navigationPolicy);
-
-    caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
-    scriptGroup->add(&scriptDirectories);
-    scriptGroup->add(&scriptEditorExecutable);
-
-    caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
-    octaveGroup->add(&octaveExecutable);
-    octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
-
-    caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
-    defaultSettingsGroup->add(&defaultScaleFactorZ);
-    defaultSettingsGroup->add(&defaultViewerBackgroundColor);
-    defaultSettingsGroup->add(&defaultGridLines);
-    defaultSettingsGroup->add(&defaultGridLineColors);
-    defaultSettingsGroup->add(&defaultFaultGridLineColors);
-    defaultSettingsGroup->add(&defaultWellLabelColor);
-    defaultSettingsGroup->add(&showLasCurveWithoutTvdWarning);
-
-    caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Behavior when loading new case");
-    autoComputeGroup->add(&autocomputeDepthRelatedProperties);
-    autoComputeGroup->add(&loadAndShowSoil);
-    
-    caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
-    std::vector<caf::PdmFieldHandle*> readerSettingsFields;
-    readerSettings->fields(readerSettingsFields);
-    for (size_t i = 0; i < readerSettingsFields.size(); i++)
+    if (uiConfigName == m_tabNames[0])
     {
-        readerSettingsGroup->add(readerSettingsFields[i]);
+        caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
+        defaultSettingsGroup->add(&defaultViewerBackgroundColor);
+        defaultSettingsGroup->add(&defaultGridLines);
+        defaultSettingsGroup->add(&defaultGridLineColors);
+        defaultSettingsGroup->add(&defaultFaultGridLineColors);
+        defaultSettingsGroup->add(&defaultWellLabelColor);
+        defaultSettingsGroup->add(&fontSizeInScene);
+
+        caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3D views");
+        viewsGroup->add(&navigationPolicy);
+        viewsGroup->add(&useShaders);
+        viewsGroup->add(&showHud);
+
+        caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup("Behavior when loading new case");
+        newCaseBehaviourGroup->add(&defaultScaleFactorZ);
+        newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
+        newCaseBehaviourGroup->add(&loadAndShowSoil);
+        newCaseBehaviourGroup->add(&showLasCurveWithoutTvdWarning);
+    
+        std::vector<caf::PdmFieldHandle*> readerSettingsFields;
+        readerSettings->fields(readerSettingsFields);
+        for (size_t i = 0; i < readerSettingsFields.size(); i++)
+        {
+            newCaseBehaviourGroup->add(readerSettingsFields[i]);
+        }
+
+        caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup("SSIHUB");
+        ssihubGroup->add(&ssihubAddress);
+
+        uiOrdering.add(&appendClassNameToUiText);
     }
+    else if (uiConfigName == m_tabNames[1])
+    {
+        caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
+        octaveGroup->add(&octaveExecutable);
+        octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
+
+        caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script files");
+        scriptGroup->add(&scriptDirectories);
+        scriptGroup->add(&scriptEditorExecutable);
+    }
+    else if (uiConfigName == m_tabNames[2])
+    {
+        uiOrdering.add(&autoCreatePlotsOnImport);
+        uiOrdering.add(&defaultCurveFilter);
+    }
+
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This function is called as part of the regression test system to make sure the configuration
-/// for regression tests is consistent
+/// 
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::configureForRegressionTests()
+QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    useShaders = true;
-    showHud = false;
+    QList<caf::PdmOptionItemInfo> options;
+    *useOptionsOnly = true;
 
-    autocomputeDepthRelatedProperties = true;
-    loadAndShowSoil = true;
+    if (&fontSizeInScene == fieldNeedingOptions)
+    {
+        QStringList fontSizes;
+        fontSizes <<  "8";
+        fontSizes << "12";
+        fontSizes << "16";
+        fontSizes << "24";
+        fontSizes << "32";
 
-    CVF_ASSERT(readerSettings);
-    readerSettings->importFaults = false;
+        for (int oIdx = 0; oIdx < fontSizes.size(); ++oIdx)
+        {
+            options.push_back(caf::PdmOptionItemInfo(fontSizes[oIdx], fontSizes[oIdx]));
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RiaPreferences::tabNames()
+{
+    return m_tabNames;
 }
 

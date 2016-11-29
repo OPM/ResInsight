@@ -19,13 +19,12 @@
 
 #include "RicWellLogPlotTrackFeatureImpl.h"
 
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogCurve.h"
 
-#include "RiuMainWindow.h"
+#include "cvfAssert.h"
 
-#include "cafPdmUiTreeView.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,14 +43,14 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
         RimWellLogCurve* curve = curves[cIdx];
 
         RimWellLogTrack* wellLogPlotTrack;
-        curve->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        curve->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
             wellLogPlotTrack->removeCurve(curve);
             wellLogPlotTrack->updateConnectedEditors();
             srcTracks.insert(wellLogPlotTrack);
             RimWellLogPlot* plot;
-            wellLogPlotTrack->firstAnchestorOrThisOfType(plot);
+            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot) srcPlots.insert(plot);
         }
     }
@@ -71,11 +70,11 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
 
     for (std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt)
     {
-        (*tIt)->zoomAllXAndZoomAllDepthOnOwnerPlot();
+        (*tIt)->updateXZoomAndParentPlotDepthZoom();
     }
 
     destTrack->loadDataAndUpdate();
-    destTrack->zoomAllXAndZoomAllDepthOnOwnerPlot();
+    destTrack->updateXZoomAndParentPlotDepthZoom();
     destTrack->updateConnectedEditors();
 }
 
@@ -95,7 +94,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
         RimWellLogTrack* track = tracksToMove[tIdx];
 
         RimWellLogPlot* srcPlot;
-        track->firstAnchestorOrThisOfType(srcPlot);
+        track->firstAncestorOrThisOfType(srcPlot);
         if (srcPlot)
         {
             srcPlot->removeTrack(track);

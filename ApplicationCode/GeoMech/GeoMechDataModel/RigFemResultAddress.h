@@ -29,27 +29,56 @@
 class RigFemResultAddress
 {
 public:
-RigFemResultAddress(RigFemResultPosEnum resPosType,
-                    const std::string& aFieldName,
-                    const std::string& aComponentName) 
-                    : resultPosType(resPosType), fieldName(aFieldName), componentName(aComponentName) 
-                    {}
+    RigFemResultAddress(RigFemResultPosEnum resPosType,
+                        const std::string& aFieldName,
+                        const std::string& aComponentName)
+        : resultPosType(resPosType),
+        fieldName(aFieldName),
+        componentName(aComponentName),
+        timeLapseBaseFrameIdx(-1)
+    {
+    }
+
+    RigFemResultAddress(RigFemResultPosEnum resPosType,
+                        const std::string& aFieldName,
+                        const std::string& aComponentName,
+                        int aTimeLapseBaseFrame)
+        : resultPosType(resPosType),
+        fieldName(aFieldName),
+        componentName(aComponentName),
+        timeLapseBaseFrameIdx(aTimeLapseBaseFrame)
+    {
+    }
 
     RigFemResultPosEnum resultPosType;
     std::string fieldName;
     std::string componentName;
+    int         timeLapseBaseFrameIdx;
+
+    static const int ALL_TIME_LAPSES = -2;
+
+    bool isTimeLapse() const { return timeLapseBaseFrameIdx >= 0;}
+    bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
 
     bool isValid() const
     {
         bool isTypeValid =     resultPosType == RIG_NODAL 
                             || resultPosType == RIG_ELEMENT_NODAL 
-                            || resultPosType == RIG_INTEGRATION_POINT;
+                            || resultPosType == RIG_INTEGRATION_POINT
+                            || resultPosType == RIG_ELEMENT_NODAL_FACE
+                            || resultPosType == RIG_FORMATION_NAMES;
         bool isFieldValid = fieldName != "";
+
         return isTypeValid && isFieldValid;
     }
 
     bool operator< (const RigFemResultAddress& other ) const
     {
+        if (timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx)
+        {
+            return (timeLapseBaseFrameIdx < other.timeLapseBaseFrameIdx);
+        }
+
         if (resultPosType != other.resultPosType)
         {
             return (resultPosType < other.resultPosType);
@@ -59,7 +88,7 @@ RigFemResultAddress(RigFemResultPosEnum resPosType,
         {
             return (fieldName <  other.fieldName);
         }
-
+ 
         return (componentName <  other.componentName);
     }
 };

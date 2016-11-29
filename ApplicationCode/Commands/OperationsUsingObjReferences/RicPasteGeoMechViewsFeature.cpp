@@ -106,6 +106,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
 void RicPasteGeoMechViewsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Paste (Geo Mech Views)");
+
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 

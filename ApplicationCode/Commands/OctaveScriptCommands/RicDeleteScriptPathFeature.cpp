@@ -19,11 +19,13 @@
 
 #include "RicDeleteScriptPathFeature.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
 
 #include "RimScriptCollection.h"
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
 #include "RiuMainWindow.h"
 
 #include "cvfAssert.h"
@@ -69,6 +71,8 @@ void RicDeleteScriptPathFeature::onActionTriggered(bool isChecked)
 
         RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
         RiaApplication::instance()->applyPreferences();
+
+        RicRefreshScriptsFeature::refreshScriptFolders();
     }
 }
 
@@ -78,4 +82,5 @@ void RicDeleteScriptPathFeature::onActionTriggered(bool isChecked)
 void RicDeleteScriptPathFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete Script Path");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }

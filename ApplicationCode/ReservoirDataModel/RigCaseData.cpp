@@ -19,9 +19,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigCaseData.h"
-#include "RigMainGrid.h"
+
 #include "RigCaseCellResultsData.h"
+#include "RigFormationNames.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -138,6 +142,25 @@ void RigCaseData::computeWellCellsPrGrid()
 
     std::vector<RigGridBase*> grids;
     this->allGrids(&grids);
+
+    // Debug code used to display grid names and grid sizes
+/*
+    size_t totCellCount = 0;
+    for (auto g : grids)
+    {
+        qDebug() << g->gridName().data();
+        qDebug() << g->cellCountI() << " " << g->cellCountJ() << " " << g->cellCountK() << " ";
+
+        size_t cellCount = g->cellCount();
+        totCellCount += cellCount;
+        qDebug() << cellCount;
+
+        qDebug() << "\n";
+    }
+
+    qDebug() << "\nTotal cell count " << totCellCount;
+*/
+
     size_t gIdx;
 
     //  Allocate and initialize the arrays
@@ -168,32 +191,38 @@ void RigCaseData::computeWellCellsPrGrid()
         {
             RigWellResultFrame& wellCells =  m_wellResults[wIdx]->m_wellCellsTimeSteps[tIdx];
 
-            size_t gridIndex        =  wellCells.m_wellHead.m_gridIndex;
-            size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
-
-            if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
+            // Well head
             {
-                size_t reservoirCellIndex = grids[gridIndex]->reservoirCellIndex(gridCellIndex);
-                if (m_activeCellInfo->isActive(reservoirCellIndex) 
-                    || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
+                size_t gridIndex        =  wellCells.m_wellHead.m_gridIndex;
+                size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
+
+                if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
                 {
-                    m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                    m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                    size_t reservoirCellIndex = grids[gridIndex]->reservoirCellIndex(gridCellIndex);
+                    if (m_activeCellInfo->isActive(reservoirCellIndex) 
+                        || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
+                    {
+                        m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
+                        m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                    }
                 }
             }
 
-            size_t sIdx;
-            for (sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx)
+            // Well result branches
+            for (size_t sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx)
             {
                 RigWellResultBranch& wellSegment = wellCells.m_wellResultBranches[sIdx];
                 size_t cdIdx;
                 for (cdIdx = 0; cdIdx < wellSegment.m_branchResultPoints.size(); ++cdIdx)
                 {
-                    gridIndex     = wellSegment.m_branchResultPoints[cdIdx].m_gridIndex;
-                    gridCellIndex = wellSegment.m_branchResultPoints[cdIdx].m_gridCellIndex;
+                    size_t gridIndex     = wellSegment.m_branchResultPoints[cdIdx].m_gridIndex;
+                    size_t gridCellIndex = wellSegment.m_branchResultPoints[cdIdx].m_gridCellIndex;
 
                     if(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
                     {
+                        // NOTE : We do not check if the grid cell is active as we do for well head.
+                        // If we add test for active cell, thorough testing and verification of the new behaviour must be adressed
+
                         m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
                         m_gridCellToResultWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
                     }
@@ -466,6 +495,78 @@ void RigCaseData::computeActiveCellsGeometryBoundingBox()
     }
 
     m_mainGrid->setDisplayModelOffset(bb.min());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseData::setActiveFormationNames(RigFormationNames* activeFormationNames)
+{
+    m_activeFormationNamesData  = activeFormationNames;
+
+    size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
+    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RimDefines::FORMATION_NAMES, 
+                                                                  "Active Formation Names", 
+                                                                  false, 
+                                                                  totalGlobCellCount);
+
+    std::vector<double>& fnData =  m_matrixModelResults->cellScalarResults(resIndex,0);
+
+    if (m_activeFormationNamesData.isNull())
+    {
+        for ( size_t cIdx = 0; cIdx < totalGlobCellCount; ++cIdx )
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+
+        return;
+    }
+
+    size_t localCellCount = m_mainGrid->cellCount();
+    for (size_t cIdx = 0; cIdx < localCellCount; ++cIdx)
+    {
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_mainGrid->ijkFromCellIndex(cIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+    }
+
+    for (size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx)
+    {
+        size_t mgrdCellIdx =  m_mainGrid->globalCellArray()[cIdx].mainGridCellIndex();
+
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_mainGrid->ijkFromCellIndex(mgrdCellIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFormationNames* RigCaseData::activeFormationNames()
+{
+    return m_activeFormationNamesData.p();
 }
 
 //--------------------------------------------------------------------------------------------------

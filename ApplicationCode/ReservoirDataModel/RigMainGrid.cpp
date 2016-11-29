@@ -24,6 +24,7 @@
 #include "RimDefines.h"
 #include "RigFault.h"
 #include "cvfBoundingBoxTree.h"
+#include "RigActiveCellInfo.h"
 
 
 RigMainGrid::RigMainGrid(void)
@@ -218,7 +219,7 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::calculateFaults()
+void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
 {
     m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
@@ -228,10 +229,20 @@ void RigMainGrid::calculateFaults()
         m_faults[fIdx]->accumulateFaultsPrCell(m_faultsPrCellAcc.p(), static_cast<int>(fIdx));
     }
 
-    // Find the geometrical faults that is in addition
+    // Find the geometrical faults that is in addition: Has no user defined (eclipse) fault assigned.
+    // Separate the grid faults that has an inactive cell as member
 
-    RigFault * unNamedFault = new RigFault;
+    RigFault* unNamedFault = new RigFault;
+    unNamedFault->setName(RimDefines::undefinedGridFaultName());
     int unNamedFaultIdx = static_cast<int>(m_faults.size());
+    m_faults.push_back(unNamedFault);
+
+    RigFault* unNamedFaultWithInactive = new RigFault;
+    unNamedFaultWithInactive->setName(RimDefines::undefinedGridFaultWithInactiveName());
+    int unNamedFaultWithInactiveIdx = static_cast<int>(m_faults.size());
+    m_faults.push_back(unNamedFaultWithInactive);
+
+    const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
     for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
     {
@@ -245,10 +256,13 @@ void RigMainGrid::calculateFaults()
         size_t i, j, k;
         RigGridBase* hostGrid = NULL; 
         bool firstNO_FAULTFaceForCell = true;
+        bool isCellActive = true;
 
         for (char faceIdx = 0; faceIdx < 6; ++faceIdx)
         {
             cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType(faceIdx);
+
+            // For faces that has no used defined Fault assigned:
 
             if (m_faultsPrCellAcc->faultIdx(gcIdx, face) == RigFaultsPrCellAccumulator::NO_FAULT)
             {
@@ -257,6 +271,8 @@ void RigMainGrid::calculateFaults()
                 {
                     hostGrid = m_cells[gcIdx].hostGrid();
                     hostGrid->ijkFromCellIndex(m_cells[gcIdx].gridLocalCellIndex(), &i,&j, &k);
+                    isCellActive = activeCellInfo->isActive(gcIdx);
+
                     firstNO_FAULTFaceForCell = false;
                 }
 
@@ -271,15 +287,15 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
+                bool isNeighborCellActive = activeCellInfo->isActive(neighborReservoirCellIdx);
+
                 double tolerance = 1e-6;
-               
 
                 caf::SizeTArray4 faceIdxs;
                 m_cells[gcIdx].faceIndices(face, &faceIdxs);
                 caf::SizeTArray4 nbFaceIdxs;
                 m_cells[neighborReservoirCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
 
-                const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
                 bool sharedFaceVertices = true;
                 if (sharedFaceVertices && vxs[faceIdxs[0]].pointDistance(vxs[nbFaceIdxs[0]]) > tolerance ) sharedFaceVertices = false;
@@ -292,20 +308,26 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
-                // To avoid doing this calculation for the opposite face
+                // To avoid doing this calculation for the opposite face 
+                int faultIdx = unNamedFaultIdx;
+                if (!(isCellActive && isNeighborCellActive)) faultIdx = unNamedFaultWithInactiveIdx;
 
-                m_faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
-                m_faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
+                m_faultsPrCellAcc->setFaultIdx(gcIdx, face, faultIdx);
+                m_faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), faultIdx);
 
                 // Add as fault face only if the grid index is less than the neighbors
 
                 if (static_cast<size_t>(gcIdx) < neighborReservoirCellIdx)
                 {
+                    RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborReservoirCellIdx);
+                    if(isCellActive && isNeighborCellActive)
                     {
-                        RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborReservoirCellIdx);
                         unNamedFault->faultFaces().push_back(ff);
                     }
-
+                    else
+                    {
+                        unNamedFaultWithInactive->faultFaces().push_back(ff);
+                    }
                 }
                 else
                 {
@@ -315,21 +337,21 @@ void RigMainGrid::calculateFaults()
         }
     }
 
-    if (unNamedFault->faultFaces().size())
-    {
-        unNamedFault->setName(RimDefines::undefinedGridFaultName());
-        m_faults.push_back(unNamedFault);
-    }
+    distributeNNCsToFaults();
+}
 
-    // Distribute nnc's to the faults
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::distributeNNCsToFaults()
+{
     const std::vector<RigConnection>& nncs = this->nncData()->connections();
-    for (size_t nncIdx = 0; nncIdx  < nncs.size(); ++nncIdx)
+    for (size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx)
     {
         // Find the fault for each side of the nnc
         const RigConnection& conn = nncs[nncIdx];
-        int fIdx1 =  RigFaultsPrCellAccumulator::NO_FAULT;
-        int fIdx2 =  RigFaultsPrCellAccumulator::NO_FAULT;
+        int fIdx1 = RigFaultsPrCellAccumulator::NO_FAULT;
+        int fIdx2 = RigFaultsPrCellAccumulator::NO_FAULT;
 
         if (conn.m_c1Face != StructGridInterface::NO_FACE)
         {
@@ -339,13 +361,13 @@ void RigMainGrid::calculateFaults()
 
         if (fIdx1 < 0 && fIdx2 < 0)
         {
-            cvf::String lgrString ("Same Grid");
-            if (m_cells[conn.m_c1GlobIdx].hostGrid() != m_cells[conn.m_c2GlobIdx].hostGrid() )
+            cvf::String lgrString("Same Grid");
+            if (m_cells[conn.m_c1GlobIdx].hostGrid() != m_cells[conn.m_c2GlobIdx].hostGrid())
             {
                 lgrString = "Different Grid";
             }
 
-           //cvf::Trace::show("NNC: No Fault for NNC C1: " + cvf::String((int)conn.m_c1GlobIdx) + " C2: " + cvf::String((int)conn.m_c2GlobIdx) + " Grid: " + lgrString);
+            //cvf::Trace::show("NNC: No Fault for NNC C1: " + cvf::String((int)conn.m_c1GlobIdx) + " C2: " + cvf::String((int)conn.m_c2GlobIdx) + " Grid: " + lgrString);
         }
 
         if (fIdx1 >= 0)

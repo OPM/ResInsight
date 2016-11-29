@@ -25,6 +25,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RiuMainWindow.h"
@@ -148,15 +149,5 @@ bool RimEclipseFaultColors::hasValidCustomResult()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (m_customFaultResultColors()->ternaryLegendConfig()
-        && !m_customFaultResultColors()->ternaryLegendConfig.uiCapability()->isUiChildrenHidden(uiConfigName))
-    {
-        uiTreeOrdering.add(m_customFaultResultColors()->ternaryLegendConfig());
-    }
-    else if (m_customFaultResultColors()->legendConfig())
-    {
-        uiTreeOrdering.add(m_customFaultResultColors()->legendConfig());
-    }
-
-    uiTreeOrdering.setForgetRemainingFields(true);
+    m_customFaultResultColors()->defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 }

@@ -303,18 +303,18 @@ void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
 {
     m_wellPathCollectionPartManager->scheduleGeometryRegen();
     RimProject* proj;
-    this->firstAnchestorOrThisOfType(proj);
+    this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::updateFilePathsFromProjectPath()
+void RimWellPathCollection::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)
     {
-        wellPaths[wellPathIdx]->updateFilePathsFromProjectPath();
+        wellPaths[wellPathIdx]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
 }
 

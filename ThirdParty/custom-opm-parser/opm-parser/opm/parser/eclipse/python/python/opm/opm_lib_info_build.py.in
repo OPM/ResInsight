@@ -1,0 +1,3 @@
+lib_path = "${LIBRARY_OUTPUT_PATH}"
+so_version = ""
+

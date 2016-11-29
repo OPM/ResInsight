@@ -2,13 +2,14 @@
 
 #include "cafPdmUiItem.h"
 #include "cafPdmFieldCapability.h"
+#include "cafPdmUiFieldHandleInterface.h"
 
 namespace caf
 {
 
 class PdmFieldHandle;
 
-class PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability
+class PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability, public PdmUiFieldHandleInterface
 {
 public:
     PdmUiFieldHandle(PdmFieldHandle* owner, bool giveOwnership);
@@ -20,15 +21,22 @@ public:
     // The QVariant encapsulates the real value, or an index into the valueOptions
 
     virtual QVariant uiValue() const                                { return QVariant(); }
-    virtual void     setValueFromUi(const QVariant& uiValue)        {  }
     virtual QList<PdmOptionItemInfo>
                      valueOptions(bool* useOptionsOnly)             { return  QList<PdmOptionItemInfo>(); }
 
-    virtual QVariant toUiBasedQVariant() const                           { return QVariant(); }
-    void             notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant);
+    virtual void     notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant);
+
+    bool             isAutoAddingOptionFromValue() const              { return m_isAutoAddingOptionFromValue; }
+    void             setAutoAddingOptionFromValue(bool isAddingValue) { m_isAutoAddingOptionFromValue = isAddingValue;} 
 
 private:
-    PdmFieldHandle* m_owner;
+    friend class PdmUiCommandSystemProxy;
+    friend class CmdFieldChangeExec;
+    virtual void     setValueFromUiEditor(const QVariant& uiValue)        {  }
+
+private:
+    PdmFieldHandle*  m_owner;
+    bool             m_isAutoAddingOptionFromValue;
 };
 
 

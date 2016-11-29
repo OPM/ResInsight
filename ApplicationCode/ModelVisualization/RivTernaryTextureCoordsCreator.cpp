@@ -138,17 +138,14 @@ void RivTernaryTextureCoordsCreator::createTextureCoords(
     quadTextureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = quadTextureCoords->ptr();
 
-    cvf::Vec2d resultValue;
-    cvf::Vec2f texCoord;
-
-#pragma omp parallel for private(texCoord, resultValue)
+#pragma omp parallel for
     for (int i = 0; i < static_cast<int>(quadMapper->quadCount()); i++)
     {
         cvf::StructGridInterface::FaceType faceId = quadMapper->cellFace(i);
         size_t cellIdx = quadMapper->cellIndex(i);
 
-        resultValue = resultAccessor->cellFaceScalar(cellIdx, faceId);
-        texCoord = texMapper->getTexCoord(resultValue.x(), resultValue.y(), cellIdx);
+        cvf::Vec2d resultValue = resultAccessor->cellFaceScalar(cellIdx, faceId);
+        cvf::Vec2f texCoord = texMapper->getTexCoord(resultValue.x(), resultValue.y(), cellIdx);
 
         size_t j;
         for (j = 0; j < 4; j++)
@@ -169,16 +166,13 @@ void RivTernaryTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* textur
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
 
-    cvf::Vec2d resultValue;
-    cvf::Vec2f texCoord;
-
-#pragma omp parallel for private(texCoord, resultValue)
+#pragma omp parallel for
     for (int i = 0; i < static_cast<int>(triangleToCellIdx.size()); i++)
     {
         size_t cellIdx = triangleToCellIdx[i];
 
-        resultValue = resultAccessor->cellScalarGlobIdx(cellIdx);
-        texCoord = texMapper->getTexCoord(resultValue.x(), resultValue.y(), cellIdx);
+        cvf::Vec2d resultValue = resultAccessor->cellScalarGlobIdx(cellIdx);
+        cvf::Vec2f texCoord = texMapper->getTexCoord(resultValue.x(), resultValue.y(), cellIdx);
 
         size_t j;
         for (j = 0; j < 3; j++)

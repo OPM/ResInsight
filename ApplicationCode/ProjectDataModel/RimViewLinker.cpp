@@ -61,12 +61,12 @@ RimViewLinker::RimViewLinker(void)
     m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View", "", "", "");
-    m_masterView.uiCapability()->setUiChildrenHidden(true);
+    m_masterView.uiCapability()->setUiTreeChildrenHidden(true);
     m_masterView.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
     m_viewControllers.uiCapability()->setUiHidden(true);
-    m_viewControllers.uiCapability()->setUiChildrenHidden(true);
+    m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ QString RimViewLinker::displayNameForView(RimView* view)
     if (view)
     {
         RimCase* rimCase = NULL;
-        view->firstAnchestorOrThisOfType(rimCase);
+        view->firstAncestorOrThisOfType(rimCase);
 
         displayName = rimCase->caseUserDescription() + ": " + view->name;
     }
@@ -370,7 +370,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 bool RimViewLinker::isActive()
 {
     RimViewLinkerCollection* viewLinkerCollection = NULL;
-    this->firstAnchestorOrThisOfType(viewLinkerCollection);
+    this->firstAncestorOrThisOfType(viewLinkerCollection);
     
     if (!viewLinkerCollection)
     {
@@ -446,7 +446,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
     if (view)
     {
         RimCase* rimCase = NULL;
-        view->firstAnchestorOrThisOfType(rimCase);
+        view->firstAncestorOrThisOfType(rimCase);
 
         if (dynamic_cast<RimGeoMechCase*>(rimCase))
         {
@@ -516,19 +516,21 @@ void RimViewLinker::updateCamera(RimView* sourceView)
         sourceSceneBB.transform(trans);
     }
 
-    // Propagate view matrix to all relevant views
-
-    const cvf::Mat4d mat = sourceView->viewer()->mainCamera()->viewMatrix();
-    for (size_t i = 0; i < viewsToUpdate.size(); i++)
+    for (RimView* destinationView : viewsToUpdate)
     {
-        if (viewsToUpdate[i] && viewsToUpdate[i]->viewer())
+        if (!destinationView) continue;
+
+        destinationView->isPerspectiveView = sourceView->isPerspectiveView;
+
+        RiuViewer* destinationViewer = destinationView->viewer();
+        if (destinationViewer)
         {
-            RiuViewer* destinationViewer = viewsToUpdate[i]->viewer();
+            destinationViewer->enableParallelProjection(!sourceView->isPerspectiveView);
 
             // Destination bounding box in global coordinates including scaleZ
             cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
 
-            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(viewsToUpdate[i]);
+            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(destinationView);
             if (destEclipseView
                 && destEclipseView->eclipseCase()
                 && destEclipseView->eclipseCase()->reservoirData()
@@ -566,6 +568,8 @@ void RimViewLinker::updateCamera(RimView* sourceView)
                     destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
                 }
             }
+
+            destinationViewer->updateParallelProjectionSettings(sourceView->viewer());
 
             destinationViewer->update();
         }

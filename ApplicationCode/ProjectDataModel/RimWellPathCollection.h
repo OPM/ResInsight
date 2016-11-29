@@ -91,7 +91,7 @@ public:
 
 
     void                                scheduleGeometryRegenAndRedrawViews();
-    void                                updateFilePathsFromProjectPath();
+    void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 

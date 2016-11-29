@@ -1,0 +1,136 @@
+/*
+   Copyright (C) 2011  Statoil ASA, Norway. 
+    
+   The file 'vector_template.h' is part of ERT - Ensemble based Reservoir Tool. 
+    
+   ERT is free software: you can redistribute it and/or modify 
+   it under the terms of the GNU General Public License as published by 
+   the Free Software Foundation, either version 3 of the License, or 
+   (at your option) any later version. 
+    
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+   FITNESS FOR A PARTICULAR PURPOSE.   
+    
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+   for more details. 
+*/
+
+#ifndef ERT_@TYPE@_VECTOR_H
+#define ERT_@TYPE@_VECTOR_H
+#ifdef __cplusplus 
+extern "C" {
+#endif
+#include <stdio.h>
+#include <stdbool.h>
+
+#include <ert/util/buffer.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/perm_vector.h>
+
+typedef struct @TYPE@_vector_struct @TYPE@_vector_type;
+typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
+
+  
+  int                  @TYPE@_vector_lookup_bin( const @TYPE@_vector_type * limits , @TYPE@ value , int guess);
+  int                  @TYPE@_vector_lookup_bin__( const @TYPE@_vector_type * limits , @TYPE@ value , int guess);
+  void                 @TYPE@_vector_inplace_div( @TYPE@_vector_type * vector , const @TYPE@_vector_type * inv_factor);
+  void                 @TYPE@_vector_inplace_mul( @TYPE@_vector_type * vector , const @TYPE@_vector_type * factor);
+  void                 @TYPE@_vector_inplace_add( @TYPE@_vector_type * vector , const @TYPE@_vector_type * delta);
+  void                 @TYPE@_vector_inplace_sub( @TYPE@_vector_type * vector , const @TYPE@_vector_type * delta);
+  void                 @TYPE@_vector_set_read_only( @TYPE@_vector_type * vector , bool read_only);
+  bool                 @TYPE@_vector_get_read_only( const @TYPE@_vector_type * vector );
+  void                 @TYPE@_vector_memcpy_data( @TYPE@ * target, const @TYPE@_vector_type * src );
+  void                 @TYPE@_vector_memcpy_from_data( @TYPE@_vector_type * target , const @TYPE@ * src , int src_size );
+  void                 @TYPE@_vector_memcpy(  @TYPE@_vector_type * target , const @TYPE@_vector_type * src);
+  void                 @TYPE@_vector_memcpy_data_block( @TYPE@_vector_type * target , const @TYPE@_vector_type * src , int target_offset , int src_offset , int len);
+  bool                 @TYPE@_vector_growable( const @TYPE@_vector_type * vector);
+  void                 @TYPE@_vector_select_unique(@TYPE@_vector_type * vector);
+  @TYPE@_vector_type * @TYPE@_vector_alloc( int init_size , @TYPE@ );
+  @TYPE@_vector_type * @TYPE@_vector_alloc_private_wrapper(int init_size, @TYPE@ default_value , @TYPE@ * data , int alloc_size);
+  @TYPE@_vector_type * @TYPE@_vector_alloc_shared_wrapper(int init_size, @TYPE@ default_value , @TYPE@ * data , int alloc_size);
+  @TYPE@_vector_type * @TYPE@_vector_alloc_strided_copy( const @TYPE@_vector_type * src , int start , int stop , int stride );
+  @TYPE@_vector_type * @TYPE@_vector_alloc_copy( const @TYPE@_vector_type * src);
+  void                 @TYPE@_vector_imul(@TYPE@_vector_type * vector, int index, @TYPE@ factor);
+  void                 @TYPE@_vector_scale(@TYPE@_vector_type * vector, @TYPE@ factor);
+  void                 @TYPE@_vector_div(@TYPE@_vector_type * vector, @TYPE@ divisor);
+  @TYPE@               @TYPE@_vector_reverse_iget(const @TYPE@_vector_type * vector , int index);
+  @TYPE@               @TYPE@_vector_iget(const @TYPE@_vector_type * , int);
+  @TYPE@               @TYPE@_vector_safe_iget(const @TYPE@_vector_type * , int);
+  @TYPE@               @TYPE@_vector_get_min(const @TYPE@_vector_type * vector);
+  @TYPE@               @TYPE@_vector_get_max(const @TYPE@_vector_type * vector);
+  int                  @TYPE@_vector_get_min_index(const @TYPE@_vector_type * vector, bool reverse);
+  int                  @TYPE@_vector_get_max_index(const @TYPE@_vector_type * vector, bool reverse);
+  @TYPE@               @TYPE@_vector_iadd( @TYPE@_vector_type * vector , int index , @TYPE@ delta);
+  void                 @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size );
+  void                 @TYPE@_vector_iset(@TYPE@_vector_type *       , int , @TYPE@);
+  void                 @TYPE@_vector_iset_block(@TYPE@_vector_type * vector , int index , int block_size , @TYPE@ value);
+  void                 @TYPE@_vector_idel_block( @TYPE@_vector_type * vector , int index , int block_size);
+  @TYPE@               @TYPE@_vector_idel( @TYPE@_vector_type * vector , int index);
+  @TYPE@               @TYPE@_vector_del_value( @TYPE@_vector_type * vector , @TYPE@ del_value);
+  void                 @TYPE@_vector_insert( @TYPE@_vector_type * vector , int index , @TYPE@ value);
+  void                 @TYPE@_vector_append(@TYPE@_vector_type *     , @TYPE@);
+  void                 @TYPE@_vector_free_container(@TYPE@_vector_type * vector);
+  void                 @TYPE@_vector_free(@TYPE@_vector_type *);  
+  void                 @TYPE@_vector_free__(void *);  
+  void                 @TYPE@_vector_free_data(@TYPE@_vector_type *);  
+  void                 @TYPE@_vector_reset(@TYPE@_vector_type *); 
+  void                 @TYPE@_vector_reset__(void * __vector);
+  int                  @TYPE@_vector_size(const @TYPE@_vector_type * );
+  void                 @TYPE@_vector_lshift(@TYPE@_vector_type * vector , int shift);
+  void                 @TYPE@_vector_rshift(@TYPE@_vector_type * vector , int shift);
+  @TYPE@               @TYPE@_vector_pop(@TYPE@_vector_type * vector);
+  @TYPE@               @TYPE@_vector_get_first(const @TYPE@_vector_type * vector);
+  @TYPE@               @TYPE@_vector_get_last(const @TYPE@_vector_type * );
+  @TYPE@ *             @TYPE@_vector_get_ptr(const @TYPE@_vector_type * );
+  @TYPE@ *             @TYPE@_vector_alloc_data_copy( const @TYPE@_vector_type * vector );
+  const @TYPE@ *       @TYPE@_vector_get_const_ptr(const @TYPE@_vector_type * );
+  void                 @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ value1 , @TYPE@ value2 , @TYPE@ delta);
+  void                 @TYPE@_vector_set_many(@TYPE@_vector_type *  , int  , const @TYPE@ *  , int );
+  void                 @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value);
+  void                 @TYPE@_vector_append_many(@TYPE@_vector_type * vector , const @TYPE@ * data , int length);
+  void                 @TYPE@_vector_append_vector(@TYPE@_vector_type * vector , const @TYPE@_vector_type * other);
+  void                 @TYPE@_vector_shrink(@TYPE@_vector_type * );
+  @TYPE@               @TYPE@_vector_sum(const @TYPE@_vector_type * );
+  @TYPE@               @TYPE@_vector_get_default(const @TYPE@_vector_type * );
+  void                 @TYPE@_vector_set_default(@TYPE@_vector_type * vector, @TYPE@ default_value);
+  void                 @TYPE@_vector_append_default(@TYPE@_vector_type * vector , @TYPE@ default_value);
+  void                 @TYPE@_vector_iset_default(@TYPE@_vector_type * vector , int index , @TYPE@ default_value);
+  bool                 @TYPE@_vector_is_sorted( const @TYPE@_vector_type * vector , bool reverse);
+  bool                 @TYPE@_vector_contains(const @TYPE@_vector_type * vector , @TYPE@ value);
+  bool                 @TYPE@_vector_contains_sorted(const @TYPE@_vector_type * vector , @TYPE@ value);
+  int                  @TYPE@_vector_index(const @TYPE@_vector_type * vector , @TYPE@ value);
+  int                  @TYPE@_vector_index_sorted(const @TYPE@_vector_type * vector , @TYPE@ value);
+  void                 @TYPE@_vector_sort(@TYPE@_vector_type * vector);
+  void                 @TYPE@_vector_rsort(@TYPE@_vector_type * vector);
+  void                 @TYPE@_vector_permute(@TYPE@_vector_type * vector , const perm_vector_type * perm);
+  perm_vector_type *   @TYPE@_vector_alloc_sort_perm(const @TYPE@_vector_type * vector);
+  perm_vector_type *   @TYPE@_vector_alloc_rsort_perm(const @TYPE@_vector_type * vector);
+  void                 @TYPE@_vector_fprintf(const @TYPE@_vector_type * vector , FILE * stream , const char * name , const char * fmt);
+  void                 @TYPE@_vector_fwrite(const @TYPE@_vector_type * vector , FILE * stream);
+  void                 @TYPE@_vector_buffer_fread(@TYPE@_vector_type * vector , buffer_type * buffer);
+  @TYPE@_vector_type * @TYPE@_vector_fread_alloc( FILE * stream );
+  @TYPE@_vector_type * @TYPE@_vector_buffer_fread_alloc( buffer_type * buffer );
+  void                 @TYPE@_vector_buffer_fwrite(const @TYPE@_vector_type * vector , buffer_type * buffer);
+  void                 @TYPE@_vector_fread( @TYPE@_vector_type * vector , FILE * stream );
+  void                 @TYPE@_vector_fwrite_data( const @TYPE@_vector_type * vector , FILE * stream );
+  void                 @TYPE@_vector_fread_data( @TYPE@_vector_type * vector , int size, FILE * stream);
+  bool                 @TYPE@_vector_equal(const @TYPE@_vector_type * vector1 , const @TYPE@_vector_type * vector2);
+  void                 @TYPE@_vector_apply(@TYPE@_vector_type * vector , @TYPE@_ftype *func);
+  int                  @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_value);
+  int                  @TYPE@_vector_element_size( const @TYPE@_vector_type * vector );
+  void                 @TYPE@_vector_range_fill(@TYPE@_vector_type * vector , @TYPE@ limit1 , @TYPE@ delta , @TYPE@ limit2);
+  void                 @TYPE@_vector_shift(@TYPE@_vector_type * vector, @TYPE@ delta);
+
+  UTIL_SAFE_CAST_HEADER( @TYPE@_vector );
+  UTIL_IS_INSTANCE_HEADER( @TYPE@_vector );
+
+#ifdef __cplusplus 
+}
+#endif
+#endif
+//
+
+
+
+

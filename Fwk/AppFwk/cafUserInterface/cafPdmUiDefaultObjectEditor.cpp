@@ -117,7 +117,7 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     // Set all fieldViews to be unvisited
-    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
         it->second->setField(NULL);
@@ -127,12 +127,20 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_newGroupBoxes.clear();
 
     const std::vector<PdmUiItem*>& uiItems = config.uiItems();
+    
+    // TODO: Review that is it not breaking anything to have fields with identical keywords
+    //     {
+    //         std::set<QString> fieldKeywordNames;
+    //         std::set<QString> groupNames;
+    // 
+    //         recursiveVerifyUniqueNames(uiItems, uiConfigName, &fieldKeywordNames, &groupNames);
+    //     }
 
     recursiveSetupFieldsAndGroups(uiItems, m_mainWidget, m_layout, uiConfigName);
 
     // Remove all fieldViews not mentioned by the configuration from the layout
 
-    std::vector< QString > fvhToRemoveFromMap;
+    std::vector< PdmFieldHandle* > fvhToRemoveFromMap;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
         if (it->second->field() == 0)
@@ -168,9 +176,35 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::cleanupBeforeSettingPdmObject()
+{
+    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
+    for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
+    {
+        PdmUiFieldEditorHandle* fvh = it->second;
+        delete fvh;
+    }
+    m_fieldViews.clear();
+
+    m_newGroupBoxes.clear();
+
+    std::map<QString, QPointer<QGroupBox> >::iterator groupIt;
+    for (groupIt = m_groupBoxes.begin(); groupIt != m_groupBoxes.end(); ++groupIt)
+    {
+        if (!groupIt->second.isNull()) groupIt->second->deleteLater();
+    }
+
+    m_groupBoxes.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName)
 {
     int currentRowIndex = 0;
+    QWidget* previousTabOrderWidget = NULL;
+
     for (size_t i = 0; i < uiItems.size(); ++i)
     {
         if (uiItems[i]->isUiHidden(uiConfigName)) continue;
@@ -220,8 +254,8 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             PdmUiFieldEditorHandle* fieldEditor = NULL;
 
             // Find or create FieldEditor
-            std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
-            it = m_fieldViews.find(field->fieldHandle()->keyword());
+            std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
+            it = m_fieldViews.find(field->fieldHandle());
 
             if (it == m_fieldViews.end())
             {
@@ -238,7 +272,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                     // Handle a single value field with valueOptions: Make a combobox
 
-                    if (field->uiValue().type() != QVariant::List)
+                    if (field->toUiBasedQVariant().type() != QVariant::List)
                     {
                         bool useOptionsOnly = true; 
                         QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
@@ -254,7 +288,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                 if (fieldEditor)
                 {
-                    m_fieldViews[field->fieldHandle()->keyword()] = fieldEditor;
+                    m_fieldViews[field->fieldHandle()] = fieldEditor;
                     fieldEditor->createWidgets(parent);
                 }
                 else
@@ -333,6 +367,10 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                         int colSpan = editorSpanBoth ? 2 : 1;
                         int colIndex = editorSpanBoth ? 0 : 1;
                         parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
+
+                        if (previousTabOrderWidget) QWidget::setTabOrder(previousTabOrderWidget, fieldEditorWidget);
+                        
+                        previousTabOrderWidget = fieldEditorWidget;
                     }
 
                 }
@@ -342,6 +380,50 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                 currentRowIndex++;
             }
 
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames)
+{
+    for (size_t i = 0; i < uiItems.size(); ++i)
+    {
+        if (uiItems[i]->isUiGroup())
+        {
+            PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
+            const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
+
+            QString groupBoxKey = uiItems[i]->uiName();
+
+            if (groupNames->find(groupBoxKey) != groupNames->end())
+            {
+                // It is not supported to have two groups with identical names
+                assert(false);
+            }
+            else
+            {
+                groupNames->insert(groupBoxKey);
+            }
+
+            recursiveVerifyUniqueNames(groupChildren, uiConfigName, fieldKeywordNames, groupNames);
+        }
+        else
+        {
+            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItems[i]);
+
+            QString fieldKeyword = field->fieldHandle()->keyword();
+            if (fieldKeywordNames->find(fieldKeyword) != fieldKeywordNames->end())
+            {
+                // It is not supported to have two fields with identical names
+                assert(false);
+            }
+            else
+            {
+                fieldKeywordNames->insert(fieldKeyword);
+            }
         }
     }
 }

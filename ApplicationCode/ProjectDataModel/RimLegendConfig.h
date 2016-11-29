@@ -21,22 +21,27 @@
 #pragma once
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfVector2.h"
 #include "cvfArray.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
-#include "cafPdmPointer.h"
-#include "cafAppEnum.h"
 
 namespace cvf
 {
     class ScalarMapperContinuousLog;
     class ScalarMapperContinuousLinear;
+    class OverlayItem;
     class OverlayScalarMapperLegend;
     class ScalarMapperDiscreteLinear;
     class ScalarMapperDiscreteLog;
     class ScalarMapper;
+    class String;
+}
+
+namespace caf
+{
+    class CategoryLegend;
+    class CategoryMapper;
 }
 
 class RimView;
@@ -74,7 +79,9 @@ public:
         WHITE_BLACK,
         BLACK_WHITE,
         BLUE_WHITE_RED,
-        RED_WHITE_BLUE
+        RED_WHITE_BLUE,
+        CATEGORY,
+        ANGULAR
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
@@ -84,24 +91,35 @@ public:
         LINEAR_DISCRETE,
         LINEAR_CONTINUOUS,
         LOG10_CONTINUOUS,
-        LOG10_DISCRETE
+        LOG10_DISCRETE,
+        CATEGORY_INTEGER
     };
     enum NumberFormatType { AUTO, SCIENTIFIC, FIXED};
 
     typedef caf::AppEnum<MappingType> MappingEnum;
     void                                        recreateLegend();
+
     void                                        setColorRangeMode(ColorRangesType colorMode);
+    ColorRangesType                             colorRangeMode()    { return m_colorRangeMode();}
+    void                                        setMappingMode(MappingType mappingType);
+    MappingType                                 mappingMode()       { return m_mappingMode();}
+        
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
+    void                                        setIntegerCategories(const std::vector<int>& categories);
+    void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
+
+    void                                        setTitle(const cvf::String& title);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    cvf::OverlayScalarMapperLegend*             legend() { return m_legend.p(); }
-
+    cvf::OverlayItem*                           legend();
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                initAfterRead();
     virtual void                                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+
 private:
     void                                        updateLegend();
     void                                        updateFieldVisibility();
@@ -118,7 +136,10 @@ private:
     cvf::ref<cvf::ScalarMapperContinuousLinear> m_linSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapper>                 m_currentScalarMapper;
 
-    cvf::ref<cvf::OverlayScalarMapperLegend>    m_legend;
+    cvf::ref<cvf::OverlayScalarMapperLegend>    m_scalarMapperLegend;
+    
+    cvf::ref<caf::CategoryMapper>               m_categoryMapper;
+    cvf::ref<caf::CategoryLegend>               m_categoryLegend;
 
     double                                      m_globalAutoMax;
     double                                      m_globalAutoMin;
@@ -130,6 +151,9 @@ private:
     double                                      m_localAutoPosClosestToZero;
     double                                      m_localAutoNegClosestToZero;
 
+    std::vector<int>                            m_categories;
+    std::vector<cvf::String>                    m_categoryNames;
+
     // Fields
     caf::PdmField<int>                          m_numLevels;
     caf::PdmField<int>                          m_precision;
@@ -139,5 +163,4 @@ private:
     caf::PdmField<double>                       m_userDefinedMinValue;
     caf::PdmField<caf::AppEnum<ColorRangesType> > m_colorRangeMode;
     caf::PdmField<caf::AppEnum<MappingType> >    m_mappingMode;
-
 };

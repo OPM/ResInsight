@@ -72,6 +72,7 @@ public:
     void        setPdmItem(caf::PdmUiItem* object);
 
     QTreeView*  treeView();
+    bool        isTreeItemEditWidgetActive() const;
 
     void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
     void        selectAsCurrentItem(PdmUiItem* uiItem);

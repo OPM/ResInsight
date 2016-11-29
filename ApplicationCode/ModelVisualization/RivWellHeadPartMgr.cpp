@@ -22,40 +22,40 @@
 
 #include "RivWellHeadPartMgr.h"
 
-#include "cvfLibCore.h"
-
-#include "cvfModelBasicList.h"
-#include "cvfTransform.h"
-#include "cvfPart.h"
-#include "cvfArrowGenerator.h"
-#include "cafEffectGenerator.h"
-#include "cvfDrawableGeo.h"
-#include "cvfPrimitiveSetIndexedUShort.h"
-#include "cvfGeometryBuilderFaceList.h"
-#include "cvfDrawableText.h"
-#include "cvfFixedAtlasFont.h"
-#include "cvfqtUtils.h"
-
-#include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseCellColors.h"
-#include "RimLegendConfig.h"
-
-#include "RimEclipseCase.h"
-#include "RimEclipseWell.h"
+#include "RiaApplication.h"
 
 #include "RigCaseData.h"
 #include "RigCell.h"
 
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellEdgeColors.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
+#include "RimLegendConfig.h"
+#include "RimReservoirCellResultsStorage.h"
+
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPipesPartMgr.h"
-#include "RiaApplication.h"
+
+#include "cafEffectGenerator.h"
+#include "cafPdmFieldCvfMat4d.h"
+
+#include "cvfArrowGenerator.h"
+#include "cvfDrawableGeo.h"
+#include "cvfDrawableText.h"
+#include "cvfFixedAtlasFont.h"
+#include "cvfGeometryBuilderFaceList.h"
+#include "cvfLibCore.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include "cvfPrimitiveSetIndexedUShort.h"
+#include "cvfTransform.h"
+#include "cvfqtUtils.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -284,10 +284,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
     {
-        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        cvf::Font* font = RiaApplication::instance()->customFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(standardFont);
+        drawableText->setFont(font);
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);

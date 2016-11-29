@@ -18,16 +18,25 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicToggleItemsFeatureImpl.h"
-#include <vector>
-#include "cafPdmUiObjectHandle.h"
-#include "cafSelectionManager.h"
-#include "cafPdmUiItem.h"
-#include <QModelIndex>
-#include "RiuMainWindow.h"
-#include "cafPdmUiTreeView.h"
-#include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiFieldHandle.h"
 
+#include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
+#include "RiaApplication.h"
+
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiItem.h"
+#include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeView.h"
+#include "cafSelectionManager.h"
+
+#include <QModelIndex>
+
+#include <vector>
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
@@ -35,8 +44,8 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
 
     if (selectedItems.size() == 1)
     {
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
-        caf::PdmUiTreeOrdering* treeItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem(selectedItems[0]);
+
         if (!treeItem) return false;
 
         for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
@@ -72,6 +81,9 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
@@ -82,7 +94,6 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
     }
     return false;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Set toggle state for list of model indices. 
@@ -98,8 +109,9 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
 
         // We need to get the children through the tree view, because that is where the actually shown children is 
         
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(selectedItems[0]);
-        caf::PdmUiTreeOrdering* treeItem = reinterpret_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer()); 
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem(selectedItems[0]);
+        
+        if (!treeItem) return;
 
         for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
         {
@@ -114,13 +126,9 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(uiObjectHandleChild->objectToggleField());
 
-                caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-                if (uiFieldHandle)
-                {
-                    if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
-                    if (state == TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
-                    if (state == TOGGLE_SUBITEMS)     uiFieldHandle->setValueFromUi(!(field->v()));
-                }
+                if (state == TOGGLE_ON)         field->setValueWithFieldChanged(true);
+                if (state == TOGGLE_OFF)        field->setValueWithFieldChanged(false);
+                if (state == TOGGLE_SUBITEMS)   field->setValueWithFieldChanged(!(field->v()));
             }
         }
     }
@@ -134,17 +142,33 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggle
             {
                 caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandle->objectToggleField());
 
-                caf::PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-                if (uiFieldHandle)
+                if (state == TOGGLE_ON)  field->setValueWithFieldChanged(true);
+                if (state == TOGGLE_OFF) field->setValueWithFieldChanged(false);
+                if (state == TOGGLE_SUBITEMS || state == TOGGLE)
                 {
-                    if (state == TOGGLE_ON)  uiFieldHandle->setValueFromUi(true);
-                    if (state == TOGGLE_OFF) uiFieldHandle->setValueFromUi(false);
-                    if (state == TOGGLE_SUBITEMS || state == TOGGLE)
-                    {
-                        uiFieldHandle->setValueFromUi(!(field->v()));
-                    }
+                    field->setValueWithFieldChanged(!(field->v()));
                 }
             } 
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Finds the tree item in either the 3D main window or plot main window project tree view
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiTreeOrdering* RicToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem(const caf::PdmUiItem* uiItem)
+{
+    QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(uiItem);
+    if(!modIndex.isValid())
+    {
+        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        if(mainPlotWindow)
+        {
+            modIndex = mainPlotWindow->projectTreeView()->findModelIndex(uiItem);
+        }
+    }
+
+    caf::PdmUiTreeOrdering* treeItem = static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer());
+
+    return treeItem;
 }

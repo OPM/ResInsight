@@ -57,8 +57,8 @@ public:
     void loadDataAndUpdate();
 
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
-    void zoomAllXAndZoomAllDepthOnOwnerPlot();
-    void zoomAllXAxisIfAutoScale();
+    void updateXZoomAndParentPlotDepthZoom();
+    void updateXZoom();
 
     RiuWellLogTrack* viewer();
     

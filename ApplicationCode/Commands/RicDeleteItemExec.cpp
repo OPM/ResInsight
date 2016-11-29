@@ -22,9 +22,9 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimCellRangeFilterCollection.h"
-#include "RimCrossSectionCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
@@ -39,6 +39,8 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
+#include "RimFormationNamesCollection.h"
+#include "RimCase.h"
 
 
 namespace caf
@@ -68,6 +70,9 @@ void RicDeleteItemExec::redo()
         PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
 
+        std::vector<caf::PdmObjectHandle*> referringObjects;
+        obj->objectsWithReferringPtrFields(referringObjects);
+
         if (m_commandData->m_deletedObjectAsXml().isEmpty())
         {
             m_commandData->m_deletedObjectAsXml = xmlObj(obj)->writeObjectToXmlString();
@@ -81,21 +86,25 @@ void RicDeleteItemExec::redo()
         parentObj->uiCapability()->updateConnectedEditors();
         
         RimView* view = NULL;
-        parentObj->firstAnchestorOrThisOfType(view);
+        parentObj->firstAncestorOrThisOfType(view);
+
+        // Range Filters
 
         RimCellRangeFilterCollection* rangeFilterColl;
-        parentObj->firstAnchestorOrThisOfType(rangeFilterColl);
+        parentObj->firstAncestorOrThisOfType(rangeFilterColl);
 
         if (rangeFilterColl)
         {
             rangeFilterColl->updateDisplayModeNotifyManagedViews(NULL);
         }
 
+        // Prop Filter
+
         RimEclipsePropertyFilterCollection* eclipsePropColl;
-        parentObj->firstAnchestorOrThisOfType(eclipsePropColl);
+        parentObj->firstAncestorOrThisOfType(eclipsePropColl);
         
         RimGeoMechPropertyFilterCollection* geoMechPropColl;
-        parentObj->firstAnchestorOrThisOfType(geoMechPropColl);
+        parentObj->firstAncestorOrThisOfType(geoMechPropColl);
 
         if (view && (eclipsePropColl || geoMechPropColl))
         {
@@ -103,15 +112,19 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
-        RimCrossSectionCollection* crossSectionColl;
-        parentObj->firstAnchestorOrThisOfType(crossSectionColl);
+        // Intersections
+
+        RimIntersectionCollection* crossSectionColl;
+        parentObj->firstAncestorOrThisOfType(crossSectionColl);
         if (view && crossSectionColl)
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        // Well paths
+
         RimWellPathCollection* wellPathColl;
-        parentObj->firstAnchestorOrThisOfType(wellPathColl);
+        parentObj->firstAncestorOrThisOfType(wellPathColl);
 
         if (wellPathColl)
         {
@@ -121,7 +134,7 @@ void RicDeleteItemExec::redo()
         // Update due to deletion of curves (not tracks, handled separatly)
 
         RimWellLogPlot* wellLogPlot;
-        parentObj->firstAnchestorOrThisOfType(wellLogPlot);
+        parentObj->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot)
         {
             wellLogPlot->calculateAvailableDepthRange();
@@ -129,10 +142,10 @@ void RicDeleteItemExec::redo()
         }
 
         RimWellLogTrack* wellLogPlotTrack;
-        parentObj->firstAnchestorOrThisOfType(wellLogPlotTrack);
+        parentObj->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->zoomAllXAxisIfAutoScale();
+            wellLogPlotTrack->updateXZoom();
         }
         
         // Update due to delete plots
@@ -144,7 +157,7 @@ void RicDeleteItemExec::redo()
             if (wellLogPlotCollection->wellLogPlots.empty())
             {
                 RimProject* project = NULL;
-                parentObj->firstAnchestorOrThisOfType(project);
+                parentObj->firstAncestorOrThisOfType(project);
                 if (project)
                 {
                     project->updateConnectedEditors();
@@ -152,19 +165,34 @@ void RicDeleteItemExec::redo()
             }
         }
         
+        // Linked views
+
         RimViewLinkerCollection* viewLinkerCollection = NULL;
-        parentObj->firstAnchestorOrThisOfType(viewLinkerCollection);
+        parentObj->firstAncestorOrThisOfType(viewLinkerCollection);
         if (viewLinkerCollection)
         {
             viewLinkerCollection->uiCapability()->updateConnectedEditors();
 
             RimProject* project = NULL;
-            parentObj->firstAnchestorOrThisOfType(project);
+            parentObj->firstAncestorOrThisOfType(project);
             if (project)
             {
                 // Update visibility of top level Linked Views item in the project tree
                 // Not visible if no views are linked
                 project->uiCapability()->updateConnectedEditors();
+            }
+        }
+
+        // Formation names
+
+        RimFormationNamesCollection* formationNamesCollection;
+        parentObj->firstAncestorOrThisOfType(formationNamesCollection);
+        if (formationNamesCollection)
+        {
+            for(caf::PdmObjectHandle* reffingObj :referringObjects)
+            {
+                RimCase* aCase = dynamic_cast<RimCase*>(reffingObj);
+                if (aCase) aCase->updateFormationNamesData();
             }
         }
     }

@@ -44,6 +44,7 @@ public:
         const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
         cvf::DrawableGeo* geo,
         size_t gridIndex,
+        bool useDefaultValueForHugeVals,
         float opacityLevel);
 
     static void addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
@@ -62,7 +63,7 @@ private:
         RigCaseData* eclipseCase,
         const RigGridBase* grid);
 
-    static cvf::ref<RigResultAccessor> createCellEdgeCenterResultAccessor(
+    static cvf::ref<RigResultAccessor> createCellEdgeResultAccessor(
         RimEclipseCellColors* cellResultColors,
         RimCellEdgeColors* cellEdgeResultColors,
         size_t timeStepIndex,

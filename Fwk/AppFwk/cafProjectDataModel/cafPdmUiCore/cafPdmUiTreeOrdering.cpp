@@ -52,11 +52,27 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeOrdering::add(PdmFieldHandle * field)
+void PdmUiTreeOrdering::add(PdmFieldHandle* field, QString uiConfigName)
 {
     assert(field);
 
-    PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, field);
+    if (field->uiCapability()->isUiTreeHidden(uiConfigName))
+    {
+        if (!field->uiCapability()->isUiTreeChildrenHidden(uiConfigName))
+        {
+            std::vector<PdmObjectHandle*> children;
+            field->childObjects(&children);
+
+            for (PdmObjectHandle* objHandle : children)
+            {
+                this->add(objHandle);
+            }
+        }
+    }
+    else
+    {
+        PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, field);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

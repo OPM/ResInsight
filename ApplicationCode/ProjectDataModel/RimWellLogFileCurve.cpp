@@ -49,7 +49,7 @@ RimWellLogFileCurve::RimWellLogFileCurve()
     CAF_PDM_InitObject("Well Log File Curve", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Path", "", "", "");
-    m_wellPath.uiCapability()->setUiChildrenHidden(true);
+    m_wellPath.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
@@ -68,16 +68,16 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::updatePlotData()
+void RimWellLogFileCurve::onLoadDataAndUpdate()
 {
-    RimWellLogCurve::updatePlotConfiguration();
+    RimWellLogCurve::updateCurvePresentation();
 
     if (isCurveVisible())
     {
         m_curveData = new RigWellLogCurveData;
 
         RimWellLogPlot* wellLogPlot;
-        firstAnchestorOrThisOfType(wellLogPlot);
+        firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
         if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
@@ -107,9 +107,9 @@ void RimWellLogFileCurve::updatePlotData()
                     }
                 }
 
-                if (m_autoName)
+                if (m_isUsingAutoName)
                 {
-                    m_qwtPlotCurve->setTitle(createCurveName());
+                    m_qwtPlotCurve->setTitle(createCurveAutoName());
                 }
             }
         }
@@ -120,12 +120,12 @@ void RimWellLogFileCurve::updatePlotData()
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->depthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        zoomAllOwnerTrackAndPlot();
+        updateZoomInParentPlot();
 
-        if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
+        if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
 }
 
@@ -154,14 +154,14 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_wellPath)
     {
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }
     else if (changedField == &m_wellLogChannnelName)
     {
-        this->updatePlotData();
+        this->loadDataAndUpdate();
     }
 
-    if (m_ownerQwtTrack) m_ownerQwtTrack->replot();
+    if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,9 +177,10 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     appearanceGroup->add(&m_curveColor);
     appearanceGroup->add(&m_curveThickness);
     appearanceGroup->add(&m_pointSymbol);
+    appearanceGroup->add(&m_symbolSkipPixelDistance);
     appearanceGroup->add(&m_lineStyle);
     appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_autoName);
+    appearanceGroup->add(&m_isUsingAutoName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,7 +252,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogFileCurve::createCurveName()
+QString RimWellLogFileCurve::createCurveAutoName()
 {
     if (m_wellPath)
     {
@@ -266,7 +267,7 @@ QString RimWellLogFileCurve::createCurveName()
         if (wellLogFile)
         {
             RimWellLogPlot* wellLogPlot;
-            firstAnchestorOrThisOfType(wellLogPlot);
+            firstAncestorOrThisOfType(wellLogPlot);
             CVF_ASSERT(wellLogPlot);
 
             QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());

@@ -89,12 +89,20 @@ public:
 
     void            setAxisLabels(const cvf::String& xLabel, const cvf::String& yLabel, const cvf::String& zLabel);
 
+    cvf::Vec3d      lastPickPositionInDomainCoords() const;
+    caf::PdmObject* lastPickedObject() const;
+
+    cvf::OverlayItem*   pickFixedPositionedLegend(int winPosX, int winPosY);
+
+    void            updateParallelProjectionSettings(RiuViewer* sourceViewer);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
 
 protected:
     virtual void    optimizeClippingPlanes();
+    virtual void    resizeGL(int width, int height);
 
 private:
     void            updateTextAndTickMarkColorForOverlayItems();

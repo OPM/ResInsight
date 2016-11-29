@@ -18,13 +18,14 @@
 #pragma once
 
 #include <vector>
+#include <set>
 #include <cmath>
 #include <cstddef>
 
 class RigStatisticsMath
 {
 public:
-    static void calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* range, double* mean, double* dev);
+    static void calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* sum, double* range, double* mean, double* dev);
     static std::vector<double> calculateNearestRankPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions);
     static std::vector<double> calculateInterpolatedPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions);
 };
@@ -130,4 +131,19 @@ public:
 
     double valueSum;
     size_t sampleCount;
+};
+
+
+class UniqueValueAccumulator
+{
+public:
+    UniqueValueAccumulator()
+    {}
+
+    void addValue(double value)
+    {
+        uniqueValues.insert(static_cast<int>(value));
+    }
+
+    std::set<int> uniqueValues;
 };

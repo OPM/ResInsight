@@ -67,11 +67,15 @@ void RicCloseCaseFeature::onActionTriggered(bool isChecked)
         if (userConfirmedGridCaseGroupChange(casesToBeDeleted))
         {
             deleteEclipseCase(eclipseCase);
+
+            RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
     else if (geoMechCase)
     {
         deleteGeoMechCase(geoMechCase);
+
+        RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
 
@@ -81,6 +85,7 @@ void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Close");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 
@@ -216,7 +221,7 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<Rim
     for (size_t i = 0; i < casesToBeDeleted.size(); i++)
     {
         RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-        casesToBeDeleted[i]->firstAnchestorOrThisOfType(gridCaseGroup);
+        casesToBeDeleted[i]->firstAncestorOrThisOfType(gridCaseGroup);
 
         if (gridCaseGroup && hasAnyStatisticsResults(gridCaseGroup))
         {

@@ -15,6 +15,9 @@ ${CEE_CURRENT_LIST_DIR}RicWellLogPlotCurveFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteWellLogPlotTrackFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellLogPlotTrackFeatureImpl.h
+${CEE_CURRENT_LIST_DIR}RicPasteWellLogCurveFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteWellLogTrackFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteWellLogPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -28,6 +31,9 @@ ${CEE_CURRENT_LIST_DIR}RicWellLogPlotCurveFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteWellLogPlotTrackFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellLogPlotTrackFeatureImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteWellLogCurveFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteWellLogTrackFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteWellLogPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -110,6 +110,14 @@ QTreeView* PdmUiTreeView::treeView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool PdmUiTreeView::isTreeItemEditWidgetActive() const
+{
+    return m_treeViewEditor->isTreeItemEditWidgetActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::selectedUiItems(std::vector<PdmUiItem*>& objects)
 {
     m_treeViewEditor->selectedUiItems(objects);

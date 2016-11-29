@@ -48,10 +48,7 @@ public:
     CadNavigation();
     virtual ~CadNavigation();
 protected:
-    virtual void    init();
     virtual bool    handleInputEvent(QInputEvent* inputEvent);
-
-    bool            m_navigationUpdated;
 };
 
 } // End namespace caf

@@ -69,7 +69,7 @@ void RicWellPathsDeleteAllFeature::onActionTriggered(bool isChecked)
 void RicWellPathsDeleteAllFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete All Well Paths");
-    //actionToSetup->setIcon(QIcon(":/WellCollection.png"));
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 } // end namespace caf

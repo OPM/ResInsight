@@ -1,0 +1,6 @@
+INTERNAL    True
+FUNCTION    enkf_main_analysis_update_JOB
+MIN_ARG     2
+MAX_ARG     2
+ARG_TYPE    0  STRING
+ARG_TYPE    1  STRING

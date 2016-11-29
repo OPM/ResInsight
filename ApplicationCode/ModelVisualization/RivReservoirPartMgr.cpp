@@ -20,12 +20,13 @@
 
 #include "RivReservoirPartMgr.h"
 
+#include "RigCaseData.h"
+
+#include "RivGridPartMgr.h"
+#include "RivReservoirFaultsPartMgr.h"
+
 #include "cvfStructGrid.h"
 #include "cvfModelBasicList.h"
-
-#include "RigCaseData.h"
-#include "RivGridPartMgr.h"
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -190,11 +191,22 @@ void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* mode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
+void RivReservoirPartMgr::forceWatertightGeometryOn()
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->setFaultForceVisibility(isGeneratedByFilter);
+        m_faultsPartMgr->forceWatertightGeometryOn();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::clearWatertightGeometryFlag()
+{
+    if (m_faultsPartMgr.notNull())
+    {
+        m_faultsPartMgr->clearWatertightGeometryFlag();
     }
 }
 

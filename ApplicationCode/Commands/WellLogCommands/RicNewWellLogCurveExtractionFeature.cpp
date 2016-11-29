@@ -29,8 +29,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RiuMainPlotWindow.h"
 
-#include "RiuMainWindow.h"
 #include "RiaApplication.h"
 
 #include "cafSelectionManager.h"
@@ -68,10 +68,10 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
             RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath);
 
-            plotCurve->updatePlotData();
+            plotCurve->loadDataAndUpdate();
 
             RimWellLogPlot* plot = NULL;
-            wellLogPlotTrack->firstAnchestorOrThisOfType(plot);
+            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
                 plot->setDepthUnit(plotCurve->curveData()->depthUnit());
@@ -88,6 +88,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 void RicNewWellLogCurveExtractionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Well Log Extraction Curve");
+    actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +137,13 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(curve);
+
+    // Make sure the summary plot window is created and visible
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    plotwindow->selectAsCurrentItem(curve);
 
     return curve;
 }

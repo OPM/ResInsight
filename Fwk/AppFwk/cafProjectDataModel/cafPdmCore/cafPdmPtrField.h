@@ -37,7 +37,7 @@ class PdmPtrField <DataType*> : public PdmFieldHandle
 public:
     typedef PdmPointer<DataType> FieldDataType;
 
-    PdmPtrField()                                                          { m_referenceString = ""; m_isResolved = false; }
+    PdmPtrField() : m_isResolved(false)                                     { }
     explicit PdmPtrField(const DataTypePtr& fieldValue);                
     virtual ~PdmPtrField();
 
@@ -54,16 +54,12 @@ public:
     // Access operators
 
     /*Conversion*/              operator DataType* () const                 { return m_fieldValue; }
-    DataType*                     operator->() const                          { return m_fieldValue; }
+    DataType*                   operator->() const                          { return m_fieldValue; }
 
     const PdmPointer<DataType>& operator()() const                          { return m_fieldValue; }
     const PdmPointer<DataType>& v() const                                   { return m_fieldValue; }
 
     bool                        operator==(const DataTypePtr& fieldValue)   { return m_fieldValue == fieldValue; }
-
-    // Child objects
-    
-    virtual void childObjects(std::vector<PdmObjectHandle*>*);
 
     // Ptr referenced objects
 

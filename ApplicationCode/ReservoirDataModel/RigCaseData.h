@@ -30,7 +30,7 @@
 #include "RigActiveCellInfo.h"
 
 class RigCaseCellResultsData;
-
+class RigFormationNames;
 
 class RigCaseData : public cvf::Object
 {
@@ -62,7 +62,10 @@ public:
     RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
     void                                        setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo);
-    
+
+    void                                        setActiveFormationNames(RigFormationNames* activeFormationNames);
+    RigFormationNames*                          activeFormationNames(); 
+
     void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
     const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
 
@@ -90,9 +93,12 @@ private:
     cvf::ref<RigCaseCellResultsData>            m_matrixModelResults;
     cvf::ref<RigCaseCellResultsData>            m_fractureModelResults;
 
+    cvf::ref<RigFormationNames>                 m_activeFormationNamesData;
+
     cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
     UnitsType                                   m_unitsType;
+
 };

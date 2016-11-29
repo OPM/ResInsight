@@ -8,7 +8,6 @@
 		<file>WestViewArrow.png</file>
 		<file>UpViewArrow.png</file>
 		<file>DownViewArrow.png</file>
-		<file>ReservoirView.png</file>
 		<file>CellFilter_Values.png</file>
 		<file>CellFilter_Range.png</file>
 		<file>CellResult.png</file>
@@ -48,7 +47,7 @@
 		<file>GeoMechCase48x48.png</file>
         <file>GeoMechCases48x48.png</file>
         <file>chain.png</file>
-        <file>view-page-multi-24.png</file>
+        <file>TileWindows24x24.png</file>
 		<file>LasFile16x16.png</file>
 		<file>WellLogTrack16x16.png</file>
 		<file>WellLogPlot16x16.png</file>
@@ -56,6 +55,31 @@
 		<file>WellLogCurve16x16.png</file>
         <file>CrossSection16x16.png</file>
         <file>CrossSections16x16.png</file>
+        <file>Refresh-32.png</file>
+        <file>SummaryPlot16x16.png</file>
+        <file>SummaryPlots16x16.png</file>
+        <file>SummaryCurve16x16.png</file>
+        <file>SummaryCurveFilter16x16.png</file>
+        <file>FormationCollection16x16.png</file>
+        <file>Formations16x16.png</file>
+        <file>Parallel24x24.png</file>
+        <file>Perspective24x24.png</file>
+        <file>IntersectionBox16x16.png</file>
+        <file>IntersectionXPlane16x16.png</file>
+        <file>IntersectionYPlane16x16.png</file>
+        <file>IntersectionZPlane16x16.png</file>
+      <file>PlotWindow24x24.png</file>
+      <file>3DWindow24x24.png</file>
+      <file>3DView16x16.png</file>
+      <file>SummaryCase48x48.png</file>
+      <file>openFolder24x24.png</file>
+      <file>clipboard.png</file>
+      <file>Copy.png</file>
+      <file>Erase.png</file>
+      <file>LeftAxis16x16.png</file>
+      <file>RightAxis16x16.png</file>
+      <file>BottomAxis16x16.png</file>
+      <file>Axes16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

@@ -32,6 +32,7 @@ public:
         STATIC_NATIVE,
         GENERATED,
         INPUT_PROPERTY,
+        FORMATION_NAMES,
         REMOVED
     };
 
@@ -44,7 +45,8 @@ public:
     static bool isPerCellFaceResult(const QString& resultName);
 
     static QString undefinedResultName()                { return "None"; }
-    static QString undefinedGridFaultName()             { return "Undefined grid faults"; }
+    static QString undefinedGridFaultName()             { return "Undefined Grid Faults"; }
+    static QString undefinedGridFaultWithInactiveName() { return "Undefined Grid Faults With Inactive"; }
     static QString combinedTransmissibilityResultName() { return "TRANXYZ"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
     static QString combinedMultResultName()             { return "MULTXYZ"; }
@@ -78,5 +80,17 @@ public:
     };
 
     static double feetPerMeter()                    { return 3.2808399; }
+
+
+    // Defines relate to plotting
+
+    enum PlotAxis
+    {
+        PLOT_AXIS_LEFT,
+        PLOT_AXIS_RIGHT
+    };
+
+    static double minimumDefaultValuePlot()         { return - 10.0; }
+    static double maximumDefaultValuePlot()         { return  100.0; }
 };
 

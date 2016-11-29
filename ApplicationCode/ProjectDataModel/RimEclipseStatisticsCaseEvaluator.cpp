@@ -27,6 +27,7 @@
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
 
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"
@@ -60,7 +61,8 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
 
 
 QString createResultNameMin(const QString& resultName)  { return resultName + "_MIN"; }
-QString createResultNameMax(const QString& resultName)  { return resultName + "_MAX"; }
+QString createResultNameMax(const QString& resultName) { return resultName + "_MAX"; }
+QString createResultNameSum(const QString& resultName)  { return resultName + "_SUM"; }
 QString createResultNameMean(const QString& resultName) { return resultName + "_MEAN"; }
 QString createResultNameDev(const QString& resultName)  { return resultName + "_DEV"; }
 QString createResultNameRange(const QString& resultName)  { return resultName + "_RANGE"; }
@@ -94,6 +96,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
         statisticalResultNames.push_back(createResultNameMin(resultName));
         statisticalResultNames.push_back(createResultNameMax(resultName));
+        statisticalResultNames.push_back(createResultNameSum(resultName));
         statisticalResultNames.push_back(createResultNameMean(resultName));
         statisticalResultNames.push_back(createResultNameDev(resultName));
         statisticalResultNames.push_back(createResultNameRange(resultName));
@@ -173,6 +176,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
                 statisticalResultNames[MIN] = createResultNameMin(resultName);
                 statisticalResultNames[MAX] = createResultNameMax(resultName);
+                statisticalResultNames[SUM] = createResultNameSum(resultName);
                 statisticalResultNames[RANGE] = createResultNameRange(resultName);
                 statisticalResultNames[MEAN] = createResultNameMean(resultName);
                 statisticalResultNames[STDEV] = createResultNameDev(resultName);
@@ -200,12 +204,20 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 
-                        
-
                         bool foundAnyValidValues = false;
                         for (size_t caseIdx = 0; caseIdx < sourceDataAccessList.size(); caseIdx++)
                         {
                             double val = sourceDataAccessList.at(caseIdx)->cellScalar(cellIdx);
+
+                            // Replace huge_val with zero in the statistical computation for the following case
+                            if (m_useZeroAsInactiveCellValue || resultName.toUpper() == "ACTNUM")
+                            {
+                                if (m_identicalGridCaseGroup->unionOfActiveCells(poroModel)->isActive(reservoirCellIndex) &&
+                                    val == HUGE_VAL)
+                                {
+                                    val = 0.0;
+                                }
+                            }
                             values[caseIdx] = val;
 
                             if (val != HUGE_VAL)
@@ -214,12 +226,13 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                             }
                         }
 
+
                         // Do the real statistics calculations
                        
 
                         if (foundAnyValidValues)
                         {
-                            RigStatisticsMath::calculateBasicStatistics(values, &statParams[MIN], &statParams[MAX], &statParams[RANGE], &statParams[MEAN], &statParams[STDEV]);
+                            RigStatisticsMath::calculateBasicStatistics(values, &statParams[MIN], &statParams[MAX], &statParams[SUM], &statParams[RANGE], &statParams[MEAN], &statParams[STDEV]);
 
                             // Calculate percentiles
                             if (m_statisticsConfig.m_calculatePercentiles )
@@ -303,12 +316,14 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
+RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase, RimIdenticalGridCaseGroup* identicalGridCaseGroup)
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
     m_reservoirCellCount(0),
-    m_timeStepIndices(timeStepIndices)
+    m_timeStepIndices(timeStepIndices),
+    m_identicalGridCaseGroup(identicalGridCaseGroup),
+    m_useZeroAsInactiveCellValue(false)
 {
     if (sourceCases.size() > 0)
     {
@@ -316,5 +331,13 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::
     }
 
     CVF_ASSERT(m_destinationCase);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCaseEvaluator::useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells()
+{
+    m_useZeroAsInactiveCellValue = true;
 }
 

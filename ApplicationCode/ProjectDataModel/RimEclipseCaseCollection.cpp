@@ -81,10 +81,11 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
     assert(RiaApplication::instance()->project());
     RiaApplication::instance()->project()->assignIdToCaseGroup(group);
 
+    group->addCase(mainCase);
     RimEclipseCase* createdCase = group->createAndAppendStatisticsCase();
+
     RiaApplication::instance()->project()->assignCaseIdToCase(createdCase);
 
-    group->addCase(mainCase);
     caseGroups().push_back(group);
 
     return group;
@@ -167,7 +168,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigCaseData*
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        rigEclipseCase->mainGrid()->calculateFaults();
+        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
   
         equalGrid = rigEclipseCase->mainGrid();
     }

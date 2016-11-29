@@ -36,6 +36,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
+class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
 class RiuViewer;
 class RivGeoMechPartMgr;
@@ -65,6 +66,7 @@ public:
     virtual void                                        loadDataAndUpdate();
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
+    RimGeoMechResultDefinition*                         cellResultResultDefinition();
 
     virtual const RimPropertyFilterCollection*          propertyFilterCollection() const;
 
@@ -79,6 +81,8 @@ public:
     void                                                updateIconStateForFilterCollections();
 
     virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+
+    virtual bool                                        isUsingFormationNames() const override;
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
@@ -114,10 +118,4 @@ private:
     cvf::ref<cvf::Transform>                            m_scaleTransform;
 
 };
-
-#include "cvfArray.h"
-
-namespace cvf {
-    class CellRangeFilter;
-}
 

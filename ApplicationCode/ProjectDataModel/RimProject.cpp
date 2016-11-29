@@ -32,12 +32,16 @@
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -46,6 +50,7 @@
 #include "RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
 
@@ -77,13 +82,11 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     scriptCollection.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
-    treeViewState.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
     wellPathImport.uiCapability()->setUiHidden(true);
-    wellPathImport.uiCapability()->setUiChildrenHidden(true);
+    wellPathImport.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&mainPlotCollection, "MainPlotCollection", "Plots", "", "", "");
     mainPlotCollection.uiCapability()->setUiHidden(true);
@@ -95,8 +98,21 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
-    currentModelIndexPath.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&mainWindowTreeViewState, "TreeViewState", "",  "", "", "");
+    mainWindowTreeViewState.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&mainWindowCurrentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
+    mainWindowCurrentModelIndexPath.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&plotWindowTreeViewState, "PlotWindowTreeViewState", "", "", "", "");
+    plotWindowTreeViewState.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&plotWindowCurrentModelIndexPath, "PlotWindowTreeViewCurrentModelIndexPath", "", "", "", "");
+    plotWindowCurrentModelIndexPath.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_show3DWindow, "show3DWindow", true, "Show 3D Window", "", "", "");
+    m_show3DWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "");
+    m_showPlotWindow.uiCapability()->setUiHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
@@ -144,6 +160,11 @@ void RimProject::close()
          mainPlotCollection()->wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
     }
 
+    if (mainPlotCollection() && mainPlotCollection()->summaryPlotCollection())
+    {
+        mainPlotCollection()->summaryPlotCollection()->m_summaryPlots.deleteAllChildObjects();
+    }
+
     oilFields.deleteAllChildObjects();
     oilFields.push_back(new RimOilField);
 
@@ -161,8 +182,10 @@ void RimProject::close()
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
-    currentModelIndexPath = "";
-    treeViewState = "";
+    mainWindowCurrentModelIndexPath = "";
+    mainWindowTreeViewState = "";
+    plotWindowCurrentModelIndexPath = "";
+    plotWindowTreeViewState = "";
 }
 
 
@@ -315,6 +338,18 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
+    m_show3DWindow = RiuMainWindow::instance()->isVisible();
+
+    if (RiaApplication::instance()->mainPlotWindow() &&
+        RiaApplication::instance()->mainPlotWindow()->isVisible())
+    {
+        m_showPlotWindow = true;
+    }
+    else
+    {
+        m_showPlotWindow = false;
+    }
+
     m_projectFileVersionString = STRPRODUCTVER;
 }
 
@@ -382,8 +417,18 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
     {
         RimOilField* oilField = oilFields[oilFieldIdx];
         if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
-        oilField->wellPathCollection->updateFilePathsFromProjectPath();
+        oilField->wellPathCollection->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
+
+    for(RimOilField* oilField: oilFields)
+    {
+        if(oilField == NULL) continue;
+        if(oilField->formationNamesCollection() != NULL)
+        {
+            oilField->formationNamesCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+    }
+
 
     wellPathImport->updateFilePaths();
 }
@@ -460,6 +505,25 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
             for (size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++)
             {
                 cases.push_back(geomModels->cases[caseIdx]);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
+{
+    for (RimOilField* oilField: oilFields)
+    {
+        if(!oilField) continue;
+        RimSummaryCaseCollection* sumCaseColl = oilField->summaryCaseCollection();
+        if(sumCaseColl)
+        {
+            for (size_t scIdx = 0; scIdx <  sumCaseColl->summaryCaseCount(); ++scIdx)
+            {
+                sumCases.push_back(sumCaseColl->summaryCase(scIdx));
             }
         }
     }
@@ -671,6 +735,22 @@ void RimProject::actionsBasedOnSelection(QMenu& contextMenu)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimProject::show3DWindow() const
+{
+    return m_show3DWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimProject::showPlotWindow() const
+{
+    return m_showPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection)
 {
     CVF_ASSERT(menu);
@@ -708,30 +788,50 @@ void RimProject::appendScriptItems(QMenu* menu, RimScriptCollection* scriptColle
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (viewLinkerCollection()->viewLinker())
+    if (uiConfigName == "PlotWindow")
     {
-        // Use object instead of field to avoid duplicate entries in the tree view
-        uiTreeOrdering.add(viewLinkerCollection());
-    }
-
-    RimOilField* oilField = activeOilField();
-    if (oilField)
-    {
-        if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
-        if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
-        if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
-    }
-
-    if (mainPlotCollection)
-    {
-        if (mainPlotCollection->wellLogPlotCollection())
+        RimOilField* oilField = activeOilField();
+        if (oilField)
         {
-            uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            if (oilField->summaryCaseCollection())     uiTreeOrdering.add(oilField->summaryCaseCollection());
         }
-    }
 
-    uiTreeOrdering.add(scriptCollection());
-    
-    uiTreeOrdering.setForgetRemainingFields(true);
+        if (mainPlotCollection)
+        {
+            if (mainPlotCollection->wellLogPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+            }
+            if (mainPlotCollection->summaryPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
+            }
+        }
+
+        uiTreeOrdering.setForgetRemainingFields(true);
+
+        return;
+    }
+    else
+    {
+        if (viewLinkerCollection()->viewLinker())
+        {
+            // Use object instead of field to avoid duplicate entries in the tree view
+            uiTreeOrdering.add(viewLinkerCollection());
+        }
+
+        RimOilField* oilField = activeOilField();
+        if (oilField)
+        {
+            if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
+            if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
+            if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
+            if (oilField->formationNamesCollection()) uiTreeOrdering.add(oilField->formationNamesCollection());
+        }
+
+        uiTreeOrdering.add(scriptCollection());
+
+        uiTreeOrdering.setForgetRemainingFields(true);
+    }
 }
 

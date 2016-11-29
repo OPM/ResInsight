@@ -24,9 +24,12 @@
 #include "RimCase.h"
 #include "RimView.h"
 #include "RimWellPath.h"
+
 #include "RiuMainWindow.h"
 
 #include "RivWellPathSourceInfo.h"
+
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfPart.h"
 #include "cvfVector3.h"
@@ -56,21 +59,14 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
         {
             cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
 
-            RimView* activeView = RiaApplication::instance()->activeReservoirView();
-            if (!activeView) return false;
+            RimView* rimView = RiaApplication::instance()->activeReservoirView();
+            if (!rimView) return false;
 
-            RimCase* rimCase = NULL;
-            activeView->firstAnchestorOrThisOfType(rimCase);
-            if (rimCase)
-            {
-                displayModelOffset = rimCase->displayModelOffset();
-            }
+            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(uiEvent->globalIntersectionPoint);
 
-            cvf::Vec3d unscaledIntersection = uiEvent->localIntersectionPoint;
-            unscaledIntersection.z() /= activeView->scaleZ;
-
-            double measuredDepth = wellPathSourceInfo->measuredDepth(uiEvent->firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
-            cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(uiEvent->firstPartTriangleIndex, unscaledIntersection + displayModelOffset);
+            double measuredDepth = wellPathSourceInfo->measuredDepth(uiEvent->firstPartTriangleIndex, domainCoord);
+            cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(uiEvent->firstPartTriangleIndex, domainCoord);
 
             QString wellPathText;
             wellPathText += QString("Well path name : %1\n").arg(wellPathSourceInfo->wellPath()->name);

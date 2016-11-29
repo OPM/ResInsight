@@ -1,4 +1,4 @@
-addpath("/home/builder/Projects/ResInsightBuildDir/OctavePlugin");
+
 SOIL = riGetActiveCellProperty("SOIL");
 
 SOILDIFF = SOIL;
