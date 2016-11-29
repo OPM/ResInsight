@@ -178,6 +178,19 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath("snapshots");
 
+    createSnapshotOfAllPlotsInFolder(snapshotFolderName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString snapshotFolderName)
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    RimProject* proj = app->project();
+    if (!proj) return;
+
     QDir snapshotPath(snapshotFolderName);
     if (!snapshotPath.exists())
     {

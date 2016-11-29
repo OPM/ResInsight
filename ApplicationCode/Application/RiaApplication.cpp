@@ -2230,6 +2230,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
              saveSnapshotForAllViews(fullPathGeneratedFolder);
 
+             RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(fullPathGeneratedFolder);
+
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
              QDir genDir(testCaseFolder.filePath(generatedFolderName));
              QDir diffDir(testCaseFolder.filePath(diffFolderName));
