@@ -4,11 +4,10 @@ title: Well Trajectories
 permalink: /docs/wellpaths/
 published: true
 ---
+![]({{ site.baseurl }}/images/ResInsight_WellPathWithSimulationWell.png)
 
 ResInsight can import Well trajectories from simple Ascii files. 
 In addition, a Statoil specific solution to retrieve Well Trajectories from their internal web service is implemented.
-
-![]({{ site.baseurl }}/images/ResInsight_WellPathWithSimulationWell.png)
 
 ## Ascii Well Trajectories
 

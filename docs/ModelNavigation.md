@@ -11,13 +11,6 @@ ResInsight comes with four navigation modes. The active mode can be selected in 
 
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 
-The following applies to all navigation modes:
-
-|Mouse interaction | Action |
-|------------------|---------|
-|RMB single click  | Context menu |
-|LMB single click  | Update status bar and **Result Info** |
-
 These abbrevitations are used in the tables below:
 
 |Abbreviation | Meaning |
@@ -25,6 +18,13 @@ These abbrevitations are used in the tables below:
 |LMB          | Press the left mouse button |
 |MMB          | Press the middle mouse button or scroll wheel button |
 |RMB          | Press the right mouse button |
+
+The following applies to all navigation modes:
+
+|Mouse interaction | Action |
+|------------------|---------|
+|RMB single click  | Context menu |
+|LMB single click  | Update status bar and **Result Info** |
 
 #### RMS navigation mode
 

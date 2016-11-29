@@ -19,3 +19,15 @@ The precompiled octave support is only tested for RedHat 6 (ResInsight 1.3.2-dev
 
 1. Install Octave directly from the package manager in Linux. See the documentation for your particular distribution. 
 2. Launch ResInsight, open **Edit->Preferences** and enter the path to the Octave command line interpreter executable, usually just 'octave'.
+
+### Display application icons in GNOME
+By default, icons are not visible in menus in the GNOME desktop environment. ResInsight has icons for many menu items, and icons can be set visible by issuing the following commands (Tested on RHEL6) :
+
+```
+gconftool-2 --type boolean --set /desktop/gnome/interface/buttons_have_icons true
+gconftool-2 --type boolean --set /desktop/gnome/interface/menus_have_icons true
+```
+
+This fix was taken from reply number 11 in this [thread](https://bbs.archlinux.org/viewtopic.php?id=117414)
+
+

@@ -8,15 +8,29 @@ published: true
 ## Source code
 The source code is hosted at [GitHub](https://github.com/opm/resinsight)
 
-## CMake configuration
+## Dependencies and prerequisites
 
-ResInsight uses the CMake build system and requires CMake version 2.8 or higher. In addition, you need Qt version 4 to build ResInsight (4.7.3 or above).
+### Windows compiler
+Visual Studio 2015 or later is supported.
 
-The ResInsight build may be configured in different ways, with optional support for Octave plugins, ABAQUS ODB API, and OpenMP. This is configured through options in CMake.
+### GCC compiler
+GCC version 4.9 or later is supported.
+
+### Boost
+[Boost](http://www.boost.org/users/history/) version 1.58 or later is supported. Earlier versions might work, but this has not been tested.
+
+### Qt
+[Qt](http://download.qt.io/archive/qt/) version 4.7.3 or later is supported.
+
+### CMake
+[CMake](https://cmake.org/download/) version 2.8 or later is supported.
+
+
+## Build instructions
+The ResInsight build may be configured in different ways, with optional support for Octave plugins, ABAQUS ODB API, and OpenMP. This is configured using options in CMake.
 
 If you check the button 'Grouped' in the CMake GUI, the CMake variables are grouped by prefix. This makes it easier to see all of the options for ResInsight.
 
-## Build instructions
 - Open the CMake GUI
 - Set the path to the source code
 - Set the path to the build directory
@@ -26,7 +40,7 @@ If you check the button 'Grouped' in the CMake GUI, the CMake variables are grou
 - Run the compiler using the generated makefiles or solution file/project files to build ResInsight
 
 ### Windows
-ResInsight has been verified to build and run on Windows 7/8 using Microsoft Visual Studio 2010. Typical usage on Windows is to follow the build instructions above, and then open the generated solution file in Visual Studio to build the application.
+ResInsight has been verified to build and run on Windows 7/8/10 using Microsoft Visual Studio 2015. Typical usage on Windows is to follow the build instructions above, and then open the generated solution file in Visual Studio to build the application.
 
 ### Linux
 

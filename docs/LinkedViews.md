@@ -28,9 +28,7 @@ When selecting a linked view in the project tree, the different options are avai
 
 ## Toggle Linking from the **Project Tree**
 
-A linked view can temporarily be disabled by unchecking the linked view. 
-
-To disable all linked views temporarily, uncheck the top level item **Linked Views**.
+A linked view can temporarily be disabled by unchecking the linked view. To disable all linked views temporarily, uncheck the top level item **Linked Views**.
 
 ## Project Tree Context menu
 
@@ -41,10 +39,12 @@ Right-clicking one of the linked view entries in the **Project Tree** displays t
 - **Delete** Remove an individual view from the group of linked views
 
 ## 3D view Context menu
-To activate the menu items for linked views, right-click inside the 3D view anywhere outside the model.
+To activate the menu items for a linked view, right-click inside the 3D view anywhere outside the model. 
+Depending on whether the view is a dependent-, or an unlinked view, some of the following commands are available: 
 
 - **Show Link Options** Activate the linked view item in the project tree, and show its properties.
 - **Set As Master View** Use the view as Master View
 - **Link View** Add the view to list of linked views
 - **Unlink View** Delete the view from list of linked views
 
+Master views have no available linking commands.

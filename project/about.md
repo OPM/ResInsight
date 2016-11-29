@@ -13,7 +13,8 @@ ResInsight is part of the [Open Porous Media](http://opm-project.org/) project.
 
 
 ### Licensing
-The software is copyrighted by Statoil ASA, Ceetron Solutions AS and Ceetron AS. The software is licensed under GPL 3+, see [Licensing details](https://github.com/OPM/ResInsight/blob/master/COPYING).
+
+The software is licensed under GPL 3+, see [Licensing details](https://github.com/OPM/ResInsight/blob/master/COPYING).
 
 ### Project hosting
 The software is hosted at [GitHub](https://github.com/OPM/ResInsight)

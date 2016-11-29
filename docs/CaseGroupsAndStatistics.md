@@ -25,9 +25,7 @@ An import dialog is opened:
 3. If you want to remove some EGRID files from the list, select them and press the **Remove** button.
 4. When you are ready, press the **OK** button.
 
-ResInsight then creates a **Grid Case Group** for you, and populates its **Source Cases** with the Cases you selected. Then the first of those Cases are read completely, while the others are just scanned to verify that the Grids match and to detect changes in the Active Cells layout.
-
-This makes it quite fast to lo ad even a quite large number of realizations.
+ResInsight then creates a **Grid Case Group** for you, and populates its **Source Cases** with the Cases you selected. Then the first of those Cases are read completely, while the others are just scanned to verify that the Grids match and to detect changes in the Active Cells layout. This makes it quite fast to load even a quite large number of realizations.
 
 ### Manually
 A Grid Case Group can be created from the context menu available when right clicking a Result Case, Input Case or a different Grid Case Group. **Source Cases** can then be added by using the mouse to *drag and drop* cases with equal grids into the **Grid Case Group**'s **Source Case** folder.

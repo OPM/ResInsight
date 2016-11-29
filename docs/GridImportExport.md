@@ -1,11 +1,9 @@
 ---
 layout: docs
-title: Grid Import and Property Export
+title: Grid Import
 permalink: /docs/gridimportexport/
 published: true
 ---
-
-
 
 ### Importing Eclipse cases 
 ResInsight supports the following type of Eclipse input data:
@@ -22,7 +20,7 @@ You can select several grid files in one go by multiple selection of files (Ctrl
 </div>
 
 #### Eclipse ASCII input data
-1. Select **File->Import-> ![]({{ site.baseurl }}/images/EclipseInput24x24.png)Import Input Eclipse Case** and select a `*.GRDECL` file.
+1. Select **File->Import-> ![]({{ site.baseurl }}/images/EclipseInput24x24.png) Import Input Eclipse Case** and select a `*.GRDECL` file.
 2. The case is imported, and a view of the case is created
 3. Right click the **Input Properties** in the generated **Input Case** and use the context menu to import additional Eclipse Property data files.
 
@@ -38,16 +36,3 @@ When ResInsight is compiled with ABAQUS-odb support, `*.odb` files can be import
 **File->Import-> ![]({{ site.baseurl }}/images/GeoMechCase24x24.png) Import Geo Mechanical Model** 
 
 See [Build Instructions]({{ site.baseurl }}/docs/buildinstructions) on how to compile ResInsight with odb-support.
-
-
-### Export of Eclipse Properties as ASCII data
-
-Eclipse Properties can be exported to Eclipse ASCII files by activating the context 
-menu for a **Cell Result**. ![]({{ site.baseurl }}/images/ExportProperty.png) 
-
-The command will export the property set currently loaded and shown in the 3D View to a file with the following format:
-
-    -- Exported from ResInsight
-    <keyword>
-    <One number per cell separated by spaces>
-    /

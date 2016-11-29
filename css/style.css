@@ -8,7 +8,7 @@
 
 body {
   font-family: Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 300;
   color: #ddd;
   background: #333;
@@ -386,7 +386,7 @@ article {
 @media (min-width: 768px){
   article {
     padding: 40px 40px 30px;
-    font-size: 21px;
+    font-size: 18px;
   }
 }
 

@@ -1,25 +1,26 @@
 ---
 layout: docs
-title: Working with 3D Views
+title: 3D Views
 permalink: /docs/reservoirviews/
 published: true
 ---
-
-3D Views are the windows displaying the Grid Models. The visualization is controlled by the **Project Tree** item representing the **View** and their subitems. Each item has a set of properties that can be editied in the **Property Editor**.
-
 ![]({{ site.baseurl }}/images/3DViewOverview.png)
 
-Several views can be added to the same case by right clicking the case or a view in the case and select **New View**. You can also **Copy** and then **Paste** a view into a Case. All the settings are then copied to the new view.  
+3D Views are the windows displaying the Grid Models. The visualization is controlled by the **Project Tree** item representing the **View** and their subitems.
 
-Views of Eclipse models and Geomechanical models has a lot in common, but Eclipse views has some features that applies to eclipse simulations only.
+![]({{ site.baseurl }}/images/ViewTree.png)
+
+Each item has a set of properties that can be editied in the **Property Editor**.
+
+Several views can be added to the same case by right clicking the case or a view and select **New View**. You can also **Copy** and then **Paste** a view into a Case. All the settings are then copied to the new view.  
+
+Views of Eclipse models and Geomechanical models has a lot in common, but Eclipse views has some features that applies to Eclipse simulations only.
 
 ## Common view features
 
 ### View properties
 
-![]({{ site.baseurl }}/images/ViewProperties.png)
-
-Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibilty controls of inactive and invalid cells.
+Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibilty controls of inactive and invalid cells. ![]({{ site.baseurl }}/images/ViewProperties.png) 
 
 Visibility of the grid box with labels displaying the coordinates for the reservoir can also be controlled using **Show Grid Box**. 
 
@@ -27,10 +28,11 @@ Visibility of the grid box with labels displaying the coordinates for the reserv
 
 The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![]({{ site.baseurl }}/images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
 
+Please refer to [Result Color Legend]({{ site.baseurl }}/docs/resultcolorlegend) for details.
+
 ### Range Filters &nbsp;![]({{ site.baseurl }}/images/CellFilter_Range.png) and Property Filters &nbsp;![]({{ site.baseurl }}/images/CellFilter_Values.png) 
 
-In order to see different sets of cells, and cells inside the reservoir, Views uses cell filters.
-Please refer to [Cell Filters]({{ site.baseurl }}/docs/filters) to read more about them.
+In order to see different sets of cells, and cells inside the reservoir, Views use cell filters. Please refer to [Cell Filters]({{ site.baseurl }}/docs/filters) to read more about them.
 
 ### Info Box
 
@@ -65,7 +67,7 @@ Toggling **Grids** off will hide the grid cell geometry. This option is used to 
 Intersections are used to cut the geometry and show result values mapped onto this geometry.
 Please refer to [Intersections]({{ site.baseurl }}/docs/intersections) for details.
 
-## Activate items by clicking
+### Activate items by clicking
 Selected overlay items in the 3D view can activate a corresponding item in the **Property Editor**. This is implemented for Info box and result color legends. Please note that this feature is activated by clicking inside the texture/colored part of the legend. 
 
 
@@ -73,14 +75,15 @@ Selected overlay items in the 3D view can activate a corresponding item in the *
 
 ### Cell Edge Results ![]({{ site.baseurl }}/images/EdgeResult_1.png)
 
-The **Cell Edge Result** visualization mode is one of ResInsight's special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. 
-This will show the MULT property values *different from 1.0* along the correct edges of the cells. In effect this highlights the faults and makes it easy to verify all the MULT values in one go.
-
 ![]({{ site.baseurl }}/images/CellEdgeExample.png)
+
+The **Cell Edge Result** visualization mode is one of ResInsight's special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. This will show the MULT property values *different from 1.0* along the correct edges of the cells. In effect this highlights the faults and makes it easy to verify all the MULT values in one go.
 
 ResInsight supports all properties ending with X, Y, Z and X-, Y-, Z-. However, it is only the MULT property that ignores values of 1.0.
 
 When selecting a result variable for cell edge, a second legend shows up in the 3D view showing the variation in values for this second property. Color legend management is available when selecting the **Legend Definition** item belonging to the **Cell Edge Result** item. 
+
+Select **Custom Edge Result** to specify one cell result to be mapped onto all cell edges. This way two cell results can easily be compared and visualized in the same view. The **Custom Edge Result** can either be a static or dynamic result.
 
 ### Separate Fault Result
 

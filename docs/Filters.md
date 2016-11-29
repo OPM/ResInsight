@@ -4,19 +4,19 @@ title: Cell Filters
 permalink: /docs/filters/
 published: true
 ---
+![]({{ site.baseurl }}/images/FiltersOverview.png)
 
 Cell Filters are used to control visibility of the cells in the 3D view. Three types of filters exists:
 
-- **Range filter**     : Define a IJK subset of the model.
-- **Property filter**  : Define a value range for a property to control cell visibility.
-- **Well cell filter** : Display grid cells that has connections to a well. 
-
-### Well cell filters
-Well cell filters are a special type of filters that are controlled from the **Simulation Wells** item only. They are not applicable for Geomechanical cases.
+- **Range filter**     : Extracts an IJK subset of the model.
+- **Property filter**  : Extracts cells with a property value matching a value range.
+- **Well cell filter** : Extracts cells that are connected to a well.
 
 ### Common properties for Range and Property Filters
 
 Both filter types can be turned on or off using the toggle in the **Project Tree** and controlled from their corresponding **Property Editor**.
+
+![]({{ site.baseurl }}/images/FiltersInTreeView.png)
 
 Range Filters and Property filters can either be set to **Include** cells or to **Exclude** them. 
 
@@ -55,8 +55,20 @@ Below is a snapshot of the **Property Editor** of the **Property Filter**.
   
 ![]({{ site.baseurl }}/images/PropertyFilterProperties.png)
 
+#### Property value range
 The filter is based on a property value range (Min - Max). Cells in the range are either shown or hidden depending on the **Filter Type** (*Include*/*Exclude*). Exclude-filters removes the selected cells from the **View** even if some other filter includes them.
 
 A new property filter can be made by activating the context menu for **Property Filters**. The new property filter is based on the currently viewed cell result by default.
 
 The name of the property filter is automatically set to *"propertyname (min .. max)"* as you edit the property filter.
+
+#### Category selection
+If the property is representing integer values or formation names, the property filter displays a list of available categories used to filter cells. The separate values can then be toggled on or off using the list in the Property Editor.
+
+![]({{ site.baseurl }}/images/PropertyFilterWithCategories.png)
+
+If it is more convenient to filter the values using a value range, toggle the **Category Selection** option off.
+
+### Well cell filters
+Well cell filters are a special type of filters that are controlled from the **Simulation Wells** item. See [Simulation Wells]({{ site.baseurl }}/docs/simulationwells) for more details. 
+They are not applicable for Geomechanical cases.

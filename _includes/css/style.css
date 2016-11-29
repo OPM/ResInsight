@@ -7,7 +7,7 @@
 }
 
 body {
-  font: 300 21px Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font: 300 18px Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #ddd;
   background-color: #333;
   border-top: 5px solid #fc0;
@@ -419,7 +419,7 @@ article {
 @media (min-width: 768px) {
   article {
     padding: 40px 40px 30px;
-    font-size: 21px;
+    font-size: 18px;
   }
 }
 

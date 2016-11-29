@@ -1,7 +1,6 @@
 - title: Introduction
   docs:
   - home
-  - odbsupport
   
 - title: Getting Started
   docs:
@@ -11,26 +10,33 @@
 
 - title: Application
   docs:
+  - gridimportexport
   - reservoirviews
   - modelnavigation
-  - linkedviews
-  - resultinspection
-  - gridimportexport
+  - resultcolorlegend
   - simulationwells
   - faults
   - intersections
   - filters
+  - formations
   - wellpaths
+  - resultinspection
+  - linkedviews
+  - exporteclipseproperties
+  - summaryplots
   - welllogsandplots
-  - derivedresults
+  - snapshots
   - casegroupsandstatistics
   - octaveinterface
+  - odbsupport
+  - derivedresults
   - batchcommands
   - preferences
 
 - title: Appendix
   docs:
-  - buildinstructions
-  - octaveinterfacereference
-  - regressiontestsystem
   - commandlineparameters
+  - octaveinterfacereference
+  - buildinstructions
+  - regressiontestsystem
+ 
