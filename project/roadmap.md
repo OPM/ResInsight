@@ -11,11 +11,6 @@ published: true
 ## Ongoing activities
 The following main features are part of ongoing development activities:
 
-### Planned delivery Q4 2016
-
-* Support for 2D plots based on data from Eclipse Summary files
-* Improve Eclipse input file parsing by using opm-parser
-
 ### Planned delivery Q1 2017
 
 * Implementation of selected features from [MRST](http://www.sintef.no/projectweb/mrst/) (developed by SINTEF)
