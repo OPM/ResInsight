@@ -466,7 +466,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
       # put a .exe.local file in the target directory to pick up DLLs from there
-      install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+      install (CODE "exec_program (\"${CMAKE_COMMAND}\" ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
 
         set (RESINSIGHT_FILES
                 ${QT_BINARY_DIR}/QtCore4.dll
