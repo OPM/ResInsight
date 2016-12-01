@@ -343,19 +343,12 @@ set_property(TARGET
 # Installation settings
 ################################################################################
 
-set (RESINSIGHT_FINAL_NAME "ResInsight-${STRPRODUCTVER}")
-
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-string(REGEX MATCH "el[5,6]?" RESINSIGHT_PLATFORM ${CMAKE_SYSTEM})
-if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
-    set (RESINSIGHT_FINAL_NAME "${RESINSIGHT_FINAL_NAME}-${RESINSIGHT_PLATFORM}")
-endif()
+set (RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
 option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including the neccesary Qt libraries" ON)
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
-    #set (CMAKE_INSTALL_PREFIX /usr/${RESINSIGHT_FINAL_NAME})
     
     ################################################################################
     # ERT shared library files
@@ -381,7 +374,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.1
         )
       
-      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
     endif()
     
 endif (RESINSIGHT_PRIVATE_INSTALL)
@@ -442,26 +435,31 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
   endif()
 endif()
 
-set(RESINSIGHT_PACKAGE_NAME "ResInsight-bin")
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+string(REGEX MATCH "el[5,6]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
 
-if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-odb")
-endif()
 
-if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-oct-${OCTAVE_VERSION_STRING}")
-endif()
+set(RESINSIGHT_PACKAGE_NAME "ResInsight")
 
 set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${STRPRODUCTVER}")
 
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${RESINSIGHT_PLATFORM}")
-else()
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${CPACK_SYSTEM_NAME}")
+if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_odb")
 endif()
 
-message("RESINSIGHT_PACKAGE_NAME : " ${RESINSIGHT_PACKAGE_NAME})
+if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
+endif()
+
+
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+if (NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}")
+else()
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
+endif()
+
+#message("RESINSIGHT_PACKAGE_NAME : " ${RESINSIGHT_PACKAGE_NAME})
 set(CPACK_PACKAGE_FILE_NAME ${RESINSIGHT_PACKAGE_NAME})
 
 
