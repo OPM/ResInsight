@@ -102,7 +102,10 @@ public:
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
-    caf::PdmChildArrayField<RimEclipseWell*>     wells;
+	caf::PdmField<bool>                 showCellCenterSpheres;
+
+	
+	caf::PdmChildArrayField<RimEclipseWell*>     wells;
 
     RimEclipseWell*                     findWell(QString name);
     bool                                hasVisibleWellCells();
