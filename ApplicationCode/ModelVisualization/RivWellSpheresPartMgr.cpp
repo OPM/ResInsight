@@ -88,17 +88,15 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 
             cvf::Color3f color = wellCellColor(wellResultFrame, wellResultPoint);
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
-        cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
+            cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
+            cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
 
-                cvf::ref<cvf::DrawableGeo> geo = createSphere(10, displayCoord);
-                cvf::ref<cvf::Part> part = createPart(geo.p(), color);
+            cvf::ref<cvf::DrawableGeo> geo = createSphere(10, displayCoord);
+            cvf::ref<cvf::Part> part = createPart(geo.p(), color);
 
-                model->addPart(part.p());
-            }
+            model->addPart(part.p());
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
