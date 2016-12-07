@@ -25,6 +25,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -35,8 +36,6 @@
 #include "cvfModelBasicList.h"
 #include "cvfObject.h"
 #include "cvfPart.h"
-
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -93,15 +92,10 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
         }
     }
 
-
+    cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
     for (cvf::Vec3d c : cellCenters)
     {
-        cvf::Vec4d transfCoord = m_scaleTransform->worldTransform() * cvf::Vec4d(c - mainGrid->displayModelOffset(), 1);
-
-        cvf::Vec3d displayCoord;
-        displayCoord[0] = transfCoord[0];
-        displayCoord[1] = transfCoord[1];
-        displayCoord[2] = transfCoord[2];
+        cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(c);
 
         cvf::ref<cvf::DrawableGeo> geo = createSphere(10, displayCoord);
         cvf::ref<cvf::Part> part = createPart(geo.p());
