@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,15 +18,10 @@
 
 #include "RivReservoirWellSpheresPartMgr.h"
 
-// #include "Rim3dOverlayInfoConfig.h"
-// #include "RimCellEdgeColors.h"
-// #include "RimCellRangeFilterCollection.h"
-// #include "RimEclipseCellColors.h"
-// #include "RimEclipsePropertyFilterCollection.h"
-// #include "RimEclipseView.h"
-// #include "RimEclipseWell.h"
-// #include "RimEclipseWellCollection.h"
+#include "RivWellSpheresPartMgr.h"
 
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -42,9 +35,9 @@
 //--------------------------------------------------------------------------------------------------
 RivReservoirWellSpheresPartMgr::RivReservoirWellSpheresPartMgr(RimEclipseView* reservoirView)
 {
-//     m_reservoirView = reservoirView;
-// 
-//     m_scaleTransform = new cvf::Transform();
+    m_reservoirView = reservoirView;
+
+    m_scaleTransform = new cvf::Transform();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,15 +55,6 @@ void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTra
 {
     m_scaleTransform = scaleTransform;
 
-//     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
-//     {
-//         m_wellPipesPartMgrs[wIdx]->setScaleTransform(scaleTransform);
-//     }
-// 
-//     for (size_t wIdx = 0; wIdx != m_wellHeadPartMgrs.size(); ++ wIdx)
-//     {
-//         m_wellHeadPartMgrs[wIdx]->setScaleTransform(scaleTransform);
-//     }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,32 +62,22 @@ void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTra
 //--------------------------------------------------------------------------------------------------
 void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-//     if (!m_reservoirView->wellCollection()->isActive()) return;
-// 
-//     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
-// 
-//     if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
-//     {
-//         clearGeometryCache();
-// 
-//         for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
-//         {
-//             RivWellPipesPartMgr * wppmgr = new RivWellPipesPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
-//             m_wellPipesPartMgrs.push_back(wppmgr);
-//             wppmgr->setScaleTransform(m_scaleTransform.p());
-// 
-//             RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
-//             m_wellHeadPartMgrs.push_back(wellHeadMgr);
-//             wellHeadMgr->setScaleTransform(m_scaleTransform.p());
-//         }
-//     }
-// 
-//     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
-//     {
-//         m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-//         m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-//     }
+    if (!m_reservoirView->wellCollection()->showCellCenterSpheres) return;
+
+    if (m_reservoirView->wellCollection()->wells.size() != m_wellSpheresPartMgrs.size())
+    {
+
+        for (RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells())
+        {
+            RivWellSpheresPartMgr* wppmgr = new RivWellSpheresPartMgr(m_reservoirView, rimWell);
+            m_wellSpheresPartMgrs.push_back(wppmgr);
+            wppmgr->setScaleTransform(m_scaleTransform.p());
+        }
+    }
+
+    for (size_t i = 0; i < m_wellSpheresPartMgrs.size(); i++)
+    {
+        m_wellSpheresPartMgrs.at(i)->appendDynamicGeometryPartsToModel(model, frameIndex);
+    }
 }
-
-
 

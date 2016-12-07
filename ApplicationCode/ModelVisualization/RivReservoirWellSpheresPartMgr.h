@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ namespace cvf
 }
 
 class RimEclipseView;
+class RivWellSpheresPartMgr;
 
 class RivReservoirWellSpheresPartMgr : public cvf::Object
 {
@@ -43,8 +44,12 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
    
 private:
+
+
+private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::ref<cvf::Transform>            m_scaleTransform; 
 
-   
+	cvf::Collection< RivWellSpheresPartMgr >  m_wellSpheresPartMgrs;
+
 };

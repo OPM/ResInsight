@@ -227,6 +227,14 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
+    else if (&showCellCenterSpheres == changedField)
+    {
+        if (m_reservoirView)
+        {
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
     else if (&wellCellFenceType == changedField)
     {
         if (m_reservoirView) 

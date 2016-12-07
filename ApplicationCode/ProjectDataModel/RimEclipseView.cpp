@@ -55,6 +55,7 @@
 #include "RiuViewer.h"
 
 #include "RivReservoirPipesPartMgr.h"
+#include "RivReservoirWellSpheresPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathCollectionPartMgr.h"
@@ -129,9 +130,11 @@ RimEclipseView::RimEclipseView()
     this->faultResultSettings()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
-
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
-    m_reservoir = NULL;
+	m_wellSpheresPartManager = new RivReservoirWellSpheresPartMgr(this);
+
+	
+	m_reservoir = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,6 +270,8 @@ void RimEclipseView::updateScaleTransform()
 
     this->scaleTransform()->setLocalTransform(scale);
     m_pipesPartManager->setScaleTransform(this->scaleTransform());
+	m_wellSpheresPartManager->setScaleTransform(this->scaleTransform());
+
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -662,6 +667,8 @@ void RimEclipseView::updateCurrentTimeStep()
             wellPipeModelBasicList->setName("SimWellPipeMod");
 
             m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
+			m_wellSpheresPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
+
 
             wellPipeModelBasicList->updateBoundingBoxesRecursive();
 

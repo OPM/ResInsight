@@ -55,6 +55,7 @@ class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
 class RivReservoirPipesPartMgr;
+class RivReservoirWellSpheresPartMgr;
 class RivIntersectionPartMgr;
 
 namespace cvf
@@ -178,7 +179,8 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
-
+	cvf::ref<RivReservoirWellSpheresPartMgr>        m_wellSpheresPartManager;
+	
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };
 
