@@ -74,8 +74,6 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 
     const RigWellResultFrame& wellResultFrame = rigWellResult->wellResultFrame(frameIndex);
 
-    std::vector<cvf::Vec3d> cellCenters;
-
     for (const RigWellResultBranch& wellResultBranch : wellResultFrame.m_wellResultBranches)
     {
         for (const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints) 
@@ -88,20 +86,19 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 
             cvf::Vec3d center = rigCell.center();
 
-            cellCenters.push_back(center);
+            cvf::Color3f color = wellCellColor(wellResultFrame, wellResultPoint);
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
+        cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
+
+                cvf::ref<cvf::DrawableGeo> geo = createSphere(10, displayCoord);
+                cvf::ref<cvf::Part> part = createPart(geo.p(), color);
+
+                model->addPart(part.p());
+            }
         }
     }
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
-    for (cvf::Vec3d c : cellCenters)
-    {
-        cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(c);
-
-        cvf::ref<cvf::DrawableGeo> geo = createSphere(10, displayCoord);
-        cvf::ref<cvf::Part> part = createPart(geo.p());
-
-        model->addPart(part.p());
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,16 +133,50 @@ cvf::ref<cvf::DrawableGeo> RivWellSpheresPartMgr::createSphere(double radius, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(cvf::DrawableGeo* geo)
+cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(cvf::DrawableGeo* geo, const cvf::Color3f& color)
 {
     cvf::ref<cvf::Part> part = new cvf::Part;
     part->setDrawable(geo);
 
-    caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f::GREEN), caf::PO_1);
+    caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
     cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
     part->setEffect(eff.p());
 
     return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& wellResultFrame, const RigWellResultPoint& wellResultPoint)
+{
+    // Colours should be synchronized with RivWellPipesPartMgr::updatePipeResultColor
+
+    cvf::Color3f cellColor(cvf::Color3f::GRAY);
+      
+    if (wellResultPoint.m_isOpen)
+    {
+        switch (wellResultFrame.m_productionType)
+        {
+        case RigWellResultFrame::PRODUCER:
+            cellColor = cvf::Color3f::GREEN;
+            break;
+        case RigWellResultFrame::OIL_INJECTOR:
+            cellColor = cvf::Color3f::RED;
+            break;
+        case RigWellResultFrame::GAS_INJECTOR:
+            cellColor = cvf::Color3f::RED;
+            break;
+        case RigWellResultFrame::WATER_INJECTOR:
+            cellColor = cvf::Color3f::BLUE;
+            break;
+        case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+            cellColor = cvf::Color3f::GRAY;
+            break;
+        }
+    }
+
+    return cellColor;
 }
 

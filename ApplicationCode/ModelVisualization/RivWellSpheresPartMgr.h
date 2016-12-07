@@ -23,8 +23,8 @@
 #include "cvfVector3.h"
 
 #include "cafPdmPointer.h"
+
 #include <list>
-#include "RigSingleWellResultsData.h"
 
 namespace cvf
 {
@@ -34,11 +34,15 @@ namespace cvf
     class Effect;
     class DrawableGeo;
     class ScalarMapper;
+    class Color3f;
 }
 
 class RivPipeGeometryGenerator;
 class RimEclipseView;
 class RimEclipseWell;
+class RigWellResultFrame;
+
+struct RigWellResultPoint;
 
 class RivWellSpheresPartMgr : public cvf::Object
 {
@@ -55,20 +59,14 @@ public:
     
 private:
     static cvf::ref<cvf::DrawableGeo> createSphere(double radius, const cvf::Vec3d& pos);
-    cvf::ref<cvf::Part> createPart(cvf::DrawableGeo* geo);
+    cvf::ref<cvf::Part> createPart(cvf::DrawableGeo* geo, const cvf::Color3f& color);
+
+    cvf::Color3f wellCellColor(const RigWellResultFrame& wellResultFrame, const RigWellResultPoint& wellResultPoint);
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
     caf::PdmPointer<RimEclipseWell>            m_rimWell;
 
-
-    struct RivPipeBranchData
-    {
-        cvf::ref<cvf::Part>                 m_surfacePart;
-        cvf::ref<cvf::DrawableGeo>          m_surfaceDrawable;
-    };
-
-    
     cvf::ref<cvf::Transform>    m_scaleTransform; 
     bool                        m_needsTransformUpdate;
 };
