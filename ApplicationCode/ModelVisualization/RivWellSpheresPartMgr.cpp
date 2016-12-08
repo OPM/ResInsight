@@ -26,6 +26,8 @@
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 
+#include "RiuViewer.h"
+
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -40,6 +42,9 @@
 #include "cvfPart.h"
 #include "cvfDrawableVectors.h"
 #include "cvfGeometryBuilderTriangles.h"
+#include "cvfOpenGLResourceManager.h"
+#include "cvfShaderProgram.h"
+#include "RiaApplication.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -93,7 +98,6 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
             if (gridCellIndex >= rigGrid->cellCount()) continue;
 
             const RigCell& rigCell = rigGrid->cell(gridCellIndex);
-
            
             cvf::Vec3d center = rigCell.center();
             cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
@@ -105,39 +109,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
         }
     }
 
-
-
-    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
-    cvf::ref<cvf::Vec3fArray> vecRes = new cvf::Vec3fArray;
-    cvf::ref<cvf::Color3fArray> colors = new cvf::Color3fArray;
-
-    size_t numVecs = centerColorPairs.size();
-    vertices->reserve(numVecs);
-    vecRes->reserve(numVecs);
-    colors->reserve(numVecs);
-
-    for (auto centerColorPair : centerColorPairs)
-    {
-        vertices->add(centerColorPair.first);
-        vecRes->add(cvf::Vec3f::X_AXIS);
-        colors->add(centerColorPair.second);
-    }
-
-    cvf::ref<cvf::DrawableVectors> vectorDrawable = new cvf::DrawableVectors();
-    vectorDrawable->setVectors(vertices.p(), vecRes.p());
-    vectorDrawable->setColors(colors.p());
-
-    cvf::GeometryBuilderTriangles builder;
-    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
-    double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
-    cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
-
-    vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable(vectorDrawable.p());
-    cvf::ref<cvf::Effect> eff2 = new cvf::Effect;
-    part->setEffect(eff2.p());
+    cvf::ref<cvf::Part> part = createPart(centerColorPairs);
 
     model->addPart(part.p());
 }
@@ -181,6 +153,70 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(cvf::DrawableGeo* geo, con
 
     caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
     cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+    part->setEffect(eff.p());
+
+    return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs)
+{
+    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
+    cvf::ref<cvf::Vec3fArray> vecRes = new cvf::Vec3fArray;
+    cvf::ref<cvf::Color3fArray> colors = new cvf::Color3fArray;
+
+    size_t numVecs = centerColorPairs.size();
+    vertices->reserve(numVecs);
+    vecRes->reserve(numVecs);
+    colors->reserve(numVecs);
+
+    for (auto centerColorPair : centerColorPairs)
+    {
+        vertices->add(centerColorPair.first);
+        vecRes->add(cvf::Vec3f::X_AXIS);
+        colors->add(centerColorPair.second);
+    }
+
+    cvf::ref<cvf::DrawableVectors> vectorDrawable;
+    if (RiaApplication::instance()->useShaders())
+    {
+        // NOTE: Drawable vectors must be rendered using shaders when the rest of the application is rendered using shaders
+        // Drawing vectors using fixed function when rest of the application uses shaders causes visual artifacts
+        vectorDrawable = new cvf::DrawableVectors("u_transformationMatrix", "u_color");
+    }
+    else
+    {
+        vectorDrawable = new cvf::DrawableVectors();
+    }
+
+    vectorDrawable->setVectors(vertices.p(), vecRes.p());
+    vectorDrawable->setColors(colors.p());
+
+    cvf::GeometryBuilderTriangles builder;
+    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+    double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
+    cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
+
+    vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
+
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setDrawable(vectorDrawable.p());
+
+    cvf::ref<cvf::Effect> eff = new cvf::Effect;
+    if (RiaApplication::instance()->useShaders())
+    {
+        if (m_rimReservoirView->viewer())
+        {
+            cvf::ref<cvf::OpenGLContext> oglContext = m_rimReservoirView->viewer()->cvfOpenGLContext();
+            cvf::OpenGLResourceManager* resourceManager = oglContext->resourceManager();
+            cvf::ref<cvf::ShaderProgram> vectorProgram = resourceManager->getLinkedVectorDrawerShaderProgram(oglContext.p());
+
+            eff->setShaderProgram(vectorProgram.p());
+        }
+    }
 
     part->setEffect(eff.p());
 

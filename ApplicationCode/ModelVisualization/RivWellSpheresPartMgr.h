@@ -25,6 +25,8 @@
 #include "cafPdmPointer.h"
 
 #include <list>
+#include <vector>
+#include <utility>
 
 namespace cvf
 {
@@ -55,13 +57,13 @@ public:
     void scheduleGeometryRegen() { m_needsTransformUpdate = true; }
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-
     
 private:
     static cvf::ref<cvf::DrawableGeo> createSphere(double radius, const cvf::Vec3d& pos);
     cvf::ref<cvf::Part> createPart(cvf::DrawableGeo* geo, const cvf::Color3f& color);
 
     cvf::Color3f wellCellColor(const RigWellResultFrame& wellResultFrame, const RigWellResultPoint& wellResultPoint);
+    cvf::ref<cvf::Part> createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs);
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
