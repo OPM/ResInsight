@@ -179,24 +179,8 @@ BOOST_AUTO_TEST_CASE (InjectionDiagnostics)
     diagTool.assignPoreVolume(cas.poreVolume());
     diagTool.assignConnectionFlux(cas.flux());
 
-    auto start = std::vector<CellSet>{};
-    {
-        start.emplace_back();
-
-        auto& s = start.back();
-
-        s.identify(CellSetID("I-1"));
-        s.insert(0);
-    }
-
-    {
-        start.emplace_back();
-
-        auto& s = start.back();
-
-        s.identify(CellSetID("I-2"));
-        s.insert(cas.connectivity().numCells() - 1);
-    }
+    auto start = std::vector<CellSet>{ CellSet(CellSetID("I-1"), {0}),
+                                       CellSet(CellSetID("I-2"), {int(cas.connectivity().numCells()) - 1}) };
 
     const auto fwd = diagTool
         .computeInjectionDiagnostics(start);
@@ -232,15 +216,8 @@ BOOST_AUTO_TEST_CASE (InjectionDiagnostics)
         const auto tof = fwd.fd
             .timeOfFlight(CellSetID("I-1"));
 
-        for (decltype(tof.cellValueCount())
-                 i = 0, n = tof.cellValueCount();
-             i < n; ++i)
-        {
-            const auto v = tof.cellValue(i);
-
-            BOOST_TEST_MESSAGE("[" << i << "] -> ToF["
-                               << v.first << "] = "
-                               << v.second);
+        for (const auto& v : tof) {
+            BOOST_TEST_MESSAGE("ToF[" << v.first << "] = " << v.second);
         }
     }
 
@@ -249,22 +226,15 @@ BOOST_AUTO_TEST_CASE (InjectionDiagnostics)
         const auto conc = fwd.fd
             .concentration(CellSetID("I-2"));
 
-        BOOST_TEST_MESSAGE("conc.cellValueCount() = " <<
-                           conc.cellValueCount());
+        BOOST_TEST_MESSAGE("conc.size() = " <<
+                           conc.size());
 
-        for (decltype(conc.cellValueCount())
-                 i = 0, n = conc.cellValueCount();
-             i < n; ++i)
-        {
-            const auto v = conc.cellValue(i);
-
-            BOOST_TEST_MESSAGE("[" << i << "] -> Conc["
-                               << v.first << "] = "
-                               << v.second);
+        for (const auto& v : conc) {
+            BOOST_TEST_MESSAGE("Conc[" << v.first << "] = " << v.second);
         }
+
     }
 }
-
 
 
 
@@ -308,33 +278,17 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
     }
 
     // Create well in/out flows.
-    CellSetValues wellflow;
-    wellflow.addCellValue(0, 0.3);
-    wellflow.addCellValue(4, -0.3);
+    CellSetValues wellflow = { {0, 0.3}, {4, -0.3} };
 
     Toolbox diagTool(graph);
     diagTool.assignPoreVolume(cas.poreVolume());
     diagTool.assignConnectionFlux(flux);
     diagTool.assignInflowFlux(wellflow);
 
-    auto start = std::vector<CellSet>{};
-    {
-        start.emplace_back();
-
-        auto& s = start.back();
-
-        s.identify(CellSetID("I-1"));
-        s.insert(0);
-    }
-
-    {
-        start.emplace_back();
-
-        auto& s = start.back();
-
-        s.identify(CellSetID("I-2"));
-        s.insert(cas.connectivity().numCells() - 1);
-    }
+    const int first_cell = 0;
+    const int last_cell = cas.connectivity().numCells() - 1;
+    auto start = std::vector<CellSet>{ CellSet(CellSetID("I-1"), {first_cell}),
+                                       CellSet(CellSetID("I-2"), {last_cell}) };
 
     const auto fwd = diagTool.computeInjectionDiagnostics(start);
     const auto rev = diagTool.computeProductionDiagnostics(start);
@@ -344,7 +298,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const auto tof = fwd.fd.timeOfFlight();
 
         BOOST_REQUIRE_EQUAL(tof.size(), cas.connectivity().numCells());
-        std::vector<double> expected = { 0.5, 1.5, 2.5, 3.5, 0.0 };
+        std::vector<double> expected = { 1.0, 2.0, 3.0, 4.0, 0.0 };
         check_is_close(tof, expected);
     }
 
@@ -353,7 +307,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const auto tof = rev.fd.timeOfFlight();
 
         BOOST_REQUIRE_EQUAL(tof.size(), cas.connectivity().numCells());
-        std::vector<double> expected = { 0.0, 3.5, 2.5, 1.5, 0.5 };
+        std::vector<double> expected = { 0.0, 4.0, 3.0, 2.0, 1.0 };
         check_is_close(tof, expected);
     }
 
@@ -381,15 +335,16 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const auto tof = fwd.fd
             .timeOfFlight(CellSetID("I-2"));
 
-        for (decltype(tof.cellValueCount())
-                 i = 0, n = tof.cellValueCount();
-             i < n; ++i)
-        {
-            const auto v = tof.cellValue(i);
 
-            BOOST_TEST_MESSAGE("[" << i << "] -> ToF["
-                               << v.first << "] = "
-                               << v.second);
+        std::vector<std::pair<int, double>> expected = { {last_cell, 0.0} };
+        BOOST_REQUIRE_EQUAL(tof.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : tof) {
+            BOOST_TEST_MESSAGE("ToF[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
         }
     }
 
@@ -398,20 +353,90 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const auto conc = fwd.fd
             .concentration(CellSetID("I-2"));
 
-        BOOST_TEST_MESSAGE("conc.cellValueCount() = " <<
-                           conc.cellValueCount());
+        std::vector<std::pair<int, double>> expected = { {last_cell, 1.0} };
+        BOOST_REQUIRE_EQUAL(conc.size(), expected.size());
 
-        for (decltype(conc.cellValueCount())
-                 i = 0, n = conc.cellValueCount();
-             i < n; ++i)
-        {
-            const auto v = conc.cellValue(i);
+        int i = 0;
+        for (const auto& v : conc) {
+            BOOST_TEST_MESSAGE("Conc[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
 
-            BOOST_TEST_MESSAGE("[" << i << "] -> Conc["
-                               << v.first << "] = "
-                               << v.second);
+    }
+
+
+    // Tracer-ToF
+    {
+        const auto tof = fwd.fd
+            .timeOfFlight(CellSetID("I-1"));
+
+        std::vector<double> expected = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+        BOOST_REQUIRE_EQUAL(tof.size(), expected.size());
+
+        for (const auto& v : tof) {
+            BOOST_TEST_MESSAGE("ToF[" << v.first << "] = " << v.second);
+            BOOST_CHECK_CLOSE(v.second, expected[v.first], 1.0e-10);
         }
     }
+
+    // Tracer Concentration
+    {
+        const auto conc = fwd.fd
+            .concentration(CellSetID("I-1"));
+
+        std::vector<double> expected = { 1.0, 1.0, 1.0, 1.0, 1.0 };
+        BOOST_REQUIRE_EQUAL(conc.size(), expected.size());
+
+        for (const auto& v : conc) {
+            BOOST_TEST_MESSAGE("Conc[" << v.first << "] = " << v.second);
+            BOOST_CHECK_CLOSE(v.second, expected[v.first], 1.0e-10);
+        }
+    }
+
+
+    // Add a start point in the middle.
+    const int middle_cell = 2;
+    start.emplace_back(CellSet(CellSetID("Middle"), {middle_cell}));
+
+    const auto fwd2 = diagTool.computeInjectionDiagnostics(start);
+    const auto rev2 = diagTool.computeProductionDiagnostics(start);
+
+    // Tracer-ToF
+    {
+        const auto tof = fwd2.fd
+            .timeOfFlight(CellSetID("Middle"));
+
+        std::vector<std::pair<double, double>> expected = { {2, 0.0}, {3, 1.0}, {4, 2.0} };
+        BOOST_REQUIRE_EQUAL(tof.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : tof) {
+            BOOST_TEST_MESSAGE("ToF[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
+    }
+
+    // Tracer Concentration
+    {
+        const auto conc = fwd2.fd
+            .concentration(CellSetID("Middle"));
+
+        std::vector<std::pair<double, double>> expected = { {2, 1.0}, {3, 1.0}, {4, 1.0} };
+        BOOST_REQUIRE_EQUAL(conc.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : conc) {
+            BOOST_TEST_MESSAGE("Conc[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

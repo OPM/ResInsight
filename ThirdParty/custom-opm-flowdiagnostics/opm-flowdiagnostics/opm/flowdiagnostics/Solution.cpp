@@ -53,17 +53,8 @@ public:
     CellSetValues concentration(const CellSetID& tracer) const;
 
 private:
-    struct CompareCellSetIDs
-    {
-        bool operator()(const CellSetID& x,
-                        const CellSetID& y) const
-        {
-            return x.to_string() < y.to_string();
-        }
-    };
-
     using SolutionMap =
-        std::map<CellSetID, CellSetValues, CompareCellSetIDs>;
+        std::map<CellSetID, CellSetValues>;
 
     GlobalToF   tof_;
     SolutionMap tracerToF_;
