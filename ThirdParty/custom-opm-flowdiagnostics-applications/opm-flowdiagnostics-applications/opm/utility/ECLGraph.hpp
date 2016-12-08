@@ -21,7 +21,7 @@
 #ifndef OPM_ECLGRAPH_HEADER_INCLUDED
 #define OPM_ECLGRAPH_HEADER_INCLUDED
 
-#include <opm/core/props/BlackoilPhases.hpp>
+#include <opm/utility/ECLResultData.hpp>
 
 #include <array>
 #include <cstddef>
@@ -33,8 +33,8 @@
 /// \file
 ///
 /// Facility for extracting active cells and neighbourship relations from
-/// on-disk ECLIPSE output, featuring on-demand and cached property loading
-/// from backing object (e.g., restart vectors at various time points).
+/// on-disk ECLIPSE output, featuring on-demand property loading from
+/// backing object (e.g., restart vectors at various time points).
 
 namespace Opm {
 
@@ -121,38 +121,55 @@ namespace Opm {
         /// Retrieve number of active cells in graph.
         std::size_t numCells() const;
 
-        /// Retrive number of connections in graph.
+        /// Retrieve number of connections in graph.
         std::size_t numConnections() const;
 
-        /// Retrive neighbourship relations between active cells.
+        /// Retrieve neighbourship relations between active cells.
         ///
         /// The \c i-th connection is between active cells \code
         /// neighbours()[2*i + 0] \endcode and \code neighbours()[2*i + 1]
         /// \endcode.
         std::vector<int> neighbours() const;
 
-        /// Retrive static pore-volume values on active cells only.
+        /// Retrieve static pore-volume values on active cells only.
         ///
         /// Corresponds to the \c PORV vector in the INIT file, possibly
         /// restricted to those active cells for which the pore-volume is
         /// strictly positive.
         std::vector<double> poreVolume() const;
 
+        /// Restrict dynamic result set data to single report step.
+        ///
+        /// This method must be called before calling either flux() or
+        /// rawResultData().
+        ///
+        /// \param[in] rptstep Selected temporal vector.  Report-step ID.
+        ///
+        /// \return Whether or not dynamic data for the requested report
+        ///    step exists in the underlying result set identified in method
+        ///    assignFluxDataSource().
+        bool selectReportStep(const int rptstep) const;
+
+        /// Access underlying result set.
+        ///
+        /// The result set dynamic data corresponds to the most recent call
+        /// to method selectReportStep().
+        const ::Opm::ECLResultData& rawResultData() const;
+
+        /// Enum for indicating requested phase from the flux() method.
+        enum class PhaseIndex { Aqua = 0, Liquid = 1, Vapour = 2 };
+
         /// Retrive phase flux on all connections defined by \code
         /// neighbours() \endcode.
         ///
         /// \param[in] phase Canonical phase for which to retrive flux.
         ///
-        /// \param[in] rptstep Selected temporal vector.  Report-step ID.
-        ///
-        /// \return Flux values corresponding to selected phase and report
-        /// step.  Empty if unavailable in the result set (e.g., by querying
-        /// the gas flux in an oil/water system or if the specified \p
-        /// occurrence is not reported due to report frequencies or no flux
-        /// values are output at all).
+        /// \return Flux values corresponding to selected phase.  Empty if
+        ///    unavailable in the result set (e.g., when querying the gas
+        ///    flux in an oil/water system or if no flux values at all were
+        ///    output to the restart file).
         std::vector<double>
-        flux(const BlackoilPhases::PhaseIndex phase,
-             const int                        rptstep = 0) const;
+        flux(const PhaseIndex phase) const;
 
     private:
         /// Implementation class.

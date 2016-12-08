@@ -23,9 +23,11 @@
 #endif
 
 #include <opm/utility/ECLWellSolution.hpp>
-#include <opm/core/utility/Units.hpp>
+#include <opm/utility/ECLResultData.hpp>
+#include <opm/parser/eclipse/Units/Units.hpp>
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl_well/well_const.h>
+#include <cmath>
 #include <stdexcept>
 #include <sstream>
 
@@ -33,76 +35,6 @@ namespace Opm
 {
 
     namespace {
-
-
-
-        /// RAII class using the ERT block selection stack mechanism
-        /// to select a report step in a restart file.
-        struct SelectReportBlock
-        {
-            /// \param[in] file         ecl file to select block in.
-            /// \paran[in] report_step  sequence number of block to choose
-            SelectReportBlock(ecl_file_type* file, const int report_step)
-                : file_(file)
-            {
-                if (!ecl_file_has_report_step(file_, report_step)) {
-                    throw std::invalid_argument("Report step " + std::to_string(report_step) + " not found.");
-                }
-                ecl_file_push_block(file_);
-                ecl_file_select_global(file_);
-                ecl_file_select_rstblock_report_step(file_, report_step);
-            }
-            ~SelectReportBlock()
-            {
-                ecl_file_pop_block(file_);
-            }
-            ecl_file_type* file_;
-        };
-
-
-
-
-        /// RAII class using the ERT block selection stack mechanism
-        /// to select an LGR sub-block.
-        struct SubSelectLGRBlock
-        {
-            /// \param[in] file       ecl file to select LGR block in.
-            /// \paran[in] lgr_index  sequence number of block to choose
-            SubSelectLGRBlock(ecl_file_type* file, const int lgr_index)
-                : file_(file)
-            {
-                ecl_file_push_block(file_);
-                ecl_file_subselect_block(file_, LGR_KW, lgr_index);
-            }
-            ~SubSelectLGRBlock()
-            {
-                ecl_file_pop_block(file_);
-            }
-            ecl_file_type* file_;
-        };
-
-
-
-
-        /// Simple ecl file loading function.
-        ERT::ert_unique_ptr<ecl_file_type, ecl_file_close>
-        load(const boost::filesystem::path& filename)
-        {
-            // Read-only, keep open between requests
-            const auto open_flags = 0;
-            using FilePtr = ERT::ert_unique_ptr<ecl_file_type, ecl_file_close>;
-            FilePtr file(ecl_file_open(filename.generic_string().c_str(), open_flags));
-            if (!file) {
-                std::ostringstream os;
-                os << "Failed to load ECL File object from '"
-                   << filename.generic_string() << '\'';
-                throw std::invalid_argument(os.str());
-            }
-            return file;
-        }
-
-
-
 
         // ---------   Restart file keywords.   ---------
 
@@ -197,13 +129,22 @@ namespace Opm
         }
 
 
+
+
+        // Constants not provided by ert.
+        enum { XWEL_RESV_INDEX = 4 };
+        enum { IWEL_TYPE_PRODUCER = 1 };
+
+
     } // anonymous namespace
 
 
 
 
-    ECLWellSolution::ECLWellSolution(const boost::filesystem::path& restart_filename)
-        : restart_(load(restart_filename))
+    ECLWellSolution::ECLWellSolution(const double rate_threshold,
+                                     const bool disallow_crossflow)
+        : rate_threshold_(rate_threshold)
+        , disallow_crossflow_(disallow_crossflow)
     {
     }
 
@@ -212,115 +153,62 @@ namespace Opm
 
 
     std::vector<ECLWellSolution::WellData>
-    ECLWellSolution::solution(const int report_step,
+    ECLWellSolution::solution(const ECLResultData& restart,
                               const int num_grids) const
     {
-        SelectReportBlock select(restart_.get(), report_step);
-        {
-            // Read well data for global grid.
-            std::vector<WellData> all_wd = readWellData(0);
-            for (int grid_index = 1; grid_index < num_grids; ++grid_index) {
-                const int lgr_index = grid_index - 1;
-                SubSelectLGRBlock subselect(restart_.get(), lgr_index);
-                {
-                    // Read well data for LGR grid.
-                    std::vector<WellData> wd = readWellData(grid_index);
-                    // Append to set of all well data.
-                    all_wd.insert(all_wd.end(), wd.begin(), wd.end());
-                }
-            }
-            return all_wd;
+        // Read well data for global grid.
+        std::vector<WellData> all_wd{};
+        for (int grid_index = 0; grid_index < num_grids; ++grid_index) {
+            std::vector<WellData> wd = readWellData(restart, grid_index);
+            // Append to set of all well data.
+            all_wd.insert(all_wd.end(), wd.begin(), wd.end());
         }
-    }
-
-
-
-
-    ecl_kw_type*
-    ECLWellSolution::getKeyword(const std::string& fieldname) const
-    {
-        const int local_occurrence = 0; // This should be correct for all the well-related keywords.
-        if (ecl_file_get_num_named_kw(restart_.get(), fieldname.c_str()) == 0) {
-            throw std::runtime_error("Could not find field " + fieldname);
-        }
-        return ecl_file_iget_named_kw(restart_.get(), fieldname.c_str(), local_occurrence);
-    }
-
-
-
-
-    std::vector<double>
-    ECLWellSolution::loadDoubleField(const std::string& fieldname) const
-    {
-        ecl_kw_type* keyword = getKeyword(fieldname);
-        std::vector<double> field_data;
-        field_data.resize(ecl_kw_get_size(keyword));
-        ecl_kw_get_data_as_double(keyword, field_data.data());
-        return field_data;
-    }
-
-
-
-
-    std::vector<int>
-    ECLWellSolution::loadIntField(const std::string& fieldname) const
-    {
-        ecl_kw_type* keyword = getKeyword(fieldname);
-        std::vector<int> field_data;
-        field_data.resize(ecl_kw_get_size(keyword));
-        ecl_kw_get_memcpy_int_data(keyword, field_data.data());
-        return field_data;
-    }
-
-
-
-
-    std::vector<std::string>
-    ECLWellSolution::loadStringField(const std::string& fieldname) const
-    {
-        ecl_kw_type* keyword = getKeyword(fieldname);
-        std::vector<std::string> field_data;
-        const int size = ecl_kw_get_size(keyword);
-        field_data.resize(size);
-        for (int pos = 0; pos < size; ++pos) {
-            field_data[pos] = ecl_kw_iget_char_ptr(keyword, pos);
-        }
-        return field_data;
+        return all_wd;
     }
 
 
 
 
     std::vector<ECLWellSolution::WellData>
-    ECLWellSolution::readWellData(const int grid_index) const
+    ECLWellSolution::readWellData(const ECLResultData& restart, const int grid_index) const
     {
         // Note: this function is expected to be called in a context
-        // where the correct restart block and grid subblock has already
-        // been selected using the ert block mechanisms.
+        // where the correct restart block using the ert block mechanisms.
 
         // Read header, return if trivial.
-        INTEHEAD ih(loadIntField(INTEHEAD_KW));
+        INTEHEAD ih(restart.keywordData<int>(INTEHEAD_KW, grid_index));
         if (ih.nwell == 0) {
             return {};
         }
         const double qr_unit = resRateUnit(ih.unit);
 
         // Read necessary keywords.
-        auto zwel = loadStringField(ZWEL_KW);
-        auto iwel = loadIntField(IWEL_KW);
-        auto icon = loadIntField(ICON_KW);
-        auto xcon = loadDoubleField("XCON");
+        auto zwel = restart.keywordData<std::string>(ZWEL_KW, grid_index);
+        auto iwel = restart.keywordData<int>        (IWEL_KW, grid_index);
+        auto xwel = restart.keywordData<double>     ("XWEL" , grid_index);
+        auto icon = restart.keywordData<int>        (ICON_KW, grid_index);
+        auto xcon = restart.keywordData<double>     ("XCON" , grid_index);
 
         // Create well data.
-        std::vector<WellData> wd(ih.nwell);
+        std::vector<WellData> wd_vec;
+        wd_vec.reserve(ih.nwell);
         for (int well = 0; well < ih.nwell; ++well) {
-            wd[well].name = trimSpacesRight(zwel[well * ih.nzwel]);
+            // Skip if total rate below threshold (for wells that are
+            // shut or stopped for example).
+            const double well_reservoir_inflow_rate = -unit::convert::from(xwel[well * ih.nxwel + XWEL_RESV_INDEX], qr_unit);
+            if (std::fabs(well_reservoir_inflow_rate) < rate_threshold_) {
+                continue;
+            }
+            // Otherwise: add data for this well.
+            WellData wd;
+            wd.name = trimSpacesRight(zwel[well * ih.nzwel]);
             const int ncon = iwel[well * ih.niwel + IWEL_CONNECTIONS_INDEX];
-            wd[well].completions.resize(ncon);
+            const bool is_producer = (iwel[well * ih.niwel + IWEL_TYPE_INDEX] == IWEL_TYPE_PRODUCER);
+            wd.completions.reserve(ncon);
             for (int comp_index = 0; comp_index < ncon; ++comp_index) {
                 const int icon_offset = (well*ih.ncwma + comp_index) * ih.nicon;
                 const int xcon_offset = (well*ih.ncwma + comp_index) * ih.nxcon;
-                auto& completion = wd[well].completions[comp_index];
+                WellData::Completion completion;
                 // Note: subtracting 1 from indices (Fortran -> C convention).
                 completion.grid_index = grid_index;
                 completion.ijk = { icon[icon_offset + ICON_I_INDEX] - 1,
@@ -328,9 +216,19 @@ namespace Opm
                                    icon[icon_offset + ICON_K_INDEX] - 1 };
                 // Note: taking the negative input, to get inflow rate.
                 completion.reservoir_inflow_rate = -unit::convert::from(xcon[xcon_offset + XCON_QR_INDEX], qr_unit);
+                if (disallow_crossflow_) {
+                    // Add completion only if not cross-flowing (injecting producer or producing injector).
+                    if (completion.reservoir_inflow_rate < 0.0 == is_producer) {
+                        wd.completions.push_back(completion);
+                    }
+                } else {
+                    // Always add completion.
+                    wd.completions.push_back(completion);
+                }
             }
+            wd_vec.push_back(wd);
         }
-        return wd;
+        return wd_vec;
     }
 
 

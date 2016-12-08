@@ -23,12 +23,15 @@
 #endif
 
 #include <opm/utility/ECLGraph.hpp>
+#include <opm/utility/ECLResultData.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
 #include <exception>
+#include <initializer_list>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -37,9 +40,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_grid.h>
-#include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_nnc_export.h>
 #include <ert/util/ert_unique_ptr.hpp>
 
@@ -50,7 +51,6 @@
 namespace {
     namespace ECL {
         using GridPtr = ::ERT::ert_unique_ptr<ecl_grid_type, ecl_grid_free>;
-        using FilePtr = ::ERT::ert_unique_ptr<ecl_file_type, ecl_file_close>;
 
         /// Internalise on-disk representation of ECLIPSE grid.
         ///
@@ -61,13 +61,6 @@ namespace {
         ///
         /// \return Internalised ERT Grid representation.
         GridPtr loadCase(const boost::filesystem::path& grid);
-
-        /// Internalise on-disk representation of ECL file.
-        ///
-        /// \param[in] file Name of ECLIPSE output file.
-        ///
-        /// \return Internalised ERT file contents.
-        FilePtr loadFile(const boost::filesystem::path& file);
 
         /// Retrieve total number of grids managed by model's main grid.
         ///
@@ -110,9 +103,9 @@ namespace {
         ///
         /// \return Vector of pore-volumes for all global cells of \p G.
         std::vector<double>
-        getPVolVector(const ecl_grid_type* G,
-                      const ecl_file_type* init,
-                      const int            grid_ID = 0);
+        getPVolVector(const ecl_grid_type*        G,
+                      const ::Opm::ECLResultData& init,
+                      const int                   grid_ID = 0);
 
         /// Extract non-neighbouring connections from ECLIPSE model
         ///
@@ -124,8 +117,8 @@ namespace {
         /// \return Model's non-neighbouring connections, including those
         ///    between main and local grids.
         std::vector<ecl_nnc_type>
-        loadNNC(const ecl_grid_type* G,
-                const ecl_file_type* init);
+        loadNNC(const ecl_grid_type*        G,
+                const ::Opm::ECLResultData& init);
 
         class CartesianGridData
         {
@@ -140,9 +133,9 @@ namespace {
             ///
             /// \param[in] gridID Numeric identifier of this grid.  Zero for
             ///    main grid, positive for LGRs.
-            CartesianGridData(const ecl_grid_type* G,
-                              const ecl_file_type* init,
-                              const int            gridID);
+            CartesianGridData(const ecl_grid_type*        G,
+                              const ::Opm::ECLResultData& init,
+                              const int                   gridID);
 
             /// Retrieve number of active cells in graph.
             std::size_t numCells() const;
@@ -192,8 +185,8 @@ namespace {
             /// \return Numerical values of result set vector, relative to
             /// global cell numbering of this grid.
             std::vector<double>
-            cellData(const ecl_file_type* src,
-                     const std::string&   vector) const;
+            cellData(const ::Opm::ECLResultData& src,
+                     const std::string&          vector) const;
 
             /// Retrieve values of result set vector for all Cartesian
             /// connections in grid.
@@ -206,8 +199,8 @@ namespace {
             /// \return Numerical values of result set vector attributed to
             ///     all of the grid's Cartesian connections.
             std::vector<double>
-            connectionData(const ecl_file_type* src,
-                           const std::string&   vector) const;
+            connectionData(const ::Opm::ECLResultData& src,
+                           const std::string&          vector) const;
 
         private:
             /// Facility for deriving Cartesian neighbourship in a grid
@@ -390,8 +383,8 @@ namespace {
             ///
             /// \return Whether or not \p vector is defined on model's
             /// cells and part of the result set \p src.
-            bool haveCellData(const ecl_file_type* src,
-                              const std::string&   vector) const;
+            bool haveCellData(const ::Opm::ECLResultData& src,
+                              const std::string&          keyword) const;
 
             /// Predicate for whether or not a particular result vector is
             /// defined on the grid's Cartesian connections.
@@ -403,8 +396,8 @@ namespace {
             /// \return Whether or not all vectors formed by \p vector plus
             /// known directional suffixes are defined on model's cells and
             /// part of the result set \p src.
-            bool haveConnData(const ecl_file_type* src,
-                              const std::string&   vector) const;
+            bool haveConnData(const ::Opm::ECLResultData& src,
+                              const std::string&          keyword) const;
 
             /// Append directional cell data to global collection of
             /// connection data identified by vector name prefix.
@@ -419,7 +412,7 @@ namespace {
             /// input, collection of values corresponding to any previous
             /// directions (preserved), and on output additionally contains
             /// the data corresponding to the Cartesian direction \p d.
-            void connectionData(const ecl_file_type*            src,
+            void connectionData(const ::Opm::ECLResultData&     src,
                                 const CartesianCells::Direction d,
                                 const std::string&              vector,
                                 std::vector<double>&            x) const;
@@ -448,7 +441,7 @@ namespace {
             ///
             /// \param[in] init Internalised
             void deriveNeighbours(const std::vector<std::size_t>& gcells,
-                                  const ecl_file_type*            init,
+                                  const ::Opm::ECLResultData&     init,
                                   const CartesianCells::Direction d);
         };
     } // namespace ECL
@@ -474,9 +467,9 @@ ECL::getGrid(const ecl_grid_type* G, const int gridID)
 }
 
 std::vector<double>
-ECL::getPVolVector(const ecl_grid_type* G,
-                   const ecl_file_type* init,
-                   const int            gridID)
+ECL::getPVolVector(const ecl_grid_type*        G,
+                   const ::Opm::ECLResultData& init,
+                   const int                   gridID)
 {
     auto make_szt = [](const int i)
     {
@@ -487,14 +480,13 @@ ECL::getPVolVector(const ecl_grid_type* G,
 
     auto pvol = std::vector<double>(nglob, 1.0);
 
-    if (ecl_file_has_kw(init, "PORV")) {
-        auto porv =
-            ecl_file_iget_named_kw(init, "PORV", gridID);
+    auto kw = std::string{"PORV"};
 
-        assert ((make_szt(ecl_kw_get_size(porv)) == nglob)
-                && "Pore-volume must be provided for all global cells");
+    if (init.haveKeywordData(kw, gridID)) {
+        pvol = init.keywordData<double>(kw, gridID);
 
-        ecl_kw_get_data_as_double(porv, pvol.data());
+        assert ((pvol.size() == nglob) &&
+                "Pore-volume must be provided for all global cells");
     }
 
     return pvol;
@@ -519,28 +511,6 @@ ECL::loadCase(const boost::filesystem::path& grid)
     return G;
 }
 
-ECL::FilePtr
-ECL::loadFile(const boost::filesystem::path& file)
-{
-    // Read-only, keep open between requests
-    const auto open_flags = 0;
-
-    auto F = FilePtr{
-        ecl_file_open(file.generic_string().c_str(), open_flags)
-    };
-
-    if (! F) {
-        std::ostringstream os;
-
-        os << "Failed to load ECL File object from '"
-           << file.generic_string() << '\'';
-
-        throw std::invalid_argument(os.str());
-    }
-
-    return F;
-}
-
 std::array<std::size_t,3>
 ECL::cartesianDimensions(const ecl_grid_type* G)
 {
@@ -555,8 +525,8 @@ ECL::cartesianDimensions(const ecl_grid_type* G)
 }
 
 std::vector<ecl_nnc_type>
-ECL::loadNNC(const ecl_grid_type* G,
-             const ecl_file_type* init)
+ECL::loadNNC(const ecl_grid_type*        G,
+             const ::Opm::ECLResultData& init)
 {
     auto make_szt = [](const int n)
     {
@@ -570,7 +540,7 @@ ECL::loadNNC(const ecl_grid_type* G,
     if (numNNC > 0) {
         nncData.resize(numNNC);
 
-        ecl_nnc_export(G, init, nncData.data());
+        ecl_nnc_export(G, init.getRawFilePtr(), nncData.data());
     }
 
     return nncData;
@@ -783,9 +753,10 @@ CartesianCells::ind2sub(const std::size_t globalCell) const
 
 // ======================================================================
 
-ECL::CartesianGridData::CartesianGridData(const ecl_grid_type* G,
-                                          const ecl_file_type* init,
-                                          const int            gridID)
+ECL::CartesianGridData::
+CartesianGridData(const ecl_grid_type*        G,
+                  const ::Opm::ECLResultData& init,
+                  const int                   gridID)
     : gridID_(gridID)
     , cells_ (G, ::ECL::getPVolVector(G, init, gridID_))
 {
@@ -855,35 +826,31 @@ ECL::CartesianGridData::isSubdivided(const int cellID) const
 }
 
 std::vector<double>
-ECL::CartesianGridData::cellData(const ecl_file_type* src,
-                                 const std::string&   vector) const
+ECL::CartesianGridData::
+cellData(const ::Opm::ECLResultData& src,
+         const std::string&          vector) const
 {
     if (! this->haveCellData(src, vector)) {
         return {};
     }
 
-    const auto v =
-        ecl_file_iget_named_kw(src, vector.c_str(), this->gridID_);
-
-    auto x = std::vector<double>(ecl_kw_get_size(v));
-
-    ecl_kw_get_data_as_double(v, x.data());
+    auto x = src.keywordData<double>(vector, this->gridID_);
 
     return this->cells_.scatterToGlobal(x);
 }
 
 bool
-ECL::CartesianGridData::haveCellData(const ecl_file_type* src,
-                                     const std::string&   vector) const
+ECL::CartesianGridData::
+haveCellData(const ::Opm::ECLResultData& src,
+             const std::string&          vector) const
 {
-    // Recall: get_num_named_kw() is block aware (uses src->active_map).
-
-    return ecl_file_get_num_named_kw(src, vector.c_str()) > this->gridID_;
+    return src.haveKeywordData(vector, this->gridID_);
 }
 
 bool
-ECL::CartesianGridData::haveConnData(const ecl_file_type* src,
-                                     const std::string&   vector) const
+ECL::CartesianGridData::
+haveConnData(const ::Opm::ECLResultData& src,
+             const std::string&          vector) const
 {
     auto have_data = true;
 
@@ -892,6 +859,7 @@ ECL::CartesianGridData::haveConnData(const ecl_file_type* src,
                            CartesianCells::Direction::K })
     {
         const auto vname = this->vectorName(vector, d);
+
         have_data = this->haveCellData(src, vname);
 
         if (! have_data) { break; }
@@ -901,8 +869,9 @@ ECL::CartesianGridData::haveConnData(const ecl_file_type* src,
 }
 
 std::vector<double>
-ECL::CartesianGridData::connectionData(const ecl_file_type* src,
-                                       const std::string&   vector) const
+ECL::CartesianGridData::
+connectionData(const ::Opm::ECLResultData& src,
+               const std::string&          vector) const
 {
     if (! this->haveConnData(src, vector)) {
         return {};
@@ -922,12 +891,13 @@ ECL::CartesianGridData::connectionData(const ecl_file_type* src,
 
 void
 ECL::CartesianGridData::
-connectionData(const ecl_file_type*            src,
+connectionData(const ::Opm::ECLResultData&     src,
                const CartesianCells::Direction d,
                const std::string&              vector,
                std::vector<double>&            x) const
 {
-    const auto v = this->cellData(src, this->vectorName(vector, d));
+    const auto vname = this->vectorName(vector, d);
+    const auto v = this->cellData(src, vname);
 
     const auto& cells = this->outCell_.find(d);
 
@@ -955,7 +925,7 @@ vectorName(const std::string&              vector,
 void
 ECL::CartesianGridData::
 deriveNeighbours(const std::vector<std::size_t>& gcells,
-                 const ecl_file_type*            init,
+                 const ::Opm::ECLResultData&     init,
                  const CartesianCells::Direction d)
 {
     auto tran = std::string{"TRAN"};
@@ -977,7 +947,7 @@ deriveNeighbours(const std::vector<std::size_t>& gcells,
         throw std::invalid_argument("Input direction must be (I,J,K)");
     }
 
-    const auto& T = this->haveCellData(init, tran)
+    const auto& T = init.haveKeywordData(tran, this->gridID_)
         ? this->cellData(init, tran)
         : std::vector<double>(this->cells_.numGlobalCells(), 1.0);
 
@@ -1079,6 +1049,10 @@ public:
     /// strictly positive.
     std::vector<double> activePoreVolume() const;
 
+    const ::Opm::ECLResultData& rawResultData() const;
+
+    bool selectReportStep(const int rptstep) const;
+
     /// Retrive phase flux on all connections defined by \code neighbours()
     /// \endcode.
     ///
@@ -1092,8 +1066,7 @@ public:
     /// reported due to report frequencies or no flux values are output at
     /// all).
     std::vector<double>
-    flux(const BlackoilPhases::PhaseIndex phase,
-         const int                        rptstep) const;
+    flux(const PhaseIndex phase) const;
 
 private:
     /// Collection of non-Cartesian neighbourship relations attributed to a
@@ -1168,14 +1141,35 @@ private:
 
         /// Map a collection of non-Cartesian neighbourship relations to a
         /// specific flux vector identifier.
-        struct FluxRelation {
+        class FluxRelation {
+        public:
+            explicit FluxRelation(const std::string& fluxID)
+                : fluxID_(fluxID)
+            {}
+
+            NonNeighKeywordIndexSet& indexSet()
+            {
+                return this->indexSet_;
+            }
+
+            const NonNeighKeywordIndexSet& indexSet() const
+            {
+                return this->indexSet_;
+            }
+
+            std::string makeKeyword(const std::string& prefix) const
+            {
+                return prefix + this->fluxID_;
+            }
+
+        private:
             /// Flux vector identifier.  Should be one of "N+" for Normal
             /// connections, "L+" for GlobalToLocal connections, and "A+"
             /// for Amalgamated connections.
-            std::string fluxID;
+            std::string fluxID_;
 
             /// Collection of non-Cartesian neighbourship relations.
-            NonNeighKeywordIndexSet indexSet;
+            NonNeighKeywordIndexSet indexSet_;
         };
 
         /// Constructor.
@@ -1267,13 +1261,14 @@ private:
 
         /// Check if connection is viable
         ///
-        /// A candidate non-Cartesian connection is viable if both of its
-        /// endpoints satisfy the viability criterion.
+        /// A candidate non-Cartesian connection is viable if the associate
+        /// transmissibility is strictly positive and both of its endpoints
+        /// satisfy the viability criterion.
         ///
         /// \param[in] nnc Candidate non-Cartesian connection.
         ///
-        /// \return Whether or not both candidate endpoints satisfy the
-        /// viability criterion.
+        /// \return Whether or not the transmissibility is positive and both
+        /// candidate endpoints satisfy the cell viability criterion.
         bool isViable(const std::vector<ECL::CartesianGridData>& grids,
                       const ecl_nnc_type& nnc) const;
     };
@@ -1290,7 +1285,7 @@ private:
     std::vector<std::size_t> activeOffset_;
 
     /// Current result set.
-    ECL::FilePtr src_;
+    std::unique_ptr<ECLResultData> src_;
 
     /// Extract explicit non-neighbouring connections from ECL output.
     ///
@@ -1301,8 +1296,8 @@ private:
     /// \param[in] init ERT representation of INIT source.
     ///
     /// \param[in] coll Backing data for neighbourship extraction.
-    void defineNNCs(const ecl_grid_type* G,
-                    const ecl_file_type* init);
+    void defineNNCs(const ecl_grid_type*        G,
+                    const ::Opm::ECLResultData& init);
 
     /// Compute ECL vector basename for particular phase flux.
     ///
@@ -1312,7 +1307,7 @@ private:
     /// \return Basename for ECl vector corresponding to particular phase
     /// flux.
     std::string
-    flowVector(const BlackoilPhases::PhaseIndex phase) const;
+    flowVector(const PhaseIndex phase) const;
 
     /// Extract flux values corresponding to particular result set vector
     /// for all identified non-neighbouring connections.
@@ -1407,7 +1402,10 @@ NNC::add(const std::vector<ECL::CartesianGridData>& grid,
         static_cast<std::size_t>(nnc.input_index)
     };
 
-    this->keywords_[cat].indexSet.add(nnc.grid_nr2, std::move(entry));
+    auto rel = this->keywords_.find(cat);
+    if (rel != std::end(this->keywords_)) {
+        rel->second.indexSet().add(nnc.grid_nr2, std::move(entry));
+    }
 }
 
 std::size_t
@@ -1441,13 +1439,13 @@ Opm::ECLGraph::Impl::NNC::makeRelation(const Category cat) const
 {
     switch (cat) {
     case Category::Normal:
-        return { "N+", {} };
+        return FluxRelation{ "N+" };
 
     case Category::GlobalToLocal:
-        return { "L+", {} };
+        return FluxRelation{ "L+" };
 
     case Category::Amalgamated:
-        return { "A+", {} };
+        return FluxRelation{ "A+" };
     }
 
     throw std::invalid_argument("Category must be Normal, "
@@ -1503,7 +1501,9 @@ isViable(const std::vector<ECL::CartesianGridData>& grids,
 Opm::ECLGraph::Impl::Impl(const Path& grid, const Path& init)
 {
     const auto G = ECL::loadCase(grid);
-    auto       I = ECL::loadFile(init);
+    auto       I = ::Opm::ECLResultData{ init };
+
+    I.selectGlobalView();
 
     const auto numGrids = ECL::numGrids(G.get());
 
@@ -1514,19 +1514,19 @@ Opm::ECLGraph::Impl::Impl(const Path& grid, const Path& init)
     for (auto gridID = 0*numGrids; gridID < numGrids; ++gridID)
     {
         this->grid_.emplace_back(ECL::getGrid(G.get(), gridID),
-                                 I.get(), gridID);
+                                 I, gridID);
 
         this->activeOffset_.push_back(this->activeOffset_.back() +
                                       this->grid_.back().numCells());
     }
 
-    this->defineNNCs(G.get(), I.get());
+    this->defineNNCs(G.get(), I);
 }
 
 void
 Opm::ECLGraph::Impl::assignDataSource(const Path& src)
 {
-    this->src_ = ECL::loadFile(src);
+    this->src_.reset(new ECLResultData(src));
 }
 
 int
@@ -1625,15 +1625,21 @@ Opm::ECLGraph::Impl::activePoreVolume() const
     return pvol;
 }
 
+const ::Opm::ECLResultData&
+Opm::ECLGraph::Impl::rawResultData() const
+{
+    return *this->src_;
+}
+
+bool Opm::ECLGraph::Impl::selectReportStep(const int rptstep) const
+{
+    return this->src_->selectReportStep(rptstep);
+}
+
 std::vector<double>
 Opm::ECLGraph::Impl::
-flux(const BlackoilPhases::PhaseIndex phase,
-     const int                        rptstep) const
+flux(const PhaseIndex phase) const
 {
-    if (! ecl_file_has_report_step(this->src_.get(), rptstep)) {
-        return {};
-    }
-
     const auto vector = this->flowVector(phase);
 
     auto v = std::vector<double>{};
@@ -1643,10 +1649,8 @@ flux(const BlackoilPhases::PhaseIndex phase,
 
     v.reserve(totconn);
 
-    ecl_file_select_rstblock_report_step(this->src_.get(), rptstep);
-
     for (const auto& G : this->grid_) {
-        const auto& q = G.connectionData(this->src_.get(), vector);
+        const auto& q = G.connectionData(*this->src_, vector);
 
         if (q.empty()) {
             // Flux vector invalid unless all grids provide this result
@@ -1674,8 +1678,8 @@ flux(const BlackoilPhases::PhaseIndex phase,
 }
 
 void
-Opm::ECLGraph::Impl::defineNNCs(const ecl_grid_type* G,
-                                const ecl_file_type* init)
+Opm::ECLGraph::Impl::defineNNCs(const ecl_grid_type*        G,
+                                const ::Opm::ECLResultData& init)
 {
     for (const auto& nnc : ECL::loadNNC(G, init)) {
         this->nnc_.add(this->grid_, this->activeOffset_, nnc);
@@ -1691,11 +1695,11 @@ Opm::ECLGraph::Impl::fluxNNC(const std::string&   vector,
 
     for (const auto& cat : this->nnc_.allCategories()) {
         const auto& rel    = this->nnc_.getRelations(cat);
-        const auto  fluxID = vector + rel.fluxID;
+        const auto  fluxID = rel.makeKeyword(vector);
 
         auto gridID = 0;
         for (const auto& G : this->grid_) {
-            const auto& iset = rel.indexSet.getGridCollection(gridID);
+            const auto& iset = rel.indexSet().getGridCollection(gridID);
 
             // Must increment grid ID irrespective of early break of
             // iteration.
@@ -1708,7 +1712,7 @@ Opm::ECLGraph::Impl::fluxNNC(const std::string&   vector,
 
             // Note: Method name is confusing, but does actually do what we
             // want here.
-            const auto q = G.cellData(this->src_.get(), fluxID);
+            const auto q = G.cellData(*this->src_, fluxID);
 
             if (q.empty()) {
                 // No flux data for this category in this grid.  Skip.
@@ -1743,26 +1747,27 @@ Opm::ECLGraph::Impl::fluxNNC(const std::string&   vector,
 
 std::string
 Opm::ECLGraph::Impl::
-flowVector(const BlackoilPhases::PhaseIndex phase) const
+flowVector(const PhaseIndex phase) const
 {
     const auto vector = std::string("FLR"); // Flow-rate, reservoir
 
-    if (phase == BlackoilPhases::PhaseIndex::Aqua) {
+    if (phase == PhaseIndex::Aqua) {
         return vector + "WAT";
     }
 
-    if (phase == BlackoilPhases::PhaseIndex::Liquid) {
+    if (phase == PhaseIndex::Liquid) {
         return vector + "OIL";
     }
 
-    if (phase == BlackoilPhases::PhaseIndex::Vapour) {
+    if (phase == PhaseIndex::Vapour) {
         return vector + "GAS";
     }
 
     {
         std::ostringstream os;
 
-        os << "Invalid phase index '" << phase << '\'';
+        os << "Invalid phase index '"
+           << static_cast<int>(phase) << '\'';
 
         throw std::invalid_argument(os.str());
     }
@@ -1839,10 +1844,20 @@ std::vector<double> Opm::ECLGraph::poreVolume() const
     return this->pImpl_->activePoreVolume();
 }
 
+bool Opm::ECLGraph::selectReportStep(const int rptstep) const
+{
+    return this->pImpl_->selectReportStep(rptstep);
+}
+
+const Opm::ECLResultData&
+Opm::ECLGraph::rawResultData() const
+{
+    return this->pImpl_->rawResultData();
+}
+
 std::vector<double>
 Opm::ECLGraph::
-flux(const BlackoilPhases::PhaseIndex phase,
-     const int                        rptstep) const
+flux(const PhaseIndex phase) const
 {
-    return this->pImpl_->flux(phase, rptstep);
+    return this->pImpl_->flux(phase);
 }
