@@ -1,0 +1,13 @@
+####################################################################
+# Dune module information file: This file gets parsed by dunecontrol
+# and by the CMake build scripts.
+####################################################################
+
+Module: opm-flowdiagnostics-applications
+Description: flow diagnostics applications and examples
+Version: 2016.10-pre
+Label: 2016.10-pre
+Maintainer: bard.skaflestad@sintef.no
+MaintainerName: Bård Skaflestad
+Url: http://opm-project.org
+Depends: opm-common opm-flowdiagnostics opm-core
