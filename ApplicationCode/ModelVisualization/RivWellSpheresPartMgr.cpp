@@ -37,7 +37,6 @@
 #include "cvfObject.h"
 #include "cvfPart.h"
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -79,9 +78,14 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
         for (const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints) 
         {
             size_t gridIndex = wellResultPoint.m_gridIndex;
-            size_t gridCellIndex = wellResultPoint.m_gridCellIndex;
 
-            const RigGridBase* rigGrid = mainGrid->gridByIndex(gridIndex);
+            if (gridIndex >= mainGrid->gridCount()) continue;
+            
+            const RigGridBase* rigGrid = rigGrid = mainGrid->gridByIndex(gridIndex);
+
+            size_t gridCellIndex = wellResultPoint.m_gridCellIndex;
+            if (gridCellIndex >= rigGrid->cellCount()) continue;
+
             const RigCell& rigCell = rigGrid->cell(gridCellIndex);
 
             cvf::Vec3d center = rigCell.center();
