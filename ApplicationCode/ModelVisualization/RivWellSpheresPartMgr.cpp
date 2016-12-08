@@ -24,6 +24,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
+
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -88,6 +90,9 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 
             const RigCell& rigCell = rigGrid->cell(gridCellIndex);
 
+            double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+            double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
+           
             cvf::Vec3d center = rigCell.center();
 
             cvf::Color3f color = wellCellColor(wellResultFrame, wellResultPoint);
@@ -95,7 +100,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
             cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
             cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
 
-            cvf::ref<cvf::DrawableGeo> geo = createSphere(10, displayCoord);
+            cvf::ref<cvf::DrawableGeo> geo = createSphere(cellRadius, displayCoord);
             cvf::ref<cvf::Part> part = createPart(geo.p(), color);
 
             model->addPart(part.p());

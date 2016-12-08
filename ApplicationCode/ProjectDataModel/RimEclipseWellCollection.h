@@ -103,6 +103,7 @@ public:
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
 	caf::PdmField<bool>                 showCellCenterSpheres;
+    caf::PdmField<double>               cellCenterSpheresScaleFactor;
 
 	
 	caf::PdmChildArrayField<RimEclipseWell*>     wells;
