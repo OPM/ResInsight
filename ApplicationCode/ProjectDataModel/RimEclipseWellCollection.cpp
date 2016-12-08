@@ -295,6 +295,8 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     wellPipe->add(&wellPipeVisibility);
     wellPipe->add(&pipeRadiusScaleFactor);
 
+    //TODO: Add Well sphere group
+
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
     advancedGroup->add(&wellCellTransparencyLevel);
     advancedGroup->add(&isAutoDetectingBranches);
