@@ -38,6 +38,8 @@
 #include "cvfModelBasicList.h"
 #include "cvfObject.h"
 #include "cvfPart.h"
+#include "cvfDrawableVectors.h"
+#include "cvfGeometryBuilderTriangles.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -75,6 +77,8 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 
     const RigWellResultFrame& wellResultFrame = rigWellResult->wellResultFrame(frameIndex);
 
+    std::vector<std::pair<cvf::Vec3f, cvf::Color3f> > centerColorPairs;
+
     for (const RigWellResultBranch& wellResultBranch : wellResultFrame.m_wellResultBranches)
     {
         for (const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints) 
@@ -90,22 +94,52 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 
             const RigCell& rigCell = rigGrid->cell(gridCellIndex);
 
-            double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
-            double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
            
             cvf::Vec3d center = rigCell.center();
-
-            cvf::Color3f color = wellCellColor(wellResultFrame, wellResultPoint);
-
             cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
             cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
 
-            cvf::ref<cvf::DrawableGeo> geo = createSphere(cellRadius, displayCoord);
-            cvf::ref<cvf::Part> part = createPart(geo.p(), color);
+            cvf::Color3f color = wellCellColor(wellResultFrame, wellResultPoint);
 
-            model->addPart(part.p());
+            centerColorPairs.push_back(std::make_pair(cvf::Vec3f(displayCoord), color));
         }
     }
+
+
+
+    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
+    cvf::ref<cvf::Vec3fArray> vecRes = new cvf::Vec3fArray;
+    cvf::ref<cvf::Color3fArray> colors = new cvf::Color3fArray;
+
+    size_t numVecs = centerColorPairs.size();
+    vertices->reserve(numVecs);
+    vecRes->reserve(numVecs);
+    colors->reserve(numVecs);
+
+    for (auto centerColorPair : centerColorPairs)
+    {
+        vertices->add(centerColorPair.first);
+        vecRes->add(cvf::Vec3f::X_AXIS);
+        colors->add(centerColorPair.second);
+    }
+
+    cvf::ref<cvf::DrawableVectors> vectorDrawable = new cvf::DrawableVectors();
+    vectorDrawable->setVectors(vertices.p(), vecRes.p());
+    vectorDrawable->setColors(colors.p());
+
+    cvf::GeometryBuilderTriangles builder;
+    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+    double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
+    cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
+
+    vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
+
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setDrawable(vectorDrawable.p());
+    cvf::ref<cvf::Effect> eff2 = new cvf::Effect;
+    part->setEffect(eff2.p());
+
+    model->addPart(part.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +152,7 @@ cvf::ref<cvf::DrawableGeo> RivWellSpheresPartMgr::createSphere(double radius, co
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 
     cvf::GeometryBuilderFaceList builder;
-    cvf::GeometryUtils::createSphere(radius, 4, 5, &builder);
+    cvf::GeometryUtils::createSphere(radius, 10, 10, &builder);
 
     cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
 
