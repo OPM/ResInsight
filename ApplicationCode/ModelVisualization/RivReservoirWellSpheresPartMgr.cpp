@@ -64,8 +64,6 @@ void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 {
     if (!m_reservoirView->wellCollection()->showCellCenterSpheres) return;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
-
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
     if (m_reservoirView->wellCollection()->wells.size() != m_wellSpheresPartMgrs.size())
@@ -82,7 +80,7 @@ void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
     {
         if (m_reservoirView->wellCollection()->wells[i]->showWell())
         {
-        m_wellSpheresPartMgrs.at(i)->appendDynamicGeometryPartsToModel(model, frameIndex);
+            m_wellSpheresPartMgrs.at(i)->appendDynamicGeometryPartsToModel(model, frameIndex);
         }
     }
 }
