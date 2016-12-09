@@ -776,17 +776,8 @@ cvf::OverlayItem* RimLegendConfig::legend()
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig)
 {
-    this->m_numLevels           = otherLegendConfig->m_numLevels;
-    this->m_precision           = otherLegendConfig->m_precision;
-    this->m_tickNumberFormat    = otherLegendConfig->m_tickNumberFormat;
-    this->m_rangeMode           = otherLegendConfig->m_rangeMode;
-    this->m_userDefinedMaxValue = otherLegendConfig->m_userDefinedMaxValue;
-    this->m_userDefinedMinValue = otherLegendConfig->m_userDefinedMinValue;
-    this->m_colorRangeMode      = otherLegendConfig->m_colorRangeMode;
-    this->m_mappingMode         = otherLegendConfig->m_mappingMode;
-
-    this->m_userDefinedMinValue = otherLegendConfig->m_userDefinedMinValue;
-    this->m_userDefinedMaxValue = otherLegendConfig->m_userDefinedMaxValue;
+    QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
+    this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
 }
 
 //--------------------------------------------------------------------------------------------------

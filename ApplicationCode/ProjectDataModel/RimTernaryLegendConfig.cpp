@@ -250,17 +250,8 @@ void RimTernaryLegendConfig::recreateLegend()
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig)
 {
-    this->precision                 = otherLegendConfig->precision;
-    this->rangeMode                 = otherLegendConfig->rangeMode;
-    this->userDefinedMaxValueSoil   = otherLegendConfig->userDefinedMaxValueSoil;
-    this->userDefinedMinValueSoil   = otherLegendConfig->userDefinedMinValueSoil;
-    this->userDefinedMaxValueSgas   = otherLegendConfig->userDefinedMaxValueSgas;
-    this->userDefinedMinValueSgas   = otherLegendConfig->userDefinedMinValueSgas;
-    this->userDefinedMaxValueSwat   = otherLegendConfig->userDefinedMaxValueSwat;
-    this->userDefinedMinValueSwat   = otherLegendConfig->userDefinedMinValueSwat;
-    this->applyLocalMinMax          = otherLegendConfig->applyLocalMinMax;
-    this->applyGlobalMinMax         = otherLegendConfig->applyGlobalMinMax;
-    this->applyFullRangeMinMax      = otherLegendConfig->applyFullRangeMinMax;
+    QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
+    this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
 }
 
 //--------------------------------------------------------------------------------------------------
