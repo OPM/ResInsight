@@ -38,6 +38,7 @@
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiSnapshotDefinition.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCaseCollection.h"
@@ -97,6 +98,8 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&multiSnapshotDefinitions, "MultiSnapshotDefinitions", "MultiSnapshotDefinitions", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&mainWindowTreeViewState, "TreeViewState", "",  "", "", "");
     mainWindowTreeViewState.uiCapability()->setUiHidden(true);

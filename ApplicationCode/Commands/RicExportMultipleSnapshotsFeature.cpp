@@ -16,31 +16,49 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimMultiSnapshotDefinition.h"
+#include "RicExportMultipleSnapshotsFeature.h"
+
+#include "RiaApplication.h"
+#include "RimProject.h"
+#include "RiuExportMultipleSnapshotsWidget.h"
+
+#include <QAction>
 
 
-CAF_PDM_SOURCE_INIT(RimMultiSnapshotDefinition, "MultiSnapshotDefinition");
+CAF_CMD_SOURCE_INIT(RicExportMultipleSnapshotsFeature, "RicExportMultipleSnapshotsFeature");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
-{
-    //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
-    CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&caseObject,     "Case",                 "Case", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
-    CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
-    CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
-}
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMultiSnapshotDefinition::~RimMultiSnapshotDefinition()
+bool RicExportMultipleSnapshotsFeature::isCommandEnabled()
 {
+    RimProject* proj = RiaApplication::instance()->project();
+    
+    return proj;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    if (proj)
+    {
+        RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
+        dlg.exec();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportMultipleSnapshotsFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Export Multiple Snapshots ...");
+    //actionToSetup->setIcon(QIcon(":/Save.png"));
+}
 

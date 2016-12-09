@@ -38,6 +38,7 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -74,6 +75,7 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.cpp
+${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -99,6 +101,7 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 )
 
 list(APPEND QT_UI_FILES

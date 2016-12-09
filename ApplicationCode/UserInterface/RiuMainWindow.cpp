@@ -331,6 +331,7 @@ void RiuMainWindow::createMenus()
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     exportMenu->addAction(m_snapshotAllViewsToFile);
+    exportMenu->addAction(cmdFeatureMgr->action("RicExportMultipleSnapshotsFeature"));
 
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
