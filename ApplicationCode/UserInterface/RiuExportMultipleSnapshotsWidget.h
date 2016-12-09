@@ -37,8 +37,9 @@ public:
 
 private slots:
     void customMenuRequested(QPoint pos);
+    void addSnapshotItem();
 
 private:
-    RimProject* m_rimProject;
+    RimProject*          m_rimProject;
     caf::PdmUiTableView* m_pdmTableView;
 };

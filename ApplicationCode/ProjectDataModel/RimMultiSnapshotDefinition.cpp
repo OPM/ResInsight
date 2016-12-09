@@ -18,6 +18,13 @@
 
 #include "RimMultiSnapshotDefinition.h"
 
+#include "RiaApplication.h"
+#include "RimCase.h"
+#include "RimProject.h"
+#include "RimView.h"
+
+#include "cafPdmPointer.h"
+
 
 CAF_PDM_SOURCE_INIT(RimMultiSnapshotDefinition, "MultiSnapshotDefinition");
 
@@ -43,4 +50,41 @@ RimMultiSnapshotDefinition::~RimMultiSnapshotDefinition()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimProject* proj = RiaApplication::instance()->project();
+
+    if (fieldNeedingOptions == &caseObject && proj)
+    {
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+
+        for (RimCase* c : cases)
+        {
+            options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(c))));
+        }
+
+        options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
+    }
+    else if (fieldNeedingOptions == &viewObject)
+    {
+        if (caseObject())
+        {
+            std::vector<RimView*> views = caseObject()->views();
+            for (RimView* view : views)
+            {
+                options.push_back(caf::PdmOptionItemInfo(view->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(view))));
+            }
+        }
+
+        options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
+    }
+
+    return options;
+}
 

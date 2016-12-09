@@ -22,11 +22,12 @@
 #include "RimProject.h"
 #include "RiuExportMultipleSnapshotsWidget.h"
 
+#include "cafCmdExecCommandManager.h"
+
 #include <QAction>
 
 
 CAF_CMD_SOURCE_INIT(RicExportMultipleSnapshotsFeature, "RicExportMultipleSnapshotsFeature");
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +49,9 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 
     if (proj)
     {
+        // Enable the command system to be able to assign a value to multiple fields at the same time
+        caf::CmdExecCommandSystemActivator activator;
+
         RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
         dlg.exec();
     }

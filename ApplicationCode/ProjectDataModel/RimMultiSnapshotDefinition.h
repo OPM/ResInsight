@@ -42,4 +42,6 @@ public:
     caf::PdmField<int>       timeStepStart;
     caf::PdmField<int>       timeStepEnd;
 
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 };

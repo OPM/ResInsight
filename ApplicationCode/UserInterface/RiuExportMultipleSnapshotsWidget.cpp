@@ -18,6 +18,7 @@
 
 #include "RiuExportMultipleSnapshotsWidget.h"
 
+#include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
 
 #include "cafCmdFeatureManager.h"
@@ -36,8 +37,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* parent, RimProject* project)
-    : m_rimProject(project),
-    QDialog(parent)
+    : QDialog(parent),
+    m_rimProject(project)
 {
     setWindowTitle("Export Multiple Snapshots");
 
@@ -52,14 +53,13 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 
     m_pdmTableView->setListField(&(project->multiSnapshotDefinitions()));
 
+    // Set active child array to be able to use generic delete
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&(project->multiSnapshotDefinitions()));
 
     dialogLayout->addWidget(m_pdmTableView);
 
-
-
     // Buttons
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
@@ -71,6 +71,8 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 //--------------------------------------------------------------------------------------------------
 RiuExportMultipleSnapshotsWidget::~RiuExportMultipleSnapshotsWidget()
 {
+    m_pdmTableView->setListField(nullptr);
+
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(nullptr);
 }
 
@@ -82,10 +84,28 @@ void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
     QMenu menu;
-    menu.addAction(commandManager->action("PdmListField_AddItem", "Add new row"));
+    menu.addAction(commandManager->action("PdmListField_DeleteItem","Delete row"));
+
+    QAction* newRowAction = new QAction("Add new row", this);
+    connect(newRowAction, SIGNAL(triggered()), SLOT(addSnapshotItem()));
+    menu.addAction(newRowAction);
     
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
     QPoint globalPos = m_pdmTableView->tableView()->viewport()->mapToGlobal(pos);
 
     menu.exec(globalPos);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
+{
+    if (!m_rimProject) return;
+
+    RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
+    // TODO: init with available time step from 
+
+    m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
+    m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
 }
