@@ -807,10 +807,6 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
                 uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
             }
         }
-
-        uiTreeOrdering.setForgetRemainingFields(true);
-
-        return;
     }
     else
     {
@@ -830,8 +826,8 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         }
 
         uiTreeOrdering.add(scriptCollection());
-
-        uiTreeOrdering.setForgetRemainingFields(true);
     }
+        
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
