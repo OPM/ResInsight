@@ -15,7 +15,7 @@ public:
     // Xml Serializing
 public:
     virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream);
+    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
 private:
     FieldType* m_field;
 };
@@ -39,7 +39,7 @@ public:
     // Xml Serializing
 public:
     virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream);
+    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
     virtual void        resolveReferences();
 
 private:
@@ -68,7 +68,7 @@ public:
     // Xml Serializing
 public:
     virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream);
+    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
     virtual void        resolveReferences();
 
 private:
@@ -92,7 +92,7 @@ public:
     // Xml Serializing
 public:
     virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory); 
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream);
+    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
 private:
     FieldType* m_field;
 };
@@ -110,7 +110,7 @@ public:
     // Xml Serializing
 public:
     virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream);
+    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
 private:
     FieldType* m_field;
 };
