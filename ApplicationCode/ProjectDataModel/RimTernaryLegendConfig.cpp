@@ -19,14 +19,16 @@
 
 #include "RimTernaryLegendConfig.h"
 
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTextEditor.h"
-
 #include "RiaApplication.h"
+
 #include "RimEclipseView.h"
+#include "RimViewLinker.h"
 
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivTernaryScalarMapper.h"
+
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include "cvfqtUtils.h"
 
@@ -152,6 +154,18 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     updateLabelText();
     updateLegend();
 
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    if (view)
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateCellResult();
+        }
+    }
+
     if (m_reservoirView) m_reservoirView->updateCurrentTimeStepAndRedraw();
 }
 
@@ -229,6 +243,24 @@ void RimTernaryLegendConfig::recreateLegend()
     m_legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
 
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTernaryLegendConfig::setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig)
+{
+    this->precision                 = otherLegendConfig->precision;
+    this->rangeMode                 = otherLegendConfig->rangeMode;
+    this->userDefinedMaxValueSoil   = otherLegendConfig->userDefinedMaxValueSoil;
+    this->userDefinedMinValueSoil   = otherLegendConfig->userDefinedMinValueSoil;
+    this->userDefinedMaxValueSgas   = otherLegendConfig->userDefinedMaxValueSgas;
+    this->userDefinedMinValueSgas   = otherLegendConfig->userDefinedMinValueSgas;
+    this->userDefinedMaxValueSwat   = otherLegendConfig->userDefinedMaxValueSwat;
+    this->userDefinedMinValueSwat   = otherLegendConfig->userDefinedMinValueSwat;
+    this->applyLocalMinMax          = otherLegendConfig->applyLocalMinMax;
+    this->applyGlobalMinMax         = otherLegendConfig->applyGlobalMinMax;
+    this->applyFullRangeMinMax      = otherLegendConfig->applyFullRangeMinMax;
 }
 
 //--------------------------------------------------------------------------------------------------

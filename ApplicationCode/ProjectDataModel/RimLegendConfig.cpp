@@ -26,6 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimViewLinker.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -181,6 +182,18 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
 
     updateLegend();
+
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    if (view)
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateCellResult();
+        }
+    }
 
     if (m_reservoirView) m_reservoirView->updateCurrentTimeStepAndRedraw();
 }
@@ -756,6 +769,24 @@ cvf::OverlayItem* RimLegendConfig::legend()
     {
         return m_scalarMapperLegend.p();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig)
+{
+    this->m_numLevels           = otherLegendConfig->m_numLevels;
+    this->m_precision           = otherLegendConfig->m_precision;
+    this->m_tickNumberFormat    = otherLegendConfig->m_tickNumberFormat;
+    this->m_rangeMode           = otherLegendConfig->m_rangeMode;
+    this->m_userDefinedMaxValue = otherLegendConfig->m_userDefinedMaxValue;
+    this->m_userDefinedMinValue = otherLegendConfig->m_userDefinedMinValue;
+    this->m_colorRangeMode      = otherLegendConfig->m_colorRangeMode;
+    this->m_mappingMode         = otherLegendConfig->m_mappingMode;
+
+    this->m_userDefinedMinValue = otherLegendConfig->m_userDefinedMinValue;
+    this->m_userDefinedMaxValue = otherLegendConfig->m_userDefinedMaxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
