@@ -66,9 +66,10 @@ RimViewController::RimViewController(void)
     CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View", "", "", "");
     m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_syncCamera,          "SyncCamera", true,         "Camera", "", "", "");
-    CAF_PDM_InitField(&m_syncTimeStep,        "SyncTimeStep", true,       "Time Step", "", "", "");
-    CAF_PDM_InitField(&m_syncCellResult,      "SyncCellResult", false,    "Cell Color Result", "", "", "");
+    CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera", "", "", "");
+    CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step", "", "", "");
+    CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result", "", "", "");
+    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Legend Definition", "", "", "");
     
     CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     /// We do not support this. Consider to remove sometime
@@ -184,6 +185,10 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         {
             managedGeoView()->cellResult()->updateIconState();
         }
+    }
+    else if (changedField == &m_syncLegendDefinitions)
+    {
+        updateLegendDefinitions();
     }
     else if (changedField == &m_syncRangeFilters)
     {
@@ -365,6 +370,7 @@ void RimViewController::updateOptionSensitivity()
     {
         isMasterAndDependentViewDifferentType = true;
     }
+
     if (geoMasterView && !managedGeoView())
     {
         isMasterAndDependentViewDifferentType = true;
@@ -374,10 +380,22 @@ void RimViewController::updateOptionSensitivity()
     {
         this->m_syncCellResult.uiCapability()->setUiReadOnly(true);
         this->m_syncCellResult = false;
+
+        this->m_syncLegendDefinitions.uiCapability()->setUiReadOnly(true);
+        this->m_syncLegendDefinitions = false;
     }
     else
     {
         this->m_syncCellResult.uiCapability()->setUiReadOnly(false);
+
+        if (this->m_syncCellResult)
+        {
+            this->m_syncLegendDefinitions.uiCapability()->setUiReadOnly(false);
+        }
+        else
+        {
+            this->m_syncLegendDefinitions.uiCapability()->setUiReadOnly(true);
+        }
     }
 
     if (isPropertyFilterControlPossible())
@@ -389,7 +407,6 @@ void RimViewController::updateOptionSensitivity()
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(true);
         this->m_syncPropertyFilters = false;
     }
-
 
     if (isRangeFilterControlPossible())
     {
@@ -440,6 +457,7 @@ void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     scriptGroup->add(&m_syncCamera);
     scriptGroup->add(&m_syncTimeStep);
     scriptGroup->add(&m_syncCellResult);
+    scriptGroup->add(&m_syncLegendDefinitions);
 
     caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup("Link Cell Filters");
     visibleCells->add(&m_syncVisibleCells);
@@ -493,6 +511,17 @@ void RimViewController::updateTimeStepLink()
 void RimViewController::updateResultColorsControl()
 {
     if (!this->isResultColorControlled()) return;
+
+    RimViewLinker* viewLinker = ownerViewLinker();
+    viewLinker->updateCellResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updateLegendDefinitions()
+{
+    if (!this->isLegendDefinitionsControlled()) return;
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
@@ -707,6 +736,21 @@ bool RimViewController::isResultColorControlled()
    if (ownerViewLinker()->isActive() && this->m_isActive())
     {
         return m_syncCellResult;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isLegendDefinitionsControlled()
+{
+    if (ownerViewLinker()->isActive() && this->m_isActive())
+    {
+        return m_syncLegendDefinitions;
     }
     else
     {

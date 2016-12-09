@@ -126,6 +126,8 @@ private:
     cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
+    friend class RimViewLinker;
+    void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
 
 private:
     caf::PdmPointer<RimView>                    m_reservoirView;

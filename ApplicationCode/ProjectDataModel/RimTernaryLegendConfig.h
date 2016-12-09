@@ -73,7 +73,7 @@ public:
     void                recreateLegend();
     
     RivTernarySaturationOverlayItem*    legend();
-    RivTernaryScalarMapper*                scalarMapper();
+    RivTernaryScalarMapper*             scalarMapper();
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -84,7 +84,9 @@ private:
     void                updateLegend();
     void                updateLabelText();
     double              roundToNumSignificantDigits(double value, double precision);
-
+    
+    friend class RimViewLinker;
+    void                setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
 
 private:
     caf::PdmField<int>              precision;

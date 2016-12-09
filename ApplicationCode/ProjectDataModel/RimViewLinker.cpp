@@ -24,7 +24,6 @@
 #include "RigCaseData.h"
 
 #include "RimCase.h"
-
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
@@ -34,9 +33,11 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimViewController.h"
+#include "RimLegendConfig.h"
 #include "RimProject.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimView.h"
+#include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
 
 #include "RiuViewer.h"
@@ -147,6 +148,16 @@ void RimViewLinker::updateCellResult()
                         eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
                         eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
                         eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
+
+                        if (viewLink->isLegendDefinitionsControlled())
+                        {
+                            eclipeView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
+                            eclipeView->cellResult()->legendConfig()->updateLegend();
+
+                            eclipeView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
+                            eclipeView->cellResult()->ternaryLegendConfig()->updateLegend();
+                        }
+
                         eclipeView->scheduleCreateDisplayModelAndRedraw();
                     }
                     
@@ -174,6 +185,13 @@ void RimViewLinker::updateCellResult()
                     if (viewLink->isResultColorControlled())
                     {
                         geoView->cellResult()->setResultAddress(geoMechResultDefinition->resultAddress());
+
+                        if (viewLink->isLegendDefinitionsControlled())
+                        {
+                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterGeoView->cellResult()->legendConfig());
+                            geoView->cellResult()->legendConfig()->updateLegend();
+                        }
+
                         geoView->scheduleCreateDisplayModelAndRedraw();
                     }
 
