@@ -78,6 +78,7 @@ private:
 
     bool isUndoEnabledForCurrentCommand(CmdExecuteCommand* command);
 
+    friend class CmdExecCommandSystemActivator;
     friend class CmdExecCommandSystemDeactivator;
 
 private:
@@ -103,5 +104,21 @@ public:
     }
 };
 
+//==================================================================================================
+/// Helper class used to temporarily enable the command system including undo/redo functionality
+//==================================================================================================
+class CmdExecCommandSystemActivator
+{
+public:
+    CmdExecCommandSystemActivator()
+    {
+        CmdExecCommandManager::instance()->activateCommandSystem();
+    }
+
+    ~CmdExecCommandSystemActivator()
+    {
+        CmdExecCommandManager::instance()->deactivateCommandSystem();
+    }
+};
 
 } // end namespace caf
