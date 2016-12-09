@@ -108,13 +108,13 @@ void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmXmlObjectHandle::writeFields(QXmlStreamWriter& xmlStream)
+void PdmXmlObjectHandle::writeFields(QXmlStreamWriter& xmlStream) const
 {
     std::vector<PdmFieldHandle*> fields;
     m_owner->fields(fields);
     for (size_t it = 0; it < fields.size(); ++it)
     {
-        PdmXmlFieldHandle* field = fields[it]->xmlCapability();
+        const PdmXmlFieldHandle* field = fields[it]->xmlCapability();
         if (field && field->isIOWritable())
         {
             QString keyword = field->fieldHandle()->keyword();
@@ -188,7 +188,7 @@ PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* ob
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString PdmXmlObjectHandle::writeObjectToXmlString()
+QString PdmXmlObjectHandle::writeObjectToXmlString() const
 {
     QString xmlString;
     QXmlStreamWriter outputStream(&xmlString);

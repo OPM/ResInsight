@@ -30,7 +30,7 @@ template<typename FieldType >
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename FieldType >
- void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream)
+void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream) const
  { 
      this->assertValid(); 
      PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), xmlStream); 
@@ -79,7 +79,7 @@ template<typename FieldType >
  //--------------------------------------------------------------------------------------------------
 
  template<typename DataType >
- void caf::PdmFieldXmlCap< caf::PdmPtrField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+ void caf::PdmFieldXmlCap< caf::PdmPtrField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
  {
      this->assertValid(); 
 
@@ -142,7 +142,7 @@ template<typename FieldType >
  //--------------------------------------------------------------------------------------------------
 
  template<typename DataType >
- void caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+ void caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
  {
      this->assertValid();
 
@@ -264,7 +264,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
 //--------------------------------------------------------------------------------------------------
 
 template<typename DataType >
-void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
 {
     if (m_field->m_fieldValue.rawPtr() == NULL) return;
 
@@ -287,7 +287,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlSt
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
 {
     typename std::vector< PdmPointer<DataType> >::iterator it;
     for (it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it)
