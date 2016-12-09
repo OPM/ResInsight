@@ -164,9 +164,9 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         {
             viewLinker->updateCellResult();
         }
+        
+        view->updateCurrentTimeStepAndRedraw();
     }
-
-    if (m_reservoirView) m_reservoirView->updateCurrentTimeStepAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
