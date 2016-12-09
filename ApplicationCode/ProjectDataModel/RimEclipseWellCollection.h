@@ -103,6 +103,7 @@ public:
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
 	caf::PdmField<bool>                 showCellCenterSpheres;
+    //caf::PdmField<WellVisibilityEnum>   wellSphereVisibility;
     caf::PdmField<double>               cellCenterSpheresScaleFactor;
 
 	

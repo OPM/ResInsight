@@ -42,6 +42,7 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&showWellLabel,         "ShowWellLabel",      true, "Show well label", "", "", "");
 
     CAF_PDM_InitField(&showWellPipes,       "ShowWellPipe",         true,   "Show well pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,     "ShowWellSpheres",      true,   "Show well spheres", "", "", "");
     CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",1.0,    "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&wellPipeColor,       "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
 
@@ -118,6 +119,10 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     }
     else if (&showWellPipes == changedField)
+    {
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    }
+    else if (&showWellSpheres == changedField)
     {
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
@@ -244,6 +249,7 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Appearance");
     pipeGroup->add(&showWellPipes);
+    pipeGroup->add(&showWellSpheres);
     pipeGroup->add(&showWellLabel);
     pipeGroup->add(&wellPipeColor);
     pipeGroup->add(&pipeRadiusScaleFactor);
