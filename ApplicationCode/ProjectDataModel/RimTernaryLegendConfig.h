@@ -65,8 +65,6 @@ public:
     RimTernaryLegendConfig();
     virtual ~RimTernaryLegendConfig();
 
-    void                setReservoirView(RimEclipseView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
-
     void                setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
     void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
 
@@ -109,7 +107,6 @@ private:
     std::vector<double>             m_localAutoMax;
     std::vector<double>             m_localAutoMin;
 
-    caf::PdmPointer<RimEclipseView>           m_reservoirView;
     cvf::ref<RivTernarySaturationOverlayItem>   m_legend;
     cvf::ref<RivTernaryScalarMapper>            m_scalarMapper;
 };

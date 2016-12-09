@@ -135,7 +135,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             if (!found)
             {
                     RimLegendConfig* newLegend = new RimLegendConfig;
-                    newLegend->setReservoirView(m_reservoirView);
                     newLegend->resultVariableName = resultVarNameOfNewLegend;
                     m_legendConfigData.push_back(newLegend);
 
@@ -225,13 +224,6 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
     this->setEclipseCase(ownerReservoirView->eclipseCase());
 
     m_reservoirView = ownerReservoirView;
-
-    for (size_t i = 0; i < m_legendConfigData.size(); i++)
-    {
-        m_legendConfigData[i]->setReservoirView(ownerReservoirView);
-    }
-
-    this->ternaryLegendConfig()->setReservoirView(ownerReservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
