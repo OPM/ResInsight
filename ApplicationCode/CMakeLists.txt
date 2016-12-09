@@ -33,8 +33,8 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common/
     ${custom-opm-parser_SOURCE_DIR}/opm-parser/
     ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
-    ${custom-opm-flowdiagnostics-applications_SOURCE_DIR}/opm-flowdiagnostics-applications/
-    ${custom-opm-flowdiagnostics-applications_SOURCE_DIR}/opmCore
+    ${custom-opm-flowdiag-app_SOURCE_DIR}/opm-flowdiagnostics-applications/
+    ${custom-opm-flowdiag-app_SOURCE_DIR}/opmCore
 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
@@ -286,7 +286,7 @@ endif()
 set( LINK_LIBRARIES
     custom-opm-parser
     custom-opm-flowdiagnostics
-    custom-opm-flowdiagnostics-applications
+    custom-opm-flowdiag-app
         
     WellPathImportSsihub
 
