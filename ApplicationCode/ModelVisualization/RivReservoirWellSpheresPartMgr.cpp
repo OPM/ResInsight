@@ -37,7 +37,6 @@ RivReservoirWellSpheresPartMgr::RivReservoirWellSpheresPartMgr(RimEclipseView* r
 {
     m_reservoirView = reservoirView;
 
-    m_scaleTransform = new cvf::Transform();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,15 +44,6 @@ RivReservoirWellSpheresPartMgr::RivReservoirWellSpheresPartMgr(RimEclipseView* r
 //--------------------------------------------------------------------------------------------------
 RivReservoirWellSpheresPartMgr::~RivReservoirWellSpheresPartMgr()
 {
-
-}
-
-// --------------------------------------------------------------------------------------------------
-// / 
-// --------------------------------------------------------------------------------------------------
-void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
-{
-    m_scaleTransform = scaleTransform;
 
 }
 
@@ -72,7 +62,6 @@ void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         {
             RivWellSpheresPartMgr* wppmgr = new RivWellSpheresPartMgr(m_reservoirView, rimWell);
             m_wellSpheresPartMgrs.push_back(wppmgr);
-            wppmgr->setScaleTransform(m_scaleTransform.p());
         }
     }
 

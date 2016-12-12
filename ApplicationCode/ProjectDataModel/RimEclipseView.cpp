@@ -269,8 +269,6 @@ void RimEclipseView::updateScaleTransform()
 
     this->scaleTransform()->setLocalTransform(scale);
     m_pipesPartManager->setScaleTransform(this->scaleTransform());
-	m_wellSpheresPartManager->setScaleTransform(this->scaleTransform());
-
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }

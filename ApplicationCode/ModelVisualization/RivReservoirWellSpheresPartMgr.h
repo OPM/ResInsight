@@ -39,8 +39,6 @@ public:
     ~RivReservoirWellSpheresPartMgr();
 
    
-    void setScaleTransform(cvf::Transform* scaleTransform);
-
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
    
 private:
@@ -48,8 +46,6 @@ private:
 
 private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
-    cvf::ref<cvf::Transform>            m_scaleTransform; 
-
 	cvf::Collection< RivWellSpheresPartMgr >  m_wellSpheresPartMgrs;
 
 };
