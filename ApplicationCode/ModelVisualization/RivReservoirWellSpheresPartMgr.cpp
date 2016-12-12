@@ -48,9 +48,9 @@ RivReservoirWellSpheresPartMgr::~RivReservoirWellSpheresPartMgr()
 
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------
+// / 
+// --------------------------------------------------------------------------------------------------
 void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
 {
     m_scaleTransform = scaleTransform;
@@ -62,8 +62,8 @@ void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTra
 //--------------------------------------------------------------------------------------------------
 void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (!m_reservoirView->wellCollection()->showCellCenterSpheres) return;
-
+    if (m_reservoirView->wellCollection()->wellSphereVisibility == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
+    
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
     if (m_reservoirView->wellCollection()->wells.size() != m_wellSpheresPartMgrs.size())
@@ -78,8 +78,33 @@ void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
 
     for (size_t i = 0; i < m_wellSpheresPartMgrs.size(); i++)
     {
+
+        bool showGeo = false;
+        
+        
         if (m_reservoirView->wellCollection()->wells[i]->showWell())
         {
+       
+            if (m_reservoirView->wellCollection->wellSphereVisibility == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
+            {
+                showGeo = true;
+            }
+            
+            else if (m_reservoirView->wellCollection->wellSphereVisibility == RimEclipseWellCollection::PIPES_INDIVIDUALLY && m_reservoirView->wellCollection()->wells[i]->showWellSpheres() )
+            {
+                showGeo = true;
+            }
+            
+            else if (m_reservoirView->wellCollection->wellSphereVisibility == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS && m_reservoirView->wellCollection->wells[i]->visibleCellsInstersectsWell(frameIndex))
+            {
+                showGeo = true;
+            }
+            
+        }
+
+
+        if (showGeo)
+        { 
             m_wellSpheresPartMgrs.at(i)->appendDynamicGeometryPartsToModel(model, frameIndex);
         }
     }

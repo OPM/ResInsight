@@ -56,6 +56,10 @@ public:
 
     bool                                calculateWellPipeVisibility(size_t frameIndex);
 
+    bool visibleCellsInstersectsWell(size_t frameIndex);
+
+    //Trengs det en calculateWellGeometryVisibility??
+
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 

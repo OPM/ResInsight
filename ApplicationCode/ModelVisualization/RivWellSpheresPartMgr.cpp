@@ -63,6 +63,7 @@ RivWellSpheresPartMgr::~RivWellSpheresPartMgr()
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +72,10 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
     if (m_rimReservoirView.isNull()) return;
     if (!m_rimReservoirView->eclipseCase()) return;
     if (!m_rimReservoirView->eclipseCase()->reservoirData()) return;
-    if (!m_rimWell->showWellSpheres()) return;
+
+    
+ //   if (!m_rimWell->showWellSpheres()  ) return; //TODO: Check that all on is not on... 
+    
     
     const RigMainGrid* mainGrid = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid();
     CVF_ASSERT(mainGrid);
@@ -115,7 +119,6 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
     model->addPart(part.p());
 }
 
-//TODO: Transparency må være linka til show cell center spheres og All On/Of for well pipes
 
 // --------------------------------------------------------------------------------------------------
 // / 

@@ -59,8 +59,8 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     
 private:
-    static cvf::ref<cvf::DrawableGeo> createSphere(double radius, const cvf::Vec3d& pos);
-    cvf::ref<cvf::Part> createPart(cvf::DrawableGeo* geo, const cvf::Color3f& color);
+//     static cvf::ref<cvf::DrawableGeo> createSphere(double radius, const cvf::Vec3d& pos);
+//     cvf::ref<cvf::Part> createPart(cvf::DrawableGeo* geo, const cvf::Color3f& color);
 
     cvf::Color3f wellCellColor(const RigWellResultFrame& wellResultFrame, const RigWellResultPoint& wellResultPoint);
     cvf::ref<cvf::Part> createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs);

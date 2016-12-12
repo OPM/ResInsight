@@ -45,7 +45,7 @@ public:
 
     RimEclipseWellCollection();
     virtual ~RimEclipseWellCollection();
-
+    
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
 
     enum WellVisibilityType
@@ -102,8 +102,7 @@ public:
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
-	caf::PdmField<bool>                 showCellCenterSpheres;
-    //caf::PdmField<WellVisibilityEnum>   wellSphereVisibility;
+    caf::PdmField<WellVisibilityEnum>   wellSphereVisibility;
     caf::PdmField<double>               cellCenterSpheresScaleFactor;
 
 	

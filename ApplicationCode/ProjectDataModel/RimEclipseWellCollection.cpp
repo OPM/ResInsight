@@ -108,8 +108,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
-	CAF_PDM_InitField(&showCellCenterSpheres, "showCellCenterSpheres", false, "Show sphere in cell center", "", "", "");
-//    CAF_PDM_InitField(&wellSphereVisibility, "wellSphereVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well sphere visibility", "", "", "");
+    CAF_PDM_InitField(&wellSphereVisibility, "wellSphereVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well sphere visibility", "", "", "");
     CAF_PDM_InitField(&cellCenterSpheresScaleFactor, "CellCenterSphereScale", 0.2, "Cell Center sphere radius", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
@@ -179,7 +178,7 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 /// Used to know if we need animation of timesteps due to the wells
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWellCollection::hasVisibleWellPipes()
+bool RimEclipseWellCollection::hasVisibleWellPipes() 
 {
     if (!this->isActive()) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
@@ -188,7 +187,6 @@ bool RimEclipseWellCollection::hasVisibleWellPipes()
 
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -228,7 +226,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
-    else if (  &showCellCenterSpheres == changedField
+    else if (  &wellSphereVisibility == changedField
             || &cellCenterSpheresScaleFactor == changedField)
     {
         if (m_reservoirView)
@@ -298,7 +296,7 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     wellPipe->add(&pipeRadiusScaleFactor);
 
     caf::PdmUiGroup* cellCenterSpheres = uiOrdering.addNewGroup("Well cell center spheres");
-    cellCenterSpheres->add(&showCellCenterSpheres);
+    cellCenterSpheres->add(&wellSphereVisibility);
     cellCenterSpheres->add(&cellCenterSpheresScaleFactor);
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
