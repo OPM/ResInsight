@@ -190,7 +190,6 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
     {
-
         return visibleCellsInstersectsWell(frameIndex);
     }
 
@@ -204,7 +203,10 @@ bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
 {
-    //TODO: lag egen funksjon her: 
+    if (this->wellResults() == nullptr) return false;
+
+    if (!wellResults()->hasWellResult(frameIndex)) return false;
+
     const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
     cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
 
