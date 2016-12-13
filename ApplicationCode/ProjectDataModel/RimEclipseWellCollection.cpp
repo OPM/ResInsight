@@ -181,9 +181,10 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
 bool RimEclipseWellCollection::hasVisibleWellPipes() 
 {
     if (!this->isActive()) return false;
-    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
+    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF && this->wellSphereVisibility() == PIPES_FORCE_ALL_OFF ) return false;
     if (this->wells().size() == 0 ) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
+    if (this->wellSphereVisibility() == PIPES_FORCE_ALL_ON) return true;
 
     return true;
 }
