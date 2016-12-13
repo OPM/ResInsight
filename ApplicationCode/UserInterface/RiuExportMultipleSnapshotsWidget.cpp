@@ -18,6 +18,8 @@
 
 #include "RiuExportMultipleSnapshotsWidget.h"
 
+#include "RiaApplication.h"
+
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
 #include "RimCase.h"
@@ -33,7 +35,7 @@
 #include <QMenu>
 #include <QTableView>
 #include <QWidget>
-#include "RiaApplication.h"
+#include <QPushButton>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +67,11 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    QPushButton* exportButton = new QPushButton(tr("Export"));
+    exportButton->setDefault(true);
+    buttonBox->addButton(exportButton, QDialogButtonBox::ActionRole);
+    connect(exportButton, SIGNAL(clicked()), this, SLOT(exportSnapshots()));
 
     dialogLayout->addWidget(buttonBox);
 }
@@ -117,6 +124,15 @@ void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuExportMultipleSnapshotsWidget::exportSnapshots()
+{
+    // TODO: wire up call of static method
+    // RicExportMultipleSnapshotsFeature::staticMethod()
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

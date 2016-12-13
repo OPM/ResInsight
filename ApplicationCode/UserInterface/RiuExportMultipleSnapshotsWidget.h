@@ -39,6 +39,7 @@ private slots:
     void customMenuRequested(QPoint pos);
     void addSnapshotItem();
     void deleteAllSnapshotItems();
+    void exportSnapshots();
 
 private:
     RimProject*          m_rimProject;
