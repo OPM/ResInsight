@@ -104,28 +104,30 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &timeStepEnd)
     {
-        if (caseObject())
-        {
-            QStringList timeSteps = caseObject()->timeStepStrings();
-            for (int i = 0; i < timeSteps.size(); i++)
-            {
-                options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
-            }
-        }
+        getTimeStepStrings(options);
+
     }
     else if (fieldNeedingOptions == &timeStepStart)
     {
-        if (caseObject())
-        {
-            QStringList timeSteps = caseObject()->timeStepStrings();
-            for (int i = 0; i < timeSteps.size(); i++)
-            {
-                options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
-            }
-        }
+        getTimeStepStrings(options);
     }
 
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
+{
+    if (!caseObject()) return;
+    
+    QStringList timeSteps = caseObject()->timeStepStrings();
+    for (int i = 0; i < timeSteps.size(); i++)
+    {
+        options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
+    }
+    
 }
 

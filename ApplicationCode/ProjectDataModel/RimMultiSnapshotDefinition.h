@@ -56,4 +56,7 @@ public:
 
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+
+    void getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options);
+
 };
