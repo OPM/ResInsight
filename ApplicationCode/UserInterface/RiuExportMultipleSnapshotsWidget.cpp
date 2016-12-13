@@ -146,13 +146,33 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 
     }
 
-        //Getting new default values (if no earlier entry):
-//     TODO
-//     RimProject* proj = RiaApplication::instance()->project();
-//     std::vector<RimCase*> cases;
-//     proj->allCases(cases);
-//     //multiSnapshot->caseObject() = cases[0];
+    else
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+        RimCase* CaseExample = nullptr;
+        RimView* ViewExample = nullptr;
 
+        if (cases.size() > 0)
+        {
+            CaseExample = cases.at(0);
+            multiSnapshot->caseObject = CaseExample;
+ 
+            std::vector<RimView*> viewExamples;
+            viewExamples = CaseExample->views();
+
+            if (viewExamples.size() > 0)
+            {
+                ViewExample = viewExamples.at(0);
+                multiSnapshot->viewObject = ViewExample;
+            }
+        }
+
+
+    }
+
+        
 
 
     m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
