@@ -108,7 +108,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
-    CAF_PDM_InitField(&wellSphereVisibility, "wellSphereVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well sphere visibility", "", "", "");
+    CAF_PDM_InitField(&wellSphereVisibility, "wellSphereVisibility", WellVisibilityEnum(PIPES_FORCE_ALL_OFF), "Global well sphere visibility", "", "", "");
     CAF_PDM_InitField(&cellCenterSpheresScaleFactor, "CellCenterSphereScale", 0.2, "Cell Center sphere radius", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
