@@ -63,7 +63,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = 
-        new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellPipeVisibilities(timeStepIndex),
+        new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(timeStepIndex),
                                    eclipseCase->gridCellToResultWellIndex(gridIndex));
 
     const RivTernaryScalarMapper* mapper = ternaryLegendConfig->scalarMapper();

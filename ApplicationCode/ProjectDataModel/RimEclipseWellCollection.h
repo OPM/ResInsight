@@ -113,7 +113,7 @@ public:
     bool                                hasVisibleWellPipes();
     void                                sortWellsByName();
 
-    const std::vector<cvf::ubyte>&      resultWellPipeVisibilities(size_t frameIndex);       
+    const std::vector<cvf::ubyte>&      resultWellGeometryVisibilities(size_t frameIndex);       
     void                                scheduleIsWellPipesVisibleRecalculation();
 
 protected:
@@ -122,7 +122,7 @@ protected:
     virtual caf::PdmFieldHandle*        objectToggleField();
 private:
 
-    void                                calculateIsWellPipesVisible(size_t frameIndex);
+    void                                calculateWellGeometryVisibility(size_t frameIndex);
 
     RimEclipseView*   m_reservoirView;
     std::vector< std::vector< cvf::ubyte > >             

@@ -55,6 +55,7 @@ public:
     bool                                isWellPipeVisible(size_t frameIndex);
 
     bool                                calculateWellPipeVisibility(size_t frameIndex);
+    bool                                calculateWellSphereVisibility(size_t frameIndex);
 
     bool visibleCellsInstersectsWell(size_t frameIndex);
 

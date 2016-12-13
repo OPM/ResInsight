@@ -316,9 +316,9 @@ caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellPipeVisibilities(size_t frameIndex)
+const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellGeometryVisibilities(size_t frameIndex)
 {
-    calculateIsWellPipesVisible(frameIndex);
+    calculateWellGeometryVisibility(frameIndex);
     return m_framesOfResultWellPipeVisibilities[frameIndex];
 }
 
@@ -333,7 +333,7 @@ void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
+void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex)
 {
     if (m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size()) return;
 
@@ -345,7 +345,10 @@ void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
     
     for (size_t i = 0; i < wells().size(); ++i)
     {
-        m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wells[i]->calculateWellPipeVisibility(frameIndex);
+        bool wellPipeVisible = wells[i]->calculateWellPipeVisibility(frameIndex);
+        bool wellSphereVisible = wells[i]->calculateWellSphereVisibility(frameIndex);
+
+        m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wellPipeVisible || wellSphereVisible;
     }
 }
 
