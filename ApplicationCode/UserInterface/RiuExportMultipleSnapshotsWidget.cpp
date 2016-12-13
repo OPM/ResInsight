@@ -20,22 +20,26 @@
 
 #include "RiaApplication.h"
 
+#include "RimCase.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
-#include "RimCase.h"
 #include "RimView.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTableView.h"
 #include "cafSelectionManager.h"
 
+#include <QFileDialog>
 #include <QAbstractItemView>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
-#include <QTableView>
-#include <QWidget>
 #include <QPushButton>
+#include <QTableView>
+#include <QToolButton>
+#include <QWidget>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +50,10 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     m_rimProject(project)
 {
     setWindowTitle("Export Multiple Snapshots");
+
+    int nWidth = 800;
+    int nHeight = 300;
+    resize(nWidth, nHeight);
 
     QVBoxLayout* dialogLayout = new QVBoxLayout;
     setLayout(dialogLayout);
@@ -62,6 +70,30 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&(project->multiSnapshotDefinitions()));
 
     dialogLayout->addWidget(m_pdmTableView);
+
+    // Export folder
+    {
+        QHBoxLayout* layout = new QHBoxLayout;
+
+        layout->addWidget(new QLabel("Export folder"));
+
+        // Save images in snapshot catalog relative to project directory
+        QString snapshotFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
+
+        m_lineEdit = new QLineEdit(snapshotFolderName);
+
+        QToolButton* button = new QToolButton;
+        button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
+        button->setText(QLatin1String("..."));
+
+        layout->addWidget(m_lineEdit);
+        layout->addWidget(button);
+
+        connect(button, SIGNAL(clicked()), this, SLOT(folderSelectionClicked()));
+
+        dialogLayout->addLayout(layout);
+    }
+
 
     // Buttons
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
@@ -132,6 +164,25 @@ void RiuExportMultipleSnapshotsWidget::exportSnapshots()
 {
     // TODO: wire up call of static method
     // RicExportMultipleSnapshotsFeature::staticMethod()
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuExportMultipleSnapshotsWidget::folderSelectionClicked()
+{
+    QString defaultPath = m_lineEdit->text();
+
+    QString directoryPath = QFileDialog::getExistingDirectory(m_lineEdit,
+        tr("Get existing directory"),
+        defaultPath,
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (!directoryPath.isEmpty())
+    {
+        m_lineEdit->setText(directoryPath);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
