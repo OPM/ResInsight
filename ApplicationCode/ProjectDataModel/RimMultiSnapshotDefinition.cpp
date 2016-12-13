@@ -25,6 +25,18 @@
 
 #include "cafPdmPointer.h"
 
+namespace caf
+{
+    template<>
+    void caf::AppEnum< RimMultiSnapshotDefinition::SnapShotDirectionEnum >::setUp()
+    {
+        addItem(RimMultiSnapshotDefinition::RANGEFILTER_I, "I", "i-direction");
+        addItem(RimMultiSnapshotDefinition::RANGEFILTER_J, "J", "j-direction");
+        addItem(RimMultiSnapshotDefinition::RANGEFILTER_K, "K", "k-direction");
+
+        setDefault(RimMultiSnapshotDefinition::RANGEFILTER_K);
+    }
+}
 
 CAF_PDM_SOURCE_INIT(RimMultiSnapshotDefinition, "MultiSnapshotDefinition");
 
@@ -40,6 +52,12 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
     CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
+
+    CAF_PDM_InitField(&sliceDirection, "SnapShotDirection", caf::AppEnum<SnapShotDirectionEnum>(RANGEFILTER_K), "Range Filter direction", "", "", "");
+    CAF_PDM_InitField(&startSliceIndex, "RangeFilterStart", 0, "RangeFilter Start", "", "", "");
+    CAF_PDM_InitField(&endSliceIndex, "RangeFilterEnd", 0, "RangeFilter End", "", "", "");
+
+
 }
 
 
@@ -69,7 +87,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
             options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(c))));
         }
 
-        options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
+        //options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
     }
     else if (fieldNeedingOptions == &viewObject)
     {
@@ -82,8 +100,31 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
             }
         }
 
-        options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
+        //options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
     }
+    else if (fieldNeedingOptions == &timeStepEnd)
+    {
+        if (caseObject())
+        {
+            QStringList timeSteps = caseObject()->timeStepStrings();
+            for (int i = 0; i < timeSteps.size(); i++)
+            {
+                options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
+            }
+        }
+    }
+    else if (fieldNeedingOptions == &timeStepStart)
+    {
+        if (caseObject())
+        {
+            QStringList timeSteps = caseObject()->timeStepStrings();
+            for (int i = 0; i < timeSteps.size(); i++)
+            {
+                options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
+            }
+        }
+    }
+
 
     return options;
 }

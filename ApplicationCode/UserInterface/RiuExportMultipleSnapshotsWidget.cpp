@@ -20,6 +20,8 @@
 
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
+#include "RimCase.h"
+#include "RimView.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTableView.h"
@@ -31,6 +33,7 @@
 #include <QMenu>
 #include <QTableView>
 #include <QWidget>
+#include "RiaApplication.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -86,15 +89,34 @@ void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
     QMenu menu;
     menu.addAction(commandManager->action("PdmListField_DeleteItem","Delete row"));
 
-    QAction* newRowAction = new QAction("Add new row", this);
+    QAction* newRowAction = new QAction("New row", this);
     connect(newRowAction, SIGNAL(triggered()), SLOT(addSnapshotItem()));
     menu.addAction(newRowAction);
+
+    QAction* clearAllRows = new QAction("Clear", this);
+    connect(clearAllRows, SIGNAL(triggered()), SLOT(deleteAllSnapshotItems())); 
+    menu.addAction(clearAllRows);
+    
     
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
     QPoint globalPos = m_pdmTableView->tableView()->viewport()->mapToGlobal(pos);
 
     menu.exec(globalPos);
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
+{
+    if (!m_rimProject) return;
+
+    m_rimProject->multiSnapshotDefinitions.deleteAllChildObjects();
+
+    m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -104,7 +126,34 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
     if (!m_rimProject) return;
 
     RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
-    // TODO: init with available time step from 
+
+
+    //Getting default value from last entered line: 
+    if (m_rimProject->multiSnapshotDefinitions.size() > 0)
+    {
+        RimMultiSnapshotDefinition* other = m_rimProject->multiSnapshotDefinitions[m_rimProject->multiSnapshotDefinitions.size() - 1];
+
+        multiSnapshot->caseObject = other->caseObject();
+        multiSnapshot->viewObject = other->viewObject();
+        multiSnapshot->timeStepStart = other->timeStepStart();
+        multiSnapshot->timeStepEnd = other->timeStepEnd();
+
+
+        // Variant using copy based on xml string
+//         QString copyOfOriginalObject = other->writeObjectToXmlString();
+//         multiSnapshot->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
+
+
+    }
+
+        //Getting new default values (if no earlier entry):
+//     TODO
+//     RimProject* proj = RiaApplication::instance()->project();
+//     std::vector<RimCase*> cases;
+//     proj->allCases(cases);
+//     //multiSnapshot->caseObject() = cases[0];
+
+
 
     m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();

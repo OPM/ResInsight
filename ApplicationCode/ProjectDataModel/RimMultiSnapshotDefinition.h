@@ -21,6 +21,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafAppEnum.h"
 
 class RimCase;
 class RimView;
@@ -41,6 +42,17 @@ public:
 
     caf::PdmField<int>       timeStepStart;
     caf::PdmField<int>       timeStepEnd;
+
+    enum SnapShotDirectionEnum
+    {
+        RANGEFILTER_I,
+        RANGEFILTER_J,
+        RANGEFILTER_K
+    };
+
+    caf::PdmField< caf::AppEnum< SnapShotDirectionEnum > > sliceDirection;
+    caf::PdmField<int>       startSliceIndex;
+    caf::PdmField<int>       endSliceIndex;
 
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
