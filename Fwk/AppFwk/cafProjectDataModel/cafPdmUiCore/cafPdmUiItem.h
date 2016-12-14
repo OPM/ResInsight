@@ -90,6 +90,8 @@ public:
         :  value(aValue), optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
     {}
 
+    PdmOptionItemInfo(QString  anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
+
     QString  optionUiText;
     bool     isDimmed;
     QIcon    icon;
