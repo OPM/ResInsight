@@ -29,8 +29,8 @@ TEST(opm_flowdiagnostics_test, basic_construction)
 
         // Solve for time of flight.
         std::vector<Opm::FlowDiagnostics::CellSet> start;
-        auto sol = fdTool.computeInjectionDiagnostics(start);
-        const auto& tof = sol.fd.timeOfFlight();
+        Opm::FlowDiagnostics::Toolbox::Forward sol = fdTool.computeInjectionDiagnostics(start);
+        const std::vector<double>& tof = sol.fd.timeOfFlight();
 
         // Write it to standard out.
         std::cout.precision(16);

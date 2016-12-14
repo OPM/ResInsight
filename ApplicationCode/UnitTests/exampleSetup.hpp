@@ -62,7 +62,7 @@ namespace example {
                                Opm::ECLGraph::PhaseIndex::Liquid ,
                                Opm::ECLGraph::PhaseIndex::Vapour })
         {
-            const auto pflux = G.flux(p);
+            const std::vector<double> pflux = G.flux(p);
 
             if (! pflux.empty()) {
                 assert (pflux.size() == nconn.total);
@@ -125,19 +125,22 @@ namespace example {
     inline Opm::FlowDiagnostics::Toolbox
     initialiseFlowDiagnostics(const Opm::ECLGraph& G)
     {
-        const auto connGraph = Opm::FlowDiagnostics::
-            ConnectivityGraph{ static_cast<int>(G.numCells()),
-                               G.neighbours() };
+        const  Opm::FlowDiagnostics::ConnectivityGraph connGraph = 
+           Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(G.numCells()),
+                                                    G.neighbours() };
 
         // Create the Toolbox.
-        auto tool = Opm::FlowDiagnostics::Toolbox{ connGraph };
+
+        Opm::FlowDiagnostics::Toolbox tool = Opm::FlowDiagnostics::Toolbox{ connGraph };
 
         tool.assignPoreVolume(G.poreVolume());
-        tool.assignConnectionFlux(Hack::convert_flux_to_SI(extractFluxField(G)));
 
-        auto wsol = Opm::ECLWellSolution{};
+        Opm::FlowDiagnostics::ConnectionValues connectionsVals = Hack::convert_flux_to_SI(extractFluxField(G));
+        tool.assignConnectionFlux(connectionsVals);
 
-        const auto well_fluxes =
+        Opm::ECLWellSolution wsol = Opm::ECLWellSolution{};
+
+        const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
             wsol.solution(G.rawResultData(), G.numGrids());
 
         tool.assignInflowFlux(extractWellFlows(G, well_fluxes));
