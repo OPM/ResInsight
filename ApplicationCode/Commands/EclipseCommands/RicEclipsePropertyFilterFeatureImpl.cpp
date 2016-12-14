@@ -123,5 +123,5 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults(RimEclipsePropertyFilter* 
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
-    propertyFilter->m_categorySelection = true;
+    propertyFilter->m_useCategorySelection = true;
 }

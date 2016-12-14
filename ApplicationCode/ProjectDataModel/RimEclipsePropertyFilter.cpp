@@ -78,7 +78,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitField(&m_upperBound, "UpperBound", 0.0, "Max", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_categorySelection, "CategorySelection", false, "Category Selection", "", "", "");
+    CAF_PDM_InitField(&m_useCategorySelection, "CategorySelection", false, "Category Selection", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
@@ -109,7 +109,7 @@ void RimEclipsePropertyFilter::rangeValues(double* lower, double* upper) const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 {
-    if (resultDefinition->hasCategoryResult() && m_categorySelection)
+    if (resultDefinition->hasCategoryResult() && m_useCategorySelection)
     {
         return true;
     }
@@ -122,10 +122,6 @@ bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&m_categorySelection == changedField)
-    {
-        updateFieldVisibility();
-    }
 
     if (   &m_lowerBound == changedField 
         || &m_upperBound == changedField
@@ -133,7 +129,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &isActive == changedField
         || &filterMode == changedField
         || &m_selectedCategoryValues == changedField
-        || &m_categorySelection == changedField)
+        || &m_useCategorySelection == changedField)
     {
         updateFilterName();
         this->updateIconState();
@@ -164,9 +160,8 @@ void RimEclipsePropertyFilter::setToDefaultValues()
     m_upperBound = m_maximumResultValue;
 
     m_selectedCategoryValues = m_categoryValues;
-    m_categorySelection = true;
+    m_useCategorySelection = true;
 
-    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,13 +178,21 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     
     // Fields declared in RimCellFilter
     uiOrdering.add(&filterMode);
-    uiOrdering.add(&m_categorySelection);
 
-    // Fields declared in this class (RimCellPropertyFilter)
-    uiOrdering.add(&m_lowerBound);
-    uiOrdering.add(&m_upperBound);
+    if (resultDefinition->hasCategoryResult())
+    {
+        uiOrdering.add(&m_useCategorySelection);
+    }
 
-    uiOrdering.add(&m_selectedCategoryValues);
+    if ( resultDefinition->hasCategoryResult() && m_useCategorySelection() )
+    {
+        uiOrdering.add(&m_selectedCategoryValues);
+    }
+    else
+    {
+        uiOrdering.add(&m_lowerBound);
+        uiOrdering.add(&m_upperBound);
+    }
 
     uiOrdering.setForgetRemainingFields(true);
 
@@ -252,38 +255,6 @@ bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 void RimEclipsePropertyFilter::updateActiveState()
 {
     isActive.uiCapability()->setUiReadOnly(isPropertyFilterControlled());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::updateFieldVisibility()
-{
-    if (resultDefinition->hasCategoryResult())
-    {
-        m_categorySelection.uiCapability()->setUiHidden(false);
-
-        if (!m_categorySelection)
-        {
-            m_selectedCategoryValues.uiCapability()->setUiHidden(true);
-            m_lowerBound.uiCapability()->setUiHidden(false);
-            m_upperBound.uiCapability()->setUiHidden(false);
-        }
-        else
-        {
-            m_selectedCategoryValues.uiCapability()->setUiHidden(false);
-            m_lowerBound.uiCapability()->setUiHidden(true);
-            m_upperBound.uiCapability()->setUiHidden(true);
-        }
-    }
-    else
-    {
-        m_lowerBound.uiCapability()->setUiHidden(false);
-        m_upperBound.uiCapability()->setUiHidden(false);
-
-        m_selectedCategoryValues.uiCapability()->setUiHidden(true);
-        m_categorySelection.uiCapability()->setUiHidden(true);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,6 +381,5 @@ void RimEclipsePropertyFilter::initAfterRead()
     resultDefinition->loadResult();
     updateIconState();
     computeResultValueRange();
-    updateFieldVisibility();
 }
 

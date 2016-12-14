@@ -50,7 +50,6 @@ public:
     void                                        updateFilterName();
     void                                        computeResultValueRange();
     
-    void                                        updateFieldVisibility();
     void                                        updateActiveState();
     
 protected:

@@ -69,7 +69,6 @@ private:
     friend class RicEclipsePropertyFilterFeatureImpl;
 
     void                                    updateActiveState();
-    void                                    updateFieldVisibility();
     void                                    updateReadOnlyStateOfAllFields();
     bool                                    isPropertyFilterControlled();
 
@@ -77,7 +76,7 @@ private:
     caf::PdmField<double>                   m_lowerBound;
     caf::PdmField<double>                   m_upperBound;
 
-    caf::PdmField<bool>                     m_categorySelection;
+    caf::PdmField<bool>                     m_useCategorySelection;
 
     double                                  m_minimumResultValue;
     double                                  m_maximumResultValue;

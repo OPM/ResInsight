@@ -48,7 +48,6 @@ RimCellFilter::RimCellFilter()
     isActive.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedCategoryValues, "SelectedValues", "Values", "", "", "");
-    m_selectedCategoryValues.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&filterMode, "FilterType", "Filter Type", "", "", "");
 }

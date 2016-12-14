@@ -73,7 +73,6 @@ void RimGeoMechPropertyFilterCollection::loadAndInitializePropertyFilters()
         propertyFilter->resultDefinition->setGeoMechCase(reservoirView()->geoMechCase());
         propertyFilter->resultDefinition->loadResult();
         propertyFilter->computeResultValueRange();
-        propertyFilter->updateFieldVisibility();
     }
 }
 
