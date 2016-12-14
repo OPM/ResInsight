@@ -124,7 +124,6 @@ RimEclipseView::RimEclipseView()
     this->cellResult()->setReservoirView(this);
 
     this->cellEdgeResult()->setReservoirView(this);
-    this->cellEdgeResult()->legendConfig()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
     this->faultResultSettings()->setReservoirView(this);
@@ -132,7 +131,6 @@ RimEclipseView::RimEclipseView()
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
 	m_wellSpheresPartManager = new RivReservoirWellSpheresPartMgr(this);
-
 	
 	m_reservoir = NULL;
 }
@@ -270,8 +268,6 @@ void RimEclipseView::updateScaleTransform()
 
     this->scaleTransform()->setLocalTransform(scale);
     m_pipesPartManager->setScaleTransform(this->scaleTransform());
-	m_wellSpheresPartManager->setScaleTransform(this->scaleTransform());
-
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -500,7 +496,6 @@ void RimEclipseView::createDisplayModel()
 
     if (frameModels.size() > 1 && this->hasUserRequestedAnimation())
     {
-        m_viewer->animationControl()->setCurrentFrameOnly(m_currentTimeStep);
         m_viewer->setCurrentFrame(m_currentTimeStep);
     }
     else
@@ -668,7 +663,6 @@ void RimEclipseView::updateCurrentTimeStep()
 
             m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
 			m_wellSpheresPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
-
 
             wellPipeModelBasicList->updateBoundingBoxesRecursive();
 
@@ -902,6 +896,7 @@ void RimEclipseView::scheduleReservoirGridGeometryRegen()
 void RimEclipseView::schedulePipeGeometryRegen()
 {
     m_pipesPartManager->scheduleGeometryRegen();
+    m_wellSpheresPartManager->clearGeometryCache();
 }
 
 
@@ -1310,6 +1305,7 @@ void RimEclipseView::updateDisplayModelForWellResults()
 {
     m_reservoirGridPartManager->clearGeometryCache();
     m_pipesPartManager->clearGeometryCache();
+    m_wellSpheresPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 

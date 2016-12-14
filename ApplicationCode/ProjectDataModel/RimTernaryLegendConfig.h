@@ -65,15 +65,13 @@ public:
     RimTernaryLegendConfig();
     virtual ~RimTernaryLegendConfig();
 
-    void                setReservoirView(RimEclipseView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
-
     void                setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);
     void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
 
     void                recreateLegend();
     
     RivTernarySaturationOverlayItem*    legend();
-    RivTernaryScalarMapper*                scalarMapper();
+    RivTernaryScalarMapper*             scalarMapper();
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -84,7 +82,9 @@ private:
     void                updateLegend();
     void                updateLabelText();
     double              roundToNumSignificantDigits(double value, double precision);
-
+    
+    friend class RimViewLinker;
+    void                setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
 
 private:
     caf::PdmField<int>              precision;
@@ -107,7 +107,6 @@ private:
     std::vector<double>             m_localAutoMax;
     std::vector<double>             m_localAutoMin;
 
-    caf::PdmPointer<RimEclipseView>           m_reservoirView;
     cvf::ref<RivTernarySaturationOverlayItem>   m_legend;
     cvf::ref<RivTernaryScalarMapper>            m_scalarMapper;
 };

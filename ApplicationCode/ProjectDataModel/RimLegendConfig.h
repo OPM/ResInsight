@@ -57,8 +57,6 @@ public:
     RimLegendConfig();
     virtual ~RimLegendConfig();
 
-    void setReservoirView(RimView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
-
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
     enum RangeModeType
@@ -126,10 +124,10 @@ private:
     cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
+    friend class RimViewLinker;
+    void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
 
 private:
-    caf::PdmPointer<RimView>                    m_reservoirView;
-
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperDiscreteLog>      m_logDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperContinuousLog>    m_logSmoothScalarMapper;

@@ -61,6 +61,7 @@ public:
     bool                                    isTimeStepLinked();
 
     bool                                    isResultColorControlled();
+    bool                                    isLegendDefinitionsControlled();
     bool                                    isRangeFiltersControlled();
     
     bool                                    isVisibleCellsOveridden();
@@ -90,6 +91,7 @@ private:
     void                                    updateCameraLink();
     void                                    updateTimeStepLink();
     void                                    updateResultColorsControl();
+    void                                    updateLegendDefinitions();
 
     bool                                    isMasterAndDepViewDifferentType();
     bool                                    isRangeFilterControlPossible();
@@ -111,6 +113,7 @@ private:
 
     // Overridden properties
     caf::PdmField<bool>                     m_syncCellResult;
+    caf::PdmField<bool>                     m_syncLegendDefinitions;
     
     caf::PdmField<bool>                     m_syncRangeFilters;
     caf::PdmField<bool>                     m_syncVisibleCells;

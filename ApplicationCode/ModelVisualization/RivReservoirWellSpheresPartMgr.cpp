@@ -37,7 +37,6 @@ RivReservoirWellSpheresPartMgr::RivReservoirWellSpheresPartMgr(RimEclipseView* r
 {
     m_reservoirView = reservoirView;
 
-    m_scaleTransform = new cvf::Transform();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,13 +47,13 @@ RivReservoirWellSpheresPartMgr::~RivReservoirWellSpheresPartMgr()
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
+void RivReservoirWellSpheresPartMgr::clearGeometryCache()
 {
-    m_scaleTransform = scaleTransform;
-
+    m_wellSpheresPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,23 +61,24 @@ void RivReservoirWellSpheresPartMgr::setScaleTransform(cvf::Transform * scaleTra
 //--------------------------------------------------------------------------------------------------
 void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (!m_reservoirView->wellCollection()->showCellCenterSpheres) return;
-
+    if (m_reservoirView->wellCollection()->wellSphereVisibility == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
+    
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
     if (m_reservoirView->wellCollection()->wells.size() != m_wellSpheresPartMgrs.size())
     {
+        clearGeometryCache();
+
         for (RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells())
         {
             RivWellSpheresPartMgr* wppmgr = new RivWellSpheresPartMgr(m_reservoirView, rimWell);
             m_wellSpheresPartMgrs.push_back(wppmgr);
-            wppmgr->setScaleTransform(m_scaleTransform.p());
         }
     }
 
     for (size_t i = 0; i < m_wellSpheresPartMgrs.size(); i++)
     {
-        if (m_reservoirView->wellCollection()->wells[i]->showWell())
+        if (m_reservoirView->wellCollection()->wells[i]->isWellSpheresVisible(frameIndex))
         {
             m_wellSpheresPartMgrs.at(i)->appendDynamicGeometryPartsToModel(model, frameIndex);
         }

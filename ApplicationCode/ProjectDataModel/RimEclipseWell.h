@@ -53,8 +53,9 @@ public:
     size_t                              resultWellIndex() { return m_resultWellIndex; }
 
     bool                                isWellPipeVisible(size_t frameIndex);
+    bool                                isWellSpheresVisible(size_t frameIndex);
 
-    bool                                calculateWellPipeVisibility(size_t frameIndex);
+    bool                                visibleCellsInstersectsWell(size_t frameIndex);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
@@ -71,6 +72,7 @@ public:
     caf::PdmField<bool>                 showWellCellFence;
     
     caf::PdmField<bool>                 showWellPipes;
+    caf::PdmField<bool>                 showWellSpheres;
     caf::PdmField<cvf::Color3f>         wellPipeColor;
     caf::PdmField<double>               pipeRadiusScaleFactor;
 

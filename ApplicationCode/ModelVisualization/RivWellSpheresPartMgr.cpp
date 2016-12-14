@@ -18,6 +18,8 @@
 
 #include "RivWellSpheresPartMgr.h"
 
+#include "RiaApplication.h"
+
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 
@@ -27,7 +29,6 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RiuViewer.h"
-
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -44,7 +45,6 @@
 #include "cvfGeometryBuilderTriangles.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfShaderProgram.h"
-#include "RiaApplication.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -63,6 +63,7 @@ RivWellSpheresPartMgr::~RivWellSpheresPartMgr()
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +71,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 {
     if (m_rimReservoirView.isNull()) return;
     if (!m_rimReservoirView->eclipseCase()) return;
-    if (!m_rimReservoirView->eclipseCase()->reservoirData()) return;
+    if (!m_rimReservoirView->eclipseCase()->reservoirData()) return;   
     
     const RigMainGrid* mainGrid = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid();
     CVF_ASSERT(mainGrid);
@@ -112,51 +113,6 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
     cvf::ref<cvf::Part> part = createPart(centerColorPairs);
 
     model->addPart(part.p());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellSpheresPartMgr::createSphere(double radius, const cvf::Vec3d& pos)
-{
-    cvf::Vec3f posFloat(pos);
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-
-    cvf::GeometryBuilderFaceList builder;
-    cvf::GeometryUtils::createSphere(radius, 10, 10, &builder);
-
-    cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
-
-    // Move sphere coordinates to the destination location
-    for (size_t i = 0; i < vertices->size(); i++)
-    {
-        vertices->set(i, vertices->val(i) + posFloat);
-    }
-
-    cvf::ref<cvf::UIntArray> faceList = builder.faceList();
-
-    geo->setVertexArray(vertices.p());
-    geo->setFromFaceList(*faceList);
-    geo->computeNormals();
-
-    return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(cvf::DrawableGeo* geo, const cvf::Color3f& color)
-{
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable(geo);
-
-    caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
-    cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-    part->setEffect(eff.p());
-
-    return part;
 }
 
 //--------------------------------------------------------------------------------------------------

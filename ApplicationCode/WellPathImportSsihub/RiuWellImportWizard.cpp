@@ -884,10 +884,10 @@ void WellSelectionPage::buildWellTreeView()
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
 
                         // Create a copy of the PdmObject, as it is not supported to have multiple parents of any objects
-                        QString objStr = xmlObj(wellPathEntry)->writeObjectToXmlString();
+                        QString objStr = wellPathEntry->writeObjectToXmlString();
 
                         RimWellPathEntry* wellPathCopy = new RimWellPathEntry;
-                        xmlObj(wellPathCopy)->readObjectFromXmlString(objStr, caf::PdmDefaultObjectFactory::instance());
+                        wellPathCopy->readObjectFromXmlString(objStr, caf::PdmDefaultObjectFactory::instance());
 
                         fieldGroup->objects.push_back(wellPathCopy);
                     }

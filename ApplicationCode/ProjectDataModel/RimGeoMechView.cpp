@@ -84,9 +84,6 @@ RimGeoMechView::RimGeoMechView(void)
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
-    //this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setReservoirView(this);
-
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
 }
@@ -257,7 +254,6 @@ void RimGeoMechView::createDisplayModel()
 
    if (isTimeStepDependentDataVisible())
    {
-        m_viewer->animationControl()->setCurrentFrameOnly(m_currentTimeStep);
         m_viewer->setCurrentFrame(m_currentTimeStep);
    }
    else

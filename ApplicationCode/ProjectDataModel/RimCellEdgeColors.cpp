@@ -90,7 +90,6 @@ RimCellEdgeColors::~RimCellEdgeColors()
 void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
-    this->m_legendConfig()->setReservoirView(ownerReservoirView);
     m_singleVarEdgeResultColors->setReservoirView(ownerReservoirView);
 }
 

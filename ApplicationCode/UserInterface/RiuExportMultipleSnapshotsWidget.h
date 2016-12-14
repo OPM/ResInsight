@@ -27,6 +27,7 @@ namespace caf {
 }
 
 class QWidget;
+class QLineEdit;
 
 class RiuExportMultipleSnapshotsWidget : public QDialog
 {
@@ -38,8 +39,13 @@ public:
 private slots:
     void customMenuRequested(QPoint pos);
     void addSnapshotItem();
+    void deleteAllSnapshotItems();
+    void exportSnapshots();
+
+    void folderSelectionClicked();
 
 private:
     RimProject*          m_rimProject;
     caf::PdmUiTableView* m_pdmTableView;
+    QLineEdit*           m_lineEdit;
 };

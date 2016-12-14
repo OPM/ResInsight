@@ -137,10 +137,8 @@ public:
     void                                    setScaleZAndUpdate(double scaleZ);
 
     // Animation
-    int                                     currentTimeStep()    { return m_currentTimeStep;}
-    void                                    setCurrentTimeStep(int frameIdx);
+    int                                     currentTimeStep() const { return m_currentTimeStep;}
     void                                    updateCurrentTimeStepAndRedraw();
-    void                                    endAnimation();
 
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
@@ -230,6 +228,11 @@ protected:
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
+
+    friend class RiuViewer;
+    void                                    setCurrentTimeStep(int frameIdx);
+    void                                    endAnimation();
+
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;

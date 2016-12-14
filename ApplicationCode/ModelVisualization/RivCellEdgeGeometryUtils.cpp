@@ -95,7 +95,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 
     if (opacityLevel < 1.0f)
     {
-        isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->resultWellPipeVisibilities(timeStepIndex));
+        isWellPipeVisible = &(cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(timeStepIndex));
         gridCellToWellindexMap = eclipseCase->gridCellToResultWellIndex(gridIndex);
     }
 

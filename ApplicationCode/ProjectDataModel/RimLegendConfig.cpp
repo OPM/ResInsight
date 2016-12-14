@@ -26,6 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimViewLinker.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -182,7 +183,19 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
     updateLegend();
 
-    if (m_reservoirView) m_reservoirView->updateCurrentTimeStepAndRedraw();
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    if (view)
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateCellResult();
+        }
+
+        view->updateCurrentTimeStepAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -756,6 +769,15 @@ cvf::OverlayItem* RimLegendConfig::legend()
     {
         return m_scalarMapperLegend.p();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig)
+{
+    QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
+    this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -108,7 +108,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
-	CAF_PDM_InitField(&showCellCenterSpheres, "showCellCenterSpheres", false, "Show sphere in cell center", "", "", "");
+    CAF_PDM_InitField(&wellSphereVisibility, "wellSphereVisibility", WellVisibilityEnum(PIPES_FORCE_ALL_OFF), "Global well sphere visibility", "", "", "");
     CAF_PDM_InitField(&cellCenterSpheresScaleFactor, "CellCenterSphereScale", 0.2, "Cell Center sphere radius", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
@@ -178,16 +178,16 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 /// Used to know if we need animation of timesteps due to the wells
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWellCollection::hasVisibleWellPipes()
+bool RimEclipseWellCollection::hasVisibleWellPipes() 
 {
     if (!this->isActive()) return false;
-    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
+    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF && this->wellSphereVisibility() == PIPES_FORCE_ALL_OFF ) return false;
     if (this->wells().size() == 0 ) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
+    if (this->wellSphereVisibility() == PIPES_FORCE_ALL_ON) return true;
 
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -227,7 +227,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
-    else if (  &showCellCenterSpheres == changedField
+    else if (  &wellSphereVisibility == changedField
             || &cellCenterSpheresScaleFactor == changedField)
     {
         if (m_reservoirView)
@@ -296,9 +296,8 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     wellPipe->add(&wellPipeVisibility);
     wellPipe->add(&pipeRadiusScaleFactor);
 
-    //TODO: Add Well sphere group
     caf::PdmUiGroup* cellCenterSpheres = uiOrdering.addNewGroup("Well cell center spheres");
-    cellCenterSpheres->add(&showCellCenterSpheres);
+    cellCenterSpheres->add(&wellSphereVisibility);
     cellCenterSpheres->add(&cellCenterSpheresScaleFactor);
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
@@ -318,9 +317,9 @@ caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellPipeVisibilities(size_t frameIndex)
+const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellGeometryVisibilities(size_t frameIndex)
 {
-    calculateIsWellPipesVisible(frameIndex);
+    calculateWellGeometryVisibility(frameIndex);
     return m_framesOfResultWellPipeVisibilities[frameIndex];
 }
 
@@ -335,7 +334,7 @@ void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
+void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex)
 {
     if (m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size()) return;
 
@@ -347,7 +346,10 @@ void RimEclipseWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
     
     for (size_t i = 0; i < wells().size(); ++i)
     {
-        m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wells[i]->calculateWellPipeVisibility(frameIndex);
+        bool wellPipeVisible = wells[i]->isWellPipeVisible(frameIndex);
+        bool wellSphereVisible = wells[i]->isWellSpheresVisible(frameIndex);
+
+        m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wellPipeVisible || wellSphereVisible;
     }
 }
 

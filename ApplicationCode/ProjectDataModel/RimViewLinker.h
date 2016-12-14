@@ -66,6 +66,7 @@ public:
     void                                    updateScaleZ(RimView* sourceView, double scaleZ);
 
     void                                    updateCellResult();
+
     void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
     void                                    applyRangeFilterCollectionByUserChoice();
 

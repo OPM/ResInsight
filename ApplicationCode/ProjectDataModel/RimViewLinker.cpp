@@ -24,7 +24,6 @@
 #include "RigCaseData.h"
 
 #include "RimCase.h"
-
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
@@ -34,16 +33,17 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimViewController.h"
+#include "RimLegendConfig.h"
 #include "RimProject.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimView.h"
+#include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
 
 #include "RiuViewer.h"
 
 #include "cvfCamera.h"
 #include "cvfScene.h"
-#include "cafFrameAnimationControl.h"
 #include "cvfMatrix4.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -102,7 +102,6 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
     if (m_masterView && m_masterView->viewer() && sourceView != m_masterView)
     {
         m_masterView->viewer()->setCurrentFrame(timeStep);
-        m_masterView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
     for (size_t i = 0; i < m_viewControllers.size(); i++)
@@ -116,7 +115,6 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
             && viewLink->managedView()->viewer())
         {
             viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
-            viewLink->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
         }
     }
 }
@@ -147,6 +145,16 @@ void RimViewLinker::updateCellResult()
                         eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
                         eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
                         eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
+
+                        if (viewLink->isLegendDefinitionsControlled())
+                        {
+                            eclipeView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
+                            eclipeView->cellResult()->legendConfig()->updateLegend();
+
+                            eclipeView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
+                            eclipeView->cellResult()->ternaryLegendConfig()->updateLegend();
+                        }
+
                         eclipeView->scheduleCreateDisplayModelAndRedraw();
                     }
                     
@@ -174,6 +182,13 @@ void RimViewLinker::updateCellResult()
                     if (viewLink->isResultColorControlled())
                     {
                         geoView->cellResult()->setResultAddress(geoMechResultDefinition->resultAddress());
+
+                        if (viewLink->isLegendDefinitionsControlled())
+                        {
+                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterGeoView->cellResult()->legendConfig());
+                            geoView->cellResult()->legendConfig()->updateLegend();
+                        }
+
                         geoView->scheduleCreateDisplayModelAndRedraw();
                     }
 
