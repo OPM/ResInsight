@@ -37,9 +37,20 @@
 
 #include "cafPdmUiItem.h"
 #include "cafPdmUiEditorHandle.h"
+#include "cafPdmPtrField.h"
 
 namespace caf
 {
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmOptionItemInfo::PdmOptionItemInfo(QString anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
+    : optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
+{
+    value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
