@@ -44,7 +44,6 @@
 
 #include "cvfCamera.h"
 #include "cvfScene.h"
-#include "cafFrameAnimationControl.h"
 #include "cvfMatrix4.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -103,7 +102,6 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
     if (m_masterView && m_masterView->viewer() && sourceView != m_masterView)
     {
         m_masterView->viewer()->setCurrentFrame(timeStep);
-        m_masterView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
     for (size_t i = 0; i < m_viewControllers.size(); i++)
@@ -117,7 +115,6 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
             && viewLink->managedView()->viewer())
         {
             viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
-            viewLink->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
         }
     }
 }

@@ -40,6 +40,7 @@
 #include "cafCategoryLegend.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafEffectGenerator.h"
+#include "cafFrameAnimationControl.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
@@ -610,6 +611,8 @@ void RiuViewer::setCurrentFrame(int frameIndex)
     CVF_ASSERT(firstRendering);
 
     if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
+    
+    animationControl()->setCurrentFrameOnly(frameIndex);
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }

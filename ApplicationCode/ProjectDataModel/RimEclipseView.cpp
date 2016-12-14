@@ -496,7 +496,6 @@ void RimEclipseView::createDisplayModel()
 
     if (frameModels.size() > 1 && this->hasUserRequestedAnimation())
     {
-        m_viewer->animationControl()->setCurrentFrameOnly(m_currentTimeStep);
         m_viewer->setCurrentFrame(m_currentTimeStep);
     }
     else
