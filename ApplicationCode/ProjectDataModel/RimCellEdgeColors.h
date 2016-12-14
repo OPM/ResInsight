@@ -99,8 +99,6 @@ protected:
     QStringList                           findResultVariableNames();
 
 private:
-    void                                  updateFieldVisibility();
-
     void                                  resetResultIndices();
     void                                  updateIgnoredScalarValue();
 

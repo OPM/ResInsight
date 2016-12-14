@@ -139,8 +139,6 @@ void RimCellEdgeColors::loadResult()
         }
     }
 
-    updateFieldVisibility();
-
     updateConnectedEditors();
 }
 
@@ -150,8 +148,6 @@ void RimCellEdgeColors::loadResult()
 void RimCellEdgeColors::initAfterRead()
 {
     m_singleVarEdgeResultColors->initAfterRead();
-
-    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,9 +262,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     if (isUsingSingleVariable())
     {
-        uiOrdering.add(&(m_singleVarEdgeResultColors->m_resultTypeUiField));
-        uiOrdering.add(&(m_singleVarEdgeResultColors->m_porosityModelUiField));
-        uiOrdering.add(&(m_singleVarEdgeResultColors->m_resultVariableUiField));
+        m_singleVarEdgeResultColors->defineUiOrdering(uiConfigName,uiOrdering );
     }
     else
     {
@@ -383,14 +377,6 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
 
         metaDataVector->push_back(metaData);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::updateFieldVisibility()
-{
-    m_singleVarEdgeResultColors->updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,24 +39,22 @@ public:
     RimEclipseFaultColors();
     virtual ~RimEclipseFaultColors();
     
-    void setReservoirView(RimEclipseView* ownerReservoirView);
+    void                         setReservoirView(RimEclipseView* ownerReservoirView);
 
-    caf::PdmField<bool>     showCustomFaultResult;
+    caf::PdmField<bool>          showCustomFaultResult;
 
-    bool                    hasValidCustomResult();
-    RimEclipseCellColors*          customFaultResult();
-
-    void                    updateFieldVisibility();
+    bool                         hasValidCustomResult();
+    RimEclipseCellColors*        customFaultResult();
 
 protected:
-    virtual void                    initAfterRead();
-    virtual caf::PdmFieldHandle*    objectToggleField();
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
-    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual void                 initAfterRead();
+    virtual caf::PdmFieldHandle* objectToggleField();
+    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
+    virtual void                 defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 
 private:
-    caf::PdmChildField<RimEclipseCellColors*>    m_customFaultResultColors;
-    caf::PdmPointer<RimEclipseView>         m_reservoirView;
+    caf::PdmChildField<RimEclipseCellColors*> m_customFaultResultColors;
+    caf::PdmPointer<RimEclipseView>           m_reservoirView;
 };
 

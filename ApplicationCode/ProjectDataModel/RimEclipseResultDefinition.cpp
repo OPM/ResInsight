@@ -102,8 +102,6 @@ RimEclipseResultDefinition::~RimEclipseResultDefinition()
 void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
      m_eclipseCase = eclipseCase;
-
-     updateFieldVisibility();
 }
 
 
@@ -486,7 +484,6 @@ void RimEclipseResultDefinition::loadResult()
         gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
     }
 
-    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -619,26 +616,7 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
     return this->resultVariable().contains("NUM", Qt::CaseInsensitive);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::updateFieldVisibility()
-{
-    if (m_eclipseCase &&
-        m_eclipseCase->reservoirData() &&
-        m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) )
-    {
-        if (m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() == 0)
-        {
-            m_porosityModelUiField.uiCapability()->setUiHidden(true);
-        }
-        else
-        {
-            m_porosityModelUiField.uiCapability()->setUiHidden(false);
-        }
-    }
 
-}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

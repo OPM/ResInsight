@@ -708,7 +708,6 @@ void RimEclipseView::loadDataAndUpdate()
     this->cellEdgeResult()->loadResult();
 
     this->faultResultSettings()->customFaultResult()->loadResult();
-    this->faultResultSettings()->updateFieldVisibility();
 
     updateViewerWidget();
 

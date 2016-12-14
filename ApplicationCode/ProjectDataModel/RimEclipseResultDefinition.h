@@ -75,10 +75,6 @@ protected:
     virtual void                          initAfterRead();
     virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    void                            updateFieldVisibility();
-
-
-
 protected:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
