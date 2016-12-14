@@ -70,6 +70,7 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -259,32 +260,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
             if (it == m_fieldViews.end())
             {
-                // If editor type is specified, find in factory
-                if ( !uiItems[i]->uiEditorTypeName(uiConfigName).isEmpty() )
-                {
-                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
-                }
-                else
-                { 
-                    // Find the default field editor
-
-                    QString editorTypeName = qStringTypeName(*(field->fieldHandle()));
-
-                    // Handle a single value field with valueOptions: Make a combobox
-
-                    if (field->toUiBasedQVariant().type() != QVariant::List)
-                    {
-                        bool useOptionsOnly = true; 
-                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-
-                        if (!options.empty())
-                        {
-                            editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-                        }
-                    }
-
-                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-                }
+                fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, uiConfigName);
 
                 if (fieldEditor)
                 {
@@ -428,5 +404,44 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFieldHandle* field, const QString& uiConfigName)
+{
+    caf::PdmUiFieldEditorHandle* fieldEditor = NULL;
+
+    // If editor type is specified, find in factory
+    if (!field->uiEditorTypeName(uiConfigName).isEmpty())
+    {
+        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
+    }
+    else
+    {
+        // Find the default field editor
+        QString fieldTypeName = qStringTypeName(*(field->fieldHandle()));
+
+        if (fieldTypeName.indexOf("PdmPtrField") != -1)
+        {
+            fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+        }
+        else if (field->toUiBasedQVariant().type() != QVariant::List)
+        {
+            // Handle a single value field with valueOptions: Make a combobox
+
+            bool useOptionsOnly = true;
+            QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
+
+            if (!options.empty())
+            {
+                fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+            }
+        }
+
+        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(fieldTypeName);
+    }
+
+    return fieldEditor;
+}
 
 } // end namespace caf

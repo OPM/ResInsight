@@ -42,6 +42,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableItemEditor.h"
 #include "cafSelectionManager.h"
@@ -317,32 +318,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
             if (it == m_fieldEditors.end())
             {
-                // If editor type is specified, find in factory
-                if ( !uiItems[i]->uiEditorTypeName(configName).isEmpty() )
-                {
-                    fieldEditor = Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(configName));
-                }
-                else
-                { 
-                    // Find the default field editor
-
-                    QString editorTypeName = qStringTypeName(*(field->fieldHandle()));
-
-                    // Handle a single value field with valueOptions: Make a combobox
-
-                    if (field->uiValue().type() != QVariant::List)
-                    {
-                        bool useOptionsOnly = true; 
-                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-
-                        if (!options.empty())
-                        {
-                            editorTypeName = PdmUiComboBoxEditor::uiEditorTypeName();
-                        }
-                    }
-
-                    fieldEditor = Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-                }
+                fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, configName);
 
                 if (fieldEditor)
                 {
