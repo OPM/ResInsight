@@ -33,6 +33,7 @@ namespace caf
         addItem(RimMultiSnapshotDefinition::RANGEFILTER_I, "I", "i-direction");
         addItem(RimMultiSnapshotDefinition::RANGEFILTER_J, "J", "j-direction");
         addItem(RimMultiSnapshotDefinition::RANGEFILTER_K, "K", "k-direction");
+        addItem(RimMultiSnapshotDefinition::NO_RANGEFILTER, "None", "None");
 
         setDefault(RimMultiSnapshotDefinition::RANGEFILTER_K);
     }
@@ -54,8 +55,8 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
 
     CAF_PDM_InitField(&sliceDirection, "SnapShotDirection", caf::AppEnum<SnapShotDirectionEnum>(RANGEFILTER_K), "Range Filter direction", "", "", "");
-    CAF_PDM_InitField(&startSliceIndex, "RangeFilterStart", 0, "RangeFilter Start", "", "", "");
-    CAF_PDM_InitField(&endSliceIndex, "RangeFilterEnd", 0, "RangeFilter End", "", "", "");
+    CAF_PDM_InitField(&startSliceIndex, "RangeFilterStart", 1, "RangeFilter Start", "", "", "");
+    CAF_PDM_InitField(&endSliceIndex, "RangeFilterEnd", 1, "RangeFilter End", "", "", "");
 
 
 }

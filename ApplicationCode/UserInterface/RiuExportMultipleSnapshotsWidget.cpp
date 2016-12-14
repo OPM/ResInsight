@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RicExportMultipleSnapshotsFeature.h"
+
 #include "RimCase.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
@@ -164,8 +166,9 @@ void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::exportSnapshots()
 {
-    // TODO: wire up call of static method
     // RicExportMultipleSnapshotsFeature::staticMethod()
+    QString dummyFolder = "folder"; //TODO: Must be a real folder before saving images!!!
+    RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(dummyFolder, m_rimProject);
 }
 
 

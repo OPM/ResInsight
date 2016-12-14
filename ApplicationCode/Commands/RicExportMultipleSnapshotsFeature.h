@@ -20,6 +20,7 @@
 
 #include "cafCmdFeature.h"
 
+class RimProject;
 
 //==================================================================================================
 /// 
@@ -32,5 +33,8 @@ protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
+
+public:
+    static void exportMultipleSnapshots(const QString& folder, RimProject* project);
 };
 

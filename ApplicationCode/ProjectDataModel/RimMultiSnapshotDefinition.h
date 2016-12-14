@@ -47,7 +47,8 @@ public:
     {
         RANGEFILTER_I,
         RANGEFILTER_J,
-        RANGEFILTER_K
+        RANGEFILTER_K,
+        NO_RANGEFILTER
     };
 
     caf::PdmField< caf::AppEnum< SnapShotDirectionEnum > > sliceDirection;
