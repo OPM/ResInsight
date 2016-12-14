@@ -43,7 +43,7 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResul
     m_quadMapper = quadMapper;
     CVF_ASSERT(quadMapper && eclipseCase );
 
-    m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
+    m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = 
         new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(timeStepIndex),
@@ -79,11 +79,10 @@ void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivTextureCoordsCreator::createTextureCoords(
-    cvf::Vec2fArray* quadTextureCoords,
-    const cvf::StructGridQuadToCellFaceMapper* quadMapper,
-    const RigResultAccessor* resultAccessor,
-    const RivResultToTextureMapper* texMapper)
+void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords,
+                                                  const cvf::StructGridQuadToCellFaceMapper* quadMapper,
+                                                  const RigResultAccessor* resultAccessor,
+                                                  const RivResultToTextureMapper* texMapper)
 {
     CVF_ASSERT(quadTextureCoords && quadMapper && resultAccessor && texMapper);
 

@@ -315,7 +315,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
                 adjustedTimeStep = 0;
             }
 
-            cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStep, resultIndices[cubeFaceIdx]);
+            cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createFromResultIdx(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStep, resultIndices[cubeFaceIdx]);
             cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
         }
     }
@@ -339,7 +339,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAcce
         }
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-        resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultColors->resultVariable());
+        resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultColors->resultVariable());
     }
 
     if (resultAccessor.isNull())

@@ -126,10 +126,10 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
-                                                                                    0,
-                                                                                    timeStepIndex,
-                                                                                    cellResultColors);
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
+                                                                                          0,
+                                                                                          timeStepIndex,
+                                                                                          cellResultColors);
                 }
 
                 RivIntersectionPartMgr::calculateEclipseTextureCoordinates(m_intersectionBoxFacesTextureCoords.p(),

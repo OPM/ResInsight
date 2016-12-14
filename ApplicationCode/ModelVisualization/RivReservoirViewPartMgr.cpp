@@ -798,7 +798,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 }
 
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(propertyFilter->resultDefinition()->porosityModel());
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
 
                 CVF_ASSERT(resultAccessor.notNull());
 

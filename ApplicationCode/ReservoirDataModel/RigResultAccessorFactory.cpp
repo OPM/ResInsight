@@ -42,11 +42,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase,
-    size_t gridIndex,
-    RifReaderInterface::PorosityModelResultType porosityModel,
-    size_t timeStepIndex,
-    const QString& uiResultName)
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(RigCaseData* eclipseCase,
+                                                                             size_t gridIndex,
+                                                                             RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                             size_t timeStepIndex,
+                                                                             const QString& uiResultName)
 {
     CVF_ASSERT(gridIndex < eclipseCase->gridCount());
     CVF_ASSERT(eclipseCase);
@@ -61,9 +61,9 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "TRANX");
-        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "TRANY");
-        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "TRANZ");
+        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "TRANX");
+        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "TRANY");
+        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "TRANZ");
 
         cellFaceAccessObject->setTransResultAccessors(xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p());
 
@@ -75,12 +75,12 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
         cvf::ref<RigCombMultResultAccessor> cellFaceAccessObject = new RigCombMultResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> multXPos = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTX");
-        cvf::ref<RigResultAccessor> multXNeg = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTX-");
-        cvf::ref<RigResultAccessor> multYPos = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTY");
-        cvf::ref<RigResultAccessor> multYNeg = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTY-");
-        cvf::ref<RigResultAccessor> multZPos = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTZ");
-        cvf::ref<RigResultAccessor> multZNeg = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTZ-");
+        cvf::ref<RigResultAccessor> multXPos = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTX");
+        cvf::ref<RigResultAccessor> multXNeg = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTX-");
+        cvf::ref<RigResultAccessor> multYPos = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTY");
+        cvf::ref<RigResultAccessor> multYNeg = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTY-");
+        cvf::ref<RigResultAccessor> multZPos = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTZ");
+        cvf::ref<RigResultAccessor> multZNeg = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTZ-");
 
         cellFaceAccessObject->setMultResultAccessors(multXPos.p(), multXNeg.p(), multYPos.p(), multYNeg.p(), multZPos.p(), multZNeg.p());
 
@@ -92,9 +92,9 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranXResultName());
-        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranYResultName());
-        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranZResultName());
+        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranXResultName());
+        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranYResultName());
+        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranZResultName());
 
         cellFaceAccessObject->setTransResultAccessors(xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p());
 
@@ -106,9 +106,9 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xRiMultAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultXResultName());
-        cvf::ref<RigResultAccessor> yRiMultAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultYResultName());
-        cvf::ref<RigResultAccessor> zRiMultAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultZResultName());
+        cvf::ref<RigResultAccessor> xRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultXResultName());
+        cvf::ref<RigResultAccessor> yRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultYResultName());
+        cvf::ref<RigResultAccessor> zRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultZResultName());
 
         cellFaceAccessObject->setTransResultAccessors(xRiMultAccessor.p(), yRiMultAccessor.p(), zRiMultAccessor.p());
 
@@ -120,27 +120,27 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranXResultName());
-        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranYResultName());
-        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranZResultName());
+        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranXResultName());
+        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranYResultName());
+        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranZResultName());
 
         cellFaceAccessObject->setTransResultAccessors(xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p());
 
         return cellFaceAccessObject;
     }
 
-    return RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
+    return RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase,
-    size_t gridIndex,
-    RifReaderInterface::PorosityModelResultType porosityModel,
-    size_t timeStepIndex,
-    const QString& uiResultName,
-    RimDefines::ResultCatType resultType)
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigCaseData* eclipseCase,
+                                                                            size_t gridIndex,
+                                                                            RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                            size_t timeStepIndex,
+                                                                            const QString& uiResultName,
+                                                                            RimDefines::ResultCatType resultType)
 {
     CVF_ASSERT(gridIndex < eclipseCase->gridCount());
     CVF_ASSERT(eclipseCase);
@@ -164,13 +164,16 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         adjustedTimeStepIndex = 0;
     }
 
-    return createResultAccessor(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, scalarSetIndex);
+    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, scalarSetIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase, size_t gridIndex, size_t timeStepIndex, RimEclipseResultDefinition* resultDefinition)
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(RigCaseData* eclipseCase,
+                                                                                 size_t gridIndex,
+                                                                                 size_t timeStepIndex,
+                                                                                 RimEclipseResultDefinition* resultDefinition)
 {
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultDefinition->porosityModel());
 
@@ -180,22 +183,21 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         adjustedTimeStepIndex = 0;
     }
 
-    return RigResultAccessorFactory::createResultAccessor(
-        eclipseCase, 
-        gridIndex,
-        porosityModel,
-        adjustedTimeStepIndex,
-        resultDefinition->resultVariable());
+    return RigResultAccessorFactory::createFromUiResultName(eclipseCase,
+                                                            gridIndex,
+                                                            porosityModel,
+                                                            adjustedTimeStepIndex,
+                                                            resultDefinition->resultVariable());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// This function must be harmonized with RigResultModifierFactory::createResultModifier()
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeResultAccessor(RigCaseData* eclipseCase,
-    size_t gridIndex,
-    RifReaderInterface::PorosityModelResultType porosityModel,
-    size_t timeStepIndex,
-    const QString& uiResultName)
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(RigCaseData* eclipseCase,
+                                                                                   size_t gridIndex,
+                                                                                   RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                                   size_t timeStepIndex,
+                                                                                   const QString& uiResultName)
 {
     CVF_ASSERT(gridIndex < eclipseCase->gridCount());
     CVF_ASSERT(eclipseCase);
@@ -213,19 +215,19 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeResultAccessor
         return NULL;
     }
 
-    return createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, scalarSetIndex);
+    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, scalarSetIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase,
-    size_t gridIndex, 
-    RifReaderInterface::PorosityModelResultType porosityModel, 
-    size_t timeStepIndex, 
-    size_t resultIndex)
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigCaseData* eclipseCase,
+                                                                          size_t gridIndex,
+                                                                          RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                          size_t timeStepIndex,
+                                                                          size_t resultIndex)
 {
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
+    if ( resultIndex == cvf::UNDEFINED_SIZE_T )
     {
         return new RigHugeValResultAccessor;
     }

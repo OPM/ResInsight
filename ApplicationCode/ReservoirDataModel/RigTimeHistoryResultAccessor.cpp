@@ -104,7 +104,7 @@ void RigTimeHistoryResultAccessor::computeTimeHistoryData()
 
         for (size_t i = 0; i < timeStepCount; i++)
         {
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(m_eclipseCaseData, m_gridIndex, m_porosityModel, i, m_scalarResultIndex);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_eclipseCaseData, m_gridIndex, m_porosityModel, i, m_scalarResultIndex);
 
             m_timeHistoryValues.push_back(resultAccessor->cellScalar(m_cellIndex));
         }
