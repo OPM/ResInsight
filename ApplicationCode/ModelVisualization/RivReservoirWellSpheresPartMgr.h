@@ -25,7 +25,6 @@
 
 namespace cvf
 {
-    class Transform;
     class ModelBasicList;
 }
 
@@ -38,14 +37,11 @@ public:
     RivReservoirWellSpheresPartMgr(RimEclipseView* reservoirView);
     ~RivReservoirWellSpheresPartMgr();
 
+    void clearGeometryCache();
    
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
    
 private:
-
-
-private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
 	cvf::Collection< RivWellSpheresPartMgr >  m_wellSpheresPartMgrs;
-
 };

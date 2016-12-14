@@ -52,8 +52,6 @@ public:
     RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well);
     ~RivWellSpheresPartMgr();
 
-    void scheduleGeometryRegen() { m_needsTransformUpdate = true; }
-
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     
 private:
@@ -63,6 +61,4 @@ private:
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
     caf::PdmPointer<RimEclipseWell>            m_rimWell;
-
-    bool                        m_needsTransformUpdate;
 };

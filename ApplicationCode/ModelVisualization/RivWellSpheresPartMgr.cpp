@@ -18,6 +18,8 @@
 
 #include "RivWellSpheresPartMgr.h"
 
+#include "RiaApplication.h"
+
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 
@@ -27,7 +29,6 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RiuViewer.h"
-
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -44,7 +45,6 @@
 #include "cvfGeometryBuilderTriangles.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfShaderProgram.h"
-#include "RiaApplication.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -346,8 +346,8 @@ void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex
     
     for (size_t i = 0; i < wells().size(); ++i)
     {
-        bool wellPipeVisible = wells[i]->calculateWellPipeVisibility(frameIndex);
-        bool wellSphereVisible = wells[i]->calculateWellSphereVisibility(frameIndex);
+        bool wellPipeVisible = wells[i]->isWellPipeVisible(frameIndex);
+        bool wellSphereVisible = wells[i]->isWellSpheresVisible(frameIndex);
 
         m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wellPipeVisible || wellSphereVisible;
     }

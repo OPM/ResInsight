@@ -53,13 +53,9 @@ public:
     size_t                              resultWellIndex() { return m_resultWellIndex; }
 
     bool                                isWellPipeVisible(size_t frameIndex);
+    bool                                isWellSpheresVisible(size_t frameIndex);
 
-    bool                                calculateWellPipeVisibility(size_t frameIndex);
-    bool                                calculateWellSphereVisibility(size_t frameIndex);
-
-    bool visibleCellsInstersectsWell(size_t frameIndex);
-
-    //Trengs det en calculateWellGeometryVisibility??
+    bool                                visibleCellsInstersectsWell(size_t frameIndex);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();

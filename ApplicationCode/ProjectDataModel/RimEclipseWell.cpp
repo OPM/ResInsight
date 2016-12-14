@@ -151,106 +151,6 @@ caf::PdmFieldHandle* RimEclipseWell::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::calculateWellPipeVisibility(size_t frameIndex)
-{
-    if (m_reservoirView == NULL) return false;
-    if (this->wellResults() == NULL) return false;
-
-    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
-    {
-        return false;
-    }
-
-    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
-    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return false;
-    }
-
-    if (!m_reservoirView->wellCollection()->isActive())
-        return false;
-
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
-        return true;
-
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
-        return false;
-
-    if ( this->showWell() == false )
-        return false;
-
-    if ( this->showWellPipes() == false )
-        return false;
-
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
-        return true;
-
-    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
-        return true;
-
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
-    {
-        return visibleCellsInstersectsWell(frameIndex);
-    }
-
-    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::calculateWellSphereVisibility(size_t frameIndex)
-{
-    if (m_reservoirView == NULL) return false;
-    if (this->wellResults() == NULL) return false;
-
-    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
-    {
-        return false;
-    }
-
-    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
-    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return false;
-    }
-
-    if (!m_reservoirView->wellCollection()->isActive())
-        return false;
-
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
-        return true;
-
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
-        return false;
-
-    if (this->showWell() == false)
-        return false;
-
-    if (this->showWellSpheres() == false)
-        return false;
-
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
-        return true;
-
-    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
-        return true;
-
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
-    {
-        return visibleCellsInstersectsWell(frameIndex);
-    }
-
-    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
 {
     if (this->wellResults() == nullptr) return false;
@@ -326,7 +226,99 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 {
-    return calculateWellPipeVisibility(frameIndex);
+    if (m_reservoirView == NULL) return false;
+    if (this->wellResults() == NULL) return false;
+
+    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
+    {
+        return false;
+    }
+
+    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
+    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return false;
+    }
+
+    if (!m_reservoirView->wellCollection()->isActive())
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
+        return false;
+
+    if (this->showWell() == false)
+        return false;
+
+    if (this->showWellPipes() == false)
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
+        return true;
+
+    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    {
+        return visibleCellsInstersectsWell(frameIndex);
+    }
+
+    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
+{
+    if (m_reservoirView == NULL) return false;
+    if (this->wellResults() == NULL) return false;
+
+    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
+    {
+        return false;
+    }
+
+    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
+    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return false;
+    }
+
+    if (!m_reservoirView->wellCollection()->isActive())
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
+        return false;
+
+    if (this->showWell() == false)
+        return false;
+
+    if (this->showWellSpheres() == false)
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
+        return true;
+
+    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    {
+        return visibleCellsInstersectsWell(frameIndex);
+    }
+
+    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
