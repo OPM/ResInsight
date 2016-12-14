@@ -86,6 +86,8 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
         for (RimCase* c : cases)
         {
             options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(c))));
+        //    options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c)); 
+        // TODO: Update to simpler implementation
         }
 
         //options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
@@ -98,6 +100,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
             for (RimView* view : views)
             {
                 options.push_back(caf::PdmOptionItemInfo(view->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(view))));
+                //options.push_back(caf::PdmOptionItemInfo(view->name(), view));
             }
         }
 

@@ -47,5 +47,5 @@ private slots:
 private:
     RimProject*          m_rimProject;
     caf::PdmUiTableView* m_pdmTableView;
-    QLineEdit*           m_lineEdit;
+    QLineEdit*           m_exportFolderLineEdit;
 };

@@ -84,13 +84,13 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
         // Save images in snapshot catalog relative to project directory
         QString snapshotFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
 
-        m_lineEdit = new QLineEdit(snapshotFolderName);
+        m_exportFolderLineEdit = new QLineEdit(snapshotFolderName);
 
         QToolButton* button = new QToolButton;
         button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
         button->setText(QLatin1String("..."));
 
-        layout->addWidget(m_lineEdit);
+        layout->addWidget(m_exportFolderLineEdit);
         layout->addWidget(button);
 
         connect(button, SIGNAL(clicked()), this, SLOT(folderSelectionClicked()));
@@ -147,7 +147,6 @@ void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
     menu.exec(globalPos);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -160,33 +159,29 @@ void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::exportSnapshots()
 {
-    // RicExportMultipleSnapshotsFeature::staticMethod()
-    QString dummyFolder = "folder"; //TODO: Must be a real folder before saving images!!!
-    RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(dummyFolder, m_rimProject);
+    RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(m_exportFolderLineEdit->text(), m_rimProject);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::folderSelectionClicked()
 {
-    QString defaultPath = m_lineEdit->text();
+    QString defaultPath = m_exportFolderLineEdit->text();
 
-    QString directoryPath = QFileDialog::getExistingDirectory(m_lineEdit,
+    QString directoryPath = QFileDialog::getExistingDirectory(m_exportFolderLineEdit,
         tr("Get existing directory"),
         defaultPath,
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (!directoryPath.isEmpty())
     {
-        m_lineEdit->setText(directoryPath);
+        m_exportFolderLineEdit->setText(directoryPath);
     }
 }
 
@@ -199,7 +194,6 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 
     RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
 
-
     //Getting default value from last entered line: 
     if (m_rimProject->multiSnapshotDefinitions.size() > 0)
     {
@@ -210,11 +204,9 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
         multiSnapshot->timeStepStart = other->timeStepStart();
         multiSnapshot->timeStepEnd = other->timeStepEnd();
 
-
         // Variant using copy based on xml string
 //         QString copyOfOriginalObject = other->writeObjectToXmlString();
 //         multiSnapshot->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
-
 
     }
 
@@ -240,12 +232,7 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
                 multiSnapshot->viewObject = ViewExample;
             }
         }
-
-
     }
-
-        
-
 
     m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
