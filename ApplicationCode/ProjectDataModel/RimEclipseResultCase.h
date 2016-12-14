@@ -24,6 +24,7 @@
 
 class RifReaderInterface;
 class RigMainGrid;
+class RimFlowDiagSolution;
 
 //==================================================================================================
 //
@@ -50,6 +51,7 @@ public:
     virtual QString             gridFileName() const { return caseFileName();}
     virtual void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
+    std::vector<RimFlowDiagSolution*> flowDiagSolutions();
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
@@ -59,6 +61,8 @@ private:
 
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
+    caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
+
 
     // Obsolete field
     caf::PdmField<QString>      caseDirectory; 

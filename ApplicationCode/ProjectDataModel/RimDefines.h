@@ -33,6 +33,7 @@ public:
         GENERATED,
         INPUT_PROPERTY,
         FORMATION_NAMES,
+        FLOW_DIAGNOSTICS,
         REMOVED
     };
 

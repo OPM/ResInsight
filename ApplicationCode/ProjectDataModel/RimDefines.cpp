@@ -32,6 +32,7 @@ namespace caf
         addItem(RimDefines::GENERATED,      "GENERATED",        "Generated");
         addItem(RimDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
         addItem(RimDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
+        addItem(RimDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics");
         setDefault(RimDefines::DYNAMIC_NATIVE);
     }
 

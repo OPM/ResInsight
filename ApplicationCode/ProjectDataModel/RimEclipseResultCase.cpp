@@ -34,6 +34,7 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
+#include "RimFlowDiagSolution.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -54,6 +55,11 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
     caseFileName.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault (&m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "");
+
+    // TODO: Create a solution by default only when flux data is available
+    m_flowDiagSolutions.push_back( new RimFlowDiagSolution());
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
@@ -298,6 +304,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
 RimEclipseResultCase::~RimEclipseResultCase()
 {
     reservoirViews.deleteAllChildObjects();
+    m_flowDiagSolutions.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,6 +342,20 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
     
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFlowDiagSolution*> RimEclipseResultCase::flowDiagSolutions()
+{
+    std::vector<RimFlowDiagSolution*> flowSols; 
+    for ( const caf::PdmPointer<RimFlowDiagSolution>& fsol: m_flowDiagSolutions ) 
+    { 
+        flowSols.push_back(fsol.p());
+    }
+
+    return flowSols;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

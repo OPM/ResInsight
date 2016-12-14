@@ -26,11 +26,13 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmPtrField.h"
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
+class RimFlowDiagSolution;
 
 //==================================================================================================
 ///  
@@ -62,38 +64,50 @@ public:
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
-    virtual void                    initAfterRead();
-    
-    virtual void                    updateLegendCategorySettings() {};
-
     void                            updateResultNameHasChanged();
     void                            updateAnyFieldHasChanged();
 
+protected:
+    virtual void                    updateLegendCategorySettings() {};
+
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                          initAfterRead();
+    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-protected:
     void                            updateFieldVisibility();
+
+
 
 protected:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
 
+    caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
+    caf::PdmField<std::vector<QString> >                            m_selectedTracers;
+
     friend class RimEclipsePropertyFilter;
     friend class RimEclipseFaultColors;
     friend class RimWellLogExtractionCurve;
 
     // User interface only fields, to support "filtering"-like behaviour etc.
+
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
+    caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
+    caf::PdmField<std::vector<QString> >                            m_selectedTracersUiField;
+
+
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
 private:
-    QList<caf::PdmOptionItemInfo>   calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    QStringList                     getResultVariableListForCurrentUIFieldSettings();
+    bool                            hasDualPorFractureResult(); 
+
+    QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
+    QStringList                     getResultNamesForCurrentUiResultType();
     static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 };
 

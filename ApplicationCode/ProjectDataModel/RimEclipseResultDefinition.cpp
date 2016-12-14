@@ -33,8 +33,10 @@
 #include "RimView.h"
 #include "RimViewLinker.h"
 #include "RimWellLogCurve.h"
+#include "RimFlowDiagSolution.h"
 
 #include "cafPdmUiListEditor.h"
+#include "RimEclipseResultCase.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
@@ -47,23 +49,43 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
 
     CAF_PDM_InitFieldNoDefault(&m_resultType,     "ResultType",           "Type", "", "", "");
     m_resultType.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_porosityModel,  "PorosityModelType",    "Porosity", "", "", "");
     m_porosityModel.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
     m_resultVariable.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_flowSolution, "FlowDiagSolution", "Solution", "", "", "");
+    m_flowSolution.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedTracers, "SelectedTracers", "Tracers", "", "", "");
+    m_selectedTracers.uiCapability()->setUiHidden(true);
+
+    // Ui only fields
 
     CAF_PDM_InitFieldNoDefault(&m_resultTypeUiField,     "MResultType",           "Type", "", "", "");
     m_resultTypeUiField.xmlCapability()->setIOReadable(false);
     m_resultTypeUiField.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Porosity", "", "", "");
     m_porosityModelUiField.xmlCapability()->setIOReadable(false);
     m_porosityModelUiField.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Result property", "", "", "" );
     m_resultVariableUiField.xmlCapability()->setIOReadable(false);
     m_resultVariableUiField.xmlCapability()->setIOWritable(false);
-
-
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
+    m_flowSolutionUiField.xmlCapability()->setIOReadable(false);
+    m_flowSolutionUiField.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiField, "MSelectedTracers", "Tracers", "", "", "");
+    m_selectedTracersUiField.xmlCapability()->setIOReadable(false);
+    m_selectedTracersUiField.xmlCapability()->setIOWritable(false);
+    m_selectedTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,22 +102,10 @@ RimEclipseResultDefinition::~RimEclipseResultDefinition()
 void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
      m_eclipseCase = eclipseCase;
+
      updateFieldVisibility();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QStringList RimEclipseResultDefinition::getResultVariableListForCurrentUIFieldSettings()
-{
-    RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
-
-    if (!cellResultsStorage) return QStringList();
-
-    if (!cellResultsStorage->cellResults()) return QStringList();
-
-    return cellResultsStorage->cellResults()->resultNames(m_resultTypeUiField());
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -117,7 +127,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if (   &m_resultTypeUiField == changedField 
         || &m_porosityModelUiField == changedField )
     {
-        QStringList varList = getResultVariableListForCurrentUIFieldSettings();
+        QStringList varList = getResultNamesForCurrentUiResultType();
 
         // If the user are seeing the list with the actually selected result, select that result in the list. Otherwise select nothing.
         if (   m_resultTypeUiField() == m_resultType() 
@@ -139,6 +149,18 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_resultType     = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
         
+        if (m_resultTypeUiField() == RimDefines::FLOW_DIAGNOSTICS)
+        {
+            m_flowSolution = m_flowSolutionUiField();
+            m_selectedTracers = m_selectedTracersUiField();
+        }
+        updateResultNameHasChanged();
+    }
+
+    if ( &m_selectedTracersUiField == changedField )
+    {
+        m_flowSolution = m_flowSolutionUiField();
+        m_selectedTracers = m_selectedTracersUiField();
         updateResultNameHasChanged();
     }
 
@@ -252,99 +274,189 @@ void RimEclipseResultDefinition::updateResultNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    bool showPerFaceResultsFirst = false;
+    QList<caf::PdmOptionItemInfo> optionItems;
 
-    RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
-    this->firstAncestorOrThisOfType(rimEclipseFaultColors);
-    if (rimEclipseFaultColors) showPerFaceResultsFirst = true;
-
-    QList<caf::PdmOptionItemInfo> optionItems = calculateValueOptionsForSpecifiedDerivedListPosition(showPerFaceResultsFirst, fieldNeedingOptions, useOptionsOnly);
-
-    RimWellLogCurve* curve = nullptr;
-    this->firstAncestorOrThisOfType(curve);
-
-    RimEclipsePropertyFilter* propFilter = nullptr;
-    this->firstAncestorOrThisOfType(propFilter);
-
-    RimCellEdgeColors* cellEdge = nullptr;
-    this->firstAncestorOrThisOfType(cellEdge);
-
-    if (propFilter || curve || cellEdge)
+    if ( m_resultTypeUiField() != RimDefines::FLOW_DIAGNOSTICS )
     {
-        removePerCellFaceOptionItems(optionItems);
+        if ( fieldNeedingOptions == &m_resultVariableUiField )
+        {
+            optionItems = calcOptionsForVariableUiFieldStandard();
+        }
+    }
+    else
+    {
+        if ( fieldNeedingOptions == &m_resultVariableUiField )
+        {
+            optionItems.push_back(caf::PdmOptionItemInfo("Time Of Flight (Weighted Sum)",   "TOF"));
+            optionItems.push_back(caf::PdmOptionItemInfo("Tracer Concentration (Sum)",      "Concentrations"));
+            optionItems.push_back(caf::PdmOptionItemInfo("Tracer with Max Concentration",   "MaxTracer"));
+            optionItems.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", "Communication"));
+        }
+        else if (fieldNeedingOptions == &m_flowSolutionUiField)
+        {
+            RimEclipseResultCase* eclCase;
+            this->firstAncestorOrThisOfType(eclCase);
+            if (eclCase)
+            {
+                std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
+                for (RimFlowDiagSolution* flowSol : flowSols)
+                {
+                    optionItems.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol));
+                }
+            }           
+        }
+        else if (fieldNeedingOptions == &m_selectedTracersUiField)
+        {
+            RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
+            if (flowSol)
+            {
+                std::set<QString> tracerNames = flowSol->tracerNames();
+                std::map<QString, QString> prefixedTracerNamesMap;
+                for ( const QString& tracerName : tracerNames )
+                {
+                    RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatus(tracerName);
+                    QString prefix; 
+                    switch (status)
+                    {
+                    case RimFlowDiagSolution::INJECTOR: prefix = "I  : "; break;
+                    case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
+                    case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
+                    }
+                    prefixedTracerNamesMap[prefix + tracerName] = tracerName;
+                }
+
+                for (auto nameIt: prefixedTracerNamesMap)
+                {
+                    optionItems.push_back(caf::PdmOptionItemInfo(nameIt.first, QVariant(nameIt.second)));
+                }
+            }
+        }
     }
 
+    (*useOptionsOnly) = true;
+    
     return optionItems;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
+{
+    CVF_ASSERT(m_resultTypeUiField() != RimDefines::FLOW_DIAGNOSTICS);
+
+    if (this->currentGridCellResults())
+    {
+        QList<caf::PdmOptionItemInfo> optionList;
+
+        QStringList cellCenterResultNames;
+        QStringList cellFaceResultNames;
+
+        foreach(QString s, getResultNamesForCurrentUiResultType())
+        {
+            if (RimDefines::isPerCellFaceResult(s))
+            {
+                cellFaceResultNames.push_back(s);
+            }
+            else
+            {
+                cellCenterResultNames.push_back(s);
+            }
+        }
+
+        cellCenterResultNames.sort();
+        cellFaceResultNames.sort();
+
+        // Cell Center result names
+        foreach(QString s, cellCenterResultNames)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(s, s));
+        }
+
+        // Ternary Result
+        bool hasAtLeastOneTernaryComponent = false;
+        if (cellCenterResultNames.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
+        else if (cellCenterResultNames.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
+        else if (cellCenterResultNames.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
+
+        if (m_resultTypeUiField == RimDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+        {
+            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::ternarySaturationResultName(), RimDefines::ternarySaturationResultName()));
+        }
+
+        // Cell Face result names
+        bool showDerivedResultsFirstInList = false;
+        {
+            RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
+            this->firstAncestorOrThisOfType(rimEclipseFaultColors);
+
+            if ( rimEclipseFaultColors ) showDerivedResultsFirstInList = true;
+        }
+
+        foreach(QString s, cellFaceResultNames)
+        {
+            if (showDerivedResultsFirstInList)
+            {
+                optionList.push_front(caf::PdmOptionItemInfo(s, s));
+            }
+            else
+            {
+                optionList.push_back(caf::PdmOptionItemInfo(s, s));
+            }
+        }
+
+        optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), RimDefines::undefinedResultName()));
+
+        // Remove Per Cell Face options
+        {
+            RimWellLogCurve* curve = nullptr;
+            this->firstAncestorOrThisOfType(curve);
+
+            RimEclipsePropertyFilter* propFilter = nullptr;
+            this->firstAncestorOrThisOfType(propFilter);
+
+            RimCellEdgeColors* cellEdge = nullptr;
+            this->firstAncestorOrThisOfType(cellEdge);
+
+            if ( propFilter || curve || cellEdge )
+            {
+                removePerCellFaceOptionItems(optionList);
+            }
+        }
+
+        return optionList;
+    }
+
+    return QList<caf::PdmOptionItemInfo>();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
 {
-    if (fieldNeedingOptions == &m_resultVariableUiField)
+    if ( m_resultTypeUiField() != RimDefines::FLOW_DIAGNOSTICS )
     {
-        if (this->currentGridCellResults())
-        {
-            QList<caf::PdmOptionItemInfo> optionList;
-  
-            QStringList cellCenterResultNames;
-            QStringList cellFaceResultNames;
-    
-            foreach(QString s, getResultVariableListForCurrentUIFieldSettings())
-            {
-                if (RimDefines::isPerCellFaceResult(s))
-                {
-                    cellFaceResultNames.push_back(s);
-                }
-                else
-                {
-                    cellCenterResultNames.push_back(s);
-                }
-            }
+        RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
 
-            cellCenterResultNames.sort();
-            cellFaceResultNames.sort();
+        if ( !cellResultsStorage ) return QStringList();
 
-            // Cell Center result names
-            foreach(QString s, cellCenterResultNames)
-            {
-                optionList.push_back(caf::PdmOptionItemInfo(s, s));
-            }
+        if ( !cellResultsStorage->cellResults() ) return QStringList();
 
-            // Ternary Result
-            bool hasAtLeastOneTernaryComponent = false;
-            if (cellCenterResultNames.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
-            else if (cellCenterResultNames.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
-            else if (cellCenterResultNames.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
-
-            if (m_resultTypeUiField == RimDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
-            {
-                optionList.push_front(caf::PdmOptionItemInfo(RimDefines::ternarySaturationResultName(), RimDefines::ternarySaturationResultName()));
-            }
-
-            // Cell Face result names
-            foreach(QString s, cellFaceResultNames)
-            {
-                if (showDerivedResultsFirstInList)
-                {
-                    optionList.push_front(caf::PdmOptionItemInfo(s, s));
-                }
-                else
-                {
-                    optionList.push_back(caf::PdmOptionItemInfo(s, s));
-                }
-            }
-
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), RimDefines::undefinedResultName()));
-
-            if (useOptionsOnly) *useOptionsOnly = true;
-
-            return optionList;
-        }
+        return cellResultsStorage->cellResults()->resultNames(m_resultTypeUiField());
     }
+    else
+    {
+        // TODO: Get this form some sensible place
 
-    return QList<caf::PdmOptionItemInfo>();
+        QStringList flowVars;
+        flowVars.push_back("TOF");
+        flowVars.push_back("Concentrations");
+        flowVars.push_back("MaxTracer");
+        flowVars.push_back("Communication");
+        return flowVars;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,6 +560,9 @@ void RimEclipseResultDefinition::initAfterRead()
     m_resultTypeUiField = m_resultType;
     m_resultVariableUiField = m_resultVariable;
 
+    m_flowSolutionUiField = m_flowSolution();
+    m_selectedTracersUiField = m_selectedTracers;
+
     this->updateUiIconFromToggleField();
 }
 
@@ -522,6 +637,43 @@ void RimEclipseResultDefinition::updateFieldVisibility()
             m_porosityModelUiField.uiCapability()->setUiHidden(false);
         }
     }
+
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::hasDualPorFractureResult()
+{
+    if ( m_eclipseCase
+        && m_eclipseCase->reservoirData()
+        && m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
+        && m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
+        {
+            return true;
+        } 
+
+    return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_resultTypeUiField);
+    if (hasDualPorFractureResult()) 
+    {
+        uiOrdering.add(&m_porosityModelUiField);
+    }
+    if ( m_resultTypeUiField() == RimDefines::FLOW_DIAGNOSTICS )
+    { 
+        uiOrdering.add(&m_flowSolutionUiField);
+        uiOrdering.add(&m_selectedTracersUiField);
+    }
+    uiOrdering.add(&m_resultVariableUiField);
+
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
