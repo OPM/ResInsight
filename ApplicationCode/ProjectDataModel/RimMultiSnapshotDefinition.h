@@ -18,10 +18,10 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cafAppEnum.h"
 
 class RimCase;
 class RimView;
@@ -58,8 +58,7 @@ public:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     void getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options);
-
-
+    
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 };
