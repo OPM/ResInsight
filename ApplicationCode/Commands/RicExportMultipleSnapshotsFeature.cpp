@@ -116,8 +116,9 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 
             for (int i=msd->timeStepStart(); i <= msd->timeStepEnd(); i++) 
             {
-                //TODO: This naming will not give images in the correct order when sorted on name..
-                timeStepString = timeSteps[i].replace(".", "-");
+                QString timeStepIndexString = QString("%1").arg(i, 2, 10, QLatin1Char('0'));
+
+                                timeStepString = timeStepIndexString + "_" + timeSteps[i].replace(".", "-");
                 
                 viewer->setCurrentFrame(i);
                 viewer->animationControl()->setCurrentFrameOnly(i);
@@ -139,7 +140,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 
                     for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)  
                     {
-                        rangeFilterString = msd->sliceDirection().text() + QString::number(i);
+                        rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
                         QString fileName = activeCase->caseUserDescription() + "_" + activeView->name() + "_" + timeStepString + "_" + rangeFilterString;
                         fileName.replace(" ", "-");
 

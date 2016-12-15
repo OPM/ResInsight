@@ -24,6 +24,8 @@
 #include "RimView.h"
 
 #include "cafPdmPointer.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RigActiveCellInfo.h"
 
 namespace caf
 {
@@ -133,5 +135,61 @@ void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo
         options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
     }
     
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &sliceDirection)
+    {
+        if (viewObject())
+        {
+            const cvf::StructGridInterface* mainGrid = viewObject()->rangeFilterCollection()->gridByIndex(0);
+
+            RigActiveCellInfo* actCellInfo = viewObject()->rangeFilterCollection()->activeCellInfo();
+            if (mainGrid && actCellInfo)
+            {
+                cvf::Vec3st min, max;
+                actCellInfo->IJKBoundingBox(min, max);
+
+                // Adjust to Eclipse indexing
+                min.x() = min.x() + 1;
+                min.y() = min.y() + 1;
+                min.z() = min.z() + 1;
+
+                max.x() = max.x() + 1;
+                max.y() = max.y() + 1;
+                max.z() = max.z() + 1;
+
+                int maxInt = 0;
+                int minInt = 0;
+
+                if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_I)
+                {
+                    maxInt = static_cast<int>(max.x());
+                    minInt = static_cast<int>(min.x());
+                }
+                else if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_J)
+                {
+                    maxInt = static_cast<int>(max.y());
+                    minInt = static_cast<int>(min.y());
+                }
+                else if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_K)
+                {
+                    maxInt = static_cast<int>(max.z());
+                    minInt = static_cast<int>(min.z());
+                }
+                
+                startSliceIndex = minInt;
+                endSliceIndex = maxInt;
+
+            }
+
+        }
+       
+        startSliceIndex.uiCapability()->updateConnectedEditors();
+    }
 }
 
