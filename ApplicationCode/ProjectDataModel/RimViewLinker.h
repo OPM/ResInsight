@@ -28,6 +28,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
 namespace cvf
 {
     class BoundingBox;
@@ -73,7 +76,7 @@ public:
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void                                    allViews(std::vector<RimView*>& views);
+    void                                    allViews(std::vector<RimView*>& views) const;
 
     void                                    updateUiNameAndIcon();
 
@@ -81,6 +84,9 @@ public:
 
     static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
     static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimView* view);
+
+    void                                    updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord);
+    void                                    disableCursor();
 
 public:
     static QString                          displayNameForView(RimView* view);
@@ -90,7 +96,7 @@ protected:
     virtual void                            initAfterRead();
 
 private:
-    void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
+    void                                    allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views);
     
     void                                    removeOverrides();
 

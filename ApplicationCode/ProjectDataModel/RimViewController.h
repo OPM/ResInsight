@@ -58,6 +58,7 @@ public:
     const RigCaseToCaseCellMapper*          cellMapper();
     
     bool                                    isCameraLinked();
+    bool                                    showCursor() const;
     bool                                    isTimeStepLinked();
 
     bool                                    isResultColorControlled();
@@ -109,7 +110,9 @@ private:
 
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<bool>                     m_syncCamera;
+    caf::PdmField<bool>                     m_showCursor;
     caf::PdmField<bool>                     m_syncTimeStep;
+
 
     // Overridden properties
     caf::PdmField<bool>                     m_syncCellResult;

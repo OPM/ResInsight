@@ -96,6 +96,8 @@ public:
 
     void            updateParallelProjectionSettings(RiuViewer* sourceViewer);
 
+    void            setCursorPosition(const cvf::Vec3d& domainCoord);
+
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
@@ -103,6 +105,7 @@ public slots:
 protected:
     virtual void    optimizeClippingPlanes();
     virtual void    resizeGL(int width, int height);
+    virtual void    mouseMoveEvent(QMouseEvent* e) override;
 
 private:
     void            updateTextAndTickMarkColorForOverlayItems();
@@ -140,5 +143,7 @@ private:
     RiuViewerCommands*          m_viewerCommands;
 
     RivGridBoxGenerator*        m_gridBoxGenerator;
+
+    cvf::Vec3d                  m_cursorPositionDomainCoords;
 };
 

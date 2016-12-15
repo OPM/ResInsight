@@ -250,7 +250,7 @@ void RimViewLinker::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
+void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views)
 {
     if (!isActive()) return;
 
@@ -333,7 +333,7 @@ RimView* RimViewLinker::masterView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViews(std::vector<RimView*>& views)
+void RimViewLinker::allViews(std::vector<RimView*>& views) const
 {
     views.push_back(m_masterView());
 
@@ -488,6 +488,49 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord)
+{
+    std::vector<RimView*> viewsToUpdate;
+    allViewsForCameraSync(sourceView, viewsToUpdate);
+
+    for (RimView* destinationView : viewsToUpdate)
+    {
+        if (destinationView == sourceView) continue;
+
+        RimViewController* viewLink = destinationView->viewController();
+        if (!viewLink) continue;
+
+        if (!viewLink->showCursor()) continue;
+
+        RiuViewer* destinationViewer = destinationView->viewer();
+        if (destinationViewer)
+        {
+            destinationViewer->setCursorPosition(domainCoord);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::disableCursor()
+{
+    std::vector<RimView*> viewsToUpdate;
+    allViewsForCameraSync(m_masterView, viewsToUpdate);
+
+    for (RimView* destinationView : viewsToUpdate)
+    {
+        RiuViewer* destinationViewer = destinationView->viewer();
+        if (destinationViewer)
+        {
+            destinationViewer->setCursorPosition(cvf::Vec3d::UNDEFINED);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCamera(RimView* sourceView)
 {
     if (!sourceView->viewer()) return;
@@ -629,8 +672,6 @@ void RimViewLinker::addDependentView(RimView* view)
     this->m_viewControllers.push_back(viewContr);
 
     viewContr->setManagedView(view);
-
-
 }
 
 //--------------------------------------------------------------------------------------------------

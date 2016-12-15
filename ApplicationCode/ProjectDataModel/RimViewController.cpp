@@ -67,6 +67,7 @@ RimViewController::RimViewController(void)
     m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera", "", "", "");
+    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", false,            "   Show Cursor", "", "", "");
     CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step", "", "", "");
     CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result", "", "", "");
     CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Legend Definition", "", "", "");
@@ -173,6 +174,13 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     else if (changedField == &m_syncTimeStep )
     {
         updateTimeStepLink();
+    }
+    else if (changedField == &m_showCursor)
+    {
+        if (!m_showCursor && m_managedView && m_managedView->viewer())
+        {
+            m_managedView->viewer()->setCursorPosition(cvf::Vec3d::UNDEFINED);
+        }
     }
     else if (changedField == &m_syncCellResult)
     {
@@ -418,6 +426,16 @@ void RimViewController::updateOptionSensitivity()
         this->m_syncRangeFilters = false;
     }
 
+    if (m_syncCamera)
+    {
+        this->m_showCursor.uiCapability()->setUiReadOnly(false);
+    }
+    else
+    {
+        this->m_showCursor.uiCapability()->setUiReadOnly(true);
+        this->m_showCursor = false;
+    }
+
     m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isMasterAndDepViewDifferentType());
 }
 
@@ -455,6 +473,7 @@ void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Link Options");
 
     scriptGroup->add(&m_syncCamera);
+    scriptGroup->add(&m_showCursor);
     scriptGroup->add(&m_syncTimeStep);
     scriptGroup->add(&m_syncCellResult);
     scriptGroup->add(&m_syncLegendDefinitions);
@@ -711,6 +730,14 @@ bool RimViewController::isCameraLinked()
     {
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::showCursor() const
+{
+    return m_showCursor;
 }
 
 //--------------------------------------------------------------------------------------------------
