@@ -250,7 +250,7 @@ void RimViewLinker::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views)
+void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const
 {
     if (!isActive()) return;
 
@@ -325,7 +325,7 @@ void RimViewLinker::setMasterView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLinker::masterView()
+RimView* RimViewLinker::masterView() const
 {
     return m_masterView;
 }
@@ -385,7 +385,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isActive()
+bool RimViewLinker::isActive() const
 {
     RimViewLinkerCollection* viewLinkerCollection = NULL;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
@@ -506,24 +506,6 @@ void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::V
         if (destinationViewer)
         {
             destinationViewer->setCursorPosition(domainCoord);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::disableCursor()
-{
-    std::vector<RimView*> viewsToUpdate;
-    allViewsForCameraSync(m_masterView, viewsToUpdate);
-
-    for (RimView* destinationView : viewsToUpdate)
-    {
-        RiuViewer* destinationViewer = destinationView->viewer();
-        if (destinationViewer)
-        {
-            destinationViewer->setCursorPosition(cvf::Vec3d::UNDEFINED);
         }
     }
 }
@@ -677,11 +659,11 @@ void RimViewLinker::addDependentView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering)
+void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
     for (size_t j = 0; j < m_viewControllers.size(); j++)
     {
-        uiTreeOrdering.add(m_viewControllers()[j]);
+        uiTreeOrdering.add(m_viewControllers[j]);
     }
 }
 

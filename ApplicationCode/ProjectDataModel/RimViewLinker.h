@@ -53,10 +53,10 @@ public:
     RimViewLinker(void);
     virtual ~RimViewLinker(void);
     
-    bool                                    isActive();
+    bool                                    isActive() const;
 
     void                                    setMasterView(RimView* view);
-    RimView*                                masterView();
+    RimView*                                masterView() const;
 
     void                                    addDependentView(RimView* view);
     void                                    updateDependentViews();
@@ -80,13 +80,12 @@ public:
 
     void                                    updateUiNameAndIcon();
 
-    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering);
+    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const;
 
     static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
     static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimView* view);
 
     void                                    updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord);
-    void                                    disableCursor();
 
 public:
     static QString                          displayNameForView(RimView* view);
@@ -96,7 +95,7 @@ protected:
     virtual void                            initAfterRead();
 
 private:
-    void                                    allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views);
+    void                                    allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const;
     
     void                                    removeOverrides();
 

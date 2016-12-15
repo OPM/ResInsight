@@ -231,7 +231,7 @@ void RimViewController::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimViewController::managedEclipseView()
+RimEclipseView* RimViewController::managedEclipseView() const
 {
     RimView* rimView = m_managedView;
 
@@ -241,7 +241,7 @@ RimEclipseView* RimViewController::managedEclipseView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView* RimViewController::managedGeoView()
+RimGeoMechView* RimViewController::managedGeoView() const
 {
     RimView* rimView = m_managedView;
 
@@ -442,7 +442,7 @@ void RimViewController::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewController::managedView()
+RimView* RimViewController::managedView() const
 {
     return m_managedView;
 }
@@ -549,7 +549,7 @@ void RimViewController::updateLegendDefinitions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimViewLinker* RimViewController::ownerViewLinker()
+RimViewLinker* RimViewController::ownerViewLinker() const
 {
     RimViewLinker* viewLinker = NULL;
     this->firstAncestorOrThisOfType(viewLinker);
@@ -628,7 +628,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
         }
          else if (masterFemPart && dependEclGrid)
         {
-             m_caseToCaseCellMapper = new RigCaseToCaseCellMapper(masterFemPart, dependEclGrid);
+            m_caseToCaseCellMapper = new RigCaseToCaseCellMapper(masterFemPart, dependEclGrid);
         }
     }
 
@@ -638,7 +638,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewController::masterView()
+RimView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
 }
@@ -646,7 +646,7 @@ RimView* RimViewController::masterView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isMasterAndDepViewDifferentType()
+bool RimViewController::isMasterAndDepViewDifferentType() const
 {
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
     RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(masterView());
@@ -667,7 +667,7 @@ bool RimViewController::isMasterAndDepViewDifferentType()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView()
+void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() const
 {
     if (!this->isActive()) return;
 
@@ -687,7 +687,7 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
+void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType) const
 {
     if (!this->isActive()) return;
 
@@ -712,7 +712,7 @@ void RimViewController::scheduleGeometryRegenForDepViews(RivCellSetEnum geometry
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isActive()
+bool RimViewController::isActive() const
 {
     return ownerViewLinker()->isActive() && this->m_isActive();
 }
@@ -720,7 +720,7 @@ bool RimViewController::isActive()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isCameraLinked()
+bool RimViewController::isCameraLinked() const
 {
     if (ownerViewLinker()->isActive() && this->m_isActive())
     {
@@ -743,7 +743,7 @@ bool RimViewController::showCursor() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isTimeStepLinked()
+bool RimViewController::isTimeStepLinked() const
 {
     if (ownerViewLinker()->isActive() && this->m_isActive())
     {
@@ -758,7 +758,7 @@ bool RimViewController::isTimeStepLinked()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isResultColorControlled()
+bool RimViewController::isResultColorControlled() const
 {
    if (ownerViewLinker()->isActive() && this->m_isActive())
     {
@@ -773,7 +773,7 @@ bool RimViewController::isResultColorControlled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isLegendDefinitionsControlled()
+bool RimViewController::isLegendDefinitionsControlled() const
 {
     if (ownerViewLinker()->isActive() && this->m_isActive())
     {
@@ -788,7 +788,7 @@ bool RimViewController::isLegendDefinitionsControlled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isVisibleCellsOveridden()
+bool RimViewController::isVisibleCellsOveridden() const
 {
     if (isMasterAndDepViewDifferentType())
     {
@@ -810,7 +810,7 @@ bool RimViewController::isVisibleCellsOveridden()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterControlPossible()
+bool RimViewController::isRangeFilterControlPossible() const
 {
     return true;
     #if 0
@@ -844,7 +844,7 @@ bool RimViewController::isRangeFilterControlPossible()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterMappingApliccable()
+bool RimViewController::isRangeFilterMappingApliccable() const
 {
     if (!isMasterAndDepViewDifferentType()) return false;
 
@@ -877,7 +877,7 @@ bool RimViewController::isRangeFilterMappingApliccable()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFiltersControlled()
+bool RimViewController::isRangeFiltersControlled() const
 {
     if (!isRangeFilterControlPossible()) return false;
 
@@ -893,7 +893,7 @@ bool RimViewController::isRangeFiltersControlled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isPropertyFilterControlPossible()
+bool RimViewController::isPropertyFilterControlPossible() const
 {
     // The cases need to be the same 
     RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(masterView());
@@ -925,7 +925,7 @@ bool RimViewController::isPropertyFilterControlPossible()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isPropertyFilterOveridden()
+bool RimViewController::isPropertyFilterOveridden() const
 {
    if (!isPropertyFilterControlPossible()) return false;
 
