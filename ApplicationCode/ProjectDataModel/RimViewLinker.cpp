@@ -490,6 +490,12 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord)
 {
+    RimViewController* sourceViewLink = sourceView->viewController();
+    if (sourceViewLink && !sourceViewLink->showCursor())
+    {
+        return;
+    }
+
     std::vector<RimView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
@@ -497,10 +503,13 @@ void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::V
     {
         if (destinationView == sourceView) continue;
 
-        RimViewController* viewLink = destinationView->viewController();
-        if (!viewLink) continue;
+        if (destinationView != m_masterView)
+        {
+            RimViewController* viewLink = destinationView->viewController();
+            if (!viewLink) continue;
 
-        if (!viewLink->showCursor()) continue;
+            if (!viewLink->showCursor()) continue;
+        }
 
         RiuViewer* destinationViewer = destinationView->viewer();
         if (destinationViewer)

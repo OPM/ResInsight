@@ -685,27 +685,27 @@ void RiuViewer::resizeGL(int width, int height)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
 {
-    int translatedMousePosX = mouseEvent->pos().x();
-    int translatedMousePosY = height() - mouseEvent->pos().y();
-
-    cvf::Vec3d displayCoord(0, 0, 0);
-    if (mainCamera()->unproject(cvf::Vec3d(static_cast<double>(translatedMousePosX), static_cast<double>(translatedMousePosY), 0), &displayCoord))
+    if (m_rimView)
     {
-        if (m_rimView)
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
+        if (viewLinker)
         {
-            RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
-            if (viewLinker)
+            int translatedMousePosX = mouseEvent->pos().x();
+            int translatedMousePosY = height() - mouseEvent->pos().y();
+
+            cvf::Vec3d displayCoord(0, 0, 0);
+            if (mainCamera()->unproject(cvf::Vec3d(static_cast<double>(translatedMousePosX), static_cast<double>(translatedMousePosY), 0), &displayCoord))
             {
                 if (m_cursorPositionDomainCoords != cvf::Vec3d::UNDEFINED)
                 {
-                    // Set undefined and redraw to make sure the cursor is not visible in the view
+                    // Reset the extra cursor if the view currently is receiving mouse cursor events
+                    // Set undefined and redraw to remove the previously displayed cursor
                     m_cursorPositionDomainCoords = cvf::Vec3d::UNDEFINED;
 
                     update();
                 }
 
                 cvf::ref<caf::DisplayCoordTransform> trans = m_rimView->displayCoordTransform();
-
                 cvf::Vec3d domainCoord = trans->transformToDomainCoord(displayCoord);
 
                 viewLinker->updateCursorPosition(m_rimView, domainCoord);
