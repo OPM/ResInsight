@@ -422,10 +422,13 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
             if (mainCamera()->project(displayCoord, &screenCoords))
             {
                 int translatedMousePosY = height() - screenCoords.y();
-                QPoint pos(screenCoords.x(), translatedMousePosY);
-                
-                QLabel test("x");
-                test.render(painter, pos);
+                QPoint centerPos(screenCoords.x(), translatedMousePosY);
+
+                // Draw a cross hair marker
+                int markerHalfLength = 6;
+
+                painter->drawLine(centerPos.x(), centerPos.y() - markerHalfLength, centerPos.x(), centerPos.y() + markerHalfLength);
+                painter->drawLine(centerPos.x() - markerHalfLength, centerPos.y(), centerPos.x() + markerHalfLength, centerPos.y());
             }
         }
     }
