@@ -100,35 +100,70 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
     QString timeStepString;
     QString rangeFilterString;
 
-    std::vector<RimView*> ViewsToPlot;
+    std::vector<RimCase*> casesToPlot;
+    std::vector<std::pair<RimCase*, RimView*>> casesViewsPairs;
     
     
     for (RimMultiSnapshotDefinition* msd : project->multiSnapshotDefinitions())
     {
 
         activeCase = msd->caseObject();
-        if (!activeCase) continue;
 
-        activeView = msd->viewObject();
-
-        if (activeView) 
+        if (activeCase)
         {
-            ViewsToPlot.push_back(activeView);
+            casesToPlot.push_back(activeCase);
         }
         else //nullptr is value used for "All" 
         {
-            for (RimView* view : activeCase->views())
+            RimProject* proj = RiaApplication::instance()->project();
+            std::vector<RimCase*> cases;
+            proj->allCases(cases);
+
+            for (RimCase* thisCase : cases)
             {
-                ViewsToPlot.push_back(view);
+                casesToPlot.push_back(thisCase);
             }
         }
 
-        for (RimView* thisView : ViewsToPlot)
+    
+        for (RimCase* rimCase : casesToPlot)
         {
-            if (thisView && thisView->viewer())
+            activeView = msd->viewObject();
+
+            if (activeView)
             {
-                timeSteps = activeCase->timeStepStrings();
-                RiuViewer* viewer = thisView->viewer();
+                casesViewsPairs.push_back(std::make_pair(rimCase, activeView));
+
+            }
+            else //nullptr is value used for "All" 
+            {
+                for (RimView* rimView : rimCase->views())
+                {
+                    casesViewsPairs.push_back(std::make_pair(rimCase, rimView));
+                }
+            }
+        }
+
+
+        RimView* rimView = nullptr;
+        RimCase* rimCase = nullptr;
+        bool pairExists = false;
+
+        for (auto caseViewPair : casesViewsPairs)
+        {
+            rimCase = caseViewPair.first;
+            rimView = caseViewPair.second;
+            pairExists = false;
+
+            for (auto viewToCheck : rimCase->views())
+            {
+                if (viewToCheck == rimView) pairExists = true;
+            }
+
+            if (pairExists && rimView && rimView->viewer())
+            {
+                timeSteps = rimCase->timeStepStrings();
+                RiuViewer* viewer = rimView->viewer();
                 int initialFramIndex = viewer->currentFrameIndex();
 
                 for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
@@ -142,23 +177,23 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 
                     if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
                     {
-                        QString fileName = activeCase->caseUserDescription() + "_" + thisView->name() + "_" + timeStepString;
+                        QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString;
                         fileName.replace(" ", "-");
                         QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-                        RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, thisView);
+                        RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
                     }
                     else
                     {
                         RimCellRangeFilter* rangeFilter = new RimCellRangeFilter;
-                        thisView->rangeFilterCollection()->rangeFilters.push_back(rangeFilter);
+                        rimView->rangeFilterCollection()->rangeFilters.push_back(rangeFilter);
 
-                        bool rangeFilterInitState = thisView->rangeFilterCollection()->isActive();
-                        thisView->rangeFilterCollection()->isActive = true;
+                        bool rangeFilterInitState = rimView->rangeFilterCollection()->isActive();
+                        rimView->rangeFilterCollection()->isActive = true;
 
                         for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)
                         {
                             rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
-                            QString fileName = activeCase->caseUserDescription() + "_" + thisView->name() + "_" + timeStepString + "_" + rangeFilterString;
+                            QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString + "_" + rangeFilterString;
                             fileName.replace(" ", "-");
 
                             rangeFilter->setDefaultValues();
@@ -178,19 +213,19 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
                                 rangeFilter->startIndexK = i;
                             }
 
-                            thisView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
+                            rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
                             // Make sure the redraw is processed
                             QCoreApplication::instance()->processEvents();
 
                             QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-                            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, thisView);
+                            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
                         }
 
-                        thisView->rangeFilterCollection()->rangeFilters.removeChildObject(rangeFilter);
+                        rimView->rangeFilterCollection()->rangeFilters.removeChildObject(rangeFilter);
                         delete rangeFilter;
 
-                        thisView->rangeFilterCollection()->isActive = rangeFilterInitState;
-                        thisView->scheduleCreateDisplayModelAndRedraw();
+                        rimView->rangeFilterCollection()->isActive = rangeFilterInitState;
+                        rimView->scheduleCreateDisplayModelAndRedraw();
                         QCoreApplication::instance()->processEvents();
                     }
                 }
@@ -199,12 +234,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
                 viewer->animationControl()->setCurrentFrameOnly(initialFramIndex);
 
             }
-
-
-
         }
-
-
      }
 
 }

@@ -94,32 +94,47 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
         // TODO: Update to simpler implementation
         }
 
-        //options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
+        options.push_back(caf::PdmOptionItemInfo("-- All cases --", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
     }
     else if (fieldNeedingOptions == &viewObject)
     {
+        std::vector<RimView*> views; 
+
         if (caseObject())
         {
-            std::vector<RimView*> views = caseObject()->views();
-            for (RimView* view : views)
+            views = caseObject()->views();
+        }
+        else
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+            std::vector<RimCase*> cases;
+            proj->allCases(cases);
+
+            if (cases.size() > 0)
             {
-                options.push_back(caf::PdmOptionItemInfo(view->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(view))));
-                //options.push_back(caf::PdmOptionItemInfo(view->name(), view));
+                RimCase* rimCase = cases[0];
+                if (rimCase->views().size() > 0)
+                {
+                    views = rimCase->views();
+                }
             }
         }
 
+        for (RimView* view : views)
+        {
+            options.push_back(caf::PdmOptionItemInfo(view->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(view))));
+            //options.push_back(caf::PdmOptionItemInfo(view->name(), view));
+        }
         options.push_back(caf::PdmOptionItemInfo("-- All views --", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
     }
     else if (fieldNeedingOptions == &timeStepEnd)
     {
         getTimeStepStrings(options);
-
     }
     else if (fieldNeedingOptions == &timeStepStart)
     {
         getTimeStepStrings(options);
     }
-
 
     return options;
 }
@@ -129,14 +144,33 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
 {
-    if (!caseObject()) return;
-    
-    QStringList timeSteps = caseObject()->timeStepStrings();
+    QStringList timeSteps;
+
+    if (!caseObject())
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+
+        if (cases.size() > 0)
+        {
+            RimCase* rimCase = cases[0];
+            if (rimCase->views().size() > 0)
+            {
+                timeSteps = rimCase->timeStepStrings();
+            }
+        }
+    }
+    else
+    {
+        timeSteps = caseObject()->timeStepStrings();
+    }
+
     for (int i = 0; i < timeSteps.size(); i++)
     {
         options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
     }
-    
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +178,7 @@ void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+
     if (changedField == &sliceDirection)
     {
         const cvf::StructGridInterface* mainGrid = nullptr;
