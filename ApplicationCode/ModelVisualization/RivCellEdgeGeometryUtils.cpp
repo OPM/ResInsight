@@ -332,14 +332,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAcce
 
     if (cellResultColors->hasResult())
     {
-        if (!cellResultColors->hasDynamicResult())
-        {
-            // Static result values are located at time step 0
-            timeStepIndex = 0;
-        }
-
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-        resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultColors->resultVariable());
+        resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, grid->gridIndex(), timeStepIndex, cellResultColors);
     }
 
     if (resultAccessor.isNull())
