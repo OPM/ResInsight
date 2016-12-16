@@ -20,6 +20,8 @@
 #include "RimEclipseResultCase.h"
 #include "RigCaseData.h"
 
+#include "RigFlowDiagResults.h"
+
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 
 //--------------------------------------------------------------------------------------------------
@@ -32,6 +34,9 @@ RimFlowDiagSolution::RimFlowDiagSolution(void)
     //CAF_PDM_InitFieldNoDefault(&m_selectedWells, "SelectedWells", "Selected Wells","","");
 
     CAF_PDM_InitField(&m_userDescription, "UserDescription", QString("All Wells") ,"Description", "", "","");
+
+    m_flowDiagResults = new RigFlowDiagResults(this);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,6 +45,14 @@ RimFlowDiagSolution::RimFlowDiagSolution(void)
 RimFlowDiagSolution::~RimFlowDiagSolution(void)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
+{
+    return m_flowDiagResults.p();
 }
 
 //--------------------------------------------------------------------------------------------------

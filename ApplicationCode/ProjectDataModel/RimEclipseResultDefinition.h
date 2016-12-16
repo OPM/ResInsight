@@ -27,6 +27,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
+#include "RigFlowDiagResultAddress.h"
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
@@ -53,6 +54,8 @@ public:
     void                            setPorosityModel(RimDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
+    RimFlowDiagSolution*            flowDiagSolution();
+    RigFlowDiagResultAddress        flowDiagResAddress() const;
 
     void                            loadResult();
     size_t                          scalarResultIndex() const;

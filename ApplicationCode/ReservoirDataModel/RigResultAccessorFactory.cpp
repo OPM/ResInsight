@@ -38,6 +38,8 @@
 #include "cvfObject.h"
 
 #include <math.h>
+#include "RimFlowDiagSolution.h"
+#include "RigFlowDiagResults.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -177,17 +179,36 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 {
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultDefinition->porosityModel());
 
-    size_t adjustedTimeStepIndex = timeStepIndex;
-    if (resultDefinition->hasStaticResult())
+    if (resultDefinition->resultType() != RimDefines::FLOW_DIAGNOSTICS)
     {
-        adjustedTimeStepIndex = 0;
-    }
 
-    return RigResultAccessorFactory::createFromUiResultName(eclipseCase,
-                                                            gridIndex,
-                                                            porosityModel,
-                                                            adjustedTimeStepIndex,
-                                                            resultDefinition->resultVariable());
+        size_t adjustedTimeStepIndex = timeStepIndex;
+        if ( resultDefinition->hasStaticResult() )
+        {
+            adjustedTimeStepIndex = 0;
+        }
+
+        return RigResultAccessorFactory::createFromUiResultName(eclipseCase,
+                                                                gridIndex,
+                                                                porosityModel,
+                                                                adjustedTimeStepIndex,
+                                                                resultDefinition->resultVariable());
+    }
+    else
+    {
+        RimFlowDiagSolution* flowSol = resultDefinition->flowDiagSolution();
+        if (!flowSol) return new RigHugeValResultAccessor;;
+
+        const std::vector<double>* resultValues = flowSol->flowDiagResults()->resultValues( resultDefinition->flowDiagResAddress(), timeStepIndex);
+        if (!resultValues) return new RigHugeValResultAccessor;
+
+        RigGridBase* grid = eclipseCase->grid(gridIndex);
+        if ( !grid ) return new RigHugeValResultAccessor;
+
+        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));
+
+        return object;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

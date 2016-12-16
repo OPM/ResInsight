@@ -24,7 +24,7 @@
 #include "cafAppEnum.h"
 
 class RimEclipseWell;
-
+class RigFlowDiagResults;
 //==================================================================================================
 ///  
 ///  
@@ -33,12 +33,12 @@ class RimFlowDiagSolution : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 public:
-    RimFlowDiagSolution(void);
-    virtual ~RimFlowDiagSolution(void);
+    RimFlowDiagSolution();
+    virtual ~RimFlowDiagSolution();
 
-    QString userDescription() { return m_userDescription();} 
-
-    std::set<QString> tracerNames();
+    QString             userDescription() { return m_userDescription();} 
+    RigFlowDiagResults* flowDiagResults();
+    std::set<QString>   tracerNames();
 
     enum TracerStatusType
     {
@@ -56,6 +56,8 @@ protected:
 private:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmField<QString> m_userDescription;
+
+    cvf::ref<RigFlowDiagResults> m_flowDiagResults;
 
     //caf::PdmPtrArrayField<RimEclipseWell*> m_selectedWells;
 };

@@ -38,6 +38,8 @@
 #include "cafPdmUiListEditor.h"
 #include "RimEclipseResultCase.h"
 
+#include "RigFlowDiagResultAddress.h"
+
 CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 
 //--------------------------------------------------------------------------------------------------
@@ -285,10 +287,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            optionItems.push_back(caf::PdmOptionItemInfo("Time Of Flight (Weighted Sum)",   "TOF"));
-            optionItems.push_back(caf::PdmOptionItemInfo("Tracer Concentration (Sum)",      "Concentrations"));
-            optionItems.push_back(caf::PdmOptionItemInfo("Tracer with Max Concentration",   "MaxTracer"));
-            optionItems.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", "Communication"));
+            optionItems.push_back(caf::PdmOptionItemInfo("Time Of Flight (Weighted Sum)",   RIG_FLD_TOF_RESNAME));
+            optionItems.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)",      RIG_FLD_CELL_FRACTION_RESNAME));
+            optionItems.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer",             RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
+            optionItems.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
@@ -446,13 +448,11 @@ QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
     }
     else
     {
-        // TODO: Get this form some sensible place
-
         QStringList flowVars;
-        flowVars.push_back("TOF");
-        flowVars.push_back("Concentrations");
-        flowVars.push_back("MaxTracer");
-        flowVars.push_back("Communication");
+        flowVars.push_back(RIG_FLD_TOF_RESNAME);
+        flowVars.push_back(RIG_FLD_CELL_FRACTION_RESNAME);
+        flowVars.push_back(RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+        flowVars.push_back(RIG_FLD_COMMUNICATION_RESNAME);
         return flowVars;
     }
 }
@@ -471,6 +471,20 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
     }
 
     return gridScalarResultIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
+{
+    std::set<std::string> selTracerNames;
+    for (const QString& tName : m_selectedTracers())
+    {
+        selTracerNames.insert(tName.toStdString());
+    }
+
+    return RigFlowDiagResultAddress(m_resultVariable().toStdString(), selTracerNames);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -588,6 +602,14 @@ void RimEclipseResultDefinition::setResultVariable(const QString& val)
 {
     m_resultVariable = val;
     m_resultVariableUiField = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RimEclipseResultDefinition::flowDiagSolution()
+{
+    return m_flowSolution();
 }
 
 //--------------------------------------------------------------------------------------------------
