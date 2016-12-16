@@ -67,7 +67,7 @@ RimViewController::RimViewController(void)
     m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera", "", "", "");
-    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", false,            "   Show Cursor", "", "", "");
+    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", true,             "   Show Cursor", "", "", "");
     CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step", "", "", "");
     CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result", "", "", "");
     CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Legend Definition", "", "", "");
