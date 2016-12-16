@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,35 +18,38 @@
 
 #pragma once
 
-#include "cafPdmChildField.h"
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 
-class RimEclipseCaseCollection;
-class RimGeoMechModels;
-class RimWellPathCollection;
-class RimFractureDefinition;
-class RimSummaryCaseCollection;
-class RimFormationNamesCollection;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimOilField : public caf::PdmObject
+class RimFractureDefinition : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilField(void);
-    virtual ~RimOilField(void);
+    RimFractureDefinition(void);
+    virtual ~RimFractureDefinition(void);
+    
+    caf::PdmField<float>     halfLength;
+    caf::PdmField<float>     height;
+    caf::PdmField<float>     width;
 
-    caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
-    caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
-    caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
-    caf::PdmChildField<RimFractureDefinition*>   fractureDefinition;
-    caf::PdmChildField<RimSummaryCaseCollection*> summaryCaseCollection;
-    caf::PdmChildField<RimFormationNamesCollection*> formationNamesCollection;
+    enum FracOrientationEnum
+    {
+        AZIMUTH,
+        ALONG_WELL_PATH,
+        TRANSVERSE_WELL_PATH
+    };
+    caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientation;
+
+
+    caf::PdmField<float>     skinFactor;
+    caf::PdmField<float>     permeability;
+
 
 };

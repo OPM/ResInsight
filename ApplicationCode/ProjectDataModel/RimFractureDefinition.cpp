@@ -1,0 +1,64 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2016-     Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimFractureDefinition.h"
+
+#include "cafPdmObject.h"
+
+
+
+namespace caf
+{
+    template<>
+   
+    void caf::AppEnum< RimFractureDefinition::FracOrientationEnum>::setUp()
+    {
+        addItem(RimFractureDefinition::AZIMUTH, "Az", "Azimuth");
+        addItem(RimFractureDefinition::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path");
+        addItem(RimFractureDefinition::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path");
+
+        setDefault(RimFractureDefinition::TRANSVERSE_WELL_PATH);
+    }
+}
+
+
+CAF_PDM_SOURCE_INIT(RimFractureDefinition, "FractureDefinition");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureDefinition::RimFractureDefinition(void)
+{
+    CAF_PDM_InitObject("Fracture definition", "", "", "");
+
+    //TODO New defaults???
+    CAF_PDM_InitField(&halfLength,   "HalfLength",   650.0f,  "Fracture Halflength X_f", "", "", "");
+    CAF_PDM_InitField(&height,       "Height",       75.0f,   "Fracture Height", "", "", "");
+    CAF_PDM_InitField(&orientation,  "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
+    CAF_PDM_InitField(&width,        "Width",        1.0f,    "Fracture Width", "", "", "");
+
+    CAF_PDM_InitField(&skinFactor,   "SkinFactor",   1.0f,    "Fracture Skin Factor", "", "", "");
+    CAF_PDM_InitField(&permeability, "Permeability", 22000.f,"Fracture Permeability", "", "", "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureDefinition::~RimFractureDefinition()
+{
+}

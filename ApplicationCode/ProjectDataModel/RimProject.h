@@ -33,6 +33,7 @@ class RigMainGrid;
 class RimCase;
 class RimCommandObject;
 class RimEclipseCase;
+class RimFractureDefinition;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
 class RimMultiSnapshotDefinition;
@@ -73,6 +74,7 @@ public:
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     
     caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
+    caf::PdmChildArrayField<RimFractureDefinition*>     fractureDefinition;
     
     caf::PdmField<QString>                              mainWindowTreeViewState;
     caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;
