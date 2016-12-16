@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,37 +18,47 @@
 
 #pragma once
 
-#include "cafPdmChildField.h"
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
+#include "cafPdmPtrField.h"
 
-class RimEclipseCaseCollection;
-class RimGeoMechModels;
-class RimWellPathCollection;
 class RimFractureDefinition;
-class RimFractureCollection;
-class RimSummaryCaseCollection;
-class RimFormationNamesCollection;
+class RimWellPath;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimOilField : public caf::PdmObject
+class RimFracture : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilField(void);
-    virtual ~RimOilField(void);
+    enum FractureWellEnum
+    {
+        FRACTURE_WELL_PATH,
+        FRACTURE_SIMULATION_WELL
+    };
 
-    caf::PdmChildField<RimEclipseCaseCollection*>       analysisModels;
-    caf::PdmChildField<RimGeoMechModels*>        geoMechModels;
-    caf::PdmChildField<RimWellPathCollection*>   wellPathCollection;
-    caf::PdmChildField<RimFractureDefinition*>   fractureDefinition;
-    caf::PdmChildField<RimFractureCollection*>   fractureCollection;
-    caf::PdmChildField<RimSummaryCaseCollection*> summaryCaseCollection;
-    caf::PdmChildField<RimFormationNamesCollection*> formationNamesCollection;
+public:
+    RimFracture(void);
+    virtual ~RimFracture(void);
+
+    caf::PdmField<QString>                              name;
+    caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
+    caf::PdmField< caf::AppEnum< FractureWellEnum > >   welltype;
+
+    caf::PdmPtrField<RimWellPath*>  wellpath;
+    caf::PdmField<float>            measuredDepth;
+
+    caf::PdmField<int>              i;
+    caf::PdmField<int>              j;
+    caf::PdmField<int>              k;
+
+protected:
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
+
 
 };

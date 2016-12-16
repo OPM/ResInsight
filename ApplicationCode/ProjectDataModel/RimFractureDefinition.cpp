@@ -46,7 +46,6 @@ RimFractureDefinition::RimFractureDefinition(void)
 {
     CAF_PDM_InitObject("Fracture definition", "", "", "");
 
-    //TODO New defaults???
     CAF_PDM_InitField(&halfLength,   "HalfLength",   650.0f,  "Fracture Halflength X_f", "", "", "");
     CAF_PDM_InitField(&height,       "Height",       75.0f,   "Fracture Height", "", "", "");
     CAF_PDM_InitField(&orientation,  "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");

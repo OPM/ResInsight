@@ -34,6 +34,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureDefinition.h"
+#include "RimFractureCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
@@ -827,6 +828,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
             if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
             if (oilField->fractureDefinition()) uiTreeOrdering.add(oilField->fractureDefinition());
+            if (oilField->fractureCollection()) uiTreeOrdering.add(oilField->fractureCollection());
             if (oilField->formationNamesCollection()) uiTreeOrdering.add(oilField->formationNamesCollection());
         }
 
