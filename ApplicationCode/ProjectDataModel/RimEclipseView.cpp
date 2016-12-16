@@ -992,47 +992,54 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 {
     if (resultColors->hasResult())
     {
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), globalMin, globalMax);
-        cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
-
-        double localMin, localMax;
-        double localPosClosestToZero, localNegClosestToZero;
-        if (resultColors->hasDynamicResult())
+        if (resultColors->resultType() == RimDefines::FLOW_DIAGNOSTICS)
         {
-            cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
-            cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+            // Todo
         }
         else
         {
-            localMin = globalMin;
-            localMax = globalMax;
+            double globalMin, globalMax;
+            double globalPosClosestToZero, globalNegClosestToZero;
+            cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), globalMin, globalMax);
+            cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
 
-            localPosClosestToZero = globalPosClosestToZero;
-            localNegClosestToZero = globalNegClosestToZero;
-        }
-
-        CVF_ASSERT(resultColors->legendConfig());
-
-        resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-        if (resultColors->hasCategoryResult())
-        {
-            if(resultColors->resultType() != RimDefines::FORMATION_NAMES)
+            double localMin, localMax;
+            double localPosClosestToZero, localNegClosestToZero;
+            if ( resultColors->hasDynamicResult() )
             {
-                resultColors->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()));
+                cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
+                cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
             }
             else
             {
-                const std::vector<QString>& fnVector = eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
-                resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
-            }
-        }
+                localMin = globalMin;
+                localMax = globalMax;
 
-        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+                localPosClosestToZero = globalPosClosestToZero;
+                localNegClosestToZero = globalNegClosestToZero;
+            }
+
+            CVF_ASSERT(resultColors->legendConfig());
+
+            resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+            resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+            if ( resultColors->hasCategoryResult() )
+            {
+                if ( resultColors->resultType() != RimDefines::FORMATION_NAMES )
+                {
+                    resultColors->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()));
+                }
+                else
+                {
+                    const std::vector<QString>& fnVector = eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
+                    resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
+                }
+            }
+
+            m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
+            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
+        }
     }
 
 

@@ -208,6 +208,9 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         if (isResultsInfoRelevant)
         {
             size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
+            if (scalarIndex != cvf::UNDEFINED_SIZE_T)
+            {
+
             if (m_statisticsCellRange == ALL_CELLS)
             {
                 if (m_statisticsTimeRange == ALL_TIMESTEPS)
@@ -255,6 +258,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
                     histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
                 }
+            }
             }
         }
     }
@@ -364,7 +368,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
     if (showHistogram())
     {
-        if (isResultsInfoRelevant)
+        if (isResultsInfoRelevant && histogram)
         {
             eclipseView->viewer()->showHistogram(true);
             eclipseView->viewer()->setHistogram(min, max, *histogram);

@@ -506,6 +506,8 @@ void RimEclipseResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasStaticResult() const
 {
+    if (this->resultType() == RimDefines::FLOW_DIAGNOSTICS) return false;
+
     const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     size_t gridScalarResultIndex = this->scalarResultIndex();
 
@@ -524,7 +526,11 @@ bool RimEclipseResultDefinition::hasStaticResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasResult() const
 {
-    if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
+    if (this->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        if (m_flowSolution() && !m_resultVariable().isEmpty()) return true;
+    }
+    else if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
     {
         const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
         size_t gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
@@ -543,6 +549,10 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
     if (hasResult())
     {
         if (m_resultType() == RimDefines::DYNAMIC_NATIVE)
+        {
+            return true;
+        }
+        else if (m_resultType() == RimDefines::FLOW_DIAGNOSTICS)
         {
             return true;
         }
