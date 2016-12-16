@@ -33,7 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
 #include "RimFractureCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
@@ -824,12 +824,12 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
-            if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
-            if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
-            if (oilField->fractureDefinition()) uiTreeOrdering.add(oilField->fractureDefinition());
-            if (oilField->fractureCollection()) uiTreeOrdering.add(oilField->fractureCollection());
-            if (oilField->formationNamesCollection()) uiTreeOrdering.add(oilField->formationNamesCollection());
+            if (oilField->analysisModels())                 uiTreeOrdering.add(oilField->analysisModels());
+            if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
+            if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
+            if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+            if (oilField->fractureCollection())             uiTreeOrdering.add(oilField->fractureCollection());
+            if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
         }
 
         uiTreeOrdering.add(scriptCollection());

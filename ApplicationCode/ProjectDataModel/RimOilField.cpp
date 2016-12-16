@@ -22,7 +22,7 @@
 
 #include "RimEclipseCaseCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
 #include "RimFractureCollection.h"
 #include "RimGeoMechModels.h"
 #include "RimSummaryCaseCollection.h"
@@ -40,12 +40,12 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&analysisModels, "AnalysisModels", "Grid Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDefinition", "Defenition of fractures", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureDefinitionCollection, "FractureDefinitionCollection", "Defenition of fractures", "", "", "");
     CAF_PDM_InitFieldNoDefault(&summaryCaseCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
     CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
     CAF_PDM_InitFieldNoDefault(&formationNamesCollection,"FormationNamesCollection","Formations","","","");
 
-    fractureDefinition = new RimFractureDefinition();
+    fractureDefinitionCollection = new RimFractureDefinitionCollection();
     fractureCollection = new RimFractureCollection();
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
@@ -58,7 +58,7 @@ RimOilField::RimOilField(void)
 RimOilField::~RimOilField(void)
 {
     if (wellPathCollection()) delete wellPathCollection();
-    if (fractureDefinition()) delete fractureDefinition();
+    if (fractureDefinitionCollection()) delete fractureDefinitionCollection();
     if (fractureCollection()) delete fractureCollection();
     if (geoMechModels()) delete geoMechModels();
     if (analysisModels()) delete analysisModels();

@@ -16,34 +16,35 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFractureCollection.h"
+#include "RimFractureDefinitionCollection.h"
 
-#include "RimFracture.h"
+#include "RimFractureDefinition.h"
 #include "cafPdmObject.h"
 
 
 
 
-CAF_PDM_SOURCE_INIT(RimFractureCollection, "FractureCollection");
+CAF_PDM_SOURCE_INIT(RimFractureDefinitionCollection, "FractureDefinitionCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureCollection::RimFractureCollection(void)
+RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
 {
-    CAF_PDM_InitObject("Fracture Collection", "", "", "");
+    CAF_PDM_InitObject("Fracture Definition Collection", "", "", "");
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     
-    CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "Fracture Definitions", "", "", "", "");
 
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureCollection::~RimFractureCollection()
+RimFractureDefinitionCollection::~RimFractureDefinitionCollection()
 {
-    fractures.deleteAllChildObjects();
+    fractureDefinitions.deleteAllChildObjects();
 
 }
+
