@@ -106,6 +106,7 @@ protected:
     virtual void    optimizeClippingPlanes();
     virtual void    resizeGL(int width, int height);
     virtual void    mouseMoveEvent(QMouseEvent* e) override;
+    virtual void    leaveEvent(QEvent *) override;
 
 private:
     void            updateTextAndTickMarkColorForOverlayItems();

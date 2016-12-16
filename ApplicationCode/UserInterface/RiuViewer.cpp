@@ -719,6 +719,18 @@ void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuViewer::leaveEvent(QEvent *)
+{
+    if (m_rimView && m_rimView->assosiatedViewLinker())
+    {
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
+        viewLinker->updateCursorPosition(m_rimView, cvf::Vec3d::UNDEFINED);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateGridBoxData()
 {
     if (ownerReservoirView() && ownerReservoirView()->ownerCase())
