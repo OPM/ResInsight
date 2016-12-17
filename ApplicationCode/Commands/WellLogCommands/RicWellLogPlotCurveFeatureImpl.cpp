@@ -19,6 +19,10 @@
 
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
+#include "RimWellLogCurve.h"
+
+#include "cafSelectionManager.h"
+
 #include <QColor>
 
 static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
@@ -51,4 +55,40 @@ cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromTable()
     ++colorIndex;
     cvf::Color3f cvfColor(color.redF(), color.greenF(), color.blueF());
     return cvfColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves()
+{
+    std::set<RimWellLogCurve*> curveSet;
+
+    {
+        std::vector<caf::PdmUiItem*> selectedItems;
+        caf::SelectionManager::instance()->selectedItems(selectedItems);
+
+        for (caf::PdmUiItem* selectedItem : selectedItems)
+        {
+            caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(selectedItem);
+            if (objHandle)
+            {
+                std::vector<RimWellLogCurve*> childCurves;
+                objHandle->descendantsIncludingThisOfType(childCurves);
+
+                for (RimWellLogCurve* curve : childCurves)
+                {
+                    curveSet.insert(curve);
+                }
+            }
+        }
+    }
+
+    std::vector<RimWellLogCurve*> allCurves;
+    for (RimWellLogCurve* curve : curveSet)
+    {
+        allCurves.push_back(curve);
+    }
+
+    return allCurves;
 }
