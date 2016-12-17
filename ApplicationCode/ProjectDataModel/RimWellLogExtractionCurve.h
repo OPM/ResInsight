@@ -41,8 +41,12 @@ public:
     RimWellLogExtractionCurve();
     virtual ~RimWellLogExtractionCurve();
     
-    
     void setWellPath(RimWellPath* wellPath);
+    RimWellPath* wellPath() const;
+
+    void setCase(RimCase* rimCase);
+    RimCase* rimCase() const;
+
     void setPropertiesFromView(RimView* view);
 
     virtual QString wellName() const;
