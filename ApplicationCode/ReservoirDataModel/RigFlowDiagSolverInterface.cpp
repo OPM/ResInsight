@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFlowDiagSolverInterface.h"
+#include "RimFlowDiagSolution.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -30,7 +31,8 @@ RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::RigFlowDiagSolverInterface(RimEclipseResultCase* eclCase)
+RigFlowDiagSolverInterface::RigFlowDiagSolverInterface(RimFlowDiagSolution* flowSol)
+: m_flowDiagSolution(flowSol)
 {
 
 }
@@ -46,8 +48,10 @@ RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFlowDiagTimeStepResult> RigFlowDiagSolverInterface::calculate(size_t timestep, const std::vector<RigTracerCells > & allTracerData)
+RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timestep)
 {
-    return new RigFlowDiagTimeStepResult(0);
+    std::vector<RigTracerCells > allTracerData;
+
+    return  RigFlowDiagTimeStepResult(0); // Relying on implicit move constructor
 }
 

@@ -35,7 +35,7 @@ RimFlowDiagSolution::RimFlowDiagSolution(void)
 
     CAF_PDM_InitField(&m_userDescription, "UserDescription", QString("All Wells") ,"Description", "", "","");
 
-    m_flowDiagResults = new RigFlowDiagResults(this);
+   
 
 }
 
@@ -52,6 +52,22 @@ RimFlowDiagSolution::~RimFlowDiagSolution(void)
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
 {
+    if ( m_flowDiagResults.isNull() )
+    {
+        size_t timeStepCount;
+        {
+            RimEclipseResultCase* eclCase;
+            this->firstAncestorOrThisOfType(eclCase);
+            
+            CVF_ASSERT(eclCase && eclCase->reservoirData() && eclCase->reservoirData() );
+
+            timeStepCount = eclCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+
+        }
+
+        m_flowDiagResults = new RigFlowDiagResults(this, timeStepCount);
+    }
+
     return m_flowDiagResults.p();
 }
 

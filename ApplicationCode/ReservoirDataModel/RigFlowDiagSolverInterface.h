@@ -27,6 +27,7 @@
 #include <map>
 
 class RimEclipseResultCase;
+class RimFlowDiagSolution;
 
 struct RigTracerCells
 {
@@ -36,7 +37,7 @@ struct RigTracerCells
 
 
 
-class RigFlowDiagTimeStepResult: public cvf::Object
+class RigFlowDiagTimeStepResult
 {
 public:
     RigFlowDiagTimeStepResult(size_t activeCellCount);
@@ -46,8 +47,8 @@ public:
     void setProducerTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
     void setProducerTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
 
-    std::vector<double>& nativeResult(const RigFlowDiagResultAddress& resAddr); // Use to "steal" the data from this one using swap
-
+    // Use to "steal" the data from this one using swap
+    std::map<RigFlowDiagResultAddress, std::vector<double> >&  nativeResults() { return m_nativeResults; }
 private:
 
     void addResult(const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues);
@@ -61,13 +62,13 @@ private:
 class RigFlowDiagSolverInterface : public cvf::Object
 {
 public:
-    RigFlowDiagSolverInterface(RimEclipseResultCase* eclCase);
+    RigFlowDiagSolverInterface(RimFlowDiagSolution* flowSol);
     virtual ~RigFlowDiagSolverInterface();
 
-    cvf::ref<RigFlowDiagTimeStepResult> calculate(size_t timestep, const std::vector<RigTracerCells > & allTracerData);
+    RigFlowDiagTimeStepResult calculate(size_t timestep);
 
 private:
-    caf::PdmPointer<RimEclipseResultCase> m_eclipseCase;    
+    caf::PdmPointer<RimFlowDiagSolution> m_flowDiagSolution;    
 };
 
 

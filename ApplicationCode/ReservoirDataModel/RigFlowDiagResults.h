@@ -36,15 +36,13 @@ class RimFlowDiagSolution;
 class RigFlowDiagResults: public cvf::Object
 {
 public:
-    RigFlowDiagResults(RimFlowDiagSolution* flowSolution);
+    RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t timeStepCount);
     virtual ~RigFlowDiagResults();
-
-    void                       initResultSteps(size_t timeStepCount);
 
     const std::vector<double>* resultValues(const RigFlowDiagResultAddress& resVarAddr,  size_t frameIndex);
 
 private:
-    std::vector<double>*       findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+    const std::vector<double>* findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     std::vector<double>*       calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     void                       calculateFractionWeightedTOF  ( size_t timeStepIdx, std::set<std::string> selectedTracerNames);
     void                       calculateSumOfFractions       ( size_t timeStepIdx, std::set<std::string> selectedTracerNames);
@@ -52,10 +50,13 @@ private:
     void                       calculateCommunication        ( size_t timeStepIdx, std::set<std::string> selectedTracerNames);
                                
     RigFlowDiagResultFrames*   createScalarResult(const RigFlowDiagResultAddress& resVarAddr);
-    RigFlowDiagResultFrames*   findScalarResult  (const RigFlowDiagResultAddress& resVarAddr);
-    void                       deleteScalarResult(const RigFlowDiagResultAddress& resVarAddr);
+    RigFlowDiagResultFrames*   findScalarResult  (const RigFlowDiagResultAddress& resVarAddr) ;
+    std::vector<double>*       findScalarResultFrame  (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+
+    //void                       deleteScalarResult(const RigFlowDiagResultAddress& resVarAddr);
 
     size_t m_timeStepCount;
+
     std::map< RigFlowDiagResultAddress, cvf::ref<RigFlowDiagResultFrames> >  m_resultSets;
     std::map< RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>  >  m_resultStatistics;
 
@@ -63,6 +64,7 @@ private:
 
     caf::PdmPointer<RimFlowDiagSolution> m_flowDiagSolution;
 
+    std::vector<bool> m_hasAtemptedNativeResults;
 };
 
 
