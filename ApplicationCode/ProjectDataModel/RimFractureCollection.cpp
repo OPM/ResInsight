@@ -36,7 +36,7 @@ RimFractureCollection::RimFractureCollection(void)
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     
     CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
-
+    fractures.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

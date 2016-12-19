@@ -59,6 +59,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "RimFractureCollection.h"
+
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
 #include "cafPdmUiItem.h"
@@ -351,6 +353,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
+        else if (dynamic_cast<RimFractureCollection*>(uiItem))
+        {
+            commandIds << "RicNewSimWellFractureFeature";
+        }
+
 
 
         if (dynamic_cast<RimView*>(uiItem))

@@ -53,8 +53,8 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitFieldNoDefault(&wellpath,       "WellPath",                 "Well path for measured deph", "", "", "");
 
     CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
-    CAF_PDM_InitField(&i,               "J",                1,      "Fracture location cell J", "", "", "");
-    CAF_PDM_InitField(&i,               "K",                1,      "Fracture location cell K", "", "", "");
+    CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
+    CAF_PDM_InitField(&k,               "K",                1,      "Fracture location cell K", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDef", "FractureDef", "", "", "");
 

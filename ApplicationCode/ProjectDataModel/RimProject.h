@@ -76,9 +76,6 @@ public:
     
     caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
 
-    caf::PdmChildArrayField<RimFractureDefinition*>     fractureDefinition;
-    caf::PdmChildArrayField<RimFractureCollection*>     fractureCollection;
-
     caf::PdmField<QString>                              mainWindowTreeViewState;
     caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;
 
