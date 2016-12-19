@@ -93,76 +93,23 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
         if (!snapshotPath.mkpath(".")) return;
     }
 
-    RimCase* activeCase = nullptr;
     RimView* activeView = nullptr;
     
     QStringList timeSteps;
     QString timeStepString;
     QString rangeFilterString;
 
-    std::vector<RimCase*> casesToPlot;
-    std::vector<std::pair<RimCase*, RimView*>> casesViewsPairs;
-    
-    
     for (RimMultiSnapshotDefinition* msd : project->multiSnapshotDefinitions())
     {
-
-        activeCase = msd->caseObject();
-
-        if (activeCase)
+        RimView* rimView = msd->viewObject();
         {
-            casesToPlot.push_back(activeCase);
-        }
-        else //nullptr is value used for "All" 
-        {
-            RimProject* proj = RiaApplication::instance()->project();
-            std::vector<RimCase*> cases;
-            proj->allCases(cases);
-
-            for (RimCase* thisCase : cases)
+            if (rimView && rimView->viewer())
             {
-                casesToPlot.push_back(thisCase);
-            }
-        }
+                RimCase* rimCase = rimView->ownerCase();
+                if (!rimCase) continue;
 
-    
-        for (RimCase* rimCase : casesToPlot)
-        {
-            activeView = msd->viewObject();
-
-            if (activeView)
-            {
-                casesViewsPairs.push_back(std::make_pair(rimCase, activeView));
-
-            }
-            else //nullptr is value used for "All" 
-            {
-                for (RimView* rimView : rimCase->views())
-                {
-                    casesViewsPairs.push_back(std::make_pair(rimCase, rimView));
-                }
-            }
-        }
-
-
-        RimView* rimView = nullptr;
-        RimCase* rimCase = nullptr;
-        bool pairExists = false;
-
-        for (auto caseViewPair : casesViewsPairs)
-        {
-            rimCase = caseViewPair.first;
-            rimView = caseViewPair.second;
-            pairExists = false;
-
-            for (auto viewToCheck : rimCase->views())
-            {
-                if (viewToCheck == rimView) pairExists = true;
-            }
-
-            if (pairExists && rimView && rimView->viewer())
-            {
                 timeSteps = rimCase->timeStepStrings();
+                
                 RiuViewer* viewer = rimView->viewer();
                 int initialFramIndex = viewer->currentFrameIndex();
 

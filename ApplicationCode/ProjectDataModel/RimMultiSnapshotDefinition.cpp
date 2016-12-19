@@ -53,7 +53,6 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
     CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&caseObject,     "Case",                 "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
     CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
@@ -82,46 +81,26 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
     RimProject* proj = RiaApplication::instance()->project();
 
-    if (fieldNeedingOptions == &caseObject && proj)
-    {
-        std::vector<RimCase*> cases;
-        proj->allCases(cases);
-
-        for (RimCase* c : cases)
-        {
-            options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c)); 
-        }
-
-        options.push_back(caf::PdmOptionItemInfo("-- All cases --", nullptr));
-
-    }
-    else if (fieldNeedingOptions == &viewObject)
+    if (fieldNeedingOptions == &viewObject)
     {
         std::vector<RimView*> views; 
 
-        if (caseObject())
-        {
-            views = caseObject()->views();
-        }
-        else
-        {
-            RimProject* proj = RiaApplication::instance()->project();
-            std::vector<RimCase*> cases;
-            proj->allCases(cases);
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
 
-            if (cases.size() > 0)
+        for (RimCase* rimCase : cases)
+        {
+            for (RimView* rimView : rimCase->views())
             {
-                RimCase* rimCase = cases[0];
-                if (rimCase->views().size() > 0)
-                {
-                    views = rimCase->views();
-                }
+                views.push_back(rimView);
             }
         }
 
         for (RimView* view : views)
         {
-            options.push_back(caf::PdmOptionItemInfo(view->name(), view));
+            QString caseAndView = view->ownerCase()->caseUserDescription() + " - " + view->name();
+            options.push_back(caf::PdmOptionItemInfo(caseAndView, view));
         }
         options.push_back(caf::PdmOptionItemInfo("-- All views --", nullptr));
     }
@@ -144,31 +123,12 @@ void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo
 {
     QStringList timeSteps;
 
-    if (!caseObject())
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimCase*> cases;
-        proj->allCases(cases);
-
-        if (cases.size() > 0)
-        {
-            RimCase* rimCase = cases[0];
-            if (rimCase->views().size() > 0)
-            {
-                timeSteps = rimCase->timeStepStrings();
-            }
-        }
-    }
-    else
-    {
-        timeSteps = caseObject()->timeStepStrings();
-    }
+    timeSteps = viewObject->ownerCase()->timeStepStrings();
 
     for (int i = 0; i < timeSteps.size(); i++)
     {
         options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,24 +141,7 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         const cvf::StructGridInterface* mainGrid = nullptr;
         RigActiveCellInfo* actCellInfo = nullptr;
-
-        if (!viewObject()) {
-            RimProject* proj = RiaApplication::instance()->project();
-            std::vector<RimCase*> cases;
-            proj->allCases(cases);
-
-            if (cases.size() > 0)
-            {
-                RimCase* activeCase = cases[0];
-                if (activeCase->views().size() > 0)
-                {
-                    RimView* firstView = activeCase->views()[0];
-                    mainGrid = firstView->rangeFilterCollection()->gridByIndex(0);
-                    actCellInfo = firstView->rangeFilterCollection()->activeCellInfo();
-                }
-            }
-        }
-        
+       
         if (viewObject())
         {
             mainGrid = viewObject()->rangeFilterCollection()->gridByIndex(0);
@@ -241,7 +184,7 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             startSliceIndex = minInt;
             endSliceIndex = maxInt;
 
-            }
+        }
        
         startSliceIndex.uiCapability()->updateConnectedEditors();
     }

@@ -194,42 +194,34 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 
     RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
 
-    //Getting default value from last entered line: 
     if (m_rimProject->multiSnapshotDefinitions.size() > 0)
     {
+        //Getting default value from last entered line: 
         RimMultiSnapshotDefinition* other = m_rimProject->multiSnapshotDefinitions[m_rimProject->multiSnapshotDefinitions.size() - 1];
 
-        multiSnapshot->caseObject = other->caseObject();
         multiSnapshot->viewObject = other->viewObject();
         multiSnapshot->timeStepStart = other->timeStepStart();
         multiSnapshot->timeStepEnd = other->timeStepEnd();
-
-        // Variant using copy based on xml string
-//         QString copyOfOriginalObject = other->writeObjectToXmlString();
-//         multiSnapshot->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
-
     }
-
     else
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
         proj->allCases(cases);
-        RimCase* CaseExample = nullptr;
-        RimView* ViewExample = nullptr;
 
         if (cases.size() > 0)
         {
-            CaseExample = cases.at(0);
-            multiSnapshot->caseObject = CaseExample;
+            RimCase* caseExample = cases.at(0);
  
             std::vector<RimView*> viewExamples;
-            viewExamples = CaseExample->views();
+            viewExamples = caseExample->views();
 
             if (viewExamples.size() > 0)
             {
-                ViewExample = viewExamples.at(0);
-                multiSnapshot->viewObject = ViewExample;
+                RimView* viewExample = viewExamples.at(0);
+                multiSnapshot->viewObject = viewExample;
+                multiSnapshot->timeStepStart = viewExample->currentTimeStep();
+                multiSnapshot->timeStepEnd = viewExample->currentTimeStep();
             }
         }
     }

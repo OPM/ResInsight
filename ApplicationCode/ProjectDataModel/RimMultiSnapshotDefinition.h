@@ -37,7 +37,6 @@ public:
     RimMultiSnapshotDefinition();
     virtual ~RimMultiSnapshotDefinition();
 
-    caf::PdmPtrField<RimCase*>  caseObject;
     caf::PdmPtrField<RimView*>  viewObject;
 
     caf::PdmField<int>       timeStepStart;
@@ -60,5 +59,4 @@ public:
     void getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options);
     
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
 };
