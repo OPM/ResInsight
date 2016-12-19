@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmPtrArrayField.h"
 
 class RimCase;
 class RimView;
@@ -53,6 +54,9 @@ public:
     caf::PdmField< caf::AppEnum< SnapShotDirectionEnum > > sliceDirection;
     caf::PdmField<int>       startSliceIndex;
     caf::PdmField<int>       endSliceIndex;
+
+    caf::PdmPtrArrayField<RimCase*>  additionalCases;
+
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 

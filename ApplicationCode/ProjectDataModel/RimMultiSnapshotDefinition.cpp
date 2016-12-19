@@ -57,11 +57,11 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
 
-    CAF_PDM_InitField(&sliceDirection, "SnapShotDirection", caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter direction", "", "", "");
-    CAF_PDM_InitField(&startSliceIndex, "RangeFilterStart", 1, "RangeFilter Start", "", "", "");
-    CAF_PDM_InitField(&endSliceIndex, "RangeFilterEnd", 1, "RangeFilter End", "", "", "");
+    CAF_PDM_InitField(&sliceDirection,          "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter direction", "", "", "");
+    CAF_PDM_InitField(&startSliceIndex,         "RangeFilterStart", 1,  "RangeFilter Start", "", "", "");
+    CAF_PDM_InitField(&endSliceIndex,           "RangeFilterEnd", 1,    "RangeFilter End", "", "", "");
 
-
+    CAF_PDM_InitFieldNoDefault(&additionalCases, "AdditionalCases",     "Additional Cases", "", "", "");
 }
 
 
@@ -111,6 +111,19 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     else if (fieldNeedingOptions == &timeStepStart)
     {
         getTimeStepStrings(options);
+    }
+    else if (fieldNeedingOptions == &additionalCases)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+
+        for (RimCase* rimCase : cases)
+        {
+            options.push_back(caf::PdmOptionItemInfo(rimCase->caseUserDescription(), rimCase));
+        }
+
+        if (useOptionsOnly) *useOptionsOnly = true;
     }
 
     return options;
