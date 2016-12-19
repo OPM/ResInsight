@@ -18,10 +18,20 @@
 
 #include "RimFracture.h"
 
+#include "RiaApplication.h"
+
 #include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiItem.h"
+
+#include "QToolBox"
+#include "QList"
 
 
 namespace caf 
@@ -67,6 +77,53 @@ RimFracture::~RimFracture()
 {
 }
  
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    CVF_ASSERT(proj);
+
+    RimOilField* oilField = proj->activeOilField();
+    if (oilField == nullptr) return options;
+
+    if (fieldNeedingOptions == &fractureDefinition)
+    {
+
+        RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
+        if (fracDefColl == nullptr) return options;
+
+        for (RimFractureDefinition* fracDef : fracDefColl->fractureDefinitions())
+        {
+            options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
+        }
+    }
+    else if (fieldNeedingOptions == &wellpath)
+    {
+        RimWellPathCollection* wellPathColl = oilField->wellPathCollection();
+        if (wellPathColl == nullptr) return options;
+
+        for (RimWellPath* wellPath : wellPathColl->wellPaths())
+        {
+            options.push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath));
+        }
+      
+
+
+    }
+
+
+
+    return options;
+
+
+
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
