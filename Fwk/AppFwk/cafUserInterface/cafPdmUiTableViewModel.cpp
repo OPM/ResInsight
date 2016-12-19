@@ -192,6 +192,30 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
+        if (dynamic_cast<PdmPtrArrayFieldHandle*>(fieldHandle))
+        {
+            PdmPtrArrayFieldHandle* ptrArrayFieldHandle = dynamic_cast<PdmPtrArrayFieldHandle*>(fieldHandle);
+
+            QString displayText;
+
+            for (size_t i = 0; i < ptrArrayFieldHandle->size(); i++)
+            {
+                PdmObjectHandle* objHandle = ptrArrayFieldHandle->at(i);
+                if (objHandle && objHandle->uiCapability())
+                {
+                    PdmUiObjectHandle* uiObjHandle = objHandle->uiCapability();
+                    if (!displayText.isEmpty()) displayText += ", ";
+
+                    caf::PdmUiFieldHandle* uiFieldHandle = uiObjHandle->userDescriptionField()->uiCapability();
+                    if (uiFieldHandle)
+                    {
+                        displayText += uiFieldHandle->uiValue().toString();
+                    }
+                }
+            }
+
+            return displayText;
+        }
         PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
         if (uiFieldHandle)
         {
