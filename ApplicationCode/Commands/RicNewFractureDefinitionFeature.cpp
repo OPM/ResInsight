@@ -16,15 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSimWellFractureFeature.h"
+#include "RicNewFractureDefinitionFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RimOilField.h"
-#include "RimFracture.h"
-#include "RimFractureCollection.h"
+#include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
 #include "RimProject.h"
- 
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -32,12 +32,12 @@
 #include "QAction.h"
 
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
+CAF_CMD_SOURCE_INIT(RicNewFractureDefinitionFeature, "RicNewFractureDefinitionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
+void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
 {
 
     RimProject* project = RiaApplication::instance()->project();
@@ -46,63 +46,36 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     RimOilField* oilfield = project->activeOilField();
     if (oilfield == nullptr) return;
 
-    RimFractureCollection* fracColl = oilfield->fractureCollection();
+    RimFractureDefinitionCollection* fracDefColl = oilfield->fractureDefinitionCollection();
 
 
-    if (fracColl)
+    if (fracDefColl)
     {
-        RimFracture* fracture = new RimFracture();
-        fracColl->fractures.push_back(fracture);
+        RimFractureDefinition* fractureDef = new RimFractureDefinition();
+        fracDefColl->fractureDefinitions.push_back(fractureDef);
         
-        fracture->name = "New Fracture";
-
-
-        fracColl->updateConnectedEditors();
+        fracDefColl->updateConnectedEditors();
 
     }
     
 
 
 
- 
-//     RimSummaryPlot* plot = selectedSummaryPlot();
-//     if (plot)
-//     {
-//         RimSummaryCurve* newCurve = new RimSummaryCurve();
-//         plot->addCurve(newCurve);
-// 
-//         cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
-//         newCurve->setColor(curveColor);
-// 
-//         RimSummaryCase* defaultCase = nullptr;
-//         if (project->activeOilField()->summaryCaseCollection()->summaryCaseCount() > 0)
-//         {
-//             defaultCase = project->activeOilField()->summaryCaseCollection()->summaryCase(0);
-//             newCurve->setSummaryCase(defaultCase);
-//             newCurve->setVariable("FOPT");
-//             newCurve->loadDataAndUpdate();
-//         }
-// 
-//         plot->updateConnectedEditors();
-// 
-//         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
-//     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicNewFractureDefinitionFeature::setupActionLook(QAction* actionToSetup)
 {
 //    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Fracture");
+    actionToSetup->setText("New Fracture Definition");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureFeature::isCommandEnabled()
+bool RicNewFractureDefinitionFeature::isCommandEnabled()
 {
     return true;
 }

@@ -26,7 +26,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSimWellFractureFeature : public caf::CmdFeature
+class RicNewFractureDefinitionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:
@@ -35,5 +35,5 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
     virtual bool isCommandEnabled() override;
 
-
+ 
 };

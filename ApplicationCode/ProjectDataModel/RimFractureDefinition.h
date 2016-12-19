@@ -35,6 +35,8 @@ public:
     RimFractureDefinition(void);
     virtual ~RimFractureDefinition(void);
     
+    caf::PdmField<QString>   name;
+
     caf::PdmField<float>     halfLength;
     caf::PdmField<float>     height;
     caf::PdmField<float>     width;
@@ -51,5 +53,8 @@ public:
     caf::PdmField<float>     skinFactor;
     caf::PdmField<float>     permeability;
 
+protected:
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 };

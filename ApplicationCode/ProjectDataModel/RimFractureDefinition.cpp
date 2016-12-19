@@ -46,13 +46,15 @@ RimFractureDefinition::RimFractureDefinition(void)
 {
     CAF_PDM_InitObject("Fracture definition", "", "", "");
 
-    CAF_PDM_InitField(&halfLength,   "HalfLength",   650.0f,  "Fracture Halflength X_f", "", "", "");
-    CAF_PDM_InitField(&height,       "Height",       75.0f,   "Fracture Height", "", "", "");
-    CAF_PDM_InitField(&orientation,  "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
-    CAF_PDM_InitField(&width,        "Width",        1.0f,    "Fracture Width", "", "", "");
+    CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Definition Name"), "Name", "", "", "");
 
-    CAF_PDM_InitField(&skinFactor,   "SkinFactor",   1.0f,    "Fracture Skin Factor", "", "", "");
-    CAF_PDM_InitField(&permeability, "Permeability", 22000.f,"Fracture Permeability", "", "", "");
+    CAF_PDM_InitField(&halfLength,  "HalfLength",       650.0f,  "Fracture Halflength X_f", "", "", "");
+    CAF_PDM_InitField(&height,      "Height",           75.0f,   "Fracture Height", "", "", "");
+    CAF_PDM_InitField(&width,       "Width",            1.0f,    "Fracture Width", "", "", "");
+    CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
+
+    CAF_PDM_InitField(&skinFactor,  "SkinFactor",       1.0f,    "Fracture Skin Factor", "", "", "");
+    CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Fracture Permeability", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,4 +62,26 @@ RimFractureDefinition::RimFractureDefinition(void)
 //--------------------------------------------------------------------------------------------------
 RimFractureDefinition::~RimFractureDefinition()
 {
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&name);
+
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry definition");
+    geometryGroup->add(&halfLength);
+    geometryGroup->add(&height);
+    geometryGroup->add(&width);
+    geometryGroup->add(&orientation);
+
+
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fracture definition");
+    group->add(&permeability);
+    group->add(&skinFactor);
+
+
 }

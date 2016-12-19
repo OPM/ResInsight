@@ -38,6 +38,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewFractureDefinitionFeature.h
+
 
 
 # General delete of any object in a child array field
@@ -79,6 +81,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewFractureDefinitionFeature.cpp
+
 
 
 # General delete of any object in a child array field
