@@ -94,6 +94,9 @@ bool PdmUiOrdering::contains(const PdmUiItem* item)
 void PdmUiOrdering::add(const PdmFieldHandle* field)
 {
     PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
+
+    // No uiItem can be caused by missing initialization using CAF_PDM_InitField 
+
     assert(uiItem);
     assert(!this->contains(uiItem));
 
@@ -106,6 +109,9 @@ void PdmUiOrdering::add(const PdmFieldHandle* field)
 void PdmUiOrdering::add(const PdmObjectHandle* obj)
 {
     PdmUiObjectHandle* uiItem = uiObj(const_cast<PdmObjectHandle*>(obj));
+
+    // No uiItem can be caused by missing initialization using CAF_PDM_InitObject
+
     assert(uiItem);
     assert(!this->contains(uiItem));
 
