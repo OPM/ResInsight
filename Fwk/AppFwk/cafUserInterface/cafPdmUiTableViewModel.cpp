@@ -119,6 +119,10 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
                 return uiFieldHandle->uiName(m_currentConfigName);
             }
         }
+        else if (orientation == Qt::Vertical)
+        {
+            return section;
+        }
     }
 
     return QVariant();
