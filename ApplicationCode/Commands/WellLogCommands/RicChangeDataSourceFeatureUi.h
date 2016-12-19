@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016      Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,16 +18,29 @@
 
 #pragma once
 
-#include "cafPdmFieldCvfColor.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+#include "cafPdmUiOrdering.h"
 
-class RimWellLogCurve;
+class RimCase;
+class RimWellPath;
+
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellLogPlotCurveFeatureImpl
+class RicChangeDataSourceFeatureUi : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
-    static cvf::Color3f curveColorFromTable();
-    static std::vector<RimWellLogCurve*> selectedWellLogCurves();
+    RicChangeDataSourceFeatureUi();
+
+    caf::PdmPtrField<RimCase*>     caseToApply;
+    caf::PdmPtrField<RimWellPath*> wellPathToApply;
+
+protected:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 };

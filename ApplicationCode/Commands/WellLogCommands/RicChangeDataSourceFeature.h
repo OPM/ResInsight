@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016      Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,16 +18,24 @@
 
 #pragma once
 
-#include "cafPdmFieldCvfColor.h"
+#include "cafCmdFeature.h"
 
-class RimWellLogCurve;
+#include <vector>
+
+class RimWellLogExtractionCurve;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellLogPlotCurveFeatureImpl
+class RicChangeDataSourceFeature : public caf::CmdFeature
 {
-public:
-    static cvf::Color3f curveColorFromTable();
-    static std::vector<RimWellLogCurve*> selectedWellLogCurves();
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
+
+private:
+    static std::vector<RimWellLogExtractionCurve*> extractionCurves();
 };
