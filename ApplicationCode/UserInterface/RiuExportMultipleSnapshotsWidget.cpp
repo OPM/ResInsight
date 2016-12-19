@@ -42,6 +42,7 @@
 #include <QTableView>
 #include <QToolButton>
 #include <QWidget>
+#include <QHeaderView>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -67,8 +68,9 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     connect(m_pdmTableView->tableView(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
     m_pdmTableView->setListField(&(project->multiSnapshotDefinitions()));
-    m_pdmTableView->tableView()->resizeRowsToContents();
-    m_pdmTableView->tableView()->resizeColumnsToContents();
+
+    QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
+    verticalHeader->setResizeMode(QHeaderView::Interactive);
 
     // Set active child array to be able to use generic delete
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&(project->multiSnapshotDefinitions()));
@@ -228,10 +230,4 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 
     m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
-
-    if (m_rimProject->multiSnapshotDefinitions.size() == 1)
-    {
-        m_pdmTableView->tableView()->resizeRowsToContents();
-        m_pdmTableView->tableView()->resizeColumnsToContents();
-    }
 }
