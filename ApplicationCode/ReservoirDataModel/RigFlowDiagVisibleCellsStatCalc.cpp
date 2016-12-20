@@ -19,6 +19,7 @@
 
 
 #include "RigFlowDiagVisibleCellsStatCalc.h"
+#include "RigActiveCellInfo.h"
 
 #include <math.h>
 #include "RigStatisticsMath.h"

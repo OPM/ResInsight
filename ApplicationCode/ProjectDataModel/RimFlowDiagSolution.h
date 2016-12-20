@@ -23,6 +23,9 @@
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+
 class RimEclipseWell;
 class RigFlowDiagResults;
 //==================================================================================================

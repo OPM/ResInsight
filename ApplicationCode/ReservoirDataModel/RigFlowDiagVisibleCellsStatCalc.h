@@ -25,11 +25,12 @@
 #include "RigStatisticsCalculator.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
+#include "RigActiveCellInfo.h"
 
 #include "cvfArray.h"
 
 class RigFlowDiagResults;
-
+class RigActiveCellInfo;
 
 class RigFlowDiagVisibleCellsStatCalc : public RigStatisticsCalculator
 {

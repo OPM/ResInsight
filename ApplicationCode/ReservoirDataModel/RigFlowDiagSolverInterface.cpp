@@ -147,7 +147,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         QStringList restartFileNames;
         restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
-        if (restartFileNames.size() <= timeStepIndex &&  restartFileNames.size() != m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount() )
+
+        size_t restartFileCount = static_cast<size_t>(restartFileNames.size());
+        size_t maxTimeStepCount = m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+
+        if (restartFileCount <= timeStepIndex &&  restartFileCount !=  maxTimeStepCount )
         {
             QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: Could not find all the restart files. Results will not be loaded.");
             return result;
@@ -157,7 +161,6 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         restartFileName = restartFileNames[static_cast<int>(timeStepIndex)];
     }
 
-    std::string casePath;
     graph.assignFluxDataSource(restartFileName.toStdString());
 
     if ( ! graph.selectReportStep(static_cast<int>(timeStepIndex)) )

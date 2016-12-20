@@ -32,6 +32,7 @@
 
 class RigFlowDiagSolverInterface;
 class RimFlowDiagSolution;
+class RigActiveCellInfo;
 
 class RigFlowDiagResults: public cvf::Object
 {
