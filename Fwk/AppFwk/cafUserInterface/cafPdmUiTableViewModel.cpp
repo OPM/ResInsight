@@ -42,6 +42,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableItemEditor.h"
 #include "cafSelectionManager.h"
@@ -118,6 +119,10 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
                 return uiFieldHandle->uiName(m_currentConfigName);
             }
         }
+        else if (orientation == Qt::Vertical)
+        {
+            return section;
+        }
     }
 
     return QVariant();
@@ -187,6 +192,30 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
+        if (dynamic_cast<PdmPtrArrayFieldHandle*>(fieldHandle))
+        {
+            PdmPtrArrayFieldHandle* ptrArrayFieldHandle = dynamic_cast<PdmPtrArrayFieldHandle*>(fieldHandle);
+
+            QString displayText;
+
+            for (size_t i = 0; i < ptrArrayFieldHandle->size(); i++)
+            {
+                PdmObjectHandle* objHandle = ptrArrayFieldHandle->at(i);
+                if (objHandle && objHandle->uiCapability())
+                {
+                    PdmUiObjectHandle* uiObjHandle = objHandle->uiCapability();
+                    if (!displayText.isEmpty()) displayText += ", ";
+
+                    caf::PdmUiFieldHandle* uiFieldHandle = uiObjHandle->userDescriptionField()->uiCapability();
+                    if (uiFieldHandle)
+                    {
+                        displayText += uiFieldHandle->uiValue().toString();
+                    }
+                }
+            }
+
+            return displayText;
+        }
         PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
         if (uiFieldHandle)
         {
@@ -317,32 +346,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
             if (it == m_fieldEditors.end())
             {
-                // If editor type is specified, find in factory
-                if ( !uiItems[i]->uiEditorTypeName(configName).isEmpty() )
-                {
-                    fieldEditor = Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(configName));
-                }
-                else
-                { 
-                    // Find the default field editor
-
-                    QString editorTypeName = qStringTypeName(*(field->fieldHandle()));
-
-                    // Handle a single value field with valueOptions: Make a combobox
-
-                    if (field->uiValue().type() != QVariant::List)
-                    {
-                        bool useOptionsOnly = true; 
-                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-
-                        if (!options.empty())
-                        {
-                            editorTypeName = PdmUiComboBoxEditor::uiEditorTypeName();
-                        }
-                    }
-
-                    fieldEditor = Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-                }
+                fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, configName);
 
                 if (fieldEditor)
                 {

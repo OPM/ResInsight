@@ -282,7 +282,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
 
     bool mathingItemCount = false;
     {
-        int itemCount = ecl_kw_get_size(eclipseKeywordData);
+        size_t itemCount = static_cast<size_t>(ecl_kw_get_size(eclipseKeywordData));
         if (itemCount == caseData->mainGrid()->cellCount())
         {
             mathingItemCount = true;

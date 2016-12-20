@@ -18,10 +18,11 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cafAppEnum.h"
+#include "cafPdmPtrArrayField.h"
 
 class RimCase;
 class RimView;
@@ -37,7 +38,6 @@ public:
     RimMultiSnapshotDefinition();
     virtual ~RimMultiSnapshotDefinition();
 
-    caf::PdmPtrField<RimCase*>  caseObject;
     caf::PdmPtrField<RimView*>  viewObject;
 
     caf::PdmField<int>       timeStepStart;
@@ -47,16 +47,20 @@ public:
     {
         RANGEFILTER_I,
         RANGEFILTER_J,
-        RANGEFILTER_K
+        RANGEFILTER_K,
+        NO_RANGEFILTER
     };
 
     caf::PdmField< caf::AppEnum< SnapShotDirectionEnum > > sliceDirection;
     caf::PdmField<int>       startSliceIndex;
     caf::PdmField<int>       endSliceIndex;
 
+    caf::PdmPtrArrayField<RimCase*>  additionalCases;
+
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     void getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options);
-
+    
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 };

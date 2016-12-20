@@ -245,7 +245,7 @@ void RimViewLinker::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
+void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const
 {
     if (!isActive()) return;
 
@@ -320,7 +320,7 @@ void RimViewLinker::setMasterView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLinker::masterView()
+RimView* RimViewLinker::masterView() const
 {
     return m_masterView;
 }
@@ -328,7 +328,7 @@ RimView* RimViewLinker::masterView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViews(std::vector<RimView*>& views)
+void RimViewLinker::allViews(std::vector<RimView*>& views) const
 {
     views.push_back(m_masterView());
 
@@ -380,7 +380,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isActive()
+bool RimViewLinker::isActive() const
 {
     RimViewLinkerCollection* viewLinkerCollection = NULL;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
@@ -477,6 +477,40 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
     else
     {
         *icon = QIcon();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord)
+{
+    RimViewController* sourceViewLink = sourceView->viewController();
+    if (sourceViewLink && !sourceViewLink->showCursor())
+    {
+        return;
+    }
+
+    std::vector<RimView*> viewsToUpdate;
+    allViewsForCameraSync(sourceView, viewsToUpdate);
+
+    for (RimView* destinationView : viewsToUpdate)
+    {
+        if (destinationView == sourceView) continue;
+
+        if (destinationView != m_masterView)
+        {
+            RimViewController* viewLink = destinationView->viewController();
+            if (!viewLink) continue;
+
+            if (!viewLink->showCursor()) continue;
+        }
+
+        RiuViewer* destinationViewer = destinationView->viewer();
+        if (destinationViewer)
+        {
+            destinationViewer->setCursorPosition(domainCoord);
+        }
     }
 }
 
@@ -624,18 +658,16 @@ void RimViewLinker::addDependentView(RimView* view)
     this->m_viewControllers.push_back(viewContr);
 
     viewContr->setManagedView(view);
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering)
+void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
     for (size_t j = 0; j < m_viewControllers.size(); j++)
     {
-        uiTreeOrdering.add(m_viewControllers()[j]);
+        uiTreeOrdering.add(m_viewControllers[j]);
     }
 }
 

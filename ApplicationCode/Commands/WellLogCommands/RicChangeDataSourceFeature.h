@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2016      Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,12 +20,14 @@
 
 #include "cafCmdFeature.h"
 
-class RimProject;
+#include <vector>
+
+class RimWellLogExtractionCurve;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportMultipleSnapshotsFeature : public caf::CmdFeature
+class RicChangeDataSourceFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -34,7 +36,6 @@ protected:
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
-public:
-    static void exportMultipleSnapshots(const QString& folder, RimProject* project);
+private:
+    static std::vector<RimWellLogExtractionCurve*> extractionCurves();
 };
-

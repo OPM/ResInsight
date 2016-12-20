@@ -21,12 +21,14 @@
 
 #include "cafPdmFieldCvfColor.h"
 
+class RimWellLogCurve;
+
 //==================================================================================================
 /// 
 //==================================================================================================
 class RicWellLogPlotCurveFeatureImpl
 {
-
 public:
     static cvf::Color3f curveColorFromTable();
+    static std::vector<RimWellLogCurve*> selectedWellLogCurves();
 };

@@ -393,6 +393,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicExportToLasFileFeature";
+            commandIds << "RicChangeDataSourceFeature";
         }
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {

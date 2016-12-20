@@ -53,6 +53,14 @@ namespace caf
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
 
+
+class PdmUiFieldEditorHelper
+{
+public:
+    static PdmUiFieldEditorHandle* fieldEditorForField(PdmUiFieldHandle* fieldHandle, const QString& uiConfigName);
+};
+
+
 //==================================================================================================
 /// The default editor for PdmObjects. Manages the field editors in a gridlayout vertically
 //==================================================================================================
