@@ -22,6 +22,8 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
+#include "RimFractureCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellLogFile.h"
@@ -79,11 +81,17 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
+
     wellPaths.uiCapability()->setUiHidden(true);
+    fractureCollection.uiCapability()->setUiHidden(true);
 
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
 
     m_asciiFileReader = new RifWellPathAsciiFileReader;
+
+    fractureCollection = new RimFractureCollection();
+
 }
 
 
@@ -93,6 +101,7 @@ RimWellPathCollection::RimWellPathCollection()
 RimWellPathCollection::~RimWellPathCollection()
 {
    wellPaths.deleteAllChildObjects();
+   if (fractureCollection()) delete fractureCollection();
    delete m_asciiFileReader;
 }
 

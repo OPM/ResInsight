@@ -75,6 +75,7 @@
 
 #include <QMenu>
 #include "RimFault.h"
+#include "RimFracture.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -354,9 +355,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
-        else if (dynamic_cast<RimFractureCollection*>(uiItem))
+        else if (dynamic_cast<RimFractureCollection*>(uiItem) 
+              || dynamic_cast<RimFracture*>(uiItem) )
         {
             commandIds << "RicNewSimWellFractureFeature";
+            commandIds << "RicNewWellPathCollFractureFeature";
         }
         else if (dynamic_cast<RimFractureDefinitionCollection*>(uiItem))
         {

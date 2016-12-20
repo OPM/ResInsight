@@ -31,8 +31,10 @@
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
+#include "cafPdmChildField.h"
 
 class RimEclipseView;
+class RimFractureCollection;
 
 //==================================================================================================
 ///  
@@ -75,6 +77,9 @@ public:
     caf::PdmField<bool>                 showWellSpheres;
     caf::PdmField<cvf::Color3f>         wellPipeColor;
     caf::PdmField<double>               pipeRadiusScaleFactor;
+
+    caf::PdmChildField<RimFractureCollection*> fractureCollection;
+
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;

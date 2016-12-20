@@ -133,7 +133,7 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
     geometryGroup->add(&fractureDefinition);
-    geometryGroup->add(&welltype);
+//     geometryGroup->add(&welltype);
 
     if (welltype == FRACTURE_WELL_PATH)
     {

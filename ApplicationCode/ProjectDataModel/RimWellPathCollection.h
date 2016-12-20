@@ -28,11 +28,13 @@
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
+#include "cafPdmChildField.h"
 
 #include "cvfObject.h"
 
 #include <QString>
 
+class RimFractureCollection;
 class RivWellPathCollectionPartMgr;
 class RifWellPathAsciiFileReader;
 class RimWellPath;
@@ -73,7 +75,9 @@ public:
     caf::PdmField<bool>                 wellPathClip;
     caf::PdmField<int>                  wellPathClipZDistance;
 
-    caf::PdmChildArrayField<RimWellPath*> wellPaths;
+    caf::PdmChildArrayField<RimWellPath*>       wellPaths;
+    caf::PdmChildField<RimFractureCollection*>  fractureCollection;
+
     
    
     RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }

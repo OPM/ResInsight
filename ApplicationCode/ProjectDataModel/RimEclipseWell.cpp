@@ -23,6 +23,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimFractureCollection.h"
 
 #include "cvfMath.h"
 
@@ -48,13 +49,17 @@ RimEclipseWell::RimEclipseWell()
 
     CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "Use well fence", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
+    fractureCollection.uiCapability()->setUiHidden(true);
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
     m_reservoirView = NULL;
+
+    fractureCollection = new RimFractureCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +67,7 @@ RimEclipseWell::RimEclipseWell()
 //--------------------------------------------------------------------------------------------------
 RimEclipseWell::~RimEclipseWell()
 {
+    if (fractureCollection()) delete fractureCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

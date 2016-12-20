@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSimWellFractureFeature.h"
+#include "RicNewWellPathCollFractureFeature.h"
 
 #include "RiaApplication.h"
 
@@ -31,14 +31,15 @@
 
 #include "QAction.h"
 #include "RimEclipseWell.h"
+#include "RimWellPathCollection.h"
 
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
+CAF_CMD_SOURCE_INIT(RicNewWellPathCollFractureFeature, "RicNewWellPathCollFractureFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
+void RicNewWellPathCollFractureFeature::onActionTriggered(bool isChecked)
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return;
@@ -46,8 +47,11 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
 
-    RimEclipseWell* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
+    RimWellPathCollection* wellPathColl = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPathColl);
+
+//     RimEclipseWell* eclipseWell = nullptr;
+//     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
     RimFractureCollection* fractureCollection = nullptr;
     objHandle->firstAncestorOrThisOfType(fractureCollection);
@@ -56,7 +60,8 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     RimFracture* fracture = new RimFracture();
     fractureCollection->fractures.push_back(fracture);
         
-    fracture->name = "New Simulation Well Fracture";
+    fracture->name = "New Well Path Fracture";
+    fracture->welltype = RimFracture::FRACTURE_WELL_PATH;
     //TODO set all relevant defaults...
 
     fractureCollection->updateConnectedEditors();
@@ -66,16 +71,16 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellPathCollFractureFeature::setupActionLook(QAction* actionToSetup)
 {
-   actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
+//    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Fracture");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureFeature::isCommandEnabled()
+bool RicNewWellPathCollFractureFeature::isCommandEnabled()
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return false;
@@ -83,10 +88,10 @@ bool RicNewSimWellFractureFeature::isCommandEnabled()
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return false;
 
-    RimEclipseWell* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
+    RimWellPathCollection* wellPathColl = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPathColl);
 
-    if (eclipseWell)
+    if (wellPathColl)
     {
         return true;
     }
