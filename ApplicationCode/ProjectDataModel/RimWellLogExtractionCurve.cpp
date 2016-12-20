@@ -128,8 +128,8 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
     if (eclipseView)
     {
-        m_eclipseResultDefinition->setResultType(eclipseView->cellResult()->resultType());
-        m_eclipseResultDefinition->setResultVariable(eclipseView->cellResult()->resultVariable());
+        m_eclipseResultDefinition->simpleCopy(eclipseView->cellResult());
+
         m_timeStep = eclipseView->currentTimeStep();
     }
 

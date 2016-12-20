@@ -117,9 +117,8 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults(RimEclipsePropertyFilter* 
     CVF_ASSERT(reservoirView);
 
     propertyFilter->resultDefinition->setEclipseCase(reservoirView->eclipseCase());
-    propertyFilter->resultDefinition->setResultVariable(reservoirView->cellResult->resultVariable());
-    propertyFilter->resultDefinition->setPorosityModel(reservoirView->cellResult->porosityModel());
-    propertyFilter->resultDefinition->setResultType(reservoirView->cellResult->resultType());
+    propertyFilter->resultDefinition->simpleCopy(reservoirView->cellResult);
+
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();

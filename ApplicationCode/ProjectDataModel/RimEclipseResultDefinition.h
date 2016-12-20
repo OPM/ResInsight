@@ -46,6 +46,8 @@ public:
     RimEclipseResultDefinition();
     virtual ~RimEclipseResultDefinition();
 
+    void                            simpleCopy(const RimEclipseResultDefinition* other);
+
     void                            setEclipseCase(RimEclipseCase* eclipseCase);
 
     RimDefines::ResultCatType       resultType() const { return m_resultType(); }
@@ -103,7 +105,10 @@ protected:
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
 private:
-    bool                            hasDualPorFractureResult(); 
+    void                            setFlowSolution(RimFlowDiagSolution* flowSol);
+    void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
+
+    bool                            hasDualPorFractureResult();
 
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QStringList                     getResultNamesForCurrentUiResultType();

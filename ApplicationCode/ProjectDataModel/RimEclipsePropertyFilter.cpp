@@ -37,6 +37,8 @@
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
+#include "RigFlowDiagResults.h"
+#include "RimFlowDiagSolution.h"
 
 
 namespace caf
@@ -292,32 +294,53 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     clearCategories();
 
-    size_t scalarIndex = resultDefinition->scalarResultIndex();
-    if (scalarIndex != cvf::UNDEFINED_SIZE_T)
+    if (resultDefinition->resultType() == RimDefines::FLOW_DIAGNOSTICS)
     {
-        RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
-        if (results)
+        RimView* view;
+        this->firstAncestorOrThisOfType(view);
+
+        int timeStep = 0;
+        if (view) timeStep = view->currentTimeStep();
+        RigFlowDiagResultAddress resAddr = resultDefinition->flowDiagResAddress();
+        if ( resultDefinition->flowDiagSolution() )
         {
-            results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            RigFlowDiagResults* results = resultDefinition->flowDiagSolution()->flowDiagResults();
+            results->minMaxScalarValues(resAddr, timeStep, &max, &max);
 
-            if (resultDefinition->hasCategoryResult())
+            if ( resultDefinition->hasCategoryResult() )
             {
-                if (resultDefinition->resultType() != RimDefines::FORMATION_NAMES)
-                {
-                    setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
-                }
-                else
-                {
-                    CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData());
-                    CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames());
+                setCategoryValues(results->uniqueCellScalarValues(resAddr, timeStep));
+            }
+        }
+    }
+    else
+    {
+        size_t scalarIndex = resultDefinition->scalarResultIndex();
+        if ( scalarIndex != cvf::UNDEFINED_SIZE_T )
+        {
+            RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
+            if ( results )
+            {
+                results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
 
-                    const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
-                    setCategoryNames(fnVector);
+                if ( resultDefinition->hasCategoryResult() )
+                {
+                    if ( resultDefinition->resultType() != RimDefines::FORMATION_NAMES )
+                    {
+                        setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
+                    }
+                    else
+                    {
+                        CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData());
+                        CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames());
+
+                        const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
+                        setCategoryNames(fnVector);
+                    }
                 }
             }
         }
     }
-
     m_maximumResultValue = max;
     m_minimumResultValue = min;
 

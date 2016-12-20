@@ -101,6 +101,18 @@ RimEclipseResultDefinition::~RimEclipseResultDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* other)
+{
+    this->setResultVariable(other->resultVariable());
+    this->setPorosityModel(other->porosityModel());
+    this->setResultType(other->resultType());
+    this->setFlowSolution(other->m_flowSolution());
+    this->setSelectedTracers(other->m_selectedTracers());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
      m_eclipseCase = eclipseCase;
@@ -124,23 +136,35 @@ RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResul
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (   &m_resultTypeUiField == changedField 
+    if (   &m_flowSolutionUiField  == changedField 
+        || &m_resultTypeUiField    == changedField
         || &m_porosityModelUiField == changedField )
     {
+        // If the user are seeing the list with the actually selected result, 
+        // select that result in the list. Otherwise select nothing.
+
         QStringList varList = getResultNamesForCurrentUiResultType();
 
-        // If the user are seeing the list with the actually selected result, select that result in the list. Otherwise select nothing.
-        if (   m_resultTypeUiField() == m_resultType() 
-            && m_porosityModelUiField() == m_porosityModel() 
-            && varList.contains(resultVariable()))
+        bool isFlowDiagFieldsRelevant = (m_resultType() == RimDefines::FLOW_DIAGNOSTICS);
+        
+
+        if (   ( m_flowSolutionUiField() == m_flowSolution() || !isFlowDiagFieldsRelevant)
+            &&  m_resultTypeUiField()    == m_resultType()
+            &&  m_porosityModelUiField() == m_porosityModel() )
         {
-            m_resultVariableUiField = resultVariable();
+            if (varList.contains(resultVariable()))
+            {
+                m_resultVariableUiField = resultVariable();
+            }
+
+            if (isFlowDiagFieldsRelevant) m_selectedTracersUiField = m_selectedTracers();
+            else                          m_selectedTracersUiField = std::vector<QString>();
         }
         else
         {
             m_resultVariableUiField = "";
+            m_selectedTracersUiField = std::vector<QString>();
         }
-
     }
 
     if (&m_resultVariableUiField == changedField)
@@ -464,6 +488,8 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 {
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
+    if (m_resultType() == RimDefines::FLOW_DIAGNOSTICS) return cvf::UNDEFINED_SIZE_T;
+
     const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults && gridCellResults->cellResults())
     {
@@ -478,6 +504,8 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 {
+    CVF_ASSERT(m_resultType() == RimDefines::FLOW_DIAGNOSTICS);
+
     std::set<std::string> selTracerNames;
     for (const QString& tName : m_selectedTracers())
     {
@@ -492,6 +520,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
+    if (m_resultType() == RimDefines::FLOW_DIAGNOSTICS) return; // Will load automatically on access
+
     RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
@@ -625,6 +655,24 @@ RimFlowDiagSolution* RimEclipseResultDefinition::flowDiagSolution()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setFlowSolution(RimFlowDiagSolution* flowSol)
+{
+    this->m_flowSolution = flowSol;
+    this->m_flowSolutionUiField = flowSol;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setSelectedTracers(const std::vector<QString>& selectedTracers)
+{
+    this->m_selectedTracers = selectedTracers;
+    this->m_selectedTracersUiField = selectedTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
     bool isTernary =    (m_resultType() == RimDefines::DYNAMIC_NATIVE) && 
@@ -642,6 +690,9 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
         && m_eclipseCase 
         && m_eclipseCase->reservoirData() 
         && m_eclipseCase->reservoirData()->activeFormationNames() ) return true;
+
+    if (this->m_resultType() == RimDefines::FLOW_DIAGNOSTICS
+        && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME) return true;
 
     if (!this->hasStaticResult()) return false;
 
@@ -680,6 +731,17 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     { 
         uiOrdering.add(&m_flowSolutionUiField);
         uiOrdering.add(&m_selectedTracersUiField);
+
+        if ( m_flowSolution() == nullptr )
+        {
+            RimEclipseResultCase* eclCase;
+            this->firstAncestorOrThisOfType(eclCase);
+            if ( eclCase )
+            {
+                std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
+                if (flowSols.size()){ this->setFlowSolution(flowSols[0]); } 
+            }
+        }
     }
     uiOrdering.add(&m_resultVariableUiField);
 
