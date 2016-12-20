@@ -25,6 +25,10 @@
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
 #include "RimView.h"
@@ -92,97 +96,155 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
     {
         if (!snapshotPath.mkpath(".")) return;
     }
-
-    RimView* activeView = nullptr;
     
-    QStringList timeSteps;
-    QString timeStepString;
-    QString rangeFilterString;
-
     for (RimMultiSnapshotDefinition* msd : project->multiSnapshotDefinitions())
     {
         RimView* rimView = msd->viewObject();
+        if (!rimView) continue;
+        if (!rimView->viewer()) continue;
+        
+        int initialFramIndex = rimView->viewer()->currentFrameIndex();
+
+        exportViewVariationsToFolder(rimView, msd, folder);
+
+        for (RimCase* rimCase : msd->additionalCases())
         {
-            if (rimView && rimView->viewer())
+            RimView* copyOfView = dynamic_cast<RimView*>(rimView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+
+            RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimCase);
+            if (eclCase)
             {
-                RimCase* rimCase = rimView->ownerCase();
-                if (!rimCase) continue;
+                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(copyOfView);
+                CVF_ASSERT(eclView);
 
-                timeSteps = rimCase->timeStepStrings();
-                
-                RiuViewer* viewer = rimView->viewer();
-                int initialFramIndex = viewer->currentFrameIndex();
+                eclCase->reservoirViews().push_back(eclView);
 
-                for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
+                eclView->setEclipseCase(eclCase);
+
+                // Resolve references after reservoir view has been inserted into Rim structures
+                // Intersections referencing a well path/ simulation well requires this
+                // TODO: initAfterReadRecursively can probably be removed
+                eclView->initAfterReadRecursively();
+                eclView->resolveReferencesRecursively();
+
+                eclView->loadDataAndUpdate();
+
+                exportViewVariationsToFolder(eclView, msd, folder);
+
+                eclCase->reservoirViews().removeChildObject(eclView);
+            }
+
+            RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
+            if (geomCase)
+            {
+                RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(copyOfView);
+                CVF_ASSERT(geoMechView);
+
+                geomCase->geoMechViews().push_back(geoMechView);
+
+                geoMechView->setGeoMechCase(geomCase);
+
+                // Resolve references after reservoir view has been inserted into Rim structures
+                // Intersections referencing a well path/ simulation well requires this
+                // TODO: initAfterReadRecursively can probably be removed
+                geoMechView->initAfterReadRecursively();
+                geoMechView->resolveReferencesRecursively();
+
+                geoMechView->loadDataAndUpdate();
+
+                exportViewVariationsToFolder(geoMechView, msd, folder);
+
+                geomCase->geoMechViews().removeChildObject(geoMechView);
+            }
+
+            delete copyOfView;
+        }
+
+        // Set view back to initial state
+        rimView->viewer()->setCurrentFrame(initialFramIndex);
+        rimView->viewer()->animationControl()->setCurrentFrameOnly(initialFramIndex);
+
+        rimView->scheduleCreateDisplayModelAndRedraw();
+     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+{
+    RimCase* rimCase = rimView->ownerCase();
+    CVF_ASSERT(rimCase);
+
+    RiuViewer* viewer = rimView->viewer();
+    QStringList timeSteps = rimCase->timeStepStrings();
+
+    for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
+    {
+        QString timeStepIndexString = QString("%1").arg(i, 2, 10, QLatin1Char('0'));
+
+        QString timeStepString = timeStepIndexString + "_" + timeSteps[i].replace(".", "-");
+
+        if (viewer)
+        {
+            viewer->setCurrentFrame(i);
+            viewer->animationControl()->setCurrentFrameOnly(i);
+        }
+
+        if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
+        {
+            QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString;
+            fileName.replace(" ", "-");
+            QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
+
+            QCoreApplication::instance()->processEvents();
+
+            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
+        }
+        else
+        {
+            RimCellRangeFilter* rangeFilter = new RimCellRangeFilter;
+            rimView->rangeFilterCollection()->rangeFilters.push_back(rangeFilter);
+
+            bool rangeFilterInitState = rimView->rangeFilterCollection()->isActive();
+            rimView->rangeFilterCollection()->isActive = true;
+
+            for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)
+            {
+                QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
+                QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString + "_" + rangeFilterString;
+                fileName.replace(" ", "-");
+
+                rangeFilter->setDefaultValues();
+                if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_I)
                 {
-                    QString timeStepIndexString = QString("%1").arg(i, 2, 10, QLatin1Char('0'));
-
-                    timeStepString = timeStepIndexString + "_" + timeSteps[i].replace(".", "-");
-
-                    viewer->setCurrentFrame(i);
-                    viewer->animationControl()->setCurrentFrameOnly(i);
-
-                    if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
-                    {
-                        QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString;
-                        fileName.replace(" ", "-");
-                        QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-                        RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
-                    }
-                    else
-                    {
-                        RimCellRangeFilter* rangeFilter = new RimCellRangeFilter;
-                        rimView->rangeFilterCollection()->rangeFilters.push_back(rangeFilter);
-
-                        bool rangeFilterInitState = rimView->rangeFilterCollection()->isActive();
-                        rimView->rangeFilterCollection()->isActive = true;
-
-                        for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)
-                        {
-                            rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
-                            QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString + "_" + rangeFilterString;
-                            fileName.replace(" ", "-");
-
-                            rangeFilter->setDefaultValues();
-                            if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_I)
-                            {
-                                rangeFilter->cellCountI = 1;
-                                rangeFilter->startIndexI = i;
-                            }
-                            else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_J)
-                            {
-                                rangeFilter->cellCountJ = 1;
-                                rangeFilter->startIndexJ = i;
-                            }
-                            else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_K)
-                            {
-                                rangeFilter->cellCountK = 1;
-                                rangeFilter->startIndexK = i;
-                            }
-
-                            rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
-                            // Make sure the redraw is processed
-                            QCoreApplication::instance()->processEvents();
-
-                            QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-                            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
-                        }
-
-                        rimView->rangeFilterCollection()->rangeFilters.removeChildObject(rangeFilter);
-                        delete rangeFilter;
-
-                        rimView->rangeFilterCollection()->isActive = rangeFilterInitState;
-                        rimView->scheduleCreateDisplayModelAndRedraw();
-                        QCoreApplication::instance()->processEvents();
-                    }
+                    rangeFilter->cellCountI = 1;
+                    rangeFilter->startIndexI = i;
+                }
+                else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_J)
+                {
+                    rangeFilter->cellCountJ = 1;
+                    rangeFilter->startIndexJ = i;
+                }
+                else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_K)
+                {
+                    rangeFilter->cellCountK = 1;
+                    rangeFilter->startIndexK = i;
                 }
 
-                viewer->setCurrentFrame(initialFramIndex);
-                viewer->animationControl()->setCurrentFrameOnly(initialFramIndex);
+                rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
+                // Make sure the redraw is processed
+                QCoreApplication::instance()->processEvents();
 
+                QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
             }
-        }
-     }
 
+            rimView->rangeFilterCollection()->rangeFilters.removeChildObject(rangeFilter);
+            delete rangeFilter;
+
+            rimView->rangeFilterCollection()->isActive = rangeFilterInitState;
+        }
+    }
 }
 
