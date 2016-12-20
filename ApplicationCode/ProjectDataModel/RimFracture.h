@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "RimView.h"
+#include "cvfVector3.h"
 
 class RimFractureDefinition;
 class RimWellPath;
@@ -51,6 +53,7 @@ public:
 
     caf::PdmPtrField<RimWellPath*>  wellpath;
     caf::PdmField<float>            measuredDepth;
+    caf::PdmField<cvf::Vec3d>       positionAtWellpath;
 
     caf::PdmField<int>              i;
     caf::PdmField<int>              j;

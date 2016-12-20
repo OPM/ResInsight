@@ -32,6 +32,7 @@
 
 #include "QToolBox"
 #include "QList"
+#include "cvfVector3.h"
 
 
 namespace caf 
@@ -59,8 +60,9 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
     CAF_PDM_InitField(&welltype,"Type", caf::AppEnum<FractureWellEnum>(FRACTURE_SIMULATION_WELL), "Type", "", "", "");
 
-    CAF_PDM_InitField(         &measuredDepth,  "MeasuredDepth",    650.0f, "Measured Depth Location (if along well path)", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellpath,       "WellPath",                 "Well path for measured deph", "", "", "");
+    CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        650.0f, "Measured Depth Location (if along well path)", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellpath,               "WellPath",             "Well path for measured deph", "", "", "");
+    CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position at Well Path", "", "", "");
 
     CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
     CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
@@ -139,6 +141,7 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     {
         geometryGroup->add(&wellpath);
         geometryGroup->add(&measuredDepth);
+        geometryGroup->add(&positionAtWellpath);
     }
 
     else if (welltype == FRACTURE_SIMULATION_WELL)

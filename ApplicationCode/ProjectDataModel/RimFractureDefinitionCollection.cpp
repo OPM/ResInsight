@@ -35,7 +35,7 @@ RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     
-    CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "Fracture Definitions", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "FractureDefinitions", "", "", "", "");
     fractureDefinitions.uiCapability()->setUiHidden(true);
 }
 
