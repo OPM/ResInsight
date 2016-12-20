@@ -40,6 +40,9 @@ public:
     RigFlowDiagResults* flowDiagResults();
     std::set<QString>   tracerNames();
 
+    std::map<std::string, std::vector<int> > allInjectorTracerActiveCellIndices(size_t timeStepIndex);
+    std::map<std::string, std::vector<int> > allProducerTracerActiveCellIndices(size_t timeStepIndex);
+
     enum TracerStatusType
     {
         PRODUCER, 
@@ -50,10 +53,13 @@ public:
 
     TracerStatusType tracerStatus(QString tracerName);
 
+
 protected:
     //virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 private:
+    std::map<std::string, std::vector<int> > allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors);
+
     virtual caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmField<QString> m_userDescription;
 

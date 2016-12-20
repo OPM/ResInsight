@@ -19,15 +19,17 @@
 #include "RigFlowDiagResults.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RimFlowDiagSolution.h"
+#include "RimEclipseResultCase.h"
+#include "RimEclipseCase.h"
+#include "RigCaseData.h"
+#include "RigFlowDiagStatCalc.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagResults::RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t timeStepCount)
- : m_flowDiagSolution()
+ : m_flowDiagSolution(flowSolution)
 {
-
-    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(flowSolution);
 
     m_timeStepCount = timeStepCount;
     m_hasAtemptedNativeResults.resize(timeStepCount, false);
@@ -55,6 +57,17 @@ const std::vector<double>* RigFlowDiagResults::resultValues(const RigFlowDiagRes
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RigActiveCellInfo * RigFlowDiagResults::activeCellInfo(const RigFlowDiagResultAddress& resVarAddr)
+{
+    RimEclipseResultCase* eclCase;
+    m_flowDiagSolution->firstAncestorOrThisOfType(eclCase);
+    
+    return eclCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); // Todo: base on resVarAddr member
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
 {
    
@@ -70,7 +83,10 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 
     if (!m_hasAtemptedNativeResults[frameIndex])
     {
-        RigFlowDiagTimeStepResult nativeTimestepResults =  m_flowDagSolverInterface->calculate(frameIndex);
+        
+        RigFlowDiagTimeStepResult nativeTimestepResults =  solverInterface()->calculate(frameIndex, 
+                                                                                        m_flowDiagSolution->allInjectorTracerActiveCellIndices(frameIndex),
+                                                                                        m_flowDiagSolution->allProducerTracerActiveCellIndices(frameIndex));
 
         std::map<RigFlowDiagResultAddress, std::vector<double> >& nativeResults = nativeTimestepResults.nativeResults();
 
@@ -106,6 +122,17 @@ std::vector<double>* RigFlowDiagResults::findScalarResultFrame(const RigFlowDiag
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface* RigFlowDiagResults::solverInterface()
+{
+    RimEclipseResultCase* eclCase;
+    m_flowDiagSolution->firstAncestorOrThisOfType(eclCase);
+
+    return eclCase->flowDiagSolverInterface();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFlowDiagResultFrames* RigFlowDiagResults::createScalarResult(const RigFlowDiagResultAddress& resVarAddr)
 {
     cvf::ref<RigFlowDiagResultFrames> newFrameSet = new RigFlowDiagResultFrames(m_timeStepCount);
@@ -134,3 +161,138 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
     return nullptr; // Todo
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStatisticsDataCache* RigFlowDiagResults::statistics(const RigFlowDiagResultAddress& resVarAddr)
+{
+    RigStatisticsDataCache* statCache = m_resultStatistics[resVarAddr].p();
+    if ( !statCache )
+    {
+        RigFlowDiagStatCalc* calculator = new RigFlowDiagStatCalc(this, resVarAddr);
+        statCache = new RigStatisticsDataCache(calculator);
+        m_resultStatistics[resVarAddr] = statCache;
+    }
+
+    return statCache;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::minMaxScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex,
+                                                     double* localMin, double* localMax)
+{
+    this->statistics(resVarAddr)->minMaxCellScalarValues(frameIndex, *localMin, *localMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::minMaxScalarValues(const RigFlowDiagResultAddress& resVarAddr,
+                                                     double* globalMin, double* globalMax)
+{
+    this->statistics(resVarAddr)->minMaxCellScalarValues(*globalMin, *globalMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero)
+{
+    this->statistics(resVarAddr)->posNegClosestToZero(frameIndex, *localPosClosestToZero, *localNegClosestToZero);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero)
+{
+    this->statistics(resVarAddr)->posNegClosestToZero(*globalPosClosestToZero, *globalNegClosestToZero);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, double* meanValue)
+{
+    CVF_ASSERT(meanValue);
+
+    this->statistics(resVarAddr)->meanCellScalarValues(*meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* meanValue)
+{
+    this->statistics(resVarAddr)->meanCellScalarValues(frameIndex, *meanValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, double* p10, double* p90)
+{
+    this->statistics(resVarAddr)->p10p90CellScalarValues(*p10, *p90);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* p10, double* p90)
+{
+    this->statistics(resVarAddr)->p10p90CellScalarValues(frameIndex, *p10, *p90);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::sumScalarValue(const RigFlowDiagResultAddress& resVarAddr, double* sum)
+{
+    CVF_ASSERT(sum);
+
+    this->statistics(resVarAddr)->sumCellScalarValues(*sum);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::sumScalarValue(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* sum)
+{
+    CVF_ASSERT(sum);
+
+    this->statistics(resVarAddr)->sumCellScalarValues(frameIndex, *sum);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigFlowDiagResults::scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr)
+{
+    return this->statistics(resVarAddr)->cellScalarValuesHistogram();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigFlowDiagResults::scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr, int frameIndex)
+{
+    return this->statistics(resVarAddr)->cellScalarValuesHistogram(frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr)
+{
+    return this->statistics(resVarAddr)->uniqueCellScalarValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex)
+{
+    return this->statistics(resVarAddr)->uniqueCellScalarValues(frameIndex);
+}

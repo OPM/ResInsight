@@ -21,6 +21,7 @@
 #include "RigCaseData.h"
 
 #include "RigFlowDiagResults.h"
+#include "RigCaseCellResultsData.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 
@@ -93,6 +94,82 @@ std::set<QString> RimFlowDiagSolution::tracerNames()
 
     return tracerNameSet;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<int> > RimFlowDiagSolution::allInjectorTracerActiveCellIndices(size_t timeStepIndex)
+{
+    return allTracerActiveCellIndices(timeStepIndex, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<int> > RimFlowDiagSolution::allProducerTracerActiveCellIndices(size_t timeStepIndex)
+{
+    return allTracerActiveCellIndices(timeStepIndex, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors)
+{
+    RimEclipseResultCase* eclCase;
+    this->firstAncestorOrThisOfType(eclCase);
+    TracerStatusType tracerStatus = UNDEFINED;
+
+    std::map<std::string, std::vector<int> > tracersWithCells;
+
+    if ( eclCase )
+    {
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+        RigMainGrid* mainGrid = eclCase->reservoirData()->mainGrid();
+        RigActiveCellInfo* activeCellInfo = eclCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); //Todo: Must come from the results definition
+
+        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        {
+            if (!wellResults[wIdx]->hasWellResult(timeStepIndex) ) continue;
+            
+            size_t wellTimeStep = wellResults[wIdx]->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex];
+            const RigWellResultFrame& wellResFrame =  wellResults[wIdx]->m_wellCellsTimeSteps[wellTimeStep];
+
+            if ( !wellResFrame.m_isOpen ) continue;
+
+            bool useWell = ( useInjectors && ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
+                                            || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
+                                            ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR) )
+                           || (!useInjectors && wellResFrame.m_productionType == RigWellResultFrame::PRODUCER);
+
+            
+            if (useWell)
+            {
+                std::string wellname = wellResults[wIdx]->m_wellName.toStdString();
+                std::vector<int>& tracerCells = tracersWithCells[wellname];
+
+                for (const RigWellResultBranch& wBr: wellResFrame.m_wellResultBranches)
+                {
+                    for (const RigWellResultPoint& wrp: wBr.m_branchResultPoints)
+                    {
+                        if (wrp.isValid() && wrp.m_isOpen)
+                        {
+                            RigGridBase * grid = mainGrid->gridByIndex(wrp.m_gridIndex);
+                            size_t reservoirCellIndex = grid->reservoirCellIndex(wrp.m_gridCellIndex);
+
+                            int cellActiveIndex = static_cast<int>(activeCellInfo->cellResultIndex(reservoirCellIndex));
+                            tracerCells.push_back(cellActiveIndex);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return tracersWithCells;
+}
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

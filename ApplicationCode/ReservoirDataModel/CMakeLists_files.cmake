@@ -24,6 +24,9 @@ ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultAddress.h
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResults.h
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultFrames.h
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagSolverInterface.h
+${CEE_CURRENT_LIST_DIR}RigFlowDiagInterfaceTools.h
+${CEE_CURRENT_LIST_DIR}RigFlowDiagStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigFlowDiagVisibleCellsStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogExtractor.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseWellLogExtractor.h
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
@@ -66,6 +69,8 @@ ${CEE_CURRENT_LIST_DIR}RigFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResults.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultFrames.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagSolverInterface.cpp
+${CEE_CURRENT_LIST_DIR}RigFlowDiagStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigFlowDiagVisibleCellsStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogExtractor.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseWellLogExtractor.cpp
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.cpp

@@ -40,11 +40,31 @@ public:
     virtual ~RigFlowDiagResults();
 
     const std::vector<double>* resultValues(const RigFlowDiagResultAddress& resVarAddr,  size_t frameIndex);
+    size_t                     timeStepCount() { return m_timeStepCount; }
+    const RigActiveCellInfo *  activeCellInfo(const RigFlowDiagResultAddress& resVarAddr);
+
+
+    void                                             minMaxScalarValues (const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax);
+    void                                             minMaxScalarValues (const RigFlowDiagResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void                                             posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                             posNegClosestToZero(const RigFlowDiagResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
+    void                                             meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, double* meanValue);
+    void                                             meanScalarValue(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* meanValue);
+    void                                             p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, double* p10, double* p90);
+    void                                             p10p90ScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* p10, double* p90);
+    void                                             sumScalarValue(const RigFlowDiagResultAddress& resVarAddr, double* sum);
+    void                                             sumScalarValue(const RigFlowDiagResultAddress& resVarAddr, int frameIndex, double* sum);
+    const std::vector<size_t>&                       scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr);
+    const std::vector<size_t>&                       scalarValuesHistogram(const RigFlowDiagResultAddress& resVarAddr, int frameIndex);
+    const std::vector<int>&                          uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr);
+    const std::vector<int>&                          uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex);
 
 private:
     const std::vector<double>* findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     std::vector<double>*       calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
-    void                       calculateFractionWeightedTOF  ( size_t timeStepIdx, std::set<std::string> selectedTracerNames);
+    RigStatisticsDataCache*    statistics(const RigFlowDiagResultAddress& resVarAddr);
+
+    void                       calculateFractionWeightedTOF  (size_t timeStepIdx, std::set<std::string> selectedTracerNames);
     void                       calculateSumOfFractions       ( size_t timeStepIdx, std::set<std::string> selectedTracerNames);
     void                       calculateTracerWithMaxFraction( size_t timeStepIdx, std::set<std::string> selectedTracerNames); // Needs a tracer index
     void                       calculateCommunication        ( size_t timeStepIdx, std::set<std::string> selectedTracerNames);
@@ -60,7 +80,7 @@ private:
     std::map< RigFlowDiagResultAddress, cvf::ref<RigFlowDiagResultFrames> >  m_resultSets;
     std::map< RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>  >  m_resultStatistics;
 
-    cvf::ref<RigFlowDiagSolverInterface>                                     m_flowDagSolverInterface;
+    RigFlowDiagSolverInterface* solverInterface();
 
     caf::PdmPointer<RimFlowDiagSolution> m_flowDiagSolution;
 

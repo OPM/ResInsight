@@ -29,13 +29,6 @@
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
 
-struct RigTracerCells
-{
-    std::string tracerName;
-    std::vector<int> tracerCellActiveIndices;
-};
-
-
 
 class RigFlowDiagTimeStepResult
 {
@@ -54,21 +47,25 @@ private:
     void addResult(const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues);
 
     std::map<RigFlowDiagResultAddress, std::vector<double> > m_nativeResults;
+    size_t m_activeCellCount;
 };
 
 
-
+class RigCaseData;
 
 class RigFlowDiagSolverInterface : public cvf::Object
 {
 public:
-    RigFlowDiagSolverInterface(RimFlowDiagSolution* flowSol);
+    RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase);
     virtual ~RigFlowDiagSolverInterface();
 
-    RigFlowDiagTimeStepResult calculate(size_t timestep);
+    RigFlowDiagTimeStepResult calculate(size_t timestep,  
+                                        std::map<std::string, std::vector<int> > injectorTracers, 
+                                        std::map<std::string, std::vector<int> > producerTracers);
 
 private:
-    caf::PdmPointer<RimFlowDiagSolution> m_flowDiagSolution;    
+    RimEclipseResultCase * m_eclipseCase;
+
 };
 
 

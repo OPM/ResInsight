@@ -25,6 +25,7 @@
 class RifReaderInterface;
 class RigMainGrid;
 class RimFlowDiagSolution;
+class RigFlowDiagSolverInterface;
 
 //==================================================================================================
 //
@@ -52,12 +53,16 @@ public:
     virtual void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
+    RigFlowDiagSolverInterface*       flowDiagSolverInterface();
+
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
     virtual void                initAfterRead();
 
     virtual void                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
+    cvf::ref<RigFlowDiagSolverInterface>        m_flowDagSolverInterface;
 
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
