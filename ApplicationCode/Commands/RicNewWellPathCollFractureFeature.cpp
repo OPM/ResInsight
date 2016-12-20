@@ -24,14 +24,13 @@
 #include "RimFracture.h"
 #include "RimFractureCollection.h"
 #include "RimProject.h"
+#include "RimWellPathCollection.h"
  
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
 #include "QAction.h"
-#include "RimEclipseWell.h"
-#include "RimWellPathCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellPathCollFractureFeature, "RicNewWellPathCollFractureFeature");
@@ -49,9 +48,6 @@ void RicNewWellPathCollFractureFeature::onActionTriggered(bool isChecked)
 
     RimWellPathCollection* wellPathColl = nullptr;
     objHandle->firstAncestorOrThisOfType(wellPathColl);
-
-//     RimEclipseWell* eclipseWell = nullptr;
-//     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
     RimFractureCollection* fractureCollection = nullptr;
     objHandle->firstAncestorOrThisOfType(fractureCollection);

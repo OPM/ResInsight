@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSimWellFractureFeature.h"
+#include "RicNewSimWellFractureAtPosFeature.h"
 
 #include "RiaApplication.h"
 
@@ -33,39 +33,21 @@
 #include "QAction.h"
 
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
+CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
+void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return;
-
-    RimEclipseWell* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
-
-    RimFractureCollection* fractureCollection = nullptr;
-    objHandle->firstAncestorOrThisOfType(fractureCollection);
-    CVF_ASSERT(fractureCollection);
-
-    RimFracture* fracture = new RimFracture();
-    fractureCollection->fractures.push_back(fracture);
-        
-    fracture->name = "New Simulation Well Fracture";
-
-    fractureCollection->updateConnectedEditors();
-
+ // Not yet implemented 
+ // Infrastructure is missing for being able to obtain i j and k when right-clicking
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
+void RicNewSimWellFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 {
     //actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Fracture");
@@ -74,7 +56,7 @@ void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureFeature::isCommandEnabled()
+bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return false;

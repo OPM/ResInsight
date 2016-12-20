@@ -35,9 +35,12 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimFault.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFracture.h"
 #include "RimFractureCollection.h"
+#include "RimFractureDefinition.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -74,8 +77,6 @@
 #include <vector>
 
 #include <QMenu>
-#include "RimFault.h"
-#include "RimFracture.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -355,13 +356,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
-        else if (dynamic_cast<RimFractureCollection*>(uiItem) 
-              || dynamic_cast<RimFracture*>(uiItem) )
+        else if (dynamic_cast<RimFractureCollection*>(uiItem) || 
+                 dynamic_cast<RimFracture*>(uiItem) )
         {
             commandIds << "RicNewSimWellFractureFeature";
             commandIds << "RicNewWellPathCollFractureFeature";
         }
-        else if (dynamic_cast<RimFractureDefinitionCollection*>(uiItem))
+        else if (dynamic_cast<RimFractureDefinitionCollection*>(uiItem) ||
+                 dynamic_cast<RimFractureDefinition*>(uiItem))
         {
             commandIds << "RicNewFractureDefinitionFeature";
         }
