@@ -222,15 +222,17 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menu.addAction(QIcon(":/CellFilter_Range.png"), QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
                 menu.addAction(QIcon(":/CellFilter_Range.png"), QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
 
-                menu.addSeparator();
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewPolylineIntersectionFeature"));
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxAtPosFeature"));
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
-                menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxZSliceFeature"));
-            
-                menu.addSeparator();
             }
+
+            if (menu.actions().size() > 0) menu.addSeparator();
+            menu.addAction(caf::CmdFeatureManager::instance()->action("RicNewPolylineIntersectionFeature"));
+            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxAtPosFeature"));
+            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxXSliceFeature"));
+            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxYSliceFeature"));
+            menu.addAction(caf::CmdFeatureManager::instance()->action("RicIntersectionBoxZSliceFeature"));
+            menu.addSeparator();
+
+
 
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
             if (eclipseView)
