@@ -192,35 +192,39 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
-        if (dynamic_cast<PdmPtrArrayFieldHandle*>(fieldHandle))
-        {
-            PdmPtrArrayFieldHandle* ptrArrayFieldHandle = dynamic_cast<PdmPtrArrayFieldHandle*>(fieldHandle);
 
-            QString displayText;
-
-            for (size_t i = 0; i < ptrArrayFieldHandle->size(); i++)
-            {
-                PdmObjectHandle* objHandle = ptrArrayFieldHandle->at(i);
-                if (objHandle && objHandle->uiCapability())
-                {
-                    PdmUiObjectHandle* uiObjHandle = objHandle->uiCapability();
-                    if (!displayText.isEmpty()) displayText += ", ";
-
-                    caf::PdmUiFieldHandle* uiFieldHandle = uiObjHandle->userDescriptionField()->uiCapability();
-                    if (uiFieldHandle)
-                    {
-                        displayText += uiFieldHandle->uiValue().toString();
-                    }
-                }
-            }
-
-            return displayText;
-        }
         PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
         if (uiFieldHandle)
         {
-            bool fromMenuOnly = false;
-            QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&fromMenuOnly);
+            QVariant fieldValue = uiFieldHandle->uiValue();
+            if (fieldValue.type() == QVariant::List)
+            {
+                QString displayText;
+                QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+                if (valuesSelectedInField.size() > 0)
+                {
+                    QList<PdmOptionItemInfo> options;
+                    bool useOptionsOnly = true;
+                    options = uiFieldHandle->valueOptions(&useOptionsOnly);
+
+                    for (QVariant v : valuesSelectedInField)
+                    {
+                        int index = v.toInt();
+                        if (index != -1)
+                        {
+                            if (!displayText.isEmpty()) displayText += ", ";
+
+                            displayText += options.at(index).optionUiText;
+                        }
+                    }
+                }
+
+                return displayText;
+            }
+
+            bool useOptionsOnly = false;
+            QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&useOptionsOnly);
             if (!valueOptions.isEmpty())
             {
                 int listIndex = uiFieldHandle->uiValue().toInt();
