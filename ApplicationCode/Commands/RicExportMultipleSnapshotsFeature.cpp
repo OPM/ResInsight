@@ -22,12 +22,17 @@
 
 #include "RicSnapshotViewToClipboardFeature.h"
 
+#include "RigFemResultPosEnum.h"
+
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
@@ -185,6 +190,9 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
     RiuViewer* viewer = rimView->viewer();
     QStringList timeSteps = rimCase->timeStepStrings();
 
+    QString resName = resultName(rimView);
+    QString viewCaseResultString = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + resName;
+
     for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
     {
         QString timeStepIndexString = QString("%1").arg(i, 2, 10, QLatin1Char('0'));
@@ -199,7 +207,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
 
         if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
         {
-            QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString;
+            QString fileName = viewCaseResultString + "_" + timeStepString;
             fileName.replace(" ", "-");
             QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
 
@@ -218,7 +226,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
             for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)
             {
                 QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
-                QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString + "_" + rangeFilterString;
+                QString fileName = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
                 fileName.replace(" ", "-");
 
                 rangeFilter->setDefaultValues();
@@ -252,5 +260,39 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
             rimView->rangeFilterCollection()->isActive = rangeFilterInitState;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
+{
+    if (dynamic_cast<RimEclipseView*>(rimView))
+    {
+        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(rimView);
+
+        return eclView->cellResult()->resultVariable();
+    }
+    else if (dynamic_cast<RimGeoMechView*>(rimView))
+    {
+        RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(rimView);
+
+        RimGeoMechCellColors* cellResult = geoMechView->cellResult();
+
+        if (cellResult)
+        {
+            QString legendTitle = caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
+                + cellResult->resultFieldUiName();
+
+            if (!cellResult->resultComponentUiName().isEmpty())
+            {
+                legendTitle += ", " + cellResult->resultComponentUiName();
+            }
+
+            return legendTitle;
+        }
+    }
+
+    return "";
 }
 
