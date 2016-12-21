@@ -311,7 +311,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            optionItems.push_back(caf::PdmOptionItemInfo("Time Of Flight (Weighted Sum)",   RIG_FLD_TOF_RESNAME));
+            optionItems.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)",   RIG_FLD_TOF_RESNAME));
             optionItems.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)",      RIG_FLD_CELL_FRACTION_RESNAME));
             optionItems.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer",             RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
             optionItems.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
@@ -338,11 +338,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 std::map<QString, QString> prefixedTracerNamesMap;
                 for ( const QString& tracerName : tracerNames )
                 {
-                    RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatus(tracerName);
+                    RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
                     QString prefix; 
                     switch (status)
                     {
-                    case RimFlowDiagSolution::INJECTOR: prefix = "I  : "; break;
+                    case RimFlowDiagSolution::INJECTOR: prefix = "I   : "; break;
                     case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
                     case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
                     }

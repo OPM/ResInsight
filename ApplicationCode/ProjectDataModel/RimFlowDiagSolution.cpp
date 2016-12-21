@@ -174,7 +174,7 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatus(QString tracerName)
+RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(QString tracerName)
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfType(eclCase);
@@ -211,6 +211,49 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatus(QString 
     }
 
     return tracerStatus;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep(QString tracerName, size_t timeStepIndex)
+{
+    RimEclipseResultCase* eclCase;
+    this->firstAncestorOrThisOfType(eclCase);
+
+    if ( eclCase )
+    {
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+
+        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        {
+            if ( wellResults[wIdx]->m_wellName == tracerName )
+            {
+                size_t wellTimeStep = wellResults[wIdx]->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex];
+                const RigWellResultFrame& wellResFrame = wellResults[wIdx]->m_wellCellsTimeSteps[wellTimeStep];
+                {
+                    if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
+                        || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
+                        ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
+                    {
+                        return INJECTOR;
+                    }
+                    else if ( wellResFrame.m_productionType == RigWellResultFrame::PRODUCER )
+                    {
+                       return PRODUCER;
+                    }
+                    else
+                    {
+                        return UNDEFINED;
+                    }
+                }
+            }
+        }
+    }
+
+    CVF_ASSERT(false);
+
+    return UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------

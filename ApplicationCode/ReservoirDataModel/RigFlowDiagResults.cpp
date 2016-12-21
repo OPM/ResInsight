@@ -158,6 +158,102 @@ RigFlowDiagResultFrames* RigFlowDiagResults::findScalarResult(const RigFlowDiagR
 //--------------------------------------------------------------------------------------------------
 std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
 {
+    if (resVarAddr.isNativeResult()) return nullptr;
+
+
+    if (resVarAddr.variableName == RIG_FLD_TOF_RESNAME)
+    {
+        std::vector<const std::vector<double>* > injectorTOFs;
+        std::vector<const std::vector<double>* > injectorFractions;
+
+        std::vector<const std::vector<double>* > producerTOFs;
+        std::vector<const std::vector<double>* > producerFractions;
+
+        for (const std::string& tracerName: resVarAddr.selectedTracerNames)
+        {
+            RimFlowDiagSolution::TracerStatusType tracerType = m_flowDiagSolution->tracerStatusInTimeStep(QString::fromStdString(tracerName), frameIndex);
+
+            if ( tracerType == RimFlowDiagSolution::INJECTOR )
+            {
+                injectorTOFs.push_back( findOrCalculateResult(RigFlowDiagResultAddress(RIG_FLD_TOF_RESNAME, tracerName), frameIndex));
+                injectorFractions.push_back(findOrCalculateResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracerName), frameIndex));
+            }
+            else if ( tracerType == RimFlowDiagSolution::PRODUCER )
+            {
+                producerTOFs.push_back(findOrCalculateResult(RigFlowDiagResultAddress(RIG_FLD_TOF_RESNAME, tracerName), frameIndex));
+                producerFractions.push_back(findOrCalculateResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracerName), frameIndex));
+            }
+        }
+
+        RigFlowDiagResultFrames* averageTofFrames = this->createScalarResult(resVarAddr);
+        std::vector<double>& averageTof = averageTofFrames->frameData(frameIndex);
+        size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
+        averageTof.resize(activeCellCount, HUGE_VAL);
+
+        std::vector<double> injectorTotalFractions;
+        std::vector<double> injectorFractMultTof;
+        {
+            injectorTotalFractions.resize(activeCellCount, 0.0);
+            injectorFractMultTof.resize(activeCellCount, 0.0);
+
+            for ( size_t iIdx = 0; iIdx <  injectorFractions.size() ; ++iIdx )
+            {
+                const std::vector<double> * frInj = injectorFractions[iIdx];
+                const std::vector<double> * tofInj = injectorTOFs[iIdx];
+
+                if ( ! (frInj && tofInj) ) continue;
+
+                for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+                {
+                    if( (*frInj)[acIdx] == HUGE_VAL ) continue;
+
+                    injectorTotalFractions[acIdx] += (*frInj)[acIdx];
+                    injectorFractMultTof[acIdx] += (*frInj)[acIdx] * (*tofInj)[acIdx];
+                }
+            }
+        }
+
+        std::vector<double> producerTotalFractions;
+        std::vector<double> producerFractMultTof;
+        {
+            producerTotalFractions.resize(activeCellCount, 0.0);
+            producerFractMultTof.resize(activeCellCount, 0.0);
+
+            for ( size_t iIdx = 0; iIdx < producerFractions.size() ; ++iIdx )
+            {
+                const std::vector<double> * prodFr = producerFractions[iIdx];
+                const std::vector<double> * prodTof = producerTOFs[iIdx];
+
+                if ( ! (prodFr && prodTof) ) continue;
+
+                for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+                {
+                    if ( (*prodFr)[acIdx] == HUGE_VAL ) continue;
+
+                    producerTotalFractions[acIdx] += (*prodFr)[acIdx];
+                    producerFractMultTof[acIdx] += (*prodFr)[acIdx] * (*prodTof)[acIdx];
+                }
+            }
+        }
+
+        for (size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx)
+        {
+            if ( injectorTotalFractions[acIdx] == 0.0 && producerTotalFractions[acIdx] == 0.0 )
+            {
+                averageTof[acIdx] = HUGE_VAL;
+            }
+            else 
+            {
+                double retVal = 0.0;
+                if (injectorTotalFractions[acIdx] != 0.0) retVal +=  (1.0/injectorTotalFractions[acIdx]) * injectorFractMultTof[acIdx];
+                if (producerTotalFractions[acIdx] != 0.0) retVal +=  (1.0/producerTotalFractions[acIdx]) * producerFractMultTof[acIdx];
+                averageTof[acIdx] = retVal;
+            }
+        }
+
+        return &averageTof;
+    }
+
     return nullptr; // Todo
 }
 

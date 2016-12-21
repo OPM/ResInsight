@@ -54,7 +54,8 @@ public:
         UNDEFINED
     };
 
-    TracerStatusType tracerStatus(QString tracerName);
+    TracerStatusType tracerStatusOverall(QString tracerName);
+    TracerStatusType tracerStatusInTimeStep(QString tracerName, size_t timeStepIndex);
 
 
 protected:
