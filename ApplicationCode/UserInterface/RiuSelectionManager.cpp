@@ -30,6 +30,7 @@
 RiuSelectionManager::RiuSelectionManager()
     : m_notificationCenter(new RiuSelectionChangedHandler)
 {
+    m_selection.resize(2);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -37,6 +38,9 @@ RiuSelectionManager::RiuSelectionManager()
 //--------------------------------------------------------------------------------------------------
 RiuSelectionManager::~RiuSelectionManager()
 {
+    deleteAllItemsFromSelection(RUI_APPLICATION_GLOBAL);
+    deleteAllItemsFromSelection(RUI_TEMPORARY);
+
     delete m_notificationCenter;
 }
 
@@ -52,64 +56,75 @@ RiuSelectionManager* RiuSelectionManager::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items) const
+void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, int role) const
 {
-    items = m_selection;
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    items = s;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item)
+void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item, int role)
 {
-    m_selection.push_back(item);
+    std::vector<RiuSelectionItem*>& s = m_selection[role];
 
-    m_notificationCenter->handleItemAppended(item);
+    s.push_back(item);
+
+    if (role == RUI_APPLICATION_GLOBAL) m_notificationCenter->handleItemAppended(item);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::setSelectedItem(RiuSelectionItem* item)
+void RiuSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
 {
-    deleteAllItemsFromSelection();
+    deleteAllItemsFromSelection(role);
 
-    m_selection.push_back(item);
+    std::vector<RiuSelectionItem*>& s = m_selection[role];
 
-    m_notificationCenter->handleSetSelectedItem(item);
+    s.push_back(item);
+
+    if (role == RUI_APPLICATION_GLOBAL) m_notificationCenter->handleSetSelectedItem(item);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::deleteAllItems()
+void RiuSelectionManager::deleteAllItems(int role)
 {
-    if (m_selection.size() == 0) return;
-
-    deleteAllItemsFromSelection();
-
-    m_notificationCenter->handleSelectionDeleted();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiuSelectionManager::isEmpty() const
-{
-    return m_selection.size() == 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::deleteAllItemsFromSelection()
-{
-    for (size_t i = 0; i < m_selection.size(); i++)
+    if (!isEmpty(role))
     {
-        delete m_selection[i];
+        deleteAllItemsFromSelection(role);
+
+        if (role == RUI_APPLICATION_GLOBAL) m_notificationCenter->handleSelectionDeleted();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuSelectionManager::isEmpty(int role) const
+{
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    return s.size() == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionManager::deleteAllItemsFromSelection(int role)
+{
+    std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    for (RiuSelectionItem* item : s)
+    {
+        delete item;
     }
 
-    m_selection.clear();
+    s.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
