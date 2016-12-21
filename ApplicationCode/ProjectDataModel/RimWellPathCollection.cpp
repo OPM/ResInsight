@@ -81,16 +81,16 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
-    CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
+//     CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
 
     wellPaths.uiCapability()->setUiHidden(true);
-    fractureCollection.uiCapability()->setUiHidden(true);
+//     fractureCollection.uiCapability()->setUiHidden(true);
 
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
 
     m_asciiFileReader = new RifWellPathAsciiFileReader;
 
-    fractureCollection = new RimFractureCollection();
+//     fractureCollection = new RimFractureCollection();
 
 }
 
@@ -101,7 +101,7 @@ RimWellPathCollection::RimWellPathCollection()
 RimWellPathCollection::~RimWellPathCollection()
 {
    wellPaths.deleteAllChildObjects();
-   if (fractureCollection()) delete fractureCollection();
+//    if (fractureCollection()) delete fractureCollection();
    delete m_asciiFileReader;
 }
 

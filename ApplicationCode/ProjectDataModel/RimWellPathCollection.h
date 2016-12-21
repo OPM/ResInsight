@@ -34,7 +34,7 @@
 
 #include <QString>
 
-class RimFractureCollection;
+//class RimFractureCollection;
 class RivWellPathCollectionPartMgr;
 class RifWellPathAsciiFileReader;
 class RimWellPath;
@@ -76,7 +76,7 @@ public:
     caf::PdmField<int>                  wellPathClipZDistance;
 
     caf::PdmChildArrayField<RimWellPath*>       wellPaths;
-    caf::PdmChildField<RimFractureCollection*>  fractureCollection;
+//     caf::PdmChildField<RimFractureCollection*>  fractureCollection;
 
     
    

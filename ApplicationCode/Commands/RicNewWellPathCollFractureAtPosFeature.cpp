@@ -65,12 +65,12 @@ void RicNewWellPathCollFractureAtPosFeature::onActionTriggered(bool isChecked)
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(wellPath);
     if (!objHandle) return;
 
-    RimWellPathCollection* wellPathColl = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPathColl);
-    if (!wellPathColl) return;
+    RimWellPath* wellPathObj = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPathObj);
+    if (!wellPathObj) return;
 
-    RimFractureCollection* fractureCollection = wellPathColl->fractureCollection();
-     
+    RimFractureCollection* fractureCollection = wellPathObj->fractureCollection();
+
     RimFracture* fracture = new RimFracture();
     fractureCollection->fractures.push_back(fracture);
         

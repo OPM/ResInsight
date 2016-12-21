@@ -36,6 +36,7 @@
 class RimProject;
 class RivWellPathPartMgr;
 class RimWellLogFile;
+class RimFractureCollection;
 
 //==================================================================================================
 ///  
@@ -68,6 +69,9 @@ public:
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
+
+    caf::PdmChildField<RimFractureCollection*>  fractureCollection;
+
 
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
     RivWellPathPartMgr*                 partMgr();
