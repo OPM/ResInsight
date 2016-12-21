@@ -329,6 +329,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     {
         menu.exec(event->globalPos());
     }
+
+    // Delete items in temporary selection
+    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
 }
 
 //--------------------------------------------------------------------------------------------------

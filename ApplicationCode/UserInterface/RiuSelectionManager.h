@@ -41,6 +41,7 @@ class RimGeoMechView;
 //==================================================================================================
 class RiuSelectionManager
 {
+public:
     enum SelectionRole
     {
         RUI_APPLICATION_GLOBAL,     // Selection role intended to manage the cells selected by left mouse click in the 3D view
