@@ -21,8 +21,10 @@
 
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimWellPath.h"
 
 #include "RiuSelectionChangedHandler.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -61,6 +63,25 @@ void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, i
     const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
     items = s;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuSelectionItem* RiuSelectionManager::selectedItem(int role /*= RUI_APPLICATION_GLOBAL*/) const
+{
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    if (s.size() == 1)
+    {
+        if (s[0])
+        {
+            return s[0];
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,6 +199,19 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
     m_localIntersectionPoint(localIntersectionPoint), 
     m_hasIntersectionTriangle(true),
     m_intersectionTriangle(m_intersectionTriangle)
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
+                                                   const cvf::Vec3d& currentPickPositionInDomainCoords,
+                                                   cvf::uint firstPartTriangleIndex)
+    : m_currentPickPositionInDomainCoords(currentPickPositionInDomainCoords),
+    m_wellpathSourceInfo(wellPathSourceInfo),
+    m_firstPartTriangleIndex(firstPartTriangleIndex)
 {
 
 }

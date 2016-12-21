@@ -28,11 +28,14 @@
 #include <vector>
 #include <assert.h>
 #include <array>
+#include "RivWellPathSourceInfo.h"
 
 class RimEclipseView;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
 class RimGeoMechView;
+class RimWellPath;
+class RivWellPathSourceInfo;
 
 //==================================================================================================
 //
@@ -57,7 +60,13 @@ public:
     // Returns selected items
     // Selection manager owns the selection items
     void selectedItems(std::vector<RiuSelectionItem*>& items, int role = RUI_APPLICATION_GLOBAL) const;
-    
+
+    // Returns selected items
+    // Selection manager owns the selection items
+    RiuSelectionItem* selectedItem(int role = RUI_APPLICATION_GLOBAL) const;
+    //    PdmUiItem*  selectedItem(int role = SelectionManager::APPLICATION_GLOBAL);
+
+
     // Append item to selected items
     // SelectionManager takes ownership of the item
     void appendItemToSelection(RiuSelectionItem* item, int role = RUI_APPLICATION_GLOBAL);
@@ -92,7 +101,8 @@ public:
     enum RiuSelectionType
     {
         ECLIPSE_SELECTION_OBJECT,
-        GEOMECH_SELECTION_OBJECT
+        GEOMECH_SELECTION_OBJECT,
+        WELLPATH_SELECTION_OBJECT
     };
 
 public:
@@ -172,3 +182,28 @@ public:
     cvf::Vec3d m_localIntersectionPoint;
 };
 
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RiuWellPathSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
+                                      const cvf::Vec3d& currentPickPositionInDomainCoords,
+                                      cvf::uint firstPartTriangleIndex);
+
+    virtual ~RiuWellPathSelectionItem() {};
+
+    virtual RiuSelectionType type() const
+    {
+        return WELLPATH_SELECTION_OBJECT;
+    }
+
+public:
+    const RivWellPathSourceInfo*  m_wellpathSourceInfo;
+    cvf::Vec3d                    m_currentPickPositionInDomainCoords;
+    cvf::uint                     m_firstPartTriangleIndex;
+};

@@ -293,12 +293,17 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
-                caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
+                RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, m_currentPickPositionInDomainCoords, firstPartTriangleIndex);
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                commandIds << "RicNewWellPathCollFractureAtPosFeature";
+
+
+                //TODO: Update so these also use RiuWellPathSelectionItem 
+                caf::SelectionManager::instance()->setSelectedItem(wellPath);
                 commandIds << "RicNewWellLogFileCurveFeature";
                 commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicNewWellPathIntersectionFeature";
-                commandIds << "RicNewWellPathCollFractureAtPosFeature";
             }
         }
 
@@ -603,6 +608,8 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 if(intersectionHit)   selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint, intersectionTriangleHit);
                 else                  selItem = new RiuGeoMechSelectionItem(geomView, gridIndex, cellIndex, curveColor, gmFace, localIntersectionPoint);
             }
+
+
         }
 
         if (appendToSelection)
@@ -614,6 +621,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             RiuSelectionManager::instance()->setSelectedItem(selItem);
         }
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,6 +36,8 @@
 #include "cvfVector3.h"
 #include "cvfRenderState_FF.h"
 #include "RiuViewer.h"
+#include "RiuSelectionManager.h"
+
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellPathCollFractureAtPosFeature, "RicNewWellPathCollFractureAtPosFeature");
@@ -48,18 +50,24 @@ void RicNewWellPathCollFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
-    std::vector<RimWellPath*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
-    if (collection.size() != 1) return;
+    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
 
-    RimWellPath* wellPath = collection[0];
+    RiuWellPathSelectionItem* wellPathItem = nullptr;
+    if (selItem->type() == RiuSelectionItem::WELLPATH_SELECTION_OBJECT)
+    {
+        wellPathItem = static_cast<RiuWellPathSelectionItem*>(selItem);
+        if (!wellPathItem) return;
+    }
 
+    const RivWellPathSourceInfo* wellpathSourceInfo = wellPathItem->m_wellpathSourceInfo;
+    RimWellPath* wellPath = wellpathSourceInfo->wellPath();
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(wellPath);
     if (!objHandle) return;
 
     RimWellPathCollection* wellPathColl = nullptr;
     objHandle->firstAncestorOrThisOfType(wellPathColl);
-    CVF_ASSERT(wellPathColl);
+    if (!wellPathColl) return;
 
     RimFractureCollection* fractureCollection = wellPathColl->fractureCollection();
      
@@ -69,14 +77,10 @@ void RicNewWellPathCollFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->name = "New Well Path Fracture";
     fracture->welltype = RimFracture::FRACTURE_WELL_PATH;
     fracture->wellpath = wellPath;
-    //TODO set all relevant defaults...
+    fracture->positionAtWellpath = wellPathItem->m_currentPickPositionInDomainCoords;
 
-
-    cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
-    fracture->positionAtWellpath = domainCoord;
-
-
-
+    double measuredDepth = wellpathSourceInfo->measuredDepth(wellPathItem->m_firstPartTriangleIndex, wellPathItem->m_currentPickPositionInDomainCoords);
+    fracture->measuredDepth = measuredDepth;
     fractureCollection->updateConnectedEditors();
 
 }
