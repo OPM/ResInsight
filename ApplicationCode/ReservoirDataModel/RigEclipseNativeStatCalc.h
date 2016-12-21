@@ -21,33 +21,26 @@
 
 #include "RigStatisticsCalculator.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfCollection.h"
-
 class RigHistogramCalculator;
 class RigCaseCellResultsData;
 
 //==================================================================================================
 /// 
 //==================================================================================================
+
 class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 {
 public:
     RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
 
-    virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
-    virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
-
-    virtual void valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
-
-    virtual void addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
-
+    virtual void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
+    virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
+    virtual void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
+    virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
     virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
-
     virtual size_t  timeStepCount();
 
 private:
     RigCaseCellResultsData* m_resultsData;
-    size_t m_scalarResultIndex;
+    size_t                  m_scalarResultIndex;
 };

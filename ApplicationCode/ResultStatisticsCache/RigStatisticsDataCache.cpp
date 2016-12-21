@@ -262,7 +262,17 @@ const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues()
 {
     computeUniqueValuesIfNeeded();
 
-    return m_uniqueValues;
+    return m_statsAllTimesteps.m_uniqueValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<int>& RigStatisticsDataCache::uniqueCellScalarValues(size_t timeStepIndex)
+{
+    computeUniqueValuesIfNeeded(timeStepIndex);
+
+    return m_statsPrTs[timeStepIndex].m_uniqueValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,15 +344,31 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded(size_t timeStepI
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 {
-    if (m_uniqueValues.size() == 0)
+    if (m_statsAllTimesteps.m_uniqueValues.size() == 0)
     {
         std::set<int> setValues;
-        m_statisticsCalculator->uniqueValues(0, setValues);
+        m_statisticsCalculator->uniqueValues(0, setValues); // This is a Hack ! Only using first timestep. Ok for Static eclipse results but beware !
 
         for (auto val : setValues)
         {
-            m_uniqueValues.push_back(val);
+            m_statsAllTimesteps.m_uniqueValues.push_back(val);
         }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::computeUniqueValuesIfNeeded(size_t timeStepIndex)
+{
+    if ( m_statsPrTs[timeStepIndex].m_uniqueValues.size() == 0 )
+    {
+        std::set<int> setValues;
+        m_statisticsCalculator->uniqueValues(timeStepIndex, setValues);
+
+        for ( auto val : setValues )
+        {
+            m_statsPrTs[timeStepIndex].m_uniqueValues.push_back(val);
+        }
+    }
+}

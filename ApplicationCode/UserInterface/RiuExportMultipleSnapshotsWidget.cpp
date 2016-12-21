@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RicExportMultipleSnapshotsFeature.h"
+
 #include "RimCase.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
@@ -40,6 +42,7 @@
 #include <QTableView>
 #include <QToolButton>
 #include <QWidget>
+#include <QHeaderView>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -65,8 +68,9 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     connect(m_pdmTableView->tableView(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
     m_pdmTableView->setListField(&(project->multiSnapshotDefinitions()));
-    m_pdmTableView->tableView()->resizeRowsToContents();
-    m_pdmTableView->tableView()->resizeColumnsToContents();
+
+    QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
+    verticalHeader->setResizeMode(QHeaderView::Interactive);
 
     // Set active child array to be able to use generic delete
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&(project->multiSnapshotDefinitions()));
@@ -82,13 +86,13 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
         // Save images in snapshot catalog relative to project directory
         QString snapshotFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
 
-        m_lineEdit = new QLineEdit(snapshotFolderName);
+        m_exportFolderLineEdit = new QLineEdit(snapshotFolderName);
 
         QToolButton* button = new QToolButton;
         button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
         button->setText(QLatin1String("..."));
 
-        layout->addWidget(m_lineEdit);
+        layout->addWidget(m_exportFolderLineEdit);
         layout->addWidget(button);
 
         connect(button, SIGNAL(clicked()), this, SLOT(folderSelectionClicked()));
@@ -145,7 +149,6 @@ void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
     menu.exec(globalPos);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -158,32 +161,29 @@ void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::exportSnapshots()
 {
-    // TODO: wire up call of static method
-    // RicExportMultipleSnapshotsFeature::staticMethod()
+    RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(m_exportFolderLineEdit->text(), m_rimProject);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::folderSelectionClicked()
 {
-    QString defaultPath = m_lineEdit->text();
+    QString defaultPath = m_exportFolderLineEdit->text();
 
-    QString directoryPath = QFileDialog::getExistingDirectory(m_lineEdit,
+    QString directoryPath = QFileDialog::getExistingDirectory(m_exportFolderLineEdit,
         tr("Get existing directory"),
         defaultPath,
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (!directoryPath.isEmpty())
     {
-        m_lineEdit->setText(directoryPath);
+        m_exportFolderLineEdit->setText(directoryPath);
     }
 }
 
@@ -196,60 +196,38 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 
     RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
 
-
-    //Getting default value from last entered line: 
     if (m_rimProject->multiSnapshotDefinitions.size() > 0)
     {
+        //Getting default value from last entered line: 
         RimMultiSnapshotDefinition* other = m_rimProject->multiSnapshotDefinitions[m_rimProject->multiSnapshotDefinitions.size() - 1];
 
-        multiSnapshot->caseObject = other->caseObject();
         multiSnapshot->viewObject = other->viewObject();
         multiSnapshot->timeStepStart = other->timeStepStart();
         multiSnapshot->timeStepEnd = other->timeStepEnd();
-
-
-        // Variant using copy based on xml string
-//         QString copyOfOriginalObject = other->writeObjectToXmlString();
-//         multiSnapshot->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
-
-
     }
-
     else
     {
         RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
         proj->allCases(cases);
-        RimCase* CaseExample = nullptr;
-        RimView* ViewExample = nullptr;
 
         if (cases.size() > 0)
         {
-            CaseExample = cases.at(0);
-            multiSnapshot->caseObject = CaseExample;
+            RimCase* caseExample = cases.at(0);
  
             std::vector<RimView*> viewExamples;
-            viewExamples = CaseExample->views();
+            viewExamples = caseExample->views();
 
             if (viewExamples.size() > 0)
             {
-                ViewExample = viewExamples.at(0);
-                multiSnapshot->viewObject = ViewExample;
+                RimView* viewExample = viewExamples.at(0);
+                multiSnapshot->viewObject = viewExample;
+                multiSnapshot->timeStepStart = viewExample->currentTimeStep();
+                multiSnapshot->timeStepEnd = viewExample->currentTimeStep();
             }
         }
-
-
     }
-
-        
-
 
     m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
-
-    if (m_rimProject->multiSnapshotDefinitions.size() == 1)
-    {
-        m_pdmTableView->tableView()->resizeRowsToContents();
-        m_pdmTableView->tableView()->resizeColumnsToContents();
-    }
 }

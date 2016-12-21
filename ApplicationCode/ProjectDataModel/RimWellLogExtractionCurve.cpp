@@ -116,6 +116,30 @@ void RimWellLogExtractionCurve::setWellPath(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellLogExtractionCurve::wellPath() const
+{
+    return m_wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setCase(RimCase* rimCase)
+{
+    m_case = rimCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimWellLogExtractionCurve::rimCase() const
+{
+    return m_case;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
 {
     m_case = view ? view->ownerCase() : NULL;
@@ -128,8 +152,8 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
     if (eclipseView)
     {
-        m_eclipseResultDefinition->setResultType(eclipseView->cellResult()->resultType());
-        m_eclipseResultDefinition->setResultVariable(eclipseView->cellResult()->resultVariable());
+        m_eclipseResultDefinition->simpleCopy(eclipseView->cellResult());
+
         m_timeStep = eclipseView->currentTimeStep();
     }
 
@@ -224,11 +248,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
             m_eclipseResultDefinition->loadResult();
 
-            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createResultAccessor(
-                eclipseCase->reservoirData(),
-                0,
-                m_timeStep,
-                m_eclipseResultDefinition);
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->reservoirData(),
+                                                                                                      0,
+                                                                                                      m_timeStep,
+                                                                                                      m_eclipseResultDefinition);
 
             if (resAcc.notNull())
             {

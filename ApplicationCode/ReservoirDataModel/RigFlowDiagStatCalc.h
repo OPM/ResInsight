@@ -19,29 +19,32 @@
 
 #pragma once
 
-#include "RigResultAccessor.h"
+#include "RigStatisticsCalculator.h"
+#include "RigFlowDiagResultAddress.h"
 
-class RigGridBase;
-class RigActiveCellInfo;
-
+class RigHistogramCalculator;
+class RigFlowDiagResults;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigActiveCellsResultAccessor : public RigResultAccessor
+
+class RigFlowDiagStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigActiveCellsResultAccessor(const RigGridBase* grid, const std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo);
+    RigFlowDiagStatCalc(RigFlowDiagResults* femResultCollection, const RigFlowDiagResultAddress& resVarAddr);
 
-    virtual double  cellScalar(size_t gridLocalCellIndex) const;
-    virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
-
-    virtual double  cellScalarGlobIdx(size_t globCellIndex) const;
-    virtual double  cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
+    virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
+    virtual void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
+    virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
+    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
+    virtual size_t  timeStepCount();
 
 private:
-    const RigActiveCellInfo*    m_activeCellInfo;
-    const RigGridBase*          m_grid;
-    const std::vector<double>*  m_reservoirResultValues;
+    RigFlowDiagResults*      m_resultsData;
+    RigFlowDiagResultAddress m_resVarAddr;
 };
+
+
 

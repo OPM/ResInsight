@@ -35,6 +35,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 #include "RimFlowDiagSolution.h"
+#include "RigFlowDiagSolverInterface.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -70,6 +71,8 @@ RimEclipseResultCase::RimEclipseResultCase()
     //flipXAxis.uiCapability()->setUiHidden(true);
     flipYAxis.xmlCapability()->setIOWritable(true);
     //flipYAxis.uiCapability()->setUiHidden(true);
+
+    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -355,6 +358,14 @@ std::vector<RimFlowDiagSolution*> RimEclipseResultCase::flowDiagSolutions()
     }
 
     return flowSols;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
+{
+    return m_flowDagSolverInterface.p();
 }
 
 //--------------------------------------------------------------------------------------------------

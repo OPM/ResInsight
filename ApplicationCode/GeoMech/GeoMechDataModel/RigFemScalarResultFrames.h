@@ -20,12 +20,10 @@
 #pragma once
 #include "cvfObject.h"
 #include <vector>
-#include <string>
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigStatisticsDataCache;
 
 class RigFemScalarResultFrames: public cvf::Object
 {
@@ -33,11 +31,11 @@ public:
     RigFemScalarResultFrames(int frameCount);
     virtual ~RigFemScalarResultFrames();
 
-    void enableAsSingleFrameResult();
+    void                      enableAsSingleFrameResult();
 
-    std::vector<float>& frameData(size_t frameIndex);
+    std::vector<float>&       frameData(size_t frameIndex);
     const std::vector<float>& frameData(size_t frameIndex) const;
-    int frameCount() const;
+    int                       frameCount() const;
 
 private:
     std::vector< std::vector<float> > m_dataForEachFrame;

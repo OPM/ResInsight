@@ -27,19 +27,19 @@ class RigResultModifier;
 class RigResultModifierFactory
 {
 public:
-    static cvf::ref<RigResultModifier> 
+    static cvf::ref<RigResultModifier>
         createResultModifier(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        QString& uiResultName);
+                             size_t gridIndex,
+                             RifReaderInterface::PorosityModelResultType porosityModel,
+                             size_t timeStepIndex,
+                             QString& uiResultName);
 
-    static cvf::ref<RigResultModifier> 
+    static cvf::ref<RigResultModifier>
         createResultModifier(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        size_t scalarResultIndex);
+                             size_t gridIndex,
+                             RifReaderInterface::PorosityModelResultType porosityModel,
+                             size_t timeStepIndex,
+                             size_t scalarResultIndex);
 };
 
 

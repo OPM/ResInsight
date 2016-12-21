@@ -15,29 +15,27 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
-class RimProject;
+#include <vector>
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicExportMultipleSnapshotsFeature : public caf::CmdFeature
+class RigFlowDiagResultFrames: public cvf::Object
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-
 public:
-    static void exportMultipleSnapshots(const QString& folder, RimProject* project);
+    RigFlowDiagResultFrames(size_t frameCount);
+    virtual ~RigFlowDiagResultFrames();
 
-    static void exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    const
+    std::vector<double>& frameData(size_t frameIndex) const;
+    std::vector<double>& frameData(size_t frameIndex);
+    size_t               frameCount() const;
 
+private:
+    std::vector< std::vector<double> > m_dataForEachFrame;
 };
+
+
 

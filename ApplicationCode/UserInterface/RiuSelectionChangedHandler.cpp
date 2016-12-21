@@ -103,7 +103,11 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
 {
     RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
-    if (eclipseView->cellResult()->hasDynamicResult() &&
+    if (eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        // Todo
+    }
+    else if (eclipseView->cellResult()->hasDynamicResult() &&
         eclipseView->eclipseCase() &&
         eclipseView->eclipseCase()->reservoirData())
     {

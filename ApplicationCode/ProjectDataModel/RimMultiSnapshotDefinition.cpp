@@ -19,7 +19,11 @@
 #include "RimMultiSnapshotDefinition.h"
 
 #include "RiaApplication.h"
+
+#include "RigActiveCellInfo.h"
+
 #include "RimCase.h"
+#include "RimCellRangeFilterCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
 
@@ -33,6 +37,7 @@ namespace caf
         addItem(RimMultiSnapshotDefinition::RANGEFILTER_I, "I", "i-direction");
         addItem(RimMultiSnapshotDefinition::RANGEFILTER_J, "J", "j-direction");
         addItem(RimMultiSnapshotDefinition::RANGEFILTER_K, "K", "k-direction");
+        addItem(RimMultiSnapshotDefinition::NO_RANGEFILTER, "None", "None");
 
         setDefault(RimMultiSnapshotDefinition::RANGEFILTER_K);
     }
@@ -48,16 +53,15 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
     CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&caseObject,     "Case",                 "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
     CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
 
-    CAF_PDM_InitField(&sliceDirection, "SnapShotDirection", caf::AppEnum<SnapShotDirectionEnum>(RANGEFILTER_K), "Range Filter direction", "", "", "");
-    CAF_PDM_InitField(&startSliceIndex, "RangeFilterStart", 0, "RangeFilter Start", "", "", "");
-    CAF_PDM_InitField(&endSliceIndex, "RangeFilterEnd", 0, "RangeFilter End", "", "", "");
+    CAF_PDM_InitField(&sliceDirection,          "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter direction", "", "", "");
+    CAF_PDM_InitField(&startSliceIndex,         "RangeFilterStart", 1,  "RangeFilter Start", "", "", "");
+    CAF_PDM_InitField(&endSliceIndex,           "RangeFilterEnd", 1,    "RangeFilter End", "", "", "");
 
-
+    CAF_PDM_InitFieldNoDefault(&additionalCases, "AdditionalCases",     "Additional Cases", "", "", "");
 }
 
 
@@ -77,41 +81,50 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
     RimProject* proj = RiaApplication::instance()->project();
 
-    if (fieldNeedingOptions == &caseObject && proj)
+    if (fieldNeedingOptions == &viewObject)
     {
+        std::vector<RimView*> views; 
+
+        RimProject* proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
         proj->allCases(cases);
 
-        for (RimCase* c : cases)
+        for (RimCase* rimCase : cases)
         {
-            options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(c))));
-        }
-
-        //options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
-    }
-    else if (fieldNeedingOptions == &viewObject)
-    {
-        if (caseObject())
-        {
-            std::vector<RimView*> views = caseObject()->views();
-            for (RimView* view : views)
+            for (RimView* rimView : rimCase->views())
             {
-                options.push_back(caf::PdmOptionItemInfo(view->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(view))));
+                views.push_back(rimView);
             }
         }
 
-        //options.push_back(caf::PdmOptionItemInfo("All", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(nullptr))));
+        for (RimView* view : views)
+        {
+            QString caseAndView = view->ownerCase()->caseUserDescription() + " - " + view->name();
+            options.push_back(caf::PdmOptionItemInfo(caseAndView, view));
+        }
+        options.push_back(caf::PdmOptionItemInfo("-- All views --", nullptr));
     }
     else if (fieldNeedingOptions == &timeStepEnd)
     {
         getTimeStepStrings(options);
-
     }
     else if (fieldNeedingOptions == &timeStepStart)
     {
         getTimeStepStrings(options);
     }
+    else if (fieldNeedingOptions == &additionalCases)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
 
+        for (RimCase* rimCase : cases)
+        {
+            options.push_back(caf::PdmOptionItemInfo(rimCase->caseUserDescription(), rimCase));
+        }
+
+        if (useOptionsOnly) *useOptionsOnly = true;
+    }
 
     return options;
 }
@@ -121,13 +134,72 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
 {
-    if (!caseObject()) return;
-    
-    QStringList timeSteps = caseObject()->timeStepStrings();
+    QStringList timeSteps;
+
+    timeSteps = viewObject->ownerCase()->timeStepStrings();
+
     for (int i = 0; i < timeSteps.size(); i++)
     {
         options.push_back(caf::PdmOptionItemInfo(timeSteps[i], i));
     }
-    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+
+    if (changedField == &sliceDirection)
+    {
+        const cvf::StructGridInterface* mainGrid = nullptr;
+        RigActiveCellInfo* actCellInfo = nullptr;
+       
+        if (viewObject())
+        {
+            mainGrid = viewObject()->rangeFilterCollection()->gridByIndex(0);
+            actCellInfo = viewObject()->rangeFilterCollection()->activeCellInfo();
+        }
+
+        if (mainGrid && actCellInfo)
+        {
+            cvf::Vec3st min, max;
+            actCellInfo->IJKBoundingBox(min, max);
+
+            // Adjust to Eclipse indexing
+            min.x() = min.x() + 1;
+            min.y() = min.y() + 1;
+            min.z() = min.z() + 1;
+
+            max.x() = max.x() + 1;
+            max.y() = max.y() + 1;
+            max.z() = max.z() + 1;
+
+            int maxInt = 0;
+            int minInt = 0;
+
+            if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_I)
+            {
+                maxInt = static_cast<int>(max.x());
+                minInt = static_cast<int>(min.x());
+            }
+            else if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_J)
+            {
+                maxInt = static_cast<int>(max.y());
+                minInt = static_cast<int>(min.y());
+            }
+            else if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_K)
+            {
+                maxInt = static_cast<int>(max.z());
+                minInt = static_cast<int>(min.z());
+            }
+                
+            startSliceIndex = minInt;
+            endSliceIndex = maxInt;
+
+        }
+       
+        startSliceIndex.uiCapability()->updateConnectedEditors();
+    }
 }
 

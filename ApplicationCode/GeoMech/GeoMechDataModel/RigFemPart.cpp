@@ -287,16 +287,13 @@ float RigFemPart::characteristicElementSize()
 {
     if (m_characteristicElementSize != std::numeric_limits<float>::infinity()) return m_characteristicElementSize;
 
-    // take 100 elements 
-    float elmIdxJump = elementCount() / 100.0f;
-    int elmIdxIncrement = elmIdxJump < 1 ? 1: (int) elmIdxJump;
     int elmsToAverageCount = 0;
     float sumMaxEdgeLength = 0;
-    for (int elmIdx = 0; elmIdx < elementCount(); elmIdx += elmIdxIncrement)
+    for (int elmIdx = 0; elmIdx < elementCount(); elmIdx++)
     {
         RigElementType eType = this->elementType(elmIdx);
 
-        if (eType == HEX8 || eType == HEX8P)
+        if (eType == HEX8P)
         {
             const int* elmentConn = this->connectivities(elmIdx);
             cvf::Vec3f nodePos0 = this->nodes().coordinates[elmentConn[0]];

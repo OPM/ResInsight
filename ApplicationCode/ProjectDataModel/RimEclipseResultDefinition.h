@@ -27,6 +27,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
+#include "RigFlowDiagResultAddress.h"
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
@@ -45,6 +46,8 @@ public:
     RimEclipseResultDefinition();
     virtual ~RimEclipseResultDefinition();
 
+    void                            simpleCopy(const RimEclipseResultDefinition* other);
+
     void                            setEclipseCase(RimEclipseCase* eclipseCase);
 
     RimDefines::ResultCatType       resultType() const { return m_resultType(); }
@@ -53,6 +56,8 @@ public:
     void                            setPorosityModel(RimDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
+    RimFlowDiagSolution*            flowDiagSolution();
+    RigFlowDiagResultAddress        flowDiagResAddress() const;
 
     void                            loadResult();
     size_t                          scalarResultIndex() const;
@@ -100,7 +105,10 @@ protected:
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
 private:
-    bool                            hasDualPorFractureResult(); 
+    void                            setFlowSolution(RimFlowDiagSolution* flowSol);
+    void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
+
+    bool                            hasDualPorFractureResult();
 
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QStringList                     getResultNamesForCurrentUiResultType();

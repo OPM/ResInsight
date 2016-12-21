@@ -425,6 +425,10 @@ caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFi
         {
             fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
         }
+        else if (fieldTypeName.indexOf("PdmPtrArrayField") != -1)
+        {
+            fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
+        }
         else if (field->toUiBasedQVariant().type() != QVariant::List)
         {
             // Handle a single value field with valueOptions: Make a combobox
