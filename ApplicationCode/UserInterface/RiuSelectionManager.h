@@ -41,6 +41,12 @@ class RimGeoMechView;
 //==================================================================================================
 class RiuSelectionManager
 {
+    enum SelectionRole
+    {
+        RUI_APPLICATION_GLOBAL,     // Selection role intended to manage the cells selected by left mouse click in the 3D view
+        RUI_TEMPORARY               // Selection role intended to manage the items selected by a right mouse click in the 3D view
+    };
+
 public:
     RiuSelectionManager();
     ~RiuSelectionManager();
@@ -49,26 +55,26 @@ public:
 
     // Returns selected items
     // Selection manager owns the selection items
-    void selectedItems(std::vector<RiuSelectionItem*>& items) const;
+    void selectedItems(std::vector<RiuSelectionItem*>& items, int role = RUI_APPLICATION_GLOBAL) const;
     
     // Append item to selected items
     // SelectionManager takes ownership of the item
-    void appendItemToSelection(RiuSelectionItem* item);
+    void appendItemToSelection(RiuSelectionItem* item, int role = RUI_APPLICATION_GLOBAL);
 
     // Set one selected item
     // SelectionManager takes ownership of the item
-    void setSelectedItem(RiuSelectionItem* item);
+    void setSelectedItem(RiuSelectionItem* item, int role = RUI_APPLICATION_GLOBAL);
 
     // Deletes all items in the SelectionManager
-    void deleteAllItems();
+    void deleteAllItems(int role = RUI_APPLICATION_GLOBAL);
 
-    bool isEmpty() const;
-
-private:
-    void deleteAllItemsFromSelection();
+    bool isEmpty(int role = RUI_APPLICATION_GLOBAL) const;
 
 private:
-    std::vector < RiuSelectionItem* > m_selection;
+    void deleteAllItemsFromSelection(int role);
+
+private:
+    std::vector< std::vector<RiuSelectionItem*> > m_selection;
 
     RiuSelectionChangedHandler* m_notificationCenter;
 };
