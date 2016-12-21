@@ -20,7 +20,9 @@
 
 #include "cafCmdFeature.h"
 
+class RimMultiSnapshotDefinition;
 class RimProject;
+class RimView;
 
 //==================================================================================================
 /// 
