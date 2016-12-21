@@ -71,6 +71,12 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
         caf::CmdExecCommandSystemActivator activator;
 
         RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
+
+        if (proj->multiSnapshotDefinitions.size() == 0)
+        {
+            dlg.addSnapshotItemFromActiveView();
+        }
+
         dlg.exec();
     }
 }

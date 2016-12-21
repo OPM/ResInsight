@@ -127,6 +127,26 @@ RiuExportMultipleSnapshotsWidget::~RiuExportMultipleSnapshotsWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
+{
+    if (!m_rimProject) return;
+
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (activeView)
+    {
+        RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
+        multiSnapshot->viewObject = activeView;
+        multiSnapshot->timeStepStart = activeView->currentTimeStep();
+        multiSnapshot->timeStepEnd = activeView->currentTimeStep();
+
+        m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
+        m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
@@ -194,40 +214,22 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 {
     if (!m_rimProject) return;
 
-    RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
 
-    if (m_rimProject->multiSnapshotDefinitions.size() > 0)
+    if (m_rimProject->multiSnapshotDefinitions.size() == 0)
+    {
+        addSnapshotItemFromActiveView();
+    }
+    else
     {
         //Getting default value from last entered line: 
         RimMultiSnapshotDefinition* other = m_rimProject->multiSnapshotDefinitions[m_rimProject->multiSnapshotDefinitions.size() - 1];
 
+        RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
         multiSnapshot->viewObject = other->viewObject();
         multiSnapshot->timeStepStart = other->timeStepStart();
         multiSnapshot->timeStepEnd = other->timeStepEnd();
+
+        m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
+        m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
     }
-    else
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimCase*> cases;
-        proj->allCases(cases);
-
-        if (cases.size() > 0)
-        {
-            RimCase* caseExample = cases.at(0);
- 
-            std::vector<RimView*> viewExamples;
-            viewExamples = caseExample->views();
-
-            if (viewExamples.size() > 0)
-            {
-                RimView* viewExample = viewExamples.at(0);
-                multiSnapshot->viewObject = viewExample;
-                multiSnapshot->timeStepStart = viewExample->currentTimeStep();
-                multiSnapshot->timeStepEnd = viewExample->currentTimeStep();
-            }
-        }
-    }
-
-    m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
-    m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
 }
