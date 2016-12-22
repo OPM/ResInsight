@@ -54,7 +54,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 {
     setWindowTitle("Export Multiple Snapshots");
 
-    int nWidth = 800;
+    int nWidth = 1000;
     int nHeight = 300;
     resize(nWidth, nHeight);
 
@@ -71,6 +71,8 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
     verticalHeader->setResizeMode(QHeaderView::Interactive);
+
+    m_pdmTableView->tableView()->resizeColumnsToContents();
 
     // Set active child array to be able to use generic delete
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(&(project->multiSnapshotDefinitions()));
