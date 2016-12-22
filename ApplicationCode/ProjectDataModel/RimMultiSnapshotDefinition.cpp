@@ -37,10 +37,10 @@ namespace caf
     template<>
     void caf::AppEnum< RimMultiSnapshotDefinition::SnapShotDirectionEnum >::setUp()
     {
-        addItem(RimMultiSnapshotDefinition::RANGEFILTER_I, "I", "i-direction");
-        addItem(RimMultiSnapshotDefinition::RANGEFILTER_J, "J", "j-direction");
-        addItem(RimMultiSnapshotDefinition::RANGEFILTER_K, "K", "k-direction");
         addItem(RimMultiSnapshotDefinition::NO_RANGEFILTER, "None", "None");
+        addItem(RimMultiSnapshotDefinition::RANGEFILTER_I, "I", "I");
+        addItem(RimMultiSnapshotDefinition::RANGEFILTER_J, "J", "J");
+        addItem(RimMultiSnapshotDefinition::RANGEFILTER_K, "K", "K");
 
         setDefault(RimMultiSnapshotDefinition::RANGEFILTER_K);
     }
@@ -58,8 +58,8 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
 
     CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Eclipse Result Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Eclipse Result", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Result Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Result Name", "", "", "");
 
     CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
@@ -68,7 +68,7 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitField(&startSliceIndex,         "RangeFilterStart", 1,  "RangeFilter Start", "", "", "");
     CAF_PDM_InitField(&endSliceIndex,           "RangeFilterEnd", 1,    "RangeFilter End", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&additionalCases, "AdditionalCases",     "Additional Cases", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&additionalCases, "AdditionalCases",     "Case List", "", "", "");
 }
 
 
@@ -109,7 +109,6 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
             QString caseAndView = view->ownerCase()->caseUserDescription() + " - " + view->name();
             options.push_back(caf::PdmOptionItemInfo(caseAndView, view));
         }
-        options.push_back(caf::PdmOptionItemInfo("-- All views --", nullptr));
     }
     else if (fieldNeedingOptions == &eclipseResultType)
     {
