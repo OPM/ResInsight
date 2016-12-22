@@ -212,8 +212,13 @@ private:
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
     void                slotUpdateScheduledDisplayModels();
+
+    // Friend classes required to have access to slotUpdateScheduledDisplayModels
+    // As snapshots are produced fast in sequence, the feature must have access to force redraw
+    // of scheduled redraws
+    friend class RimView;
+    friend class RicExportMultipleSnapshotsFeature;
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
