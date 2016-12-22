@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -40,6 +42,9 @@ public:
 
     caf::PdmPtrField<RimView*>  viewObject;
 
+    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >  eclipseResultType;
+    caf::PdmField< std::vector<QString> >                       selectedEclipseResults;
+
     caf::PdmField<int>       timeStepStart;
     caf::PdmField<int>       timeStepEnd;
 
@@ -57,10 +62,12 @@ public:
 
     caf::PdmPtrArrayField<RimCase*>  additionalCases;
 
-
+private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     void getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options);
     
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList);
 };

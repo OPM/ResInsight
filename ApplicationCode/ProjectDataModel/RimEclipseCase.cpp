@@ -156,19 +156,44 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
-    RimEclipseView* riv = new RimEclipseView();
-    riv->setEclipseCase(this);
-    riv->cellEdgeResult()->setResultVariable("MULT");
-    riv->cellEdgeResult()->enableCellEdgeColors = false;
+    RimEclipseView* rimEclipseView = new RimEclipseView();
+    rimEclipseView->setEclipseCase(this);
+    rimEclipseView->cellEdgeResult()->setResultVariable("MULT");
+    rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
 
-    caf::PdmDocument::updateUiIconStateRecursively(riv);
+    caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
 
     size_t i = reservoirViews().size();
-    riv->name = QString("View %1").arg(i + 1);
+    rimEclipseView->name = QString("View %1").arg(i + 1);
 
-    reservoirViews().push_back(riv);
+    reservoirViews().push_back(rimEclipseView);
 
-    return riv;
+    return rimEclipseView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourceView)
+{
+    CVF_ASSERT(sourceView);
+
+    RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(sourceView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(rimEclipseView);
+
+    rimEclipseView->setEclipseCase(this);
+   
+    caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
+
+    reservoirViews().push_back(rimEclipseView);
+
+    // Resolve references after reservoir view has been inserted into Rim structures
+    // Intersections referencing a well path/ simulation well requires this
+    // TODO: initAfterReadRecursively can probably be removed
+    rimEclipseView->initAfterReadRecursively();
+    rimEclipseView->resolveReferencesRecursively();
+
+    return rimEclipseView;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,6 +39,8 @@ protected:
 public:
     static void exportMultipleSnapshots(const QString& folder, RimProject* project);
 
+    static void exportResultVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+
 private:
     static void exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
     static QString resultName(RimView* rimView);

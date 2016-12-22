@@ -74,6 +74,7 @@ public:
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
     RimEclipseView*                             createAndAddReservoirView();
+    RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
     void                                        removeResult(const QString& resultName);
 

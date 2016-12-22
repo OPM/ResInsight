@@ -21,10 +21,13 @@
 #include "RiaApplication.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 
 #include "cafPdmPointer.h"
@@ -54,6 +57,10 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Eclipse Result Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Eclipse Result", "", "", "");
+
     CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
     CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
 
@@ -104,6 +111,23 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
         }
         options.push_back(caf::PdmOptionItemInfo("-- All views --", nullptr));
     }
+    else if (fieldNeedingOptions == &eclipseResultType)
+    {
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RimDefines::ResultCatType>(RimDefines::DYNAMIC_NATIVE).uiText(), RimDefines::DYNAMIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RimDefines::ResultCatType>(RimDefines::STATIC_NATIVE).uiText(), RimDefines::STATIC_NATIVE));
+    }
+    else if (fieldNeedingOptions == &selectedEclipseResults)
+    {
+        RimView* rimView = viewObject();
+        if (dynamic_cast<RimEclipseView*>(rimView))
+        {
+            RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
+            QStringList varList;
+            varList = rimEclipseView->currentGridCellResults()->cellResults()->resultNames(eclipseResultType());
+
+            options = toOptionList(varList);
+        }
+    }
     else if (fieldNeedingOptions == &timeStepEnd)
     {
         getTimeStepStrings(options);
@@ -123,8 +147,9 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
             options.push_back(caf::PdmOptionItemInfo(rimCase->caseUserDescription(), rimCase));
         }
 
-        if (useOptionsOnly) *useOptionsOnly = true;
     }
+
+    if (useOptionsOnly) *useOptionsOnly = true;
 
     return options;
 }
@@ -149,8 +174,11 @@ void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
-    if (changedField == &sliceDirection)
+    if (changedField == &eclipseResultType)
+    {
+        selectedEclipseResults.v().clear();
+    }
+    else if (changedField == &sliceDirection)
     {
         const cvf::StructGridInterface* mainGrid = nullptr;
         RigActiveCellInfo* actCellInfo = nullptr;
@@ -203,3 +231,16 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::toOptionList(const QStringList& varList)
+{
+    QList<caf::PdmOptionItemInfo> optionList;
+    int i;
+    for (i = 0; i < varList.size(); ++i)
+    {
+        optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
+    }
+    return optionList;
+}
