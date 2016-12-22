@@ -121,9 +121,10 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
         for (RimCase* rimCase : msd->additionalCases())
         {
             RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimCase);
-            if (eclCase)
+            RimEclipseView* sourceEclipseView = dynamic_cast<RimEclipseView*>(rimView);
+            if (eclCase && sourceEclipseView)
             {
-                RimEclipseView* copyOfEclipseView = eclCase->createCopyAndAddView(dynamic_cast<RimEclipseView*>(rimView));
+                RimEclipseView* copyOfEclipseView = eclCase->createCopyAndAddView(sourceEclipseView);
                 CVF_ASSERT(copyOfEclipseView);
 
                 copyOfEclipseView->loadDataAndUpdate();
@@ -136,9 +137,10 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
             }
 
             RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
-            if (geomCase)
+            RimGeoMechView* sourceGeoMechView = dynamic_cast<RimGeoMechView*>(rimView);
+            if (geomCase && sourceGeoMechView)
             {
-                RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(rimView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(sourceGeoMechView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
                 CVF_ASSERT(copyOfGeoMechView);
 
                 geomCase->geoMechViews().push_back(copyOfGeoMechView);
@@ -302,15 +304,15 @@ QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
 
         if (cellResult)
         {
-            QString legendTitle = caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "\n"
+            QString title = caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "_"
                 + cellResult->resultFieldUiName();
 
             if (!cellResult->resultComponentUiName().isEmpty())
             {
-                legendTitle += ", " + cellResult->resultComponentUiName();
+                title += "_" + cellResult->resultComponentUiName();
             }
 
-            return legendTitle;
+            return title;
         }
     }
 
