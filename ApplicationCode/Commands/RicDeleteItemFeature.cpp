@@ -44,6 +44,8 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimViewController.h"
 #include "RimWellLogCurve.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimIntersection.h"
@@ -78,6 +80,9 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimFractureCollection*>(uiItem))        return true;
     if (dynamic_cast<RimFracture*>(uiItem))                  return true;
     if (dynamic_cast<RimFractureDefinition*>(uiItem))        return true;
+    if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))        return true;
+    if (dynamic_cast<RimSimWellFracture*>(uiItem))                  return true;
+
 
     return false;    
 }

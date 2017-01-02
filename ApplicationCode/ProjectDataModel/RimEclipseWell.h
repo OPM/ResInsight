@@ -34,7 +34,7 @@
 #include "cafPdmChildField.h"
 
 class RimEclipseView;
-class RimFractureCollection;
+class RimSimWellFractureCollection;
 
 //==================================================================================================
 ///  
@@ -78,7 +78,7 @@ public:
     caf::PdmField<cvf::Color3f>         wellPipeColor;
     caf::PdmField<double>               pipeRadiusScaleFactor;
 
-    caf::PdmChildField<RimFractureCollection*> fractureCollection;
+    caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 
 
 private:

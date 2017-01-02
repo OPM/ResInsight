@@ -48,6 +48,8 @@
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersectionBox.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -362,6 +364,12 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSimWellFractureFeature";
             commandIds << "RicNewWellPathCollFractureFeature";
             commandIds << "RicFracturesDeleteAllFeature";
+        }
+        else if (dynamic_cast<RimSimWellFractureCollection*>(uiItem) ||
+            dynamic_cast<RimSimWellFracture*>(uiItem))
+        {
+            commandIds << "RicNewSimWellFractureFeature";
+            commandIds << "RicSimWellFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimFractureDefinitionCollection*>(uiItem) ||
                  dynamic_cast<RimFractureDefinition*>(uiItem))

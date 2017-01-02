@@ -22,8 +22,8 @@
 
 #include "RimCase.h"
 #include "RimEclipseWell.h"
-#include "RimFracture.h"
-#include "RimFractureCollection.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimProject.h"
  
 #include "cafSelectionManager.h"
@@ -49,12 +49,12 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     RimEclipseWell* eclipseWell = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
-    RimFractureCollection* fractureCollection = nullptr;
+    RimSimWellFractureCollection* fractureCollection = nullptr;
     objHandle->firstAncestorOrThisOfType(fractureCollection);
     CVF_ASSERT(fractureCollection);
 
-    RimFracture* fracture = new RimFracture();
-    fractureCollection->fractures.push_back(fracture);
+    RimSimWellFracture* fracture = new RimSimWellFracture();
+    fractureCollection->simwellFractures.push_back(fracture);
         
     fracture->name = "New Simulation Well Fracture";
 

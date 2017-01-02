@@ -16,61 +16,42 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSimWellFractureAtPosFeature.h"
-
-#include "RiaApplication.h"
-
-#include "RimCase.h"
-#include "RimEclipseWell.h"
-#include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
-#include "RimProject.h"
- 
-#include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
-#include <QAction>
+#include "RimSimWellFracture.h"
+#include "cafPdmObject.h"
 
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
+
+
+CAF_PDM_SOURCE_INIT(RimSimWellFractureCollection, "SimWellFractureCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
+RimSimWellFractureCollection::RimSimWellFractureCollection(void)
 {
- // Not yet implemented 
- // Infrastructure is missing for being able to obtain i j and k when right-clicking
+    CAF_PDM_InitObject("Fracture Collection", "", "", "");
+
+    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&simwellFractures, "Fractures", "", "", "", "");
+    simwellFractures.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
+RimSimWellFractureCollection::~RimSimWellFractureCollection()
 {
-    //actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Fracture");
+    simwellFractures.deleteAllChildObjects();
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
+void RimSimWellFractureCollection::deleteFractures()
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return false;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return false;
-
-    RimEclipseWell* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
-
-    if (eclipseWell)
-    {
-        return true;
-    }
-
-    return false;
+    simwellFractures.deleteAllChildObjects();
 }

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,61 +17,60 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSimWellFractureAtPosFeature.h"
+#include "RicSimWellFracturesDeleteAllFeature.h"
 
-#include "RiaApplication.h"
-
-#include "RimCase.h"
-#include "RimEclipseWell.h"
-#include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
-#include "RimProject.h"
- 
-#include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
+namespace caf
+{
 
-CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
+CAF_CMD_SOURCE_INIT(RicSimWellFracturesDeleteAllFeature, "RicSimWellFracturesDeleteAllFeature");
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
+bool RicSimWellFracturesDeleteAllFeature::isCommandEnabled()
 {
- // Not yet implemented 
- // Infrastructure is missing for being able to obtain i j and k when right-clicking
-}
+    std::vector<RimSimWellFractureCollection*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicNewSimWellFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
-{
-    //actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Fracture");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
-{
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return false;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return false;
-
-    RimEclipseWell* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
-
-    if (eclipseWell)
+    if (objects.size() == 1)
     {
         return true;
     }
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSimWellFracturesDeleteAllFeature::onActionTriggered(bool isChecked)
+{
+    std::vector<RimSimWellFractureCollection*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
+
+    RimSimWellFractureCollection* fractureCollection = nullptr;
+    if (objects.size() > 0)
+    {
+        fractureCollection = objects[0];
+        fractureCollection->deleteFractures();
+        fractureCollection->uiCapability()->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSimWellFracturesDeleteAllFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Delete All Fractures");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
+}
+
+} // end namespace caf

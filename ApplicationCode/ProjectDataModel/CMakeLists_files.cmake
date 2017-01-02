@@ -87,7 +87,10 @@ ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimFractureDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimFractureDefinitionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFracture.h
+${CEE_CURRENT_LIST_DIR}RimSimWellFracture.h
 ${CEE_CURRENT_LIST_DIR}RimFractureCollection.h
+${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.h
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -173,7 +176,9 @@ ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureDefinitionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFracture.cpp
+${CEE_CURRENT_LIST_DIR}RimSimWellFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
