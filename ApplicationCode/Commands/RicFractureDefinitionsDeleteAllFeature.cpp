@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,42 +17,62 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFractureCollection.h"
+#include "RicFractureDefinitionsDeleteAllFeature.h"
 
-#include "RimFracture.h"
-#include "cafPdmObject.h"
+#include "RimFractureDefinitionCollection.h"
 
+#include "cafSelectionManager.h"
 
+#include <QAction>
 
+namespace caf
+{
 
-CAF_PDM_SOURCE_INIT(RimFractureCollection, "FractureCollection");
+CAF_CMD_SOURCE_INIT(RicFractureDefinitionsDeleteAllFeature, "RicFractureDefinitionsDeleteAllFeature");
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureCollection::RimFractureCollection(void)
+bool RicFractureDefinitionsDeleteAllFeature::isCommandEnabled()
 {
-    CAF_PDM_InitObject("Fracture Collection", "", "", "");
+    std::vector<RimFractureDefinitionCollection*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
 
-    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
+    if (objects.size() == 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFractureDefinitionsDeleteAllFeature::onActionTriggered(bool isChecked)
+{
+    std::vector<RimFractureDefinitionCollection*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
+
+    RimFractureDefinitionCollection* fractureDefinitionCollection = nullptr;
+    if (objects.size() > 0)
+    {
+        fractureDefinitionCollection = objects[0];
+    }
+
+    fractureDefinitionCollection->deleteFractureDefinitions();
     
-    CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
-    fractures.uiCapability()->setUiHidden(true);
+    fractureDefinitionCollection->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureCollection::~RimFractureCollection()
+void RicFractureDefinitionsDeleteAllFeature::setupActionLook(QAction* actionToSetup)
 {
-    fractures.deleteAllChildObjects();
-
+    actionToSetup->setText("Delete All Fracture Definitions");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFractureCollection::deleteFractures()
-{
-    fractures.deleteAllChildObjects();
-}
+} // end namespace caf

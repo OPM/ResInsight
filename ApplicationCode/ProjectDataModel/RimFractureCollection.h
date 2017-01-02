@@ -39,4 +39,6 @@ public:
     caf::PdmChildArrayField<RimFracture*>   fractures;
     caf::PdmField<bool>                     isActive;
 
+    void                                    deleteFractures();
+
 };

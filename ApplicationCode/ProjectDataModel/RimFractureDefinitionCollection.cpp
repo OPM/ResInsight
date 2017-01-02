@@ -45,6 +45,13 @@ RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
 RimFractureDefinitionCollection::~RimFractureDefinitionCollection()
 {
     fractureDefinitions.deleteAllChildObjects();
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureDefinitionCollection::deleteFractureDefinitions()
+{
+    fractureDefinitions.deleteAllChildObjects();
 }
 
