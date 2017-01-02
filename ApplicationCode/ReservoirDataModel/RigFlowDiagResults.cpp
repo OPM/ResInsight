@@ -185,56 +185,21 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
             }
         }
 
-        RigFlowDiagResultFrames* averageTofFrames = this->createScalarResult(resVarAddr);
-        std::vector<double>& averageTof = averageTofFrames->frameData(frameIndex);
         size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
-        averageTof.resize(activeCellCount, HUGE_VAL);
 
         std::vector<double> injectorTotalFractions;
         std::vector<double> injectorFractMultTof;
-        {
-            injectorTotalFractions.resize(activeCellCount, 0.0);
-            injectorFractMultTof.resize(activeCellCount, 0.0);
 
-            for ( size_t iIdx = 0; iIdx <  injectorFractions.size() ; ++iIdx )
-            {
-                const std::vector<double> * frInj = injectorFractions[iIdx];
-                const std::vector<double> * tofInj = injectorTOFs[iIdx];
+        calculateSumOfFractionAndFractionMultTOF(activeCellCount,  injectorFractions, injectorTOFs, &injectorTotalFractions,  &injectorFractMultTof);
 
-                if ( ! (frInj && tofInj) ) continue;
-
-                for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-                {
-                    if( (*frInj)[acIdx] == HUGE_VAL ) continue;
-
-                    injectorTotalFractions[acIdx] += (*frInj)[acIdx];
-                    injectorFractMultTof[acIdx] += (*frInj)[acIdx] * (*tofInj)[acIdx];
-                }
-            }
-        }
 
         std::vector<double> producerTotalFractions;
         std::vector<double> producerFractMultTof;
-        {
-            producerTotalFractions.resize(activeCellCount, 0.0);
-            producerFractMultTof.resize(activeCellCount, 0.0);
+        calculateSumOfFractionAndFractionMultTOF(activeCellCount, producerFractions, producerTOFs, &producerTotalFractions, &producerFractMultTof);
 
-            for ( size_t iIdx = 0; iIdx < producerFractions.size() ; ++iIdx )
-            {
-                const std::vector<double> * prodFr = producerFractions[iIdx];
-                const std::vector<double> * prodTof = producerTOFs[iIdx];
-
-                if ( ! (prodFr && prodTof) ) continue;
-
-                for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-                {
-                    if ( (*prodFr)[acIdx] == HUGE_VAL ) continue;
-
-                    producerTotalFractions[acIdx] += (*prodFr)[acIdx];
-                    producerFractMultTof[acIdx] += (*prodFr)[acIdx] * (*prodTof)[acIdx];
-                }
-            }
-        }
+        RigFlowDiagResultFrames* averageTofFrames = this->createScalarResult(resVarAddr);
+        std::vector<double>& averageTof = averageTofFrames->frameData(frameIndex);
+        averageTof.resize(activeCellCount, HUGE_VAL);
 
         for (size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx)
         {
@@ -253,8 +218,69 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
 
         return &averageTof;
     }
+    else if (resVarAddr.variableName == RIG_FLD_CELL_FRACTION_RESNAME)
+    {
+        std::vector<const std::vector<double>* > fractions;
+        for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+        {
+            fractions.push_back(findOrCalculateResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracerName), frameIndex));
+        }
+
+        size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
+
+        RigFlowDiagResultFrames* sumOfFractionsFrames = this->createScalarResult(resVarAddr);
+        std::vector<double>& sumOfFractions = sumOfFractionsFrames->frameData(frameIndex);
+        sumOfFractions.resize(activeCellCount, HUGE_VAL);
+
+        for ( size_t iIdx = 0; iIdx < fractions.size() ; ++iIdx )
+        {
+            const std::vector<double> * frInj = fractions[iIdx];
+
+            if ( ! (frInj) ) continue;
+
+            for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+            {
+                if ( (*frInj)[acIdx] == HUGE_VAL ) continue;
+
+                if ((sumOfFractions)[acIdx] == HUGE_VAL) (sumOfFractions)[acIdx] = 0.0;
+
+                (sumOfFractions)[acIdx] += (*frInj)[acIdx];
+            }
+        }
+
+        return &sumOfFractions;
+    }
 
     return nullptr; // Todo
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::calculateSumOfFractionAndFractionMultTOF(size_t activeCellCount,
+                                                                  const std::vector<const std::vector<double> *> & fractions, 
+                                                                  const std::vector<const std::vector<double> *> & TOFs,
+                                                                  std::vector<double> *sumOfFractions,
+                                                                  std::vector<double> *fractionMultTOF)
+{
+    sumOfFractions->resize(activeCellCount, 0.0);
+    fractionMultTOF->resize(activeCellCount, 0.0);
+
+    for ( size_t iIdx = 0; iIdx < fractions.size() ; ++iIdx )
+    {
+        const std::vector<double> * frInj = fractions[iIdx];
+        const std::vector<double> * tofInj = TOFs[iIdx];
+
+        if ( ! (frInj && tofInj) ) continue;
+
+        for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+        {
+            if ( (*frInj)[acIdx] == HUGE_VAL ) continue;
+
+            (*sumOfFractions)[acIdx] += (*frInj)[acIdx];
+            (*fractionMultTOF)[acIdx]   += (*frInj)[acIdx] * (*tofInj)[acIdx];
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

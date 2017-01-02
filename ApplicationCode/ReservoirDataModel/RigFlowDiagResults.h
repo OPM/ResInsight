@@ -63,6 +63,13 @@ public:
 private:
     const std::vector<double>* findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     std::vector<double>*       calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+
+    void calculateSumOfFractionAndFractionMultTOF(size_t activeCellCount, 
+                                                  const std::vector<const std::vector<double> *>& injectorFractions, 
+                                                  const std::vector<const std::vector<double> *>& injectorTOFs,
+                                                  std::vector<double> *injectorTotalFractions, 
+                                                  std::vector<double> *injectorFractMultTof); 
+
     RigStatisticsDataCache*    statistics(const RigFlowDiagResultAddress& resVarAddr);
 
     void                       calculateFractionWeightedTOF  (size_t timeStepIdx, std::set<std::string> selectedTracerNames);
