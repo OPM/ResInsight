@@ -16,88 +16,65 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellPathCollFractureAtPosFeature.h"
+#include "RicNewWellPathFractureFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RimCase.h"
 #include "RimProject.h"
-#include "RimView.h"
-#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-
-#include "RiuSelectionManager.h"
-#include "RiuViewer.h"
-
+ 
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-#include "cvfVector3.h"
-#include "cvfRenderState_FF.h"
 
 #include <QAction>
 
 
-
-CAF_CMD_SOURCE_INIT(RicNewWellPathCollFractureAtPosFeature, "RicNewWellPathCollFractureAtPosFeature");
+CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathCollFractureAtPosFeature::onActionTriggered(bool isChecked)
+void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return;
+    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    if (!pdmUiItem) return;
 
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
-
-    RiuWellPathSelectionItem* wellPathItem = nullptr;
-    if (selItem->type() == RiuSelectionItem::WELLPATH_SELECTION_OBJECT)
-    {
-        wellPathItem = static_cast<RiuWellPathSelectionItem*>(selItem);
-        if (!wellPathItem) return;
-    }
-
-    const RivWellPathSourceInfo* wellpathSourceInfo = wellPathItem->m_wellpathSourceInfo;
-    RimWellPath* wellPath = wellpathSourceInfo->wellPath();
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(wellPath);
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
 
-    RimWellPath* wellPathObj = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPathObj);
-    if (!wellPathObj) return;
+    RimWellPathCollection* wellPathColl = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPathColl);
 
-    RimWellPathFractureCollection* fractureCollection = wellPathObj->fractureCollection();
+    RimWellPathFractureCollection* fractureCollection = nullptr;
+    objHandle->firstAncestorOrThisOfType(fractureCollection);
+    CVF_ASSERT(fractureCollection);
 
     RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "New Well Path Fracture";
-    fracture->wellpath = wellPath;
-    fracture->positionAtWellpath = wellPathItem->m_currentPickPositionInDomainCoords;
 
-    double measuredDepth = wellpathSourceInfo->measuredDepth(wellPathItem->m_firstPartTriangleIndex, wellPathItem->m_currentPickPositionInDomainCoords);
-    fracture->measuredDepth = measuredDepth;
     fractureCollection->updateConnectedEditors();
 
 }
- 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathCollFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
+void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 {
-//   actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
+//    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
     actionToSetup->setText("New Fracture");
 }
- 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathCollFractureAtPosFeature::isCommandEnabled()
+bool RicNewWellPathFractureFeature::isCommandEnabled()
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return false;

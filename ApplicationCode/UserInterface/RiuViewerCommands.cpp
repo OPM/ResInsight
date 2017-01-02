@@ -296,7 +296,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, m_currentPickPositionInDomainCoords, firstPartTriangleIndex);
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
-                commandIds << "RicNewWellPathCollFractureAtPosFeature";
+                commandIds << "RicNewWellPathFractureAtPosFeature";
 
 
                 //TODO: Update so these also use RiuWellPathSelectionItem 

@@ -26,7 +26,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewWellPathCollFractureFeature : public caf::CmdFeature
+class RicNewWellPathFractureAtPosFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:

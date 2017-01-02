@@ -359,7 +359,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) || 
                  dynamic_cast<RimWellPathFracture*>(uiItem) )
         {
-            commandIds << "RicNewWellPathCollFractureFeature";
+            commandIds << "RicNewWellPathFractureFeature";
             commandIds << "RicWellPathFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimSimWellFractureCollection*>(uiItem) ||
