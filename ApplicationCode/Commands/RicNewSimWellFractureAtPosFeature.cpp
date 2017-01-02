@@ -30,7 +30,7 @@
 
 #include "cvfAssert.h"
 
-#include "QAction.h"
+#include <QAction>
 
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");

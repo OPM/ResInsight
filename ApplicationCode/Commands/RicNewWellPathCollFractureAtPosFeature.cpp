@@ -30,13 +30,13 @@
 
 #include "cvfAssert.h"
 
-#include "QAction.h"
 #include "RimWellPath.h"
 #include "RimView.h"
 #include "cvfVector3.h"
 #include "cvfRenderState_FF.h"
 #include "RiuViewer.h"
 #include "RiuSelectionManager.h"
+#include <QAction>
 
 
 
