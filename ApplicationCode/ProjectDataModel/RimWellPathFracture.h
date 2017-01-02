@@ -32,24 +32,16 @@ class RimWellPath;
 ///  
 ///  
 //==================================================================================================
-class RimFracture : public caf::PdmObject
+class RimWellPathFracture : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    enum FractureWellEnum
-    {
-        FRACTURE_WELL_PATH,
-        FRACTURE_SIMULATION_WELL
-    };
-
-public:
-    RimFracture(void);
-    virtual ~RimFracture(void);
+    RimWellPathFracture(void);
+    virtual ~RimWellPathFracture(void);
 
     caf::PdmField<QString>                              name;
     caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
-    caf::PdmField< caf::AppEnum< FractureWellEnum > >   welltype;
 
     caf::PdmPtrField<RimWellPath*>  wellpath;
     caf::PdmField<float>            measuredDepth;

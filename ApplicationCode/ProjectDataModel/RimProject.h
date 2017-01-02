@@ -34,7 +34,7 @@ class RimCase;
 class RimCommandObject;
 class RimEclipseCase;
 class RimFractureDefinition;
-class RimFractureCollection;
+class RimWellPathFractureCollection;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
 class RimMultiSnapshotDefinition;

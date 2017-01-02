@@ -23,8 +23,6 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -38,8 +36,6 @@
 #include "RimFault.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFracture.h"
-#include "RimFractureCollection.h"
 #include "RimFractureDefinition.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimGeoMechCase.h"
@@ -47,10 +43,12 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimIntersectionCollection.h"
+#include "RimScriptCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
-#include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
@@ -65,19 +63,19 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
+#include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiItem.h"
 #include "cafSelectionManager.h"
+
 #include "cvfAssert.h"
 
-#include "cafCmdFeatureManager.h"
-#include "cafCmdFeature.h"
-
 #include <vector>
-
 #include <QMenu>
 
 //--------------------------------------------------------------------------------------------------
@@ -358,12 +356,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
-        else if (dynamic_cast<RimFractureCollection*>(uiItem) || 
-                 dynamic_cast<RimFracture*>(uiItem) )
+        else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) || 
+                 dynamic_cast<RimWellPathFracture*>(uiItem) )
         {
-            commandIds << "RicNewSimWellFractureFeature";
             commandIds << "RicNewWellPathCollFractureFeature";
-            commandIds << "RicFracturesDeleteAllFeature";
+            commandIds << "RicWellPathFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimSimWellFractureCollection*>(uiItem) ||
             dynamic_cast<RimSimWellFracture*>(uiItem))

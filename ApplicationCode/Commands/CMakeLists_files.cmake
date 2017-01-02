@@ -44,6 +44,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewWellPathCollFractureFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCollFractureAtPosFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFracturesDeleteAllFeature.h
+${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.h
 
 
@@ -92,7 +93,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewFractureDefinitionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCollFractureFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathCollFractureAtPosFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicFracturesDeleteAllFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.cpp
 
 

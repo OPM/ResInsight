@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +19,25 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmChildArrayField.h"
+#include "cafCmdFeature.h"
 
-class RimFracture;
-
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RimFractureCollection : public caf::PdmObject
+namespace caf 
 {
-     CAF_PDM_HEADER_INIT;
 
-public:
-    RimFractureCollection(void);
-    virtual ~RimFractureCollection(void);
-    
-    caf::PdmChildArrayField<RimFracture*>   fractures;
-    caf::PdmField<bool>                     isActive;
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicWellPathFracturesDeleteAllFeature : public CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+protected:
 
-    void                                    deleteFractures();
-
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
 };
+
+
+
+} // end namespace caf

@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,62 +16,42 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicFracturesDeleteAllFeature.h"
-
 #include "RimWellPathFractureCollection.h"
 
-#include "cafSelectionManager.h"
+#include "RimWellPathFracture.h"
+#include "cafPdmObject.h"
 
-#include <QAction>
 
-namespace caf
-{
 
-CAF_CMD_SOURCE_INIT(RicWellPathFracturesDeleteAllFeature, "RicFracturesDeleteAllFeature");
 
+CAF_PDM_SOURCE_INIT(RimWellPathFractureCollection, "WellPathFractureCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathFracturesDeleteAllFeature::isCommandEnabled()
+RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 {
-    std::vector<RimWellPathFractureCollection*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
+    CAF_PDM_InitObject("Fracture Collection", "", "", "");
 
-    if (objects.size() == 1)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicWellPathFracturesDeleteAllFeature::onActionTriggered(bool isChecked)
-{
-    std::vector<RimWellPathFractureCollection*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    RimWellPathFractureCollection* fractureCollection = nullptr;
-    if (objects.size() > 0)
-    {
-        fractureCollection = objects[0];
-    }
-
-    fractureCollection->deleteFractures();
+    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     
-    fractureCollection->uiCapability()->updateConnectedEditors();
+    CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
+    fractures.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFracturesDeleteAllFeature::setupActionLook(QAction* actionToSetup)
+RimWellPathFractureCollection::~RimWellPathFractureCollection()
 {
-    actionToSetup->setText("Delete All Fractures");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
+    fractures.deleteAllChildObjects();
+
 }
 
-} // end namespace caf
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::deleteFractures()
+{
+    fractures.deleteAllChildObjects();
+}

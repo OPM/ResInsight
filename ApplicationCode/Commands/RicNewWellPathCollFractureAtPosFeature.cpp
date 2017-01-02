@@ -21,21 +21,22 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "RimFracture.h"
-#include "RimFractureCollection.h"
 #include "RimProject.h"
+#include "RimView.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
- 
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
+
+#include "RiuSelectionManager.h"
+#include "RiuViewer.h"
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-
-#include "RimWellPath.h"
-#include "RimView.h"
 #include "cvfVector3.h"
 #include "cvfRenderState_FF.h"
-#include "RiuViewer.h"
-#include "RiuSelectionManager.h"
+
 #include <QAction>
 
 
@@ -69,13 +70,12 @@ void RicNewWellPathCollFractureAtPosFeature::onActionTriggered(bool isChecked)
     objHandle->firstAncestorOrThisOfType(wellPathObj);
     if (!wellPathObj) return;
 
-    RimFractureCollection* fractureCollection = wellPathObj->fractureCollection();
+    RimWellPathFractureCollection* fractureCollection = wellPathObj->fractureCollection();
 
-    RimFracture* fracture = new RimFracture();
+    RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "New Well Path Fracture";
-    fracture->welltype = RimFracture::FRACTURE_WELL_PATH;
     fracture->wellpath = wellPath;
     fracture->positionAtWellpath = wellPathItem->m_currentPickPositionInDomainCoords;
 

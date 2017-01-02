@@ -36,7 +36,7 @@
 class RimProject;
 class RivWellPathPartMgr;
 class RimWellLogFile;
-class RimFractureCollection;
+class RimWellPathFractureCollection;
 
 //==================================================================================================
 ///  
@@ -70,7 +70,7 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
-    caf::PdmChildField<RimFractureCollection*>  fractureCollection;
+    caf::PdmChildField<RimWellPathFractureCollection*>  fractureCollection;
 
 
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }

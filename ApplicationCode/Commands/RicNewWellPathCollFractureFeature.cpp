@@ -21,10 +21,10 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "RimFracture.h"
-#include "RimFractureCollection.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
  
 #include "cafSelectionManager.h"
 
@@ -49,16 +49,14 @@ void RicNewWellPathCollFractureFeature::onActionTriggered(bool isChecked)
     RimWellPathCollection* wellPathColl = nullptr;
     objHandle->firstAncestorOrThisOfType(wellPathColl);
 
-    RimFractureCollection* fractureCollection = nullptr;
+    RimWellPathFractureCollection* fractureCollection = nullptr;
     objHandle->firstAncestorOrThisOfType(fractureCollection);
     CVF_ASSERT(fractureCollection);
 
-    RimFracture* fracture = new RimFracture();
+    RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "New Well Path Fracture";
-    fracture->welltype = RimFracture::FRACTURE_WELL_PATH;
-    //TODO set all relevant defaults...
 
     fractureCollection->updateConnectedEditors();
 

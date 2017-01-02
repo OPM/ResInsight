@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFracture.h"
+#include "RimWellPathFracture.h"
 
 #include "RiaApplication.h"
 
@@ -35,30 +35,17 @@
 #include "cvfVector3.h"
 
 
-namespace caf 
-{
-    template<>
-    void caf::AppEnum< RimFracture::FractureWellEnum>::setUp()
-    {
-        addItem(RimFracture::FRACTURE_SIMULATION_WELL,  "SIMULATION_WELL", "Simulation Well");
-        addItem(RimFracture::FRACTURE_WELL_PATH,        "WELL_PATH", "Well Path");
 
-        setDefault(RimFracture::FRACTURE_SIMULATION_WELL);
-    }
-}
-
-
-CAF_PDM_SOURCE_INIT(RimFracture, "Fracture");
+CAF_PDM_SOURCE_INIT(RimWellPathFracture, "WellPathFracture");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFracture::RimFracture(void)
+RimWellPathFracture::RimWellPathFracture(void)
 {
     CAF_PDM_InitObject("Fracture", "", "", "");
 
     CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
-    CAF_PDM_InitField(&welltype,"Type", caf::AppEnum<FractureWellEnum>(FRACTURE_SIMULATION_WELL), "Type", "", "", "");
 
     CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location (if along well path)", "", "", "");
     CAF_PDM_InitFieldNoDefault(&wellpath,               "WellPath",             "Well path for measured deph", "", "", "");
@@ -75,14 +62,14 @@ RimFracture::RimFracture(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFracture::~RimFracture()
+RimWellPathFracture::~RimWellPathFracture()
 {
 }
  
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
 
     QList<caf::PdmOptionItemInfo> options;
@@ -129,28 +116,16 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
     geometryGroup->add(&fractureDefinition);
-//     geometryGroup->add(&welltype);
 
-    if (welltype == FRACTURE_WELL_PATH)
-    {
-        geometryGroup->add(&wellpath);
-        geometryGroup->add(&measuredDepth);
-        geometryGroup->add(&positionAtWellpath);
-    }
-
-    else if (welltype == FRACTURE_SIMULATION_WELL)
-    {
-        geometryGroup->add(&i);
-        geometryGroup->add(&j);
-        geometryGroup->add(&k);
-
-    }
+    geometryGroup->add(&wellpath);
+    geometryGroup->add(&measuredDepth);
+    geometryGroup->add(&positionAtWellpath);
 
     uiOrdering.setForgetRemainingFields(true);
 

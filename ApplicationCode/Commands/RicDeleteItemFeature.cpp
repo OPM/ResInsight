@@ -21,8 +21,29 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimCellRangeFilter.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseView.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
+#include "RimFractureDefinition.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechView.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersection.h"
+#include "RimIntersectionBox.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimViewController.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
@@ -32,27 +53,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RimGeoMechView.h"
-#include "RimEclipseView.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimEclipseInputProperty.h"
-#include "RimCellRangeFilter.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimFracture.h"
-#include "RimFractureCollection.h"
-#include "RimFractureDefinition.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimViewController.h"
-#include "RimWellLogCurve.h"
-#include "RimSimWellFracture.h"
-#include "RimSimWellFractureCollection.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
-#include "RimSummaryPlot.h"
 
 namespace caf
 {
@@ -77,8 +77,8 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
-    if (dynamic_cast<RimFractureCollection*>(uiItem))        return true;
-    if (dynamic_cast<RimFracture*>(uiItem))                  return true;
+    if (dynamic_cast<RimWellPathFractureCollection*>(uiItem))        return true;
+    if (dynamic_cast<RimWellPathFracture*>(uiItem))                  return true;
     if (dynamic_cast<RimFractureDefinition*>(uiItem))        return true;
     if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))        return true;
     if (dynamic_cast<RimSimWellFracture*>(uiItem))                  return true;

@@ -28,7 +28,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 #include "RivWellPathPartMgr.h"
-#include "RimFractureCollection.h"
+#include "RimWellPathFractureCollection.h"
 #include "RiuMainWindow.h"
 
 #include <QDir>
@@ -98,7 +98,7 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
     fractureCollection.uiCapability()->setUiHidden(true);
-    fractureCollection = new RimFractureCollection();
+    fractureCollection = new RimWellPathFractureCollection();
 
 
     m_wellPath = NULL;
