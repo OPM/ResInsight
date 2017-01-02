@@ -48,7 +48,6 @@ RimWellPathFracture::RimWellPathFracture(void)
     CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
 
     CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location (if along well path)", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellpath,               "WellPath",             "Well path for measured deph", "", "", "");
     CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position at Well Path", "", "", "");
 
     CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
@@ -91,22 +90,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const c
             options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
         }
     }
-    else if (fieldNeedingOptions == &wellpath)
-    {
-        RimWellPathCollection* wellPathColl = oilField->wellPathCollection();
-        if (wellPathColl == nullptr) return options;
-
-        for (RimWellPath* wellPath : wellPathColl->wellPaths())
-        {
-            options.push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath));
-        }
-      
-
-
-    }
-
-
-
+  
     return options;
 
 
@@ -123,7 +107,6 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
     geometryGroup->add(&fractureDefinition);
 
-    geometryGroup->add(&wellpath);
     geometryGroup->add(&measuredDepth);
     geometryGroup->add(&positionAtWellpath);
 

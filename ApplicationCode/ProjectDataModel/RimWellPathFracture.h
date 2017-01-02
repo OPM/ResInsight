@@ -45,7 +45,6 @@ public:
     caf::PdmField<QString>                              name;
     caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
 
-    caf::PdmPtrField<RimWellPath*>  wellpath;
     caf::PdmField<float>            measuredDepth;
     caf::PdmField<cvf::Vec3d>       positionAtWellpath;
 
