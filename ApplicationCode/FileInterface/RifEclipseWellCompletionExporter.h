@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,42 +18,19 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-#include "RimView.h"
-#include "cvfVector3.h"
+#include <vector>
 
-#include "RimFracture.h"
+class RimFracture;
 
-class RimFractureDefinition;
+class QString;
+
 
 //==================================================================================================
-///  
-///  
+//
+//
 //==================================================================================================
-class RimSimWellFracture : public RimFracture
+class RifEclipseWellCompletionExporter
 {
-     CAF_PDM_HEADER_INIT;
-
 public:
-    RimSimWellFracture(void);
-    virtual ~RimSimWellFracture(void);
-
-    caf::PdmField<QString>                              name;
-    caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
-
-    caf::PdmField<int>              i;
-    caf::PdmField<int>              j;
-    caf::PdmField<int>              k;
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
-
-protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
-
-
+    static void exportWellCompletions(const QString& filename, const std::vector<RimFracture*>& fractures);
 };

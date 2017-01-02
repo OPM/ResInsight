@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,49 +18,28 @@
 
 #pragma once
 
+#include "cafPdmObject.h"
+
+/*
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 #include "RimView.h"
 #include "cvfVector3.h"
+*/
 
-#include "RimFracture.h"
-
-class RimFractureDefinition;
-class RimWellPath;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellPathFracture : public RimFracture
+class RimFracture : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellPathFracture(void);
-    virtual ~RimWellPathFracture(void);
-
-    caf::PdmField<QString>                              name;
-    caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
-
-    caf::PdmPtrField<RimWellPath*>  wellpath;
-    caf::PdmField<float>            measuredDepth;
-    caf::PdmField<cvf::Vec3d>       positionAtWellpath;
-
-    caf::PdmField<int>              i;
-    caf::PdmField<int>              j;
-    caf::PdmField<int>              k;
-
-
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
-
-protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
-
+    RimFracture(void);
+    virtual ~RimFracture(void);
 
 };
