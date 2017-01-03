@@ -44,6 +44,7 @@ public:
     caf::PdmField<QString>                              name;
     caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
 
+    size_t                          gridindex;
     caf::PdmField<int>              i;
     caf::PdmField<int>              j;
     caf::PdmField<int>              k;

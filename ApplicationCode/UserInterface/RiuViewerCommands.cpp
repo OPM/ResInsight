@@ -314,8 +314,15 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             if (well)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
-
                 commandIds << "RicNewSimWellIntersectionFeature";
+
+
+
+                size_t i = 0;
+                size_t j = 0;
+                size_t k = 0;
+                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo, i, j, k);
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 commandIds << "RicNewSimWellFractureAtPosFeature";
             }
         }

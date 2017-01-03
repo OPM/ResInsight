@@ -28,6 +28,8 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
+#include "RivWellPathSourceInfo.h"
+
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 

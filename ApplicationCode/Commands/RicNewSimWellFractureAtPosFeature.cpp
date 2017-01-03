@@ -31,6 +31,8 @@
 #include "cvfAssert.h"
 
 #include <QAction>
+#include "RiuSelectionManager.h"
+#include "RivWellPipeSourceInfo.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
@@ -40,8 +42,43 @@ CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtP
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 {
- // Not yet implemented 
- // Infrastructure is missing for being able to obtain i j and k when right-clicking
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return;
+
+
+    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+
+    RiuSimWellSelectionItem* simWellItem = nullptr;
+    if (selItem->type() == RiuSelectionItem::SIMWELL_SELECTION_OBJECT)
+    {
+        simWellItem = static_cast<RiuSimWellSelectionItem*>(selItem);
+        if (!simWellItem) return;
+    }
+    
+    const RivEclipseWellSourceInfo* simwellSourceInfo = simWellItem->m_simwellSourceInfo;
+    RimEclipseWell* simWell = simwellSourceInfo->well();
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(simWell);
+    if (!objHandle) return;
+
+    RimEclipseWell* simWellObject = nullptr;
+    objHandle->firstAncestorOrThisOfType(simWellObject);
+    if (!simWellObject) return;
+
+    RimSimWellFractureCollection* fractureCollection = simWellObject->simwellFractureCollection();
+    if (!fractureCollection) return;
+
+    RimSimWellFracture* fracture = new RimSimWellFracture();
+    fractureCollection->simwellFractures.push_back(fracture);
+
+    fracture->name = "New SimWell Fracture";
+
+    fracture->i = static_cast<int>(simWellItem->i);
+    fracture->j = static_cast<int>(simWellItem->j);
+    fracture->k = static_cast<int>(simWellItem->k);
+
+    fractureCollection->updateConnectedEditors();
+
 }
 
 //--------------------------------------------------------------------------------------------------

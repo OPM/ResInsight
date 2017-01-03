@@ -28,7 +28,8 @@
 #include <vector>
 #include <assert.h>
 #include <array>
-#include "RivWellPathSourceInfo.h"
+// #include "RivWellPathSourceInfo.h"
+// #include "RivWellPipeSourceInfo.h"
 
 class RimEclipseView;
 class RiuSelectionChangedHandler;
@@ -36,6 +37,7 @@ class RiuSelectionItem;
 class RimGeoMechView;
 class RimWellPath;
 class RivWellPathSourceInfo;
+class RivEclipseWellSourceInfo;
 
 //==================================================================================================
 //
@@ -102,7 +104,8 @@ public:
     {
         ECLIPSE_SELECTION_OBJECT,
         GEOMECH_SELECTION_OBJECT,
-        WELLPATH_SELECTION_OBJECT
+        WELLPATH_SELECTION_OBJECT,
+        SIMWELL_SELECTION_OBJECT
     };
 
 public:
@@ -206,4 +209,33 @@ public:
     const RivWellPathSourceInfo*  m_wellpathSourceInfo;
     cvf::Vec3d                    m_currentPickPositionInDomainCoords;
     cvf::uint                     m_firstPartTriangleIndex;
+};
+
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RiuSimWellSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit RiuSimWellSelectionItem(const RivEclipseWellSourceInfo* simwellSourceInfo,
+                                     size_t i, size_t j, size_t k);
+
+
+    virtual ~RiuSimWellSelectionItem() {};
+
+    virtual RiuSelectionType type() const
+    {
+        return SIMWELL_SELECTION_OBJECT;
+    }
+
+public:
+    caf::PdmPointer<RimEclipseView> m_view;
+    const RivEclipseWellSourceInfo* m_simwellSourceInfo;
+    size_t i;
+    size_t j;
+    size_t k;
 };

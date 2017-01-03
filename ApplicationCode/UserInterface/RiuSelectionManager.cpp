@@ -215,3 +215,18 @@ RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* 
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(const RivEclipseWellSourceInfo* simwellSourceInfo, 
+                                                  size_t i, 
+                                                  size_t j,
+                                                  size_t k)
+    : m_simwellSourceInfo(simwellSourceInfo),
+      i(i),
+      j(j),
+      k(k)
+{
+
+}
