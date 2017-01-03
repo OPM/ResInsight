@@ -75,12 +75,12 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimFlowDiagSolution::tracerNames()
+std::vector<QString> RimFlowDiagSolution::tracerNames()
 {
     RimEclipseResultCase* eclCase; 
     this->firstAncestorOrThisOfType(eclCase);
 
-    std::set<QString> tracerNameSet;
+    std::vector<QString> tracerNameSet;
     
     if (eclCase)
     {
@@ -88,7 +88,7 @@ std::set<QString> RimFlowDiagSolution::tracerNames()
 
         for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
         {
-            tracerNameSet.insert(wellResults[wIdx]->m_wellName); 
+            tracerNameSet.push_back(wellResults[wIdx]->m_wellName); 
         }
     }
 

@@ -248,8 +248,72 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
 
         return &commPI;
     }
+    else if ( resVarAddr.variableName == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
+    {
+        std::vector<int> selectedTracerIdxToGlobalTracerIdx;
+        {
+            selectedTracerIdxToGlobalTracerIdx.resize(resVarAddr.selectedTracerNames.size(), -1);
 
-    return nullptr; // Todo
+            std::vector<QString> allTracerNames = m_flowDiagSolution->tracerNames();
+            int selTracerIdx = 0;
+            for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+            {
+                for ( int globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
+                {
+                    if ( allTracerNames[globIdx].toStdString() == tracerName )
+                    {
+                        selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = globIdx;
+                        break;
+                    }
+                }
+
+                ++selTracerIdx;
+            }
+        }
+
+
+        RigFlowDiagResultFrames* maxFractionTracerIdxFrames = this->createScalarResult(resVarAddr);
+        std::vector<double>& maxFractionTracerIdx = maxFractionTracerIdxFrames->frameData(frameIndex);
+        {
+
+            std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
+                                                                                               frameIndex,
+                                                                                               RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                               RimFlowDiagSolution::UNDEFINED);
+            maxFractionTracerIdx.resize(activeCellCount, HUGE_VAL);
+
+            std::vector<double> maxFraction;
+            maxFraction.resize(activeCellCount, -HUGE_VAL);
+
+            for ( size_t frIdx = 0; frIdx < fractions.size(); ++frIdx )
+            {
+                const std::vector<double> * fr = fractions[frIdx];
+
+                for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+                {
+                    if ( (*fr)[acIdx] == HUGE_VAL) continue;
+
+                    if ( maxFraction[acIdx] < (*fr)[acIdx] )
+                    {
+                        maxFraction[acIdx] =  (*fr)[acIdx];
+                        maxFractionTracerIdx[acIdx] = frIdx;
+                    }
+                }
+            }
+        }
+
+        for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+        {
+            if (maxFractionTracerIdx[acIdx] == HUGE_VAL) continue;
+
+            double selectedTracerIdx = static_cast<int>( maxFractionTracerIdx[acIdx]);
+            maxFractionTracerIdx[acIdx] = selectedTracerIdxToGlobalTracerIdx[selectedTracerIdx];           
+        }
+
+        return &maxFractionTracerIdx;
+    }
+
+    return nullptr; 
 }
 
 

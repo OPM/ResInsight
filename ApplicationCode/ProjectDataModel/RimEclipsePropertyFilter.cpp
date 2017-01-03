@@ -309,7 +309,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
             if ( resultDefinition->hasCategoryResult() )
             {
-                setCategoryValues(results->uniqueCellScalarValues(resAddr, timeStep));
+                setCategoryNames(resultDefinition->flowDiagSolution()->tracerNames());
             }
         }
     }

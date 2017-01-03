@@ -334,7 +334,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
             if (flowSol)
             {
-                std::set<QString> tracerNames = flowSol->tracerNames();
+                std::vector<QString> tracerNames = flowSol->tracerNames();
                 std::map<QString, QString> prefixedTracerNamesMap;
                 for ( const QString& tracerName : tracerNames )
                 {
