@@ -201,6 +201,9 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
             }
         }
 
+        /// Test to remove all averaging    
+        // if (injectorTOFs.size()) averageTof = (*injectorTOFs[0]);
+
         return &averageTof;
     }
     else if (resVarAddr.variableName == RIG_FLD_CELL_FRACTION_RESNAME)

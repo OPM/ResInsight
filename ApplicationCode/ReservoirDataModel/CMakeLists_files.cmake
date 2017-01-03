@@ -66,6 +66,7 @@ ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigFormationNames.cpp
+${CEE_CURRENT_LIST_DIR}RigFlowDiagResultAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResults.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultFrames.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagSolverInterface.cpp
