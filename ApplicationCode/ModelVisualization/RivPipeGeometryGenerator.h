@@ -61,6 +61,7 @@ public:
 
     void    setFirstSegmentIndex(size_t segmentIndex);
     size_t  segmentIndexFromTriangleIndex(size_t triangleIndex) const;
+    size_t  pipeResultIndexFromTriangleIndex(size_t triangleIndex) const;
 
 private:
     void clearComputedData();

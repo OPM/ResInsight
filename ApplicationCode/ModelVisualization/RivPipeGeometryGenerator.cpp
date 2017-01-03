@@ -596,6 +596,18 @@ size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIn
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RivPipeGeometryGenerator::pipeResultIndexFromTriangleIndex(size_t triangleIndex) const
+{
+    size_t segIndex = segmentIndexFromTriangleIndex(triangleIndex);
+
+    size_t resultIndex = m_filteredPipeSegmentToResult[segIndex];
+
+    return resultIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Well pipes are clipped, set index to first segment in visible well path
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setFirstSegmentIndex(size_t segmentIndex)

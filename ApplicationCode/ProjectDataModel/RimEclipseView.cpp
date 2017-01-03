@@ -1538,6 +1538,20 @@ RimCase* RimEclipseView::ownerCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::findGridIndexAndCellIndex(RimEclipseWell* eclipseWell, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
+{
+    CVF_ASSERT(eclipseWell);
+
+    size_t wellIndex = wellCollection->wells().index(eclipseWell);
+    if (wellIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        m_pipesPartManager->findGridIndexAndCellIndex(wellIndex, branchIndex, triangleIndex, gridIndex, cellIndex);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollection()
 {
     if (m_overridePropertyFilterCollection)

@@ -42,6 +42,7 @@ class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
+class RimEclipseWell;
 class RimCellEdgeColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
@@ -115,6 +116,8 @@ public:
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase();
     virtual RimCase*                                ownerCase();
+
+    void                                            findGridIndexAndCellIndex(RimEclipseWell* eclipseWell, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex);
 
     // Display model generation
 

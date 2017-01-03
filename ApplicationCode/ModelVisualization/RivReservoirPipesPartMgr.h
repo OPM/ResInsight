@@ -47,7 +47,9 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     void updatePipeResultColor(size_t frameIndex);
 
-    const std::vector< std::vector <cvf::Vec3d> >*  centerLineOfWellBranches(int wellIdx);
+    const std::vector< std::vector <cvf::Vec3d> >*  centerLineOfWellBranches(size_t wellIdx);
+
+    void findGridIndexAndCellIndex(size_t wellIdx, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex);
 
 private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;

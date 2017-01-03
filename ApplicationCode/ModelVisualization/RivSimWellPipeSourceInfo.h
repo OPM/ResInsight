@@ -32,6 +32,8 @@ public:
 
     RimEclipseWell* well() const;
 
+    void findGridIndexAndCellIndex(size_t triangleIndex, size_t* gridIndex, size_t* gridCellIndex) const;
+
 private:    
     caf::PdmPointer<RimEclipseWell> m_eclipseWell;
     size_t m_branchIndex;

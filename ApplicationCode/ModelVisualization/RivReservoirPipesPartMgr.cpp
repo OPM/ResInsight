@@ -142,13 +142,24 @@ void RivReservoirPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector <cvf::Vec3d> >* RivReservoirPipesPartMgr::centerLineOfWellBranches(int wellIdx)
+const std::vector< std::vector <cvf::Vec3d> >* RivReservoirPipesPartMgr::centerLineOfWellBranches(size_t wellIdx)
 {
-    if (wellIdx < static_cast<int>(m_wellPipesPartMgrs.size()))
+    if (wellIdx < m_wellPipesPartMgrs.size())
     {
         return &(m_wellPipesPartMgrs[wellIdx]->centerLineOfWellBranches());
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPipesPartMgr::findGridIndexAndCellIndex(size_t wellIdx, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
+{
+    if (wellIdx < m_wellPipesPartMgrs.size())
+    {
+        m_wellPipesPartMgrs[wellIdx]->findGridIndexAndCellIndex(branchIndex, triangleIndex, gridIndex, cellIndex);
+    }
 }
 
