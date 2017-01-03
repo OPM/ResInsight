@@ -113,7 +113,8 @@ RimLegendConfig::RimLegendConfig()
         m_globalAutoPosClosestToZero(0),
         m_globalAutoNegClosestToZero(0),
         m_localAutoPosClosestToZero(0),
-        m_localAutoNegClosestToZero(0)
+        m_localAutoNegClosestToZero(0),
+        m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "A hint on how many tick marks you whish.","");
@@ -486,6 +487,21 @@ void RimLegendConfig::updateLegend()
    {
         m_userDefinedMinValue.uiCapability()->setUiName(QString());
    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::disableAllTimeStepsRange(bool doDisable)
+{
+    // If we enable AllTimesteps, and we have used current timestep, then "restore" the default
+    if (m_isAllTimeStepsRangeDisabled && !doDisable &&  m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)  m_rangeMode = AUTOMATIC_ALLTIMESTEPS;
+
+    m_isAllTimeStepsRangeDisabled = doDisable;
+
+    if (doDisable && m_rangeMode == AUTOMATIC_ALLTIMESTEPS) m_rangeMode = AUTOMATIC_CURRENT_TIMESTEP;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -889,6 +905,14 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         {
             optionList.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
         }
+    }
+    else if (fieldNeedingOptions == &m_rangeMode)
+    {
+        if (!m_isAllTimeStepsRangeDisabled) {
+            optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+        }
+        optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
     }
  
     return optionList;

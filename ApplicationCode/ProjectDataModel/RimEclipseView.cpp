@@ -1024,6 +1024,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 
             CVF_ASSERT(resultColors->legendConfig());
 
+            resultColors->legendConfig()->disableAllTimeStepsRange(true);
             resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
             resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
@@ -1033,8 +1034,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
             }
 
             m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
-        
+            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + QString::fromStdString( resultColors->flowDiagResAddress().uiText())));
         }
         else
         {
@@ -1061,6 +1061,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 
             CVF_ASSERT(resultColors->legendConfig());
 
+            resultColors->legendConfig()->disableAllTimeStepsRange(false);
             resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
             resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 

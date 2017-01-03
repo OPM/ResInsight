@@ -101,6 +101,7 @@ public:
     ColorRangesType                             colorRangeMode()    { return m_colorRangeMode();}
     void                                        setMappingMode(MappingType mappingType);
     MappingType                                 mappingMode()       { return m_mappingMode();}
+    void                                        disableAllTimeStepsRange(bool doDisable);
         
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
@@ -150,6 +151,8 @@ private:
     double                                      m_localAutoPosClosestToZero;
     double                                      m_localAutoNegClosestToZero;
 
+    bool                                        m_isAllTimeStepsRangeDisabled;
+    
     std::vector<int>                            m_categories;
     std::vector<cvf::String>                    m_categoryNames;
 
