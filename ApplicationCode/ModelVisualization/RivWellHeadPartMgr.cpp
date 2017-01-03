@@ -40,7 +40,7 @@
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivWellPipesPartMgr.h"
+#include "RivSimWellPipesPartMgr.h"
 
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfMat4d.h"

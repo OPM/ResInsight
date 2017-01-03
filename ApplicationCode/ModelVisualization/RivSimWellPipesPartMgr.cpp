@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivWellPipesPartMgr.h"
+#include "RivSimWellPipesPartMgr.h"
 
 #include "RigCaseData.h"
 #include "RigCell.h"
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
@@ -85,7 +85,7 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPipesPartMgr::~RivWellPipesPartMgr()
+RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 {
 
 }
@@ -93,7 +93,7 @@ RivWellPipesPartMgr::~RivWellPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::buildWellPipeParts()
+void RivSimWellPipesPartMgr::buildWellPipeParts()
 {
     if (m_rimReservoirView.isNull()) return;
 
@@ -171,7 +171,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
     if (m_rimReservoirView.isNull()) return;
     if (m_rimWell.isNull()) return;
@@ -196,7 +196,7 @@ void RivWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
+void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     if (m_rimWell == NULL) return;
 
