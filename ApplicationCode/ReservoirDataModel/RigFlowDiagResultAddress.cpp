@@ -35,12 +35,12 @@ std::string RigFlowDiagResultAddress::uiText()
     std::string uiVarname = variableName;
 
     std::string uitext = uiVarname;
-    uitext += "(";
+    uitext += " (";
     for (const std::string& tracerName : selectedTracerNames)
     {
         uitext += " " + tracerName;
     }
-    uitext += ")";
+    uitext += " )";
     return uitext;
 }
 
