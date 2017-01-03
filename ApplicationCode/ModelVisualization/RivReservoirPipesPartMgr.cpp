@@ -30,7 +30,7 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RivWellHeadPartMgr.h"
-#include "RivWellPipesPartMgr.h"
+#include "RivSimWellPipesPartMgr.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -111,7 +111,7 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
 
         for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
         {
-            RivWellPipesPartMgr * wppmgr = new RivWellPipesPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
+            RivSimWellPipesPartMgr * wppmgr = new RivSimWellPipesPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
             m_wellPipesPartMgrs.push_back(wppmgr);
             wppmgr->setScaleTransform(m_scaleTransform.p());
 

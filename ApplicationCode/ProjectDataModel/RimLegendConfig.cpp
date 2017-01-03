@@ -750,6 +750,26 @@ void RimLegendConfig::setNamedCategoriesInverse(const std::vector<QString>& cate
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setNamedCategories(const std::vector<QString>& categoryNames)
+{
+    std::vector<int> nameIndices;
+    std::vector<cvf::String> names;
+
+    for ( int i = 0; i < categoryNames.size(); ++i )
+    {
+        nameIndices.push_back(i);
+        names.push_back(cvfqt::Utils::toString(categoryNames[i]));
+    }
+
+    m_categories = nameIndices;
+    m_categoryNames = names;
+
+    updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setTitle(const cvf::String& title)
 {
     m_scalarMapperLegend->setTitle(title);

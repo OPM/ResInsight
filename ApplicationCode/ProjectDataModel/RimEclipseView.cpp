@@ -1029,7 +1029,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 
             if ( resultColors->hasCategoryResult() )
             {
-                resultColors->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(resAddr, m_currentTimeStep));
+                resultColors->legendConfig()->setNamedCategories(resultColors->flowDiagSolution()->tracerNames());
             }
 
             m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());

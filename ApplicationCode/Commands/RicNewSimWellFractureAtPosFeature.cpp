@@ -32,7 +32,7 @@
 
 #include <QAction>
 #include "RiuSelectionManager.h"
-#include "RivWellPipeSourceInfo.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
@@ -56,7 +56,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
         if (!simWellItem) return;
     }
     
-    const RivEclipseWellSourceInfo* simwellSourceInfo = simWellItem->m_simwellSourceInfo;
+    const RivSimWellPipeSourceInfo* simwellSourceInfo = simWellItem->m_simwellSourceInfo;
     RimEclipseWell* simWell = simwellSourceInfo->well();
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(simWell);
     if (!objHandle) return;

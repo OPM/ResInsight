@@ -30,7 +30,7 @@ namespace cvf
 }
 
 class RimEclipseView;
-class RivWellPipesPartMgr;
+class RivSimWellPipesPartMgr;
 class RivWellHeadPartMgr;
 
 class RivReservoirPipesPartMgr : public cvf::Object
@@ -53,6 +53,6 @@ private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::ref<cvf::Transform>            m_scaleTransform; 
 
-    cvf::Collection< RivWellPipesPartMgr >  m_wellPipesPartMgrs;
+    cvf::Collection< RivSimWellPipesPartMgr >  m_wellPipesPartMgrs;
     cvf::Collection< RivWellHeadPartMgr >   m_wellHeadPartMgrs;
 };

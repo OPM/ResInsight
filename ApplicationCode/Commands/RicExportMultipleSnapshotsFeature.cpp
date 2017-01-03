@@ -22,12 +22,17 @@
 
 #include "RicSnapshotViewToClipboardFeature.h"
 
+#include "RigFemResultPosEnum.h"
+
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
@@ -71,6 +76,12 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
         caf::CmdExecCommandSystemActivator activator;
 
         RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
+
+        if (proj->multiSnapshotDefinitions.size() == 0)
+        {
+            dlg.addSnapshotItemFromActiveView();
+        }
+
         dlg.exec();
     }
 }
@@ -105,59 +116,51 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
         
         int initialFramIndex = rimView->viewer()->currentFrameIndex();
 
-        exportViewVariationsToFolder(rimView, msd, folder);
+        exportResultVariations(rimView, msd, folder);
 
         for (RimCase* rimCase : msd->additionalCases())
         {
-            RimView* copyOfView = dynamic_cast<RimView*>(rimView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-
             RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimCase);
-            if (eclCase)
+            RimEclipseView* sourceEclipseView = dynamic_cast<RimEclipseView*>(rimView);
+            if (eclCase && sourceEclipseView)
             {
-                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(copyOfView);
-                CVF_ASSERT(eclView);
+                RimEclipseView* copyOfEclipseView = eclCase->createCopyAndAddView(sourceEclipseView);
+                CVF_ASSERT(copyOfEclipseView);
 
-                eclCase->reservoirViews().push_back(eclView);
+                copyOfEclipseView->loadDataAndUpdate();
 
-                eclView->setEclipseCase(eclCase);
+                exportResultVariations(copyOfEclipseView, msd, folder);
 
-                // Resolve references after reservoir view has been inserted into Rim structures
-                // Intersections referencing a well path/ simulation well requires this
-                // TODO: initAfterReadRecursively can probably be removed
-                eclView->initAfterReadRecursively();
-                eclView->resolveReferencesRecursively();
-
-                eclView->loadDataAndUpdate();
-
-                exportViewVariationsToFolder(eclView, msd, folder);
-
-                eclCase->reservoirViews().removeChildObject(eclView);
+                eclCase->reservoirViews().removeChildObject(copyOfEclipseView);
+                
+                delete copyOfEclipseView;
             }
 
             RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
-            if (geomCase)
+            RimGeoMechView* sourceGeoMechView = dynamic_cast<RimGeoMechView*>(rimView);
+            if (geomCase && sourceGeoMechView)
             {
-                RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(copyOfView);
-                CVF_ASSERT(geoMechView);
+                RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(sourceGeoMechView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                CVF_ASSERT(copyOfGeoMechView);
 
-                geomCase->geoMechViews().push_back(geoMechView);
+                geomCase->geoMechViews().push_back(copyOfGeoMechView);
 
-                geoMechView->setGeoMechCase(geomCase);
+                copyOfGeoMechView->setGeoMechCase(geomCase);
 
                 // Resolve references after reservoir view has been inserted into Rim structures
                 // Intersections referencing a well path/ simulation well requires this
                 // TODO: initAfterReadRecursively can probably be removed
-                geoMechView->initAfterReadRecursively();
-                geoMechView->resolveReferencesRecursively();
+                copyOfGeoMechView->initAfterReadRecursively();
+                copyOfGeoMechView->resolveReferencesRecursively();
 
-                geoMechView->loadDataAndUpdate();
+                copyOfGeoMechView->loadDataAndUpdate();
 
-                exportViewVariationsToFolder(geoMechView, msd, folder);
+                exportResultVariations(copyOfGeoMechView, msd, folder);
 
-                geomCase->geoMechViews().removeChildObject(geoMechView);
+                geomCase->geoMechViews().removeChildObject(copyOfGeoMechView);
+            
+                delete copyOfGeoMechView;
             }
-
-            delete copyOfView;
         }
 
         // Set view back to initial state
@@ -171,6 +174,36 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicExportMultipleSnapshotsFeature::exportResultVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+{
+    exportViewVariationsToFolder(rimView, msd, folder);
+
+    if (msd->selectedEclipseResults().size() > 0)
+    {
+        RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimView->ownerCase());
+        
+        RimEclipseView* copyOfView = eclCase->createCopyAndAddView(dynamic_cast<RimEclipseView*>(rimView));
+
+        copyOfView->cellResult()->setResultType(msd->eclipseResultType());
+
+        for (QString s : msd->selectedEclipseResults())
+        {
+            copyOfView->cellResult()->setResultVariable(s);
+
+            copyOfView->loadDataAndUpdate();
+
+            exportViewVariationsToFolder(copyOfView, msd, folder);
+        }
+
+        eclCase->reservoirViews().removeChildObject(copyOfView);
+        
+        delete copyOfView;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
     RimCase* rimCase = rimView->ownerCase();
@@ -178,6 +211,9 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
 
     RiuViewer* viewer = rimView->viewer();
     QStringList timeSteps = rimCase->timeStepStrings();
+
+    QString resName = resultName(rimView);
+    QString viewCaseResultString = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + resName;
 
     for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
     {
@@ -187,17 +223,20 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
 
         if (viewer)
         {
+            // Force update of scheduled display models modifying the time step
+            // This is required due to visualization structures updated by the update functions,
+            // and this is not triggered by changing time step only
+            RiaApplication::instance()->slotUpdateScheduledDisplayModels();
+
             viewer->setCurrentFrame(i);
             viewer->animationControl()->setCurrentFrameOnly(i);
         }
 
         if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
         {
-            QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString;
+            QString fileName = viewCaseResultString + "_" + timeStepString;
             fileName.replace(" ", "-");
             QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
-
-            QCoreApplication::instance()->processEvents();
 
             RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
         }
@@ -212,7 +251,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
             for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)
             {
                 QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
-                QString fileName = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + timeStepString + "_" + rangeFilterString;
+                QString fileName = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
                 fileName.replace(" ", "-");
 
                 rangeFilter->setDefaultValues();
@@ -233,9 +272,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
                 }
 
                 rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);
-                // Make sure the redraw is processed
-                QCoreApplication::instance()->processEvents();
-
+             
                 QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
             }
@@ -246,5 +283,39 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
             rimView->rangeFilterCollection()->isActive = rangeFilterInitState;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
+{
+    if (dynamic_cast<RimEclipseView*>(rimView))
+    {
+        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(rimView);
+
+        return eclView->cellResult()->resultVariable();
+    }
+    else if (dynamic_cast<RimGeoMechView*>(rimView))
+    {
+        RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(rimView);
+
+        RimGeoMechCellColors* cellResult = geoMechView->cellResult();
+
+        if (cellResult)
+        {
+            QString title = caf::AppEnum<RigFemResultPosEnum>(cellResult->resultPositionType()).uiText() + "_"
+                + cellResult->resultFieldUiName();
+
+            if (!cellResult->resultComponentUiName().isEmpty())
+            {
+                title += "_" + cellResult->resultComponentUiName();
+            }
+
+            return title;
+        }
+    }
+
+    return "";
 }
 

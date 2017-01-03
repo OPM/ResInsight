@@ -106,6 +106,7 @@ public:
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
     void                                        setIntegerCategories(const std::vector<int>& categories);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
+    void                                        setNamedCategories(const std::vector<QString>& categoryNames);
 
     void                                        setTitle(const cvf::String& title);
 

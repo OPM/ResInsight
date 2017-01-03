@@ -65,7 +65,7 @@
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
-#include "RivWellPipeSourceInfo.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
@@ -307,7 +307,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             }
         }
 
-        const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
+        const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
         if (eclipseWellSourceInfo)
         {
             RimEclipseWell* well = eclipseWellSourceInfo->well();
@@ -526,7 +526,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
-            const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
+            const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {

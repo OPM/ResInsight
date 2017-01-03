@@ -37,7 +37,7 @@ class RiuSelectionItem;
 class RimGeoMechView;
 class RimWellPath;
 class RivWellPathSourceInfo;
-class RivEclipseWellSourceInfo;
+class RivSimWellPipeSourceInfo;
 
 //==================================================================================================
 //
@@ -221,7 +221,7 @@ public:
 class RiuSimWellSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuSimWellSelectionItem(const RivEclipseWellSourceInfo* simwellSourceInfo,
+    explicit RiuSimWellSelectionItem(const RivSimWellPipeSourceInfo* simwellSourceInfo,
                                      size_t i, size_t j, size_t k);
 
 
@@ -234,7 +234,7 @@ public:
 
 public:
     caf::PdmPointer<RimEclipseView> m_view;
-    const RivEclipseWellSourceInfo* m_simwellSourceInfo;
+    const RivSimWellPipeSourceInfo* m_simwellSourceInfo;
     size_t i;
     size_t j;
     size_t k;

@@ -17,21 +17,24 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RivSimWellPipeSourceInfo.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cafPdmPointer.h"
+#include "RimEclipseWell.h"
 
-class RimEclipseWell;
 
-class RivEclipseWellSourceInfo : public cvf::Object
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimEclipseWell* eclipseWell, size_t branchIndex)
+    : m_eclipseWell(eclipseWell),
+    m_branchIndex(branchIndex)
 {
-public:
-    RivEclipseWellSourceInfo(RimEclipseWell* eclipseWell);
+}
 
-    RimEclipseWell* well() const;
-
-private:    
-    caf::PdmPointer<RimEclipseWell> m_eclipseWell;
-};
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseWell* RivSimWellPipeSourceInfo::well() const
+{
+    return m_eclipseWell.p();
+}

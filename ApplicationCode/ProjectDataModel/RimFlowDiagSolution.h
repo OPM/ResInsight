@@ -41,7 +41,7 @@ public:
 
     QString             userDescription() { return m_userDescription();} 
     RigFlowDiagResults* flowDiagResults();
-    std::set<QString>   tracerNames();
+    std::vector<QString>   tracerNames();
 
     std::map<std::string, std::vector<int> > allInjectorTracerActiveCellIndices(size_t timeStepIndex);
     std::map<std::string, std::vector<int> > allProducerTracerActiveCellIndices(size_t timeStepIndex);
@@ -54,7 +54,8 @@ public:
         UNDEFINED
     };
 
-    TracerStatusType tracerStatus(QString tracerName);
+    TracerStatusType tracerStatusOverall(QString tracerName);
+    TracerStatusType tracerStatusInTimeStep(QString tracerName, size_t timeStepIndex);
 
 
 protected:

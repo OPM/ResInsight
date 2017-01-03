@@ -36,6 +36,8 @@ public:
     RiuExportMultipleSnapshotsWidget(QWidget* parent, RimProject* project);
     ~RiuExportMultipleSnapshotsWidget();
 
+    void addSnapshotItemFromActiveView();
+
 private slots:
     void customMenuRequested(QPoint pos);
     void addSnapshotItem();

@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivWellPipesPartMgr.h"
+#include "RivSimWellPipesPartMgr.h"
 
 #include "RigCaseData.h"
 #include "RigCell.h"
@@ -36,7 +36,7 @@
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
-#include "RivWellPipeSourceInfo.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfColor.h"
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
@@ -85,7 +85,7 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimEclipseView* reservoirView, RimEclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPipesPartMgr::~RivWellPipesPartMgr()
+RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 {
 
 }
@@ -93,7 +93,7 @@ RivWellPipesPartMgr::~RivWellPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::buildWellPipeParts()
+void RivSimWellPipesPartMgr::buildWellPipeParts()
 {
     if (m_rimReservoirView.isNull()) return;
 
@@ -107,10 +107,11 @@ void RivWellPipesPartMgr::buildWellPipeParts()
     double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
-    cvf::ref<RivEclipseWellSourceInfo> sourceInfo = new RivEclipseWellSourceInfo(m_rimWell);
 
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
+        cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo(m_rimWell, brIdx);
+
         m_wellBranches.push_back(RivPipeBranchData());
         RivPipeBranchData& pbd = m_wellBranches.back();
 
@@ -171,7 +172,28 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+RivSimWellPipesPartMgr::RivPipeBranchData* RivSimWellPipesPartMgr::pipeBranchData(size_t branchIndex)
+{
+    if (branchIndex < m_wellBranches.size())
+    {
+        size_t i = 0;
+
+        auto brIt = m_wellBranches.begin();
+        while (i < branchIndex)
+        {
+            brIt++;
+        }
+
+        return &(*brIt);
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
     if (m_rimReservoirView.isNull()) return;
     if (m_rimWell.isNull()) return;
@@ -196,7 +218,7 @@ void RivWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
+void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     if (m_rimWell == NULL) return;
 
@@ -302,6 +324,28 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
             brIt->m_centerLinePart->setEffect(m_scalarMapperMeshEffect.p());
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::findGridIndexAndCellIndex(size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
+{
+    CVF_ASSERT(branchIndex < m_wellBranches.size());
+
+    RivPipeBranchData* branchData = pipeBranchData(branchIndex);
+    if (branchData)
+    {
+        size_t segmentIndex = branchData->m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
+
+        *gridIndex = branchData->m_cellIds[segmentIndex].m_gridIndex;
+        *cellIndex = branchData->m_cellIds[segmentIndex].m_gridCellIndex;
+    }
+    else
+    {
+        *gridIndex = cvf::UNDEFINED_SIZE_T;
+        *cellIndex = cvf::UNDEFINED_SIZE_T;
     }
 }
 
