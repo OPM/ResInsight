@@ -182,6 +182,7 @@ RivSimWellPipesPartMgr::RivPipeBranchData* RivSimWellPipesPartMgr::pipeBranchDat
         while (i < branchIndex)
         {
             brIt++;
+            i++;
         }
 
         return &(*brIt);
@@ -337,10 +338,10 @@ void RivSimWellPipesPartMgr::findGridIndexAndCellIndex(size_t branchIndex, size_
     RivPipeBranchData* branchData = pipeBranchData(branchIndex);
     if (branchData)
     {
-        size_t segmentIndex = branchData->m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
+        size_t resultIndex = branchData->m_pipeGeomGenerator->pipeResultIndexFromTriangleIndex(triangleIndex);
 
-        *gridIndex = branchData->m_cellIds[segmentIndex].m_gridIndex;
-        *cellIndex = branchData->m_cellIds[segmentIndex].m_gridCellIndex;
+        *gridIndex = branchData->m_cellIds[resultIndex].m_gridIndex;
+        *cellIndex = branchData->m_cellIds[resultIndex].m_gridCellIndex;
     }
     else
     {
