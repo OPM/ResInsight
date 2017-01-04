@@ -63,8 +63,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
         if (!wellPathItem) return;
     }
 
-    const RivWellPathSourceInfo* wellpathSourceInfo = wellPathItem->m_wellpathSourceInfo;
-    RimWellPath* wellPath = wellpathSourceInfo->wellPath();
+    RimWellPath* wellPath = wellPathItem->m_wellpath;
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(wellPath);
     if (!objHandle) return;
 
@@ -78,10 +77,8 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "New Well Path Fracture";
-    fracture->positionAtWellpath = wellPathItem->m_currentPickPositionInDomainCoords;
-
-    double measuredDepth = wellpathSourceInfo->measuredDepth(wellPathItem->m_firstPartTriangleIndex, wellPathItem->m_currentPickPositionInDomainCoords);
-    fracture->measuredDepth = measuredDepth;
+    fracture->positionAtWellpath = wellPathItem->m_pipeCenterlineIntersectionInDomainCoords;
+    fracture->measuredDepth = wellPathItem->m_measuredDepth;
     fractureCollection->updateConnectedEditors();
 
 }

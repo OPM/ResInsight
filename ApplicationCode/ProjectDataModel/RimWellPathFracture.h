@@ -29,6 +29,8 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
+#include "cafPdmProxyValueField.h"
+
 class RimFractureDefinition;
 class RimWellPath;
 
@@ -50,6 +52,9 @@ public:
     caf::PdmField<float>            measuredDepth;
     caf::PdmField<cvf::Vec3d>       positionAtWellpath;
 
+    caf::PdmProxyValueField<cvf::Vec3d>    ui_positionAtWellpath;
+
+
     caf::PdmField<int>              i;
     caf::PdmField<int>              j;
     caf::PdmField<int>              k;
@@ -66,5 +71,8 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 
+private:
+    cvf::Vec3d wellPositionForUi() const;
+    void setWellPositionFromUi(const cvf::Vec3d& vec);
 
 };

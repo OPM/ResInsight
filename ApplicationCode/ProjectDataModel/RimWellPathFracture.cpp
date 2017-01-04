@@ -51,6 +51,12 @@ RimWellPathFracture::RimWellPathFracture(void)
     CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location (if along well path)", "", "", "");
     CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position at Well Path", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&ui_positionAtWellpath, "ui_positionAtWellpath", "Fracture Position at Well Path", "", "", "");
+    ui_positionAtWellpath.registerGetMethod(this, &RimWellPathFracture::wellPositionForUi);
+    ui_positionAtWellpath.registerSetMethod(this, &RimWellPathFracture::setWellPositionFromUi);
+    ui_positionAtWellpath.uiCapability()->setUiReadOnly(true);
+
+
     CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
     CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
     CAF_PDM_InitField(&k,               "K",                1,      "Fracture location cell K", "", "", "");
@@ -125,8 +131,32 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     geometryGroup->add(&fractureDefinition);
 
     geometryGroup->add(&measuredDepth);
-    geometryGroup->add(&positionAtWellpath);
+    geometryGroup->add(&ui_positionAtWellpath);
 
     uiOrdering.setForgetRemainingFields(true);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimWellPathFracture::wellPositionForUi() const
+{
+    cvf::Vec3d v = positionAtWellpath();
+
+    v.z() = -v.z();
+
+    return v;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::setWellPositionFromUi(const cvf::Vec3d& vec)
+{
+    cvf::Vec3d v = vec;
+
+    v.z() = -v.z();
+
+    positionAtWellpath = v;
 }

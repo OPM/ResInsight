@@ -23,6 +23,9 @@
 #include "RimGeoMechView.h"
 #include "RimWellPath.h"
 
+#include "RivSimWellPipeSourceInfo.h"
+#include "RivWellPathSourceInfo.h"
+
 #include "RiuSelectionChangedHandler.h"
 
 
@@ -207,13 +210,12 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
-                                                   const cvf::Vec3d& currentPickPositionInDomainCoords,
-                                                   cvf::uint firstPartTriangleIndex)
-    : m_currentPickPositionInDomainCoords(currentPickPositionInDomainCoords),
-    m_wellpathSourceInfo(wellPathSourceInfo),
-    m_firstPartTriangleIndex(firstPartTriangleIndex)
+                                                   const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
+                                                   double measuredDepth)
+    : m_pipeCenterlineIntersectionInDomainCoords(pipeCenterLineIntersectionInDomainCoords),
+    m_measuredDepth(measuredDepth)
 {
-
+    m_wellpath = wellPathSourceInfo->wellPath();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,10 +225,9 @@ RiuSimWellSelectionItem::RiuSimWellSelectionItem(const RivSimWellPipeSourceInfo*
                                                   size_t i, 
                                                   size_t j,
                                                   size_t k)
-    : m_simwellSourceInfo(simwellSourceInfo),
-      i(i),
+    : i(i),
       j(j),
       k(k)
 {
-
+    m_simWell = simwellSourceInfo->well();
 }

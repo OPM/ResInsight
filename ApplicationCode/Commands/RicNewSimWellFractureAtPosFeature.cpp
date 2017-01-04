@@ -45,7 +45,6 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
-
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
     RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
 
@@ -56,8 +55,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
         if (!simWellItem) return;
     }
     
-    const RivSimWellPipeSourceInfo* simwellSourceInfo = simWellItem->m_simwellSourceInfo;
-    RimEclipseWell* simWell = simwellSourceInfo->well();
+    RimEclipseWell* simWell = simWellItem->m_simWell;
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(simWell);
     if (!objHandle) return;
 
@@ -72,13 +70,9 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fractureCollection->simwellFractures.push_back(fracture);
 
     fracture->name = "New SimWell Fracture";
-
-    fracture->i = static_cast<int>(simWellItem->i);
-    fracture->j = static_cast<int>(simWellItem->j);
-    fracture->k = static_cast<int>(simWellItem->k);
+    fracture->setijk(simWellItem->i, simWellItem->j, simWellItem->k);
 
     fractureCollection->updateConnectedEditors();
-
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,10 +46,10 @@ RimSimWellFracture::RimSimWellFracture(void)
     CAF_PDM_InitObject("SimWellFracture", "", "", "");
 
     CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
-
-    CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
-    CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
-    CAF_PDM_InitField(&k,               "K",                1,      "Fracture location cell K", "", "", "");
+    
+    CAF_PDM_InitField(&m_i,               "I",                1,      "Fracture location cell I", "", "", "");
+    CAF_PDM_InitField(&m_j,               "J",                1,      "Fracture location cell J", "", "", "");
+    CAF_PDM_InitField(&m_k,               "K",                1,      "Fracture location cell K", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDef", "FractureDef", "", "", "");
 
@@ -114,6 +114,17 @@ RimFractureDefinition* RimSimWellFracture::attachedFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::setijk(size_t i, size_t j, size_t k)
+{
+    m_i = static_cast<int>(i + 1);
+    m_j = static_cast<int>(j + 1);
+    m_k = static_cast<int>(k + 1);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
@@ -121,9 +132,9 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
     geometryGroup->add(&fractureDefinition);
    
-    geometryGroup->add(&i);
-    geometryGroup->add(&j);
-    geometryGroup->add(&k);
+    geometryGroup->add(&m_i);
+    geometryGroup->add(&m_j);
+    geometryGroup->add(&m_k);
 
     uiOrdering.setForgetRemainingFields(true);
 

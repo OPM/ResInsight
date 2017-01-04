@@ -294,8 +294,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             if (wellPath)
             {
 
-                RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, m_currentPickPositionInDomainCoords, firstPartTriangleIndex);
+                double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
+                cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
+                RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                 
                 commandIds << "RicNewWellPathFractureAtPosFeature";
 
 
@@ -316,14 +319,23 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 caf::SelectionManager::instance()->setSelectedItem(well);
                 commandIds << "RicNewSimWellIntersectionFeature";
 
+                size_t gridIndex = cvf::UNDEFINED_SIZE_T;
+                size_t gridCellIndex = cvf::UNDEFINED_SIZE_T;
 
+                eclipseWellSourceInfo->findGridIndexAndCellIndex(firstPartTriangleIndex, &gridIndex, &gridCellIndex);
 
+                if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
+                {
                 size_t i = 0;
                 size_t j = 0;
                 size_t k = 0;
+                ijkFromCellIndex(gridIndex, gridCellIndex, &i, &j, &k);
+
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo, i, j, k);
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 commandIds << "RicNewSimWellFractureAtPosFeature";
+                }
+                
             }
         }
 

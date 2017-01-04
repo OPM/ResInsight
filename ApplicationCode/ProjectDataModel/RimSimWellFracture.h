@@ -45,12 +45,8 @@ public:
     caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
 
     size_t                          gridindex;
-    caf::PdmField<int>              i;
-    caf::PdmField<int>              j;
-    caf::PdmField<int>              k;
-
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
+    void                                  setijk(size_t i, size_t j, size_t k);
 
 
     // Overrides from RimFracture
@@ -59,6 +55,11 @@ public:
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
+private:
+    caf::PdmField<int>              m_i;  //Eclipse indexing, lowest value is 1
+    caf::PdmField<int>              m_j;
+    caf::PdmField<int>              m_k;
 
 
 

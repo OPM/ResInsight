@@ -28,6 +28,7 @@
 #include <vector>
 #include <assert.h>
 #include <array>
+#include "RimEclipseWell.h"
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"
 
@@ -196,7 +197,7 @@ class RiuWellPathSelectionItem : public RiuSelectionItem
 public:
     explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
                                       const cvf::Vec3d& currentPickPositionInDomainCoords,
-                                      cvf::uint firstPartTriangleIndex);
+                                      double measuredDepth);
 
     virtual ~RiuWellPathSelectionItem() {};
 
@@ -206,9 +207,9 @@ public:
     }
 
 public:
-    const RivWellPathSourceInfo*  m_wellpathSourceInfo;
-    cvf::Vec3d                    m_currentPickPositionInDomainCoords;
-    cvf::uint                     m_firstPartTriangleIndex;
+    RimWellPath*                  m_wellpath;
+    cvf::Vec3d                    m_pipeCenterlineIntersectionInDomainCoords;
+    double                        m_measuredDepth;
 };
 
 
@@ -233,8 +234,8 @@ public:
     }
 
 public:
-    caf::PdmPointer<RimEclipseView> m_view;
-    const RivSimWellPipeSourceInfo* m_simwellSourceInfo;
+//    const RivSimWellPipeSourceInfo* m_simwellSourceInfo;
+    RimEclipseWell* m_simWell;
     size_t i;
     size_t j;
     size_t k;
