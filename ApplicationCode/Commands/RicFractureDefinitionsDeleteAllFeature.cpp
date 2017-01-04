@@ -71,7 +71,7 @@ void RicFractureDefinitionsDeleteAllFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicFractureDefinitionsDeleteAllFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete All Fracture Definitions");
+    actionToSetup->setText("Delete All Fracture Templates");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 

@@ -25,6 +25,8 @@
 #include "RimFractureDefinitionCollection.h"
 #include "RimProject.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -55,6 +57,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
         fracDefColl->fractureDefinitions.push_back(fractureDef);
         
         fracDefColl->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
 
     }
     
@@ -69,7 +72,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
 void RicNewFractureDefinitionFeature::setupActionLook(QAction* actionToSetup)
 {
 //    actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Fracture Definition");
+    actionToSetup->setText("New Fracture Template");
 }
 
 //--------------------------------------------------------------------------------------------------

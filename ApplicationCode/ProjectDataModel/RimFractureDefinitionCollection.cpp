@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimFractureDefinitionCollection, "FractureDefinitionCollecti
 //--------------------------------------------------------------------------------------------------
 RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
 {
-    CAF_PDM_InitObject("Fracture Definition Collection", "", "", "");
+    CAF_PDM_InitObject("Fracture Templates", "", "", "");
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     

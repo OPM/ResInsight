@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimSimWellFractureCollection, "SimWellFractureCollection");
 //--------------------------------------------------------------------------------------------------
 RimSimWellFractureCollection::RimSimWellFractureCollection(void)
 {
-    CAF_PDM_InitObject("Fracture Collection", "", "", "");
+    CAF_PDM_InitObject("Fractures", "", "", "");
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     
