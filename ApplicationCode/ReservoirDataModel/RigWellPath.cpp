@@ -52,3 +52,42 @@ double RigWellPath::datumElevation() const
     return m_datumElevation;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth)
+{
+    cvf::Vec3d wellPathPoint = cvf::Vec3d::ZERO;
+    if (measuredDepth < 0) return wellPathPoint;
+
+    int i = 0;
+    while (i < m_measuredDepths.size() && m_measuredDepths.at(i) < measuredDepth )
+    {
+        i++;
+    }
+
+    if (m_measuredDepths.size() > i)
+    {
+        if (i == 0)
+        {
+            //For measuredDepth=0 use startpoint
+            wellPathPoint = m_wellPathPoints.at(0);
+        }
+        else
+        {
+            //Do interpolation
+            double stepsize = (measuredDepth - m_measuredDepths.at(i-1)) / 
+                                        (m_measuredDepths.at(i) - m_measuredDepths.at(i - 1));
+            wellPathPoint = m_wellPathPoints.at(i - 1) + stepsize * (m_wellPathPoints.at(i) - m_wellPathPoints.at(i-1));
+        }
+    }
+    else
+    {
+        //Use endpoint if measuredDepth same or higher than last point
+        wellPathPoint = m_wellPathPoints.at(i-1);
+    }
+
+
+    return wellPathPoint;
+}
+

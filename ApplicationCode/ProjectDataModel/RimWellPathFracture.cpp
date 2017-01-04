@@ -49,7 +49,7 @@ RimWellPathFracture::RimWellPathFracture(void)
     CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
 
     CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location (if along well path)", "", "", "");
-    CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position at Well Path", "", "", "");
+    CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position along Well Path", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&ui_positionAtWellpath, "ui_positionAtWellpath", "Fracture Position at Well Path", "", "", "");
     ui_positionAtWellpath.registerGetMethod(this, &RimWellPathFracture::wellPositionForUi);
@@ -118,6 +118,29 @@ cvf::Vec3d RimWellPathFracture::centerPointForFracture()
 RimFractureDefinition* RimWellPathFracture::attachedFractureDefinition()
 {
     return fractureDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &measuredDepth)
+    {
+        positionAtWellpath = cvf::Vec3d::ZERO;
+        
+        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+        if (!objHandle) return;
+
+        RimWellPath* wellPath = nullptr;
+        objHandle->firstAncestorOrThisOfType(wellPath);
+        if (!wellPath) return;
+
+        RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+        positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
+
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

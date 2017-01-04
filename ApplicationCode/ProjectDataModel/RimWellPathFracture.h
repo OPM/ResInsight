@@ -59,6 +59,7 @@ public:
 
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*                userDescriptionField() override;
+    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     // Overrides from RimFracture
     virtual cvf::Vec3d                          centerPointForFracture() override;

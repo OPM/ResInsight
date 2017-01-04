@@ -40,6 +40,7 @@ public:
     void                        setDatumElevation(double value);
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
+    cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth);
 
 private:
     bool    m_hasDatumElevation;
