@@ -43,7 +43,7 @@ CAF_PDM_SOURCE_INIT(RimSimWellFracture, "SimWellFracture");
 //--------------------------------------------------------------------------------------------------
 RimSimWellFracture::RimSimWellFracture(void)
 {
-    CAF_PDM_InitObject("SimWellFracture", "", "", "");
+    CAF_PDM_InitObject("SimWellFracture", ":/Fracture16x16.png", "", "");
 
     CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
     

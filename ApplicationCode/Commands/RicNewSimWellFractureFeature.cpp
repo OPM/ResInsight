@@ -81,7 +81,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
+    actionToSetup->setIcon(QIcon(":/Fracture16x16.png"));
     actionToSetup->setText("New Fracture");
 }
 
