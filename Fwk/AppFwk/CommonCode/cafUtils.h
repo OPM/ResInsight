@@ -56,6 +56,7 @@ public:
     static QString      absoluteFileName(const QString& fileName);
     static QStringList  getFilesInDirectory(const QString& dirPath, const QString& filter, bool getAbsoluteFileNames);
     static QString      constructFullFileName(const QString& folder, const QString& baseFileName, const QString& extension);
+    static QString      makeValidFileBasename(const QString& fileBasenameCandidate);
 
     static QString      indentString(int numSpacesToIndent, const QString& str);
     

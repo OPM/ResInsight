@@ -124,6 +124,32 @@ QString Utils::constructFullFileName(const QString& folder, const QString& baseF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString Utils::makeValidFileBasename(const QString& fileBasenameCandidate)
+{
+    QString cleanBasename = fileBasenameCandidate.trimmed();
+    cleanBasename.replace(".", "_");
+    cleanBasename.replace(",", "_");
+    cleanBasename.replace(":", "_");
+    cleanBasename.replace(";", "_");
+    cleanBasename.replace(" ", "_");
+    cleanBasename.replace("/", "_");
+    cleanBasename.replace("\\", "_");
+    cleanBasename.replace("<", "_");
+    cleanBasename.replace(">", "_");
+    cleanBasename.replace("\"", "_");
+    cleanBasename.replace("|", "_");
+    cleanBasename.replace("?", "_");
+    cleanBasename.replace("*", "_");
+
+
+    cleanBasename.replace(QRegExp("_+"), "_");
+
+    return cleanBasename;  
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString Utils::indentString(int numSpacesToIndent, const QString& str)
 {
     QString indentString;

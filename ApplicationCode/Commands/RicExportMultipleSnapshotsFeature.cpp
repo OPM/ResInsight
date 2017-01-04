@@ -214,6 +214,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
 
     QString resName = resultName(rimView);
     QString viewCaseResultString = rimCase->caseUserDescription() + "_" + rimView->name() + "_" + resName;
+    viewCaseResultString = caf::Utils::makeValidFileBasename(viewCaseResultString);
 
     for (int i = msd->timeStepStart(); i <= msd->timeStepEnd(); i++)
     {
@@ -235,7 +236,6 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
         if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
         {
             QString fileName = viewCaseResultString + "_" + timeStepString;
-            fileName.replace(" ", "-");
             QString absoluteFileName = caf::Utils::constructFullFileName(folder, fileName, ".png");
 
             RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, rimView);
@@ -252,7 +252,6 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimView* ri
             {
                 QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
                 QString fileName = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
-                fileName.replace(" ", "-");
 
                 rangeFilter->setDefaultValues();
                 if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_I)
@@ -293,7 +292,7 @@ QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
     if (dynamic_cast<RimEclipseView*>(rimView))
     {
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(rimView);
-
+        
         return eclView->cellResult()->resultVariable();
     }
     else if (dynamic_cast<RimGeoMechView*>(rimView))

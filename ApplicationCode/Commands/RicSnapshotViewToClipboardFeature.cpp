@@ -208,7 +208,7 @@ void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString 
             if (wellLogPlot && wellLogPlot->viewWidget())
             {
                 QString fileName = wellLogPlot->description();
-                fileName.replace(" ", "_");
+                fileName = caf::Utils::makeValidFileBasename(fileName);
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
 
@@ -226,7 +226,7 @@ void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString 
             if (summaryPlot && summaryPlot->viewWidget())
             {
                 QString fileName = summaryPlot->description();
-                fileName.replace(" ", "_");
+                fileName = caf::Utils::makeValidFileBasename(fileName);
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
 

@@ -30,6 +30,7 @@
 #include "RigMainGrid.h"
 #include "RigCaseData.h"
 #include "QMessageBox"
+#include "cafUtils.h"
 
 CAF_CMD_SOURCE_INIT(RicExportFaultsFeature, "RicExportFaultsFeature");
 
@@ -79,7 +80,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
         if ( faultName == RimDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
 
         QString baseFilename = "Fault_" + faultName + "_" + caseName;
-        baseFilename.replace(" ", "_");
+        baseFilename = caf::Utils::makeValidFileBasename(baseFilename);
 
         QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
 
