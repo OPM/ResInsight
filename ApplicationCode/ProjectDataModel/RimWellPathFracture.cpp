@@ -109,7 +109,8 @@ QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathFracture::centerPointForFracture()
 {
-    return positionAtWellpath;
+    return cvf::Vec3d::UNDEFINED;
+    //return positionAtWellpath;
 }
 
 //--------------------------------------------------------------------------------------------------
