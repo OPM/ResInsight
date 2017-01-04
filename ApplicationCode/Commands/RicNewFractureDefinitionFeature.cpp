@@ -55,6 +55,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
     {
         RimFractureDefinition* fractureDef = new RimFractureDefinition();
         fracDefColl->fractureDefinitions.push_back(fractureDef);
+        fractureDef->name = "Fracture Template";
         
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);

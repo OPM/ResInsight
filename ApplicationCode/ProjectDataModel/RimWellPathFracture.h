@@ -46,33 +46,28 @@ public:
     RimWellPathFracture(void);
     virtual ~RimWellPathFracture(void);
 
-    caf::PdmField<QString>                              name;
-    caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
+    caf::PdmField<QString>                      name;
+    caf::PdmPtrField<RimFractureDefinition* >   fractureDefinition;
 
-    caf::PdmField<float>            measuredDepth;
-    caf::PdmField<cvf::Vec3d>       positionAtWellpath;
+    caf::PdmField<float>                        measuredDepth;
+    caf::PdmField<cvf::Vec3d>                   positionAtWellpath;
+    caf::PdmProxyValueField<cvf::Vec3d>         ui_positionAtWellpath;
 
-    caf::PdmProxyValueField<cvf::Vec3d>    ui_positionAtWellpath;
+    caf::PdmField<int>                          i;
+    caf::PdmField<int>                          j;
+    caf::PdmField<int>                          k;
 
-
-    caf::PdmField<int>              i;
-    caf::PdmField<int>              j;
-    caf::PdmField<int>              k;
-
-
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*                userDescriptionField() override;
 
     // Overrides from RimFracture
-    virtual cvf::Vec3d              centerPointForFracture() override;
-    virtual RimFractureDefinition*  attachedFractureDefinition() override;
+    virtual cvf::Vec3d                          centerPointForFracture() override;
+    virtual RimFractureDefinition*              attachedFractureDefinition() override;
 
 protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
+    virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
-    cvf::Vec3d wellPositionForUi() const;
-    void setWellPositionFromUi(const cvf::Vec3d& vec);
-
+    cvf::Vec3d                                  wellPositionForUi() const;
+    void                                        setWellPositionFromUi(const cvf::Vec3d& vec);
 };

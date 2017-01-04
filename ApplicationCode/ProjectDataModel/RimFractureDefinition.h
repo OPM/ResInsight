@@ -41,6 +41,9 @@ public:
     caf::PdmField<float>     height;
     caf::PdmField<float>     width;
 
+    caf::PdmField<float>     skinFactor;
+    caf::PdmField<float>     permeability;
+
     enum FracOrientationEnum
     {
         AZIMUTH,
@@ -48,13 +51,9 @@ public:
         TRANSVERSE_WELL_PATH
     };
     caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientation;
-
-
-    caf::PdmField<float>     skinFactor;
-    caf::PdmField<float>     permeability;
+    
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
-
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
 };

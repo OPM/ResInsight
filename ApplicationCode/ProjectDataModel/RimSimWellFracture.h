@@ -41,26 +41,23 @@ public:
     RimSimWellFracture(void);
     virtual ~RimSimWellFracture(void);
 
-    caf::PdmField<QString>                              name;
-    caf::PdmPtrField<RimFractureDefinition* >           fractureDefinition;
+    caf::PdmField<QString>                      name;
+    caf::PdmPtrField<RimFractureDefinition*>    fractureDefinition;
+    size_t                                      gridindex;
 
-    size_t                          gridindex;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    void                                  setijk(size_t i, size_t j, size_t k);
-
+    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*                userDescriptionField() override;
+    void                                        setijk(size_t i, size_t j, size_t k);
 
     // Overrides from RimFracture
-    virtual cvf::Vec3d              centerPointForFracture() override;
-    virtual RimFractureDefinition*  attachedFractureDefinition() override;
+    virtual cvf::Vec3d                          centerPointForFracture() override;
+    virtual RimFractureDefinition*              attachedFractureDefinition() override;
 
 protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
-    caf::PdmField<int>              m_i;  //Eclipse indexing, lowest value is 1
-    caf::PdmField<int>              m_j;
-    caf::PdmField<int>              m_k;
-
-
-
+    caf::PdmField<int>                          m_i;  //Eclipse indexing, lowest value is 1
+    caf::PdmField<int>                          m_j;
+    caf::PdmField<int>                          m_k;
 };

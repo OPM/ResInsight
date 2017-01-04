@@ -70,7 +70,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimSimWellFracture* fracture = new RimSimWellFracture();
     fractureCollection->simwellFractures.push_back(fracture);
 
-    fracture->name = "New SimWell Fracture";
+    fracture->name = "Simulation Well Fracture";
     fracture->setijk(simWellItem->i, simWellItem->j, simWellItem->k);
 
     fractureCollection->updateConnectedEditors();

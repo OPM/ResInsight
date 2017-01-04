@@ -57,7 +57,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     RimSimWellFracture* fracture = new RimSimWellFracture();
     fractureCollection->simwellFractures.push_back(fracture);
         
-    fracture->name = "New Simulation Well Fracture";
+    fracture->name = "Simulation Well Fracture";
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
