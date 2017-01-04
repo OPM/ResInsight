@@ -33,6 +33,7 @@
 #include <QAction>
 #include "RiuSelectionManager.h"
 #include "RivSimWellPipeSourceInfo.h"
+#include "RiuMainWindow.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
@@ -73,6 +74,9 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->setijk(simWellItem->i, simWellItem->j, simWellItem->k);
 
     fractureCollection->updateConnectedEditors();
+    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+
+
 }
 
 //--------------------------------------------------------------------------------------------------

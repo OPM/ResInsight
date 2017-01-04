@@ -31,6 +31,7 @@
 #include "cvfAssert.h"
 
 #include <QAction>
+#include "RiuMainWindow.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
@@ -59,7 +60,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     fracture->name = "New Simulation Well Fracture";
 
     fractureCollection->updateConnectedEditors();
-
+    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 }
 
 //--------------------------------------------------------------------------------------------------

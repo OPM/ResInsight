@@ -30,6 +30,7 @@
 
 #include "RivWellPathSourceInfo.h"
 
+#include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -79,8 +80,9 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->name = "New Well Path Fracture";
     fracture->positionAtWellpath = wellPathItem->m_pipeCenterlineIntersectionInDomainCoords;
     fracture->measuredDepth = wellPathItem->m_measuredDepth;
-    fractureCollection->updateConnectedEditors();
 
+    fractureCollection->updateConnectedEditors();
+    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 }
  
 //--------------------------------------------------------------------------------------------------

@@ -25,6 +25,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+
+#include "RiuMainWindow.h"
  
 #include "cafSelectionManager.h"
 
@@ -59,7 +61,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     fracture->name = "New Well Path Fracture";
 
     fractureCollection->updateConnectedEditors();
-
+    RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 }
 
 //--------------------------------------------------------------------------------------------------
