@@ -18,14 +18,17 @@
 
 #pragma once
 
+#include "RimFracture.h"
+#include "RimView.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "RimView.h"
+
+#include "cvfBase.h"
 #include "cvfVector3.h"
 
-#include "RimFracture.h"
 
 class RimFractureDefinition;
 
@@ -47,7 +50,7 @@ public:
 
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*                userDescriptionField() override;
-    void                                        setijk(size_t i, size_t j, size_t k);
+    void                                        setIJK(size_t i, size_t j, size_t k);
 
     // Overrides from RimFracture
     virtual cvf::Vec3d                          centerPointForFracture() override;

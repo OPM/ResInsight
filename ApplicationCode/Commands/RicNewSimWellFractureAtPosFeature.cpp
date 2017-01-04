@@ -71,7 +71,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fractureCollection->simwellFractures.push_back(fracture);
 
     fracture->name = "Simulation Well Fracture";
-    fracture->setijk(simWellItem->i, simWellItem->j, simWellItem->k);
+    fracture->setIJK(simWellItem->i, simWellItem->j, simWellItem->k);
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);

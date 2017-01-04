@@ -61,7 +61,7 @@ RimWellPathFracture::RimWellPathFracture(void)
     CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
     CAF_PDM_InitField(&k,               "K",                1,      "Fracture location cell K", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDef", "FractureDef", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDef", "Fracture Template", "", "", "");
 
 }
 

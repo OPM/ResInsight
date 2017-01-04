@@ -122,7 +122,7 @@ caf::PdmFieldHandle* RimSimWellFracture::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::setijk(size_t i, size_t j, size_t k)
+void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
 {
     m_i = static_cast<int>(i + 1);
     m_j = static_cast<int>(j + 1);

@@ -37,8 +37,7 @@ public:
     virtual ~RimWellPathFractureCollection(void);
     
     caf::PdmChildArrayField<RimWellPathFracture*>   fractures;
-    caf::PdmField<bool>                     isActive;
+    caf::PdmField<bool>                             isActive;
 
-    void                                    deleteFractures();
-
+    void                                            deleteFractures();
 };
