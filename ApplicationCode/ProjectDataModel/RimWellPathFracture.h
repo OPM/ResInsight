@@ -18,14 +18,16 @@
 
 #pragma once
 
+#include "RimView.h"
+#include "RimFracture.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cvfVector3.h"
-#include "RimView.h"
 
-#include "RimFracture.h"
+#include "cvfBase.h"
+#include "cvfVector3.h"
 
 class RimFractureDefinition;
 class RimWellPath;
