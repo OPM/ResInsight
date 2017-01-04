@@ -345,7 +345,7 @@ QString RiuResultTextBuilder::nncResultText()
                     const std::vector<double>* nncValues = nncData->connectionScalarResult(scalarResultIdx);
                     if (nncValues)
                     {
-                        QString resultVar = m_reservoirView->currentFaultResultColors()->resultVariable();
+                        QString resultVar = m_reservoirView->currentFaultResultColors()->resultVariableUiName();
                         double scalarValue = (*nncValues)[m_nncIndex];
 
                         text = QString("%1 : %2").arg(resultVar).arg(scalarValue);
@@ -489,14 +489,14 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigCaseData* eclipseCase, 
         }
         else
         {
-            resultAccessor = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultColors->scalarResultIndex());
+            resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, gridIndex, timeStepIndex, resultColors);
         }
 
         if (resultAccessor.notNull())
         {
             double scalarValue = resultAccessor->cellScalar(cellIndex);
             resultInfoText->append("Cell result : ");
-            resultInfoText->append(resultColors->resultVariable());
+            resultInfoText->append(resultColors->resultVariableUiName());
             resultInfoText->append(QString(" : %1\n").arg(scalarValue));
         }
     }
@@ -649,7 +649,6 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
 
-        QString resultVar = resultColors->resultVariable();
 
         if (resultColors->isTernarySaturationSelected())
         {
@@ -687,10 +686,12 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 adjustedTimeStep = 0;
             }
             
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, m_gridIndex, porosityModel, adjustedTimeStep, resultVar);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, m_gridIndex, adjustedTimeStep, resultColors);
             if (resultAccessor.notNull())
             {
                 double scalarValue = resultAccessor->cellFaceScalar(m_cellIndex, m_face);
+                QString resultVar = resultColors->resultVariableUiName();
+
                 text = QString("%1 : %2").arg(resultVar).arg(scalarValue);
             }
         }

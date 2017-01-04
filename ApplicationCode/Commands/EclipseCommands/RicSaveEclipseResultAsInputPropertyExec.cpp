@@ -37,6 +37,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include "cafUtils.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -84,12 +85,13 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
             projectFolder = m_cellColors->reservoirView()->eclipseCase()->locationOnDisc();
         }
 
-        QString outputFileName = projectFolder + "/" + m_cellColors->resultVariable();
+        QString outputFileName = projectFolder + "/" + caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiName());
 
         exportSettings.fileName = outputFileName;
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Binary Eclipse Data to Text File", "");
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();

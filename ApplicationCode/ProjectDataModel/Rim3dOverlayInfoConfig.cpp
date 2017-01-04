@@ -360,13 +360,13 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
         if (eclipseView->cellResult()->isTernarySaturationSelected())
         {
-            QString propName = eclipseView->cellResult()->resultVariable();
+            QString propName = eclipseView->cellResult()->resultVariableUiName();
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
         }
 
         if (isResultsInfoRelevant)
         {
-            QString propName = eclipseView->cellResult()->resultVariable();
+            QString propName = eclipseView->cellResult()->resultVariableUiName();
             QString timeRangeText =  m_statisticsTimeRange().uiText();
             if ( eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS )
             {
@@ -406,7 +406,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 }
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
-                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(eclipseView->faultResultSettings()->customFaultResult()->resultVariable());
+                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiName());
             }
         }
 

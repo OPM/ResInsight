@@ -472,7 +472,13 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 /// Create and write a result vector with values for all cells.
 /// undefinedValue is used for cells with no result
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, RigCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue)
+bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, 
+                                                           RigCaseData* eclipseCase, 
+                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
+                                                           size_t timeStep, 
+                                                           const QString& resultName, 
+                                                           const QString& eclipseKeyWord, 
+                                                           const double undefinedValue)
 {
     CVF_ASSERT(eclipseCase);
 

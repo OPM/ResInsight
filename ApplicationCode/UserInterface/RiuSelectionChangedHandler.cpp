@@ -123,7 +123,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
 
         QString curveName = eclipseView->eclipseCase()->caseUserDescription();
         curveName += ", ";
-        curveName += eclipseView->cellResult()->resultVariable();
+        curveName += eclipseView->cellResult()->resultVariableUiName();
         curveName += ", ";
         curveName += QString("Grid index %1").arg(eclipseSelectionItem->m_gridIndex);
         curveName += ", ";

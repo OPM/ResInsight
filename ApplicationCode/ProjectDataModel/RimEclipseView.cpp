@@ -1000,18 +1000,18 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         {
             double globalMin, globalMax;
             double globalPosClosestToZero, globalNegClosestToZero;
-            RigFlowDiagResults* cellResultsData = resultColors->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResults* flowResultsData = resultColors->flowDiagSolution()->flowDiagResults();
             RigFlowDiagResultAddress resAddr = resultColors->flowDiagResAddress();
 
-            cellResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &globalMin, &globalMax);
-            cellResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
+            flowResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &globalMin, &globalMax);
+            flowResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
             if ( resultColors->hasDynamicResult() )
             {
-                cellResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &localMin, &localMax);
-                cellResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+                flowResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &localMin, &localMax);
+                flowResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
             }
             else
             {
@@ -1033,9 +1033,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                 resultColors->legendConfig()->setNamedCategories(resultColors->flowDiagSolution()->tracerNames());
             }
 
-            m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + QString::fromStdString( resultColors->flowDiagResAddress().uiText())));
-        }
+         }
         else
         {
             double globalMin, globalMax;
@@ -1077,10 +1075,10 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                     resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
                 }
             }
-
-            m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
         }
+
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
+        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariableUiName()));
     }
 
 

@@ -51,6 +51,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <cmath>
+#include "cafUtils.h"
 
 //==================================================================================================
 ///  
@@ -570,7 +571,7 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     QString name;
     if (eclipseCase)
     {
-        name = m_eclipseResultDefinition->resultVariable();
+        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiName());
     }
     else if (geoMechCase)
     {

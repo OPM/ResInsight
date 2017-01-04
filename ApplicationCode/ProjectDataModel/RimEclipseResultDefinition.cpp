@@ -518,6 +518,19 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::resultVariableUiName()
+{
+    if (resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        return QString::fromStdString(flowDiagResAddress().uiText());
+    }
+
+    return m_resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
     if (m_resultType() == RimDefines::FLOW_DIAGNOSTICS) return; // Will load automatically on access
