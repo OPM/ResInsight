@@ -58,7 +58,6 @@ double RigWellPath::datumElevation() const
 cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth)
 {
     cvf::Vec3d wellPathPoint = cvf::Vec3d::ZERO;
-    if (measuredDepth < 0) return wellPathPoint;
 
     int i = 0;
     while (i < m_measuredDepths.size() && m_measuredDepths.at(i) < measuredDepth )
@@ -70,7 +69,7 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth)
     {
         if (i == 0)
         {
-            //For measuredDepth=0 use startpoint
+            //For measuredDepth same or lower than first point, use this first point
             wellPathPoint = m_wellPathPoints.at(0);
         }
         else
