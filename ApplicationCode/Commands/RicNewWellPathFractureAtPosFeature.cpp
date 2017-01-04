@@ -21,6 +21,9 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimWellPath.h"
@@ -28,11 +31,11 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
-#include "RivWellPathSourceInfo.h"
-
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
+
+#include "RivWellPathSourceInfo.h"
 
 #include "cafSelectionManager.h"
 
@@ -80,6 +83,17 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->name = "Well Path Fracture";
     fracture->positionAtWellpath = wellPathItem->m_pipeCenterlineIntersectionInDomainCoords;
     fracture->measuredDepth = wellPathItem->m_measuredDepth;
+
+    RimOilField* oilfield = nullptr;
+    objHandle->firstAncestorOrThisOfType(oilfield);
+    if (!oilfield) return;
+
+    if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
+    {
+        RimFractureDefinition* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
+        fracture->fractureDefinition = fracDef;
+    }
+
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);

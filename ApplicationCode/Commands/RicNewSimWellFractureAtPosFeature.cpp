@@ -22,19 +22,22 @@
 
 #include "RimCase.h"
 #include "RimEclipseWell.h"
+#include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
-#include "RimProject.h"
+
+#include "RiuMainWindow.h"
+#include "RiuSelectionManager.h"
+#include "RivSimWellPipeSourceInfo.h"
  
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
 #include <QAction>
-#include "RiuSelectionManager.h"
-#include "RivSimWellPipeSourceInfo.h"
-#include "RiuMainWindow.h"
-
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
 
@@ -72,6 +75,18 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     fracture->name = "Simulation Well Fracture";
     fracture->setIJK(simWellItem->i, simWellItem->j, simWellItem->k);
+
+
+    RimOilField* oilfield = nullptr;
+    objHandle->firstAncestorOrThisOfType(oilfield);
+    if (!oilfield) return;
+
+    if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
+    {
+        RimFractureDefinition* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
+        fracture->fractureDefinition = fracDef;
+    }
+
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);

@@ -21,6 +21,9 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimFractureDefinition.h"
+#include "RimFractureDefinitionCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
@@ -59,6 +62,16 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "Well Path Fracture";
+    
+    RimOilField* oilfield = nullptr;
+    objHandle->firstAncestorOrThisOfType(oilfield);
+    if (!oilfield) return;
+
+    if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
+    {
+        RimFractureDefinition* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
+        fracture->fractureDefinition = fracDef;
+    }
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
