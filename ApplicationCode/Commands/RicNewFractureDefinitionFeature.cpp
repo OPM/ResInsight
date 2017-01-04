@@ -41,7 +41,6 @@ CAF_CMD_SOURCE_INIT(RicNewFractureDefinitionFeature, "RicNewFractureDefinitionFe
 //--------------------------------------------------------------------------------------------------
 void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
 {
-
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
@@ -49,7 +48,6 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
     if (oilfield == nullptr) return;
 
     RimFractureDefinitionCollection* fracDefColl = oilfield->fractureDefinitionCollection();
-
 
     if (fracDefColl)
     {
@@ -59,12 +57,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
         
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
-
     }
-    
-
-
-
 }
 
 //--------------------------------------------------------------------------------------------------

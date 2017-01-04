@@ -44,7 +44,7 @@ CAF_PDM_SOURCE_INIT(RimFractureDefinition, "FractureDefinition");
 //--------------------------------------------------------------------------------------------------
 RimFractureDefinition::RimFractureDefinition(void)
 {
-    CAF_PDM_InitObject("Fracture Template", "", "", "");
+    CAF_PDM_InitObject("Fracture Template", ":/Fracture16x16.png", "", "");
 
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
 
@@ -90,6 +90,4 @@ void RimFractureDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fracture properties");
     group->add(&permeability);
     group->add(&skinFactor);
-
-
 }
