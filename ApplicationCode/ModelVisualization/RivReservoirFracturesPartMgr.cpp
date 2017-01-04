@@ -16,38 +16,68 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigFracture.h"
+#include "RivReservoirFracturesPartMgr.h"
+
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimEclipseWell.h"
+
+#include "RivWellFracturesPartMgr.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFracture::RigFracture()
+RivReservoirFracturesPartMgr::RivReservoirFracturesPartMgr(RimEclipseView* reservoirView)
 {
+    m_reservoirView = reservoirView;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFracture::setGeometry(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords)
+RivReservoirFracturesPartMgr::~RivReservoirFracturesPartMgr()
 {
-    m_nodeCoords = nodeCoords;
-    m_polygonIndices = polygonIndices;
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::uint>& RigFracture::polygonIndices() const
+void RivReservoirFracturesPartMgr::clearGeometryCache()
 {
-    return m_polygonIndices;
+    m_wellFracturesPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f>& RigFracture::nodeCoords() const
+void RivReservoirFracturesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    return m_nodeCoords;
-}
+//    if (m_reservoirView->wellCollection()->wellSphereVisibility == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
+    
+    if (!m_reservoirView->wellCollection()->isActive()) return;
 
+    if (m_reservoirView->wellCollection()->wells.size() != m_wellFracturesPartMgrs.size())
+    {
+        clearGeometryCache();
+
+        for (RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells())
+        {
+            RivWellFracturesPartMgr* wppmgr = new RivWellFracturesPartMgr(rimWell);
+            m_wellFracturesPartMgrs.push_back(wppmgr);
+        }
+    }
+
+    for (size_t i = 0; i < m_wellFracturesPartMgrs.size(); i++)
+    {
+//        if (m_reservoirView->wellCollection()->wells[i]->isWellSpheresVisible(frameIndex))
+        {
+            m_wellFracturesPartMgrs.at(i)->appendDynamicGeometryPartsToModel(model, frameIndex);
+        }
+    }
+
+    // Well path fractures
+
+}
 

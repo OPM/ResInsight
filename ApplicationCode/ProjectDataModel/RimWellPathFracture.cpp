@@ -33,6 +33,7 @@
 #include "QToolBox"
 #include "QList"
 #include "cvfVector3.h"
+#include "RigTesselatorTools.h"
 
 
 
@@ -95,6 +96,22 @@ QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const c
 
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimWellPathFracture::centerPointForFracture()
+{
+    return positionAtWellpath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureDefinition* RimWellPathFracture::attachedFractureDefinition()
+{
+    return fractureDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------

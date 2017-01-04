@@ -19,16 +19,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 
-#include "RivWellPathPartMgr.h"
-
 #include "RiaApplication.h"
 
 #include "RigWellPath.h"
 
+#include "RimFracture.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
+#include "RivWellFracturesPartMgr.h"
+#include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafEffectGenerator.h"
@@ -79,6 +82,26 @@ RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
 RivWellPathPartMgr::~RivWellPathPartMgr()
 {
     clearAllBranchData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model)
+{
+    // Append well path fractures
+    std::vector<RimFracture*> fractures;
+    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection->fractures)
+    {
+        if (!f->hasValidGeometry())
+        {
+            f->computeGeometry();
+        }
+
+        fractures.push_back(f);
+    }
+
+    RivWellFracturesPartMgr::appendFracturePartsToModel(fractures, model);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,6 +288,8 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     {
         model->addPart(m_wellLabelPart.p());
     }
+
+    appendFracturePartsToModel(model);
 }
 
 //--------------------------------------------------------------------------------------------------

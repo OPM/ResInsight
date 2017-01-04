@@ -52,6 +52,11 @@ public:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 
+
+    // Overrides from RimFracture
+    virtual cvf::Vec3d              centerPointForFracture() override;
+    virtual RimFractureDefinition*  attachedFractureDefinition() override;
+
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 

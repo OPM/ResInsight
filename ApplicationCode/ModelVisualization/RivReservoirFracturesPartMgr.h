@@ -18,29 +18,31 @@
 
 #pragma once
 
-
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfMath.h"
-#include "cvfVector3.h"
+#include "cvfCollection.h"
 
-#include <vector>
+#include "cafPdmPointer.h"
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RigFracture : public cvf::Object
+namespace cvf
+{
+    class ModelBasicList;
+}
+
+class RimEclipseView;
+class RivWellFracturesPartMgr;
+
+class RivReservoirFracturesPartMgr : public cvf::Object
 {
 public:
-    RigFracture();
+    RivReservoirFracturesPartMgr(RimEclipseView* reservoirView);
+    ~RivReservoirFracturesPartMgr();
 
-    void setGeometry(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);
-
-    const std::vector<cvf::uint>&  polygonIndices() const;
-    const std::vector<cvf::Vec3f>& nodeCoords() const;
-
+    void clearGeometryCache();
+   
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
+   
 private:
-    std::vector<cvf::uint>  m_polygonIndices;
-    std::vector<cvf::Vec3f> m_nodeCoords;
+    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+	cvf::Collection< RivWellFracturesPartMgr >  m_wellFracturesPartMgrs;
 };
-

@@ -20,15 +20,13 @@
 
 #include "cafPdmObject.h"
 
-/*
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-#include "RimView.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfVector3.h"
-*/
 
+
+class RimFractureDefinition;
+class RigFracture;
 
 //==================================================================================================
 ///  
@@ -42,4 +40,15 @@ public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
+    virtual cvf::Vec3d              centerPointForFracture() = 0;
+    virtual RimFractureDefinition*  attachedFractureDefinition() = 0;
+    
+    bool                            hasValidGeometry() const;
+    void                            computeGeometry();
+
+    const std::vector<cvf::uint>&   polygonIndices() const;
+    const std::vector<cvf::Vec3f>&  nodeCoords() const;
+
+private:
+    cvf::ref<RigFracture> m_rigFracture;
 };

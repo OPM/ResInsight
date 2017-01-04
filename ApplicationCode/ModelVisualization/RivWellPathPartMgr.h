@@ -53,6 +53,9 @@ public:
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
+    void                                    appendFracturePartsToModel(cvf::ModelBasicList* model);
+
+private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
     cvf::ref<cvf::Transform>                m_scaleTransform; 

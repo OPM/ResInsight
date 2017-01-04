@@ -33,6 +33,7 @@
 #include "QToolBox"
 #include "QList"
 #include "cvfVector3.h"
+#include "RigTesselatorTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSimWellFracture, "SimWellFracture");
@@ -91,6 +92,23 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
 
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimSimWellFracture::centerPointForFracture()
+{
+    // TODO: Find center point of cell
+    return cvf::Vec3d::UNDEFINED;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureDefinition* RimSimWellFracture::attachedFractureDefinition()
+{
+    return fractureDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------

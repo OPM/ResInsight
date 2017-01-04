@@ -22,8 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "RimView.h"
 #include "cvfVector3.h"
+#include "RimView.h"
 
 #include "RimFracture.h"
 
@@ -56,6 +56,9 @@ public:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
+    // Overrides from RimFracture
+    virtual cvf::Vec3d              centerPointForFracture() override;
+    virtual RimFractureDefinition*  attachedFractureDefinition() override;
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

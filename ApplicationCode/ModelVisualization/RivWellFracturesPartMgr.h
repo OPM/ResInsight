@@ -18,29 +18,40 @@
 
 #pragma once
 
-
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfMath.h"
 #include "cvfVector3.h"
+
+#include "cafPdmPointer.h"
 
 #include <vector>
 
-//==================================================================================================
+namespace cvf
+{
+     class ModelBasicList;
+     class DrawableGeo;
+}
+
+class RimEclipseWell;
+class RimFracture;
+
+
+//--------------------------------------------------------------------------------------------------
 /// 
-//==================================================================================================
-class RigFracture : public cvf::Object
+//--------------------------------------------------------------------------------------------------
+class RivWellFracturesPartMgr : public cvf::Object
 {
 public:
-    RigFracture();
+    RivWellFracturesPartMgr(RimEclipseWell* well);
+    ~RivWellFracturesPartMgr();
 
-    void setGeometry(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 
-    const std::vector<cvf::uint>&  polygonIndices() const;
-    const std::vector<cvf::Vec3f>& nodeCoords() const;
+    static void appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model);
 
 private:
-    std::vector<cvf::uint>  m_polygonIndices;
-    std::vector<cvf::Vec3f> m_nodeCoords;
-};
+    static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
+private:
+    caf::PdmPointer<RimEclipseWell> m_rimWell;
+};
