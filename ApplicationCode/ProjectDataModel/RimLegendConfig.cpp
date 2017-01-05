@@ -861,7 +861,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         }
     }
 
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_mappingMode)
     {
@@ -879,7 +879,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
         for(MappingType mapType: mappingTypes)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
+            options.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
         }
     }
     else if (fieldNeedingOptions == &m_colorRangeMode)
@@ -903,18 +903,18 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
         for(ColorRangesType colType: rangeTypes)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
+            options.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
         }
     }
     else if (fieldNeedingOptions == &m_rangeMode)
     {
         if (!m_isAllTimeStepsRangeDisabled) {
-            optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
         }
-        optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
-        optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
     }
  
-    return optionList;
+    return options;
 }
 

@@ -69,7 +69,7 @@ cvf::Vec3d RimCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if(fieldNeedingOptions == &activeFormationNames)
     {
@@ -78,12 +78,12 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmField
         {
             for(RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList())
             {
-                optionList.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIcon()));
             }
         }
 
-        optionList.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
 
-    return optionList;
+    return options;
 }

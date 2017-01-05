@@ -190,7 +190,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
             //TODO: Must also handle input properties
             //varList += m_reservoirView->gridCellResults()->resultNames(RimDefines::INPUT_PROPERTY);
 
-            QList<caf::PdmOptionItemInfo> optionList;
+            QList<caf::PdmOptionItemInfo> options;
 
             std::map<QString, caf::FixedArray<QString, 6> > varBaseNameToVarsMap;
 
@@ -237,15 +237,15 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
                 }
                 optionUiName += ")";
 
-                optionList.push_back(caf::PdmOptionItemInfo( optionUiName, QVariant(it->first)));
+                options.push_back(caf::PdmOptionItemInfo( optionUiName, QVariant(it->first)));
 
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
+            options.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
             
             if (useOptionsOnly) *useOptionsOnly = true;
 
-            return optionList;
+            return options;
         }
     }
 

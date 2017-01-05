@@ -75,7 +75,7 @@ RimView* RicLinkVisibleViewsFeatureUi::masterView()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_masterView)
     {
@@ -90,9 +90,9 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
                 icon = rimCase->uiCapability()->uiIcon();
             }
 
-            optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(v), v, false, icon));
+            options.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(v), v, false, icon));
         }
     }
 
-    return optionList;
+    return options;
 }
