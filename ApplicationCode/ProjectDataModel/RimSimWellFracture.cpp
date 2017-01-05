@@ -34,6 +34,13 @@
 #include "QList"
 #include "cvfVector3.h"
 #include "RigTesselatorTools.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCase.h"
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+#include "cafDisplayCoordTransform.h"
+
 
 
 CAF_PDM_SOURCE_INIT(RimSimWellFracture, "SimWellFracture");
@@ -99,8 +106,26 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimSimWellFracture::centerPointForFracture()
 {
-    // TODO: Find center point of cell
-    return cvf::Vec3d::UNDEFINED;
+    cvf::Vec3d undef = cvf::Vec3d::UNDEFINED;
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+    if (!objHandle) return undef;
+
+    RimEclipseView* mainView = nullptr;
+    objHandle->firstAncestorOrThisOfType(mainView);
+    if (!mainView) return undef;
+
+    const RigMainGrid* mainGrid = mainView->eclipseCase()->reservoirData()->mainGrid();
+    if (!mainGrid) return undef;
+
+    size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i, m_j, m_k);
+    const RigCell& rigCell = mainGrid->cell(gridCellIndex);
+    cvf::Vec3d center = rigCell.center();
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = mainView->displayCoordTransform();
+    cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
+
+    return displayCoord;
 }
 
 //--------------------------------------------------------------------------------------------------
