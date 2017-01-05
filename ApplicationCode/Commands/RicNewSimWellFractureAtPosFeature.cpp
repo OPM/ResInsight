@@ -91,6 +91,8 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
+    activeView->scheduleCreateDisplayModelAndRedraw();
+
 
 }
 

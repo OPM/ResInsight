@@ -41,6 +41,7 @@
 #include "cafSelectionManager.h"
 #include "RimFormationNamesCollection.h"
 #include "RimCase.h"
+#include "RimSimWellFractureCollection.h"
 
 
 namespace caf
@@ -120,6 +121,16 @@ void RicDeleteItemExec::redo()
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
+
+        // SimWell Fractures
+        RimSimWellFractureCollection* simWellFractureColl;
+        parentObj->firstAncestorOrThisOfType(simWellFractureColl);
+        if (view && simWellFractureColl)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+
 
         // Well paths
 

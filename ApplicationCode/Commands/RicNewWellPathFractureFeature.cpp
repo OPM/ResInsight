@@ -75,6 +75,8 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+
+    wellPathColl->scheduleGeometryRegenAndRedrawViews();
 }
 
 //--------------------------------------------------------------------------------------------------

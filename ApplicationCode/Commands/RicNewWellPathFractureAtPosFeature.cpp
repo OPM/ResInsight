@@ -97,6 +97,9 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+
+    activeView->scheduleCreateDisplayModelAndRedraw();
+
 }
  
 //--------------------------------------------------------------------------------------------------

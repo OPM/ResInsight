@@ -36,6 +36,7 @@
 #include "cvfAssert.h"
 
 #include <QAction>
+#include "RimEclipseView.h"
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
 
@@ -74,6 +75,11 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+
+    RimEclipseView* mainView = nullptr;
+    objHandle->firstAncestorOrThisOfType(mainView);
+    if (mainView) mainView->scheduleCreateDisplayModelAndRedraw();
+
 }
 
 //--------------------------------------------------------------------------------------------------
