@@ -1,8 +1,8 @@
 /*
-  Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2017 SINTEF ICT, Applied Mathematics.
+  Copyright 2017 Statoil ASA.
 
-  This file is part of the Open Porous Media Project (OPM).
+  This file is part of the Open Porous Media project (OPM).
 
   OPM is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #endif
 
 #include "exampleSetup.hpp"
-
+#include <opm/flowdiagnostics/CellSet.hpp>
 
 // Syntax (typical):
 //   computeToFandTracers case=<ecl_case_prefix> step=<report_number>
@@ -32,15 +32,36 @@ try {
     example::Setup setup(argc, argv);
     auto& fdTool = setup.toolbox;
 
-    // Solve for time of flight.
+    // Create start sets from injector wells.
     std::vector<Opm::FlowDiagnostics::CellSet> start;
+    for (const auto& well : setup.well_fluxes) {
+        if (!well.is_injector_well) {
+            continue;
+        }
+        std::vector<int> completion_cells;
+        completion_cells.reserve(well.completions.size());
+        for (const auto& completion : well.completions) {
+            const int grid_index = completion.grid_index;
+            const auto& ijk = completion.ijk;
+            const int cell_index = setup.graph.activeCell(ijk, grid_index);
+            if (cell_index >= 0) {
+                completion_cells.push_back(cell_index);
+            }
+        }
+        start.emplace_back(Opm::FlowDiagnostics::CellSetID(well.name), completion_cells);
+    }
+
+
+    // Solve for injection time of flight and tracers.
     auto sol = fdTool.computeInjectionDiagnostics(start);
-    const auto& tof = sol.fd.timeOfFlight();
+
+    // Get local tof for first injector.
+    const auto& tof = sol.fd.timeOfFlight(start.front().id());
 
     // Write it to standard out.
     std::cout.precision(16);
-    for (double t : tof) {
-        std::cout << t << '\n';
+    for (auto item : tof) {
+        std::cout << item.first << "   " << item.second << '\n';
     }
 }
 catch (const std::exception& e) {

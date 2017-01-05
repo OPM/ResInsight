@@ -139,7 +139,7 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
     using Conc = Solution::TracerConcentration;
 
     TracerTofSolver solver(downstream_conn_, upstream_conn_, pvol_, only_inflow_flux_);
-    sol.assignGlobalToF(solver.solveGlobal(start_sets));
+    sol.assignGlobalToF(solver.solveGlobal());
 
     for (const auto& start : start_sets) {
         auto solution = solver.solveLocal(start);
@@ -167,7 +167,7 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
     using Conc = Solution::TracerConcentration;
 
     TracerTofSolver solver(upstream_conn_, downstream_conn_, pvol_, only_outflow_flux_);
-    sol.assignGlobalToF(solver.solveGlobal(start_sets));
+    sol.assignGlobalToF(solver.solveGlobal());
 
     for (const auto& start : start_sets) {
         auto solution = solver.solveLocal(start);
@@ -198,7 +198,7 @@ Toolbox::Impl::buildAssembledConnections()
         if (connection_flux > 0.0) {
             downstream_conn_.addConnection(cells.first, cells.second, connection_flux);
             upstream_conn_.addConnection(cells.second, cells.first, connection_flux);
-        } else {
+        } else if (connection_flux < 0.0) {
             downstream_conn_.addConnection(cells.second, cells.first, -connection_flux);
             upstream_conn_.addConnection(cells.first, cells.second, -connection_flux);
         }

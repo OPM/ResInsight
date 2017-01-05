@@ -25,22 +25,21 @@
 #include "exampleSetup.hpp"
 
 
-// Syntax (typical):
-//   computeToFandTracers case=<ecl_case_prefix> step=<report_number>
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 try {
     example::Setup setup(argc, argv);
     auto& fdTool = setup.toolbox;
 
-    // Solve for time of flight.
-    std::vector<Opm::FlowDiagnostics::CellSet> start;
-    auto sol = fdTool.computeInjectionDiagnostics(start);
-    const auto& tof = sol.fd.timeOfFlight();
+    // Solve for tracers.
+    Opm::FlowDiagnostics::CellSetID id("Example start set ID");
+    Opm::FlowDiagnostics::CellSet start(id, {123});
+    auto sol = fdTool.computeInjectionDiagnostics({start});
+    const auto& conc_sol = sol.fd.concentration(id);
 
     // Write it to standard out.
     std::cout.precision(16);
-    for (double t : tof) {
-        std::cout << t << '\n';
+    for (auto item : conc_sol) {
+        std::cout << item.first << "   " << item.second << '\n';
     }
 }
 catch (const std::exception& e) {
