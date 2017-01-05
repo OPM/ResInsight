@@ -65,7 +65,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewFractureDefinitionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/Fracture16x16.png"));
+    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
     actionToSetup->setText("New Fracture Template");
 }
 

@@ -80,7 +80,9 @@
       <file>RightAxis16x16.png</file>
       <file>BottomAxis16x16.png</file>
       <file>Axes16x16.png</file>
-      <file>Fracture16x16.png</file>
+      <file>FractureLayout16x16.png</file>
+      <file>FractureSymbol16x16.png</file>
+      <file>FractureTemplate16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

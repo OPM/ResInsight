@@ -44,7 +44,7 @@ CAF_PDM_SOURCE_INIT(RimFractureDefinition, "FractureDefinition");
 //--------------------------------------------------------------------------------------------------
 RimFractureDefinition::RimFractureDefinition(void)
 {
-    CAF_PDM_InitObject("Fracture Template", ":/Fracture16x16.png", "", "");
+    CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
 

@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathFractureCollection, "WellPathFractureCollection")
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 {
-    CAF_PDM_InitObject("Fractures", ":/Fracture16x16.png", "", "");
+    CAF_PDM_InitObject("Fractures", ":/FractureSymbol16x16.png", "", "");
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     
