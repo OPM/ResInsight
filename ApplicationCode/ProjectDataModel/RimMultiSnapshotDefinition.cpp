@@ -28,6 +28,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimTools.h"
 #include "RimView.h"
 
 #include "cafPdmPointer.h"
@@ -137,15 +138,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &additionalCases)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimCase*> cases;
-        proj->allCases(cases);
-
-        for (RimCase* rimCase : cases)
-        {
-            options.push_back(caf::PdmOptionItemInfo(rimCase->caseUserDescription(), rimCase));
-        }
-
+        RimTools::caseOptionItems(&options);
     }
 
     if (useOptionsOnly) *useOptionsOnly = true;

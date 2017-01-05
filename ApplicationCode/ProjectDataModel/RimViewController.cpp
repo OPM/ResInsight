@@ -109,31 +109,29 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
             views.push_back(this->managedView());
         }
 
-        RimViewLinker* linkedViews = NULL;
-        this->firstAncestorOrThisOfType(linkedViews);
+        RimViewLinker* viewLinker = nullptr;
+        this->firstAncestorOrThisOfType(viewLinker);
+        CVF_ASSERT(viewLinker);
 
-        for (size_t i = 0; i< views.size(); i++)
+        for (RimView* view : views)
         {
-            if (views[i] != linkedViews->masterView())
+            if (view != viewLinker->masterView())
             {
-                RimCase* rimCase = NULL;
-                views[i]->firstAncestorOrThisOfType(rimCase);
+                RimCase* rimCase = nullptr;
+                view->firstAncestorOrThisOfType(rimCase);
                 QIcon icon;
                 if (rimCase)
                 {
                     icon = rimCase->uiCapability()->uiIcon();
                 }
 
-                optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(views[i]),
-                    QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i])),
-                    false,
-                    icon));
+                optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(view), view, false, icon));
             }
         }
 
         if (optionList.size() > 0)
         {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            optionList.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
 

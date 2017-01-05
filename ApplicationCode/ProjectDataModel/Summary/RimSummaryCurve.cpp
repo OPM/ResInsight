@@ -306,16 +306,14 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 
         proj->allSummaryCases(cases);
 
-        for (size_t i = 0; i < cases.size(); i++)
+        for (RimSummaryCase* rimCase : cases)
         {
-            RimSummaryCase* rimCase = cases[i];
-
-            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
+            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
 
         if (optionList.size() > 0)
         {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            optionList.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if(fieldNeedingOptions == &m_uiFilterResultSelection)

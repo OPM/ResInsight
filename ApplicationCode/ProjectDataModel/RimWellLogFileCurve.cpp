@@ -210,15 +210,16 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
+                // Only include well paths coming from a well log file
                 if (wellPaths[i]->m_wellLogFile())
                 {
-                    optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+                    optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), wellPaths[i]));
                 }
             }
 
             if (optionList.size() > 0)
             {
-                optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+                optionList.push_front(caf::PdmOptionItemInfo("None", nullptr));
             }
         }
     }

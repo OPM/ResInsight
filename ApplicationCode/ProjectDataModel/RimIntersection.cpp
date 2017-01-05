@@ -29,6 +29,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimView.h"
 #include "RimWellPath.h"
 
@@ -235,21 +236,11 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
 
     if (fieldNeedingOptions == &wellPath)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        if (proj->activeOilField()->wellPathCollection())
-        {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
-            
-            QIcon wellIcon(":/Well.png");
-            for (size_t i = 0; i < wellPaths.size(); i++)
-            {
-                options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i])), false, wellIcon));
-            }
-        }
+        RimTools::wellPathOptionItems(&options);
 
-        if (options.size() == 0)
+        if (options.size() > 0)
         {
-            options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if (fieldNeedingOptions == &simulationWell)
@@ -260,15 +251,15 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
             caf::PdmChildArrayField<RimEclipseWell*>& eclWells = coll->wells;
 
             QIcon simWellIcon(":/Well.png");
-            for (size_t i = 0; i < eclWells.size(); i++)
+            for (RimEclipseWell* eclWell : eclWells)
             {
-                options.push_back(caf::PdmOptionItemInfo(eclWells[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(eclWells[i])), false, simWellIcon));
+                options.push_back(caf::PdmOptionItemInfo(eclWell->name(), eclWell, false, simWellIcon));
             }
         }
 
         if (options.size() == 0)
         {
-            options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if (fieldNeedingOptions == &m_branchIndex)

@@ -21,7 +21,15 @@
 #include "RimTools.h"
 
 #include "RiaApplication.h"
+
+#include "RimCase.h"
+#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimWellLogFile.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
+#include "cafPdmUiItem.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -199,4 +207,46 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     if (foundFile) *foundFile = false;
 
     return fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
+{
+    CVF_ASSERT(options);
+    if (!options) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    {
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+
+        QIcon wellIcon(":/Well.png");
+        for (RimWellPath* wellPath : wellPaths)
+        {
+            options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
+{
+    CVF_ASSERT(options);
+    if (!options) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj)
+    {
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+
+        for (RimCase* c : cases)
+        {
+            options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+        }
+    }
 }

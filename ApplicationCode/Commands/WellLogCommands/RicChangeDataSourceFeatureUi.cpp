@@ -21,6 +21,7 @@
 #include "RimCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -45,34 +46,18 @@ RicChangeDataSourceFeatureUi::RicChangeDataSourceFeatureUi()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicChangeDataSourceFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &caseToApply)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        
-        std::vector<RimCase*> cases;
-        proj->allCases(cases);
-
-        for (RimCase* c : cases)
-        {
-            optionList.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c));
-        }
+        RimTools::caseOptionItems(&options);
     }
     else if (fieldNeedingOptions == &wellPathToApply)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-
-        if (proj->activeOilField()->wellPathCollection())
-        {
-            for (RimWellPath* wellPath : proj->activeOilField()->wellPathCollection()->wellPaths)
-            {
-                optionList.push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath));
-            }
-        }
+        RimTools::wellPathOptionItems(&options);
     }
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

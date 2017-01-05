@@ -20,9 +20,14 @@
 
 #pragma once
 
+#include <QList>
 #include <QString>
 
 #include <vector>
+
+namespace caf {
+    class PdmOptionItemInfo;
+}
 
 class RimTools
 {
@@ -30,4 +35,7 @@ public:
     static QString getCacheRootDirectoryPathFromProject();
 
     static QString relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, bool* foundFile, std::vector<QString>* searchedPaths);
+
+    static void wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options);
+    static void caseOptionItems(QList<caf::PdmOptionItemInfo>* options);
 };
