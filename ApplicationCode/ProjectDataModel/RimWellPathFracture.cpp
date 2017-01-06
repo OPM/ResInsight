@@ -143,18 +143,14 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
         RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
         positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
-
-        //wellPath->partMgr()->scheduleGeometryRegen();
-
-        setRecomputeGeometryFlag();
-        
-        RimProject* proj;
-        this->firstAncestorOrThisOfType(proj);
-        if (proj)
-        {
-            proj->createDisplayModelAndRedrawAllViews();
-        }
     }
+
+    setRecomputeGeometryFlag();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj) proj->createDisplayModelAndRedrawAllViews();
+    
 }
 
 //--------------------------------------------------------------------------------------------------

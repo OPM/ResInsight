@@ -20,6 +20,7 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
 
@@ -52,7 +53,8 @@ public:
     };
     caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientation;
     
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    virtual caf::PdmFieldHandle*    userDescriptionField() override;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

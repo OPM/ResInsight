@@ -19,6 +19,8 @@
 #include "RimFractureDefinition.h"
 
 #include "cafPdmObject.h"
+#include "RimProject.h"
+#include "RimFracture.h"
 
 
 
@@ -71,6 +73,35 @@ RimFractureDefinition::~RimFractureDefinition()
 caf::PdmFieldHandle* RimFractureDefinition::userDescriptionField()
 {
     return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &halfLength || changedField == &height)
+    {
+
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            //Regenerate geometry
+            std::vector<RimFracture*> fractures;
+            proj->descendantsIncludingThisOfType(fractures);
+
+            for (RimFracture* fracture : fractures)
+            {
+                if (fracture->attachedFractureDefinition() == this)
+                {
+                    fracture->setRecomputeGeometryFlag();
+                }
+            }
+
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
