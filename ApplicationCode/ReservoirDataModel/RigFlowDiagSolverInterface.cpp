@@ -38,45 +38,30 @@ RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setInjectorTracerTOF(const std::string& tracerName, const std::map<int, double>& cellValues)
-{
-    std::set<std::string> tracers; 
-    tracers.insert(tracerName);
-
-    this->addResult(RigFlowDiagResultAddress(RIG_FLD_TOF_RESNAME, tracers), cellValues);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setInjectorTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues)
+void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName, const std::map<int, double>& cellValues)
 {
     std::set<std::string> tracers;
     tracers.insert(tracerName);
+    
+    RigFlowDiagResultAddress resAddr(RIG_FLD_TOF_RESNAME, tracers);
 
-    this->addResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracers), cellValues);
+    this->addResult(resAddr, cellValues);
 
+    std::vector<double>& activeCellValues =  m_nativeResults[resAddr];
+    for (double & val: activeCellValues)
+    {
+        val = val * 1.15741e-5; // days pr second. Converting to days
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setProducerTracerTOF(const std::string& tracerName, const std::map<int, double>& cellValues)
-{
-    std::set<std::string> tracers;
-    tracers.insert(tracerName);
-
-    this->addResult(RigFlowDiagResultAddress(RIG_FLD_TOF_RESNAME, tracers), cellValues);
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setProducerTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues)
+void RigFlowDiagTimeStepResult::setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues)
 {
     std::set<std::string> tracers;
     tracers.insert(tracerName);
@@ -232,9 +217,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         for ( const CellSetID& tracerId: injSol.startPoints() )
         {
             CellSetValues tofVals = injSol.timeOfFlight(tracerId);
-            result.setInjectorTracerTOF(tracerId.to_string(), tofVals);
+            result.setTracerTOF(tracerId.to_string(), tofVals);
             CellSetValues fracVals = injSol.concentration(tracerId);
-            result.setInjectorTracerFraction(tracerId.to_string(), fracVals);
+            result.setTracerFraction(tracerId.to_string(), fracVals);
         }
     }
 
@@ -251,9 +236,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         for ( const CellSetID& tracerId: prodSol.startPoints() )
         {
             CellSetValues tofVals = prodSol.timeOfFlight(tracerId);
-            result.setProducerTracerTOF(tracerId.to_string(), tofVals);
+            result.setTracerTOF(tracerId.to_string(), tofVals);
             CellSetValues fracVals = prodSol.concentration(tracerId);
-            result.setInjectorTracerFraction(tracerId.to_string(), fracVals);
+            result.setTracerFraction(tracerId.to_string(), fracVals);
         }
     }
 
