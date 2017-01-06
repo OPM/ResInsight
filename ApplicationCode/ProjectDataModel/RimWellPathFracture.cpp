@@ -28,6 +28,8 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "RivWellPathPartMgr.h"
+
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
@@ -142,8 +144,17 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
         positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
 
-    }
+        //wellPath->partMgr()->scheduleGeometryRegen();
 
+        setRecomputeGeometryFlag();
+        
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

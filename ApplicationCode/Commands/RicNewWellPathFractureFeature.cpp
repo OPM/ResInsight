@@ -36,6 +36,7 @@
 #include "cvfAssert.h"
 
 #include <QAction>
+#include "RimWellPath.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeature");
@@ -62,7 +63,18 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "Well Path Fracture";
+
+    float md_default = 0.0f;
+    fracture->measuredDepth = md_default;
+
+    RimWellPath* wellPath = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPath);
+    CVF_ASSERT(wellPath);
     
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(md_default);
+    fracture->positionAtWellpath = positionAtWellpath;
+
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;

@@ -46,9 +46,15 @@ public:
     bool                            hasValidGeometry() const;
     void                            computeGeometry();
 
+    void                            setRecomputeGeometryFlag();
+
     const std::vector<cvf::uint>&   polygonIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
 private:
-    cvf::ref<RigFracture> m_rigFracture;
+    bool                            isRecomputeGeometryFlagSet();
+
+private:
+    cvf::ref<RigFracture>   m_rigFracture;
+    bool                    m_recomputeGeometry;
 };

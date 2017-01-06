@@ -35,6 +35,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitObject("Fracture", "", "", "");
 
     m_rigFracture = new RigFracture;
+    m_recomputeGeometry = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +88,25 @@ void RimFracture::computeGeometry()
         nodeCoords[i] = nodeCoords[i] + static_cast<cvf::Vec3f>(center);
     }
 
-    m_rigFracture->setGeometry(polygonIndices, nodeCoords);
+    m_rigFracture->setGeometry(polygonIndices, nodeCoords); 
+
+    m_recomputeGeometry = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::setRecomputeGeometryFlag()
+{
+    m_recomputeGeometry = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFracture::isRecomputeGeometryFlagSet()
+{
+    return m_recomputeGeometry;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,6 +114,8 @@ void RimFracture::computeGeometry()
 //--------------------------------------------------------------------------------------------------
 bool RimFracture::hasValidGeometry() const
 {
+    if (m_recomputeGeometry) return false;
+
     return (nodeCoords().size() > 0 && polygonIndices().size() > 0);
 }
 
