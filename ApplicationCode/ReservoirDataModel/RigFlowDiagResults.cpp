@@ -160,167 +160,209 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
 {
     if (resVarAddr.isNativeResult()) return nullptr;
 
-    size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
-
     if (resVarAddr.variableName == RIG_FLD_TOF_RESNAME)
     {
-        std::vector<const std::vector<double>* > injectorTOFs      = findResultsForSelectedTracers(resVarAddr, frameIndex, 
-                                                                                                   RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::INJECTOR);
-        std::vector<const std::vector<double>* > injectorFractions = findResultsForSelectedTracers(resVarAddr, frameIndex, 
-                                                                                                   RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::INJECTOR);
-
-        std::vector<const std::vector<double>* > producerTOFs      = findResultsForSelectedTracers(resVarAddr, frameIndex, 
-                                                                                                   RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::PRODUCER);
-        std::vector<const std::vector<double>* > producerFractions = findResultsForSelectedTracers(resVarAddr, frameIndex, 
-                                                                                                   RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::PRODUCER);
-
-        std::vector<double> injectorTotalFractions;
-        std::vector<double> injectorFractMultTof;
-        calculateSumOfFractionAndFractionMultTOF(activeCellCount,  injectorFractions, injectorTOFs, &injectorTotalFractions,  &injectorFractMultTof);
-
-        std::vector<double> producerTotalFractions;
-        std::vector<double> producerFractMultTof;
-        calculateSumOfFractionAndFractionMultTOF(activeCellCount, producerFractions, producerTOFs, &producerTotalFractions, &producerFractMultTof);
-
-        RigFlowDiagResultFrames* averageTofFrames = this->createScalarResult(resVarAddr);
-        std::vector<double>& averageTof = averageTofFrames->frameData(frameIndex);
-        averageTof.resize(activeCellCount, HUGE_VAL);
-
-        for (size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx)
-        {
-            if ( injectorTotalFractions[acIdx] == 0.0 && producerTotalFractions[acIdx] == 0.0 )
-            {
-                averageTof[acIdx] = HUGE_VAL;
-            }
-            else 
-            {
-                double retVal = 0.0;
-                if (injectorTotalFractions[acIdx] != 0.0) retVal +=  (1.0/injectorTotalFractions[acIdx]) * injectorFractMultTof[acIdx];
-                if (producerTotalFractions[acIdx] != 0.0) retVal +=  (1.0/producerTotalFractions[acIdx]) * producerFractMultTof[acIdx];
-                averageTof[acIdx] = retVal;
-            }
-        }
-
-        /// Test to remove all averaging    
-        // if (injectorTOFs.size()) averageTof = (*injectorTOFs[0]);
-
-        return &averageTof;
+        return calculateAverageTOFResult(resVarAddr, frameIndex);
     }
     else if (resVarAddr.variableName == RIG_FLD_CELL_FRACTION_RESNAME)
     {
-        std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr, 
-                                                                                           frameIndex, 
-                                                                                           RIG_FLD_CELL_FRACTION_RESNAME, 
-                                                                                           RimFlowDiagSolution::UNDEFINED);
-
-        RigFlowDiagResultFrames* sumOfFractionsFrames = this->createScalarResult(resVarAddr);
-        std::vector<double>& sumOfFractions = sumOfFractionsFrames->frameData(frameIndex);
-
-        calculateSumOfFractions(fractions, activeCellCount, &sumOfFractions);
-
-        return &sumOfFractions;
+        return calculateSumOfFractionsResult(resVarAddr, frameIndex);
     }
     else if ( resVarAddr.variableName == RIG_FLD_COMMUNICATION_RESNAME )
     {
-        std::vector<const std::vector<double>* > injectorFractions = findResultsForSelectedTracers(resVarAddr,
-                                                                                                   frameIndex,
-                                                                                                   RIG_FLD_CELL_FRACTION_RESNAME,
-                                                                                                   RimFlowDiagSolution::INJECTOR);
-        std::vector<const std::vector<double>* > producerFractions = findResultsForSelectedTracers(resVarAddr,
-                                                                                                   frameIndex,
-                                                                                                   RIG_FLD_CELL_FRACTION_RESNAME,
-                                                                                                   RimFlowDiagSolution::PRODUCER);
-
-        std::vector<double> sumOfInjectorFractions;
-        calculateSumOfFractions(injectorFractions, activeCellCount, &sumOfInjectorFractions);
-
-        std::vector<double> sumOfProducerFractions;
-        calculateSumOfFractions(producerFractions, activeCellCount, &sumOfProducerFractions);
-
-        RigFlowDiagResultFrames* commFrames = this->createScalarResult(resVarAddr);
-        std::vector<double>& commPI = commFrames->frameData(frameIndex);
-        commPI.resize(activeCellCount, HUGE_VAL);
-
-        for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-        {
-            if ( (sumOfInjectorFractions)[acIdx] == HUGE_VAL ) continue;
-            if ( (sumOfProducerFractions)[acIdx] == HUGE_VAL ) continue;
-
-            (commPI)[acIdx] =  (sumOfInjectorFractions)[acIdx] * (sumOfProducerFractions)[acIdx];
-        }
-
-        return &commPI;
+        return calculateCommunicationResult(resVarAddr, frameIndex);
     }
     else if ( resVarAddr.variableName == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
     {
-        std::vector<int> selectedTracerIdxToGlobalTracerIdx;
-        {
-            selectedTracerIdxToGlobalTracerIdx.resize(resVarAddr.selectedTracerNames.size(), -1);
-
-            std::vector<QString> allTracerNames = m_flowDiagSolution->tracerNames();
-            int selTracerIdx = 0;
-            for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
-            {
-                for ( int globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
-                {
-                    if ( allTracerNames[globIdx].toStdString() == tracerName )
-                    {
-                        selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = globIdx;
-                        break;
-                    }
-                }
-
-                ++selTracerIdx;
-            }
-        }
-
-
-        RigFlowDiagResultFrames* maxFractionTracerIdxFrames = this->createScalarResult(resVarAddr);
-        std::vector<double>& maxFractionTracerIdx = maxFractionTracerIdxFrames->frameData(frameIndex);
-        {
-
-            std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
-                                                                                               frameIndex,
-                                                                                               RIG_FLD_CELL_FRACTION_RESNAME,
-                                                                                               RimFlowDiagSolution::UNDEFINED);
-            maxFractionTracerIdx.resize(activeCellCount, HUGE_VAL);
-
-            std::vector<double> maxFraction;
-            maxFraction.resize(activeCellCount, -HUGE_VAL);
-
-            for ( size_t frIdx = 0; frIdx < fractions.size(); ++frIdx )
-            {
-                const std::vector<double> * fr = fractions[frIdx];
-
-                for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-                {
-                    if ( (*fr)[acIdx] == HUGE_VAL) continue;
-
-                    if ( maxFraction[acIdx] < (*fr)[acIdx] )
-                    {
-                        maxFraction[acIdx] =  (*fr)[acIdx];
-                        maxFractionTracerIdx[acIdx] = frIdx;
-                    }
-                }
-            }
-        }
-
-        for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-        {
-            if (maxFractionTracerIdx[acIdx] == HUGE_VAL) continue;
-
-            double selectedTracerIdx = static_cast<int>( maxFractionTracerIdx[acIdx]);
-            maxFractionTracerIdx[acIdx] = selectedTracerIdxToGlobalTracerIdx[selectedTracerIdx];           
-        }
-
-        return &maxFractionTracerIdx;
+        return calculateTracerWithMaxFractionResult(resVarAddr, frameIndex);
     }
 
     return nullptr; 
 }
 
 
-std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr, 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
+{
+    std::vector<const std::vector<double>* > injectorTOFs      = findResultsForSelectedTracers(resVarAddr, frameIndex,
+                                                                                               RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::INJECTOR);
+    std::vector<const std::vector<double>* > injectorFractions = findResultsForSelectedTracers(resVarAddr, frameIndex,
+                                                                                               RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::INJECTOR);
+
+    std::vector<const std::vector<double>* > producerTOFs      = findResultsForSelectedTracers(resVarAddr, frameIndex,
+                                                                                               RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::PRODUCER);
+    std::vector<const std::vector<double>* > producerFractions = findResultsForSelectedTracers(resVarAddr, frameIndex,
+                                                                                               RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::PRODUCER);
+    size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
+
+    std::vector<double> injectorTotalFractions;
+    std::vector<double> injectorFractMultTof;
+    calculateSumOfFractionAndFractionMultTOF(activeCellCount, injectorFractions, injectorTOFs, &injectorTotalFractions, &injectorFractMultTof);
+
+    std::vector<double> producerTotalFractions;
+    std::vector<double> producerFractMultTof;
+    calculateSumOfFractionAndFractionMultTOF(activeCellCount, producerFractions, producerTOFs, &producerTotalFractions, &producerFractMultTof);
+
+    RigFlowDiagResultFrames* averageTofFrames = this->createScalarResult(resVarAddr);
+    std::vector<double>& averageTof = averageTofFrames->frameData(frameIndex);
+    averageTof.resize(activeCellCount, HUGE_VAL);
+
+    for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+    {
+        if ( injectorTotalFractions[acIdx] == 0.0 && producerTotalFractions[acIdx] == 0.0 )
+        {
+            averageTof[acIdx] = HUGE_VAL;
+        }
+        else
+        {
+            double retVal = 0.0;
+            if ( injectorTotalFractions[acIdx] != 0.0 ) retVal +=  (1.0/injectorTotalFractions[acIdx]) * injectorFractMultTof[acIdx];
+            if ( producerTotalFractions[acIdx] != 0.0 ) retVal +=  (1.0/producerTotalFractions[acIdx]) * producerFractMultTof[acIdx];
+            averageTof[acIdx] = retVal;
+        }
+    }
+
+    /// Test to remove all averaging    
+    // if (injectorTOFs.size()) averageTof = (*injectorTOFs[0]);
+
+    return &averageTof;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
+{
+    std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
+                                                                                       frameIndex,
+                                                                                       RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                       RimFlowDiagSolution::UNDEFINED);
+
+    RigFlowDiagResultFrames* sumOfFractionsFrames = this->createScalarResult(resVarAddr);
+    std::vector<double>& sumOfFractions = sumOfFractionsFrames->frameData(frameIndex);
+
+    size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
+
+    calculateSumOfFractions(fractions, activeCellCount, &sumOfFractions);
+
+    return &sumOfFractions;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(const RigFlowDiagResultAddress &resVarAddr, size_t frameIndex)
+{
+    std::vector<int> selectedTracerIdxToGlobalTracerIdx;
+    {
+        selectedTracerIdxToGlobalTracerIdx.resize(resVarAddr.selectedTracerNames.size(), -1);
+
+        std::vector<QString> allTracerNames = m_flowDiagSolution->tracerNames();
+        int selTracerIdx = 0;
+        for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+        {
+            for ( int globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
+            {
+                if ( allTracerNames[globIdx].toStdString() == tracerName )
+                {
+                    selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = globIdx;
+                    break;
+                }
+            }
+
+            ++selTracerIdx;
+        }
+    }
+
+    size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
+
+    RigFlowDiagResultFrames* maxFractionTracerIdxFrames = this->createScalarResult(resVarAddr);
+    std::vector<double>& maxFractionTracerIdx = maxFractionTracerIdxFrames->frameData(frameIndex);
+    {
+
+        std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
+                                                                                           frameIndex,
+                                                                                           RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                           RimFlowDiagSolution::UNDEFINED);
+        maxFractionTracerIdx.resize(activeCellCount, HUGE_VAL);
+
+        std::vector<double> maxFraction;
+        maxFraction.resize(activeCellCount, -HUGE_VAL);
+
+        for ( size_t frIdx = 0; frIdx < fractions.size(); ++frIdx )
+        {
+            const std::vector<double> * fr = fractions[frIdx];
+
+            for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+            {
+                if ( (*fr)[acIdx] == HUGE_VAL ) continue;
+
+                if ( maxFraction[acIdx] < (*fr)[acIdx] )
+                {
+                    maxFraction[acIdx] =  (*fr)[acIdx];
+                    maxFractionTracerIdx[acIdx] = frIdx;
+                }
+            }
+        }
+    }
+
+    for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+    {
+        if ( maxFractionTracerIdx[acIdx] == HUGE_VAL ) continue;
+
+        double selectedTracerIdx = static_cast<int>(maxFractionTracerIdx[acIdx]);
+        maxFractionTracerIdx[acIdx] = selectedTracerIdxToGlobalTracerIdx[selectedTracerIdx];
+    }
+
+    return &maxFractionTracerIdx;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>* RigFlowDiagResults::calculateCommunicationResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
+{
+    std::vector<const std::vector<double>* > injectorFractions = findResultsForSelectedTracers(resVarAddr,
+                                                                                               frameIndex,
+                                                                                               RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                               RimFlowDiagSolution::INJECTOR);
+    std::vector<const std::vector<double>* > producerFractions = findResultsForSelectedTracers(resVarAddr,
+                                                                                               frameIndex,
+                                                                                               RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                               RimFlowDiagSolution::PRODUCER);
+    size_t activeCellCount =  this->activeCellInfo(resVarAddr)->reservoirActiveCellCount();
+
+    std::vector<double> sumOfInjectorFractions;
+    calculateSumOfFractions(injectorFractions, activeCellCount, &sumOfInjectorFractions);
+
+    std::vector<double> sumOfProducerFractions;
+    calculateSumOfFractions(producerFractions, activeCellCount, &sumOfProducerFractions);
+
+    RigFlowDiagResultFrames* commFrames = this->createScalarResult(resVarAddr);
+    std::vector<double>& commPI = commFrames->frameData(frameIndex);
+    commPI.resize(activeCellCount, HUGE_VAL);
+
+    for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+    {
+        if ( (sumOfInjectorFractions)[acIdx] == HUGE_VAL ) continue;
+        if ( (sumOfProducerFractions)[acIdx] == HUGE_VAL ) continue;
+
+        (commPI)[acIdx] =  (sumOfInjectorFractions)[acIdx] * (sumOfProducerFractions)[acIdx];
+    }
+
+    return &commPI;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr,
                                                                                            size_t frameIndex,
                                                                                            const std::string& nativeResultName,
                                                                                            RimFlowDiagSolution::TracerStatusType wantedTracerType)
