@@ -82,6 +82,10 @@ void RimFracture::computeGeometry()
     }
 
     // TODO: Modify coords by fracture center and orientation
+    for (int i = 0; i < nodeCoords.size(); i++ )
+    {
+        nodeCoords[i] = nodeCoords[i] + static_cast<cvf::Vec3f>(center);
+    }
 
     m_rigFracture->setGeometry(polygonIndices, nodeCoords);
 }

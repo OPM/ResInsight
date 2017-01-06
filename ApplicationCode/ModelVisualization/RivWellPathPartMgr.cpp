@@ -34,6 +34,7 @@
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
@@ -87,7 +88,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model)
+void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
     // Append well path fractures
     std::vector<RimFracture*> fractures;
@@ -101,7 +102,7 @@ void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model)
         fractures.push_back(f);
     }
 
-    RivWellFracturesPartMgr::appendFracturePartsToModel(fractures, model);
+    RivWellFracturesPartMgr::appendFracturePartsToModel(fractures, model, displayCoordTransform);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,7 +255,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
+    double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, caf::DisplayCoordTransform* displayCoordTransform)
 {
     RimWellPathCollection* wellPathCollection = NULL;
     m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
@@ -289,7 +290,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
         model->addPart(m_wellLabelPart.p());
     }
 
-    appendFracturePartsToModel(model);
+    appendFracturePartsToModel(model, displayCoordTransform);
 }
 
 //--------------------------------------------------------------------------------------------------

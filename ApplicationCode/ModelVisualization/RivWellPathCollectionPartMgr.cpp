@@ -23,6 +23,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RivWellPathPartMgr.h"
+#include "cafDisplayCoordTransform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +68,8 @@ void RivWellPathCollectionPartMgr::setScaleTransform(cvf::Transform * scaleTrans
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                    cvf::Transform* scaleTransform, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
+                                                                    cvf::Transform* scaleTransform, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, 
+                                                                    caf::DisplayCoordTransform* displayCoordTransform)
 {
     setScaleTransform(scaleTransform);
 
@@ -78,7 +80,7 @@ void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBa
     {
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
         partMgr->setScaleTransform(scaleTransform);
-        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
+        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
     }
 }
 

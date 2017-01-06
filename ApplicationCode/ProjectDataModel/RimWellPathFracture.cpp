@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RigTesselatorTools.h"
+
 #include "RimFractureDefinition.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
@@ -30,10 +32,10 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
 
-#include "QToolBox"
-#include "QList"
 #include "cvfVector3.h"
-#include "RigTesselatorTools.h"
+
+#include <QToolBox>
+#include <QList>
 
 
 

@@ -43,7 +43,7 @@ const std::vector<cvf::uint>& RigFracture::polygonIndices() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns node coordinates in domain coordinate system
 //--------------------------------------------------------------------------------------------------
 const std::vector<cvf::Vec3f>& RigFracture::nodeCoords() const
 {

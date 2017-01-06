@@ -20,6 +20,7 @@
 #include "RicWellPathFracturesDeleteAllFeature.h"
 
 #include "RimWellPathFractureCollection.h"
+#include "RimEclipseView.h"
 
 #include "cafSelectionManager.h"
 
@@ -59,11 +60,15 @@ void RicWellPathFracturesDeleteAllFeature::onActionTriggered(bool isChecked)
     if (objects.size() > 0)
     {
         fractureCollection = objects[0];
-    }
-
-    fractureCollection->deleteFractures();
+        fractureCollection->deleteFractures();
     
-    fractureCollection->uiCapability()->updateConnectedEditors();
+        fractureCollection->uiCapability()->updateConnectedEditors();
+
+        RimEclipseView* mainView = nullptr;
+        fractureCollection->firstAncestorOrThisOfType(mainView);
+        if (mainView) mainView->scheduleCreateDisplayModelAndRedraw();
+
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

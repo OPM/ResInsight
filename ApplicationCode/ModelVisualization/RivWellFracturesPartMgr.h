@@ -31,6 +31,11 @@ namespace cvf
      class ModelBasicList;
      class DrawableGeo;
 }
+namespace caf
+{
+    class DisplayCoordTransform;
+}
+
 
 class RimEclipseWell;
 class RimFracture;
@@ -47,7 +52,7 @@ public:
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 
-    static void appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model);
+    static void appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
 
 private:
     static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);

@@ -20,6 +20,13 @@
 
 #include "RiaApplication.h"
 
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+#include "RigTesselatorTools.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseView.h"
 #include "RimFractureDefinition.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
@@ -29,17 +36,12 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
-
-#include "QToolBox"
-#include "QList"
-#include "cvfVector3.h"
-#include "RigTesselatorTools.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCase.h"
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
 #include "cafDisplayCoordTransform.h"
+
+#include "cvfVector3.h"
+
+#include <QToolBox>
+#include <QList>
 
 
 
@@ -121,11 +123,7 @@ cvf::Vec3d RimSimWellFracture::centerPointForFracture()
     size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i, m_j, m_k);
     const RigCell& rigCell = mainGrid->cell(gridCellIndex);
     cvf::Vec3d center = rigCell.center();
-
-    cvf::ref<caf::DisplayCoordTransform> transForm = mainView->displayCoordTransform();
-    cvf::Vec3d displayCoord = transForm->transformToDisplayCoord(center);
-
-    return displayCoord;
+    return center;
 }
 
 //--------------------------------------------------------------------------------------------------

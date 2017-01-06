@@ -18,6 +18,7 @@
 
 #include "RivWellFracturesPartMgr.h"
 
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFracture.h"
 
@@ -28,6 +29,7 @@
 #include "cvfPart.h"
 #include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+#include "cafDisplayCoordTransform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -63,14 +65,27 @@ void RivWellFracturesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
             fracture->computeGeometry();
         }
     }
+
+    if (fractures.size() > 0)
+    {
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(fractures.at(0));
+    if (!objHandle) return;
+
+    RimEclipseView* mainView = nullptr;
+    objHandle->firstAncestorOrThisOfType(mainView);
+    if (!mainView) return;
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = mainView->displayCoordTransform();
+
+    appendFracturePartsToModel(fractures, model, transForm.p());
+    }
     
-    appendFracturePartsToModel(fractures, model);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model)
+void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
     for (RimFracture* fracture : fractures)
     {
@@ -78,8 +93,16 @@ void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture
         {
             const std::vector<cvf::Vec3f>& nodeCoords = fracture->nodeCoords();
             const std::vector<cvf::uint>& polygonIndices = fracture->polygonIndices();
+            std::vector<cvf::Vec3f> displayCoords;
+            
+            for (int i = 0; i < nodeCoords.size(); i++)
+            {
+                cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoords[i]);
+                cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
+                displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
+            }
 
-            cvf::ref<cvf::DrawableGeo> geo = createGeo(polygonIndices, nodeCoords);
+            cvf::ref<cvf::DrawableGeo> geo = createGeo(polygonIndices, displayCoords);
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setDrawable(geo.p());
