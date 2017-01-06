@@ -56,10 +56,8 @@ RimWellPathFracture::RimWellPathFracture(void)
     CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position along Well Path", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&ui_positionAtWellpath, "ui_positionAtWellpath", "Fracture Position at Well Path", "", "", "");
-    ui_positionAtWellpath.registerGetMethod(this, &RimWellPathFracture::wellPositionForUi);
-    ui_positionAtWellpath.registerSetMethod(this, &RimWellPathFracture::setWellPositionFromUi);
+    ui_positionAtWellpath.registerGetMethod(this, &RimWellPathFracture::fracturePositionForUi);
     ui_positionAtWellpath.uiCapability()->setUiReadOnly(true);
-
 
     CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
     CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
@@ -178,26 +176,15 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathFracture::wellPositionForUi() const
+cvf::Vec3d RimWellPathFracture::fracturePositionForUi() const
 {
-    cvf::Vec3d v = positionAtWellpath();
+    cvf::Vec3d v = positionAtWellpath;
 
     v.z() = -v.z();
 
     return v;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::setWellPositionFromUi(const cvf::Vec3d& vec)
-{
-    cvf::Vec3d v = vec;
-
-    v.z() = -v.z();
-
-    positionAtWellpath = v;
 }

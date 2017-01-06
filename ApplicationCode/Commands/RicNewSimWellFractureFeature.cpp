@@ -72,6 +72,8 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
         fracture->fractureDefinition = fracDef;
     }
 
+    fracture->setIJK(0, 0, 0);
+    fracture->setCellCenterPosition();
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);

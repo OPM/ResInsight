@@ -60,6 +60,14 @@ RimSimWellFracture::RimSimWellFracture(void)
     CAF_PDM_InitField(&m_j,               "J",                1,      "Fracture location cell J", "", "", "");
     CAF_PDM_InitField(&m_k,               "K",                1,      "Fracture location cell K", "", "", "");
 
+    CAF_PDM_InitField(&cellCenterPosition, "cellCenterPosition", cvf::Vec3d::ZERO, "Fracture Position cell center", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&ui_cellCenterPosition, "ui_cellCenterPosition", "Fracture Position cell center", "", "", "");
+    ui_cellCenterPosition.registerGetMethod(this, &RimSimWellFracture::fracturePositionForUi);
+    ui_cellCenterPosition.uiCapability()->setUiReadOnly(true);
+
+    cellCenterPosition.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDef", "FractureDef", "", "", "");
 
 }
@@ -120,7 +128,7 @@ cvf::Vec3d RimSimWellFracture::centerPointForFracture()
     const RigMainGrid* mainGrid = mainView->eclipseCase()->reservoirData()->mainGrid();
     if (!mainGrid) return undef;
 
-    size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i, m_j, m_k);
+    size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i-1, m_j-1, m_k-1); // cellIndexFromIJK uses 0-based indexing 
     const RigCell& rigCell = mainGrid->cell(gridCellIndex);
     cvf::Vec3d center = rigCell.center();
     return center;
@@ -132,6 +140,24 @@ cvf::Vec3d RimSimWellFracture::centerPointForFracture()
 RimFractureDefinition* RimSimWellFracture::attachedFractureDefinition()
 {
     return fractureDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+
+    if (changedField == &m_i || changedField == &m_j || changedField == &m_k)
+    {
+        cellCenterPosition = centerPointForFracture();
+    }
+
+    setRecomputeGeometryFlag();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfType(proj);
+    if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,6 +182,14 @@ void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::setCellCenterPosition()
+{
+    cellCenterPosition = centerPointForFracture();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
@@ -166,7 +200,20 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     geometryGroup->add(&m_i);
     geometryGroup->add(&m_j);
     geometryGroup->add(&m_k);
+    geometryGroup->add(&ui_cellCenterPosition);
 
     uiOrdering.setForgetRemainingFields(true);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimSimWellFracture::fracturePositionForUi() const
+{
+    cvf::Vec3d v = cellCenterPosition;
+
+    v.z() = -v.z();
+
+    return v;
 }

@@ -53,6 +53,8 @@ public:
 
 private:
     bool                            isRecomputeGeometryFlagSet();
+//    cvf::Vec3d                      fracturePositionForUi() const;
+
 
 private:
     cvf::ref<RigFracture>   m_rigFracture;

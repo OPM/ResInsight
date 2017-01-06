@@ -75,6 +75,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     fracture->name = "Simulation Well Fracture";
     fracture->setIJK(simWellItem->i, simWellItem->j, simWellItem->k);
+    fracture->setCellCenterPosition();
 
 
     RimOilField* oilfield = nullptr;

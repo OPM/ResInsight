@@ -67,8 +67,6 @@ public:
 
 protected:
     virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    cvf::Vec3d                                  fracturePositionForUi() const;
 
-private:
-    cvf::Vec3d                                  wellPositionForUi() const;
-    void                                        setWellPositionFromUi(const cvf::Vec3d& vec);
 };
