@@ -19,13 +19,13 @@
 
 #include "RigTimeHistoryResultAccessor.h"
 
-#include <cmath> // Needed for HUGE_VAL on Linux
-
+#include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigCaseCellResultsData.h"
 
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -25,6 +25,7 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigSingleWellResultsData.h"
 
 #include <QDebug>
 
@@ -53,6 +54,22 @@ RigCaseData::RigCaseData()
 RigCaseData::~RigCaseData()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RigCaseData::mainGrid()
+{
+    return m_mainGrid.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigMainGrid* RigCaseData::mainGrid() const
+{
+    return m_mainGrid.p();
 }
 
 //--------------------------------------------------------------------------------------------------

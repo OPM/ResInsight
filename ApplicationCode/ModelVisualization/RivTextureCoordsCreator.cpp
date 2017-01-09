@@ -32,6 +32,8 @@
 
 #include "RivResultToTextureMapper.h"
 
+#include "cvfStructGridGeometryGenerator.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

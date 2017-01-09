@@ -34,6 +34,8 @@
 #include "RivTernaryResultToTextureMapper.h"
 #include "RivTernaryScalarMapper.h"
 
+#include "cvfStructGridGeometryGenerator.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

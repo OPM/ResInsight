@@ -24,6 +24,7 @@
 #include "RiaVersionInfo.h"
 
 #include "RigCaseData.h"
+#include "RigGridBase.h"
 
 #include "RimCalcScript.h"
 #include "RimCase.h"
@@ -58,6 +59,8 @@
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeOrdering.h"
+
+#include "cvfBoundingBox.h"
 
 #include <QDir>
 #include <QMenu>

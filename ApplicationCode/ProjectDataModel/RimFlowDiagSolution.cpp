@@ -25,6 +25,7 @@
 #include "RigCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 

@@ -19,9 +19,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigReservoirBuilderMock.h"
-#include "RigCaseData.h"
-#include "RigActiveCellInfo.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigCaseData.h"
+#include "RigSingleWellResultsData.h"
 
 /* rand example: guess the number */
 #include <stdio.h>

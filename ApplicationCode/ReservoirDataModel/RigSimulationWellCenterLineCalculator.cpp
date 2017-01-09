@@ -18,11 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigSimulationWellCenterLineCalculator.h"
+
+#include "RigCaseData.h"
+#include "RigCell.h"
+
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
-#include "RimEclipseCase.h"
-#include "RigCaseData.h"
+
 #include "cvfRay.h"
 
 //--------------------------------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"

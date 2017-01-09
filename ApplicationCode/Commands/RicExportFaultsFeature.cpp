@@ -20,17 +20,21 @@
 #include "RicExportFaultsFeature.h"
 
 #include "RiaApplication.h"
-#include "cafSelectionManager.h"
+
+#include "RigCaseData.h"
+#include "RigFault.h"
+#include "RigMainGrid.h"
+
+#include "RimDefines.h"
+#include "RimEclipseCase.h"
 #include "RimFault.h"
+
+#include "cafSelectionManager.h"
+#include "cafUtils.h"
 
 #include <QAction>
 #include <QFileDialog>
-#include "RimEclipseCase.h"
-#include "RigFault.h"
-#include "RigMainGrid.h"
-#include "RigCaseData.h"
-#include "QMessageBox"
-#include "cafUtils.h"
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicExportFaultsFeature, "RicExportFaultsFeature");
 

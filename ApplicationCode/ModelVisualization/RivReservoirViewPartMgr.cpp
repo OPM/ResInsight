@@ -24,6 +24,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
+#include "RigCell.h"
 #include "RigGridBase.h"
 #include "RigResultAccessorFactory.h"
 

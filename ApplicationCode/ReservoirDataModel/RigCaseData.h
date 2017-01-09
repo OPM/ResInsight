@@ -20,19 +20,30 @@
 
 #pragma once
 
-//#include "RigActiveCellInfo.h"
-#include "RigCell.h"
-#include "RigSingleWellResultsData.h"
+
+#include "RifReaderInterface.h"
 
 #include "cvfAssert.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "cvfStructGrid.h"
 
 #include <vector>
 
 class RigCaseCellResultsData;
 class RigFormationNames;
+class RigMainGrid;
+class RigGridBase;
+class RigCaseCellResultsData;
+class RigActiveCellInfo;
+class RigSingleWellResultsData;
+class RigCell;
 
+struct RigWellResultPoint;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RigCaseData : public cvf::Object
 {
 public:
@@ -47,8 +58,8 @@ public:
     RigCaseData();
     ~RigCaseData();
 
-    RigMainGrid*                                mainGrid() { return m_mainGrid.p(); }
-    const RigMainGrid*                          mainGrid() const { return m_mainGrid.p(); }
+    RigMainGrid*                                mainGrid();
+    const RigMainGrid*                          mainGrid() const;
     void                                        setMainGrid(RigMainGrid* mainGrid);
 
     void                                        allGrids(std::vector<RigGridBase*>* grids); // To be removed

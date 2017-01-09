@@ -22,6 +22,7 @@
 #include "RigCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigGridBase.h"
 
 #include "RimGeoMechCase.h"
 
