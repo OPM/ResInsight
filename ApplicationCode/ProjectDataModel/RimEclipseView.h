@@ -40,6 +40,7 @@ class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
+class RigMainGrid;
 class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
 class RimCellEdgeColors;
@@ -112,8 +113,10 @@ public:
     RimEclipseCellColors*                           currentFaultResultColors();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
-    RimEclipseCase*                                 eclipseCase();
+    RimEclipseCase*                                 eclipseCase() const;
     virtual RimCase*                                ownerCase();
+
+    RigMainGrid*                                    mainGrid() const;
 
     // Display model generation
 

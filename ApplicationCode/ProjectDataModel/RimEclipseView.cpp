@@ -1157,7 +1157,7 @@ void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseView::eclipseCase()
+RimEclipseCase* RimEclipseView::eclipseCase() const
 {
     return m_reservoir;
 }
@@ -1527,6 +1527,19 @@ cvf::Transform* RimEclipseView::scaleTransform()
 RimCase* RimEclipseView::ownerCase()
 {
     return eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RimEclipseView::mainGrid() const
+{
+    if (eclipseCase() && eclipseCase()->reservoirData())
+    {
+        return eclipseCase()->reservoirData()->mainGrid();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
