@@ -17,12 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFlowDiagResults.h"
-#include "RigFlowDiagSolverInterface.h"
-#include "RimFlowDiagSolution.h"
-#include "RimEclipseResultCase.h"
-#include "RimEclipseCase.h"
+
+#include "RigActiveCellInfo.h"
 #include "RigCaseData.h"
+#include "RigFlowDiagSolverInterface.h"
 #include "RigFlowDiagStatCalc.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
+#include "RimFlowDiagSolution.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

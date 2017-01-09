@@ -28,10 +28,11 @@
 #include "RifReaderMockModel.h"
 #include "RifReaderSettings.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RimDefines.h"
 
+#include "RimDefines.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"

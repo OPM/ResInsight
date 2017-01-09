@@ -20,6 +20,7 @@
 
 #include "RigCaseData.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"

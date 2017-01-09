@@ -20,6 +20,7 @@
 
 #include "RimEclipseResultDefinition.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 

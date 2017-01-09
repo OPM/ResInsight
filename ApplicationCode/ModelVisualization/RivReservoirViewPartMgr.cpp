@@ -20,6 +20,7 @@
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"

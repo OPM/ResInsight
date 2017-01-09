@@ -17,15 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFlowDiagSolverInterface.h"
-#include "RimFlowDiagSolution.h"
-#include "RimEclipseResultCase.h"
-#include "RigCaseCellResultsData.h"
 
-#include "RigFlowDiagInterfaceTools.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RigCaseData.h"
-#include "RimEclipseCase.h"
 #include "RifReaderInterface.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigFlowDiagInterfaceTools.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
+#include "RimFlowDiagSolution.h"
+
 #include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------

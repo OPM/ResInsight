@@ -24,6 +24,7 @@
 
 #include "RiaApplication.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"

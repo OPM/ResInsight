@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RigActiveCellInfo.h"
+//#include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigSingleWellResultsData.h"
 

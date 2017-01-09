@@ -21,6 +21,8 @@
 #include "RifEclipseInputFileTools.h"
 
 #include "RifReaderEclipseOutput.h"
+
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
