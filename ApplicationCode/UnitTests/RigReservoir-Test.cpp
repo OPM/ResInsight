@@ -22,6 +22,7 @@
 
 #include "RigCaseData.h"
 #include "RigGridManager.h"
+#include "RigMainGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
