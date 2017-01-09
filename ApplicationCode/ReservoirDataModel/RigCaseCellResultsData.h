@@ -23,7 +23,6 @@
 #include "RifReaderInterface.h"
 
 #include "RimDefines.h"
-#include "RigStatisticsDataCache.h"
 
 #include <QDateTime>
 
@@ -33,6 +32,7 @@
 class RifReaderInterface;
 class RigMainGrid;
 class RigActiveCellInfo;
+class RigStatisticsDataCache;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
