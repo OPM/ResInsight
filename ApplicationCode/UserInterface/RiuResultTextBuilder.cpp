@@ -21,18 +21,20 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
-#include "RimEclipseCase.h"
 #include "RimCellEdgeColors.h"
-#include "RimEclipseFaultColors.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
+#include "RimEclipseView.h"
 #include "RimFormationNames.h"
-#include "RigFormationNames.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include "cafDisplayCoordTransform.h"
 
 
 
@@ -134,7 +136,7 @@ QString RiuResultTextBuilder::topologyText(QString itemSeparator)
 {
     QString text;
 
-    if (m_reservoirView->eclipseCase())
+    if (m_reservoirView && m_reservoirView->eclipseCase())
     {
         const RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
         if (eclipseCase)
@@ -161,7 +163,9 @@ QString RiuResultTextBuilder::topologyText(QString itemSeparator)
                 }
             }
 
-            cvf::Vec3d domainCoord = m_intersectionPoint + eclipseCase->grid(0)->displayModelOffset();
+            
+            cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+            cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
 
             QString formattedText;
             formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
