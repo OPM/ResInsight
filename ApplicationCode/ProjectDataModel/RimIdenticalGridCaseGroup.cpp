@@ -22,22 +22,26 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigGridManager.h"
-#include "RimEclipseCase.h"
+#include "RigMainGrid.h"
+
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
-#include "RigCaseCellResultsData.h"
+#include "RimEclipseView.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafProgressInfo.h"
-#include "RiuMainWindow.h"
-#include <QMessageBox>
+
 #include <QDir>
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 

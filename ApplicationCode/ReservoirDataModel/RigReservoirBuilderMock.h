@@ -26,6 +26,7 @@
 #include "cvfVector3.h"
 #include "RigCell.h"
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 class LocalGridRefinement
 {

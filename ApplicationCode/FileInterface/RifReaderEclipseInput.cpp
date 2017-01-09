@@ -21,7 +21,9 @@
 #include "RifReaderEclipseInput.h"
 
 #include "RifEclipseInputFileTools.h"
+
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 //==================================================================================================
 //

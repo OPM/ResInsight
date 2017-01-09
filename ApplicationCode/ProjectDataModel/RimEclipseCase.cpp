@@ -25,6 +25,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"

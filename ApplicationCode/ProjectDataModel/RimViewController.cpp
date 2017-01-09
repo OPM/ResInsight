@@ -21,11 +21,12 @@
 
 #include "RiaApplication.h"
 
-//#include "RigCaseData.h"
+#include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
 #include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"

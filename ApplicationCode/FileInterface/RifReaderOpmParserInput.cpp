@@ -21,10 +21,14 @@
 #include "RifReaderEclipseOutput.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
+
 #include "RimEclipseInputCaseOpm.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
+
 #include "RiuMainWindow.h"
+
 #include "RiuProcessMonitor.h"
 
 #include "cafProgressInfo.h"

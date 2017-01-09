@@ -26,6 +26,7 @@
 
 #include "RigCaseData.h"
 #include "RigCell.h"
+#include "RigMainGrid.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"

@@ -28,6 +28,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigGeoMechCaseData.h"
+#include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
 #include "RimCellEdgeColors.h"

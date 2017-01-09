@@ -21,13 +21,16 @@
 #include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
+
 #include "RigCaseData.h"
 #include "RigGridManager.h"
-#include "RimEclipseCase.h"
+#include "RigMainGrid.h"
+
 #include "RimCaseCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
-#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimEclipseCaseCollection, "ResInsightAnalysisModels");

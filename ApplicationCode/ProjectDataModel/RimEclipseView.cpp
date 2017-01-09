@@ -25,23 +25,27 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFlowDiagSolution.h"
 #include "RimGridCollection.h"
+#include "RimIntersection.h"
+#include "RimIntersectionCollection.h"
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -76,9 +80,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "RimEclipseResultDefinition.h"
-#include "RimFlowDiagSolution.h"
-#include "RigFlowDiagResults.h"
 
 
 

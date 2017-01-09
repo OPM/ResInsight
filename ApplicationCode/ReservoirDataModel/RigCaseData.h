@@ -20,14 +20,15 @@
 
 #pragma once
 
-#include <vector>
+#include "RigActiveCellInfo.h"
 #include "RigCell.h"
-#include "cvfVector3.h"
+#include "RigSingleWellResultsData.h"
+
 #include "cvfAssert.h"
 #include "cvfObject.h"
-#include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
-#include "RigActiveCellInfo.h"
+#include "cvfVector3.h"
+
+#include <vector>
 
 class RigCaseCellResultsData;
 class RigFormationNames;
@@ -84,6 +85,7 @@ private:
     void                                        computeActiveCellIJKBBox();
     void                                        computeWellCellsPrGrid();
     void                                        computeActiveCellsGeometryBoundingBox();
+
 private:
     cvf::ref<RigMainGrid>                       m_mainGrid;
 
@@ -100,5 +102,4 @@ private:
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
     UnitsType                                   m_unitsType;
-
 };

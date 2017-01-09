@@ -23,6 +23,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"

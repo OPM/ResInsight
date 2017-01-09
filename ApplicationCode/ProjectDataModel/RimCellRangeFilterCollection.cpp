@@ -25,7 +25,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGridBase.h"
+#include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

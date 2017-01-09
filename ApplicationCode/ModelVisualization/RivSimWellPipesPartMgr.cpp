@@ -22,6 +22,8 @@
 
 #include "RigCaseData.h"
 #include "RigCell.h"
+#include "RigMainGrid.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -49,7 +51,6 @@
 #include "cvfRay.h"
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfTransform.h"
-#include "RigSimulationWellCenterLineCalculator.h"
 
 
 //--------------------------------------------------------------------------------------------------

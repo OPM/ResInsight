@@ -23,7 +23,7 @@
 #include "RiaPreferences.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 
 #include "RimEclipseCase.h"
