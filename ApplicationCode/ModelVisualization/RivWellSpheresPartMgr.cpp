@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
@@ -73,7 +72,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
     if (!m_rimReservoirView->eclipseCase()) return;
     if (!m_rimReservoirView->eclipseCase()->reservoirData()) return;   
     
-    const RigMainGrid* mainGrid = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid();
+    const RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
     CVF_ASSERT(mainGrid);
 
     RigSingleWellResultsData* rigWellResult = m_rimWell->wellResults();
@@ -152,7 +151,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf:
     vectorDrawable->setColors(colors.p());
 
     cvf::GeometryBuilderTriangles builder;
-    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+    double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
     double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
     cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
 

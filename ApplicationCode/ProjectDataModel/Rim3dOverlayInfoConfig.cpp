@@ -331,19 +331,19 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         QString iSize, jSize, kSize;
         QString zScale;
 
-        if (eclipseView->eclipseCase() && eclipseView->eclipseCase()->reservoirData() && eclipseView->eclipseCase()->reservoirData()->mainGrid())
+        if (eclipseView->mainGrid())
         {
             caseName = eclipseView->eclipseCase()->caseUserDescription();
-            totCellCount = QString::number(eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray().size());
+            totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
             size_t mxActCellCount = eclipseView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount();
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
             activeCellCountText += QString::number(mxActCellCount);
             if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
 
-            iSize = QString::number(eclipseView->eclipseCase()->reservoirData()->mainGrid()->cellCountI());
-            jSize = QString::number(eclipseView->eclipseCase()->reservoirData()->mainGrid()->cellCountJ());
-            kSize = QString::number(eclipseView->eclipseCase()->reservoirData()->mainGrid()->cellCountK());
+            iSize = QString::number(eclipseView->mainGrid()->cellCountI());
+            jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
+            kSize = QString::number(eclipseView->mainGrid()->cellCountK());
 
             zScale = QString::number(eclipseView->scaleZ());
 

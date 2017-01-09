@@ -20,7 +20,6 @@
 #include "RivIntersectionPartMgr.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -43,16 +42,18 @@
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
 
+#include "RiuGeoMechXfTensorResultAccessor.h"
+
+#include "cafTensor3.h"
 #include "cvfDrawableGeo.h"
+#include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
-#include "cafTensor3.h"
-#include "cvfGeometryTools.h"
-#include "RiuGeoMechXfTensorResultAccessor.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -737,7 +738,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
     if (eclipseView)
     {
         RigMainGrid* grid = NULL;
-        grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+        grid = eclipseView->mainGrid();
         return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
     }
 

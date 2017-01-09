@@ -104,7 +104,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(m_rimWell.p(), m_pipeBranchesCLCoords, pipeBranchesCellIds);
 
-    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+    double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
 
@@ -127,7 +127,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
         cvfCoords->assign(m_pipeBranchesCLCoords[brIdx]);
         
         // Scale the centerline coordinates using the Z-scale transform of the grid and correct for the display offset.
-        const RigMainGrid* mainGrid = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid();
+        const RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
 
         for (size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx)
         {
