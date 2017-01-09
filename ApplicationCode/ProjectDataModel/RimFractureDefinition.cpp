@@ -114,11 +114,11 @@ void RimFractureDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry definition");
     geometryGroup->add(&halfLength);
     geometryGroup->add(&height);
-    geometryGroup->add(&width);
     geometryGroup->add(&orientation);
 
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fracture properties");
     group->add(&permeability);
+    group->add(&width);
     group->add(&skinFactor);
 }
