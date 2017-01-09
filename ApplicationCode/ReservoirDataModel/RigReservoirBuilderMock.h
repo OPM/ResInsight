@@ -24,9 +24,18 @@
 #include "cvfObject.h"
 #include "cvfArray.h"
 #include "cvfVector3.h"
-#include "RigCell.h"
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
+
+//#include "RigCell.h"
+//#include "RigCaseData.h"
+//#include "RigMainGrid.h"
+
+class RigCaseData;
+class RigMainGrid;
+class RigConnection;
+class RigGridBase;
+class RigCell;
+
+class QString;
 
 class LocalGridRefinement
 {

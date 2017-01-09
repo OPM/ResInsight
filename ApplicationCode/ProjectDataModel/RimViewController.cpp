@@ -21,7 +21,6 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
 #include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigFemPartCollection.h"
@@ -857,7 +856,7 @@ bool RimViewController::isRangeFilterMappingApliccable() const
     {
         if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase() && geomView->geoMechCase()->geoMechData())
         {
-            RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+            RigMainGrid* eclGrid = eclipseView->mainGrid();
             RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
 
             if (eclGrid && femPart)

@@ -22,7 +22,6 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RigCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"

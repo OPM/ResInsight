@@ -19,7 +19,6 @@
 
 #include "RimWellLogPlotCollection.h"
 
-#include "RigCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"

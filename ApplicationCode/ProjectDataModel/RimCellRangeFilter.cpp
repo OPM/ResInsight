@@ -22,7 +22,6 @@
 #include "RimCellRangeFilter.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 

@@ -20,7 +20,6 @@
 
 #include "RimCellRangeFilterCollection.h"
 
-#include "RigCaseData.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"

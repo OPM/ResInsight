@@ -3,8 +3,6 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RigCaseData.h"
-
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"

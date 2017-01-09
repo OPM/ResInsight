@@ -29,6 +29,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimMockModelSettings.h"
 #include "RimProject.h"

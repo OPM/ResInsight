@@ -22,6 +22,8 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseData.h"
+#include "RigCell.h"
+#include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
 
 /* rand example: guess the number */

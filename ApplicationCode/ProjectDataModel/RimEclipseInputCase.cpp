@@ -31,6 +31,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimDefines.h"
 #include "RimEclipseInputProperty.h"

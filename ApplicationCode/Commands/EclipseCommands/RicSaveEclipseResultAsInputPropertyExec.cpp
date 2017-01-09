@@ -24,7 +24,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseCase.h"
 
-#include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
 #include "RifEclipseInputFileTools.h"

@@ -19,8 +19,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderMockModel.h"
-#include "RigCaseCellResultsData.h"
+
 #include "RifReaderInterface.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
