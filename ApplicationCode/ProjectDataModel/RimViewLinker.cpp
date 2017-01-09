@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
@@ -547,12 +547,9 @@ void RimViewLinker::updateCamera(RimView* sourceView)
     cvf::BoundingBox sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
 
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(sourceView);
-    if (eclipseView
-        && eclipseView->eclipseCase()
-        && eclipseView->eclipseCase()->reservoirData()
-        && eclipseView->eclipseCase()->reservoirData()->mainGrid())
+    if (eclipseView && eclipseView->mainGrid())
     {
-        cvf::Vec3d offset = eclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
+        cvf::Vec3d offset = eclipseView->mainGrid()->displayModelOffset();
         offset.z() *= eclipseView->scaleZ();
 
         sourceCamGlobalEye += offset;
@@ -578,12 +575,9 @@ void RimViewLinker::updateCamera(RimView* sourceView)
             cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
 
             RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(destinationView);
-            if (destEclipseView
-                && destEclipseView->eclipseCase()
-                && destEclipseView->eclipseCase()->reservoirData()
-                && destEclipseView->eclipseCase()->reservoirData()->mainGrid())
+            if (destEclipseView && destEclipseView->mainGrid())
             {
-                cvf::Vec3d destOffset = destEclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
+                cvf::Vec3d destOffset = destEclipseView->mainGrid()->displayModelOffset();
                 destOffset.z() *= destEclipseView->scaleZ();
 
                 cvf::Vec3d destinationCamEye = sourceCamGlobalEye - destOffset;

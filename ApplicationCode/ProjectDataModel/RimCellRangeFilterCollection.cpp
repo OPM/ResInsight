@@ -107,16 +107,13 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
 {
     RimEclipseView* eclipseView = this->eclipseView();
-    if (eclipseView &&
-        eclipseView->eclipseCase() &&
-        eclipseView->eclipseCase()->reservoirData() &&
-        eclipseView->eclipseCase()->reservoirData()->mainGrid())
+    if (eclipseView && eclipseView->mainGrid())
     {
 
-        return eclipseView->eclipseCase()->reservoirData()->mainGrid();
+        return eclipseView->mainGrid();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

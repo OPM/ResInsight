@@ -465,7 +465,7 @@ void RimEclipseView::createDisplayModel()
 */
     // Well path model
 
-    RigMainGrid* mainGrid = eclipseCase()->reservoirData()->mainGrid();
+    RigMainGrid* mainGrid = this->mainGrid();
 
     m_wellPathPipeVizModel->removeAllParts();
     addWellPathsToModel(m_wellPathPipeVizModel.p(),
@@ -1589,7 +1589,7 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
 {
     size_t gridCount = this->eclipseCase()->reservoirData()->gridCount();
-    size_t cellCount = this->eclipseCase()->reservoirData()->mainGrid()->globalCellArray().size();
+    size_t cellCount = this->mainGrid()->globalCellArray().size();
 
     totalVisibility->resize(cellCount);
     totalVisibility->setAll(false);

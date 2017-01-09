@@ -185,11 +185,11 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::syncronizeFaults()
 {
-    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid()) ) return;
+    if (!(m_reservoirView && m_reservoirView->mainGrid()) ) return;
 
     cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
 
-    const cvf::Collection<RigFault> constRigFaults = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->faults();
+    const cvf::Collection<RigFault> constRigFaults = m_reservoirView->mainGrid()->faults();
 
     cvf::Collection<RigFault> rigFaults;
     {
@@ -270,7 +270,7 @@ void RimFaultCollection::syncronizeFaults()
     // NNCs
     this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
 
-    RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+    RigMainGrid* mainGrid = m_reservoirView->mainGrid();
     std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
     for (size_t i = 0; i < nncConnections.size(); i++)
     {
@@ -397,7 +397,7 @@ void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::addMockData()
 {
-    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())) return;
+    if (!(m_reservoirView && m_reservoirView->mainGrid())) return;
 
 }
 

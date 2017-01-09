@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
+//#include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
 #include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigFemPartCollection.h"
@@ -570,14 +570,14 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     RigFemPart*  masterFemPart = NULL;
     RigFemPart*  dependFemPart = NULL;
 
-    if (masterEclipseView && masterEclipseView->eclipseCase()->reservoirData())
+    if (masterEclipseView)
     {
-        masterEclGrid = masterEclipseView->eclipseCase()->reservoirData()->mainGrid();
+        masterEclGrid = masterEclipseView->mainGrid();
     }
 
-    if (dependEclipseView && dependEclipseView->eclipseCase()->reservoirData())
+    if (dependEclipseView)
     {
-        dependEclGrid = dependEclipseView->eclipseCase()->reservoirData()->mainGrid();
+        dependEclGrid = dependEclipseView->mainGrid();
     }
 
     if (masterGeomechView && masterGeomechView->geoMechCase()->geoMechData()
@@ -971,9 +971,9 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 
             if (eclipseMasterView && depGeomView)
             {
-                if (eclipseMasterView->eclipseCase()->reservoirData())
+                if (eclipseMasterView->mainGrid())
                 {
-                    RigMainGrid* srcEclGrid = eclipseMasterView->eclipseCase()->reservoirData()->mainGrid();
+                    RigMainGrid* srcEclGrid = eclipseMasterView->mainGrid();
                     RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
@@ -986,10 +986,10 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
             }
             else if (geoMasterView && depEclView)
             {
-                if (depEclView->eclipseCase()->reservoirData())
+                if (depEclView->mainGrid())
                 {
                     RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
-                    RigMainGrid* dstEclGrid = depEclView->eclipseCase()->reservoirData()->mainGrid();
+                    RigMainGrid* dstEclGrid = depEclView->mainGrid();
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
                         RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];

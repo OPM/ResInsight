@@ -32,6 +32,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
@@ -254,8 +255,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 }
 
                 // Hide faults command
-                const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-                const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+                const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
                 if (fault)
                 {
                     menu.addSeparator();
@@ -400,8 +400,7 @@ void RiuViewerCommands::slotHideFault()
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if(!eclipseView) return;
 
-    const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-    const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+    const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
     if (fault)
     {
         QString faultName = fault->name();
@@ -641,7 +640,7 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionSourceInfo* cr
     {
         size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
 
-        const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
+        const RigCell& cell = eclipseView->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex = cell.gridLocalCellIndex();
         *gridIndex = cell.hostGrid()->gridIndex();
     }
@@ -665,7 +664,7 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo*
     {
         size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
 
-        const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
+        const RigCell& cell = eclipseView->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex = cell.gridLocalCellIndex();
         *gridIndex = cell.hostGrid()->gridIndex();
     }
@@ -691,9 +690,9 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
 
-        if (eclipseView && eclipseView->eclipseCase())
+        if (eclipseView && eclipseView->mainGrid())
         {
-            double characteristicCellSize = eclipseView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+            double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
             pickDepthThresholdSquared = characteristicCellSize / 100.0;
             pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
         }
