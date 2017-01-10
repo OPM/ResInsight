@@ -91,6 +91,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.h
 ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.h
+${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.h
 
 )
 
@@ -181,6 +182,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

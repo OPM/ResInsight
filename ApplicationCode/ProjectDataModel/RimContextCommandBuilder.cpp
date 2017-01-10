@@ -33,6 +33,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimFault.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
@@ -340,6 +341,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
             commandIds << "RicNewSimWellIntersectionFeature";
+        }
+        else if (dynamic_cast<RimEclipseWellCollection*>(uiItem))
+        {
+            commandIds << "RicExportFractureWellCompletionFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {

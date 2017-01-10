@@ -21,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RifReaderOpmParserInput.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseWellCompletionExporter.h
+${CEE_CURRENT_LIST_DIR}RifEclipseExportTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -40,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderOpmParserInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseWellCompletionExporter.cpp
+${CEE_CURRENT_LIST_DIR}RifEclipseExportTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
