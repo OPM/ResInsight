@@ -77,7 +77,7 @@ void RicExportFractureWellCompletionFeature::onActionTriggered(bool isChecked)
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Fracture Well Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, eclipseWellColl);
+        bool isOk = RifEclipseExportTools::writeSimWellFracturesToTextFile(exportSettings.fileName, eclipseWellColl);
 
         if (!isOk)
         {

@@ -29,7 +29,7 @@
 
 
 class RimEclipseWellCollection;
-class RimFracture;
+class RimSimWellFracture;
 class QFile;
 
 
@@ -47,11 +47,11 @@ public:
     virtual ~RifEclipseExportTools();
 
 
-    static bool     writeFracturesToTextFile(const QString& fileName, RimEclipseWellCollection* wellColl);
+    static bool     writeSimWellFracturesToTextFile(const QString& fileName, RimEclipseWellCollection* wellColl);
 
 
 private:
-    static void     writeFractureDataToTextFile(QFile* file, const std::vector<RimFracture*>& fractures);
+    static void     writeSimWellFractureDataToTextFile(QFile* file, const std::vector<RimSimWellFracture*>& fractures);
 
 
 };

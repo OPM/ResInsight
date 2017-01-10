@@ -181,6 +181,19 @@ void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimSimWellFracture::getIJK()
+{
+    std::vector<size_t> ijk;
+    ijk.push_back(m_i);
+    ijk.push_back(m_j);
+    ijk.push_back(m_k);
+    
+    return ijk;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::setCellCenterPosition()
 {
     cellCenterPosition = centerPointForFracture();

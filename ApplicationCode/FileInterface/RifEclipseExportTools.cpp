@@ -19,6 +19,7 @@
 #include "RifEclipseExportTools.h"
 
 #include "RimFracture.h"
+#include "RimFractureDefinition.h"
 #include "RimEclipseWellCollection.h"
 #include "RimEclipseView.h"
 
@@ -26,6 +27,8 @@
 
 #include <QTextStream>
 #include <QFile>
+#include "RimSimWellFracture.h"
+#include "RimEclipseWell.h"
 
 
 
@@ -50,10 +53,10 @@ RifEclipseExportTools::~RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, RimEclipseWellCollection* wellColl)
+bool RifEclipseExportTools::writeSimWellFracturesToTextFile(const QString& fileName, RimEclipseWellCollection* wellColl)
 {
 
-    std::vector<RimFracture*> fractures;
+    std::vector<RimSimWellFracture*> fractures;
     wellColl->descendantsIncludingThisOfType(fractures);
 
     QFile file(fileName);
@@ -62,7 +65,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, Ri
         return false;
     }
 
-    writeFractureDataToTextFile(&file, fractures);
+    writeSimWellFractureDataToTextFile(&file, fractures);
 
 
     return true;
@@ -72,25 +75,57 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::writeFractureDataToTextFile(QFile* file, const std::vector<RimFracture*>& fractures)
+void RifEclipseExportTools::writeSimWellFractureDataToTextFile(QFile* file, const std::vector<RimSimWellFracture*>& fractures)
 {
     QTextStream out(file);
     out << "\n";
-    out << "-- Exported from ResInsight" << "\n";
-    out << "COMPDAT" << "\n" << right << qSetFieldWidth(16);
+    out << "-- Exported from ResInsight" << "\n\n";
+    out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
 
     caf::ProgressInfo pi(fractures.size(), QString("Writing data to file %1").arg(file->fileName()));
-    size_t progressSteps = fractures.size() / 20;
+
+    RimSimWellFracture* fracture;
+    RimEclipseWell* simWell = nullptr;
 
     size_t i;
+    std::vector<size_t> ijk;
     for (i = 0; i < fractures.size(); i++)
     {
-        out << fractures.at(i);
-        out << "\n";
+        fracture = fractures.at(i);
+        
+        out << qSetFieldWidth(8);
+        fracture->firstAncestorOrThisOfType(simWell);
+        out << simWell->name;;  // 1. Well name 
+
+        out << qSetFieldWidth(5);
+        ijk = fracture->getIJK();
+        out << ijk[0];          // 2. I location grid block
+        out << ijk[1];          // 3. J location grid block
+        out << ijk[2];          // 4. K location of upper connecting grid block
+        out << ijk[2];          // 5. K location of lower connecting grid block
+
+        out << "OPEN";          // 6. Open / Shut flag of connection
+        out << "1* ";            // 7. Saturation table number for connection rel perm. Default value
+
+        out << qSetFieldWidth(8);
+        out << 123456789;         // 8. Transmissitivity //TODO: Calculate value
+
+        out << qSetFieldWidth(4);
+        out << "1* ";            // 9. Well bore diameter. Set to default
+
+        out << qSetFieldWidth(8);
+        out << fracture->fractureDefinition->effectiveKh(); // 10. Effective Kh (perm times width)
+        out << qSetFieldWidth(4);
+        out << fracture->fractureDefinition->skinFactor;    // 11. Skin factor
+
+        out << "1*";            // 12. D-factor for handling non-Darcy flow of free gas. Default value. 
+        out << "Z";             // 13. Direction well is penetrating the grid block. Z is default. 
+        out << "1*";            // 14. Pressure equivalent radius, Default
+
+        out << "/" << "\n";
 
         pi.setProgress(i);
     }
 
-    out << "\n" << "/" << "\n";
 }
 
