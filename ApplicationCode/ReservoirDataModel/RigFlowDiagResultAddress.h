@@ -38,8 +38,9 @@ public:
         selectedTracerNames.insert(tracerName);
     }
 
-    bool isNativeResult() const { return ( ( (variableName == RIG_FLD_TOF_RESNAME) || (variableName == RIG_FLD_CELL_FRACTION_RESNAME) ) && selectedTracerNames.size() <= 1); }
+    bool isNativeResult() const;
 
+    std::string uiText();
     std::string           variableName;
     std::set<std::string> selectedTracerNames;
 

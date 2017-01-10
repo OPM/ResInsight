@@ -20,29 +20,13 @@
 
 #include "RiaSocketServer.h"
 #include "RiaSocketCommand.h"
-#include "RiaSocketTools.h"
 
 #include "RiaApplication.h"
 
-#include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
-#include "RigGridBase.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCaseCollection.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimOilField.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimScriptCollection.h"
+#include "RimCase.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"

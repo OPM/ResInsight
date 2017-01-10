@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const auto tof = fwd.fd.timeOfFlight();
 
         BOOST_REQUIRE_EQUAL(tof.size(), cas.connectivity().numCells());
-        std::vector<double> expected = { 1.0, 2.0, 3.0, 4.0, 0.0 };
+        std::vector<double> expected = { 1.0, 2.0, 3.0, 4.0, 5.0 };
         check_is_close(tof, expected);
     }
 
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const auto tof = rev.fd.timeOfFlight();
 
         BOOST_REQUIRE_EQUAL(tof.size(), cas.connectivity().numCells());
-        std::vector<double> expected = { 0.0, 4.0, 3.0, 2.0, 1.0 };
+        std::vector<double> expected = { 5.0, 4.0, 3.0, 2.0, 1.0 };
         check_is_close(tof, expected);
     }
 
@@ -438,5 +438,199 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
     }
 
 }
+
+// Arrows indicate a flux of 0.3, O is a source of 0.3
+// and X is a sink of 0.3 (each cell has a pore volume of 0.3).
+//  ----------------------------
+//  |       |        |         |
+//  |   O   ->       ->        |
+//  |       |        ->        |
+//  |       |        |    ||   |
+//  -------------^--------VV----
+//  |       |    |   |         |
+//  |       |        |         |
+//  |   O   ->       |   XX    |
+//  |       |        |         |
+//  ----------------------------
+// Cell indices:
+//  ----------------------------
+//  |       |        |         |
+//  |       |        |         |
+//  |   3   |    4   |    5    |
+//  |       |        |         |
+//  ----------------------------
+//  |       |        |         |
+//  |       |        |         |
+//  |   0   |    1   |    2    |
+//  |       |        |         |
+//  ----------------------------
+// Expected global injection TOF:
+//  ----------------------------
+//  |       |        |         |
+//  |       |        |         |
+//  |   1.0 |    2.0 |    2.5  |
+//  |       |        |         |
+//  ----------------------------
+//  |       |        |         |
+//  |       |        |         |
+//  |   1.0 |    2.0 |    3.0  |
+//  |       |        |         |
+//  ----------------------------
+// Expected global production TOF:
+//  ----------------------------
+//  |       |        |         |
+//  |       |        |         |
+//  |   2.5 |    1.5 |    1.0  |
+//  |       |        |         |
+//  ----------------------------
+//  |       |        |         |
+//  |       |        |         |
+//  |   3.5 |    2.5 |    0.5  |
+//  |       |        |         |
+//  ----------------------------
+BOOST_AUTO_TEST_CASE (LocalSolutions)
+{
+    using namespace Opm::FlowDiagnostics;
+
+    const auto cas = Setup(3, 2);
+    const auto& graph = cas.connectivity();
+
+    // Create fluxes.
+    ConnectionValues flux(ConnectionValues::NumConnections{ graph.numConnections() },
+                          ConnectionValues::NumPhases     { 1 });
+    const size_t nconn = cas.connectivity().numConnections();
+    for (size_t conn = 0; conn < nconn; ++conn) {
+        BOOST_TEST_MESSAGE("Connection " << conn << " connects cells "
+                           << graph.connection(conn).first << " and "
+                           << graph.connection(conn).second);
+    }
+
+    using C = ConnectionValues::ConnID;
+    using P = ConnectionValues::PhaseID;
+    flux(C{0}, P{0}) = 0.3;
+    flux(C{1}, P{0}) = 0.0;
+    flux(C{2}, P{0}) = 0.3;
+    flux(C{3}, P{0}) = 0.6;
+    flux(C{4}, P{0}) = 0.0;
+    flux(C{5}, P{0}) = 0.3;
+    flux(C{6}, P{0}) = -0.6;
+
+    // Create well in/out flows.
+    CellSetValues wellflow = { {0, 0.3}, {3, 0.3}, {2, -0.6} };
+
+    Toolbox diagTool(graph);
+    diagTool.assignPoreVolume(cas.poreVolume());
+    diagTool.assignConnectionFlux(flux);
+    diagTool.assignInflowFlux(wellflow);
+
+    auto injstart = std::vector<CellSet>{ CellSet(CellSetID("I-1"), {0}),
+                                          CellSet(CellSetID("I-2"), {3}) };
+    auto prdstart = std::vector<CellSet>{ CellSet(CellSetID("P-1"), {2}) };
+
+    const auto fwd = diagTool.computeInjectionDiagnostics(injstart);
+    const auto rev = diagTool.computeProductionDiagnostics(prdstart);
+
+    // Global ToF field (accumulated from all injectors)
+    {
+        const auto tof = fwd.fd.timeOfFlight();
+
+        BOOST_REQUIRE_EQUAL(tof.size(), cas.connectivity().numCells());
+        std::vector<double> expected = { 1.0, 2.0, 3.0, 1.0, 2.0, 2.5 };
+        check_is_close(tof, expected);
+    }
+
+    // Global ToF field (accumulated from all producers)
+    {
+        const auto tof = rev.fd.timeOfFlight();
+
+        BOOST_REQUIRE_EQUAL(tof.size(), cas.connectivity().numCells());
+        std::vector<double> expected = { 3.5, 2.5, 0.5, 2.5, 1.5, 1.0 };
+        check_is_close(tof, expected);
+    }
+
+    // Verify set of start points.
+    {
+        using VCS = std::vector<Opm::FlowDiagnostics::CellSet>;
+        using VCSI = std::vector<Opm::FlowDiagnostics::CellSetID>;
+        using P = std::pair<VCS, VCSI>;
+        std::vector<P> pairs { P{ injstart, fwd.fd.startPoints() }, P{ prdstart, rev.fd.startPoints() } };
+        for (const auto& p : pairs) {
+            const auto& s1 = p.first;
+            const auto& s2 = p.second;
+            BOOST_CHECK_EQUAL(s1.size(), s2.size());
+            for (const auto& pt : s2) {
+                // ID of 'pt' *MUST* be in set of identified start points.
+                auto pos = std::find_if(s1.begin(), s1.end(),
+                                        [&pt](const CellSet& s)
+                                        {
+                                            return s.id().to_string() == pt.to_string();
+                                        });
+                BOOST_CHECK(pos != s1.end());
+            }
+        }
+    }
+
+    // Local I-1 tracer concentration.
+    {
+        const auto conc = fwd.fd.concentration(CellSetID("I-1"));
+        std::vector<std::pair<int, double>> expected = { {0, 1.0}, {1, 1.0}, {2, 0.5}, {4, 0.5}, {5, 0.5} };
+        BOOST_REQUIRE_EQUAL(conc.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : conc) {
+            BOOST_TEST_MESSAGE("Conc[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
+    }
+
+    // Local I-1 tof.
+    {
+        const auto tof = fwd.fd.timeOfFlight(CellSetID("I-1"));
+        std::vector<std::pair<int, double>> expected = { {0, 1.0}, {1, 2.0}, {2, 3.5}, {4, 2.5}, {5, 3.0} };
+        BOOST_REQUIRE_EQUAL(tof.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : tof) {
+            BOOST_TEST_MESSAGE("ToF[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
+    }
+
+    // Local I-2 tracer concentration.
+    {
+        const auto conc = fwd.fd.concentration(CellSetID("I-2"));
+        std::vector<std::pair<int, double>> expected = { {2, 0.5}, {3, 1.0}, {4, 0.5}, {5, 0.5} };
+        BOOST_REQUIRE_EQUAL(conc.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : conc) {
+            BOOST_TEST_MESSAGE("Conc[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
+    }
+
+    // Local I-2 tof.
+    {
+        const auto tof = fwd.fd.timeOfFlight(CellSetID("I-2"));
+        std::vector<std::pair<int, double>> expected = { {2, 2.5}, {3, 1.0}, {4, 1.5}, {5, 2.0} };
+        BOOST_REQUIRE_EQUAL(tof.size(), expected.size());
+
+        int i = 0;
+        for (const auto& v : tof) {
+            BOOST_TEST_MESSAGE("ToF[" << v.first << "] = " << v.second);
+            BOOST_CHECK_EQUAL(v.first, expected[i].first);
+            BOOST_CHECK_CLOSE(v.second, expected[i].second, 1.0e-10);
+            ++i;
+        }
+    }
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

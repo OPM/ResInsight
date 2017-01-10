@@ -19,29 +19,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSocketCommand.h"
+
+#include "RiaApplication.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsStorage.h"
-
 #include "RimEclipseCase.h"
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
-#include "RiuMainWindow.h"
-#include "RiaApplication.h"
-#include "RimProject.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
-#include "RimScriptCollection.h"
-#include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimScriptCollection.h"
+
+#include "RiuMainWindow.h"
+
 #include "cafSelectionManager.h"
 
 

@@ -26,7 +26,7 @@
 
 #include <vector>
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
 

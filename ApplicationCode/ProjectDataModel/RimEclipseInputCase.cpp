@@ -28,10 +28,12 @@
 #include "RifReaderMockModel.h"
 #include "RifReaderSettings.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
-#include "RimDefines.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 
+#include "RimDefines.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -94,7 +96,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
     if (this->reservoirData() == NULL) 
     {
-        this->setReservoirData(new RigCaseData);
+        this->setReservoirData(new RigEclipseCaseData);
     }
 
     // First find and read the grid data 
@@ -191,7 +193,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
             readerInterface = new RifReaderEclipseInput;
             readerInterface->setReaderSetting(prefs->readerSettings());
 
-            cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+            cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
             {
                 return false;
@@ -333,7 +335,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelName)
 {
-    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
     if (modelName == RimDefines::mockModelBasicInputCase())

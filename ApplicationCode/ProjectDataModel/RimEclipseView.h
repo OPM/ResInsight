@@ -40,6 +40,7 @@ class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
+class RigMainGrid;
 class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
 class RimEclipseWell;
@@ -114,8 +115,10 @@ public:
     RimEclipseCellColors*                           currentFaultResultColors();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
-    RimEclipseCase*                                 eclipseCase();
+    RimEclipseCase*                                 eclipseCase() const;
     virtual RimCase*                                ownerCase();
+
+    RigMainGrid*                                    mainGrid() const;
 
     void                                            findGridIndexAndCellIndex(RimEclipseWell* eclipseWell, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex);
 

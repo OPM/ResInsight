@@ -30,7 +30,9 @@ list (APPEND TEST_SOURCE_FILES
         )
 
 list (APPEND EXAMPLE_SOURCE_FILES
+        examples/computeLocalSolutions.cpp
         examples/computeToFandTracers.cpp
+        examples/computeTracers.cpp
         )
 
 list (APPEND PUBLIC_HEADER_FILES

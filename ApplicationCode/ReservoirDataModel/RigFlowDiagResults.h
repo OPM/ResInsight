@@ -64,6 +64,14 @@ private:
     std::vector<double>*                     calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
 
 
+
+
+    std::vector<double>*                     calculateAverageTOFResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+    std::vector<double>*                     calculateSumOfFractionsResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+    std::vector<double>*                     calculateTracerWithMaxFractionResult(const RigFlowDiagResultAddress &resVarAddr, size_t frameIndex);
+    std::vector<double>*                     calculateCommunicationResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+
+
     std::vector<const std::vector<double>* > findResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr, 
                                                                            size_t frameIndex,
                                                                            const std::string& nativeResultName,

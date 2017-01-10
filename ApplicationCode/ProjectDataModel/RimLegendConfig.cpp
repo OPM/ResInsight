@@ -113,7 +113,8 @@ RimLegendConfig::RimLegendConfig()
         m_globalAutoPosClosestToZero(0),
         m_globalAutoNegClosestToZero(0),
         m_localAutoPosClosestToZero(0),
-        m_localAutoNegClosestToZero(0)
+        m_localAutoNegClosestToZero(0),
+        m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "A hint on how many tick marks you whish.","");
@@ -488,6 +489,21 @@ void RimLegendConfig::updateLegend()
    }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::disableAllTimeStepsRange(bool doDisable)
+{
+    // If we enable AllTimesteps, and we have used current timestep, then "restore" the default
+    if (m_isAllTimeStepsRangeDisabled && !doDisable &&  m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)  m_rangeMode = AUTOMATIC_ALLTIMESTEPS;
+
+    m_isAllTimeStepsRangeDisabled = doDisable;
+
+    if (doDisable && m_rangeMode == AUTOMATIC_ALLTIMESTEPS) m_rangeMode = AUTOMATIC_CURRENT_TIMESTEP;
+
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -755,9 +771,9 @@ void RimLegendConfig::setNamedCategories(const std::vector<QString>& categoryNam
     std::vector<int> nameIndices;
     std::vector<cvf::String> names;
 
-    for ( int i = 0; i < categoryNames.size(); ++i )
+    for ( size_t i = 0; i < categoryNames.size(); ++i )
     {
-        nameIndices.push_back(i);
+        nameIndices.push_back(static_cast<int>(i));
         names.push_back(cvfqt::Utils::toString(categoryNames[i]));
     }
 
@@ -845,7 +861,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         }
     }
 
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_mappingMode)
     {
@@ -863,7 +879,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
         for(MappingType mapType: mappingTypes)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
+            options.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
         }
     }
     else if (fieldNeedingOptions == &m_colorRangeMode)
@@ -887,10 +903,18 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
         for(ColorRangesType colType: rangeTypes)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
+            options.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
         }
     }
+    else if (fieldNeedingOptions == &m_rangeMode)
+    {
+        if (!m_isAllTimeStepsRangeDisabled) {
+            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+        }
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
+    }
  
-    return optionList;
+    return options;
 }
 

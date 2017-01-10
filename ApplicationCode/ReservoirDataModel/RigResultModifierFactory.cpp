@@ -20,7 +20,7 @@
 #include "RigResultModifierFactory.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigResultModifier.h"
 
 #include <math.h>
@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 /// This function must be harmonized with RigResultAccessorFactory::createNativeResultAccessor()
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigCaseData* eclipseCase,
+cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
                                                                            size_t gridIndex,
                                                                            RifReaderInterface::PorosityModelResultType porosityModel,
                                                                            size_t timeStepIndex,
@@ -51,7 +51,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigCaseData* eclipseCase,
+cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
                                                                            size_t gridIndex,
                                                                            RifReaderInterface::PorosityModelResultType porosityModel,
                                                                            size_t timeStepIndex, size_t scalarResultIndex)

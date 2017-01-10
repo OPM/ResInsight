@@ -196,10 +196,10 @@ void RimWellLogFileCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
-    optionList = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-    if (optionList.size() > 0) return optionList;
+    options = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    if (options.size() > 0) return options;
 
     if (fieldNeedingOptions == &m_wellPath)
     {
@@ -210,15 +210,16 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
+                // Only include well paths coming from a well log file
                 if (wellPaths[i]->m_wellLogFile())
                 {
-                    optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+                    options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), wellPaths[i]));
                 }
             }
 
-            if (optionList.size() > 0)
+            if (options.size() > 0)
             {
-                optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+                options.push_front(caf::PdmOptionItemInfo("None", nullptr));
             }
         }
     }
@@ -235,18 +236,18 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
                 for (size_t i = 0; i < fileLogs->size(); i++)
                 {
                     QString wellLogChannelName = (*fileLogs)[i]->name();
-                    optionList.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
+                    options.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
                 }
             }
         }
 
-        if (optionList.size() == 0)
+        if (options.size() == 0)
         {
-            optionList.push_back(caf::PdmOptionItemInfo("None", "None"));
+            options.push_back(caf::PdmOptionItemInfo("None", "None"));
         }
     }
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

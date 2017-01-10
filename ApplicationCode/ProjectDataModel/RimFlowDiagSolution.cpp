@@ -17,11 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFlowDiagSolution.h"
-#include "RimEclipseResultCase.h"
-#include "RigCaseData.h"
 
-#include "RigFlowDiagResults.h"
+#include "RimEclipseResultCase.h"
+
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigFlowDiagResults.h"
+#include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 

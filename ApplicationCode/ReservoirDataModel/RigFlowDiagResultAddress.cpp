@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,37 +16,32 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimExportInputPropertySettings.h"
-#include "cafPdmUiFilePathEditor.h"
+#include "RigFlowDiagResultAddress.h"
 
-
-CAF_PDM_SOURCE_INIT(RimExportInputSettings, "RimExportInputSettings");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimExportInputSettings::RimExportInputSettings()
+bool RigFlowDiagResultAddress::isNativeResult() const
 {
-    CAF_PDM_InitObject("RimExportInputSettings", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
-    fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-    CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "Keyword", "Eclipse Keyword", "", "", "");
-
+    return (((variableName == RIG_FLD_TOF_RESNAME) || (variableName == RIG_FLD_CELL_FRACTION_RESNAME)) && selectedTracerNames.size() <= 1);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimExportInputSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+std::string RigFlowDiagResultAddress::uiText()
 {
-    if (field == &fileName)
+    std::string uiVarname = variableName;
+
+    std::string uitext = uiVarname;
+    uitext += " (";
+    for (const std::string& tracerName : selectedTracerNames)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
-        if (myAttr)
-        {
-            myAttr->m_selectSaveFileName = true;
-        }
+        uitext += " " + tracerName;
     }
+    uitext += " )";
+    return uitext;
 }
+
 

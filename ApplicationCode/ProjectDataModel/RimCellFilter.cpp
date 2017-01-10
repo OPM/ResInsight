@@ -128,7 +128,7 @@ caf::PdmFieldHandle* RimCellFilter::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (&m_selectedCategoryValues == fieldNeedingOptions)
     {
@@ -141,7 +141,7 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions(const caf::Pd
                 int categoryValue = m_categoryValues[i];
                 QString categoryName = m_categoryNames[i];
 
-                optionList.push_back(caf::PdmOptionItemInfo(categoryName, categoryValue));
+                options.push_back(caf::PdmOptionItemInfo(categoryName, categoryValue));
             }
         }
         else
@@ -149,12 +149,12 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions(const caf::Pd
             for (auto it : m_categoryValues)
             {
                 QString str = QString::number(it);
-                optionList.push_back(caf::PdmOptionItemInfo(str, it));
+                options.push_back(caf::PdmOptionItemInfo(str, it));
             }
         }
     }
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #include "RigActiveCellsResultAccessor.h"
 #include "RigAllGridCellsResultAccessor.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCombMultResultAccessor.h"
 #include "RigCombTransResultAccessor.h"
 #include "RigGridBase.h"
@@ -44,7 +44,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(RigEclipseCaseData* eclipseCase,
                                                                              size_t gridIndex,
                                                                              RifReaderInterface::PorosityModelResultType porosityModel,
                                                                              size_t timeStepIndex,
@@ -137,7 +137,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigEclipseCaseData* eclipseCase,
                                                                             size_t gridIndex,
                                                                             RifReaderInterface::PorosityModelResultType porosityModel,
                                                                             size_t timeStepIndex,
@@ -172,7 +172,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(RigEclipseCaseData* eclipseCase,
                                                                                  size_t gridIndex,
                                                                                  size_t timeStepIndex,
                                                                                  RimEclipseResultDefinition* resultDefinition)
@@ -214,7 +214,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 //--------------------------------------------------------------------------------------------------
 /// This function must be harmonized with RigResultModifierFactory::createResultModifier()
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
                                                                                    size_t gridIndex,
                                                                                    RifReaderInterface::PorosityModelResultType porosityModel,
                                                                                    size_t timeStepIndex,
@@ -242,7 +242,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigEclipseCaseData* eclipseCase,
                                                                           size_t gridIndex,
                                                                           RifReaderInterface::PorosityModelResultType porosityModel,
                                                                           size_t timeStepIndex,

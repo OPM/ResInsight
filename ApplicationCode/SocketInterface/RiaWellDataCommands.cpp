@@ -22,7 +22,8 @@
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RigCaseData.h"
+#include "RigGridBase.h"
+#include "RigEclipseCaseData.h"
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"

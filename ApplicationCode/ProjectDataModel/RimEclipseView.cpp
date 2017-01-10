@@ -23,25 +23,30 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFlowDiagSolution.h"
 #include "RimGridCollection.h"
+#include "RimIntersection.h"
+#include "RimIntersectionCollection.h"
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -77,9 +82,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "RimEclipseResultDefinition.h"
-#include "RimFlowDiagSolution.h"
-#include "RigFlowDiagResults.h"
 
 
 
@@ -467,7 +469,7 @@ void RimEclipseView::createDisplayModel()
 */
     // Well path model
 
-    RigMainGrid* mainGrid = eclipseCase()->reservoirData()->mainGrid();
+    RigMainGrid* mainGrid = this->mainGrid();
 
     m_wellPathPipeVizModel->removeAllParts();
     addWellPathsToModel(m_wellPathPipeVizModel.p(),
@@ -946,7 +948,7 @@ void RimEclipseView::updateLegends()
         return;
     }
 
-    RigCaseData* eclipseCase = m_reservoir->reservoirData();
+    RigEclipseCaseData* eclipseCase = m_reservoir->reservoirData();
     CVF_ASSERT(eclipseCase);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
@@ -1004,18 +1006,18 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         {
             double globalMin, globalMax;
             double globalPosClosestToZero, globalNegClosestToZero;
-            RigFlowDiagResults* cellResultsData = resultColors->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResults* flowResultsData = resultColors->flowDiagSolution()->flowDiagResults();
             RigFlowDiagResultAddress resAddr = resultColors->flowDiagResAddress();
 
-            cellResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &globalMin, &globalMax);
-            cellResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
+            flowResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &globalMin, &globalMax);
+            flowResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
             if ( resultColors->hasDynamicResult() )
             {
-                cellResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &localMin, &localMax);
-                cellResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+                flowResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &localMin, &localMax);
+                flowResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
             }
             else
             {
@@ -1028,6 +1030,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 
             CVF_ASSERT(resultColors->legendConfig());
 
+            resultColors->legendConfig()->disableAllTimeStepsRange(true);
             resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
             resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
@@ -1036,10 +1039,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                 resultColors->legendConfig()->setNamedCategories(resultColors->flowDiagSolution()->tracerNames());
             }
 
-            m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
-        
-        }
+         }
         else
         {
             double globalMin, globalMax;
@@ -1065,6 +1065,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 
             CVF_ASSERT(resultColors->legendConfig());
 
+            resultColors->legendConfig()->disableAllTimeStepsRange(false);
             resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
             resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
@@ -1080,10 +1081,10 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
                     resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
                 }
             }
-
-            m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-            resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariable()));
         }
+
+        m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
+        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariableUiName()));
     }
 
 
@@ -1162,7 +1163,7 @@ void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseView::eclipseCase()
+RimEclipseCase* RimEclipseView::eclipseCase() const
 {
     return m_reservoir;
 }
@@ -1538,6 +1539,19 @@ RimCase* RimEclipseView::ownerCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigMainGrid* RimEclipseView::mainGrid() const
+{
+    if (eclipseCase() && eclipseCase()->reservoirData())
+    {
+        return eclipseCase()->reservoirData()->mainGrid();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::findGridIndexAndCellIndex(RimEclipseWell* eclipseWell, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
 {
     CVF_ASSERT(eclipseWell);
@@ -1596,7 +1610,7 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
 {
     size_t gridCount = this->eclipseCase()->reservoirData()->gridCount();
-    size_t cellCount = this->eclipseCase()->reservoirData()->mainGrid()->globalCellArray().size();
+    size_t cellCount = this->mainGrid()->globalCellArray().size();
 
     totalVisibility->resize(cellCount);
     totalVisibility->setAll(false);

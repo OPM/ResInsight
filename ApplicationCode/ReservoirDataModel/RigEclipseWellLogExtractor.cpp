@@ -19,7 +19,7 @@
 
 #include "RigEclipseWellLogExtractor.h"
 #include <map>
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 #include "RigResultAccessor.h"
 #include "cvfBoundingBox.h"
@@ -32,7 +32,7 @@
 /// 
 //==================================================================================================
 
-RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName)
+RigEclipseWellLogExtractor::RigEclipseWellLogExtractor(const RigEclipseCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName)
     : m_caseData(aCase), RigWellLogExtractor(wellpath, wellCaseErrorMsgName)
 {
     calculateIntersection();

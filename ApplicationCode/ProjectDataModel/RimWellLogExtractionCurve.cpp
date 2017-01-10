@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -38,6 +38,7 @@
 #include "RimGeoMechView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -49,6 +50,7 @@
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"
+#include "cafUtils.h"
 
 #include <cmath>
 
@@ -258,8 +260,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            RigCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
-            if (eclipseUnitsType == RigCaseData::UNITS_FIELD)
+            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
+            if (eclipseUnitsType == RigEclipseCaseData::UNITS_FIELD)
             {
                 // See https://github.com/OPM/ResInsight/issues/538
                 
@@ -322,44 +324,27 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-   QList<caf::PdmOptionItemInfo> optionList;
+   QList<caf::PdmOptionItemInfo> options;
 
-   optionList = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-   if (optionList.size() > 0) return optionList;
+   options = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+   if (options.size() > 0) return options;
 
     if (fieldNeedingOptions == &m_wellPath)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        if (proj->activeOilField()->wellPathCollection())
+        RimTools::wellPathOptionItems(&options);
+
+        if (options.size() > 0)
         {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths =  proj->activeOilField()->wellPathCollection()->wellPaths;
-
-            for (size_t i = 0; i< wellPaths.size(); i++)
-            {
-                optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
-            }
-
-            if (optionList.size() > 0)
-            {
-                optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
-            }
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if (fieldNeedingOptions == &m_case)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimCase*> cases;
+        RimTools::caseOptionItems(&options);
 
-        proj->allCases(cases);
-
-        for (size_t i = 0; i< cases.size(); i++)
+        if (options.size() > 0)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(cases[i]->caseUserDescription(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(cases[i]))));
-        }
-
-        if (optionList.size() > 0)
-        {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if (fieldNeedingOptions == &m_timeStep)
@@ -373,11 +358,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 
         for (int i = 0; i < timeStepNames.size(); i++)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
         }
     }
 
-    return optionList;
+    return options;
 }
 
 
@@ -570,7 +555,7 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     QString name;
     if (eclipseCase)
     {
-        name = m_eclipseResultDefinition->resultVariable();
+        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiName());
     }
     else if (geoMechCase)
     {

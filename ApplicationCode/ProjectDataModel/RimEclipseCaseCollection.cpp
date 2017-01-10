@@ -21,13 +21,16 @@
 #include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
-#include "RigCaseData.h"
+
+#include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
-#include "RimEclipseCase.h"
+#include "RigMainGrid.h"
+
 #include "RimCaseCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
-#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimEclipseCaseCollection, "ResInsightAnalysisModels");
@@ -73,7 +76,7 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
 {
     CVF_ASSERT(mainCase);
 
-    RigCaseData* rigEclipseCase = mainCase->reservoirData();
+    RigEclipseCaseData* rigEclipseCase = mainCase->reservoirData();
     RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
     CVF_ASSERT(equalGrid);
 
@@ -98,7 +101,7 @@ void RimEclipseCaseCollection::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimR
 {
     CVF_ASSERT(rimReservoir);
 
-    RigCaseData* rigEclipseCase = rimReservoir->reservoirData();
+    RigEclipseCaseData* rigEclipseCase = rimReservoir->reservoirData();
     RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
     CVF_ASSERT(equalGrid);
 
@@ -152,7 +155,7 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups(RimEclipseCase* reservoir
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigCaseData* rigEclipseCase)
+RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigEclipseCaseData* rigEclipseCase)
 {
     CVF_ASSERT(rigEclipseCase);
 
@@ -185,7 +188,7 @@ void RimEclipseCaseCollection::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* 
 {
     CVF_ASSERT(rimReservoir);
 
-    RigCaseData* rigEclipseCase = rimReservoir->reservoirData();
+    RigEclipseCaseData* rigEclipseCase = rimReservoir->reservoirData();
     registerCaseInGridCollection(rigEclipseCase);
 
     caseGroup->addCase(rimReservoir);

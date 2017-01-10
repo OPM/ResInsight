@@ -59,6 +59,8 @@ public:
     RimFlowDiagSolution*            flowDiagSolution();
     RigFlowDiagResultAddress        flowDiagResAddress() const;
 
+    QString                         resultVariableUiName();
+
     void                            loadResult();
     size_t                          scalarResultIndex() const;
     bool                            hasStaticResult() const;

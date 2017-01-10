@@ -32,7 +32,7 @@ public:
     virtual ~RifReaderEclipseInput();
 
     // Virtual interface implementation
-    virtual bool                open(const QString& fileName, RigCaseData* eclipseCase);
+    virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase);
 
     
 

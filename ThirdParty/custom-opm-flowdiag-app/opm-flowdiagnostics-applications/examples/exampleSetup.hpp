@@ -158,32 +158,8 @@ namespace example {
         }
     }
 
-    inline Opm::FlowDiagnostics::Toolbox
-    initialiseFlowDiagnostics(const Opm::ECLGraph& G)
-    {
-        const auto connGraph = Opm::FlowDiagnostics::
-            ConnectivityGraph{ static_cast<int>(G.numCells()),
-                               G.neighbours() };
-
-        // Create the Toolbox.
-        auto tool = Opm::FlowDiagnostics::Toolbox{ connGraph };
-
-        tool.assignPoreVolume(G.poreVolume());
-        tool.assignConnectionFlux(Hack::convert_flux_to_SI(extractFluxField(G)));
-
-        auto wsol = Opm::ECLWellSolution{};
-
-        const auto well_fluxes =
-            wsol.solution(G.rawResultData(), G.numGrids());
-
-        tool.assignInflowFlux(extractWellFlows(G, well_fluxes));
-
-        return tool;
-    }
-
-
-    inline auto setup(int argc, char* argv[])
-        -> decltype(initialiseFlowDiagnostics(std::declval<Opm::ECLGraph>()))
+    inline Opm::ECLGraph
+    initGraph(int argc, char* argv[])
     {
         // Obtain parameters from command line (possibly specifying a parameter file).
         const bool verify_commandline_syntax = true;
@@ -216,8 +192,50 @@ namespace example {
             throw std::domain_error(os.str());
         }
 
-        return initialiseFlowDiagnostics(graph);
+        return graph;
     }
+
+    inline std::vector<Opm::ECLWellSolution::WellData>
+    initWellFluxes(const Opm::ECLGraph& G)
+    {
+        auto wsol = Opm::ECLWellSolution{};
+        return wsol.solution(G.rawResultData(), G.numGrids());
+    }
+
+    inline Opm::FlowDiagnostics::Toolbox
+    initToolbox(const Opm::ECLGraph& G, const std::vector<Opm::ECLWellSolution::WellData>& well_fluxes)
+    {
+        const auto connGraph = Opm::FlowDiagnostics::
+            ConnectivityGraph{ static_cast<int>(G.numCells()),
+                               G.neighbours() };
+
+        // Create the Toolbox.
+        auto tool = Opm::FlowDiagnostics::Toolbox{ connGraph };
+
+        tool.assignPoreVolume(G.poreVolume());
+        tool.assignConnectionFlux(Hack::convert_flux_to_SI(extractFluxField(G)));
+
+        tool.assignInflowFlux(extractWellFlows(G, well_fluxes));
+
+        return tool;
+    }
+
+
+
+
+    struct Setup
+    {
+        Setup(int argc, char** argv)
+            : graph(initGraph(argc, argv))
+            , well_fluxes(initWellFluxes(graph))
+            , toolbox(initToolbox(graph, well_fluxes))
+        {
+        }
+
+        Opm::ECLGraph graph;
+        std::vector<Opm::ECLWellSolution::WellData> well_fluxes;
+        Opm::FlowDiagnostics::Toolbox toolbox;
+    };
 
 
 } // namespace example

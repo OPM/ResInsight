@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 
 #include "RifEclipseInputFileTools.h"
 

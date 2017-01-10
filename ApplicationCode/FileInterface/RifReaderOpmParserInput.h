@@ -30,7 +30,7 @@
 
 #include <QString>
 
-class RigCaseData;
+class RigEclipseCaseData;
 
 namespace Opm {
     class Deck;
@@ -46,7 +46,7 @@ namespace Opm {
 class RifReaderOpmParserInput
 {
 public:
-    static void importGridPropertiesFaults(const QString& fileName, RigCaseData* eclipseCase);
+    static void importGridPropertiesFaults(const QString& fileName, RigEclipseCaseData* eclipseCase);
 
     static void readFaults(const QString& fileName, cvf::Collection<RigFault>* faults);
     
@@ -75,14 +75,14 @@ public:
 
     std::set<std::string> keywords() const;
 
-    bool copyPropertyToCaseData(const std::string& keywordName, RigCaseData* eclipseCase, const QString& resultName);
+    bool copyPropertyToCaseData(const std::string& keywordName, RigEclipseCaseData* eclipseCase, const QString& resultName);
 
-    static size_t findOrCreateResult(const QString& newResultName, RigCaseData* reservoir);
+    static size_t findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir);
 
 private:
-    static void readAllProperties(std::shared_ptr< Opm::Deck > deck, RigCaseData* caseData, std::map<QString, QString>* newResults);
+    static void readAllProperties(std::shared_ptr< Opm::Deck > deck, RigEclipseCaseData* caseData, std::map<QString, QString>* newResults);
     static void getAllValuesForKeyword(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, std::vector<double>& allValues);
-    static bool isDataItemCountIdenticalToMainGridCellCount(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, RigCaseData* caseData);
+    static bool isDataItemCountIdenticalToMainGridCellCount(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, RigEclipseCaseData* caseData);
     bool open(const QString& fileName);
 
 private:

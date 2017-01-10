@@ -20,8 +20,9 @@
 
 #include "RimEclipseResultDefinition.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
@@ -298,23 +299,23 @@ void RimEclipseResultDefinition::updateResultNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionItems;
+    QList<caf::PdmOptionItemInfo> options;
 
     if ( m_resultTypeUiField() != RimDefines::FLOW_DIAGNOSTICS )
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            optionItems = calcOptionsForVariableUiFieldStandard();
+            options = calcOptionsForVariableUiFieldStandard();
         }
     }
     else
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            optionItems.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)",   RIG_FLD_TOF_RESNAME));
-            optionItems.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)",      RIG_FLD_CELL_FRACTION_RESNAME));
-            optionItems.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer",             RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
-            optionItems.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
+            options.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)",   RIG_FLD_TOF_RESNAME));
+            options.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)",      RIG_FLD_CELL_FRACTION_RESNAME));
+            options.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer",             RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
+            options.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
@@ -325,7 +326,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
                 for (RimFlowDiagSolution* flowSol : flowSols)
                 {
-                    optionItems.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol));
+                    options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol));
                 }
             }           
         }
@@ -351,7 +352,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
                 for (auto nameIt: prefixedTracerNamesMap)
                 {
-                    optionItems.push_back(caf::PdmOptionItemInfo(nameIt.first, QVariant(nameIt.second)));
+                    options.push_back(caf::PdmOptionItemInfo(nameIt.first, QVariant(nameIt.second)));
                 }
             }
         }
@@ -359,7 +360,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
     (*useOptionsOnly) = true;
     
-    return optionItems;
+    return options;
 }
 
 
@@ -513,6 +514,19 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     }
 
     return RigFlowDiagResultAddress(m_resultVariable().toStdString(), selTracerNames);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::resultVariableUiName()
+{
+    if (resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        return QString::fromStdString(flowDiagResAddress().uiText());
+    }
+
+    return m_resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------

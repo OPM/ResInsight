@@ -295,8 +295,8 @@ RimDefines::PlotAxis RimSummaryCurve::yAxis() const
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
-    if (!optionList.isEmpty()) return optionList;
+    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
+    if (!options.isEmpty()) return options;
 
 
     if (fieldNeedingOptions == &m_summaryCase)
@@ -306,16 +306,14 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 
         proj->allSummaryCases(cases);
 
-        for (size_t i = 0; i < cases.size(); i++)
+        for (RimSummaryCase* rimCase : cases)
         {
-            RimSummaryCase* rimCase = cases[i];
-
-            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
+            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
 
-        if (optionList.size() > 0)
+        if (options.size() > 0)
         {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if(fieldNeedingOptions == &m_uiFilterResultSelection)
@@ -339,16 +337,16 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
                 {
                     std::string name = addrIntPair.first.uiText();
                     QString s = QString::fromStdString(name);
-                    optionList.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
+                    options.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
                 }
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
+            options.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
 
             if(useOptionsOnly) *useOptionsOnly = true;
         }
     }
-    return optionList;
+    return options;
 
 }
 

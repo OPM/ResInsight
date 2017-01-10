@@ -28,7 +28,7 @@ class RimWellLogPlot;
 class RigEclipseWellLogExtractor;
 class RigGeoMechWellLogExtractor;
 class RimGeoMechCase;
-class RigCaseData;
+class RigEclipseCaseData;
 class RigGeoMechCaseData;
 class RigWellPath;
 class RimWellPath;
@@ -50,7 +50,7 @@ public:
     RigGeoMechWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase);
 
     void removeExtractors(const RigWellPath* wellPath);
-    void removeExtractors(const RigCaseData* caseData);
+    void removeExtractors(const RigEclipseCaseData* caseData);
     void removeExtractors(const RigGeoMechCaseData* caseData);
 
     caf::PdmChildArrayField<RimWellLogPlot*> wellLogPlots;

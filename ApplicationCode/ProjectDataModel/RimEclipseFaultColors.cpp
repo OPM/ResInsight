@@ -19,9 +19,6 @@
 
 #include "RimEclipseFaultColors.h"
 
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
-
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"

@@ -35,10 +35,8 @@ class RigFlowDiagTimeStepResult
 public:
     RigFlowDiagTimeStepResult(size_t activeCellCount);
 
-    void setInjectorTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
-    void setInjectorTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
-    void setProducerTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
-    void setProducerTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
+    void setTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
+    void setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
 
     // Use to "steal" the data from this one using swap
     std::map<RigFlowDiagResultAddress, std::vector<double> >&  nativeResults() { return m_nativeResults; }
@@ -51,7 +49,8 @@ private:
 };
 
 
-class RigCaseData;
+class RigEclipseCaseData;
+class RigOpmFldStaticData;
 
 class RigFlowDiagSolverInterface : public cvf::Object
 {
@@ -66,6 +65,8 @@ public:
 private:
     RimEclipseResultCase * m_eclipseCase;
 
+    cvf::ref<RigOpmFldStaticData> m_opmFldData;
+   
 };
 
 

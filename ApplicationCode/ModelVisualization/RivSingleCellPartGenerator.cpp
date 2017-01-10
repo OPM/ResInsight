@@ -19,9 +19,10 @@
 
 #include "RivSingleCellPartGenerator.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigGridBase.h"
 
 #include "RimGeoMechCase.h"
 
@@ -36,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigCaseData* rigCaseData, size_t gridIndex, size_t cellIndex)
+RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigEclipseCaseData* rigCaseData, size_t gridIndex, size_t cellIndex)
     : m_rigCaseData(rigCaseData),
     m_gridIndex(gridIndex),
     m_cellIndex(cellIndex),

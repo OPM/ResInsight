@@ -19,18 +19,18 @@
 
 #include "RigTimeHistoryResultAccessor.h"
 
-#include <cmath> // Needed for HUGE_VAL on Linux
-
-#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigCaseCellResultsData.h"
 
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel)
+RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel)
     : m_eclipseCaseData(eclipseCaseData),
       m_gridIndex(gridIndex),
       m_cellIndex(cellIndex),

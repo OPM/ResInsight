@@ -155,7 +155,7 @@ void RimSummaryCurveFilter::createCurves(RimSummaryCase* summaryCase, const QStr
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_selectedSummaryCases)
     {
@@ -164,11 +164,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 
         proj->allSummaryCases(cases);
 
-        for (size_t i = 0; i < cases.size(); i++)
+        for (RimSummaryCase* rimCase : cases)
         {
-            RimSummaryCase* rimCase = cases[i];
-
-            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
+            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
     }
     else if(fieldNeedingOptions == &m_uiFilterResultMultiSelection)
@@ -179,13 +177,13 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
         {
             std::string name = address.uiText();
             QString s = QString::fromStdString(name);
-            optionList.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
+            options.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
         }
     }
 
     if(useOptionsOnly) *useOptionsOnly = true;
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

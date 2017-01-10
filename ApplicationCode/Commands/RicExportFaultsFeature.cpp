@@ -20,16 +20,21 @@
 #include "RicExportFaultsFeature.h"
 
 #include "RiaApplication.h"
-#include "cafSelectionManager.h"
+
+#include "RigEclipseCaseData.h"
+#include "RigFault.h"
+#include "RigMainGrid.h"
+
+#include "RimDefines.h"
+#include "RimEclipseCase.h"
 #include "RimFault.h"
+
+#include "cafSelectionManager.h"
+#include "cafUtils.h"
 
 #include <QAction>
 #include <QFileDialog>
-#include "RimEclipseCase.h"
-#include "RigFault.h"
-#include "RigMainGrid.h"
-#include "RigCaseData.h"
-#include "QMessageBox"
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicExportFaultsFeature, "RicExportFaultsFeature");
 
@@ -79,7 +84,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
         if ( faultName == RimDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
 
         QString baseFilename = "Fault_" + faultName + "_" + caseName;
-        baseFilename.replace(" ", "_");
+        baseFilename = caf::Utils::makeValidFileBasename(baseFilename);
 
         QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
 

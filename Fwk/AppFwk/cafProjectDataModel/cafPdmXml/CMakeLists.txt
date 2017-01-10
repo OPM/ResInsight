@@ -33,6 +33,8 @@ set( PROJECT_FILES
 	
 	cafPdmSettings.h
 	cafPdmSettings.cpp
+
+	cafPdmXmlStringValidation.h
 )
 
 

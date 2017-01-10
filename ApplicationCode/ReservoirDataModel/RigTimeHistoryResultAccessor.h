@@ -22,13 +22,13 @@
 #include "cvfStructGrid.h"
 #include "RifReaderInterface.h"
 
-class RigCaseData;
+class RigEclipseCaseData;
 
 
 class RigTimeHistoryResultAccessor
 {
 public:
-    RigTimeHistoryResultAccessor(RigCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel);
+    RigTimeHistoryResultAccessor(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel);
     void setFace(cvf::StructGridInterface::FaceType face);
 
     QString             topologyText() const;
@@ -38,7 +38,7 @@ private:
     void                computeTimeHistoryData();
 
 private:
-    RigCaseData*    m_eclipseCaseData;
+    RigEclipseCaseData*    m_eclipseCaseData;
 
     size_t          m_gridIndex;
     size_t          m_cellIndex;

@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigResultAccessorFactory.h"
 
 #include "RimCellEdgeColors.h"

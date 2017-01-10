@@ -7,7 +7,7 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RigActiveCellInfo.h
 ${CEE_CURRENT_LIST_DIR}RigCell.h
-${CEE_CURRENT_LIST_DIR}RigCaseData.h
+${CEE_CURRENT_LIST_DIR}RigEclipseCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigGridBase.h
 ${CEE_CURRENT_LIST_DIR}RigGridManager.h
 ${CEE_CURRENT_LIST_DIR}RigResultAccessor.h
@@ -56,7 +56,7 @@ ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RigActiveCellInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RigCell.cpp
-${CEE_CURRENT_LIST_DIR}RigCaseData.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigGridBase.cpp
 ${CEE_CURRENT_LIST_DIR}RigGridManager.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultAccessor.cpp
@@ -68,6 +68,7 @@ ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigFormationNames.cpp
+${CEE_CURRENT_LIST_DIR}RigFlowDiagResultAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResults.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultFrames.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagSolverInterface.cpp

@@ -19,7 +19,6 @@
 #include "RivIntersectionBoxPartMgr.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -37,6 +36,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RivIntersectionBoxSourceInfo.h"
+#include "RivIntersectionPartMgr.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
@@ -49,7 +49,7 @@
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
-#include "RivIntersectionPartMgr.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 
 
@@ -94,7 +94,7 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
         CVF_ASSERT(cellResultColors);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-        RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
 
         // CrossSections
         if (m_intersectionBoxFaces.notNull())
@@ -353,7 +353,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionBoxPartMgr::createHexGr
     if (eclipseView)
     {
         RigMainGrid* grid = NULL;
-        grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+        grid = eclipseView->mainGrid();
 
         return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimIntersectionBox->showInactiveCells());
     }

@@ -59,7 +59,7 @@ namespace FlowDiagnostics
         /// Compute the global (combining all sources) time-of-flight of each cell.
         ///
         /// TODO: also compute tracer solution.
-        std::vector<double> solveGlobal(const std::vector<CellSet>& all_startsets);
+        std::vector<double> solveGlobal();
 
         /// Output data struct for solveLocal().
         struct LocalSolution {
@@ -110,6 +110,8 @@ namespace FlowDiagnostics
         void prepareForSolve();
 
         void setupStartArray(const CellSet& startset);
+
+        void setupStartArrayFromSource();
 
         void computeOrdering();
 

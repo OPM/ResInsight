@@ -20,8 +20,9 @@
 
 #include "gtest/gtest.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
+#include "RigMainGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -31,7 +32,7 @@ TEST(RigGridManager, BasicTest)
 {
     cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
 
-    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
     eclipseCase->setMainGrid(mainGridA.p());
 
     int count = mainGridA->refCount();
@@ -58,7 +59,7 @@ TEST(RigGridManager, EqualTests)
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 1));
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 2));
 
-    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
     eclipseCase->setMainGrid(mainGridA.p());
 
 

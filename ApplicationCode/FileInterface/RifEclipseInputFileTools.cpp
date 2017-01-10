@@ -21,8 +21,11 @@
 #include "RifEclipseInputFileTools.h"
 
 #include "RifReaderEclipseOutput.h"
+
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"
@@ -70,7 +73,7 @@ RifEclipseInputFileTools::~RifEclipseInputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData* eclipseCase, bool readFaultData)
+bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -199,7 +202,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
 //--------------------------------------------------------------------------------------------------
 /// Read known properties from the input file
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QString& fileName, RigCaseData* caseData)
+std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QString& fileName, RigEclipseCaseData* caseData)
 {
     CVF_ASSERT(caseData);
 
@@ -249,7 +252,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
 /// Reads the property data requested into the \a reservoir, overwriting any previous 
 /// properties with the same name.
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData* caseData, const QString& eclipseKeyWord, const QString& resultName)
+bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseCaseData* caseData, const QString& eclipseKeyWord, const QString& resultName)
 {
     CVF_ASSERT(caseData);
 
@@ -275,7 +278,7 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigCaseData* caseData, const QString& resultName)
+bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigEclipseCaseData* caseData, const QString& resultName)
 {
     CVF_ASSERT(caseData);
     CVF_ASSERT(eclipseKeywordData);
@@ -440,7 +443,7 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
+bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -472,7 +475,13 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 /// Create and write a result vector with values for all cells.
 /// undefinedValue is used for cells with no result
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, RigCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue)
+bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, 
+                                                           RigEclipseCaseData* eclipseCase, 
+                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
+                                                           size_t timeStep, 
+                                                           const QString& resultName, 
+                                                           const QString& eclipseKeyWord, 
+                                                           const double undefinedValue)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -714,7 +723,7 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RifEclipseInputFileTools::findOrCreateResult(const QString& newResultName, RigCaseData* reservoir)
+size_t RifEclipseInputFileTools::findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir)
 {
     size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)

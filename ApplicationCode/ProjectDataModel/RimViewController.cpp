@@ -21,11 +21,11 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
 #include "RigCaseToCaseRangeFilterMapper.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
@@ -95,7 +95,7 @@ RimViewController::~RimViewController(void)
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_managedView)
     {
@@ -109,35 +109,33 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
             views.push_back(this->managedView());
         }
 
-        RimViewLinker* linkedViews = NULL;
-        this->firstAncestorOrThisOfType(linkedViews);
+        RimViewLinker* viewLinker = nullptr;
+        this->firstAncestorOrThisOfType(viewLinker);
+        CVF_ASSERT(viewLinker);
 
-        for (size_t i = 0; i< views.size(); i++)
+        for (RimView* view : views)
         {
-            if (views[i] != linkedViews->masterView())
+            if (view != viewLinker->masterView())
             {
-                RimCase* rimCase = NULL;
-                views[i]->firstAncestorOrThisOfType(rimCase);
+                RimCase* rimCase = nullptr;
+                view->firstAncestorOrThisOfType(rimCase);
                 QIcon icon;
                 if (rimCase)
                 {
                     icon = rimCase->uiCapability()->uiIcon();
                 }
 
-                optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(views[i]),
-                    QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(views[i])),
-                    false,
-                    icon));
+                options.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(view), view, false, icon));
             }
         }
 
-        if (optionList.size() > 0)
+        if (options.size() > 0)
         {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,14 +570,14 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     RigFemPart*  masterFemPart = NULL;
     RigFemPart*  dependFemPart = NULL;
 
-    if (masterEclipseView && masterEclipseView->eclipseCase()->reservoirData())
+    if (masterEclipseView)
     {
-        masterEclGrid = masterEclipseView->eclipseCase()->reservoirData()->mainGrid();
+        masterEclGrid = masterEclipseView->mainGrid();
     }
 
-    if (dependEclipseView && dependEclipseView->eclipseCase()->reservoirData())
+    if (dependEclipseView)
     {
-        dependEclGrid = dependEclipseView->eclipseCase()->reservoirData()->mainGrid();
+        dependEclGrid = dependEclipseView->mainGrid();
     }
 
     if (masterGeomechView && masterGeomechView->geoMechCase()->geoMechData()
@@ -858,7 +856,7 @@ bool RimViewController::isRangeFilterMappingApliccable() const
     {
         if (eclipseView->eclipseCase()->reservoirData() && geomView->geoMechCase() && geomView->geoMechCase()->geoMechData())
         {
-            RigMainGrid* eclGrid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+            RigMainGrid* eclGrid = eclipseView->mainGrid();
             RigFemPart* femPart = geomView->geoMechCase()->geoMechData()->femParts()->part(0);
 
             if (eclGrid && femPart)
@@ -973,9 +971,9 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
 
             if (eclipseMasterView && depGeomView)
             {
-                if (eclipseMasterView->eclipseCase()->reservoirData())
+                if (eclipseMasterView->mainGrid())
                 {
-                    RigMainGrid* srcEclGrid = eclipseMasterView->eclipseCase()->reservoirData()->mainGrid();
+                    RigMainGrid* srcEclGrid = eclipseMasterView->mainGrid();
                     RigFemPart* dstFemPart = depGeomView->geoMechCase()->geoMechData()->femParts()->part(0);
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
@@ -988,10 +986,10 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
             }
             else if (geoMasterView && depEclView)
             {
-                if (depEclView->eclipseCase()->reservoirData())
+                if (depEclView->mainGrid())
                 {
                     RigFemPart* srcFemPart = geoMasterView->geoMechCase()->geoMechData()->femParts()->part(0);
-                    RigMainGrid* dstEclGrid = depEclView->eclipseCase()->reservoirData()->mainGrid();
+                    RigMainGrid* dstEclGrid = depEclView->mainGrid();
                     for (size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx)
                     {
                         RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];

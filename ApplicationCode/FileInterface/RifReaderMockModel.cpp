@@ -19,13 +19,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderMockModel.h"
-#include "RigCaseCellResultsData.h"
+
 #include "RifReaderInterface.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::open(const QString& fileName, RigCaseData* eclipseCase)
+bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     m_reservoirBuilder.populateReservoir(eclipseCase);
   
@@ -170,7 +173,7 @@ void RifReaderMockModel::addLocalGridRefinement(const cvf::Vec3st& minCellPositi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderMockModel::populateReservoir(RigCaseData* eclipseCase)
+void RifReaderMockModel::populateReservoir(RigEclipseCaseData* eclipseCase)
 {
     m_reservoirBuilder.populateReservoir(eclipseCase);
 }
