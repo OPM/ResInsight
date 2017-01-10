@@ -771,9 +771,9 @@ void RimLegendConfig::setNamedCategories(const std::vector<QString>& categoryNam
     std::vector<int> nameIndices;
     std::vector<cvf::String> names;
 
-    for ( int i = 0; i < categoryNames.size(); ++i )
+    for ( size_t i = 0; i < categoryNames.size(); ++i )
     {
-        nameIndices.push_back(i);
+        nameIndices.push_back(static_cast<int>(i));
         names.push_back(cvfqt::Utils::toString(categoryNames[i]));
     }
 

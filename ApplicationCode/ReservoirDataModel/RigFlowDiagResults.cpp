@@ -265,11 +265,11 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
         int selTracerIdx = 0;
         for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
         {
-            for ( int globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
+            for ( size_t globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
             {
                 if ( allTracerNames[globIdx].toStdString() == tracerName )
                 {
-                    selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = globIdx;
+                    selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = static_cast<int>(globIdx);
                     break;
                 }
             }
