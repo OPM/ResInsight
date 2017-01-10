@@ -24,6 +24,8 @@
 #include "RimFractureDefinition.h"
 #include "RimView.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h> //TODO: Is this OK? What about cmath?
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfMatrix4.h"
@@ -130,6 +132,38 @@ void RimFracture::computeGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFracture::computeTransmissibility()
+{
+    std::vector<RigFractureData> fracDataVec;
+
+    // Finne ijk-er for alle celler... 
+    //For now, only consider center cell: 
+    std::vector<std::pair<size_t, size_t>> fracCells = getFracturedCells();
+
+    for (auto fracCell : fracCells)
+    {
+//        RigFractureData* fracData = new RigFractureData;
+
+        //TODO: get correct input values...
+        double area = 2.468;
+        double fractureLength = 1.2345;
+        double flowLength = 2.718281828;
+        double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
+        
+        double transmissibility = 8 * c * attachedFractureDefinition()->permeability * area /
+            ( flowLength + (attachedFractureDefinition()->skinFactor * fractureLength)/M_PI );
+
+//         fracData.cellindex = 0;
+//         fracDataVec.push_back(fracData);
+
+    }
+
+    m_rigFracture->setFractureData(fracDataVec);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFracture::setRecomputeGeometryFlag()
 {
     m_recomputeGeometry = true;
@@ -166,6 +200,18 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
             myAttr->m_maximum = 360;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<size_t, size_t>> RimFracture::getFracturedCells()
+{
+    //TODO: Remove this? For now returning empty vector since function 
+    // is not yet implemented for well path fractures
+
+    std::vector<std::pair<size_t, size_t>> cells;
+    return cells;
 }
 
 //--------------------------------------------------------------------------------------------------

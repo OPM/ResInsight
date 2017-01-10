@@ -26,6 +26,17 @@
 
 #include <vector>
 
+class RigFractureData
+{
+public:
+    RigFractureData();
+
+    size_t gridIndex;
+    size_t cellindex;
+    double transmissibility;
+
+};
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -39,8 +50,12 @@ public:
     const std::vector<cvf::uint>&  polygonIndices() const;
     const std::vector<cvf::Vec3f>& nodeCoords() const;
 
+    void setFractureData(const std::vector<RigFractureData>& data);
+    const std::vector<RigFractureData>& fractureData() const; //Access frac data
+
 private:
     std::vector<cvf::uint>  m_polygonIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
+    std::vector<RigFractureData> m_fractureData;
 };
 

@@ -41,6 +41,7 @@
 
 #include <QToolBox>
 #include <QList>
+#include "RigGridBase.h"
 
 
 
@@ -157,6 +158,33 @@ void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<size_t, size_t>> RimSimWellFracture::getFracturedCells()
+{
+    std::vector<std::pair<size_t, size_t>> cells;
+
+    size_t gridindex = 0; //TODO! For now assuming only one grid
+
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+    if (!objHandle) return cells;
+
+    RimEclipseView* mainView = nullptr;
+    objHandle->firstAncestorOrThisOfType(mainView);
+    if (!mainView) return cells;
+
+    const RigMainGrid* mainGrid = mainView->mainGrid(); 
+    if (!mainGrid) return cells;
+
+    size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i - 1, m_j - 1, m_k - 1); // cellIndexFromIJK uses 0-based indexing 
+
+    cells.push_back(std::make_pair(gridCellIndex, gridindex));
+
+    return cells;
 }
 
 //--------------------------------------------------------------------------------------------------
