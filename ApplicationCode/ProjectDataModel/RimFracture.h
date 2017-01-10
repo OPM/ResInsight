@@ -40,9 +40,11 @@ public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
+    caf::PdmField<double>           azimuth;
+
     virtual cvf::Vec3d              centerPointForFracture() = 0;
     virtual RimFractureDefinition*  attachedFractureDefinition() = 0;
-    
+
     bool                            hasValidGeometry() const;
     void                            computeGeometry();
 
@@ -51,12 +53,17 @@ public:
     const std::vector<cvf::uint>&   polygonIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
+protected:
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     bool                            isRecomputeGeometryFlagSet();
 //    cvf::Vec3d                      fracturePositionForUi() const;
 
 
 private:
+
     cvf::ref<RigFracture>   m_rigFracture;
     bool                    m_recomputeGeometry;
+
 };

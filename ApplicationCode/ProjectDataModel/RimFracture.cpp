@@ -34,6 +34,8 @@ RimFracture::RimFracture(void)
 {
     CAF_PDM_InitObject("Fracture", "", "", "");
 
+    CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
+
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
 }
@@ -83,9 +85,9 @@ void RimFracture::computeGeometry()
     }
 
     // TODO: Modify coords by fracture center and orientation
-    for (int i = 0; i < nodeCoords.size(); i++ )
+    for (cvf::Vec3f& v : nodeCoords)
     {
-        nodeCoords[i] = nodeCoords[i] + static_cast<cvf::Vec3f>(center);
+        v = v + static_cast<cvf::Vec3f>(center);
     }
 
     m_rigFracture->setGeometry(polygonIndices, nodeCoords); 
@@ -107,6 +109,15 @@ void RimFracture::setRecomputeGeometryFlag()
 bool RimFracture::isRecomputeGeometryFlagSet()
 {
     return m_recomputeGeometry;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
+    geometryGroup->add(&azimuth);
 }
 
 //--------------------------------------------------------------------------------------------------

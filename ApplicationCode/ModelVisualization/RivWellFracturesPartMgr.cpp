@@ -68,18 +68,17 @@ void RivWellFracturesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
 
     if (fractures.size() > 0)
     {
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(fractures.at(0));
-    if (!objHandle) return;
+        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(fractures.at(0));
+        if (!objHandle) return;
 
-    RimEclipseView* mainView = nullptr;
-    objHandle->firstAncestorOrThisOfType(mainView);
-    if (!mainView) return;
+        RimEclipseView* mainView = nullptr;
+        objHandle->firstAncestorOrThisOfType(mainView);
+        if (!mainView) return;
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = mainView->displayCoordTransform();
+        cvf::ref<caf::DisplayCoordTransform> transForm = mainView->displayCoordTransform();
 
-    appendFracturePartsToModel(fractures, model, transForm.p());
+        appendFracturePartsToModel(fractures, model, transForm.p());
     }
-    
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -193,6 +193,8 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 {
     uiOrdering.add(&name);
 
+    RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
+
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
     geometryGroup->add(&fractureDefinition);
    
