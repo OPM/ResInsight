@@ -20,7 +20,7 @@
 
 #include "RifReaderEclipseOutput.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseInputCaseOpm.h"
@@ -45,7 +45,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName, RigCaseData* caseData)
+void RifReaderOpmParserInput::importGridPropertiesFaults(const QString& fileName, RigEclipseCaseData* caseData)
 {
     RiuMainWindow::instance()->processMonitor()->addStringToLog(QString("\nStarted reading of grid and properties from file : " + fileName + "\n"));
 
@@ -432,7 +432,7 @@ void RifReaderOpmParserInput::initUsingWarnings(Opm::ParseContext* parseContext)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RifReaderOpmParserPropertyReader::findOrCreateResult(const QString& newResultName, RigCaseData* reservoir)
+size_t RifReaderOpmParserPropertyReader::findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir)
 {
     size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
@@ -446,7 +446,7 @@ size_t RifReaderOpmParserPropertyReader::findOrCreateResult(const QString& newRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmParserPropertyReader::readAllProperties(std::shared_ptr< Opm::Deck > deck, RigCaseData* caseData, std::map<QString, QString>* newResults)
+void RifReaderOpmParserPropertyReader::readAllProperties(std::shared_ptr< Opm::Deck > deck, RigEclipseCaseData* caseData, std::map<QString, QString>* newResults)
 {
     std::set<std::string> uniqueKeywords;
     for (auto it = deck->begin(); it != deck->end(); it++)
@@ -549,7 +549,7 @@ std::set<std::string> RifReaderOpmParserPropertyReader::keywords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmParserPropertyReader::copyPropertyToCaseData(const std::string& keywordName, RigCaseData* caseData, const QString& resultName)
+bool RifReaderOpmParserPropertyReader::copyPropertyToCaseData(const std::string& keywordName, RigEclipseCaseData* caseData, const QString& resultName)
 {
     {
         std::string errorMessage;
@@ -629,7 +629,7 @@ void RifReaderOpmParserPropertyReader::getAllValuesForKeyword(std::shared_ptr< O
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmParserPropertyReader::isDataItemCountIdenticalToMainGridCellCount(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, RigCaseData* caseData)
+bool RifReaderOpmParserPropertyReader::isDataItemCountIdenticalToMainGridCellCount(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, RigEclipseCaseData* caseData)
 {
     bool isEqual = false;
     {

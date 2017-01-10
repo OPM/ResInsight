@@ -20,7 +20,7 @@
 #include "RiuResultTextBuilder.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
@@ -139,7 +139,7 @@ QString RiuResultTextBuilder::topologyText(QString itemSeparator)
 
     if (m_reservoirView && m_reservoirView->eclipseCase())
     {
-        const RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
+        const RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
         if (eclipseCase)
         {
             if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
@@ -187,7 +187,7 @@ QString RiuResultTextBuilder::gridResultDetails()
 
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData())
     {
-        RigCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
         RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
@@ -210,7 +210,7 @@ QString RiuResultTextBuilder::faultResultDetails()
 
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData())
     {
-        RigCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
         RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
         RigMainGrid* mainGrid = grid->mainGrid();
 
@@ -251,7 +251,7 @@ QString RiuResultTextBuilder::formationDetails()
 
             size_t k =  cvf::UNDEFINED_SIZE_T;
             {
-                const RigCaseData* eclipseData = m_reservoirView->eclipseCase()->reservoirData();
+                const RigEclipseCaseData* eclipseData = m_reservoirView->eclipseCase()->reservoirData();
                 if(eclipseData)
                 {
                     if(m_cellIndex != cvf::UNDEFINED_SIZE_T)
@@ -301,7 +301,7 @@ QString RiuResultTextBuilder::faultResultText()
 
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData())
     {
-        RigCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
         RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
         RigMainGrid* mainGrid = grid->mainGrid();
 
@@ -331,7 +331,7 @@ QString RiuResultTextBuilder::nncResultText()
     {
         if (m_reservoirView.notNull() && m_reservoirView->eclipseCase())
         {
-            RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
+            RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
 
             RigMainGrid* grid = eclipseCase->mainGrid();
             CVF_ASSERT(grid);
@@ -366,7 +366,7 @@ QString RiuResultTextBuilder::nncResultText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuResultTextBuilder::appendTextFromResultColors(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText)
+void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText)
 {
     if (!resultColors)
     {
@@ -561,7 +561,7 @@ QString RiuResultTextBuilder::nncDetails()
     {
         if (m_reservoirView.notNull() && m_reservoirView->eclipseCase())
         {
-            RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
+            RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
 
             RigMainGrid* grid = eclipseCase->mainGrid();
             CVF_ASSERT(grid);
@@ -649,7 +649,7 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
 
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData())
     {
-        RigCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
         RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());

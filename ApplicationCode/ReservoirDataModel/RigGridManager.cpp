@@ -17,14 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigGridManager.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridManager::addCase(RigCaseData* eclipseCase)
+void RigGridManager::addCase(RigEclipseCaseData* eclipseCase)
 {
     cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap(eclipseCase, eclipseCase->mainGrid());
     m_caseToGrid.push_back(caseAndGrid.p());
@@ -33,7 +33,7 @@ void RigGridManager::addCase(RigCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridManager::removeCase(RigCaseData* eclipseCase)
+void RigGridManager::removeCase(RigEclipseCaseData* eclipseCase)
 {
     for (size_t i = 0; i < m_caseToGrid.size(); i++)
     {
@@ -121,7 +121,7 @@ bool RigGridManager::isGridDimensionsEqual(const std::vector< std::vector<int> >
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigGridManager::CaseToGridMap::CaseToGridMap(RigCaseData* eclipseCase, RigMainGrid* mainGrid) :
+RigGridManager::CaseToGridMap::CaseToGridMap(RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid) :
 m_eclipseCase(eclipseCase),
     m_mainGrid(mainGrid)
 {

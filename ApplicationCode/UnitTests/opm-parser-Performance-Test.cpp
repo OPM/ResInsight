@@ -2,7 +2,7 @@
 #include "opm/parser/eclipse/Parser/Parser.hpp"
 #include "gtest/gtest.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RifEclipseInputFileTools.h"
 #include "RifReaderOpmParserInput.h"
 

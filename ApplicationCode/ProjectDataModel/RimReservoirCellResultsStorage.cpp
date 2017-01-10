@@ -21,7 +21,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
 
@@ -1518,17 +1518,17 @@ double RimReservoirCellResultsStorage::darchysValue()
 
     if (rimCase && rimCase->reservoirData())
     {
-        RigCaseData::UnitsType unitsType = rimCase->reservoirData()->unitsType();
+        RigEclipseCaseData::UnitsType unitsType = rimCase->reservoirData()->unitsType();
 
-        if (unitsType == RigCaseData::UNITS_FIELD)
+        if (unitsType == RigEclipseCaseData::UNITS_FIELD)
         {
             darchy = 0.001127;
         }
-        else if (unitsType == RigCaseData::UNITS_METRIC)
+        else if (unitsType == RigEclipseCaseData::UNITS_METRIC)
         {
             darchy = 0.008527;
         }
-        else if (unitsType == RigCaseData::UNITS_LAB)
+        else if (unitsType == RigEclipseCaseData::UNITS_LAB)
         {
             darchy = 3.6;
         }

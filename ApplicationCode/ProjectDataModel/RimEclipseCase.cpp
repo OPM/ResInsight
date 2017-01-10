@@ -25,7 +25,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimCaseCollection.h"
@@ -120,7 +120,7 @@ RimEclipseCase::~RimEclipseCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseData* RimEclipseCase::reservoirData()
+RigEclipseCaseData* RimEclipseCase::reservoirData()
 {
     return m_rigEclipseCase.p();
 }
@@ -128,7 +128,7 @@ RigCaseData* RimEclipseCase::reservoirData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigCaseData* RimEclipseCase::reservoirData() const
+const RigEclipseCaseData* RimEclipseCase::reservoirData() const
 {
     return m_rigEclipseCase.p();
 }
@@ -294,7 +294,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &flipXAxis || changedField == &flipYAxis)
     {
-        RigCaseData* rigEclipseCase = reservoirData();
+        RigEclipseCaseData* rigEclipseCase = reservoirData();
         if (rigEclipseCase)
         {
             rigEclipseCase->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
@@ -323,7 +323,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::updateFormationNamesData()
 {
-    RigCaseData* rigEclipseCase = reservoirData();
+    RigEclipseCaseData* rigEclipseCase = reservoirData();
     if(rigEclipseCase)
     {
         if(activeFormationNames())
@@ -381,7 +381,7 @@ void RimEclipseCase::updateFormationNamesData()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::computeCachedData()
 {
-    RigCaseData* rigEclipseCase = reservoirData();
+    RigEclipseCaseData* rigEclipseCase = reservoirData();
     if (rigEclipseCase)
     {
         caf::ProgressInfo pInf(30, "");
@@ -425,7 +425,7 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setReservoirData(RigCaseData* eclipseCase)
+void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;
     if (this->reservoirData())

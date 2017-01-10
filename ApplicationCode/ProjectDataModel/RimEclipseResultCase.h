@@ -44,7 +44,7 @@ public:
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
 
     virtual bool                openEclipseGridFile();
-    bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
+    bool                        openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 
     // Overrides from RimCase

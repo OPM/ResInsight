@@ -31,7 +31,7 @@
 #include <QDateTime>
 
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RifReaderSettings;
 
 
@@ -59,7 +59,7 @@ public:
     bool                        isImportOfCompleteMswDataEnabled();
     bool                        isNNCsEnabled();
 
-    virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
+    virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;

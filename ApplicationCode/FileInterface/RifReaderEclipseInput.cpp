@@ -22,7 +22,7 @@
 
 #include "RifEclipseInputFileTools.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 //==================================================================================================
@@ -48,7 +48,7 @@ RifReaderEclipseInput::~RifReaderEclipseInput()
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseInput::open(const QString& fileName, RigCaseData* eclipseCase)
+bool RifReaderEclipseInput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 

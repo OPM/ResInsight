@@ -29,7 +29,7 @@
 #include <vector>
 #include "cvfStructGrid.h"
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigWellPath;
 class RigResultAccessor;
 
@@ -43,14 +43,14 @@ namespace cvf {
 class RigEclipseWellLogExtractor : public RigWellLogExtractor
 {
 public:
-    RigEclipseWellLogExtractor(const RigCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
+    RigEclipseWellLogExtractor(const RigEclipseCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
     void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
-    const RigCaseData*          caseData()     { return m_caseData.p();}
+    const RigEclipseCaseData*          caseData()     { return m_caseData.p();}
 
 protected:
     void                        calculateIntersection();
     std::vector<size_t>         findCloseCells(const cvf::BoundingBox& bb);
 
-    cvf::cref<RigCaseData>      m_caseData;
+    cvf::cref<RigEclipseCaseData>      m_caseData;
 };

@@ -20,7 +20,7 @@
 
 #include "RivReservoirPartMgr.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, RimEclipseView* reservoirView)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigEclipseCaseData* eclipseCase, RimEclipseView* reservoirView)
 {
     m_allGrids.clear();
 

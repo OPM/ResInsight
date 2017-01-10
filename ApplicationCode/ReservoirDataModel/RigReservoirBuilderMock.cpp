@@ -21,7 +21,7 @@
 #include "RigReservoirBuilderMock.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
@@ -168,7 +168,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
+void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
 {
     std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
     appendNodes(m_minWorldCoordinate, m_maxWorldCoordinate, cellDimension(), mainGridNodes);
@@ -293,7 +293,7 @@ void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values)
+bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values)
 {
     size_t k;
 
@@ -314,7 +314,7 @@ bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QString& result, std::vector<double>* values)
+bool RigReservoirBuilderMock::staticResult(RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values)
 {
     values->resize(eclipseCase->mainGrid()->globalCellArray().size());
 
@@ -330,7 +330,7 @@ bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RigReservoirBuilderMock::dynamicResult(RigEclipseCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
 {
     int resultIndex = 1;
 
@@ -365,7 +365,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase* grid)
+void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGridBase* grid)
 {
     CVF_ASSERT(eclipseCase);
     CVF_ASSERT(grid);
@@ -481,7 +481,7 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
+void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
 {
     if (!eclipseCase) return;
 

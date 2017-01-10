@@ -21,7 +21,7 @@
 #include "RimEclipseStatisticsCaseEvaluator.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
@@ -317,7 +317,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase, RimIdenticalGridCaseGroup* identicalGridCaseGroup)
+RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigEclipseCaseData* destinationCase, RimIdenticalGridCaseGroup* identicalGridCaseGroup)
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),

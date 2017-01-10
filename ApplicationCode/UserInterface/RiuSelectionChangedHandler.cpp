@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"

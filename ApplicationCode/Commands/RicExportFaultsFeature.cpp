@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
 

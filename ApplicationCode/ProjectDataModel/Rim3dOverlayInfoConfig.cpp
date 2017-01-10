@@ -21,7 +21,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseNativeVisibleCellsStatCalc.h"
 #include "RigFemNativeVisibleCellsStatCalc.h"
 #include "RigFemPartCollection.h"

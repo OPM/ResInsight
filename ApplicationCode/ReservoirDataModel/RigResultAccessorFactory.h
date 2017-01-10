@@ -33,20 +33,20 @@ class RigResultAccessorFactory
 {
 public:
     static cvf::ref<RigResultAccessor>
-        createFromResultDefinition(RigCaseData* eclipseCase,
+        createFromResultDefinition(RigEclipseCaseData* eclipseCase,
                                    size_t gridIndex,
                                    size_t timeStepIndex,
                                    RimEclipseResultDefinition* resultDefinition);
 
     static cvf::ref<RigResultAccessor>
-        createFromUiResultName(RigCaseData* eclipseCase,
+        createFromUiResultName(RigEclipseCaseData* eclipseCase,
                                size_t gridIndex,
                                RifReaderInterface::PorosityModelResultType porosityModel,
                                size_t timeStepIndex,
                                const QString& uiResultName);
 
     static cvf::ref<RigResultAccessor>
-        createFromNameAndType(RigCaseData* eclipseCase,
+        createFromNameAndType(RigEclipseCaseData* eclipseCase,
                               size_t gridIndex,
                               RifReaderInterface::PorosityModelResultType porosityModel,
                               size_t timeStepIndex,
@@ -54,7 +54,7 @@ public:
                               RimDefines::ResultCatType resultType);
 
     static cvf::ref<RigResultAccessor>
-        createFromResultIdx(RigCaseData* eclipseCase,
+        createFromResultIdx(RigEclipseCaseData* eclipseCase,
                             size_t gridIndex,
                             RifReaderInterface::PorosityModelResultType porosityModel,
                             size_t timeStepIndex,
@@ -62,7 +62,7 @@ public:
 
 private:
     static cvf::ref<RigResultAccessor>
-        createNativeFromUiResultName(RigCaseData* eclipseCase,
+        createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
                                      size_t gridIndex,
                                      RifReaderInterface::PorosityModelResultType porosityModel,
                                      size_t timeStepIndex,

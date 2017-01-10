@@ -23,7 +23,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
 
@@ -181,7 +181,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         return;
     }
 
-    RigCaseData* rigCaseData = mainCase->reservoirData();
+    RigEclipseCaseData* rigCaseData = mainCase->reservoirData();
     CVF_ASSERT(rigCaseData);
 
     RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;

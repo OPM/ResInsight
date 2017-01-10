@@ -20,7 +20,7 @@
 #include "RivTextureCoordsCreator.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RigResultAccessorFactory.h"
 
@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, size_t gridIndex, const cvf::StructGridQuadToCellFaceMapper* quadMapper)
 {
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     m_quadMapper = quadMapper;
     CVF_ASSERT(quadMapper && eclipseCase );

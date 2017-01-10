@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
 #include "RimCalcScript.h"

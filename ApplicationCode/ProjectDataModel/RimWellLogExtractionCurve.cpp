@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -260,8 +260,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            RigCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
-            if (eclipseUnitsType == RigCaseData::UNITS_FIELD)
+            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
+            if (eclipseUnitsType == RigEclipseCaseData::UNITS_FIELD)
             {
                 // See https://github.com/OPM/ResInsight/issues/538
                 

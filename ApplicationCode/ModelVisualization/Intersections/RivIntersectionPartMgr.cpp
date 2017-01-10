@@ -99,7 +99,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         CVF_ASSERT(cellResultColors);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-        RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
 
         // CrossSections
         if (m_crossSectionFaces.notNull())

@@ -43,7 +43,7 @@ class RiaPreferences;
 class RiaProjectModifier;
 class RiaSocketServer;
 
-class RigCaseData;
+class RigEclipseCaseData;
 
 class RimCommandObject;
 class RimEclipseCase;

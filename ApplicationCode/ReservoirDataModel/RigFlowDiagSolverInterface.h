@@ -49,7 +49,7 @@ private:
 };
 
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigOpmFldStaticData;
 
 class RigFlowDiagSolverInterface : public cvf::Object

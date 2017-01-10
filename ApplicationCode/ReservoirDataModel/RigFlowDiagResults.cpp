@@ -19,7 +19,7 @@
 #include "RigFlowDiagResults.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigFlowDiagStatCalc.h"
 

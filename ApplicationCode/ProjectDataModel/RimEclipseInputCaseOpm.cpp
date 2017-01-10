@@ -25,7 +25,7 @@
 #include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
@@ -162,7 +162,7 @@ void RimEclipseInputCaseOpm::importEclipseGridAndProperties(const QString& fileN
 {
     if (this->reservoirData() == NULL)
     {
-        this->setReservoirData(new RigCaseData);
+        this->setReservoirData(new RigEclipseCaseData);
 
         RifReaderOpmParserInput::importGridPropertiesFaults(fileName, reservoirData());
 

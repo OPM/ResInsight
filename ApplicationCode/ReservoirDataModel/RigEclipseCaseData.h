@@ -44,7 +44,7 @@ struct RigWellResultPoint;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RigCaseData : public cvf::Object
+class RigEclipseCaseData : public cvf::Object
 {
 public:
     enum UnitsType
@@ -55,8 +55,8 @@ public:
     };
 
 public:
-    RigCaseData();
-    ~RigCaseData();
+    RigEclipseCaseData();
+    ~RigEclipseCaseData();
 
     RigMainGrid*                                mainGrid();
     const RigMainGrid*                          mainGrid() const;

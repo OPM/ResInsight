@@ -19,7 +19,7 @@
 
 #include "RigSimulationWellCenterLineCalculator.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCell.h"
 
 #include "RimEclipseCase.h"
@@ -39,7 +39,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(RimEclip
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
     bool isAutoDetectBranches = false;
-    RigCaseData*   eclipseCaseData = NULL;
+    RigEclipseCaseData*   eclipseCaseData = NULL;
     RigSingleWellResultsData* wellResults = NULL;
 
     {

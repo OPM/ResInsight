@@ -62,7 +62,7 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
         return NULL;
     }
 
-    RigCaseData* eclCaseData = eclCase->reservoirData();
+    RigEclipseCaseData* eclCaseData = eclCase->reservoirData();
     RigWellPath* wellPathGeom = wellPath->wellPathGeometry();
     for (size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx)
     {
@@ -131,7 +131,7 @@ void RimWellLogPlotCollection::removeExtractors(const RigWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::removeExtractors(const RigCaseData* caseData)
+void RimWellLogPlotCollection::removeExtractors(const RigEclipseCaseData* caseData)
 {
     for (int eIdx = (int) m_extractors.size() - 1; eIdx >= 0; eIdx--)
     {

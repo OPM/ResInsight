@@ -21,7 +21,7 @@
 #include "RivCellEdgeGeometryUtils.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCellEdgeResultAccessor.h"
 #include "RigGridBase.h"
 #include "RigResultAccessor.h"
@@ -55,7 +55,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     bool useDefaultValueForHugeVals,
     float opacityLevel)
 {
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
     CVF_ASSERT(eclipseCase != NULL);
 
     // Create result access objects
@@ -199,7 +199,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
     const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
     cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
 {
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
     CVF_ASSERT(eclipseCase != NULL);
 
     cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
@@ -294,7 +294,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
     RimEclipseCellColors* cellResultColors,
     RimCellEdgeColors* cellEdgeResultColors,
     size_t timeStepIndex,
-    RigCaseData* eclipseCase,
+    RigEclipseCaseData* eclipseCase,
     const RigGridBase* grid)
 {
     cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
@@ -326,7 +326,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, RigCaseData* eclipseCase, const RigGridBase* grid)
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, RigEclipseCaseData* eclipseCase, const RigGridBase* grid)
 {
     cvf::ref<RigResultAccessor> resultAccessor = NULL;
 

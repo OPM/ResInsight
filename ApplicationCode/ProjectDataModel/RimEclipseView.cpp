@@ -25,7 +25,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
@@ -944,7 +944,7 @@ void RimEclipseView::updateLegends()
         return;
     }
 
-    RigCaseData* eclipseCase = m_reservoir->reservoirData();
+    RigEclipseCaseData* eclipseCase = m_reservoir->reservoirData();
     CVF_ASSERT(eclipseCase);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());

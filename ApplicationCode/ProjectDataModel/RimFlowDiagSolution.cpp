@@ -22,7 +22,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"

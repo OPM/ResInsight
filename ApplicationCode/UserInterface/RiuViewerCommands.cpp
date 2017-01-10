@@ -27,7 +27,7 @@
 #include "RicRangeFilterNewExec.h"
 #include "WellPathCommands/RicWellPathViewerEventHandler.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFault.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"

@@ -23,7 +23,7 @@
 #include "RicNewViewFeature.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigSingleWellResultsData.h"
 
 #include "RimCaseCollection.h"
@@ -143,7 +143,7 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
     if (this->reservoirData()) return true;
 
-    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
 
     CVF_ASSERT(parentStatisticsCaseCollection());
 
@@ -228,7 +228,7 @@ void RimEclipseStatisticsCase::computeStatistics()
         timeStepIndices.push_back(i);
     }
 
-    RigCaseData* resultCase = reservoirData();
+    RigEclipseCaseData* resultCase = reservoirData();
 
     QList<RimEclipseStatisticsCaseEvaluator::ResSpec > resultSpecification;
 
@@ -395,7 +395,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
         return options;
     }
 
-    RigCaseData* caseData = idgcg->mainCase()->reservoirData();
+    RigEclipseCaseData* caseData = idgcg->mainCase()->reservoirData();
 
     if (&m_selectedDynamicProperties == fieldNeedingOptions)
     {
@@ -716,7 +716,7 @@ void RimEclipseStatisticsCase::populateResultSelection()
         return;
     }
 
-    RigCaseData* caseData = idgcg->mainCase()->reservoirData();
+    RigEclipseCaseData* caseData = idgcg->mainCase()->reservoirData();
 
     if (m_selectedDynamicProperties().size() == 0)
     {

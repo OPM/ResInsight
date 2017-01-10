@@ -25,7 +25,7 @@
 #include "RiaApplication.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
 
@@ -87,7 +87,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView.isNull()) return;
 
-    RigCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
 
     RimEclipseWell* well = m_rimWell;
 

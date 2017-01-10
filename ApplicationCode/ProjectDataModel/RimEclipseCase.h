@@ -36,7 +36,7 @@
 
 class QString;
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigGridBase;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
@@ -68,8 +68,8 @@ public:
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
-    RigCaseData*                                reservoirData();
-    const RigCaseData*                          reservoirData() const;
+    RigEclipseCaseData*                                reservoirData();
+    const RigEclipseCaseData*                          reservoirData() const;
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -104,10 +104,10 @@ protected:
     // Internal methods
 protected:
     void                                        computeCachedData();
-    void                                        setReservoirData(RigCaseData* eclipseCase);
+    void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigCaseData>                       m_rigEclipseCase;
+    cvf::ref<RigEclipseCaseData>                       m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;

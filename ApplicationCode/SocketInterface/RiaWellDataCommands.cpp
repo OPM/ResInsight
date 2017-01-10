@@ -23,7 +23,7 @@
 #include "RiaSocketTools.h"
 
 #include "RigGridBase.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"

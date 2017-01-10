@@ -20,7 +20,7 @@
 #include "RigTimeHistoryResultAccessor.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel)
+RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel)
     : m_eclipseCaseData(eclipseCaseData),
       m_gridIndex(gridIndex),
       m_cellIndex(cellIndex),

@@ -22,7 +22,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RifEclipseOutputFileTools.h"
@@ -231,7 +231,7 @@ void RifReaderEclipseOutput::close()
 //--------------------------------------------------------------------------------------------------
 /// Read geometry from file given by name into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigCaseData* eclipseCase)
+bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -349,7 +349,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseCase)
+bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
     caf::ProgressInfo progInfo(100, "");
@@ -523,7 +523,7 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase)
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -704,16 +704,16 @@ void RifReaderEclipseOutput::buildMetaData()
         }
 
         // Default units type is METRIC
-        RigCaseData::UnitsType unitsType = RigCaseData::UNITS_METRIC;
+        RigEclipseCaseData::UnitsType unitsType = RigEclipseCaseData::UNITS_METRIC;
         {
             int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
             if (unitsTypeValue == 2)
             {
-                unitsType = RigCaseData::UNITS_FIELD;
+                unitsType = RigEclipseCaseData::UNITS_FIELD;
             }
             else if (unitsTypeValue == 3)
             {
-                unitsType = RigCaseData::UNITS_LAB;
+                unitsType = RigEclipseCaseData::UNITS_LAB;
             }
         }
 

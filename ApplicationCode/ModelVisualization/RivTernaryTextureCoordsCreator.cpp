@@ -20,7 +20,7 @@
 #include "RivTernaryTextureCoordsCreator.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RigResultAccessorFactory.h"
 #include "RigTernaryResultAccessor2d.h"
@@ -49,7 +49,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     CVF_ASSERT(quadMapper);
     m_quadMapper = quadMapper;
 
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     size_t resTimeStepIdx = timeStepIndex;
 
@@ -83,7 +83,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     size_t timeStepIndex)
     : m_quadMapper(NULL)
 {
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
 
     size_t resTimeStepIdx = timeStepIndex;
 

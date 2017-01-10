@@ -20,7 +20,7 @@
 
 #include "RivSimWellPipesPartMgr.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigSimulationWellCenterLineCalculator.h"

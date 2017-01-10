@@ -28,7 +28,7 @@
 #include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimMockModelSettings.h"
@@ -110,7 +110,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
         readerInterface->setReaderSetting(prefs->readerSettings());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
-        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
             return false;
@@ -141,7 +141,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
+bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase)
 {
     // Early exit if data is already read
     if (m_activeCellInfoIsReadFromFile) return true;
@@ -158,7 +158,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCas
             return false;
         }
 
-        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
 
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
@@ -204,7 +204,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCas
 cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString modelName)
 {
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
-    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
 
      if (modelName == RimDefines::mockModelBasic())
     {

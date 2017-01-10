@@ -22,7 +22,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
