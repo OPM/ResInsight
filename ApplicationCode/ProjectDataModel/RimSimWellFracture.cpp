@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
 #include "RigMainGrid.h"
 #include "RigTesselatorTools.h"
 
@@ -125,7 +124,7 @@ cvf::Vec3d RimSimWellFracture::centerPointForFracture()
     objHandle->firstAncestorOrThisOfType(mainView);
     if (!mainView) return undef;
 
-    const RigMainGrid* mainGrid = mainView->eclipseCase()->reservoirData()->mainGrid();
+    const RigMainGrid* mainGrid = mainView->mainGrid();
     if (!mainGrid) return undef;
 
     size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i-1, m_j-1, m_k-1); // cellIndexFromIJK uses 0-based indexing 
