@@ -20,8 +20,13 @@
 
 #include "RigFracture.h"
 #include "RigTesselatorTools.h"
-#include "RimFractureDefinition.h"
 
+#include "RimFractureDefinition.h"
+#include "RimView.h"
+
+#include "cafPdmUiDoubleSliderEditor.h"
+
+#include "cvfMatrix4.h"
 
 
 
@@ -35,6 +40,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitObject("Fracture", "", "", "");
 
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
+    azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
@@ -66,6 +72,24 @@ const std::vector<cvf::Vec3f>& RimFracture::nodeCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &azimuth)
+    {
+        computeGeometry();
+
+        RimView* rimView = nullptr;
+        this->firstAncestorOrThisOfType(rimView);
+        if (rimView)
+        {
+            rimView->createDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFracture::computeGeometry()
 {
     std::vector<cvf::Vec3f> nodeCoords;
@@ -84,10 +108,18 @@ void RimFracture::computeGeometry()
 
     }
 
-    // TODO: Modify coords by fracture center and orientation
+    // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
+    cvf::Mat4f rotationFromTesselator = cvf::Mat4f::fromRotation(cvf::Vec3f::X_AXIS, cvf::Math::toRadians(90.0f));
+
+    // Azimuth rotation
+    cvf::Mat4f azimuthRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(-azimuth()));
+
+    cvf::Mat4f m = azimuthRotation * rotationFromTesselator;
+    m.setTranslation(cvf::Vec3f(center));
+
     for (cvf::Vec3f& v : nodeCoords)
     {
-        v = v + static_cast<cvf::Vec3f>(center);
+        v.transformPoint(m);
     }
 
     m_rigFracture->setGeometry(polygonIndices, nodeCoords); 
@@ -118,6 +150,22 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 {
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
     geometryGroup->add(&azimuth);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (field == &azimuth)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_minimum = 0;
+            myAttr->m_maximum = 360;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

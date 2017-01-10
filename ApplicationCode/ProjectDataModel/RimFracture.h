@@ -20,6 +20,8 @@
 
 #include "cafPdmObject.h"
 
+#include "cafPdmField.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -53,8 +55,12 @@ public:
     const std::vector<cvf::uint>&   polygonIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
+
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
     bool                            isRecomputeGeometryFlagSet();
