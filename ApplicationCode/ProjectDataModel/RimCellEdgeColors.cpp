@@ -102,9 +102,9 @@ void RimCellEdgeColors::loadResult()
 
     if (isUsingSingleVariable())
     {
-        size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(m_singleVarEdgeResultColors->resultType(), 
-                                                                                               m_singleVarEdgeResultColors->resultVariable());
-
+        m_singleVarEdgeResultColors->loadResult();;
+        
+        size_t resultindex = m_singleVarEdgeResultColors->scalarResultIndex();
         for (int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
         {
             m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultindex);
@@ -397,6 +397,11 @@ bool RimCellEdgeColors::hasResult() const
 {
     if (!enableCellEdgeColors()) return false;
 
+    if (isUsingSingleVariable() && m_singleVarEdgeResultColors->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        return true;
+    }
+
     bool hasResult = false;
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
@@ -547,5 +552,13 @@ RimLegendConfig* RimCellEdgeColors::legendConfig()
     {
         return m_legendConfig;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCellEdgeColors::PropertyType RimCellEdgeColors::propertyType() const
+{
+    return m_propertyType();
 }
 

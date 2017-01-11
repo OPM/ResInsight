@@ -20,7 +20,13 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigFlowDiagResults.h"
+#include "RigFormationNames.h"
+
 #include "RimCellEdgeColors.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimLegendConfig.h"
@@ -232,6 +238,107 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 RimEclipseView* RimEclipseCellColors::reservoirView()
 {
     return m_reservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
+{
+    if (this->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        RigFlowDiagResults* flowResultsData = this->flowDiagSolution()->flowDiagResults();
+        RigFlowDiagResultAddress resAddr = this->flowDiagResAddress();
+
+        int integerTimeStep = static_cast<int>(currentTimeStep);
+
+        flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &globalMin, &globalMax);
+        flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
+
+        double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
+        if (this->hasDynamicResult())
+        {
+            flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &localMin, &localMax);
+            flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+        }
+        else
+        {
+            localMin = globalMin;
+            localMax = globalMax;
+
+            localPosClosestToZero = globalPosClosestToZero;
+            localNegClosestToZero = globalNegClosestToZero;
+        }
+
+        CVF_ASSERT(this->legendConfig());
+
+        this->legendConfig()->disableAllTimeStepsRange(true);
+        this->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        this->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        if (this->hasCategoryResult())
+        {
+            this->legendConfig()->setNamedCategories(this->flowDiagSolution()->tracerNames());
+        }
+    }
+    else
+    {
+        RimEclipseCase* rimEclipseCase = nullptr;
+        this->firstAncestorOrThisOfType(rimEclipseCase);
+        CVF_ASSERT(rimEclipseCase);
+        if (!rimEclipseCase) return;
+
+        RigEclipseCaseData* eclipseCase = rimEclipseCase->reservoirData();
+        CVF_ASSERT(eclipseCase);
+        if (!eclipseCase) return;
+
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(this->porosityModel());
+        RigCaseCellResultsData* cellResultsData = eclipseCase->results(porosityModel);
+        CVF_ASSERT(cellResultsData);
+
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), globalMin, globalMax);
+        cellResultsData->posNegClosestToZero(this->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
+
+        double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
+        if (this->hasDynamicResult())
+        {
+            cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), currentTimeStep, localMin, localMax);
+            cellResultsData->posNegClosestToZero(this->scalarResultIndex(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+        }
+        else
+        {
+            localMin = globalMin;
+            localMax = globalMax;
+
+            localPosClosestToZero = globalPosClosestToZero;
+            localNegClosestToZero = globalNegClosestToZero;
+        }
+
+        CVF_ASSERT(this->legendConfig());
+
+        this->legendConfig()->disableAllTimeStepsRange(false);
+        this->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        this->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        if (this->hasCategoryResult())
+        {
+            if (this->resultType() != RimDefines::FORMATION_NAMES)
+            {
+                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
+            }
+            else
+            {
+                const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                this->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

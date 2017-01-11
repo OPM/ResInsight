@@ -83,8 +83,11 @@ public:
     void                                  loadResult();
     bool                                  hasResult() const; 
     bool                                  hasCategoryResult() const;
+    bool                                  isUsingSingleVariable() const;
+
     RimEclipseCellColors*                 singleVarEdgeResultColors();
     RimLegendConfig*                      legendConfig();
+    PropertyType                          propertyType() const;
 
     void                                  minMaxCellEdgeValues(double& min, double& max);
     void                                  posNegClosestToZero(double& pos, double& neg);
@@ -115,7 +118,6 @@ private:
     caf::PdmPointer<RimEclipseView>                 m_reservoirView;
     double                                          m_ignoredResultScalar;
 
-    bool                                            isUsingSingleVariable() const;
 
     caf::PdmField<caf::AppEnum< PropertyType > >    m_propertyType;
     caf::PdmChildField<RimLegendConfig*>            m_legendConfig;

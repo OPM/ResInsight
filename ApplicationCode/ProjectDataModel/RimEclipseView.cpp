@@ -960,24 +960,31 @@ void RimEclipseView::updateLegends()
 
     if (this->cellEdgeResult()->hasResult())
     {
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
-        this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
-
-        this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
-        this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
-
-        if (this->cellEdgeResult()->hasCategoryResult())
+        if (this->cellEdgeResult()->isUsingSingleVariable())
         {
-            if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
+            this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_currentTimeStep);
+        }
+        else
+        {
+            double globalMin, globalMax;
+            double globalPosClosestToZero, globalNegClosestToZero;
+            this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
+            this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
+
+            this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
+            this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
+
+            if (this->cellEdgeResult()->hasCategoryResult())
             {
-                cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
-            }
-            else
-            {
-                const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
-                cellEdgeResult()->legendConfig()->setNamedCategoriesInverse(fnVector);
+                if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
+                {
+                    cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
+                }
+                else
+                {
+                    const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                    cellEdgeResult()->legendConfig()->setNamedCategoriesInverse(fnVector);
+                }
             }
         }
 
@@ -998,91 +1005,11 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 {
     if (resultColors->hasResult())
     {
-        if (resultColors->resultType() == RimDefines::FLOW_DIAGNOSTICS)
-        {
-            double globalMin, globalMax;
-            double globalPosClosestToZero, globalNegClosestToZero;
-            RigFlowDiagResults* flowResultsData = resultColors->flowDiagSolution()->flowDiagResults();
-            RigFlowDiagResultAddress resAddr = resultColors->flowDiagResAddress();
-
-            flowResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &globalMin, &globalMax);
-            flowResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
-
-            double localMin, localMax;
-            double localPosClosestToZero, localNegClosestToZero;
-            if ( resultColors->hasDynamicResult() )
-            {
-                flowResultsData->minMaxScalarValues(resAddr, m_currentTimeStep, &localMin, &localMax);
-                flowResultsData->posNegClosestToZero(resAddr, m_currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
-            }
-            else
-            {
-                localMin = globalMin;
-                localMax = globalMax;
-
-                localPosClosestToZero = globalPosClosestToZero;
-                localNegClosestToZero = globalNegClosestToZero;
-            }
-
-            CVF_ASSERT(resultColors->legendConfig());
-
-            resultColors->legendConfig()->disableAllTimeStepsRange(true);
-            resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-            resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-            if ( resultColors->hasCategoryResult() )
-            {
-                resultColors->legendConfig()->setNamedCategories(resultColors->flowDiagSolution()->tracerNames());
-            }
-
-         }
-        else
-        {
-            double globalMin, globalMax;
-            double globalPosClosestToZero, globalNegClosestToZero;
-            cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), globalMin, globalMax);
-            cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
-
-            double localMin, localMax;
-            double localPosClosestToZero, localNegClosestToZero;
-            if ( resultColors->hasDynamicResult() )
-            {
-                cellResultsData->minMaxCellScalarValues(resultColors->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
-                cellResultsData->posNegClosestToZero(resultColors->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
-            }
-            else
-            {
-                localMin = globalMin;
-                localMax = globalMax;
-
-                localPosClosestToZero = globalPosClosestToZero;
-                localNegClosestToZero = globalNegClosestToZero;
-            }
-
-            CVF_ASSERT(resultColors->legendConfig());
-
-            resultColors->legendConfig()->disableAllTimeStepsRange(false);
-            resultColors->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-            resultColors->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-            if ( resultColors->hasCategoryResult() )
-            {
-                if ( resultColors->resultType() != RimDefines::FORMATION_NAMES )
-                {
-                    resultColors->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(resultColors->scalarResultIndex()));
-                }
-                else
-                {
-                    const std::vector<QString>& fnVector = eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
-                    resultColors->legendConfig()->setNamedCategoriesInverse(fnVector);
-                }
-            }
-        }
+        resultColors->updateLegendData(m_currentTimeStep);
 
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
         resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariableUiName()));
     }
-
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)

@@ -298,10 +298,22 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
     const RigGridBase* grid)
 {
     cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
+    
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+
+    if (cellEdgeResultColors->propertyType() == RimCellEdgeColors::ANY_SINGLE_PROPERTY)
+    {
+        cvf::ref<RigResultAccessor> daObj = RivCellEdgeGeometryUtils::createCellCenterResultAccessor(cellEdgeResultColors->singleVarEdgeResultColors(), timeStepIndex, eclipseCase, grid);
+
+        for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
+        {
+            cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
+        }
+    }
+    else
     {
         size_t resultIndices[6];
         cellEdgeResultColors->gridScalarIndices(resultIndices);
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
         std::vector<RimCellEdgeMetaData> metaData;
         cellEdgeResultColors->cellEdgeMetaData(&metaData);
@@ -342,10 +354,4 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAcce
 
     return resultAccessor;
 }
-
-
-
-
-
-
 
