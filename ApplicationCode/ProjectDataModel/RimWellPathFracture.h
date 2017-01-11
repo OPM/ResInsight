@@ -46,29 +46,31 @@ public:
     RimWellPathFracture(void);
     virtual ~RimWellPathFracture(void);
 
-    caf::PdmField<QString>                      name;
-    caf::PdmPtrField<RimFractureDefinition* >   fractureDefinition;
+    caf::PdmField<QString>                          name;
+    caf::PdmPtrField<RimFractureDefinition* >       fractureDefinition;
 
-    caf::PdmField<float>                        measuredDepth;
-    caf::PdmField<cvf::Vec3d>                   positionAtWellpath;
-    caf::PdmProxyValueField<cvf::Vec3d>         ui_positionAtWellpath;
+    caf::PdmField<float>                            measuredDepth;
+    caf::PdmField<cvf::Vec3d>                       positionAtWellpath;
+    caf::PdmProxyValueField<cvf::Vec3d>             ui_positionAtWellpath;
 
-    caf::PdmField<int>                          i;
-    caf::PdmField<int>                          j;
-    caf::PdmField<int>                          k;
+    caf::PdmField<int>                              i;
+    caf::PdmField<int>                              j;
+    caf::PdmField<int>                              k;
 
-    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual caf::PdmFieldHandle*                userDescriptionField() override;
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     // Overrides from RimFracture
-    virtual cvf::Vec3d                          centerPointForFracture() override;
-    virtual RimFractureDefinition*              attachedFractureDefinition() override;
+    virtual cvf::Vec3d                              centerPointForFracture() override;
+    virtual RimFractureDefinition*                  attachedFractureDefinition() override;
 
-    virtual std::vector<size_t>                 getIJK() override;
+
+    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() override;
+
 
 protected:
-    virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    cvf::Vec3d                                  fracturePositionForUi() const;
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    cvf::Vec3d                                      fracturePositionForUi() const;
 
 };

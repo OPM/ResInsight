@@ -45,32 +45,29 @@ public:
     RimSimWellFracture(void);
     virtual ~RimSimWellFracture(void);
 
-    caf::PdmField<QString>                      name;
-    caf::PdmPtrField<RimFractureDefinition*>    fractureDefinition;
-    size_t                                      gridindex;
+    caf::PdmField<QString>                          name;
+    caf::PdmPtrField<RimFractureDefinition*>        fractureDefinition;
+    size_t                                          gridindex;
 
-    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual caf::PdmFieldHandle*                userDescriptionField() override;
-    void                                        setIJK(size_t i, size_t j, size_t k);
-    std::vector<size_t>                         getIJK() override;
-    void                                        setCellCenterPosition();
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
+    void                                            setIJK(size_t i, size_t j, size_t k);
+    void                                            setCellCenterPosition();
     // Overrides from RimFracture
-    virtual cvf::Vec3d                          centerPointForFracture() override;
-    virtual RimFractureDefinition*              attachedFractureDefinition() override;
-
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-
+    virtual cvf::Vec3d                              centerPointForFracture() override;
+    virtual RimFractureDefinition*                  attachedFractureDefinition() override;
     virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() override;
 
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    
 protected:
-    virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    cvf::Vec3d                                  fracturePositionForUi() const;
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    cvf::Vec3d                                      fracturePositionForUi() const;
 
 private:
-    caf::PdmField<int>                          m_i;  //Eclipse indexing, lowest value is 1
-    caf::PdmField<int>                          m_j;
-    caf::PdmField<int>                          m_k;
-    caf::PdmField<cvf::Vec3d>                   cellCenterPosition;
-    caf::PdmProxyValueField<cvf::Vec3d>         ui_cellCenterPosition;
+    caf::PdmField<int>                              m_i;  //Eclipse indexing, lowest value is 1
+    caf::PdmField<int>                              m_j;
+    caf::PdmField<int>                              m_k;
+    caf::PdmField<cvf::Vec3d>                       cellCenterPosition;
+    caf::PdmProxyValueField<cvf::Vec3d>             ui_cellCenterPosition;
 };

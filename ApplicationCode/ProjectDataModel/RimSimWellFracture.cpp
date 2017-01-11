@@ -180,9 +180,9 @@ std::vector<std::pair<size_t, size_t>> RimSimWellFracture::getFracturedCells()
     const RigMainGrid* mainGrid = mainView->mainGrid(); 
     if (!mainGrid) return cells;
 
-    size_t gridCellIndex = mainGrid->cellIndexFromIJK(m_i - 1, m_j - 1, m_k - 1); // cellIndexFromIJK uses 0-based indexing 
+    size_t cellIndex = mainGrid->cellIndexFromIJK(m_i - 1, m_j - 1, m_k - 1); // cellIndexFromIJK uses 0-based indexing 
 
-    cells.push_back(std::make_pair(gridCellIndex, gridindex));
+    cells.push_back(std::make_pair(cellIndex, gridindex));
 
     return cells;
 }
@@ -205,20 +205,7 @@ void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
     m_k = static_cast<int>(k + 1);
 
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimSimWellFracture::getIJK()
-{
-    std::vector<size_t> ijk;
-    ijk.push_back(m_i);
-    ijk.push_back(m_j);
-    ijk.push_back(m_k);
-    
-    return ijk;
-}
-
+     
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

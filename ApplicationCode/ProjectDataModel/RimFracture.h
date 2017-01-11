@@ -46,21 +46,18 @@ public:
 
     virtual cvf::Vec3d              centerPointForFracture() = 0;
     virtual RimFractureDefinition*  attachedFractureDefinition() = 0;
-
-    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells();
-    virtual std::vector<size_t>                     getIJK() = 0;
-
+    cvf::ref<RigFracture>           attachedRigFracture();
 
     bool                            hasValidGeometry() const;
     void                            computeGeometry();
-    
-    void                            computeTransmissibility();
-
     void                            setRecomputeGeometryFlag();
-
+    
     const std::vector<cvf::uint>&   polygonIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
+
+    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() = 0;
+    void                                            computeTransmissibility();
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
@@ -70,7 +67,6 @@ protected:
 
 private:
     bool                            isRecomputeGeometryFlagSet();
-//    cvf::Vec3d                      fracturePositionForUi() const;
 
 
 private:

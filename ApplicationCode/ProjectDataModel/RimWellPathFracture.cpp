@@ -126,17 +126,16 @@ RimFractureDefinition* RimWellPathFracture::attachedFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimWellPathFracture::getIJK()
+std::vector<std::pair<size_t, size_t>> RimWellPathFracture::getFracturedCells()
 {
-    //TODO: Need to find these indecies. 
-    //For now just writing dummy values to be able to test fracture export function. 
-    std::vector<size_t> ijk;
-    ijk.push_back(1);
-    ijk.push_back(2);
-    ijk.push_back(3);
+    std::vector<std::pair<size_t, size_t>> cells;
+    size_t cellindex = 123; //TODO! For now just retunrning a dummy value!
+    size_t gridindex = 0;
+    cells.push_back(std::make_pair(cellindex, gridindex));
 
-    return ijk;
+    return cells;
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
