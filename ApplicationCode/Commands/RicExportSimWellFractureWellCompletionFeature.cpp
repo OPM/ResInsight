@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportFractureWellCompletionFeature.h"
+#include "RicExportSimWellFractureWellCompletionFeature.h"
 
 
 #include "RiaApplication.h"
@@ -42,12 +42,12 @@
 #include <QMessageBox>
 #include <QString>
 
-CAF_CMD_SOURCE_INIT(RicExportFractureWellCompletionFeature, "RicExportFractureWellCompletionFeature");
+CAF_CMD_SOURCE_INIT(RicExportSimWellFractureWellCompletionFeature, "RicExportSimWellFractureWellCompletionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureWellCompletionFeature::onActionTriggered(bool isChecked)
+void RicExportSimWellFractureWellCompletionFeature::onActionTriggered(bool isChecked)
 {
 
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
@@ -91,7 +91,7 @@ void RicExportFractureWellCompletionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
+void RicExportSimWellFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
     actionToSetup->setText("Export Fracture Well Completion Data");
@@ -100,7 +100,7 @@ void RicExportFractureWellCompletionFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportFractureWellCompletionFeature::isCommandEnabled()
+bool RicExportSimWellFractureWellCompletionFeature::isCommandEnabled()
 {
     return true;
 }

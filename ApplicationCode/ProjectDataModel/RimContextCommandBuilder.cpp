@@ -346,7 +346,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseWellCollection*>(uiItem))
         {
-            commandIds << "RicExportFractureWellCompletionFeature";
+            commandIds << "RicExportSimWellFractureWellCompletionFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {
