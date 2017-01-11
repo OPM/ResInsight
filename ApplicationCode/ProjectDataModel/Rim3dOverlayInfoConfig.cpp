@@ -414,7 +414,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         if (eclipseView->hasUserRequestedAnimation() && eclipseView->cellEdgeResult()->hasResult())
         {
             double min, max;
-            QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariable();
+            QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiName();
             eclipseView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
             infoText += QString("<b>Cell Edge Property:</b> %1 ").arg(cellEdgeName);
             infoText += QString("<table border=0 cellspacing=5 >"

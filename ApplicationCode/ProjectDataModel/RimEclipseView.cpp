@@ -989,7 +989,7 @@ void RimEclipseView::updateLegends()
         }
 
         m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
-        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable()));
+        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiName()));
     }
     else
     {

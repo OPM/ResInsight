@@ -531,6 +531,21 @@ QString RimCellEdgeColors::resultVariable() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimCellEdgeColors::resultVariableUiName() const
+{
+    if (isUsingSingleVariable())
+    {
+        return m_singleVarEdgeResultColors->resultVariableUiName();
+    }
+    else
+    {
+        return m_resultVariable;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellEdgeColors::objectToggleField()
 {
    return &enableCellEdgeColors;
