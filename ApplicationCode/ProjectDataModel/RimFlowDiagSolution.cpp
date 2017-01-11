@@ -122,7 +122,6 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfType(eclCase);
-    TracerStatusType tracerStatus = UNDEFINED;
 
     std::map<std::string, std::vector<int> > tracersWithCells;
 
@@ -137,6 +136,9 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
             if (!wellResults[wIdx]->hasWellResult(timeStepIndex) ) continue;
             
             size_t wellTimeStep = wellResults[wIdx]->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex];
+            
+            if (wellTimeStep == cvf::UNDEFINED_SIZE_T) continue;
+
             const RigWellResultFrame& wellResFrame =  wellResults[wIdx]->m_wellCellsTimeSteps[wellTimeStep];
 
             if ( !wellResFrame.m_isOpen ) continue;
@@ -189,27 +191,30 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(Q
 
         for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
         {
-            if(wellResults[wIdx]->m_wellName == tracerName)
+            if ( wellResults[wIdx]->m_wellName == tracerName )
             {
-               for (const RigWellResultFrame& wellResFrame : wellResults[wIdx]->m_wellCellsTimeSteps)
-               {
-                    if (wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR 
-                    || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
-                    ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR)
+                tracerStatus = CLOSED;
+                for ( const RigWellResultFrame& wellResFrame : wellResults[wIdx]->m_wellCellsTimeSteps )
+                {
+                    if (wellResFrame.m_isOpen)
                     {
-                        if (tracerStatus == PRODUCER) tracerStatus = VARYING;
-                        else tracerStatus = INJECTOR;
+                        if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
+                            || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
+                            ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
+                        {
+                            if ( tracerStatus == PRODUCER ) tracerStatus = VARYING;
+                            else tracerStatus = INJECTOR;
+                        }
+                        else if ( wellResFrame.m_productionType == RigWellResultFrame::PRODUCER )
+                        {
+                            if ( tracerStatus == INJECTOR ) tracerStatus = VARYING;
+                            else tracerStatus = PRODUCER;
+                        }
                     }
-                    else if (wellResFrame.m_productionType == RigWellResultFrame::PRODUCER)
-                    {
-                        if ( tracerStatus == INJECTOR ) tracerStatus = VARYING;
-                        else tracerStatus = PRODUCER;
-                    }
-                    
-                    if (tracerStatus == VARYING) break;
-               }
+                    if ( tracerStatus == VARYING ) break;
+                }
 
-               break;
+                break;
             }
         }
     }
@@ -234,8 +239,13 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
             if ( wellResults[wIdx]->m_wellName == tracerName )
             {
                 size_t wellTimeStep = wellResults[wIdx]->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex];
+                
+                if (wellTimeStep == cvf::UNDEFINED_SIZE_T) return CLOSED;
+
                 const RigWellResultFrame& wellResFrame = wellResults[wIdx]->m_wellCellsTimeSteps[wellTimeStep];
                 {
+                    if (!wellResFrame.m_isOpen)  return CLOSED;
+
                     if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
                         || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
                         ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )

@@ -48,6 +48,7 @@ public:
 
     enum TracerStatusType
     {
+        CLOSED,
         PRODUCER, 
         INJECTOR, 
         VARYING, 

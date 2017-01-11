@@ -364,7 +364,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                     case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
                     case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
                     }
-                    prefixedTracerNamesMap[prefix + tracerName] = tracerName;
+
+                    if (status != RimFlowDiagSolution::CLOSED) prefixedTracerNamesMap[prefix + tracerName] = tracerName;
                 }
 
                 for (auto nameIt: prefixedTracerNamesMap)
