@@ -106,7 +106,7 @@ void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setDrawable(geo.p());
 
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), 0.5), caf::PO_1);
+            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN)), caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             part->setEffect(eff.p());
