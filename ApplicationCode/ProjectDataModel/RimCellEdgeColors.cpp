@@ -21,6 +21,7 @@
 #include "RimCellEdgeColors.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigFlowDiagResults.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -436,22 +437,34 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
     globalMin = HUGE_VAL;
     globalMax = -HUGE_VAL;
 
-    size_t resultIndices[6];
-    this->gridScalarIndices(resultIndices);
-
-    size_t idx;
-    for (idx = 0; idx < 6; idx++)
+    if (isUsingSingleVariable() && singleVarEdgeResultColors()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
     {
-        if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+        int currentTimeStep = m_reservoirView->currentTimeStep();
 
+        RigFlowDiagResults* fldResults = singleVarEdgeResultColors()->flowDiagSolution()->flowDiagResults();
+        RigFlowDiagResultAddress resAddr = singleVarEdgeResultColors()->flowDiagResAddress();
+
+        fldResults->minMaxScalarValues(resAddr, currentTimeStep, &globalMin, &globalMax);
+    }
+    else
+    {
+        size_t resultIndices[6];
+        this->gridScalarIndices(resultIndices);
+
+        size_t idx;
+        for (idx = 0; idx < 6; idx++)
         {
-            double cMin, cMax;
-            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+            if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
-            globalMin = CVF_MIN(globalMin, cMin);
-            globalMax = CVF_MAX(globalMax, cMax);
+            {
+                double cMin, cMax;
+                m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+
+                globalMin = CVF_MIN(globalMin, cMin);
+                globalMax = CVF_MAX(globalMax, cMax);
+            }
+
         }
-
     }
 
     min = globalMin;
