@@ -18,44 +18,22 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfLibCore.h"
+#include "cafCmdFeature.h"
 
-#include "ert/ecl/ecl_kw.h"
-
-#include <map>
-#include <QString>
-
-
-class RimEclipseWellCollection;
-class RimSimWellFracture;
-class RimWellPathCollection;
-class RimWellPathFracture;
-class QFile;
-
-
+#include <vector>
 
 
 //==================================================================================================
-//
-// Class for access to Eclipse "keyword" files using libecl
-//
+/// 
 //==================================================================================================
-class RifEclipseExportTools 
+class RicExportWellPathFractureWellCompletionFeature : public caf::CmdFeature
 {
-public:
-    RifEclipseExportTools();
-    virtual ~RifEclipseExportTools();
+    CAF_CMD_HEADER_INIT;
+protected:
 
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
+    virtual bool isCommandEnabled() override;
 
-    static bool     writeSimWellFracturesToTextFile(const QString& fileName, RimEclipseWellCollection* wellColl);
-    static bool     writeWellPathFracturesToTextFile(const QString& fileName, RimWellPathCollection* wellColl);
-
-
-private:
-    static void     writeSimWellFractureDataToTextFile(QFile* file, const std::vector<RimSimWellFracture*>& fractures);
-    static void     writeWellPathFractureDataToTextFile(QFile* file, const std::vector<RimWellPathFracture*>& fractures);
-
-
+ 
 };

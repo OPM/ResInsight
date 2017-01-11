@@ -29,6 +29,9 @@
 #include <QFile>
 #include "RimSimWellFracture.h"
 #include "RimEclipseWell.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPath.h"
 
 
 
@@ -66,6 +69,27 @@ bool RifEclipseExportTools::writeSimWellFracturesToTextFile(const QString& fileN
     }
 
     writeSimWellFractureDataToTextFile(&file, fractures);
+
+
+    return true;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseExportTools::writeWellPathFracturesToTextFile(const QString& fileName, RimWellPathCollection* wellColl)
+{
+    std::vector<RimWellPathFracture*> fractures;
+    wellColl->descendantsIncludingThisOfType(fractures);
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return false;
+    }
+
+    writeWellPathFractureDataToTextFile(&file, fractures);
 
 
     return true;
@@ -127,5 +151,61 @@ void RifEclipseExportTools::writeSimWellFractureDataToTextFile(QFile* file, cons
         pi.setProgress(i);
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::writeWellPathFractureDataToTextFile(QFile* file, const std::vector<RimWellPathFracture*>& fractures)
+{
+    QTextStream out(file);
+    out << "\n";
+    out << "-- Exported from ResInsight" << "\n\n";
+    out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
+
+    caf::ProgressInfo pi(fractures.size(), QString("Writing data to file %1").arg(file->fileName()));
+
+    RimWellPathFracture* fracture;
+    RimWellPath* wellPath = nullptr;
+
+    size_t i;
+    std::vector<size_t> ijk;
+    for (i = 0; i < fractures.size(); i++)
+    {
+        fracture = fractures.at(i);
+
+        out << qSetFieldWidth(8);
+        fracture->firstAncestorOrThisOfType(wellPath);
+        out << wellPath->name;  // 1. Well name
+
+        out << qSetFieldWidth(5);
+        //ijk = fracture->getIJK();
+        out << "0";          // 2. I location grid block
+        out << "0";          // 3. J location grid block
+        out << "0";          // 4. K location of upper connecting grid block
+        out << "0";          // 5. K location of lower connecting grid block
+
+        out << "OPEN";          // 6. Open / Shut flag of connection
+        out << "1* ";            // 7. Saturation table number for connection rel perm. Default value
+
+        out << qSetFieldWidth(8);
+        out << 123456789;         // 8. Transmissitivity //TODO: Calculate value
+
+        out << qSetFieldWidth(4);
+        out << "1* ";            // 9. Well bore diameter. Set to default
+
+        out << qSetFieldWidth(8);
+        out << fracture->fractureDefinition->effectiveKh(); // 10. Effective Kh (perm times width)
+        out << qSetFieldWidth(4);
+        out << fracture->fractureDefinition->skinFactor;    // 11. Skin factor
+
+        out << "1*";            // 12. D-factor for handling non-Darcy flow of free gas. Default value. 
+        out << "Z";             // 13. Direction well is penetrating the grid block. Z is default. 
+        out << "1*";            // 14. Pressure equivalent radius, Default
+
+        out << "/" << "\n";
+
+        pi.setProgress(i);
+    }
 }
 
