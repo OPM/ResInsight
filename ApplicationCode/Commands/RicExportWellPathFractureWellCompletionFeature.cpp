@@ -24,12 +24,12 @@
 #include "RifEclipseExportTools.h"
 #include "RifEclipseExportTools.h"
 
-#include "RimBinaryExportSettings.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimFracture.h"
 #include "RimFractureExportSettings.h"
-
+#include "RimView.h"
+#include "RimWellPathCollection.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmObjectHandle.h"
@@ -41,8 +41,6 @@
 #include <QAction>
 #include <QMessageBox>
 #include <QString>
-#include "RimWellPathCollection.h"
-#include "RimView.h"
 
 CAF_CMD_SOURCE_INIT(RicExportWellPathFractureWellCompletionFeature, "RicExportWellPathFractureWellCompletionFeature");
 
@@ -60,6 +58,8 @@ void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isCh
 
     RimWellPathCollection* wellpathColl = nullptr;
     objHandle->firstAncestorOrThisOfType(wellpathColl);
+    std::vector<RimFracture*> fractures;
+    wellpathColl->descendantsIncludingThisOfType(fractures);
 
     RimFractureExportSettings exportSettings;
 
@@ -81,7 +81,7 @@ void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isCh
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Fracture Well Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseExportTools::writeWellPathFracturesToTextFile(exportSettings.fileName, wellpathColl);
+        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures);
 
         if (!isOk)
         {

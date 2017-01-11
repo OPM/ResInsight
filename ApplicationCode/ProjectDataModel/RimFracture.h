@@ -47,7 +47,9 @@ public:
     virtual cvf::Vec3d              centerPointForFracture() = 0;
     virtual RimFractureDefinition*  attachedFractureDefinition() = 0;
 
-    virtual std::vector<std::pair<size_t, size_t>> getFracturedCells();
+    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells();
+    virtual std::vector<size_t>                     getIJK() = 0;
+
 
     bool                            hasValidGeometry() const;
     void                            computeGeometry();

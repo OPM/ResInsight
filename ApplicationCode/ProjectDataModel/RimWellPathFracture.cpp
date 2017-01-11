@@ -126,6 +126,21 @@ RimFractureDefinition* RimWellPathFracture::attachedFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimWellPathFracture::getIJK()
+{
+    //TODO: Need to find these indecies. 
+    //For now just writing dummy values to be able to test fracture export function. 
+    std::vector<size_t> ijk;
+    ijk.push_back(1);
+    ijk.push_back(2);
+    ijk.push_back(3);
+
+    return ijk;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &measuredDepth)

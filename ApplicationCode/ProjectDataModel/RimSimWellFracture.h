@@ -52,7 +52,7 @@ public:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*                userDescriptionField() override;
     void                                        setIJK(size_t i, size_t j, size_t k);
-    std::vector<size_t>                         getIJK();
+    std::vector<size_t>                         getIJK() override;
     void                                        setCellCenterPosition();
     // Overrides from RimFracture
     virtual cvf::Vec3d                          centerPointForFracture() override;

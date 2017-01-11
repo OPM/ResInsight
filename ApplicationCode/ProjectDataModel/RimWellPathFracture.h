@@ -65,6 +65,8 @@ public:
     virtual cvf::Vec3d                          centerPointForFracture() override;
     virtual RimFractureDefinition*              attachedFractureDefinition() override;
 
+    virtual std::vector<size_t>                 getIJK() override;
+
 protected:
     virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     cvf::Vec3d                                  fracturePositionForUi() const;
