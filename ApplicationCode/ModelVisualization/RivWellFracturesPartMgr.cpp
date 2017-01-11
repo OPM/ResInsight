@@ -128,6 +128,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturesPartMgr::createGeo(const std::vector<
 
     geo->setVertexArray(vertices.p());
     geo->addPrimitiveSet(new cvf::PrimitiveSetIndexedUInt(cvf::PT_TRIANGLES, indices.p()));
+    geo->computeNormals();
 
     return geo;
 }
