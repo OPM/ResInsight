@@ -21,7 +21,7 @@
 #include "RigFracture.h"
 #include "RigTesselatorTools.h"
 
-#include "RimFractureEllipseDefinition.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimView.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -128,16 +128,18 @@ void RimFracture::computeGeometry()
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  polygonIndices;
 
-    cvf::Vec3d center = centerPointForFracture();
-    RimFractureEllipseDefinition* fractureDef = attachedFractureDefinition();
-    if (fractureDef && !center.isUndefined())
+    RimEllipseFractureTemplate* fractureDef = attachedFractureDefinition();
+    if (fractureDef )
     {
+
+        //TODO: Move to fracture template
         RigEllipsisTesselator tesselator(20);
 
         float a = fractureDef->height / 2.0f;
         float b = fractureDef->halfLength;
 
         tesselator.tesselateEllipsis(a, b, &polygonIndices, &nodeCoords);
+
     }
 
     cvf::Mat4f m = transformMatrix();
@@ -191,6 +193,7 @@ void RimFracture::computeTransmissibility()
         double area = 2.468;
         double fractureLength = 1.2345;
         double flowLength = 2.718281828;
+
         double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
         
         double transmissibility;

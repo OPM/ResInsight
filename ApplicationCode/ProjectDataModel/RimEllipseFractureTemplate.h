@@ -28,13 +28,13 @@
 ///  
 ///  
 //==================================================================================================
-class RimFractureEllipseDefinition : public caf::PdmObject //TODO: Rename to RimFractureEllipseDefinition
+class RimEllipseFractureTemplate : public caf::PdmObject //Template i stedet for definition
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimFractureEllipseDefinition(void);
-    virtual ~RimFractureEllipseDefinition(void);
+    RimEllipseFractureTemplate(void);
+    virtual ~RimEllipseFractureTemplate(void);
     
     caf::PdmField<QString>   name;
 
@@ -58,10 +58,17 @@ public:
     
     double                          effectiveKh();
     
+    
+
+
     //TODO: Method to get 2D geometry. Returning indexed triangles
+    //Code from RimFracture::ComputeGeometry
 
     //TODO: Method to return a polygon from indexed triangles. 
-    //clipper execute method, union 
+    //clipper execute method, union for general case. 
+    //FOr now: void RigEllipsisTesselator::computeCirclePoints(size_t numSlices) og gi ut rekke med punkter... 
+    //Return punkter std::vector<cvf::Vec3d> 
+
 
 
 protected:

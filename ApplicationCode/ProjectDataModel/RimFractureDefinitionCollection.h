@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
-class RimFractureEllipseDefinition;
+class RimEllipseFractureTemplate;
 
 //==================================================================================================
 ///  
@@ -36,7 +36,7 @@ public:
     RimFractureDefinitionCollection(void);
     virtual ~RimFractureDefinitionCollection(void);
     
-    caf::PdmChildArrayField<RimFractureEllipseDefinition*> fractureDefinitions;
+    caf::PdmChildArrayField<RimEllipseFractureTemplate*> fractureDefinitions;
 
     caf::PdmField<bool>                             isActive;
 

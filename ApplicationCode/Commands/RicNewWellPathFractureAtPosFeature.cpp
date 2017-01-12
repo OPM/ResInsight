@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
-#include "RimFractureEllipseDefinition.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -90,7 +90,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
-        RimFractureEllipseDefinition* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
+        RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
         fracture->fractureDefinition = fracDef;
     }
 

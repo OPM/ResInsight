@@ -28,7 +28,7 @@
 #include "cvfMatrix4.h"
 
 
-class RimFractureEllipseDefinition;
+class RimEllipseFractureTemplate;
 class RigFracture;
 
 //==================================================================================================
@@ -48,7 +48,7 @@ public:
     virtual cvf::Vec3d              centerPointForFracture() = 0;
     cvf::Mat4f                      transformMatrix(); 
 
-    virtual RimFractureEllipseDefinition*  attachedFractureDefinition() = 0;
+    virtual RimEllipseFractureTemplate*  attachedFractureDefinition() = 0;
     cvf::ref<RigFracture>           attachedRigFracture();
 
     bool                            hasValidGeometry() const;

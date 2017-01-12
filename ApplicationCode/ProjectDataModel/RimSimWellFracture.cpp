@@ -26,7 +26,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimFractureEllipseDefinition.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -99,7 +99,7 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
         RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
         if (fracDefColl == nullptr) return options;
 
-        for (RimFractureEllipseDefinition* fracDef : fracDefColl->fractureDefinitions())
+        for (RimEllipseFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
         {
             options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
         }
@@ -137,7 +137,7 @@ cvf::Vec3d RimSimWellFracture::centerPointForFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureEllipseDefinition* RimSimWellFracture::attachedFractureDefinition()
+RimEllipseFractureTemplate* RimSimWellFracture::attachedFractureDefinition()
 {
     return fractureDefinition();
 }

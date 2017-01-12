@@ -27,7 +27,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFracture.h"
-#include "RimFractureEllipseDefinition.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimWellPath.h"
 
 #include "cafProgressInfo.h"

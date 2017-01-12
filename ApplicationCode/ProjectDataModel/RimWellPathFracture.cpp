@@ -22,7 +22,7 @@
 
 #include "RigTesselatorTools.h"
 
-#include "RimFractureEllipseDefinition.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -94,7 +94,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const c
         RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
         if (fracDefColl == nullptr) return options;
 
-        for (RimFractureEllipseDefinition* fracDef : fracDefColl->fractureDefinitions())
+        for (RimEllipseFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
         {
             options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
         }
@@ -118,7 +118,7 @@ cvf::Vec3d RimWellPathFracture::centerPointForFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureEllipseDefinition* RimWellPathFracture::attachedFractureDefinition()
+RimEllipseFractureTemplate* RimWellPathFracture::attachedFractureDefinition()
 {
     return fractureDefinition();
 }

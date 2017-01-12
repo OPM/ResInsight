@@ -18,7 +18,7 @@
 
 #include "RimFractureDefinitionCollection.h"
 
-#include "RimFractureEllipseDefinition.h"
+#include "RimEllipseFractureTemplate.h"
 #include "cafPdmObject.h"
 
 

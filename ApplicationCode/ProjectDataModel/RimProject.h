@@ -33,7 +33,7 @@ class RigMainGrid;
 class RimCase;
 class RimCommandObject;
 class RimEclipseCase;
-class RimFractureEllipseDefinition;
+class RimEllipseFractureTemplate;
 class RimWellPathFractureCollection;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
