@@ -24,64 +24,47 @@
 #include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RimEclipseCellColors.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigTimeHistoryResultAccessor::RigTimeHistoryResultAccessor(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel)
-    : m_eclipseCaseData(eclipseCaseData),
-      m_gridIndex(gridIndex),
-      m_cellIndex(cellIndex),
-      m_scalarResultIndex(scalarResultIndex),
-      m_porosityModel(porosityModel)
+std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount)
 {
-    m_face = cvf::StructGridInterface::NO_FACE;
+    std::vector<double> values;
 
-    computeTimeHistoryData();
+    for (size_t i = 0; i < timeStepCount; i++)
+    {
+        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(gridIndex, i, cellColors);
+
+        values.push_back(resultAccessor->cellScalar(cellIndex));
+    }
+
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigTimeHistoryResultAccessor::setFace(cvf::StructGridInterface::FaceType face)
-{
-    m_face = face;
-
-    computeTimeHistoryData();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues() const
-{
-    return m_timeHistoryValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RigTimeHistoryResultAccessor::topologyText() const
+QString RigTimeHistoryResultAccessor::topologyText(RigEclipseCaseData* eclipseCaseData,  size_t gridIndex, size_t cellIndex)
 {
     QString text;
 
-    if (m_eclipseCaseData)
+    if (eclipseCaseData)
     {
-        if (m_cellIndex != cvf::UNDEFINED_SIZE_T)
+        if (cellIndex != cvf::UNDEFINED_SIZE_T)
         {
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            if (m_eclipseCaseData->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+            if (eclipseCaseData->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
             {
                 // Adjust to 1-based Eclipse indexing
                 i++;
                 j++;
                 k++;
-
-                cvf::StructGridInterface::FaceEnum faceEnum(m_face);
 
                 text += QString("Cell : [%1, %2, %3]").arg(i).arg(j).arg(k);
             }
@@ -89,25 +72,5 @@ QString RigTimeHistoryResultAccessor::topologyText() const
     }
 
     return text;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigTimeHistoryResultAccessor::computeTimeHistoryData()
-{
-    m_timeHistoryValues.clear();
-
-    if (m_eclipseCaseData)
-    {
-        size_t timeStepCount = m_eclipseCaseData->results(m_porosityModel)->timeStepCount(m_scalarResultIndex);
-
-        for (size_t i = 0; i < timeStepCount; i++)
-        {
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_eclipseCaseData, m_gridIndex, m_porosityModel, i, m_scalarResultIndex);
-
-            m_timeHistoryValues.push_back(resultAccessor->cellScalar(m_cellIndex));
-        }
-    }
 }
 

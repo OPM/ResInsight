@@ -19,34 +19,15 @@
 
 #pragma once
 
-#include "cvfStructGrid.h"
-#include "RifReaderInterface.h"
 
 class RigEclipseCaseData;
+class RimEclipseCellColors;
 
 
 class RigTimeHistoryResultAccessor
 {
 public:
-    RigTimeHistoryResultAccessor(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex, size_t scalarResultIndex, RifReaderInterface::PorosityModelResultType porosityModel);
-    void setFace(cvf::StructGridInterface::FaceType face);
-
-    QString             topologyText() const;
-    std::vector<double> timeHistoryValues() const;
-
-private:
-    void                computeTimeHistoryData();
-
-private:
-    RigEclipseCaseData*    m_eclipseCaseData;
-
-    size_t          m_gridIndex;
-    size_t          m_cellIndex;
-    size_t          m_scalarResultIndex;
-
-    cvf::StructGridInterface::FaceType m_face;
-    RifReaderInterface::PorosityModelResultType m_porosityModel;
-
-    std::vector<double> m_timeHistoryValues;
+    static QString             topologyText(RigEclipseCaseData* m_eclipseCaseData,  size_t m_gridIndex, size_t m_cellIndex);
+    static std::vector<double> timeHistoryValues(RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount);
 };
 
