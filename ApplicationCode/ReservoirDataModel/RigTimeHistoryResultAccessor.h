@@ -19,6 +19,9 @@
 
 #pragma once
 
+#include <QString>
+#include <vector>
+
 
 class RigEclipseCaseData;
 class RimEclipseCellColors;
