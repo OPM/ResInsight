@@ -72,7 +72,9 @@ public:
 
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
-    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates);
+    int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
+    std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
+    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<int>& reportStepNumbers);
 
     // Find or create a slot for the results
 
@@ -112,6 +114,7 @@ public:
         QString                     m_resultName;
         size_t                      m_gridScalarResultIndex;
         std::vector<QDateTime>      m_timeStepDates;
+        std::vector<int>            m_timeStepReportNumbers;
     };
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}

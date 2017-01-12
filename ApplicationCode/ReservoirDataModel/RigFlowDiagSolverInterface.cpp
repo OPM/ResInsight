@@ -186,8 +186,12 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         m_opmFldData->eclGraph.assignFluxDataSource(restartFileName.toStdString());
     }
 
+    size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
+    m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
 
-    if ( !  m_opmFldData->eclGraph.selectReportStep(static_cast<int>(timeStepIndex)) )
+    int reportStepNumber =  m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
+
+    if ( !  m_opmFldData->eclGraph.selectReportStep(reportStepNumber) )
     {
         QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: Could not find the requested timestep in the result file. Results will not be loaded.");
         return result;

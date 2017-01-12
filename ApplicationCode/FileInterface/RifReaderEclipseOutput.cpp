@@ -669,9 +669,9 @@ void RifReaderEclipseOutput::buildMetaData()
 
         progInfo.incrementProgress();
 
-
         // Get time steps 
         m_timeSteps = m_dynamicResultsAccess->timeSteps();
+        std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
 
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
@@ -686,7 +686,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps);
+                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
             }
         }
 
@@ -699,7 +699,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
+                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
             }
         }
 
@@ -735,25 +735,34 @@ void RifReaderEclipseOutput::buildMetaData()
 
         RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
+        std::vector<QDateTime> staticDate;
+        std::vector<int> staticReportNumber;
+        {
+            if ( m_timeSteps.size() > 0 )
+            {
+                staticDate.push_back(m_timeSteps.front());
+            }
+
+            std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+            if ( reportNumbers.size() > 0 )
+            {
+                staticReportNumber.push_back(reportNumbers.front());
+            }
+        }
+
         {
             QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
                                                                             RifReaderInterface::MATRIX_RESULTS, 1);
-
-            std::vector<QDateTime> staticDate;
-            if (m_timeSteps.size() > 0)
-            {
-                staticDate.push_back(m_timeSteps.front());
-            }
-
+          
             // Add ACTNUM
             matrixResultNames += "ACTNUM";
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, staticDate);
+                matrixModelResults->setTimeStepDates(resIndex, staticDate, staticReportNumber);
             }
         }
 
@@ -762,20 +771,13 @@ void RifReaderEclipseOutput::buildMetaData()
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
                                                                             RifReaderInterface::FRACTURE_RESULTS, 1);
-
-            std::vector<QDateTime> staticDate;
-            if (m_timeSteps.size() > 0)
-            {
-                staticDate.push_back(m_timeSteps.front());
-            }
-
             // Add ACTNUM
             fractureResultNames += "ACTNUM";
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, staticDate);
+                fractureModelResults->setTimeStepDates(resIndex, staticDate, staticReportNumber);
             }
         }
     }
@@ -1125,6 +1127,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
     std::vector<QDateTime> timeSteps = m_dynamicResultsAccess->timeSteps();
     std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+
     bool sameCount = false;
     if (timeSteps.size() == reportNumbers.size())
     {

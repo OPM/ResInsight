@@ -44,11 +44,12 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     CVF_ASSERT(m_sourceCases.size() > 0);
 
     std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+    std::vector<int> sourceReportStepNumbers = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->reportStepNumbers(0);
 
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
-    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates);
+    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates, sourceReportStepNumbers);
     std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
     dataValues.resize(sourceTimeStepDates.size());
 
