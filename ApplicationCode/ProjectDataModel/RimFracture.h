@@ -25,6 +25,7 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "cvfMatrix4.h"
 
 
 class RimFractureEllipseDefinition;
@@ -45,7 +46,8 @@ public:
     caf::PdmField<double>           azimuth;
 
     virtual cvf::Vec3d              centerPointForFracture() = 0;
-//    virtual cvf::Mat4d              transformMatrix() = 0; TODO: add such method
+    cvf::Mat4f                      transformMatrix(); 
+
     virtual RimFractureEllipseDefinition*  attachedFractureDefinition() = 0;
     cvf::ref<RigFracture>           attachedRigFracture();
 
