@@ -45,6 +45,7 @@ public:
     caf::PdmField<double>           azimuth;
 
     virtual cvf::Vec3d              centerPointForFracture() = 0;
+    virtual cvf::Mat4d              transformMatrix() = 0;
     virtual RimFractureDefinition*  attachedFractureDefinition() = 0;
     cvf::ref<RigFracture>           attachedRigFracture();
 
@@ -52,7 +53,7 @@ public:
     void                            computeGeometry();
     void                            setRecomputeGeometryFlag();
     
-    const std::vector<cvf::uint>&   polygonIndices() const;
+    const std::vector<cvf::uint>&   triangleIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
 

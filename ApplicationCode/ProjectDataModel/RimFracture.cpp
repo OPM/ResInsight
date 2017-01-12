@@ -56,9 +56,9 @@ RimFracture::~RimFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::uint>& RimFracture::polygonIndices() const
+const std::vector<cvf::uint>& RimFracture::triangleIndices() const
 {
-    return m_rigFracture->polygonIndices();
+    return m_rigFracture->triangleIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +117,8 @@ void RimFracture::computeGeometry()
     cvf::Mat4f m = azimuthRotation * rotationFromTesselator;
     m.setTranslation(cvf::Vec3f(center));
 
+    //Denne matrisa bør ut i egen funksjon for å brukes andre steder også... 
+
     for (cvf::Vec3f& v : nodeCoords)
     {
         v.transformPoint(m);
@@ -134,6 +136,8 @@ void RimFracture::computeTransmissibility()
 { 
     std::vector<RigFractureData> fracDataVec;
 
+    //TODO: Use global cell index instead of pair of grid, cell index
+    //TODO: use RigMainGrid - findIntersectingCells / boundingbox 
     std::vector<std::pair<size_t, size_t>> fracCells = getFracturedCells();
 
     for (auto fracCell : fracCells)
@@ -219,6 +223,6 @@ bool RimFracture::hasValidGeometry() const
 {
     if (m_recomputeGeometry) return false;
 
-    return (nodeCoords().size() > 0 && polygonIndices().size() > 0);
+    return (nodeCoords().size() > 0 && triangleIndices().size() > 0);
 }
 

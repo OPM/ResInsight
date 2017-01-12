@@ -91,7 +91,7 @@ void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture
         if (fracture->hasValidGeometry())
         {
             const std::vector<cvf::Vec3f>& nodeCoords = fracture->nodeCoords();
-            const std::vector<cvf::uint>& polygonIndices = fracture->polygonIndices();
+            const std::vector<cvf::uint>& triangleIndices = fracture->triangleIndices();
             std::vector<cvf::Vec3f> displayCoords;
             
             for (int i = 0; i < nodeCoords.size(); i++)
@@ -101,7 +101,7 @@ void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture
                 displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
             }
 
-            cvf::ref<cvf::DrawableGeo> geo = createGeo(polygonIndices, displayCoords);
+            cvf::ref<cvf::DrawableGeo> geo = createGeo(triangleIndices, displayCoords);
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setDrawable(geo.p());

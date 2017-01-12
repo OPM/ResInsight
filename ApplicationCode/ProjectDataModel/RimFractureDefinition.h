@@ -28,7 +28,7 @@
 ///  
 ///  
 //==================================================================================================
-class RimFractureDefinition : public caf::PdmObject
+class RimFractureDefinition : public caf::PdmObject //TODO: Rename to RimFractureEllipseDefinition
 {
      CAF_PDM_HEADER_INIT;
 
@@ -40,8 +40,8 @@ public:
 
     caf::PdmField<float>     halfLength;
     caf::PdmField<float>     height;
-    caf::PdmField<float>     width;
 
+    caf::PdmField<float>     width;
     caf::PdmField<float>     skinFactor;
     caf::PdmField<float>     permeability;
 
@@ -56,8 +56,13 @@ public:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
-    
     double                          effectiveKh();
+    
+    //TODO: Method to get 2D geometry. Returning indexed triangles
+
+    //TODO: Method to return a polygon from indexed triangles. 
+    //clipper execute method, union 
+
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
