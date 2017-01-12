@@ -56,7 +56,6 @@ public:
     // Overrides from RimFracture
     virtual cvf::Vec3d                              centerPointForFracture() override;
     virtual RimFractureEllipseDefinition*                  attachedFractureDefinition() override;
-    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() override;
 
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     

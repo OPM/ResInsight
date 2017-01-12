@@ -66,9 +66,6 @@ public:
     virtual RimFractureEllipseDefinition*                  attachedFractureDefinition() override;
 
 
-    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() override;
-
-
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     cvf::Vec3d                                      fracturePositionForUi() const;

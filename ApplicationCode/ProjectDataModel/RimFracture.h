@@ -59,7 +59,7 @@ public:
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
 
-    virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() = 0;
+    virtual std::vector<size_t>     getPotentiallyFracturedCells();
     void                                            computeTransmissibility();
 
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

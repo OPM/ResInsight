@@ -28,6 +28,10 @@
 
 #include "cvfMath.h"
 #include "cvfMatrix4.h"
+#include "RiaApplication.h"
+#include "RigMainGrid.h"
+#include "RimEclipseView.h"
+#include "cvfBoundingBox.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
@@ -67,6 +71,35 @@ const std::vector<cvf::uint>& RimFracture::triangleIndices() const
 const std::vector<cvf::Vec3f>& RimFracture::nodeCoords() const
 {
     return m_rigFracture->nodeCoords();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimFracture::getPotentiallyFracturedCells()
+{
+    std::vector<size_t> cellindecies;
+
+    RiaApplication* app = RiaApplication::instance();
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return cellindecies;
+ 
+    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+    if (!activeRiv) return cellindecies;
+
+    const RigMainGrid* mainGrid = activeRiv->mainGrid();
+    if (!mainGrid) return cellindecies;
+
+    const std::vector<cvf::Vec3f>& nodeCoordVec = nodeCoords();
+
+    if (!hasValidGeometry()) computeGeometry();
+
+    cvf::BoundingBox polygonBBox;
+    for (cvf::Vec3f nodeCoord : nodeCoordVec) polygonBBox.add(nodeCoord);
+
+    mainGrid->findIntersectingCells(polygonBBox, &cellindecies);
+
+    return cellindecies;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,15 +180,12 @@ void RimFracture::computeTransmissibility()
 { 
     std::vector<RigFractureData> fracDataVec;
 
-    //TODO: Use global cell index instead of pair of grid, cell index
-    //TODO: use RigMainGrid - findIntersectingCells / boundingbox 
-    std::vector<std::pair<size_t, size_t>> fracCells = getFracturedCells();
+    std::vector<size_t> fracCells = getPotentiallyFracturedCells();
 
     for (auto fracCell : fracCells)
     {
         RigFractureData fracData; 
-        fracData.cellindex = fracCell.first;
-        fracData.gridIndex = fracCell.second;
+        fracData.reservoirCellIndex = fracCell;
 
         //TODO: get correct input values...
         double area = 2.468;

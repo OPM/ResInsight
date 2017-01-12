@@ -109,11 +109,11 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, co
             if (!mainGrid) return false;
 
             size_t i, j, k;
-            mainGrid->ijkFromCellIndex(fracData.cellindex, &i, &j, &k);
-            out << i;          // 2. I location grid block
-            out << j;          // 3. J location grid block
-            out << k;          // 4. K location of upper connecting grid block
-            out << k;          // 5. K location of lower connecting grid block
+            mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k); 
+            out << i+1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
+            out << j+1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
+            out << k+1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
+            out << k+1;          // 5. K location of lower connecting grid block, adding 1 to go to eclipse 1-based grid definition
 
             out << "OPEN";          // 6. Open / Shut flag of connection
             out << "1* ";            // 7. Saturation table number for connection rel perm. Default value

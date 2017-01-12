@@ -31,8 +31,7 @@ class RigFractureData
 public:
     RigFractureData();
 
-    size_t gridIndex;
-    size_t cellindex;
+    size_t reservoirCellIndex;
     double transmissibility;
 
 };

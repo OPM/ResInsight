@@ -126,20 +126,6 @@ RimFractureEllipseDefinition* RimWellPathFracture::attachedFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, size_t>> RimWellPathFracture::getFracturedCells()
-{
-    std::vector<std::pair<size_t, size_t>> cells;
-    size_t cellindex = 123; //TODO! For now just retunrning a dummy value!
-    size_t gridindex = 0;
-    cells.push_back(std::make_pair(cellindex, gridindex));
-
-    return cells;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &measuredDepth)
