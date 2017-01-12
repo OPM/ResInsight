@@ -318,11 +318,42 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 {
     QList<caf::PdmOptionItemInfo> options;
 
+    if ( fieldNeedingOptions == &m_resultTypeUiField )
+    {
+
+        bool hasFlowDiagFluxes = false;
+        RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
+        if ( eclResCase && eclResCase->reservoirData() )
+        {
+            hasFlowDiagFluxes = eclResCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
+        }
+
+        // Do not include flow diag results if not available
+
+        if ( !hasFlowDiagFluxes )
+        {
+            using ResCatEnum = caf::AppEnum< RimDefines::ResultCatType >;
+            for ( int i = 0; i < ResCatEnum::size(); ++i )
+            {
+                RimDefines::ResultCatType resType = ResCatEnum::fromIndex(i);
+                if ( resType != RimDefines::FLOW_DIAGNOSTICS )
+                {
+                    QString uiString = ResCatEnum::uiTextFromIndex(i);
+                    options.push_back(caf::PdmOptionItemInfo(uiString, resType));
+                }
+            }
+        }
+        else
+        {
+            // Do nothing, and thereby use the defaults of the AppEnum field
+        }
+    }
+
     if ( m_resultTypeUiField() != RimDefines::FLOW_DIAGNOSTICS )
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            options = calcOptionsForVariableUiFieldStandard();
+                options = calcOptionsForVariableUiFieldStandard();
         }
     }
     else

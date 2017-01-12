@@ -376,6 +376,21 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
+{
+    QStringList dynResVarNames = resultNames(RimDefines::DYNAMIC_NATIVE);
+
+    bool hasFlowFluxes = true;
+    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLRWATI+");
+    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLROILI+");
+    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLRGASI+");
+
+    return hasFlowFluxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepDates.size() > timeStepIndex)

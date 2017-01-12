@@ -60,9 +60,6 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitFieldNoDefault (&m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "");
 
-    // TODO: Create a solution by default only when flux data is available
-    m_flowDiagSolutions.push_back( new RimFlowDiagSolution());
-
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
     caseDirectory.xmlCapability()->setIOWritable(false); 
@@ -73,7 +70,7 @@ RimEclipseResultCase::RimEclipseResultCase()
     flipYAxis.xmlCapability()->setIOWritable(true);
     //flipYAxis.uiCapability()->setUiHidden(true);
 
-    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -135,6 +132,12 @@ bool RimEclipseResultCase::openEclipseGridFile()
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
 
+    if (reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+    {
+        m_flowDiagSolutions.push_back( new RimFlowDiagSolution());
+        m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+    }
+    
     return true;
  }
 

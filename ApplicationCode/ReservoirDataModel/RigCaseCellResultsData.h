@@ -69,6 +69,7 @@ public:
     size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
     QStringList                                        resultNames(RimDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
+    bool                                               hasFlowDiagUsableFluxes() const;
 
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;

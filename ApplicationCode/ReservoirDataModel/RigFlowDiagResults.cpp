@@ -84,6 +84,8 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 
     // We need to access the native data from the opm solver
 
+    if (!solverInterface()) return nullptr;
+
     if (!m_hasAtemptedNativeResults[frameIndex])
     {
         
