@@ -65,3 +65,7 @@ Ankh.NoLoad
 
 #Temp files
 *.temp
+/Resinsight_Host.includes
+/Resinsight_Host.files
+/Resinsight_Host.creator
+/Resinsight_Host.config
