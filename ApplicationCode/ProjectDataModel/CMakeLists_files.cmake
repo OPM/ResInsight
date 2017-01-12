@@ -47,7 +47,6 @@ ${CEE_CURRENT_LIST_DIR}RimFault.h
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFormationNames.h
 ${CEE_CURRENT_LIST_DIR}RimFormationNamesCollection.h
-${CEE_CURRENT_LIST_DIR}RimFlowDiagSolution.h
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
 ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseFaultColors.h
@@ -129,7 +128,6 @@ ${CEE_CURRENT_LIST_DIR}RimFault.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RimFormationNamesCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimFlowDiagSolution.cpp
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseFaultColors.cpp
