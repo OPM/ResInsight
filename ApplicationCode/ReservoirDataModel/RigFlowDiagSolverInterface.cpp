@@ -31,6 +31,7 @@
 #include "RimFlowDiagSolution.h"
 
 #include <QMessageBox>
+#include "cafProgressInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -129,8 +130,13 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     RigFlowDiagTimeStepResult result(m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
 
+    caf::ProgressInfo progressInfo(7, "Calculating Flow Diagnostics");
+   
+
     if ( m_opmFldData.isNull() )
     {
+        progressInfo.setProgressDescription("Grid access");
+
         // Get set of files
         QString gridFileName = m_eclipseCase->gridFileName();
 
@@ -143,9 +149,15 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         m_opmFldData = new RigOpmFldStaticData(gridFileName.toStdString(),
                                                initFileName.toStdString());
 
+        progressInfo.incrementProgress();
+        progressInfo.setProgressDescription("Calculating Connectivities");
+
         const  Opm::FlowDiagnostics::ConnectivityGraph connGraph =
             Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(m_opmFldData->eclGraph.numCells()),
             m_opmFldData->eclGraph.neighbours() };
+
+        progressInfo.incrementProgress();
+        progressInfo.setProgressDescription("Initialize Solver");
 
         // Create the Toolbox.
 
@@ -179,6 +191,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         }
     }
 
+    progressInfo.setProgress(3);
+    progressInfo.setProgressDescription("Assigning Flux Field");
 
     if ( ! m_opmFldData->m_hasUnifiedRestartFile  )
     {
@@ -204,6 +218,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         m_opmFldData->fldToolbox->assignConnectionFlux(connectionsVals);
 
+        progressInfo.incrementProgress();
+
         Opm::ECLWellSolution wsol = Opm::ECLWellSolution{};
 
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
@@ -211,6 +227,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         m_opmFldData->fldToolbox->assignInflowFlux(RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->eclGraph, well_fluxes));
     }
+
+    progressInfo.incrementProgress();
+    progressInfo.setProgressDescription("Injector Solution");
 
     // Injection Solution
     {
@@ -230,6 +249,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             result.setTracerFraction(tracerId.to_string(), fracVals);
         }
     }
+
+    progressInfo.incrementProgress();
+    progressInfo.setProgressDescription("Producer Solution");
 
     // Producer Solution
     {
