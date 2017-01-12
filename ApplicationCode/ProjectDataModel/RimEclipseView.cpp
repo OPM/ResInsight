@@ -989,7 +989,7 @@ void RimEclipseView::updateLegends()
         }
 
         m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->legend());
-        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiName()));
+        this->cellEdgeResult()->legendConfig()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName()));
     }
     else
     {
@@ -1008,7 +1008,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         resultColors->updateLegendData(m_currentTimeStep);
 
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->legend());
-        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariableUiName()));
+        resultColors->legendConfig()->setTitle(cvfqt::Utils::toString(legendLabel + resultColors->resultVariableUiShortName()));
     }
 
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();

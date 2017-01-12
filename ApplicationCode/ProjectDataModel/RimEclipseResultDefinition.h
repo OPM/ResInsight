@@ -47,10 +47,10 @@ class RimEclipseResultDefinition : public caf::PdmObject
 public:
     enum FlowTracerSelectionType
     {
-        FLOW_TR_INDIVIDUAL,
-        FLOW_TR_INJECTORS,
+        FLOW_TR_INJ_AND_PROD,
         FLOW_TR_PRODUCERS,
-        FLOW_TR_INJ_AND_PROD
+        FLOW_TR_INJECTORS,
+        FLOW_TR_BY_SELECTION
     };
     typedef caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType> FlowTracerSelectionEnum;
 
@@ -71,7 +71,8 @@ public:
     RimFlowDiagSolution*            flowDiagSolution();
     RigFlowDiagResultAddress        flowDiagResAddress() const;
 
-    QString                         resultVariableUiName();
+    QString                         resultVariableUiName() const;
+    QString                         resultVariableUiShortName() const;
 
     void                            loadResult();
     size_t                          scalarResultIndex() const;

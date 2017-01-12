@@ -74,6 +74,7 @@ public:
     void                                  setResultVariable(const QString& variableName);
     QString                               resultVariable() const;
     QString                               resultVariableUiName() const;
+    QString                               resultVariableUiShortName() const;
 
     caf::PdmField<bool>                   enableCellEdgeColors;
 

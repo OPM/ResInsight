@@ -45,12 +45,12 @@ namespace caf
     template<>
     void RimEclipseResultDefinition::FlowTracerSelectionEnum::setUp()
     {
-        addItem(RimEclipseResultDefinition::FLOW_TR_INDIVIDUAL,     "FLOW_TR_INDIVIDUAL",   "Individual");
-        addItem(RimEclipseResultDefinition::FLOW_TR_INJECTORS,      "FLOW_TR_INJECTORS",    "All Injectors");
+        addItem(RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD,   "FLOW_TR_INJ_AND_PROD", "All Injectors and Producers");
         addItem(RimEclipseResultDefinition::FLOW_TR_PRODUCERS,      "FLOW_TR_PRODUCERS",    "All Producers");
-        addItem(RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD,   "FLOW_TR_INJ_AND_PROD", "Injectors and Producers");
+        addItem(RimEclipseResultDefinition::FLOW_TR_INJECTORS,      "FLOW_TR_INJECTORS",    "All Injectors");
+        addItem(RimEclipseResultDefinition::FLOW_TR_BY_SELECTION,   "FLOW_TR_BY_SELECTION", "By Selection");
 
-        setDefault(RimEclipseResultDefinition::FLOW_TR_INDIVIDUAL);
+        setDefault(RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD);
     }
 }
 
@@ -79,7 +79,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers, "SelectedTracers", "Tracers", "", "", "");
     m_selectedTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Selection Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
 
     // Ui only fields
 
@@ -101,11 +101,10 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_flowSolutionUiField.xmlCapability()->setIOReadable(false);
     m_flowSolutionUiField.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiField, "MSelectedTracers", "Tracers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiField, "MSelectedTracers", " ", "", "", "");
     m_selectedTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedTracersUiField.xmlCapability()->setIOWritable(false);
     m_selectedTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,7 +561,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     size_t timeStep = rimView->currentTimeStep();
 
     std::set<std::string> selTracerNames;
-    if (m_flowTracerSelectionMode == FLOW_TR_INDIVIDUAL)
+    if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
     {
         for (const QString& tName : m_selectedTracers())
         {
@@ -608,11 +607,57 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::resultVariableUiName()
+QString RimEclipseResultDefinition::resultVariableUiName() const
 {
     if (resultType() == RimDefines::FLOW_DIAGNOSTICS)
     {
-        return QString::fromStdString(flowDiagResAddress().uiText());
+        QString fullName;
+
+        if (m_flowTracerSelectionMode() == FLOW_TR_BY_SELECTION)
+        {
+            fullName = QString::fromStdString(flowDiagResAddress().uiText());
+        }
+        else
+        {
+            fullName = QString::fromStdString(flowDiagResAddress().uiShortText());
+            fullName += QString(" (%1)").arg(m_flowTracerSelectionMode().uiText());
+        }
+
+        return fullName;
+    }
+
+    return m_resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::resultVariableUiShortName() const
+{
+    if (resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        QString shortName;
+
+        if (m_flowTracerSelectionMode() == FLOW_TR_BY_SELECTION)
+        {
+            QString candidate = QString::fromStdString(flowDiagResAddress().uiText());
+
+            int stringSizeLimit = 32;
+            if (candidate.size() > stringSizeLimit)
+            {
+                candidate = candidate.left(stringSizeLimit);
+                candidate += "...";
+            }
+
+            shortName = candidate;
+        }
+        else
+        {
+            shortName = QString::fromStdString(flowDiagResAddress().uiShortText());
+            shortName += QString(" (%1)").arg(m_flowTracerSelectionMode().uiText());
+        }
+
+        return shortName;
     }
 
     return m_resultVariable();
@@ -838,7 +883,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 
         uiOrdering.add(&m_flowTracerSelectionMode);
         
-        if (m_flowTracerSelectionMode == FLOW_TR_INDIVIDUAL)
+        if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
         {
             uiOrdering.add(&m_selectedTracersUiField);
         }

@@ -361,18 +361,17 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
 
         if (eclipseView->cellResult()->isTernarySaturationSelected())
         {
-            QString propName = eclipseView->cellResult()->resultVariableUiName();
+            QString propName = eclipseView->cellResult()->resultVariableUiShortName();
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
         }
 
         if (isResultsInfoRelevant)
         {
-            QString propName = eclipseView->cellResult()->resultVariableUiName();
+            QString propName = eclipseView->cellResult()->resultVariableUiShortName();
             QString timeRangeText =  m_statisticsTimeRange().uiText();
             if ( eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS )
             {
                 timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
-                propName = QString::fromStdString( eclipseView->cellResult()->flowDiagResAddress().uiText());
             }
 
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
@@ -407,14 +406,14 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 }
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
-                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiName());
+                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName());
             }
         }
 
         if (eclipseView->hasUserRequestedAnimation() && eclipseView->cellEdgeResult()->hasResult())
         {
             double min, max;
-            QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiName();
+            QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiShortName();
             eclipseView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
             infoText += QString("<b>Cell Edge Property:</b> %1 ").arg(cellEdgeName);
             infoText += QString("<table border=0 cellspacing=5 >"

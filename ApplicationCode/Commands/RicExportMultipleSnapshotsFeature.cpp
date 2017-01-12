@@ -293,7 +293,7 @@ QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
     {
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(rimView);
         
-        return caf::Utils::makeValidFileBasename(eclView->cellResult()->resultVariableUiName());
+        return caf::Utils::makeValidFileBasename(eclView->cellResult()->resultVariableUiShortName());
     }
     else if (dynamic_cast<RimGeoMechView*>(rimView))
     {
