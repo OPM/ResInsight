@@ -381,9 +381,8 @@ bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
     QStringList dynResVarNames = resultNames(RimDefines::DYNAMIC_NATIVE);
 
     bool hasFlowFluxes = true;
-    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLRWATI+");
-    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLROILI+");
-    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLRGASI+");
+    hasFlowFluxes = dynResVarNames.contains("FLRWATI+");
+    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLROILI+") || dynResVarNames.contains("FLRGASI+");
 
     return hasFlowFluxes;
 }
