@@ -84,7 +84,7 @@ ${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.h
 ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.h
 ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.h
-${CEE_CURRENT_LIST_DIR}RimFractureDefinition.h
+${CEE_CURRENT_LIST_DIR}RimFractureEllipseDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimFractureDefinitionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFracture.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.h
@@ -175,7 +175,7 @@ ${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.cpp
 ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.cpp
 ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.cpp
-${CEE_CURRENT_LIST_DIR}RimFractureDefinition.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureEllipseDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureDefinitionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.cpp

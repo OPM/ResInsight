@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFractureDefinition.h"
+#include "RimFractureEllipseDefinition.h"
 
 #include "cafPdmObject.h"
 #include "RimProject.h"
@@ -28,23 +28,23 @@ namespace caf
 {
     template<>
    
-    void caf::AppEnum< RimFractureDefinition::FracOrientationEnum>::setUp()
+    void caf::AppEnum< RimFractureEllipseDefinition::FracOrientationEnum>::setUp()
     {
-        addItem(RimFractureDefinition::AZIMUTH, "Az", "Azimuth");
-        addItem(RimFractureDefinition::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path");
-        addItem(RimFractureDefinition::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path");
+        addItem(RimFractureEllipseDefinition::AZIMUTH, "Az", "Azimuth");
+        addItem(RimFractureEllipseDefinition::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path");
+        addItem(RimFractureEllipseDefinition::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path");
 
-        setDefault(RimFractureDefinition::TRANSVERSE_WELL_PATH);
+        setDefault(RimFractureEllipseDefinition::TRANSVERSE_WELL_PATH);
     }
 }
 
 
-CAF_PDM_SOURCE_INIT(RimFractureDefinition, "FractureDefinition");
+CAF_PDM_SOURCE_INIT(RimFractureEllipseDefinition, "FractureDefinition");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureDefinition::RimFractureDefinition(void)
+RimFractureEllipseDefinition::RimFractureEllipseDefinition(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
@@ -62,7 +62,7 @@ RimFractureDefinition::RimFractureDefinition(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureDefinition::~RimFractureDefinition()
+RimFractureEllipseDefinition::~RimFractureEllipseDefinition()
 {
 }
 
@@ -70,7 +70,7 @@ RimFractureDefinition::~RimFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFractureDefinition::userDescriptionField()
+caf::PdmFieldHandle* RimFractureEllipseDefinition::userDescriptionField()
 {
     return &name;
 }
@@ -78,7 +78,7 @@ caf::PdmFieldHandle* RimFractureDefinition::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFractureEllipseDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &halfLength || changedField == &height)
     {
@@ -107,7 +107,7 @@ void RimFractureDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureDefinition::effectiveKh()
+double RimFractureEllipseDefinition::effectiveKh()
 {
     //TODO: Handle different units!
     return width * permeability;
@@ -117,7 +117,7 @@ double RimFractureDefinition::effectiveKh()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimFractureEllipseDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
 

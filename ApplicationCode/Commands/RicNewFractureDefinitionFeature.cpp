@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimOilField.h"
-#include "RimFractureDefinition.h"
+#include "RimFractureEllipseDefinition.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimProject.h"
 
@@ -51,7 +51,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
 
     if (fracDefColl)
     {
-        RimFractureDefinition* fractureDef = new RimFractureDefinition();
+        RimFractureEllipseDefinition* fractureDef = new RimFractureEllipseDefinition();
         fracDefColl->fractureDefinitions.push_back(fractureDef);
         fractureDef->name = "Fracture Template";
         

@@ -27,7 +27,7 @@
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureDefinition.h"
+#include "RimFractureEllipseDefinition.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
@@ -79,7 +79,7 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
     if (dynamic_cast<RimWellPathFractureCollection*>(uiItem))        return true;
     if (dynamic_cast<RimWellPathFracture*>(uiItem))                  return true;
-    if (dynamic_cast<RimFractureDefinition*>(uiItem))        return true;
+    if (dynamic_cast<RimFractureEllipseDefinition*>(uiItem))        return true;
     if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))        return true;
     if (dynamic_cast<RimSimWellFracture*>(uiItem))                  return true;
 

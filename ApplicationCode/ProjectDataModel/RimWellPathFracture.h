@@ -31,7 +31,7 @@
 
 #include "cafPdmProxyValueField.h"
 
-class RimFractureDefinition;
+class RimFractureEllipseDefinition;
 class RimWellPath;
 
 //==================================================================================================
@@ -47,7 +47,7 @@ public:
     virtual ~RimWellPathFracture(void);
 
     caf::PdmField<QString>                          name;
-    caf::PdmPtrField<RimFractureDefinition* >       fractureDefinition;
+    caf::PdmPtrField<RimFractureEllipseDefinition* >       fractureDefinition;
 
     caf::PdmField<float>                            measuredDepth;
     caf::PdmField<cvf::Vec3d>                       positionAtWellpath;
@@ -63,7 +63,7 @@ public:
 
     // Overrides from RimFracture
     virtual cvf::Vec3d                              centerPointForFracture() override;
-    virtual RimFractureDefinition*                  attachedFractureDefinition() override;
+    virtual RimFractureEllipseDefinition*                  attachedFractureDefinition() override;
 
 
     virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() override;

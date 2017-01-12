@@ -28,13 +28,13 @@
 ///  
 ///  
 //==================================================================================================
-class RimFractureDefinition : public caf::PdmObject //TODO: Rename to RimFractureEllipseDefinition
+class RimFractureEllipseDefinition : public caf::PdmObject //TODO: Rename to RimFractureEllipseDefinition
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimFractureDefinition(void);
-    virtual ~RimFractureDefinition(void);
+    RimFractureEllipseDefinition(void);
+    virtual ~RimFractureEllipseDefinition(void);
     
     caf::PdmField<QString>   name;
 

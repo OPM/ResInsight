@@ -31,7 +31,7 @@
 #include "cvfVector3.h"
 
 
-class RimFractureDefinition;
+class RimFractureEllipseDefinition;
 
 //==================================================================================================
 ///  
@@ -46,7 +46,7 @@ public:
     virtual ~RimSimWellFracture(void);
 
     caf::PdmField<QString>                          name;
-    caf::PdmPtrField<RimFractureDefinition*>        fractureDefinition;
+    caf::PdmPtrField<RimFractureEllipseDefinition*>        fractureDefinition;
     size_t                                          gridindex;
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
@@ -55,7 +55,7 @@ public:
     void                                            setCellCenterPosition();
     // Overrides from RimFracture
     virtual cvf::Vec3d                              centerPointForFracture() override;
-    virtual RimFractureDefinition*                  attachedFractureDefinition() override;
+    virtual RimFractureEllipseDefinition*                  attachedFractureDefinition() override;
     virtual std::vector<std::pair<size_t, size_t>>  getFracturedCells() override;
 
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

@@ -21,7 +21,7 @@
 #include "RigFracture.h"
 #include "RigTesselatorTools.h"
 
-#include "RimFractureDefinition.h"
+#include "RimFractureEllipseDefinition.h"
 #include "RimView.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -96,7 +96,7 @@ void RimFracture::computeGeometry()
     std::vector<cvf::uint>  polygonIndices;
 
     cvf::Vec3d center = centerPointForFracture();
-    RimFractureDefinition* fractureDef = attachedFractureDefinition();
+    RimFractureEllipseDefinition* fractureDef = attachedFractureDefinition();
     if (fractureDef && !center.isUndefined())
     {
         RigEllipsisTesselator tesselator(20);

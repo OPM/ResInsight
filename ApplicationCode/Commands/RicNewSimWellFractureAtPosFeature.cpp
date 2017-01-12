@@ -22,7 +22,7 @@
 
 #include "RimCase.h"
 #include "RimEclipseWell.h"
-#include "RimFractureDefinition.h"
+#include "RimFractureEllipseDefinition.h"
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -84,7 +84,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
-        RimFractureDefinition* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
+        RimFractureEllipseDefinition* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
         fracture->fractureDefinition = fracDef;
     }
 
