@@ -35,6 +35,7 @@ class RimEclipseView;
 class RimReservoirCellResultsStorage;
 class RimFlowDiagSolution;
 
+
 //==================================================================================================
 ///  
 ///  
@@ -42,6 +43,17 @@ class RimFlowDiagSolution;
 class RimEclipseResultDefinition : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    enum FlowTracerSelectionType
+    {
+        FLOW_TR_INDIVIDUAL,
+        FLOW_TR_INJECTORS,
+        FLOW_TR_PRODUCERS,
+        FLOW_TR_INJ_AND_PROD
+    };
+    typedef caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType> FlowTracerSelectionEnum;
+
 public:
     RimEclipseResultDefinition();
     virtual ~RimEclipseResultDefinition();
@@ -100,6 +112,7 @@ protected:
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
+    caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
     caf::PdmField<std::vector<QString> >                            m_selectedTracersUiField;
 
