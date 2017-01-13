@@ -40,8 +40,8 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
     CAF_PDM_InitObject("Summary Plots", ":/SummaryPlots16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryPlots, "SummaryPlots", "Summary Plots",  "", "", "");
-    m_summaryPlots.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&summaryPlots, "SummaryPlots", "Summary Plots",  "", "", "");
+    summaryPlots.uiCapability()->setUiHidden(true);
 
 }
 
@@ -50,7 +50,7 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::~RimSummaryPlotCollection()
 {
-    m_summaryPlots.deleteAllChildObjects();
+    summaryPlots.deleteAllChildObjects();
 
     for (auto it = m_summaryFileReaders.begin(); it != m_summaryFileReaders.end(); it++)
     {
@@ -124,7 +124,7 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotCollection::updateSummaryNameHasChanged()
 {
-    for (RimSummaryPlot* plot : m_summaryPlots)
+    for (RimSummaryPlot* plot : summaryPlots)
     {
         plot->updateCaseNameHasChanged();
     }

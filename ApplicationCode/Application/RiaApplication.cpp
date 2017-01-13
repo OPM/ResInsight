@@ -565,7 +565,7 @@ void RiaApplication::loadAndUpdatePlotData()
     }
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->m_summaryPlots().size() : 0;
+    plotCount += spColl ? spColl->summaryPlots().size() : 0;
 
     caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
     if (wlpColl)
@@ -579,9 +579,9 @@ void RiaApplication::loadAndUpdatePlotData()
 
     if (spColl)
     {
-        for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
+        for (size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx)
         {
-            spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
+            spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
             plotProgress.incrementProgress();
         }
     }
