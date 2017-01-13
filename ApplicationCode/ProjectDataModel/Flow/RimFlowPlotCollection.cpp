@@ -32,9 +32,13 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 {
     CAF_PDM_InitObject("Flow Diagnostics Plots", ":/newIcon16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&flowPlots, "FlowPlots", "",  "", "", "");
-    flowPlots.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&defaultPlot, "DefaultFlowPlot", "", "", "", "");
+    defaultPlot = new RimWellAllocationPlot;
+    defaultPlot->setDescription("Default Flow Diagnostics Plot");
+    defaultPlot.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&flowPlots, "FlowPlots", "Stored Plots",  "", "", "");
+    flowPlots.push_back(new RimWellAllocationPlot);
     flowPlots.push_back(new RimWellAllocationPlot);
 }
 

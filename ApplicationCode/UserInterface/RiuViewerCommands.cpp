@@ -308,6 +308,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
                 commandIds << "RicNewSimWellIntersectionFeature";
+                commandIds << "RicShowWellAllocationPlotFeature";
             }
         }
 

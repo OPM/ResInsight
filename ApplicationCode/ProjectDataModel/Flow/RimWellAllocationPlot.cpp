@@ -19,7 +19,11 @@
 #include "RimWellAllocationPlot.h"
 
 #include "RiaApplication.h"
+
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
+
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
 
@@ -37,6 +41,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_showWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Flow Diagnostics Plot"), "Name", "", "", "");
+    m_userName.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_simulationWell, "SimulationWell", "Simulation Well", "", "", "");
@@ -62,9 +68,7 @@ void RimWellAllocationPlot::setSimulationWell(RimEclipseWell* simWell)
 {
     m_simulationWell = simWell;
 
-    setDescription(simWell->name());
-
-    updateViewerWidget();
+    updateFromWell();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +86,22 @@ void RimWellAllocationPlot::deletePlotWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateFromWell()
+{
+    QString simName = "None";
+
+    if (m_simulationWell)
+    {
+        simName = m_simulationWell->name();
+    }
+
+    setDescription(simName);
+    updateViewerWidget();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* RimWellAllocationPlot::viewWidget()
 {
     return m_wellAllocationPlot;
@@ -92,6 +112,40 @@ QWidget* RimWellAllocationPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::zoomAll()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_simulationWell)
+    {
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
+
+        if (eclView && eclView->wellCollection())
+        {
+            RimEclipseWellCollection* coll = eclView->wellCollection();
+
+            caf::PdmChildArrayField<RimEclipseWell*>& eclWells = coll->wells;
+
+            QIcon simWellIcon(":/Well.png");
+            for (RimEclipseWell* eclWell : eclWells)
+            {
+                options.push_back(caf::PdmOptionItemInfo(eclWell->name(), eclWell, false, simWellIcon));
+            }
+        }
+
+        if (options.size() == 0)
+        {
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +174,10 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         changedField == &m_showPlotTitle)
     {
         updateViewerWidgetWindowTitle();
+    }
+    else if (changedField == &m_simulationWell)
+    {
+        updateFromWell();
     }
 }
 
@@ -160,6 +218,14 @@ void RimWellAllocationPlot::setDescription(const QString& description)
 QString RimWellAllocationPlot::description() const
 {
     return m_userName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::loadDataAndUpdate()
+{
+    updateViewerWidget();
 }
 
 //--------------------------------------------------------------------------------------------------

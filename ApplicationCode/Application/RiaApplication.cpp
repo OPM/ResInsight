@@ -66,6 +66,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
@@ -113,6 +114,7 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+#include "RimFlowPlotCollection.h"
 
 namespace caf
 {
@@ -554,6 +556,7 @@ void RiaApplication::loadAndUpdatePlotData()
 {
     RimWellLogPlotCollection* wlpColl = nullptr;
     RimSummaryPlotCollection* spColl = nullptr;
+    RimFlowPlotCollection* flowColl = nullptr;
 
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
     {
@@ -563,9 +566,15 @@ void RiaApplication::loadAndUpdatePlotData()
     {
         spColl = m_project->mainPlotCollection()->summaryPlotCollection();
     }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->flowPlotCollection())
+    {
+        flowColl = m_project->mainPlotCollection()->flowPlotCollection();
+    }
+
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
     plotCount += spColl ? spColl->summaryPlots().size() : 0;
+    plotCount += flowColl ? flowColl->flowPlots().size() : 0;
 
     caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
     if (wlpColl)
@@ -582,6 +591,17 @@ void RiaApplication::loadAndUpdatePlotData()
         for (size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx)
         {
             spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+
+    if (flowColl)
+    {
+        flowColl->defaultPlot->loadDataAndUpdate();
+
+        for (RimWellAllocationPlot* p : flowColl->flowPlots())
+        {
+            p->loadDataAndUpdate();
             plotProgress.incrementProgress();
         }
     }
@@ -1122,6 +1142,22 @@ void RiaApplication::setActiveSummaryPlot(RimSummaryPlot* sp)
 RimSummaryPlot* RiaApplication::activeSummaryPlot()
 {
     return m_activeSummaryPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::setActiveWellAllocationPlot(RimWellAllocationPlot* wap)
+{
+    m_activeWellAllocationPlot = wap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellAllocationPlot* RiaApplication::activeWellAllocationPlot()
+{
+    return m_activeWellAllocationPlot;
 }
 
 //--------------------------------------------------------------------------------------------------

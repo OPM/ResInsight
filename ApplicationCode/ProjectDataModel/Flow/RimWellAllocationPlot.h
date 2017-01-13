@@ -30,6 +30,10 @@
 class RiuWellAllocationPlot;
 class RimEclipseWell;
 
+namespace caf {
+    class PdmOptionItemInfo;
+}
+
 
 //==================================================================================================
 ///  
@@ -48,10 +52,15 @@ public:
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
+    void                                            loadDataAndUpdate();
+
     void                                            handleViewerDeletion();
 
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
+
+
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 protected:
     // Overridden PDM methods
@@ -66,6 +75,7 @@ private:
     void                                            updateViewerWidget();
     void                                            updateViewerWidgetWindowTitle();
     void                                            deletePlotWidget();
+    void                                            updateFromWell();
 
 private:
     caf::PdmField<bool>                             m_showWindow;

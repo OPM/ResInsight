@@ -18,23 +18,23 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafCmdFeature.h"
 
-class RimWellAllocationPlot;
+class RimEclipseWell;
+
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimFlowPlotCollection : public caf::PdmObject
+class RicShowWellAllocationPlotFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    RimFlowPlotCollection();
-    virtual ~RimFlowPlotCollection();
-    
-    caf::PdmChildField<RimWellAllocationPlot*>      defaultPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*> flowPlots;
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
+
+
