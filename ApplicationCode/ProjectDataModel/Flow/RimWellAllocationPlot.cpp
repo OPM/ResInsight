@@ -19,11 +19,9 @@
 #include "RimWellAllocationPlot.h"
 
 #include "RiaApplication.h"
+#include "RimEclipseWell.h"
 #include "RiuMainPlotWindow.h"
-
 #include "RiuWellAllocationPlot.h"
-#include "qwt_plot_renderer.h"
-
 
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
@@ -34,13 +32,14 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::RimWellAllocationPlot()
 {
-    CAF_PDM_InitObject("Well Allocation Plot", ":/SummaryPlot16x16.png", "", "");
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Summary Plot", "", "", "");
+    CAF_PDM_InitObject("Well Allocation Plot", ":/newIcon16x16.png", "", "");
+    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Flow Diagnostics Plot", "", "", "");
     m_showWindow.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Flow Diagnostics Plot"), "Name", "", "", "");
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_simulationWell, "SimulationWell", "Simulation Well", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
 {
     if (RiaApplication::instance()->mainPlotWindow())
     {
-        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_qwtPlot);
+        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_wellAllocationPlot);
     }
 
     deletePlotWidget();
@@ -59,21 +58,25 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::deletePlotWidget()
+void RimWellAllocationPlot::setSimulationWell(RimEclipseWell* simWell)
 {
-    if (m_qwtPlot)
-    {
-        m_qwtPlot->deleteLater();
-        m_qwtPlot = NULL;
-    }
+    m_simulationWell = simWell;
+
+    setDescription(simWell->name());
+
+    updateViewerWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::updateAxes()
+void RimWellAllocationPlot::deletePlotWidget()
 {
-    updateZoomInQwt();
+    if (m_wellAllocationPlot)
+    {
+        m_wellAllocationPlot->deleteLater();
+        m_wellAllocationPlot = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,9 +84,15 @@ void RimWellAllocationPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellAllocationPlot::viewWidget()
 {
-    return m_qwtPlot;
+    return m_wellAllocationPlot;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::zoomAll()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -92,25 +101,9 @@ void RimWellAllocationPlot::handleViewerDeletion()
 {
     m_showWindow = false;
 
-    if (m_qwtPlot)
-    {
-        detachAllCurves();
-    }
-
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::zoomAll()
-{
-
-
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -119,14 +112,7 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 {
     if (changedField == &m_showWindow)
     {
-        if (m_showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateViewerWidget();
-        }
+        updateViewerWidget();
 
         uiCapability()->updateUiIconFromToggleField();
     }
@@ -142,9 +128,9 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::setupBeforeSave()
 {
-    if (m_qwtPlot && RiaApplication::instance()->mainPlotWindow())
+    if (m_wellAllocationPlot && RiaApplication::instance()->mainPlotWindow())
     {
-        this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_qwtPlot));
+        this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_wellAllocationPlot));
     }
 }
 
@@ -155,58 +141,9 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 {
     QImage image;
 
-    if (m_qwtPlot)
-    {
-        image = QImage(m_qwtPlot->size(), QImage::Format_ARGB32);
-        image.fill(QColor(Qt::white).rgb());
-
-        QPainter painter(&image);
-        QRectF rect(0, 0, m_qwtPlot->size().width(), m_qwtPlot->size().height());
-
-        QwtPlotRenderer plotRenderer;
-        plotRenderer.render(m_qwtPlot, &painter, rect);
-    }
+    // TODO
 
     return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::loadDataAndUpdate()
-{
-    updateViewerWidget();
-
-//     for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
-//     {
-//         curveFilter->loadDataAndUpdate();
-//     }
-// 
-//     for (RimSummaryCurve* curve : m_curves)
-//     {
-//         curve->loadDataAndUpdate();
-//     }
-
-    this->updateAxes();
-
-    updateZoomInQwt();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::updateZoomInQwt()
-{
-    if (!m_qwtPlot) return;
-
-    zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,34 +172,23 @@ void RimWellAllocationPlot::updateViewerWidget()
 
     if (m_showWindow())
     {
-        if (!m_qwtPlot)
+        if (!m_wellAllocationPlot)
         {
-            m_qwtPlot = new RiuWellAllocationPlot(this, mainPlotWindow);
+            m_wellAllocationPlot = new RiuWellAllocationPlot(this, mainPlotWindow);
 
-//             for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
-//             {
-//                 curveFilter->setParentQwtPlot(m_qwtPlot);
-//             }
-// 
-//             for (RimSummaryCurve* curve : m_curves)
-//             {
-//                 curve->setParentQwtPlot(m_qwtPlot);
-//             }
-
-            mainPlotWindow->addViewer(m_qwtPlot, this->mdiWindowGeometry());
-            mainPlotWindow->setActiveViewer(m_qwtPlot);
+            mainPlotWindow->addViewer(m_wellAllocationPlot, this->mdiWindowGeometry());
+            mainPlotWindow->setActiveViewer(m_wellAllocationPlot);
         }
 
         updateViewerWidgetWindowTitle();
     }
     else
     {
-        if (m_qwtPlot)
+        if (m_wellAllocationPlot)
         {
-            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_qwtPlot));
+            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_wellAllocationPlot));
 
-            mainPlotWindow->removeViewer(m_qwtPlot);
-            detachAllCurves();
+            mainPlotWindow->removeViewer(m_wellAllocationPlot);
 
             deletePlotWidget();
         }
@@ -274,34 +200,18 @@ void RimWellAllocationPlot::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateViewerWidgetWindowTitle()
 {
-    if (m_qwtPlot)
+    if (m_wellAllocationPlot)
     {
-        m_qwtPlot->setWindowTitle(m_userName);
+        m_wellAllocationPlot->setWindowTitle(m_userName);
 
         if (m_showPlotTitle)
         {
-            m_qwtPlot->setTitle(m_userName);
+            m_wellAllocationPlot->setTitle(m_userName);
         }
         else
         {
-            m_qwtPlot->setTitle("");
+            m_wellAllocationPlot->setTitle("");
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::detachAllCurves()
-{
-//     for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
-//     {
-//         curveFilter->detachQwtCurves();
-//     }
-// 
-//     for (RimSummaryCurve* curve : m_curves)
-//     {
-//         curve->detachQwtCurve();
-//     }
 }
 

@@ -33,6 +33,7 @@
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
@@ -161,14 +162,9 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    if (mainPlotCollection() && mainPlotCollection()->wellLogPlotCollection()) 
+    if (mainPlotCollection()) 
     {
-         mainPlotCollection()->wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
-    }
-
-    if (mainPlotCollection() && mainPlotCollection()->summaryPlotCollection())
-    {
-        mainPlotCollection()->summaryPlotCollection()->m_summaryPlots.deleteAllChildObjects();
+        mainPlotCollection()->deleteAllContainedObjects();
     }
 
     oilFields.deleteAllChildObjects();
@@ -810,9 +806,15 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             {
                 uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
             }
+            
             if (mainPlotCollection->summaryPlotCollection())
             {
                 uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
+            }
+
+            if (mainPlotCollection->flowPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->flowPlotCollection());
             }
         }
     }

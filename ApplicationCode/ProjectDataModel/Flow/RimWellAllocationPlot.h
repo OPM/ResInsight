@@ -18,15 +18,17 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
 
 #include "RimViewWindow.h"
+
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QPointer>
 
 class RiuWellAllocationPlot;
-class QwtInterval;
+class RimEclipseWell;
 
 
 //==================================================================================================
@@ -41,21 +43,15 @@ public:
     RimWellAllocationPlot();
     virtual ~RimWellAllocationPlot();
 
+    void                                            setSimulationWell(RimEclipseWell* simWell);
+
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    void                                            loadDataAndUpdate();
-
     void                                            handleViewerDeletion();
-    void                                            updateCaseNameHasChanged();
-
-    void                                            updateAxes();
-    virtual void                                    zoomAll() override;
-
-    void                                            updateZoomInQwt();
-    void                                            disableAutoZoom();
 
     virtual QWidget*                                viewWidget() override;
+    virtual void                                    zoomAll() override;
 
 protected:
     // Overridden PDM methods
@@ -63,16 +59,13 @@ protected:
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    setupBeforeSave() override;
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
     void                                            updateViewerWidget();
     void                                            updateViewerWidgetWindowTitle();
-    void                                            detachAllCurves();
     void                                            deletePlotWidget();
-
 
 private:
     caf::PdmField<bool>                             m_showWindow;
@@ -80,6 +73,7 @@ private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
-    QPointer<RiuWellAllocationPlot>                     m_qwtPlot;
+    caf::PdmPtrField<RimEclipseWell*>               m_simulationWell;
 
+    QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlot;
 };
