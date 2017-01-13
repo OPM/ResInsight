@@ -30,8 +30,12 @@
 #include "cvfMatrix4.h"
 #include "RiaApplication.h"
 #include "RigMainGrid.h"
+#include "RigCell.h"
 #include "RimEclipseView.h"
 #include "cvfBoundingBox.h"
+#include "cvfPlane.h"
+#include "cvfGeometryTools.h"
+#include "cafHexGridIntersectionTools\cafHexGridIntersectionTools.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
@@ -131,15 +135,7 @@ void RimFracture::computeGeometry()
     RimEllipseFractureTemplate* fractureDef = attachedFractureDefinition();
     if (fractureDef )
     {
-
-        //TODO: Move to fracture template
-        RigEllipsisTesselator tesselator(20);
-
-        float a = fractureDef->height / 2.0f;
-        float b = fractureDef->halfLength;
-
-        tesselator.tesselateEllipsis(a, b, &polygonIndices, &nodeCoords);
-
+        fractureDef->fractureGeometry(&nodeCoords, &polygonIndices);
     }
 
     cvf::Mat4f m = transformMatrix();
@@ -186,6 +182,10 @@ void RimFracture::computeTransmissibility()
 
     for (auto fracCell : fracCells)
     {
+        std::vector<std::vector<cvf::Vec3d> > polygons;
+        bool isPlanIntersected = planeCellIntersection(fracCell, polygons);
+        if (!isPlanIntersected) continue;
+
         RigFractureData fracData; 
         fracData.reservoirCellIndex = fracCell;
 
@@ -210,6 +210,145 @@ void RimFracture::computeTransmissibility()
 
     m_rigFracture->setFractureData(fracDataVec);
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > polygons)
+{
+
+    //Intersect plane-cell - gir linjesegmenter
+    //Create polygons - fra segmentene over. Gir ut en vektor av vektor av punkter
+
+    //Transformer til basisplan (x, y) 
+    //skaler opp med konstant faktor for nøyaktighet (x10000) (gå til int for bibliotek)
+
+
+    cvf::Plane fracturePlane;
+    cvf::Mat4f m = transformMatrix();
+    bool isCellIntersected = false;
+
+    fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()), 
+                                        static_cast<cvf::Vec3d>(m.col(2)));
+
+    RiaApplication* app = RiaApplication::instance();
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return isCellIntersected;
+
+    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+    if (!activeRiv) return isCellIntersected;
+
+    const RigMainGrid* mainGrid = activeRiv->mainGrid();
+    if (!mainGrid) return isCellIntersected;
+
+    RigCell cell = mainGrid->globalCellArray()[cellindex];
+    if (cell.isInvalid()) return isCellIntersected;
+
+    //Copied (and adapted) from RigEclipseWellLogExtractor
+    cvf::Vec3d hexCorners[8];
+    const std::vector<cvf::Vec3d>& nodeCoords = mainGrid->nodes();
+    const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+
+    hexCorners[0] = nodeCoords[cornerIndices[0]];
+    hexCorners[1] = nodeCoords[cornerIndices[1]];
+    hexCorners[2] = nodeCoords[cornerIndices[2]];
+    hexCorners[3] = nodeCoords[cornerIndices[3]];
+    hexCorners[4] = nodeCoords[cornerIndices[4]];
+    hexCorners[5] = nodeCoords[cornerIndices[5]];
+    hexCorners[6] = nodeCoords[cornerIndices[6]];
+    hexCorners[7] = nodeCoords[cornerIndices[7]];
+
+    //Find line-segments where cell and fracture plane intersects
+    std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > intersectionLineSegments;
+    for (int face = 0; face < 6; ++face)
+    {
+        cvf::ubyte faceVertexIndices[4];
+        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+
+        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            int next = i < 3 ? i + 1 : 0;
+            caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint1;
+            caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint2;
+
+            bool isMostVxesOnPositiveSideOfP1 = false;
+
+            bool isIntersectingPlane = caf::HexGridIntersectionTools::planeTriangleIntersection(fracturePlane,
+                hexCorners[faceVertexIndices[i]], 0,
+                hexCorners[faceVertexIndices[next]], 1,
+                faceCenter, 2,
+                &triangleIntersectionPoint1, &triangleIntersectionPoint2, &isMostVxesOnPositiveSideOfP1);
+
+            if (isIntersectingPlane)
+            {
+                isCellIntersected = true;
+                intersectionLineSegments.push_back({ triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx });
+            }
+        }
+    }
+
+       
+    //Create polygon from line-segments   
+    bool startNewPolygon = true;
+    while (!intersectionLineSegments.empty())
+    {
+        if (startNewPolygon)
+        {
+            std::vector<cvf::Vec3d> polygon;
+            //Add first line segments to polygon and remove from list
+            std::pair<cvf::Vec3d, cvf::Vec3d > linesegment = intersectionLineSegments.front();
+            polygon.push_back(linesegment.first);
+            polygon.push_back(linesegment.second);
+            intersectionLineSegments.remove(linesegment);
+            polygons.push_back(polygon);
+            startNewPolygon = false;
+        }
+        
+        std::vector<cvf::Vec3d>& polygon = polygons.back();
+
+        //Search remaining list for next point...
+        
+        bool isFound = false;
+        for (std::list<std::pair<cvf::Vec3d, cvf::Vec3d > >::iterator lIt = intersectionLineSegments.begin(); lIt != intersectionLineSegments.end(); lIt++)
+        {
+            if (lIt->first.equals(polygon.back()))
+            {
+                polygon.push_back(lIt->second);
+                intersectionLineSegments.erase(lIt);
+                isFound = true;
+                break;
+            }
+
+            if (lIt->second.equals(polygon.back()))
+            {
+                polygon.push_back(lIt->first);
+                intersectionLineSegments.erase(lIt);
+                isFound = true;
+                break;
+            }
+        }
+
+        if (isFound)
+        {
+            continue;
+        }
+        else
+        {
+            break;
+            startNewPolygon = true;
+        }
+    }
+
+    //rotere winding?? 
+
+    return isCellIntersected;
+}
+
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
