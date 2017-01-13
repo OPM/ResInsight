@@ -23,6 +23,11 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
+#include <vector>
+
 
 //==================================================================================================
 ///  
@@ -58,17 +63,8 @@ public:
     
     double                          effectiveKh();
     
-    
-
-
-    //TODO: Method to get 2D geometry. Returning indexed triangles
-    //Code from RimFracture::ComputeGeometry
-
-    //TODO: Method to return a polygon from indexed triangles. 
-    //clipper execute method, union for general case. 
-    //FOr now: void RigEllipsisTesselator::computeCirclePoints(size_t numSlices) og gi ut rekke med punkter... 
-    //Return punkter std::vector<cvf::Vec3d> 
-
+    void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
+    std::vector<cvf::Vec3f>         fracturePolygon();
 
 
 protected:

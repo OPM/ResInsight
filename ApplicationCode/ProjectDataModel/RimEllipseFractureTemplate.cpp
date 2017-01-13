@@ -21,6 +21,8 @@
 #include "cafPdmObject.h"
 #include "RimProject.h"
 #include "RimFracture.h"
+#include "RigTesselatorTools.h"
+#include "cvfVector3.h"
 
 
 
@@ -112,6 +114,39 @@ double RimEllipseFractureTemplate::effectiveKh()
     //TODO: Handle different units!
     return width * permeability;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices)
+{
+    RigEllipsisTesselator tesselator(20);
+
+    float a = height / 2.0f;
+    float b = halfLength;
+
+    tesselator.tesselateEllipsis(a, b, polygonIndices, nodeCoords);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon()
+{
+    std::vector<cvf::Vec3f> polygon;
+
+    std::vector<cvf::Vec3f> nodeCoords;
+    std::vector<cvf::uint>  polygonIndices;
+
+    fractureGeometry(&nodeCoords, &polygonIndices);
+
+    for (size_t i = 1; i < nodeCoords.size(); i++)
+    {
+        polygon.push_back(nodeCoords[i]);
+    }
+
+    return polygon;
 }
 
 //--------------------------------------------------------------------------------------------------
