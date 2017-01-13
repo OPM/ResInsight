@@ -52,9 +52,7 @@ caf::PdmChildField<DataType*>::PdmChildField(const DataTypePtr& fieldValue)
 template<typename DataType >
 caf::PdmChildField<DataType*>::~PdmChildField()
 {
-#ifdef _DEBUG
     assert(m_fieldValue.isNull());
-#endif
 
     if (!m_fieldValue.isNull()) m_fieldValue.rawPtr()->removeAsParentField(this);
     m_fieldValue.setRawPtr(NULL);
