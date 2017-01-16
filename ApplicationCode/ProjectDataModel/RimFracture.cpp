@@ -35,8 +35,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfPlane.h"
 #include "cvfGeometryTools.h"
-#include "cafHexGridIntersectionTools\cafHexGridIntersectionTools.h"
-#include "custom-clipper\clipper\clipper.hpp"
+#include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+#include "custom-clipper/clipper/clipper.hpp"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
