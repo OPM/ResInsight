@@ -149,6 +149,24 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuExportMultipleSnapshotsWidget::addEmptySnapshotItems(size_t itemCount)
+{
+    if (!m_rimProject) return;
+
+    for (size_t i = 0; i < itemCount; i++)
+    {
+        RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
+        multiSnapshot->isActive = false;
+
+        m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
+    }
+
+    m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();

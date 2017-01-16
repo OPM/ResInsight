@@ -77,9 +77,11 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 
         RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
 
-        if (proj->multiSnapshotDefinitions.size() == 0)
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        if (activeView && proj->multiSnapshotDefinitions.size() == 0)
         {
             dlg.addSnapshotItemFromActiveView();
+            dlg.addEmptySnapshotItems(4);
         }
 
         dlg.exec();

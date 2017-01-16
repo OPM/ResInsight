@@ -153,6 +153,8 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
 {
+    if (!viewObject()) return;
+
     QStringList timeSteps;
 
     timeSteps = viewObject->ownerCase()->timeStepStrings();

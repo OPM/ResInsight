@@ -37,6 +37,7 @@ public:
     ~RiuExportMultipleSnapshotsWidget();
 
     void addSnapshotItemFromActiveView();
+    void addEmptySnapshotItems(size_t itemCount);
 
 private slots:
     void customMenuRequested(QPoint pos);
