@@ -121,7 +121,7 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
         }
         else if (orientation == Qt::Vertical)
         {
-            return section;
+            return section + 1;
         }
     }
 
