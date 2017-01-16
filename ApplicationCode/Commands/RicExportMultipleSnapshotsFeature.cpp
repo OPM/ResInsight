@@ -110,6 +110,8 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
     
     for (RimMultiSnapshotDefinition* msd : project->multiSnapshotDefinitions())
     {
+        if (!msd->isActive()) continue;
+
         RimView* rimView = msd->viewObject();
         if (!rimView) continue;
         if (!rimView->viewer()) continue;

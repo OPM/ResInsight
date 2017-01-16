@@ -45,6 +45,8 @@ public:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >  eclipseResultType;
     caf::PdmField< std::vector<QString> >                       selectedEclipseResults;
 
+    caf::PdmField<bool>      isActive;
+
     caf::PdmField<int>       timeStepStart;
     caf::PdmField<int>       timeStepEnd;
 

@@ -57,6 +57,8 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
     CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
 
+    CAF_PDM_InitField(&isActive,                "IsActive", true,       "Active", "", "", "");
+    
     CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Result Type", "", "", "");
