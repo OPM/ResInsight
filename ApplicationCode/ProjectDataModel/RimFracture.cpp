@@ -36,6 +36,7 @@
 #include "cvfPlane.h"
 #include "cvfGeometryTools.h"
 #include "cafHexGridIntersectionTools\cafHexGridIntersectionTools.h"
+#include "custom-clipper\clipper\clipper.hpp"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
@@ -182,30 +183,38 @@ void RimFracture::computeTransmissibility()
 
     for (auto fracCell : fracCells)
     {
-        std::vector<std::vector<cvf::Vec3d> > polygons;
-        bool isPlanIntersected = planeCellIntersection(fracCell, polygons);
-        if (!isPlanIntersected) continue;
+
+
+        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
+        bool isPlanIntersected = planeCellIntersection(fracCell, planeCellPolygons);
+        if (!isPlanIntersected || planeCellPolygons.size()==0) continue;
 
         RigFractureData fracData; 
         fracData.reservoirCellIndex = fracCell;
 
-        //TODO: get correct input values...
-        double area = 2.468;
-        double fractureLength = 1.2345;
-        double flowLength = 2.718281828;
-
-        double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
-        
         double transmissibility;
+
         if (attachedFractureDefinition())
         {
-            transmissibility = 8 * c * attachedFractureDefinition()->permeability * area /
+            double areaOfCellPlaneFractureOverlap = 0.0;
+            std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon();
+            calculateFracturePlaneCellPolygonOverlap(planeCellPolygons, fracPolygon, areaOfCellPlaneFractureOverlap);
+
+            //TODO: get correct input values...
+            //double area = 2.468 - calculated!
+            double fractureLength = 1.2345;
+            double flowLength = 2.718281828;
+
+            double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
+
+            transmissibility = 8 * c * attachedFractureDefinition()->permeability * areaOfCellPlaneFractureOverlap /
                             ( flowLength + (attachedFractureDefinition()->skinFactor * fractureLength) / cvf::PI_D);
         }
         else transmissibility = cvf::UNDEFINED_DOUBLE;
 
         fracData.transmissibility = transmissibility;
-        fracDataVec.push_back(fracData);
+        //only keep fracData if transmissibility is non-zero
+        if (transmissibility > 0) fracDataVec.push_back(fracData);
     }
 
     m_rigFracture->setFractureData(fracDataVec);
@@ -215,16 +224,9 @@ void RimFracture::computeTransmissibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > polygons)
+bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons)
 {
-
-    //Intersect plane-cell - gir linjesegmenter
-    //Create polygons - fra segmentene over. Gir ut en vektor av vektor av punkter
-
-    //Transformer til basisplan (x, y) 
-    //skaler opp med konstant faktor for nøyaktighet (x10000) (gå til int for bibliotek)
-
-
+    
     cvf::Plane fracturePlane;
     cvf::Mat4f m = transformMatrix();
     bool isCellIntersected = false;
@@ -348,7 +350,83 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::calculateFracturePlaneCellPolygonOverlap(std::vector<std::vector<cvf::Vec3d> > planeCellPolygons, 
+                                                           std::vector<cvf::Vec3f> fracturePolygon, double & areaOfCellPlaneFractureOverlap)
+{
+    cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
+    int polygonScaleFactor = 10000; //For transform to clipper int 
+    int xInt, yInt;
+    cvf::Vec3d areaVector = cvf::Vec3d::ZERO;
+    
+    for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons) 
+    {
+  
+        //Transform planCell polygon(s) to x/y coordinate system (where fracturePolygon already is located)
+        for (cvf::Vec3d& v : planeCellPolygon)
+        {
+            v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
+        }
 
+
+        //Convert to int for clipper library and store as clipper "path"
+        ClipperLib::Path planeCellPath;
+        for (cvf::Vec3d& v : planeCellPolygon)
+        {
+            xInt = v.x()*polygonScaleFactor;
+            yInt = v.y()*polygonScaleFactor;
+            planeCellPath.push_back(ClipperLib::IntPoint(xInt, yInt));
+        }
+
+        ClipperLib::Path fracturePath;
+        for (cvf::Vec3f& v : fracturePolygon)
+        {
+            xInt = v.x()*polygonScaleFactor;
+            yInt = v.y()*polygonScaleFactor;
+            fracturePath.push_back(ClipperLib::IntPoint(xInt, yInt));
+        }
+
+
+        ClipperLib::Clipper clpr;
+        clpr.AddPath(fracturePath, ClipperLib::ptSubject, true);
+        clpr.AddPath(planeCellPath, ClipperLib::ptClip, true);
+
+
+        ClipperLib::Paths solution;
+        clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+        //Convert back to std::vector<std::vector<cvf::Vec3d> >
+        std::vector<std::vector<cvf::Vec3d> > clippedPolygons;
+        for (ClipperLib::Path pathInSol : solution)
+        {
+            std::vector<cvf::Vec3d> clippedPolygon;
+            for (ClipperLib::IntPoint IntPosition : pathInSol)
+            {
+                cvf::Vec3d v; 
+                v.x() = IntPosition.X / polygonScaleFactor;
+                v.y() = IntPosition.Y / polygonScaleFactor;
+                clippedPolygon.push_back(v);
+            }
+            clippedPolygons.push_back(clippedPolygon);
+        }
+
+        //We should only have one solution polygon / path!?!?
+
+        //calculate area
+        for (std::vector<cvf::Vec3d> areaPolygon : clippedPolygons)
+        {
+            areaVector += cvf::GeometryTools::polygonAreaNormal3D(areaPolygon);
+        }
+
+    }
+
+    areaOfCellPlaneFractureOverlap = areaVector.length();
+
+
+
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -394,7 +472,7 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFracture> RimFracture::attachedRigFracture()
+cvf::ref<RigFracture> RimFracture::attachedRigFracture() const
 {
     return m_rigFracture;
 }

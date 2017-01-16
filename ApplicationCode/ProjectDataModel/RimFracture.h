@@ -49,7 +49,7 @@ public:
     cvf::Mat4f                      transformMatrix(); 
 
     virtual RimEllipseFractureTemplate*  attachedFractureDefinition() = 0;
-    cvf::ref<RigFracture>           attachedRigFracture();
+    cvf::ref<RigFracture>           attachedRigFracture() const;
 
     bool                            hasValidGeometry() const;
     void                            computeGeometry();
@@ -72,7 +72,10 @@ private:
     bool                            isRecomputeGeometryFlagSet();
 
     //Functions for area calculations - should these be in separate class
-    bool planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > polygons);
+    bool planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons);
+    void calculateFracturePlaneCellPolygonOverlap(std::vector<std::vector<cvf::Vec3d> > planeCellPolygons,
+        std::vector<cvf::Vec3f> fracturePolygon, double & area);
+
 
 private:
 

@@ -299,6 +299,7 @@ set( LINK_LIBRARIES
     ${ERT_LIBRARIES}
     
     NRLib
+    custom-clipper
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
