@@ -218,6 +218,13 @@ add_subdirectory(ThirdParty/NRLib)
 
 
 ################################################################################
+# clipper
+################################################################################
+
+add_subdirectory(ThirdParty/custom-clipper)
+
+
+################################################################################
 # Qt
 ################################################################################
 set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
