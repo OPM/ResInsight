@@ -40,7 +40,7 @@ public:
     RimMultiSnapshotDefinition();
     virtual ~RimMultiSnapshotDefinition();
 
-    caf::PdmPtrField<RimView*>  viewObject;
+    caf::PdmPtrField<RimView*>  view;
 
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >  eclipseResultType;
     caf::PdmField< std::vector<QString> >                       selectedEclipseResults;

@@ -59,7 +59,7 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
 
     CAF_PDM_InitField(&isActive,                "IsActive", true,       "Active", "", "", "");
     
-    CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&view,     "View",                 "View", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Result Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Result Name", "", "", "");
@@ -91,7 +91,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
     RimProject* proj = RiaApplication::instance()->project();
 
-    if (fieldNeedingOptions == &viewObject)
+    if (fieldNeedingOptions == &view)
     {
         std::vector<RimView*> views; 
 
@@ -120,10 +120,9 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &selectedEclipseResults)
     {
-        RimView* rimView = viewObject();
-        if (dynamic_cast<RimEclipseView*>(rimView))
+        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view().p());
+        if (rimEclipseView)
         {
-            RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
             QStringList varList;
             varList = rimEclipseView->currentGridCellResults()->cellResults()->resultNames(eclipseResultType());
 
@@ -153,11 +152,11 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
 {
-    if (!viewObject()) return;
+    if (!view()) return;
 
     QStringList timeSteps;
 
-    timeSteps = viewObject->ownerCase()->timeStepStrings();
+    timeSteps = view->ownerCase()->timeStepStrings();
 
     for (int i = 0; i < timeSteps.size(); i++)
     {
@@ -179,10 +178,10 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         const cvf::StructGridInterface* mainGrid = nullptr;
         RigActiveCellInfo* actCellInfo = nullptr;
        
-        if (viewObject())
+        if (view())
         {
-            mainGrid = viewObject()->rangeFilterCollection()->gridByIndex(0);
-            actCellInfo = viewObject()->rangeFilterCollection()->activeCellInfo();
+            mainGrid = view()->rangeFilterCollection()->gridByIndex(0);
+            actCellInfo = view()->rangeFilterCollection()->activeCellInfo();
         }
 
         if (mainGrid && actCellInfo)

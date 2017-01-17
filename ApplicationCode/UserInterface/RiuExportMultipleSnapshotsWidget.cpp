@@ -23,6 +23,8 @@
 #include "RicExportMultipleSnapshotsFeature.h"
 
 #include "RimCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
 #include "RimView.h"
@@ -137,9 +139,24 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
     if (activeView)
     {
         RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
-        multiSnapshot->viewObject = activeView;
+        multiSnapshot->view = activeView;
+
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(activeView);
+        if (eclipseView)
+        {
+            multiSnapshot->eclipseResultType = eclipseView->cellResult->resultType();
+            multiSnapshot->selectedEclipseResults.v().push_back(eclipseView->cellResult->resultVariable());
+
+        }
         multiSnapshot->timeStepStart = activeView->currentTimeStep();
         multiSnapshot->timeStepEnd = activeView->currentTimeStep();
+
+        RimCase* sourceCase = nullptr;
+        activeView->firstAncestorOrThisOfType(sourceCase);
+        if (sourceCase)
+        {
+            multiSnapshot->additionalCases().push_back(sourceCase);
+        }
 
         m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
         m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
@@ -232,24 +249,5 @@ void RiuExportMultipleSnapshotsWidget::folderSelectionClicked()
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
 {
-    if (!m_rimProject) return;
-
-
-    if (m_rimProject->multiSnapshotDefinitions.size() == 0)
-    {
-        addSnapshotItemFromActiveView();
-    }
-    else
-    {
-        //Getting default value from last entered line: 
-        RimMultiSnapshotDefinition* other = m_rimProject->multiSnapshotDefinitions[m_rimProject->multiSnapshotDefinitions.size() - 1];
-
-        RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
-        multiSnapshot->viewObject = other->viewObject();
-        multiSnapshot->timeStepStart = other->timeStepStart();
-        multiSnapshot->timeStepEnd = other->timeStepEnd();
-
-        m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
-        m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
-    }
+    addSnapshotItemFromActiveView();
 }
