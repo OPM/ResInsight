@@ -58,6 +58,7 @@
 #include "cvfPrimitiveSetIndexedUShort.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +155,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         whEndPos.z() = activeCellsBoundingBoxMax.z();
     }
 
+    // Upper part of simulation well pipe is defined to use branch index 0
+    cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo(m_rimWell, 0);
+
     cvf::Vec3d arrowPosition = whEndPos;
     arrowPosition.z() += 2.0;
 
@@ -185,6 +189,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             part->setEffect(eff.p());
+            part->setSourceInfo(sourceInfo.p());
 
             m_wellHeadParts.push_back(part.p());
         }
@@ -199,6 +204,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             cvf::ref<cvf::Effect> eff = meshGen.generateCachedEffect();
 
             part->setEffect(eff.p());
+            part->setSourceInfo(sourceInfo.p());
 
             m_wellHeadParts.push_back(part.p());
         }
@@ -281,6 +287,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
         part->setEffect(eff.p());
+        part->setSourceInfo(sourceInfo.p());
+
         m_wellHeadParts.push_back(part.p());
     }
 
@@ -309,12 +317,11 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         part->setEffect(eff.p());
         part->setPriority(11);
+        part->setSourceInfo(sourceInfo.p());
 
         m_wellHeadParts.push_back(part.p());
     }
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
