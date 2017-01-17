@@ -25,40 +25,28 @@
 #include "RiaApplication.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigEclipseCaseData.h"
 #include "RigCell.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
-#include "RimLegendConfig.h"
-#include "RimReservoirCellResultsStorage.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivSimWellPipesPartMgr.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 #include "cafEffectGenerator.h"
-#include "cafPdmFieldCvfMat4d.h"
 
 #include "cvfArrowGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
-#include "cvfFixedAtlasFont.h"
 #include "cvfGeometryBuilderFaceList.h"
-#include "cvfLibCore.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfPrimitiveSetIndexedUShort.h"
-#include "cvfTransform.h"
 #include "cvfqtUtils.h"
-#include "RivSimWellPipeSourceInfo.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +65,6 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 {
 
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -322,7 +309,6 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         m_wellHeadLabelPart = part;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

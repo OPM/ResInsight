@@ -20,6 +20,15 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfArray.h"
+
+namespace cvf {
+    class DrawableGeo;
+    class ScalarMapper;
+}
+
 class RivPipeGeometryGenerator : public cvf::Object
 {
 public:
