@@ -66,6 +66,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     m_pdmTableView = new caf::PdmUiTableView(this);
     m_pdmTableView->tableView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_pdmTableView->tableView()->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_pdmTableView->enableHeaderText(false);
 
     connect(m_pdmTableView->tableView(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
