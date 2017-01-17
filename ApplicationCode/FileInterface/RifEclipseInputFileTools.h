@@ -22,7 +22,7 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfLibCore.h"
+#include "cvfCollection.h"
 
 #include "RifReaderInterface.h"
 #include "RigFault.h"

@@ -20,25 +20,28 @@
 
 #include "RifReaderEclipseOutput.h"
 
-#include "RigActiveCellInfo.h"
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-
+#include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderOpmParserInput.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
+
 #include "cafProgressInfo.h"
 
-#include "ert/ecl/ecl_nnc_export.h"
-#include "ert/ecl/ecl_kw_magic.h"
+#include "cvfTrace.h"
 
+#include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_nnc_export.h"
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
 #include <map>
-#include <cmath> // Needed for HUGE_VAL on Linux
-#include "RifEclipseInputFileTools.h"
 
 
 //--------------------------------------------------------------------------------------------------

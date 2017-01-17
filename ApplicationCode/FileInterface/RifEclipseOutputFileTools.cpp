@@ -26,10 +26,13 @@
 
 #include "cafProgressInfo.h"
 
+#include "cvfMath.h"
+
 #include <QFileInfo>
 #include <QDebug>
 
 #include <assert.h>
+#include <algorithm>
 
 
 //--------------------------------------------------------------------------------------------------

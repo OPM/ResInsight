@@ -35,11 +35,6 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimFlowDiagSolution.h"
 
-#include "cvfAssert.h"
-#include "cvfBase.h"
-#include "cvfLibCore.h"
-#include "cvfObject.h"
-
 #include <math.h>
 
 //--------------------------------------------------------------------------------------------------

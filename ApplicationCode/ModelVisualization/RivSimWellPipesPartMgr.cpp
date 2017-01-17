@@ -45,7 +45,6 @@
 #include "cafPdmFieldCvfMat4d.h"
 
 #include "cvfDrawableGeo.h"
-#include "cvfLibCore.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfRay.h"

@@ -24,6 +24,8 @@
 
 #include "RimDefines.h"
 
+#include "cvfCollection.h"
+
 #include <QDateTime>
 
 #include <vector>
