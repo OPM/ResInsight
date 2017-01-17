@@ -46,6 +46,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_simulationWell, "SimulationWell", "Simulation Well", "", "", "");
+
+    this->setAsPlotMDI();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,12 +55,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::~RimWellAllocationPlot()
 {
-    if (RiaApplication::instance()->mainPlotWindow())
-    {
-        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_wellAllocationPlot);
-    }
+    removeWidgetFromMDI();
 
-    deletePlotWidget();
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,12 +73,12 @@ void RimWellAllocationPlot::setSimulationWell(RimEclipseWell* simWell)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::deletePlotWidget()
+void RimWellAllocationPlot::deleteViewWidget()
 {
-    if (m_wellAllocationPlot)
+    if (m_wellAllocationPlotWidget)
     {
-        m_wellAllocationPlot->deleteLater();
-        m_wellAllocationPlot = nullptr;
+        m_wellAllocationPlotWidget->deleteLater();
+        m_wellAllocationPlotWidget = nullptr;
     }
 }
 
@@ -96,7 +95,7 @@ void RimWellAllocationPlot::updateFromWell()
     }
 
     setDescription(simName);
-    updateViewerWidget();
+    updateViewerWidgetBasic();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +103,7 @@ void RimWellAllocationPlot::updateFromWell()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellAllocationPlot::viewWidget()
 {
-    return m_wellAllocationPlot;
+    return m_wellAllocationPlotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,22 +150,11 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::handleViewerDeletion()
-{
-    m_showWindow = false;
-
-    uiCapability()->updateUiIconFromToggleField();
-    updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_showWindow)
     {
-        updateViewerWidget();
+        updateViewerWidgetBasic();
 
         uiCapability()->updateUiIconFromToggleField();
     }
@@ -181,16 +169,6 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::setupBeforeSave()
-{
-    if (m_wellAllocationPlot && RiaApplication::instance()->mainPlotWindow())
-    {
-        this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_wellAllocationPlot));
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -225,59 +203,16 @@ QString RimWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::loadDataAndUpdate()
 {
-    updateViewerWidget();
+    updateViewerWidgetBasic();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::updateViewerWidget()
+QWidget* RimWellAllocationPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-    if (!mainPlotWindow) return;
-
-    if (m_showWindow())
-    {
-        if (!m_wellAllocationPlot)
-        {
-            m_wellAllocationPlot = new RiuWellAllocationPlot(this, mainPlotWindow);
-
-            mainPlotWindow->addViewer(m_wellAllocationPlot, this->mdiWindowGeometry());
-            mainPlotWindow->setActiveViewer(m_wellAllocationPlot);
-        }
-
-        updateViewerWidgetWindowTitle();
-    }
-    else
-    {
-        if (m_wellAllocationPlot)
-        {
-            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_wellAllocationPlot));
-
-            mainPlotWindow->removeViewer(m_wellAllocationPlot);
-
-            deletePlotWidget();
-        }
-    }
+    m_wellAllocationPlotWidget = new RiuWellAllocationPlot(this, mainWindowParent);
+    return m_wellAllocationPlotWidget;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::updateViewerWidgetWindowTitle()
-{
-    if (m_wellAllocationPlot)
-    {
-        m_wellAllocationPlot->setWindowTitle(m_userName);
-
-        if (m_showPlotTitle)
-        {
-            m_wellAllocationPlot->setTitle(m_userName);
-        }
-        else
-        {
-            m_wellAllocationPlot->setTitle("");
-        }
-    }
-}
 

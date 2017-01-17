@@ -55,6 +55,7 @@ class RimViewWindow;
 class RimWellLogPlot;
 class RimWellAllocationPlot;
 
+class RiuMainWindowBase;
 class RiuMainPlotWindow;
 class RiuRecentFileActionProvider;
 
@@ -185,6 +186,7 @@ public:
 
     RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
     RiuMainPlotWindow*  mainPlotWindow();
+    RiuMainWindowBase*  mainWindowByID(int mainWindowID);
 
     static RimViewWindow* activeViewWindow();
 

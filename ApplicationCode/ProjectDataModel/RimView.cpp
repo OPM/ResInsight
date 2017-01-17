@@ -140,6 +140,8 @@ RimView::RimView(void)
 
     m_wellPathPipeVizModel = new cvf::ModelBasicList;
     m_wellPathPipeVizModel->setName("WellPathPipeModel");
+
+    this->setAs3DMDI();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,12 +171,9 @@ RimView::~RimView(void)
 
     delete this->m_overlayInfoConfig();
 
-    if (m_viewer)
-    {
-        RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
-    }
+    removeWidgetFromMDI();
 
-    delete m_viewer;
+    deleteViewWidget();
 
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
@@ -193,63 +192,75 @@ RiuViewer* RimView::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::updateViewerWidget()
+QWidget* RimView::createViewWidget(QWidget* mainWindowParent)
 {
-    if (showWindow())
-    {
-        bool isViewerCreated = false;
-        if (!m_viewer)
-        {
-            QGLFormat glFormat;
-            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+    QGLFormat glFormat;
+    glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
-            m_viewer = new RiuViewer(glFormat, NULL);
-            m_viewer->setOwnerReservoirView(this);
+    m_viewer = new RiuViewer(glFormat, NULL);
+    m_viewer->setOwnerReservoirView(this);
 
-            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), mdiWindowGeometry());
-            m_viewer->setDefaultPerspectiveNearPlaneDistance(10);
-           
-            this->resetLegendsInViewer();
-
-            m_viewer->updateNavigationPolicy();
-            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
-
-            isViewerCreated = true;
-        }
-
-        RiuMainWindow::instance()->setActiveViewer(m_viewer->layoutWidget());
-
-        if(isViewerCreated)
-        {
-            m_viewer->mainCamera()->setViewMatrix(cameraPosition);
-            m_viewer->setPointOfInterest(cameraPointOfInterest());
-            m_viewer->enableParallelProjection(!isPerspectiveView());
-        }
-        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
-
-        this->updateGridBoxData();
-        this->createHighlightAndGridBoxDisplayModel();
-
-        m_viewer->update();
-    }
-    else
-    {
-        if (m_viewer && m_viewer->layoutWidget())
-        {
-            if (m_viewer->layoutWidget()->parentWidget())
-            {
-                m_viewer->layoutWidget()->parentWidget()->hide();
-            }
-            else
-            {
-                m_viewer->layoutWidget()->hide(); 
-            }
-        }
-    }
-
-    updateViewerWidgetWindowTitle();
+    return m_viewer->layoutWidget();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateViewWidgetAfterCreation()
+{
+    m_viewer->setDefaultPerspectiveNearPlaneDistance(10);
+
+    this->resetLegendsInViewer();
+
+    m_viewer->updateNavigationPolicy();
+    m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
+
+    m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+    m_viewer->setPointOfInterest(cameraPointOfInterest());
+    m_viewer->enableParallelProjection(!isPerspectiveView());
+
+    m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
+    this->updateGridBoxData();
+    this->createHighlightAndGridBoxDisplayModel();
+
+    m_viewer->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateViewerWidgetWindowTitle()
+{
+    if (m_viewer)
+    {
+        QString windowTitle;
+        if (ownerCase())
+        {
+            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(name);
+        }
+        else
+        {
+            windowTitle = name;
+        }
+
+        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::deleteViewWidget()
+{
+    if (m_viewer) 
+    {
+        m_viewer->deleteLater();
+        m_viewer = nullptr;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -367,8 +378,6 @@ void RimView::setupBeforeSave()
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
         cameraPointOfInterest = m_viewer->pointOfInterest();
-
-       setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
     }
 }
 
@@ -617,9 +626,9 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
     else if (changedField == &backgroundColor)
     {
-        if (viewer() != NULL)
+        if (m_viewer != nullptr)
         {
-            updateViewerWidget();
+            m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
         }
     }
     else if (changedField == &maximumFrameRate)
@@ -953,6 +962,7 @@ cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimView::viewWidget()
 {
-    return m_viewer;
+    if ( m_viewer ) return m_viewer->layoutWidget();
+    else return nullptr;
 }
 

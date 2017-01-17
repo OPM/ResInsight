@@ -1594,6 +1594,16 @@ RiuMainPlotWindow* RiaApplication::mainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuMainWindowBase* RiaApplication::mainWindowByID(int mainWindowID)
+{
+    if (mainWindowID == 0) return RiuMainWindow::instance();
+    else if (mainWindowID == 1) return m_mainPlotWindow;
+    else return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimViewWindow* RiaApplication::activeViewWindow()
 {
     RimViewWindow* viewWindow = NULL;

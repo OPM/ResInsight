@@ -199,9 +199,6 @@ protected:
     virtual void                            updateScaleTransform() = 0;
     virtual cvf::Transform*                 scaleTransform() = 0;
 
-    void                                    updateViewerWidget();
-    virtual void                            updateViewerWidgetWindowTitle() = 0;
-
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
 
@@ -217,8 +214,14 @@ protected:
     
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+    virtual caf::PdmField<bool>*            getShowWindowField() override { return &showWindow; } 
+    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                            updateViewWidgetAfterCreation() override; 
+    virtual void                            updateViewerWidgetWindowTitle() override;
+    virtual void                            deleteViewWidget() override;
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
     

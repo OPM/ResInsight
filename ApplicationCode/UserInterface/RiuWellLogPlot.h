@@ -72,8 +72,8 @@ private slots:
 private:
     QHBoxLayout*                    m_layout;
     QScrollBar*                     m_scrollBar;
-    QList<QwtLegend*>               m_legends;
-    QList<RiuWellLogTrack*>     m_trackPlots;
+    QList<QPointer<QwtLegend> >     m_legends;
+    QList<QPointer<RiuWellLogTrack> > m_trackPlots;
     caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
     QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
 };

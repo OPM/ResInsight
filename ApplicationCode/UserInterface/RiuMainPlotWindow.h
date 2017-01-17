@@ -57,9 +57,9 @@ public:
     void                initializeGuiNewProjectLoaded();
     void                cleanupGuiBeforeProjectClose();
 
-    void                removeViewer( QWidget* viewer );
-    void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
-    void                setActiveViewer(QWidget* subWindow);
+    void                removeViewer( QWidget* viewer ) override;
+    void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
+    void                setActiveViewer(QWidget* subWindow) override;
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
 
@@ -71,7 +71,7 @@ public:
 
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
-    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer);
+    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
     RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
 
     void                tileWindows();

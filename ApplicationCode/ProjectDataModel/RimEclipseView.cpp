@@ -159,26 +159,6 @@ RimEclipseView::~RimEclipseView()
     m_reservoir = NULL;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateViewerWidgetWindowTitle()
-{
-    if (m_viewer)
-    {
-        QString windowTitle;
-        if (m_reservoir.notNull())
-        {
-            windowTitle = QString("%1 - %2").arg(m_reservoir->caseUserDescription()).arg(name);
-        }
-        else
-        {
-            windowTitle = name;
-        }
-
-        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
@@ -208,7 +188,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         if (showWindow)
         {
             bool generateDisplayModel = (viewer() == NULL);
-            updateViewerWidget();
+            updateViewerWidgetBasic();
 
             if (generateDisplayModel)
             {
@@ -709,7 +689,7 @@ void RimEclipseView::loadDataAndUpdate()
 
     this->faultResultSettings()->customFaultResult()->loadResult();
 
-    updateViewerWidget();
+    updateViewerWidgetBasic();
 
     this->m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 
@@ -731,6 +711,8 @@ void RimEclipseView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
+
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);

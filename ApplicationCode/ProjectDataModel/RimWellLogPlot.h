@@ -91,7 +91,6 @@ protected:
 
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                    setupBeforeSave();
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*                    objectToggleField();
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
@@ -100,13 +99,16 @@ protected:
 
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
     void                                            applyZoomAllDepths();
     void                                            applyDepthZoomFromVisibleDepth();
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
-    void                                            handleViewerDeletion();
+
+    // RimViewWindow overrides
+
+    virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
 
 private:
     caf::PdmField<bool>                             m_showWindow;

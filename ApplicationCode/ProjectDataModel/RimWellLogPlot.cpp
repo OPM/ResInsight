@@ -86,52 +86,11 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
-    if (RiaApplication::instance()->mainPlotWindow())
-    {
-        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_viewer);
-    }
+    removeWidgetFromMDI();
     
-    detachAllCurves();
     m_tracks.deleteAllChildObjects();
 
-    delete m_viewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateViewerWidget()
-{
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-    if (!mainPlotWindow) return;
-
-    if (m_showWindow())
-    {
-        if (!m_viewer)
-        {
-            m_viewer = new RiuWellLogPlot(this, mainPlotWindow);
-
-            recreateTrackPlots();
-
-            mainPlotWindow->addViewer(m_viewer, this->mdiWindowGeometry());
-            mainPlotWindow->setActiveViewer(m_viewer);
-        }
-
-        updateViewerWidgetWindowTitle();
-    }
-    else
-    {
-        if (m_viewer)
-        {
-            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_viewer));
-
-            mainPlotWindow->removeViewer(m_viewer);
-            detachAllCurves();
-
-            delete m_viewer;
-            m_viewer = NULL;
-        }
-    }
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +106,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         }
         else
         {
-            updateViewerWidget();
+            updateViewerWidgetBasic();
         }
 
         uiCapability()->updateUiIconFromToggleField();
@@ -394,21 +353,6 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::setupBeforeSave()
-{
-    if (m_viewer)
-    {
-        if (RiaApplication::instance()->mainPlotWindow())
-        {
-            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_viewer));
-        }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
@@ -427,7 +371,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::loadDataAndUpdate()
 {
-    updateViewerWidget();
+    updateViewerWidgetBasic();
     updateTracks();
 }
 
@@ -548,29 +492,27 @@ QString RimWellLogPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateViewerWidgetWindowTitle()
+QWidget* RimWellLogPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    if (m_viewer)
-    {
-        m_viewer->setWindowTitle(m_userName);
-    }
+    m_viewer = new RiuWellLogPlot(this, mainWindowParent);
+
+    recreateTrackPlots();
+
+    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::handleViewerDeletion()
+void RimWellLogPlot::deleteViewWidget()
 {
-    m_showWindow = false;
+    detachAllCurves();
 
-    if (m_viewer)
-    {
-        detachAllCurves();
-        m_viewer = NULL;
-    }
- 
-    uiCapability()->updateUiIconFromToggleField();
-    updateConnectedEditors();
+   if (m_viewer)
+   {
+       m_viewer->deleteLater();
+       m_viewer = nullptr;
+   }
 }
 
 //--------------------------------------------------------------------------------------------------

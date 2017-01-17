@@ -54,8 +54,6 @@ public:
 
     void                                            loadDataAndUpdate();
 
-    void                                            handleViewerDeletion();
-
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
@@ -67,15 +65,18 @@ protected:
     virtual caf::PdmFieldHandle*                    objectToggleField() { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    setupBeforeSave() override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
-    void                                            deletePlotWidget();
     void                                            updateFromWell();
+
+    // RimViewWindow overrides
+
+    virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
+
 
 private:
     caf::PdmField<bool>                             m_showWindow;
@@ -85,5 +86,5 @@ private:
 
     caf::PdmPtrField<RimEclipseWell*>               m_simulationWell;
 
-    QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlot;
+    QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
 };

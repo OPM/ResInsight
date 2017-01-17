@@ -99,28 +99,6 @@ RimGeoMechView::~RimGeoMechView(void)
     delete m_propertyFilterCollection;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateViewerWidgetWindowTitle()
-{
-    if (m_viewer)
-    {
-        QString windowTitle;
-        if (m_geomechCase.notNull())
-        {
-            windowTitle = QString("%1 - %2").arg(m_geomechCase->caseUserDescription()).arg(name);
-        }
-        else
-        {
-            windowTitle = name;
-        }
-
-        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +134,7 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.incrementProgress();
     progress.setProgressDescription("Create Display model");
    
-    updateViewerWidget();
+    updateViewerWidgetBasic();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     
@@ -504,7 +482,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         if (showWindow)
         {
             bool generateDisplayModel = (viewer() == NULL);
-            updateViewerWidget();
+            updateViewerWidgetBasic();
 
             if (generateDisplayModel)
             {
@@ -532,6 +510,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
     this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();

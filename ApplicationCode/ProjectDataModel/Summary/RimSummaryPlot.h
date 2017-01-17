@@ -64,7 +64,7 @@ public:
     
     void                                            loadDataAndUpdate();
 
-    void                                            handleViewerDeletion();
+    void                                            detachAllCurves();
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
@@ -91,16 +91,11 @@ protected:
     virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    setupBeforeSave() override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
-    void                                            detachAllCurves();
-    void                                            deletePlotWidget();
     
     void                                            updateAxis(RimDefines::PlotAxis plotAxis);
     std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
@@ -109,6 +104,12 @@ private:
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
 
+    // RimViewWindow overrides
+
+    virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                            updateViewerWidgetWindowTitle() override;
+    virtual void                                    deleteViewWidget() override; 
 
 private:
     caf::PdmField<bool>                             m_showWindow;
