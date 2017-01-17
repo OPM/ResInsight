@@ -122,6 +122,14 @@ void PdmUiTableView::enableDefaultContextMenu(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiTableView::enableHeaderText(bool enable)
+{
+    m_listViewEditor->enableHeaderText(enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiTableView::setSelectionRole(SelectionManager::SelectionRole role)
 {
     m_listViewEditor->setSelectionRole(role);

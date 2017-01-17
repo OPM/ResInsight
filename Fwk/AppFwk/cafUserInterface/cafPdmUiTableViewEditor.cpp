@@ -272,6 +272,15 @@ void PdmUiTableViewEditor::enableDefaultContextMenu(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiTableViewEditor::enableHeaderText(bool enable)
+{
+    m_tableHeading->setVisible(enable);
+    m_tableHeadingIcon->setVisible(enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::updateContextMenuSignals()
 {
     if (!m_tableView) return;
