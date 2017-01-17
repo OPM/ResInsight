@@ -93,6 +93,8 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
     if (fieldNeedingOptions == &view)
     {
+        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+
         std::vector<RimView*> views; 
 
         RimProject* proj = RiaApplication::instance()->project();
