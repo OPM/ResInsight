@@ -84,7 +84,7 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 {
-    m_wellHeadParts.clear();
+    clearAllGeometry();
 
     if (m_rimReservoirView.isNull()) return;
 
@@ -191,7 +191,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             part->setEffect(eff.p());
             part->setSourceInfo(sourceInfo.p());
 
-            m_wellHeadParts.push_back(part.p());
+            m_wellHeadPipeSurfacePart = part;
         }
 
         if (centerLineDrawable.notNull())
@@ -206,7 +206,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             part->setEffect(eff.p());
             part->setSourceInfo(sourceInfo.p());
 
-            m_wellHeadParts.push_back(part.p());
+            m_wellHeadPipeCenterPart = part;
         }
     }
 
@@ -289,7 +289,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         part->setEffect(eff.p());
         part->setSourceInfo(sourceInfo.p());
 
-        m_wellHeadParts.push_back(part.p());
+        m_wellHeadArrowPart = part;
     }
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
@@ -319,8 +319,20 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         part->setPriority(11);
         part->setSourceInfo(sourceInfo.p());
 
-        m_wellHeadParts.push_back(part.p());
+        m_wellHeadLabelPart = part;
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellHeadPartMgr::clearAllGeometry()
+{
+    m_wellHeadArrowPart = nullptr;
+    m_wellHeadLabelPart = nullptr;
+    m_wellHeadPipeCenterPart = nullptr;
+    m_wellHeadPipeSurfacePart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,17 +340,33 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (m_rimWell.isNull()) return;
     if (m_rimReservoirView.isNull()) return;
-    if (m_rimReservoirView->wellCollection()->showWellHead() == false) return;
+    if (m_rimWell.isNull()) return;
+
+    RimEclipseWellCollection* wellCollection = nullptr;
+    m_rimWell->firstAncestorOrThisOfType(wellCollection);
+    if (!wellCollection) return;
+
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
     buildWellHeadParts(frameIndex);
 
-    size_t i;
-    for (i = 0; i < m_wellHeadParts.size(); i++)
+    // Always add pipe part of well head
+    if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
+    if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
+
+    if (wellCollection->showWellLabel() && 
+        m_rimWell->showWellLabel() && 
+        m_wellHeadLabelPart.notNull())
     {
-        model->addPart(m_wellHeadParts.at(i));
+        model->addPart(m_wellHeadLabelPart.p());
+    }
+    
+    if (wellCollection->showWellHead() &&
+        m_wellHeadArrowPart.notNull())
+    {
+        model->addPart(m_wellHeadArrowPart.p());
     }
 }
+
 
