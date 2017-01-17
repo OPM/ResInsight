@@ -189,6 +189,18 @@ bool PdmUiTableViewModel::setData(const QModelIndex &index, const QVariant &valu
 //--------------------------------------------------------------------------------------------------
 QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
 {
+    if (role == Qt::TextColorRole)
+    {
+        PdmFieldHandle* fieldHandle = getField(index);
+        if (fieldHandle && fieldHandle->uiCapability())
+        {
+            if (fieldHandle->uiCapability()->isUiReadOnly(m_currentConfigName))
+            {
+                return Qt::lightGray;
+            }
+        }
+    }
+
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
@@ -215,7 +227,10 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                         {
                             if (!displayText.isEmpty()) displayText += ", ";
 
-                            displayText += options.at(index).optionUiText;
+                            if (index < options.size())
+                            {
+                                displayText += options.at(index).optionUiText;
+                            }
                         }
                     }
                 }
@@ -310,20 +325,31 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
     m_pdmList = listField;
     m_currentConfigName = configName;
 
-    PdmUiOrdering config;
+    PdmUiOrdering configForFirstRow;
 
-    if (m_pdmList && m_pdmList->size() > 0)
+    if (m_pdmList)
     {
-        PdmObjectHandle* firstObject = m_pdmList->at(0);
+        PdmUiOrdering dummy;
 
-        PdmUiObjectHandle* uiObject = uiObj(firstObject);
-        if (uiObject)
+        for (size_t i = 0; i < listField->size(); i++)
         {
-            uiObject->uiOrdering(configName, config);
+            PdmObjectHandle* pdmObjHandle = m_pdmList->at(i);
+            PdmUiObjectHandle* uiObject = uiObj(pdmObjHandle);
+            if (uiObject)
+            {
+                if (i == 0)
+                {
+                    uiObject->uiOrdering(configName, configForFirstRow);
+                }
+                else
+                {
+                    uiObject->uiOrdering(configName, dummy);
+                }
+            }
         }
     }
 
-    const std::vector<PdmUiItem*>& uiItems = config.uiItems();
+    const std::vector<PdmUiItem*>& uiItems = configForFirstRow.uiItems();
 
     // Set all fieldViews to be unvisited
     std::map<QString, PdmUiFieldEditorHandle*>::iterator it;

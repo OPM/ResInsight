@@ -71,6 +71,16 @@ PdmUiTableItemEditor::~PdmUiTableItemEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableItemEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
+    caf::PdmUiObjectHandle* uiObject = dynamic_cast<caf::PdmUiObjectHandle*>(this->pdmItem());
+    if (uiObject)
+    {
+        // Call uiOrdering method, as this method is responsible for control of 
+        // object states like hidden/readOnly, etc...
+
+        caf::PdmUiOrdering dummy;
+        uiObject->uiOrdering(uiConfigName, dummy);
+    }
+
     QModelIndex miStart = m_model->index(m_row, 0);
     QModelIndex miEnd = m_model->index(m_row, m_model->columnCount());
 
