@@ -32,6 +32,7 @@ class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RifReaderEclipseSummary;
 class RimEclipseResultCase;
+class RimFlowPlotCollection;
 
 
 //==================================================================================================
@@ -45,8 +46,11 @@ public:
     RimMainPlotCollection();
     virtual ~RimMainPlotCollection();
 
-    RimWellLogPlotCollection* wellLogPlotCollection();
-    RimSummaryPlotCollection* summaryPlotCollection();
+    RimWellLogPlotCollection*   wellLogPlotCollection();
+    RimSummaryPlotCollection*   summaryPlotCollection();
+    RimFlowPlotCollection*      flowPlotCollection();
+
+    void deleteAllContainedObjects();
 
     #if 0
     // Separate Window stuff 
@@ -78,6 +82,7 @@ protected:
 
     caf::PdmChildField<RimWellLogPlotCollection*> m_wellLogPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*> m_summaryPlotCollection;
+    caf::PdmChildField<RimFlowPlotCollection*>    m_flowPlotCollection;
 
     caf::PdmField<bool> show;
 };

@@ -57,21 +57,22 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
     CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&viewObject,     "View",                 "View", "", "", "");
+    CAF_PDM_InitField(&isActive,                        "IsActive", true,           "Active", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&view,                   "View",                     "View", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Result Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Result Name", "", "", "");
 
-    CAF_PDM_InitField(&timeStepStart,           "TimeStepStart", 0,     "Timestep Start", "", "", "");
-    CAF_PDM_InitField(&timeStepEnd,             "TimeStepEnd", 0,       "Timestep End", "", "", "");
+    CAF_PDM_InitField(&timeStepStart,                   "TimeStepStart", 0,         "Timestep Start", "", "", "");
+    CAF_PDM_InitField(&timeStepEnd,                     "TimeStepEnd", 0,           "Timestep End", "", "", "");
 
-    CAF_PDM_InitField(&sliceDirection,          "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter direction", "", "", "");
-    CAF_PDM_InitField(&startSliceIndex,         "RangeFilterStart", 1,  "RangeFilter Start", "", "", "");
-    CAF_PDM_InitField(&endSliceIndex,           "RangeFilterEnd", 1,    "RangeFilter End", "", "", "");
+    CAF_PDM_InitField(&sliceDirection,                  "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter direction", "", "", "");
+    CAF_PDM_InitField(&startSliceIndex,                 "RangeFilterStart", 1,      "RangeFilter Start", "", "", "");
+    CAF_PDM_InitField(&endSliceIndex,                   "RangeFilterEnd", 1,        "RangeFilter End", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&additionalCases, "AdditionalCases",     "Case List", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&additionalCases,        "AdditionalCases",          "Case List", "", "", "");
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -89,8 +90,10 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
     RimProject* proj = RiaApplication::instance()->project();
 
-    if (fieldNeedingOptions == &viewObject)
+    if (fieldNeedingOptions == &view)
     {
+        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+
         std::vector<RimView*> views; 
 
         RimProject* proj = RiaApplication::instance()->project();
@@ -118,10 +121,9 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &selectedEclipseResults)
     {
-        RimView* rimView = viewObject();
-        if (dynamic_cast<RimEclipseView*>(rimView))
+        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view().p());
+        if (rimEclipseView)
         {
-            RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(rimView);
             QStringList varList;
             varList = rimEclipseView->currentGridCellResults()->cellResults()->resultNames(eclipseResultType());
 
@@ -151,9 +153,11 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
 {
+    if (!view()) return;
+
     QStringList timeSteps;
 
-    timeSteps = viewObject->ownerCase()->timeStepStrings();
+    timeSteps = view->ownerCase()->timeStepStrings();
 
     for (int i = 0; i < timeSteps.size(); i++)
     {
@@ -175,10 +179,10 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         const cvf::StructGridInterface* mainGrid = nullptr;
         RigActiveCellInfo* actCellInfo = nullptr;
        
-        if (viewObject())
+        if (view())
         {
-            mainGrid = viewObject()->rangeFilterCollection()->gridByIndex(0);
-            actCellInfo = viewObject()->rangeFilterCollection()->activeCellInfo();
+            mainGrid = view()->rangeFilterCollection()->gridByIndex(0);
+            actCellInfo = view()->rangeFilterCollection()->activeCellInfo();
         }
 
         if (mainGrid && actCellInfo)
@@ -235,4 +239,58 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::toOptionList(const QSt
         optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
     }
     return optionList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMultiSnapshotDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    if (!isActive())
+    {
+        view.uiCapability()->setUiReadOnly(true);
+        eclipseResultType.uiCapability()->setUiReadOnly(true);
+        selectedEclipseResults.uiCapability()->setUiReadOnly(true);
+        timeStepStart.uiCapability()->setUiReadOnly(true);
+        timeStepEnd.uiCapability()->setUiReadOnly(true);
+        sliceDirection.uiCapability()->setUiReadOnly(true);
+        startSliceIndex.uiCapability()->setUiReadOnly(true);
+        endSliceIndex.uiCapability()->setUiReadOnly(true);
+        additionalCases.uiCapability()->setUiReadOnly(true);
+    }
+    else
+    {
+        view.uiCapability()->setUiReadOnly(false);
+
+        if (!view())
+        {
+            eclipseResultType.uiCapability()->setUiReadOnly(true);
+            selectedEclipseResults.uiCapability()->setUiReadOnly(true);
+            timeStepStart.uiCapability()->setUiReadOnly(true);
+            timeStepEnd.uiCapability()->setUiReadOnly(true);
+            sliceDirection.uiCapability()->setUiReadOnly(true);
+            startSliceIndex.uiCapability()->setUiReadOnly(true);
+            endSliceIndex.uiCapability()->setUiReadOnly(true);
+            additionalCases.uiCapability()->setUiReadOnly(true);
+        }
+        else
+        {
+            eclipseResultType.uiCapability()->setUiReadOnly(false);
+            selectedEclipseResults.uiCapability()->setUiReadOnly(false);
+            timeStepStart.uiCapability()->setUiReadOnly(false);
+            timeStepEnd.uiCapability()->setUiReadOnly(false);
+            sliceDirection.uiCapability()->setUiReadOnly(false);
+
+            additionalCases.uiCapability()->setUiReadOnly(false);
+
+            bool rangeReadOnly = false;
+            if (sliceDirection() == NO_RANGEFILTER)
+            {
+                rangeReadOnly = true;
+            }
+
+            startSliceIndex.uiCapability()->setUiReadOnly(rangeReadOnly);
+            endSliceIndex.uiCapability()->setUiReadOnly(rangeReadOnly);
+        }
+    }
 }

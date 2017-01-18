@@ -19,14 +19,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 
-#include "cvfLibCore.h"
-#include "cvfLibRender.h"
-#include "cvfLibGeometry.h"
-#include "cvfLibViewing.h"
-
 #include "RivPipeGeometryGenerator.h"
-#include <vector>
+
 #include "cafEffectGenerator.h"
+#include "cvfDrawableGeo.h"
+#include "cvfPlane.h"
+#include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfRay.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -48,7 +47,6 @@ RivPipeGeometryGenerator::~RivPipeGeometryGenerator()
 
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +56,6 @@ void RivPipeGeometryGenerator::setPipeCenterCoords(const cvf::Vec3dArray* coords
 
     clearComputedData();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -79,7 +76,6 @@ void RivPipeGeometryGenerator::setBendScalingFactor(double scaleFactor)
 
     clearComputedData();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -102,7 +98,6 @@ void RivPipeGeometryGenerator::setCrossSectionVertexCount(size_t nodeCount)
 
     clearComputedData();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -256,7 +251,6 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec
 
     return geo;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -465,7 +459,6 @@ void RivPipeGeometryGenerator::computeExtrudedCoordsAndNormals( cvf::Vec3d inter
 
     *extrudedNodes = nextExtrudedNodes;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

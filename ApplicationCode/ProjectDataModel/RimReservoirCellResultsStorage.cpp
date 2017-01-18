@@ -1436,7 +1436,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
         size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
 
-        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates());
+        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates(), std::vector<int>()); // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
 
         progress.setProgressDescription(resInfo->m_resultName);
 

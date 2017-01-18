@@ -77,9 +77,11 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 
         RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
 
-        if (proj->multiSnapshotDefinitions.size() == 0)
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        if (activeView && proj->multiSnapshotDefinitions.size() == 0)
         {
             dlg.addSnapshotItemFromActiveView();
+            dlg.addEmptySnapshotItems(4);
         }
 
         dlg.exec();
@@ -110,18 +112,20 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
     
     for (RimMultiSnapshotDefinition* msd : project->multiSnapshotDefinitions())
     {
-        RimView* rimView = msd->viewObject();
-        if (!rimView) continue;
-        if (!rimView->viewer()) continue;
-        
-        int initialFramIndex = rimView->viewer()->currentFrameIndex();
+        if (!msd->isActive()) continue;
 
-        exportResultVariations(rimView, msd, folder);
+        RimView* sourceView = msd->view();
+        if (!sourceView) continue;
+        if (!sourceView->viewer()) continue;
+        
+        int initialFramIndex = sourceView->viewer()->currentFrameIndex();
+
+        //exportViewVariations(sourceView, msd, folder);
 
         for (RimCase* rimCase : msd->additionalCases())
         {
             RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimCase);
-            RimEclipseView* sourceEclipseView = dynamic_cast<RimEclipseView*>(rimView);
+            RimEclipseView* sourceEclipseView = dynamic_cast<RimEclipseView*>(sourceView);
             if (eclCase && sourceEclipseView)
             {
                 RimEclipseView* copyOfEclipseView = eclCase->createCopyAndAddView(sourceEclipseView);
@@ -129,7 +133,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 
                 copyOfEclipseView->loadDataAndUpdate();
 
-                exportResultVariations(copyOfEclipseView, msd, folder);
+                exportViewVariations(copyOfEclipseView, msd, folder);
 
                 eclCase->reservoirViews().removeChildObject(copyOfEclipseView);
                 
@@ -137,7 +141,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
             }
 
             RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
-            RimGeoMechView* sourceGeoMechView = dynamic_cast<RimGeoMechView*>(rimView);
+            RimGeoMechView* sourceGeoMechView = dynamic_cast<RimGeoMechView*>(sourceView);
             if (geomCase && sourceGeoMechView)
             {
                 RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(sourceGeoMechView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
@@ -155,7 +159,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 
                 copyOfGeoMechView->loadDataAndUpdate();
 
-                exportResultVariations(copyOfGeoMechView, msd, folder);
+                exportViewVariations(copyOfGeoMechView, msd, folder);
 
                 geomCase->geoMechViews().removeChildObject(copyOfGeoMechView);
             
@@ -164,20 +168,18 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
         }
 
         // Set view back to initial state
-        rimView->viewer()->setCurrentFrame(initialFramIndex);
-        rimView->viewer()->animationControl()->setCurrentFrameOnly(initialFramIndex);
+        sourceView->viewer()->setCurrentFrame(initialFramIndex);
+        sourceView->viewer()->animationControl()->setCurrentFrameOnly(initialFramIndex);
 
-        rimView->scheduleCreateDisplayModelAndRedraw();
+        sourceView->scheduleCreateDisplayModelAndRedraw();
      }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportResultVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicExportMultipleSnapshotsFeature::exportViewVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
-    exportViewVariationsToFolder(rimView, msd, folder);
-
     if (msd->selectedEclipseResults().size() > 0)
     {
         RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(rimView->ownerCase());
@@ -293,7 +295,7 @@ QString RicExportMultipleSnapshotsFeature::resultName(RimView* rimView)
     {
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(rimView);
         
-        return caf::Utils::makeValidFileBasename(eclView->cellResult()->resultVariableUiName());
+        return caf::Utils::makeValidFileBasename(eclView->cellResult()->resultVariableUiShortName());
     }
     else if (dynamic_cast<RimGeoMechView*>(rimView))
     {

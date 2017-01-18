@@ -376,10 +376,24 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
+{
+    QStringList dynResVarNames = resultNames(RimDefines::DYNAMIC_NATIVE);
+
+    bool hasFlowFluxes = true;
+    hasFlowFluxes = dynResVarNames.contains("FLRWATI+");
+    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLROILI+") || dynResVarNames.contains("FLRGASI+");
+
+    return hasFlowFluxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && (size_t)(m_resultInfos[scalarResultIndex].m_timeStepDates.size()) > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepDates[static_cast<int>(timeStepIndex)];
+    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepDates.size() > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].m_timeStepDates[timeStepIndex];
     else
         return QDateTime();
 }
@@ -398,11 +412,35 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResult
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates)
+int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const
+{
+    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepReportNumbers.size() > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].m_timeStepReportNumbers[timeStepIndex];
+    else
+        return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigCaseCellResultsData::reportStepNumbers(size_t scalarResultIndex) const
+{
+    if (scalarResultIndex < m_resultInfos.size() )
+        return  m_resultInfos[scalarResultIndex].m_timeStepReportNumbers;
+    else
+        return std::vector<int>();
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<int>& reportStepNumbers)
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 
     m_resultInfos[scalarResultIndex].m_timeStepDates = dates;
+    m_resultInfos[scalarResultIndex].m_timeStepReportNumbers = reportStepNumbers;
 
     std::vector< std::vector<double> >& dataValues = this->cellScalarResults(scalarResultIndex);
     dataValues.resize(dates.size());

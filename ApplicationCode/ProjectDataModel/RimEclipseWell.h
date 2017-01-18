@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "RigSingleWellResultsData.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -33,6 +31,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildField.h"
 
+class RigSingleWellResultsData;
 class RimEclipseView;
 class RimSimWellFractureCollection;
 
@@ -48,11 +47,9 @@ public:
     RimEclipseWell();
     virtual ~RimEclipseWell();
     
-    void                                setReservoirView(RimEclipseView* ownerReservoirView);
-
     void                                setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex);
-    RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
-    size_t                              resultWellIndex() { return m_resultWellIndex; }
+    RigSingleWellResultsData*           wellResults();
+    size_t                              resultWellIndex();
 
     bool                                isWellPipeVisible(size_t frameIndex);
     bool                                isWellSpheresVisible(size_t frameIndex);
@@ -84,6 +81,4 @@ public:
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;
     size_t                              m_resultWellIndex;
-
-    RimEclipseView*                   m_reservoirView;
 };

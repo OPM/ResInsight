@@ -56,6 +56,8 @@
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
+#include "cvfTimer.h"
+
 #include <QAction>
 #include <QCloseEvent>
 #include <QDir>
@@ -68,6 +70,7 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
+
 
 
 

@@ -22,7 +22,6 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfLibCore.h"
 
 #include <QStringList>
 #include <QDateTime>

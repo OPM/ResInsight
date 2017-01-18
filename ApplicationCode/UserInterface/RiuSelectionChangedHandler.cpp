@@ -23,9 +23,11 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RiuFemTimeHistoryResultAccessor.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"
+#include "RiuFemTimeHistoryResultAccessor.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -37,15 +39,13 @@
 
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
+#include "RiuResultQwtPlot.h"
 #include "RiuResultTextBuilder.h"
 #include "RiuSelectionManager.h"
-#include "RiuResultQwtPlot.h"
 
 #include <QStatusBar>
 
 #include <assert.h>
-#include "RigFemPartResultsCollection.h"
-#include "RigFemPartCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -104,8 +104,10 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
     RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
     if (eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
-    {
-        // Todo
+    { 
+        // NB! Do not read out data for flow results, as this can be a time consuming operation
+
+        return;
     }
     else if (eclipseView->cellResult()->hasDynamicResult() &&
         eclipseView->eclipseCase() &&
@@ -117,19 +119,15 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
         std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->reservoirData()->results(porosityModel)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
-        RigTimeHistoryResultAccessor timeHistResultAccessor(eclipseView->eclipseCase()->reservoirData(),
-            eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex,
-            eclipseView->cellResult()->scalarResultIndex(), porosityModel);
-
         QString curveName = eclipseView->eclipseCase()->caseUserDescription();
         curveName += ", ";
-        curveName += eclipseView->cellResult()->resultVariableUiName();
+        curveName += eclipseView->cellResult()->resultVariableUiShortName();
         curveName += ", ";
         curveName += QString("Grid index %1").arg(eclipseSelectionItem->m_gridIndex);
         curveName += ", ";
-        curveName += timeHistResultAccessor.topologyText();
+        curveName += RigTimeHistoryResultAccessor::topologyText(eclipseView->eclipseCase()->reservoirData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex);
 
-        std::vector<double> timeHistoryValues = timeHistResultAccessor.timeHistoryValues();
+        std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex, timeStepDates.size());
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
         RiuMainWindow::instance()->resultPlot()->addCurve(curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);

@@ -494,7 +494,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
         }
         else
         {
-            resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, gridIndex, timeStepIndex, resultColors);
+            resultAccessor = RigResultAccessorFactory::createFromResultDefinition(gridIndex, timeStepIndex, resultColors);
         }
 
         if (resultAccessor.notNull())
@@ -516,33 +516,42 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
 
     if (m_reservoirView->cellEdgeResult()->hasResult())
     {
-        std::vector<RimCellEdgeMetaData> metaData;
-        m_reservoirView->cellEdgeResult()->cellEdgeMetaData(&metaData);
-
-        std::set<size_t> uniqueResultIndices;
-
         text += "-- Cell edge result data --\n";
-        for (int idx = 0; idx < 6; idx++)
+
+        if (m_reservoirView->cellEdgeResult()->isUsingSingleVariable())
         {
-            size_t resultIndex = metaData[idx].m_resultIndex;
-            if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
+            text += cellResultText(m_reservoirView->cellEdgeResult()->singleVarEdgeResultColors());
+            text +=  "\n";
+        }
+        else
+        {
+            std::vector<RimCellEdgeMetaData> metaData;
+            m_reservoirView->cellEdgeResult()->cellEdgeMetaData(&metaData);
+
+            std::set<size_t> uniqueResultIndices;
+
+            for (int idx = 0; idx < 6; idx++)
+            {
+                size_t resultIndex = metaData[idx].m_resultIndex;
+                if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
             
-            if (uniqueResultIndices.find(resultIndex) != uniqueResultIndices.end()) continue;
+                if (uniqueResultIndices.find(resultIndex) != uniqueResultIndices.end()) continue;
 
-            size_t adjustedTimeStep = m_timeStepIndex;
-            if (metaData[idx].m_isStatic)
-            {
-                adjustedTimeStep = 0;
-            }
+                size_t adjustedTimeStep = m_timeStepIndex;
+                if (metaData[idx].m_isStatic)
+                {
+                    adjustedTimeStep = 0;
+                }
 
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_reservoirView->cellResult()->porosityModel());
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_reservoirView->eclipseCase()->reservoirData(), m_gridIndex, porosityModel, adjustedTimeStep, resultIndex);
-            if (resultAccessor.notNull())
-            {
-                double scalarValue = resultAccessor->cellScalar(m_cellIndex);
-                text.append(QString("%1 : %2\n").arg(metaData[idx].m_resultVariable).arg(scalarValue));
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_reservoirView->cellResult()->porosityModel());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_reservoirView->eclipseCase()->reservoirData(), m_gridIndex, porosityModel, adjustedTimeStep, resultIndex);
+                if (resultAccessor.notNull())
+                {
+                    double scalarValue = resultAccessor->cellScalar(m_cellIndex);
+                    text.append(QString("%1 : %2\n").arg(metaData[idx].m_resultVariable).arg(scalarValue));
 
-                uniqueResultIndices.insert(resultIndex);
+                    uniqueResultIndices.insert(resultIndex);
+                }
             }
         }
     }
@@ -691,7 +700,7 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 adjustedTimeStep = 0;
             }
             
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, m_gridIndex, adjustedTimeStep, resultColors);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(m_gridIndex, adjustedTimeStep, resultColors);
             if (resultAccessor.notNull())
             {
                 double scalarValue = resultAccessor->cellFaceScalar(m_cellIndex, m_face);

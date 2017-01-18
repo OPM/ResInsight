@@ -75,6 +75,17 @@ namespace caf
     }
 }
 
+namespace caf
+{
+    template<>
+    void RimEclipseWellCollection::WellPipeCoordEnum::setUp()
+    {
+        addItem(RimEclipseWellCollection::WELLPIPE_INTERPOLATED,    "WELLPIPE_INTERPOLATED",    "Interpolated");
+        addItem(RimEclipseWellCollection::WELLPIPE_CELLCENTER,      "WELLPIPE_CELLCENTER",      "Cell Centers");
+        setDefault(RimEclipseWellCollection::WELLPIPE_INTERPOLATED);
+    }
+}
+
 CAF_PDM_SOURCE_INIT(RimEclipseWellCollection, "Wells");
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +110,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Coords", "", "", "");
 
     CAF_PDM_InitField(&wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "Use well fence", "", "", "");
@@ -257,7 +269,8 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             || &showWellHead == changedField
             || &isAutoDetectingBranches == changedField
             || &wellHeadPosition == changedField
-            || &wellLabelColor == changedField)
+            || &wellLabelColor == changedField
+            || &wellPipeCoordType == changedField)
     {
         if (m_reservoirView) 
         {
@@ -295,6 +308,7 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
     wellPipe->add(&wellPipeVisibility);
     wellPipe->add(&pipeRadiusScaleFactor);
+    wellPipe->add(&wellPipeCoordType);
 
     caf::PdmUiGroup* cellCenterSpheres = uiOrdering.addNewGroup("Well cell center spheres");
     cellCenterSpheres->add(&wellSphereVisibility);

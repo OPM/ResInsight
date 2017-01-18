@@ -319,6 +319,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 caf::SelectionManager::instance()->setSelectedItem(well);
                 commandIds << "RicNewSimWellIntersectionFeature";
 
+                commandIds << "RicNewSimWellIntersectionFeature";
+                commandIds << "RicShowWellAllocationPlotFeature";
                 size_t gridIndex = cvf::UNDEFINED_SIZE_T;
                 size_t gridCellIndex = cvf::UNDEFINED_SIZE_T;
 

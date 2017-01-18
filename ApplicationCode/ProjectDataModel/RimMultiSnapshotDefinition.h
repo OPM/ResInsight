@@ -40,7 +40,9 @@ public:
     RimMultiSnapshotDefinition();
     virtual ~RimMultiSnapshotDefinition();
 
-    caf::PdmPtrField<RimView*>  viewObject;
+    caf::PdmField<bool>      isActive;
+
+    caf::PdmPtrField<RimView*>  view;
 
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >  eclipseResultType;
     caf::PdmField< std::vector<QString> >                       selectedEclipseResults;
@@ -61,6 +63,9 @@ public:
     caf::PdmField<int>       endSliceIndex;
 
     caf::PdmPtrArrayField<RimCase*>  additionalCases;
+
+protected:
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

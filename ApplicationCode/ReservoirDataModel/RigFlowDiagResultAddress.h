@@ -40,7 +40,9 @@ public:
 
     bool isNativeResult() const;
 
-    std::string uiText();
+    std::string uiText() const;
+    std::string uiShortText() const;
+
     std::string           variableName;
     std::set<std::string> selectedTracerNames;
 

@@ -353,7 +353,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFilterName()
 {
-    QString newFiltername = resultDefinition->resultVariableUiName();
+    QString newFiltername = resultDefinition->resultVariableUiShortName();
 
     if (isCategorySelectionActive())
     {

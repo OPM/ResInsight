@@ -26,6 +26,7 @@
 #include "RimSummaryPlot.h"
 #include "RimTreeViewStateSerializer.h"
 #include "RimViewWindow.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuDragDrop.h"
@@ -33,6 +34,7 @@
 #include "RiuSummaryQwtPlot.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
+#include "RiuWellAllocationPlot.h"
 #include "RiuWellLogPlot.h"
 
 #include "cafCmdFeatureManager.h"
@@ -498,6 +500,24 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
             RiaApplication::instance()->setActiveSummaryPlot(NULL);
         }
     }
+
+    {
+        RiuWellAllocationPlot* wellAllocationPlotWidget = dynamic_cast<RiuWellAllocationPlot*>(subWindow->widget());
+        if (wellAllocationPlotWidget)
+        {
+            RimWellAllocationPlot* wellAllocationPlot = wellAllocationPlotWidget->ownerPlotDefinition();
+
+            if (wellAllocationPlot != RiaApplication::instance()->activeWellAllocationPlot())
+            {
+                RiaApplication::instance()->setActiveWellAllocationPlot(wellAllocationPlot);
+                projectTreeView()->selectAsCurrentItem(wellAllocationPlot);
+            }
+        }
+        else
+        {
+            RiaApplication::instance()->setActiveWellAllocationPlot(nullptr);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,10 +595,9 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         // Well log plot
 
-        bool isActiveWellLogPlotChanged = false;
+        bool isActiveObjectChanged = false;
         
         RimWellLogPlot* selectedWellLogPlot = dynamic_cast<RimWellLogPlot*>(firstSelectedObject);
-
         if (!selectedWellLogPlot)
         {
             firstSelectedObject->firstAncestorOrThisOfType(selectedWellLogPlot);
@@ -590,20 +609,13 @@ void RiuMainPlotWindow::selectedObjectsChanged()
             {
                 setActiveViewer(selectedWellLogPlot->viewWidget());
             }
-            isActiveWellLogPlotChanged = true;
-        }
-
-        if (isActiveWellLogPlotChanged)
-        {
+            isActiveObjectChanged = true;
             RiaApplication::instance()->setActiveWellLogPlot(selectedWellLogPlot);
         }
 
         // Summary plot
 
-        bool isActiveSummaryPlotChanged = false;
-
         RimSummaryPlot* selectedSummaryPlot = dynamic_cast<RimSummaryPlot*>(firstSelectedObject);
-
         if (!selectedSummaryPlot)
         {
             firstSelectedObject->firstAncestorOrThisOfType(selectedSummaryPlot);
@@ -615,15 +627,31 @@ void RiuMainPlotWindow::selectedObjectsChanged()
             {
                 setActiveViewer(selectedSummaryPlot->viewWidget());
             }
-            isActiveSummaryPlotChanged = true;
-        }
 
-        if (isActiveSummaryPlotChanged)
-        {
+            isActiveObjectChanged = true;
             RiaApplication::instance()->setActiveSummaryPlot(selectedSummaryPlot);
         }
 
-        if (isActiveWellLogPlotChanged || isActiveSummaryPlotChanged)
+        // Flow plot
+
+        RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(firstSelectedObject);
+        if (!wellAllocationPlot)
+        {
+            firstSelectedObject->firstAncestorOrThisOfType(wellAllocationPlot);
+        }
+
+        if (wellAllocationPlot)
+        {
+            if (wellAllocationPlot->viewWidget())
+            {
+                setActiveViewer(wellAllocationPlot->viewWidget());
+            }
+
+            isActiveObjectChanged = true;
+            RiaApplication::instance()->setActiveWellAllocationPlot(wellAllocationPlot);
+        }
+
+        if (isActiveObjectChanged)
         {
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window

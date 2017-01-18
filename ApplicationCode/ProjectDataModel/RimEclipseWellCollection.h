@@ -80,6 +80,13 @@ public:
     };
     typedef caf::AppEnum<RimEclipseWellCollection::WellHeadPositionType> WellHeadPositionEnum;
 
+    enum WellPipeCoordType
+    {
+        WELLPIPE_CELLCENTER,
+        WELLPIPE_INTERPOLATED
+    };
+    typedef caf::AppEnum<RimEclipseWellCollection::WellPipeCoordType> WellPipeCoordEnum;
+
 
     caf::PdmField<bool>                 showWellLabel;
     caf::PdmField<cvf::Color3f>         wellLabelColor;
@@ -94,6 +101,7 @@ public:
     caf::PdmField<WellVisibilityEnum>   wellPipeVisibility;
     caf::PdmField<double>               pipeRadiusScaleFactor;
     caf::PdmField<int>                  pipeCrossSectionVertexCount;
+    caf::PdmField<WellPipeCoordEnum>    wellPipeCoordType;
 
     caf::PdmField<double>               wellHeadScaleFactor;
     caf::PdmField<bool>                 showWellHead;

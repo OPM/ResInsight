@@ -36,6 +36,8 @@
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionGeometryGenerator.h"
 #include "RivIntersectionSourceInfo.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -45,6 +47,7 @@
 #include "RiuGeoMechXfTensorResultAccessor.h"
 
 #include "cafTensor3.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
@@ -131,8 +134,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
-                                                                                          0,
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(0,
                                                                                           timeStepIndex,
                                                                                           cellResultColors);
                 }

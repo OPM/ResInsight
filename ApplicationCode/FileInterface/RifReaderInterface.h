@@ -22,13 +22,14 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfLibCore.h"
 
 #include "cafPdmPointer.h"
 
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
+
+#include <vector>
 
 
 class RigEclipseCaseData;

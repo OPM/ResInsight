@@ -84,6 +84,8 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 
     // We need to access the native data from the opm solver
 
+    if (!solverInterface()) return nullptr;
+
     if (!m_hasAtemptedNativeResults[frameIndex])
     {
         
@@ -377,7 +379,7 @@ std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelec
     {
         RimFlowDiagSolution::TracerStatusType tracerType = m_flowDiagSolution->tracerStatusInTimeStep(QString::fromStdString(tracerName), frameIndex);
 
-        if ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED )
+        if (tracerType != RimFlowDiagSolution::CLOSED && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
         {
             selectedTracersResults.push_back(findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, tracerName), frameIndex));
         }

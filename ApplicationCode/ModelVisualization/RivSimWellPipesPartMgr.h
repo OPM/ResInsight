@@ -33,7 +33,6 @@ namespace cvf
     class Transform;
     class Effect;
     class DrawableGeo;
-    class ScalarMapper;
 }
 
 class RivPipeGeometryGenerator;
@@ -69,7 +68,6 @@ private:
     struct RivPipeBranchData
     {
         std::vector <RigWellResultPoint>     m_cellIds;
-        //std::vector< std::vector<WellCellStatus> > m_cellStatusPrFrame;
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
 
         cvf::ref<cvf::Part>                 m_surfacePart;
@@ -82,10 +80,6 @@ private:
     RivPipeBranchData* pipeBranchData(size_t branchIndex);
 
     std::list<RivPipeBranchData> m_wellBranches;
-
-    cvf::ref<cvf::ScalarMapper> m_scalarMapper;
-    cvf::ref<cvf::Effect>       m_scalarMapperSurfaceEffect; 
-    cvf::ref<cvf::Effect>       m_scalarMapperMeshEffect; 
 
     std::vector< std::vector <cvf::Vec3d> > m_pipeBranchesCLCoords;
 };

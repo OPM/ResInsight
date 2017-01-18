@@ -25,39 +25,28 @@
 #include "RiaApplication.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigEclipseCaseData.h"
 #include "RigCell.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
-#include "RimLegendConfig.h"
-#include "RimReservoirCellResultsStorage.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivSimWellPipesPartMgr.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 #include "cafEffectGenerator.h"
-#include "cafPdmFieldCvfMat4d.h"
 
 #include "cvfArrowGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
-#include "cvfFixedAtlasFont.h"
 #include "cvfGeometryBuilderFaceList.h"
-#include "cvfLibCore.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfPrimitiveSetIndexedUShort.h"
-#include "cvfTransform.h"
 #include "cvfqtUtils.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -77,13 +66,12 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 {
-    m_wellHeadParts.clear();
+    clearAllGeometry();
 
     if (m_rimReservoirView.isNull()) return;
 
@@ -154,6 +142,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         whEndPos.z() = activeCellsBoundingBoxMax.z();
     }
 
+    // Upper part of simulation well pipe is defined to use branch index 0
+    cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo(m_rimWell, 0);
+
     cvf::Vec3d arrowPosition = whEndPos;
     arrowPosition.z() += 2.0;
 
@@ -185,8 +176,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             part->setEffect(eff.p());
+            part->setSourceInfo(sourceInfo.p());
 
-            m_wellHeadParts.push_back(part.p());
+            m_wellHeadPipeSurfacePart = part;
         }
 
         if (centerLineDrawable.notNull())
@@ -199,8 +191,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             cvf::ref<cvf::Effect> eff = meshGen.generateCachedEffect();
 
             part->setEffect(eff.p());
+            part->setSourceInfo(sourceInfo.p());
 
-            m_wellHeadParts.push_back(part.p());
+            m_wellHeadPipeCenterPart = part;
         }
     }
 
@@ -281,7 +274,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
         part->setEffect(eff.p());
-        m_wellHeadParts.push_back(part.p());
+        part->setSourceInfo(sourceInfo.p());
+
+        m_wellHeadArrowPart = part;
     }
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
@@ -309,29 +304,55 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         part->setEffect(eff.p());
         part->setPriority(11);
+        part->setSourceInfo(sourceInfo.p());
 
-        m_wellHeadParts.push_back(part.p());
+        m_wellHeadLabelPart = part;
     }
 }
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellHeadPartMgr::clearAllGeometry()
+{
+    m_wellHeadArrowPart = nullptr;
+    m_wellHeadLabelPart = nullptr;
+    m_wellHeadPipeCenterPart = nullptr;
+    m_wellHeadPipeSurfacePart = nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (m_rimWell.isNull()) return;
     if (m_rimReservoirView.isNull()) return;
-    if (m_rimReservoirView->wellCollection()->showWellHead() == false) return;
+    if (m_rimWell.isNull()) return;
+
+    RimEclipseWellCollection* wellCollection = nullptr;
+    m_rimWell->firstAncestorOrThisOfType(wellCollection);
+    if (!wellCollection) return;
+
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
     buildWellHeadParts(frameIndex);
 
-    size_t i;
-    for (i = 0; i < m_wellHeadParts.size(); i++)
+    // Always add pipe part of well head
+    if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
+    if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
+
+    if (wellCollection->showWellLabel() && 
+        m_rimWell->showWellLabel() && 
+        m_wellHeadLabelPart.notNull())
     {
-        model->addPart(m_wellHeadParts.at(i));
+        model->addPart(m_wellHeadLabelPart.p());
+    }
+    
+    if (wellCollection->showWellHead() &&
+        m_wellHeadArrowPart.notNull())
+    {
+        model->addPart(m_wellHeadArrowPart.p());
     }
 }
+
 

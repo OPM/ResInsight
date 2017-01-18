@@ -45,7 +45,6 @@
 #include "cafPdmFieldCvfMat4d.h"
 
 #include "cvfDrawableGeo.h"
-#include "cvfLibCore.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfRay.h"
@@ -61,26 +60,6 @@ RivSimWellPipesPartMgr::RivSimWellPipesPartMgr(RimEclipseView* reservoirView, Ri
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
     m_needsTransformUpdate = true;
-
-    // Setup a scalar mapper
-    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    cvf::Color3ubArray legendColors;
-    legendColors.resize(4);
-    legendColors[0] = cvf::Color3::GRAY;
-    legendColors[1] = cvf::Color3::GREEN;
-    legendColors[2] = cvf::Color3::BLUE;
-    legendColors[3] = cvf::Color3::RED;
-    scalarMapper->setColors(legendColors);
-    scalarMapper->setRange(0.0 , 4.0);
-    scalarMapper->setLevelCount(4, true);
-
-    m_scalarMapper = scalarMapper;
-
-    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
-    m_scalarMapperSurfaceEffect = surfEffGen.generateCachedEffect();
-
-    caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
-    m_scalarMapperMeshEffect = meshEffGen.generateCachedEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,6 +83,39 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(m_rimWell.p(), m_pipeBranchesCLCoords, pipeBranchesCellIds);
+
+    RimEclipseWellCollection* wellColl = nullptr;
+    m_rimWell->firstAncestorOrThisOfType(wellColl);
+    if (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER)
+    {
+        // Compute coords based on connection centers
+        // Loop over all well cells, and overwrite with cell center instead of interpolated coordinates
+
+        RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
+
+        for (size_t i = 0; i < pipeBranchesCellIds.size(); i++)
+        {
+            const std::vector<RigWellResultPoint>& resPoints = pipeBranchesCellIds[i];
+            for (size_t j = 0; j < resPoints.size(); j++)
+            {
+                if (resPoints[j].isCell())
+                {
+                    size_t gridIndex = resPoints[j].m_gridIndex;
+                    size_t gridCellIndex = resPoints[j].m_gridCellIndex;
+
+                    if (gridIndex < mainGrid->gridCount())
+                    {
+                        RigGridBase* rigGrid = mainGrid->gridByIndex(gridIndex);
+                        if (gridCellIndex < rigGrid->cellCount())
+                        {
+                            cvf::Vec3d center = rigGrid->cell(gridCellIndex).center();
+                            m_pipeBranchesCLCoords[i][j] = center;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
@@ -236,6 +248,26 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
     std::vector<double> wellCellStates;
 
+    // Setup a scalar mapper
+    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
+    {
+        cvf::Color3ubArray legendColors;
+        legendColors.resize(4);
+        legendColors[0] = cvf::Color3ub(m_rimWell->wellPipeColor());
+        legendColors[1] = cvf::Color3::GREEN;
+        legendColors[2] = cvf::Color3::BLUE;
+        legendColors[3] = cvf::Color3::RED;
+        scalarMapper->setColors(legendColors);
+        scalarMapper->setRange(0.0, 4.0);
+        scalarMapper->setLevelCount(4, true);
+    }
+
+    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
+    cvf::ref<cvf::Effect> scalarMapperSurfaceEffect = surfEffGen.generateUnCachedEffect();
+
+    caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
+    cvf::ref<cvf::Effect> scalarMapperMeshEffect = meshEffGen.generateUnCachedEffect();
+
     for (brIt = m_wellBranches.begin(); brIt != m_wellBranches.end(); ++brIt)
     {
         // Initialize well states to "closed" state
@@ -299,10 +331,10 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
                 surfTexCoords = new cvf::Vec2fArray;
             }
 
-            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords( surfTexCoords.p(), wellCellStates, m_scalarMapper.p());
+            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords( surfTexCoords.p(), wellCellStates, scalarMapper.p());
             brIt->m_surfaceDrawable->setTextureCoordArray( surfTexCoords.p());
 
-            brIt->m_surfacePart->setEffect(m_scalarMapperSurfaceEffect.p());
+            brIt->m_surfacePart->setEffect(scalarMapperSurfaceEffect.p());
         }
 
         // Find or create texture coords array for pipe center line
@@ -316,7 +348,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
             }
 
             // Calculate new texture coordinates
-            brIt->m_pipeGeomGenerator->centerlineTextureCoords( lineTexCoords.p(), wellCellStates, m_scalarMapper.p());
+            brIt->m_pipeGeomGenerator->centerlineTextureCoords( lineTexCoords.p(), wellCellStates, scalarMapper.p());
 
             // Set the new texture coordinates
 
@@ -324,7 +356,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
             // Set effects
 
-            brIt->m_centerLinePart->setEffect(m_scalarMapperMeshEffect.p());
+            brIt->m_centerLinePart->setEffect(scalarMapperMeshEffect.p());
         }
     }
 }

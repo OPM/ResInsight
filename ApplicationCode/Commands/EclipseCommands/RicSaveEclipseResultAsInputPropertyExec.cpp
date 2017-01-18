@@ -84,7 +84,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
             projectFolder = m_cellColors->reservoirView()->eclipseCase()->locationOnDisc();
         }
 
-        QString outputFileName = projectFolder + "/" + caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiName());
+        QString outputFileName = projectFolder + "/" + caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiShortName());
 
         exportSettings.fileName = outputFileName;
     }

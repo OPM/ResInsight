@@ -30,7 +30,7 @@ bool RigFlowDiagResultAddress::isNativeResult() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RigFlowDiagResultAddress::uiText()
+std::string RigFlowDiagResultAddress::uiText() const
 {
     std::string uiVarname = variableName;
 
@@ -44,4 +44,11 @@ std::string RigFlowDiagResultAddress::uiText()
     return uitext;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RigFlowDiagResultAddress::uiShortText() const
+{
+    return variableName;
+}
 

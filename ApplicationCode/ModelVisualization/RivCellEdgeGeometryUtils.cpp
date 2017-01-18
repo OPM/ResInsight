@@ -60,7 +60,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 
     // Create result access objects
 
-    cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor(cellResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+    cvf::ref<RigResultAccessor> cellCenterDataAccessObject = RigResultAccessorFactory::createFromResultDefinition(gridIndex, timeStepIndex, cellResultColors);
     cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
     size_t vertexCount = geo->vertexArray()->size();
@@ -298,10 +298,22 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
     const RigGridBase* grid)
 {
     cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
+    
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+
+    if (cellEdgeResultColors->propertyType() == RimCellEdgeColors::ANY_SINGLE_PROPERTY)
+    {
+        cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createFromResultDefinition(grid->gridIndex(), timeStepIndex, cellEdgeResultColors->singleVarEdgeResultColors());
+
+        for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
+        {
+            cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
+        }
+    }
+    else
     {
         size_t resultIndices[6];
         cellEdgeResultColors->gridScalarIndices(resultIndices);
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
 
         std::vector<RimCellEdgeMetaData> metaData;
         cellEdgeResultColors->cellEdgeMetaData(&metaData);
@@ -322,30 +334,4 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
 
     return cellEdgeResultAccessor;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, RigEclipseCaseData* eclipseCase, const RigGridBase* grid)
-{
-    cvf::ref<RigResultAccessor> resultAccessor = NULL;
-
-    if (cellResultColors->hasResult())
-    {
-        resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, grid->gridIndex(), timeStepIndex, cellResultColors);
-    }
-
-    if (resultAccessor.isNull())
-    {
-        resultAccessor = new RigHugeValResultAccessor;
-    }
-
-    return resultAccessor;
-}
-
-
-
-
-
-
 

@@ -22,8 +22,7 @@
 
 #include "RifReaderInterface.h"
 
-#include "RigFault.h"
-#include "RigSingleWellResultsData.h"
+#include "cvfCollection.h"
 
 #include <QList>
 #include <QDateTime>
@@ -33,6 +32,9 @@ class RifEclipseRestartDataAccess;
 class RigGridBase;
 class RigMainGrid;
 class RigActiveCellInfo;
+class RigFault;
+
+struct RigWellResultPoint;
 
 typedef struct ecl_grid_struct ecl_grid_type;
 typedef struct ecl_file_struct ecl_file_type;

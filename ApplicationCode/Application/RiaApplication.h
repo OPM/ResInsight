@@ -53,6 +53,7 @@ class RimSummaryPlot;
 class RimView;
 class RimViewWindow;
 class RimWellLogPlot;
+class RimWellAllocationPlot;
 
 class RiuMainPlotWindow;
 class RiuRecentFileActionProvider;
@@ -99,6 +100,9 @@ public:
 
     void                    setActiveSummaryPlot(RimSummaryPlot*);
     RimSummaryPlot*         activeSummaryPlot();
+
+    void                    setActiveWellAllocationPlot(RimWellAllocationPlot*);
+    RimWellAllocationPlot*  activeWellAllocationPlot();
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -224,6 +228,7 @@ private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
     caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
     caf::PdmPointer<RimSummaryPlot>     m_activeSummaryPlot;
+    caf::PdmPointer<RimWellAllocationPlot> m_activeWellAllocationPlot;
 
     caf::PdmPointer<RimProject>         m_project;
 

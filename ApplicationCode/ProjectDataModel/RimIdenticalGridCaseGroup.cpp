@@ -239,6 +239,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
 
         std::vector<QDateTime> timeStepDates = rigCaseData->results(poroModel)->timeStepDates(0);
+        std::vector<int> reportStepNumbers =  rigCaseData->results(poroModel)->reportStepNumbers(0);
+
         const std::vector<RigCaseCellResultsData::ResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
@@ -262,7 +264,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                     
                     if (mustBeCalculated) cellResultsStorage->cellResults()->setMustBeCalculated(scalarResultIndex);
 
-                    cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates);
+                    cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates, reportStepNumbers);
 
                     std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellResults()->cellScalarResults(scalarResultIndex);
                     dataValues.resize(timeStepDates.size());

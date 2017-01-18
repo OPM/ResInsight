@@ -250,8 +250,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
             m_eclipseResultDefinition->loadResult();
 
-            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->reservoirData(),
-                                                                                                      0,
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(0,
                                                                                                       m_timeStep,
                                                                                                       m_eclipseResultDefinition);
 

@@ -39,6 +39,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "cvfTimer.h"
+
 #include <QErrorMessage>
 #include <QTcpSocket>
 
