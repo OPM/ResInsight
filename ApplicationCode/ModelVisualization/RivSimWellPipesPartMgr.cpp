@@ -104,6 +104,39 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(m_rimWell.p(), m_pipeBranchesCLCoords, pipeBranchesCellIds);
 
+    RimEclipseWellCollection* wellColl = nullptr;
+    m_rimWell->firstAncestorOrThisOfType(wellColl);
+    if (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER)
+    {
+        // Compute coords based on connection centers
+        // Loop over all well cells, and overwrite with cell center instead of interpolated coordinates
+
+        RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
+
+        for (size_t i = 0; i < pipeBranchesCellIds.size(); i++)
+        {
+            const std::vector<RigWellResultPoint>& resPoints = pipeBranchesCellIds[i];
+            for (size_t j = 0; j < resPoints.size(); j++)
+            {
+                if (resPoints[j].isCell())
+                {
+                    size_t gridIndex = resPoints[j].m_gridIndex;
+                    size_t gridCellIndex = resPoints[j].m_gridCellIndex;
+
+                    if (gridIndex < mainGrid->gridCount())
+                    {
+                        RigGridBase* rigGrid = mainGrid->gridByIndex(gridIndex);
+                        if (gridCellIndex < rigGrid->cellCount())
+                        {
+                            cvf::Vec3d center = rigGrid->cell(gridCellIndex).center();
+                            m_pipeBranchesCLCoords[i][j] = center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
