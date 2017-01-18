@@ -24,6 +24,7 @@
 
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimIntersectionCollection.h"
 #include "RimSimWellFractureCollection.h"
 
 #include "cvfMath.h"
