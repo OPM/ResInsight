@@ -31,6 +31,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigSingleWellResultsData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -1155,11 +1156,6 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     // Make sure all the wells have their reservoirView ptr setup correctly
     this->wellCollection()->setReservoirView(this);
-    for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
-    {
-        this->wellCollection()->wells()[wIdx]->setReservoirView(this);
-    }
-
     this->wellCollection()->sortWellsByName();
 }
 

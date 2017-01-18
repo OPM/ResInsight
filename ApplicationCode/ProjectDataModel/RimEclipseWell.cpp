@@ -20,9 +20,11 @@
 
 #include "RimEclipseWell.h"
 
-#include "RimIntersectionCollection.h"
+#include "RigSingleWellResultsData.h"
+
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
+#include "RimIntersectionCollection.h"
 
 #include "cvfMath.h"
 
@@ -53,8 +55,6 @@ RimEclipseWell::RimEclipseWell()
     name.uiCapability()->setUiReadOnly(true);
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
-
-    m_reservoirView = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,60 +75,26 @@ caf::PdmFieldHandle* RimEclipseWell::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::setReservoirView(RimEclipseView* ownerReservoirView)
-{
-    m_reservoirView = ownerReservoirView;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showWellLabel == changedField)
-    {
-        if (m_reservoirView) 
-        {
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-    else if (&showWell == changedField)
-    {
-        if (m_reservoirView)
-        {
-            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-    else if (&showWellCells == changedField)
-    {
-        if (m_reservoirView)
-        {
-            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
+    RimEclipseView* m_reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(m_reservoirView);
+    if (!m_reservoirView) return;
 
-    }
-    else if (&showWellCellFence == changedField)
+    if (&showWellLabel == changedField ||
+        &showWellPipes == changedField ||
+        &showWellSpheres == changedField ||
+        &wellPipeColor == changedField)
     {
-        if (m_reservoirView)
-        {
-            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-
+        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
-    else if (&showWellPipes == changedField)
+    else if (&showWell == changedField ||
+             &showWellCells == changedField ||
+             &showWellCellFence == changedField)
+             
     {
-        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-    }
-    else if (&showWellSpheres == changedField)
-    {
-        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-    }
-    else if (&wellPipeColor == changedField)
-    {
-        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
+        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
     else if (&pipeRadiusScaleFactor == changedField)
     {
@@ -156,6 +122,9 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
     if (this->wellResults() == nullptr) return false;
 
     if (!wellResults()->hasWellResult(frameIndex)) return false;
+
+    RimEclipseView* m_reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(m_reservoirView);
 
     const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
     cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
@@ -226,8 +195,11 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 {
-    if (m_reservoirView == NULL) return false;
-    if (this->wellResults() == NULL) return false;
+    RimEclipseView* m_reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(m_reservoirView);
+
+    if (m_reservoirView == nullptr) return false;
+    if (this->wellResults() == nullptr) return false;
 
     if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
     {
@@ -276,8 +248,11 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 {
-    if (m_reservoirView == NULL) return false;
-    if (this->wellResults() == NULL) return false;
+    RimEclipseView* m_reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(m_reservoirView);
+
+    if (m_reservoirView == nullptr) return false;
+    if (this->wellResults() == nullptr) return false;
 
     if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
     {
@@ -326,6 +301,23 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex)
 {
-    m_wellResults = wellResults; m_resultWellIndex = resultWellIndex;
+    m_wellResults = wellResults;
+    m_resultWellIndex = resultWellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigSingleWellResultsData* RimEclipseWell::wellResults()
+{
+    return m_wellResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimEclipseWell::resultWellIndex()
+{
+    return m_resultWellIndex;
 }
 

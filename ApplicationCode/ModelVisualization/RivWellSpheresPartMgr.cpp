@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
