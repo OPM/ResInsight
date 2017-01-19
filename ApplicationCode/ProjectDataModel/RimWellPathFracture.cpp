@@ -22,6 +22,8 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
+
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathFracture, "WellPathFracture");
@@ -34,6 +36,7 @@ RimWellPathFracture::RimWellPathFracture(void)
     CAF_PDM_InitObject("Fracture", ":/FractureSymbol16x16.png", "", "");
 
     CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location", "", "", "");
+    measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,5 +91,33 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
     fractureCenterGroup->add(&m_displayIJK);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (field == &measuredDepth)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+
+        if (myAttr)
+        {
+            RimWellPath* rimWellPath = nullptr;
+            this->firstAncestorOrThisOfType(rimWellPath);
+            CVF_ASSERT(rimWellPath);
+
+            RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
+            CVF_ASSERT(wellPathGeo);
+            {
+                if (wellPathGeo->m_measuredDepths.size() > 2)
+                {
+                    myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
+                    myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
+                }
+            }
+        }
+    }
 }
 

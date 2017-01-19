@@ -20,6 +20,11 @@
 
 #include "RimFracture.h"
 
+namespace caf {
+    class PdmFieldHandle;
+    class PdmUiEditorAttribute;
+}
+
 //==================================================================================================
 ///  
 ///  
@@ -38,4 +43,6 @@ public:
 
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+
 };
