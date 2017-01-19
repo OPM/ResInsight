@@ -54,11 +54,10 @@ RifEclipseExportTools::~RifEclipseExportTools()
   
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, const std::vector<RimFracture*>& fractures)
+bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures)
 {
 
     QFile file(fileName);
@@ -74,15 +73,14 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, co
 
     caf::ProgressInfo pi(fractures.size(), QString("Writing data to file %1").arg(fileName));
 
-    RimFracture* fracture;
     RimEclipseWell* simWell = nullptr;
     RimWellPath* wellPath = nullptr;
 
-    size_t i;
+    size_t progress =0;
     std::vector<size_t> ijk;
-    for (i = 0; i < fractures.size(); i++)
+
+    for (RimFracture* fracture : fractures)
     {
-        fracture = fractures.at(i);
         fracture->computeTransmissibility();
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
@@ -147,10 +145,9 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName, co
             out << "/" << "\n";
         }
         
-        pi.setProgress(i);
+        progress++;
+        pi.setProgress(progress);
     }
-
-
 
     return true;
 }
