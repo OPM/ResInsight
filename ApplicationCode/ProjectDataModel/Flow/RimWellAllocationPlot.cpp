@@ -96,7 +96,7 @@ void RimWellAllocationPlot::deleteViewWidget()
 void RimWellAllocationPlot::updateFromWell()
 {
     QString simName = "None";
-    size_t branchCount = 0; 
+    int branchCount = 0; 
     
     const RigWellResultFrame* wellResultFrame = nullptr;
 
@@ -104,10 +104,10 @@ void RimWellAllocationPlot::updateFromWell()
     {
         simName = m_simulationWell->name();
         wellResultFrame =  &(m_simulationWell->wellResults()->wellResultFrame(1));
-        branchCount = wellResultFrame->m_wellResultBranches.size();
+        branchCount = static_cast<int>( wellResultFrame->m_wellResultBranches.size());
     }
 
-    size_t existingTrackCount = accumulatedWellFlowPlot()->trackCount();
+    int existingTrackCount = static_cast<int>(accumulatedWellFlowPlot()->trackCount());
     accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + simName + ")");
 
     int neededExtraTrackCount = branchCount - existingTrackCount;
