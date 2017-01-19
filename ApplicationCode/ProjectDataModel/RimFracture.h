@@ -29,6 +29,7 @@
 
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmFieldCvfVec3d.h"
 
 
 class RigFracture;
