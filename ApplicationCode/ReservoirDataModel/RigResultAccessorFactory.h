@@ -33,7 +33,8 @@ class RigResultAccessorFactory
 {
 public:
     static cvf::ref<RigResultAccessor>
-        createFromResultDefinition(size_t gridIndex,
+        createFromResultDefinition(RigEclipseCaseData* eclipseCase,
+                                   size_t gridIndex,
                                    size_t timeStepIndex,
                                    RimEclipseResultDefinition* resultDefinition);
 

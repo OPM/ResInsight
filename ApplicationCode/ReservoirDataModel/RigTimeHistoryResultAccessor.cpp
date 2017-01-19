@@ -31,13 +31,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount)
+std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount)
 {
     std::vector<double> values;
 
     for (size_t i = 0; i < timeStepCount; i++)
     {
-        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(gridIndex, i, cellColors);
+        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, cellColors);
 
         values.push_back(resultAccessor->cellScalar(cellIndex));
     }
@@ -48,7 +48,7 @@ std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RimEclipseCe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigTimeHistoryResultAccessor::topologyText(RigEclipseCaseData* eclipseCaseData,  size_t gridIndex, size_t cellIndex)
+QString RigTimeHistoryResultAccessor::topologyText(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex)
 {
     QString text;
 

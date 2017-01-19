@@ -30,7 +30,7 @@ class RimEclipseCellColors;
 class RigTimeHistoryResultAccessor
 {
 public:
-    static QString             topologyText(RigEclipseCaseData* m_eclipseCaseData,  size_t m_gridIndex, size_t m_cellIndex);
-    static std::vector<double> timeHistoryValues(RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount);
+    static QString             topologyText(RigEclipseCaseData* eclipseCaseData,  size_t m_gridIndex, size_t m_cellIndex);
+    static std::vector<double> timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount);
 };
 
