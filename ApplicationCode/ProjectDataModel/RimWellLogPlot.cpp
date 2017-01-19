@@ -202,6 +202,17 @@ void RimWellLogPlot::removeTrack(RimWellLogTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::removeTrackByIndex(size_t index)
+{
+    CVF_ASSERT(index < m_tracks.size());
+
+    RimWellLogTrack* track = m_tracks[index];
+    this->removeTrack(track);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove)
 {
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
@@ -226,6 +237,14 @@ void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::ve
     }
 
     updateTrackNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogTrack* RimWellLogPlot::trackByIndex(size_t index)
+{
+    return m_tracks[index];
 }
 
 //--------------------------------------------------------------------------------------------------

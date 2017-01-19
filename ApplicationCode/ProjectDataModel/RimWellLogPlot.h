@@ -66,9 +66,13 @@ public:
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
+    void                                            removeTrackByIndex(size_t index);
+
     void                                            removeTrack(RimWellLogTrack* track);
     size_t                                          trackIndex(RimWellLogTrack* track);
     void                                            moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove);
+
+    RimWellLogTrack*                                trackByIndex(size_t index);
 
     void                                            loadDataAndUpdate();
     void                                            updateTracks();
@@ -104,6 +108,7 @@ private:
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
 
+public: // Needed by RiuWellAllocation Plot
     // RimViewWindow overrides
 
     virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 

@@ -32,7 +32,7 @@ class RimWellAllocationPlot;
 //
 //
 //==================================================================================================
-class RiuWellAllocationPlot : public QwtPlot
+class RiuWellAllocationPlot : public QFrame
 {
     Q_OBJECT;
 public:

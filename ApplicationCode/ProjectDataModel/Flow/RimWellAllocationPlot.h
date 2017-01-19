@@ -29,6 +29,7 @@
 
 class RiuWellAllocationPlot;
 class RimEclipseWell;
+class RimWellLogPlot;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -57,6 +58,7 @@ public:
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
+    RimWellLogPlot*                                 accumulatedWellFlowPlot();
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
@@ -83,8 +85,11 @@ private:
 
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
+    //caf::PdmField<bool>                             m_showAccWellFlowPlot;
 
     caf::PdmPtrField<RimEclipseWell*>               m_simulationWell;
 
     QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
+
+    caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
 };

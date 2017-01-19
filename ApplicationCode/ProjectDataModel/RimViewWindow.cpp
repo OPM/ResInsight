@@ -30,7 +30,7 @@ RimViewWindow::RimViewWindow(void)
 {
     CAF_PDM_InitFieldNoDefault(&m_windowController, "WindowController", "", "", "", "");
     m_windowController.uiCapability()->setUiHidden(true);
-
+    m_windowController.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete field
     CAF_PDM_InitFieldNoDefault(&m_windowGeometry, "WindowGeometry", "", "", "", "");

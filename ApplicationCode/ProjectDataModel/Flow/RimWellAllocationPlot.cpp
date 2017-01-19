@@ -26,6 +26,9 @@
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
+#include "RigSingleWellResultsData.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
@@ -44,9 +47,12 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_userName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_simulationWell, "SimulationWell", "Simulation Well", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "");
+    m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
+
+    m_accumulatedWellFlowPlot = new RimWellLogPlot;
     this->setAsPlotMDI();
 }
 
@@ -56,6 +62,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 RimWellAllocationPlot::~RimWellAllocationPlot()
 {
     removeWidgetFromMDI();
+    
+    delete m_accumulatedWellFlowPlot();
 
     deleteViewWidget();
 }
@@ -88,14 +96,42 @@ void RimWellAllocationPlot::deleteViewWidget()
 void RimWellAllocationPlot::updateFromWell()
 {
     QString simName = "None";
+    size_t branchCount = 0; 
+    
+    const RigWellResultFrame* wellResultFrame = nullptr;
 
-    if (m_simulationWell)
+    if (m_simulationWell && m_simulationWell->wellResults() )// && Timestep Ok )
     {
         simName = m_simulationWell->name();
+        wellResultFrame =  &(m_simulationWell->wellResults()->wellResultFrame(1));
+        branchCount = wellResultFrame->m_wellResultBranches.size();
     }
 
-    setDescription(simName);
-    updateViewerWidgetBasic();
+    size_t existingTrackCount = accumulatedWellFlowPlot()->trackCount();
+    accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + simName + ")");
+
+    int neededExtraTrackCount = branchCount - existingTrackCount;
+    for (int etc = 0; etc < neededExtraTrackCount; ++etc)
+    {
+        RimWellLogTrack* plotTrack = new RimWellLogTrack();
+        accumulatedWellFlowPlot()->addTrack(plotTrack);
+    }
+
+    for (int etc = branchCount; etc < existingTrackCount; ++etc)
+    {
+        accumulatedWellFlowPlot()->removeTrackByIndex(accumulatedWellFlowPlot()->trackCount()- 1);
+    }
+
+    for (size_t brIdx = 0; brIdx < branchCount; ++brIdx)
+    {
+        RimWellLogTrack* plotTrack = accumulatedWellFlowPlot()->trackByIndex(brIdx);
+
+        plotTrack->setDescription(QString("Branch %1").arg(wellResultFrame->m_wellResultBranches[brIdx].m_ertBranchId));
+
+    }
+
+    setDescription("Well Allocation (" + simName + ")");
+    accumulatedWellFlowPlot()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +147,14 @@ QWidget* RimWellAllocationPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::zoomAll()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RimWellAllocationPlot::accumulatedWellFlowPlot()
+{
+    return m_accumulatedWellFlowPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +232,7 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 void RimWellAllocationPlot::setDescription(const QString& description)
 {
     m_userName = description;
+    this->updateViewerWidgetWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
