@@ -71,10 +71,11 @@ public:
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
 
-    virtual std::vector<size_t>     getPotentiallyFracturedCells();
+    std::vector<size_t>             getPotentiallyFracturedCells();
     void                            computeTransmissibility();
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual caf::PdmFieldHandle*    userDescriptionField() override;
 
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
@@ -94,20 +95,19 @@ private:
         std::vector<cvf::Vec3f> fracturePolygon, double & area);
 
 
-private:
+protected:
     caf::PdmPtrField<RimEllipseFractureTemplate*>   m_fractureTemplate;
-    caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
+    caf::PdmProxyValueField<QString>                m_displayIJK;
 
+private:
+    caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
     cvf::ref<RigFracture>                           m_rigFracture;
     bool                                            m_recomputeGeometry;
 
-
-    caf::PdmProxyValueField<QString>                m_displayIJK;
-
-    caf::PdmField<int>                              m_i;
-    caf::PdmField<int>                              m_j;
-    caf::PdmField<int>                              m_k;
+    caf::PdmField<int>                              m_i;    // Zero based indexing
+    caf::PdmField<int>                              m_j;    // Zero based indexing
+    caf::PdmField<int>                              m_k;    // Zero based indexing
 
     cvf::ref<RivWellFracturePartMgr>                m_rivFracture;
 };

@@ -18,21 +18,7 @@
 
 #pragma once
 
-#include "RimView.h"
 #include "RimFracture.h"
-
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-
-#include "cvfBase.h"
-#include "cvfVector3.h"
-
-#include "cafPdmProxyValueField.h"
-
-class RimEllipseFractureTemplate;
-class RimWellPath;
 
 //==================================================================================================
 ///  
@@ -48,10 +34,7 @@ public:
 
     caf::PdmField<float>                            measuredDepth;
 
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
 
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

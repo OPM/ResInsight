@@ -63,7 +63,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitFieldNoDefault(&m_anchorPosition, "anchorPosition", "Anchor Position", "", "", "");
     m_anchorPosition.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position at Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position", "", "", "");
     m_uiAnchorPosition.registerGetMethod(this, &RimFracture::fracturePositionForUi);
     m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
@@ -167,6 +167,14 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimFracture::userDescriptionField()
+{
+    return &name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -515,7 +523,7 @@ cvf::Vec3d RimFracture::fracturePositionForUi() const
 //--------------------------------------------------------------------------------------------------
 QString RimFracture::createOneBasedIJK() const
 {
-    return QString("I: %1 J: %2 K:%3 ").arg(m_i + 1).arg(m_j + 1).arg(m_k + 1);
+    return QString("Cell : [%1, %2, %3]").arg(m_i + 1).arg(m_j + 1).arg(m_k + 1);
 }
 
 
@@ -557,11 +565,9 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     geometryGroup->add(&azimuth);
     geometryGroup->add(&m_fractureTemplate);
 
-    geometryGroup->add(&m_i);
-    geometryGroup->add(&m_j);
-    geometryGroup->add(&m_k);
-    geometryGroup->add(&m_uiAnchorPosition);
-
+    caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
+    fractureCenterGroup->add(&m_uiAnchorPosition);
+    fractureCenterGroup->add(&m_displayIJK);
 }
 
 //--------------------------------------------------------------------------------------------------

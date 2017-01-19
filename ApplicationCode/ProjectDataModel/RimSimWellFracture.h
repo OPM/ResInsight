@@ -19,19 +19,7 @@
 #pragma once
 
 #include "RimFracture.h"
-#include "RimView.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
-
-#include "cvfBase.h"
-#include "cvfVector3.h"
-
-
-class RimEllipseFractureTemplate;
 
 //==================================================================================================
 ///  
@@ -45,14 +33,8 @@ public:
     RimSimWellFracture(void);
     virtual ~RimSimWellFracture(void);
 
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
     void                                            setIJK(size_t i, size_t j, size_t k);
 
-   
-protected:
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    cvf::Vec3d                                      findCellCenterPosition(size_t i, size_t j, size_t k) const;
-
 private:
+    cvf::Vec3d                                      findCellCenterPosition(size_t i, size_t j, size_t k) const;
 };

@@ -28,6 +28,7 @@
 #include "RimProject.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
+#include "RimView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"

@@ -18,26 +18,9 @@
 
 #include "RimWellPathFracture.h"
 
-#include "RiaApplication.h"
-
-#include "RigTesselatorTools.h"
-
-#include "RimEllipseFractureTemplate.h"
-#include "RimFractureDefinitionCollection.h"
-#include "RimOilField.h"
+#include "RigWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
-
-#include "RivWellPathPartMgr.h"
-
-#include "cafPdmFieldHandle.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiItem.h"
-
-#include "cvfVector3.h"
-
-#include <QToolBox>
-#include <QList>
 
 
 
@@ -50,7 +33,7 @@ RimWellPathFracture::RimWellPathFracture(void)
 {
     CAF_PDM_InitObject("Fracture", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location (if along well path)", "", "", "");
+    CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,14 +43,6 @@ RimWellPathFracture::~RimWellPathFracture()
 {
 }
  
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    return RimFracture::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -100,18 +75,18 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellPathFracture::userDescriptionField()
-{
-    return &name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.add(&name);
 
     uiOrdering.add(&measuredDepth);
+
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
+    geometryGroup->add(&azimuth);
+    geometryGroup->add(&m_fractureTemplate);
+
+    caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
+    fractureCenterGroup->add(&m_uiAnchorPosition);
+    fractureCenterGroup->add(&m_displayIJK);
 }
 

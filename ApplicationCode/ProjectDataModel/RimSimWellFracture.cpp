@@ -18,30 +18,11 @@
 
 #include "RimSimWellFracture.h"
 
-#include "RiaApplication.h"
-
+#include "RigCell.h"
 #include "RigMainGrid.h"
-#include "RigTesselatorTools.h"
 
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimEllipseFractureTemplate.h"
-#include "RimFractureDefinitionCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
-#include "RimWellPath.h"
-
-#include "cafPdmFieldHandle.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiItem.h"
-#include "cafDisplayCoordTransform.h"
-
-#include "cvfVector3.h"
-
-#include <QToolBox>
-#include <QList>
-#include "RigGridBase.h"
 
 
 
@@ -66,50 +47,6 @@ RimSimWellFracture::~RimSimWellFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    return RimFracture::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-}
-
-
-// --------------------------------------------------------------------------------------------------
-// / 
-// --------------------------------------------------------------------------------------------------
-// std::vector<std::pair<size_t, size_t>> RimSimWellFracture::getFracturedCells()
-// {
-//     std::vector<std::pair<size_t, size_t>> cells;
-// 
-//     size_t gridindex = 0; //TODO! For now assuming only one grid
-// 
-// 
-//     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-//     if (!objHandle) return cells;
-// 
-//     RimEclipseView* mainView = nullptr;
-//     objHandle->firstAncestorOrThisOfType(mainView);
-//     if (!mainView) return cells;
-// 
-//     const RigMainGrid* mainGrid = mainView->mainGrid(); 
-//     if (!mainGrid) return cells;
-// 
-//     size_t cellIndex = mainGrid->cellIndexFromIJK(m_i - 1, m_j - 1, m_k - 1); // cellIndexFromIJK uses 0-based indexing 
-// 
-//     cells.push_back(std::make_pair(cellIndex, gridindex));
-// 
-//     return cells;
-// }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSimWellFracture::userDescriptionField()
-{
-    return &name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
 {
     cvf::Vec3d cellCenter = findCellCenterPosition(i, j, k);
@@ -120,29 +57,6 @@ void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
     if (proj) proj->createDisplayModelAndRedrawAllViews();
 }
      
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    return RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
-/*
-    uiOrdering.add(&name);
-
-    RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
-
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
-    geometryGroup->add(&m_fractureTemplate);
-   
-    geometryGroup->add(&m_i);
-    geometryGroup->add(&m_j);
-    geometryGroup->add(&m_k);
-    geometryGroup->add(&ui_cellCenterPosition);
-
-    uiOrdering.setForgetRemainingFields(true);
-*/
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
