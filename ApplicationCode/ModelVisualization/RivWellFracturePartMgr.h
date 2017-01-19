@@ -30,33 +30,36 @@ namespace cvf
 {
      class ModelBasicList;
      class DrawableGeo;
+     class Part;
 }
+
 namespace caf
 {
     class DisplayCoordTransform;
 }
 
 
-class RimEclipseWell;
 class RimFracture;
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RivWellFracturesPartMgr : public cvf::Object
+class RivWellFracturePartMgr : public cvf::Object
 {
 public:
-    RivWellFracturesPartMgr(RimEclipseWell* well);
-    ~RivWellFracturesPartMgr();
+    RivWellFracturePartMgr(RimFracture* well);
+    ~RivWellFracturePartMgr();
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-
-    static void appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
+    void appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
+    void clearGeometryCache();
 
 private:
+    void updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform);
+
     static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
 private:
-    caf::PdmPointer<RimEclipseWell> m_rimWell;
+    caf::PdmPointer<RimFracture> m_rimFracture;
+    cvf::ref<cvf::Part>          m_part;
 };

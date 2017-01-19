@@ -38,6 +38,8 @@
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "custom-clipper/clipper/clipper.hpp"
 
+#include "RivWellFracturePartMgr.h"
+
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
@@ -53,6 +55,8 @@ RimFracture::RimFracture(void)
 
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
+
+    m_rivFracture = new RivWellFracturePartMgr(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,6 +438,8 @@ void RimFracture::calculateFracturePlaneCellPolygonOverlap(std::vector<std::vect
 void RimFracture::setRecomputeGeometryFlag()
 {
     m_recomputeGeometry = true;
+
+    m_rivFracture->clearGeometryCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,6 +481,16 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 cvf::ref<RigFracture> RimFracture::attachedRigFracture() const
 {
     return m_rigFracture;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivWellFracturePartMgr* RimFracture::fracturePartManager()
+{
+    CVF_ASSERT(m_rivFracture.notNull());
+
+    return m_rivFracture.p();
 }
 
 //--------------------------------------------------------------------------------------------------

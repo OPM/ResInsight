@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivWellFracturesPartMgr.h"
+#include "RivWellFracturePartMgr.h"
 
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
@@ -35,15 +35,15 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellFracturesPartMgr::RivWellFracturesPartMgr(RimEclipseWell* well)
+RivWellFracturePartMgr::RivWellFracturePartMgr(RimFracture* fracture)
+    : m_rimFracture(fracture)
 {
-    m_rimWell = well;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellFracturesPartMgr::~RivWellFracturesPartMgr()
+RivWellFracturePartMgr::~RivWellFracturePartMgr()
 {
 
 }
@@ -51,75 +51,71 @@ RivWellFracturesPartMgr::~RivWellFracturesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform)
 {
-    if (!m_rimWell) return;
+    if (m_part.notNull()) return;
+    if (!displayCoordTransform) return;
 
-    std::vector<RimFracture*> fractures;
-    m_rimWell->descendantsIncludingThisOfType(fractures);
-
-    for (RimFracture* fracture : fractures)
+    if (m_rimFracture)
     {
-        if (!fracture->hasValidGeometry())
+        if (!m_rimFracture->hasValidGeometry())
         {
-            fracture->computeGeometry();
+            m_rimFracture->computeGeometry();
         }
-    }
 
-    if (fractures.size() > 0)
-    {
-        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(fractures.at(0));
-        if (!objHandle) return;
+        if (!m_rimFracture->hasValidGeometry()) return;
 
-        RimEclipseView* mainView = nullptr;
-        objHandle->firstAncestorOrThisOfType(mainView);
-        if (!mainView) return;
+        const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
+        const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
+        std::vector<cvf::Vec3f> displayCoords;
 
-        cvf::ref<caf::DisplayCoordTransform> transForm = mainView->displayCoordTransform();
-
-        appendFracturePartsToModel(fractures, model, transForm.p());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivWellFracturesPartMgr::appendFracturePartsToModel(std::vector<RimFracture*> fractures, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
-{
-    for (RimFracture* fracture : fractures)
-    {
-        if (fracture->hasValidGeometry())
+        for (int i = 0; i < nodeCoords.size(); i++)
         {
-            const std::vector<cvf::Vec3f>& nodeCoords = fracture->nodeCoords();
-            const std::vector<cvf::uint>& triangleIndices = fracture->triangleIndices();
-            std::vector<cvf::Vec3f> displayCoords;
-            
-            for (int i = 0; i < nodeCoords.size(); i++)
-            {
-                cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoords[i]);
-                cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
-                displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
-            }
-
-            cvf::ref<cvf::DrawableGeo> geo = createGeo(triangleIndices, displayCoords);
-
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setDrawable(geo.p());
-
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN)), caf::PO_1);
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-            part->setEffect(eff.p());
-
-            model->addPart(part.p());
+            cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoords[i]);
+            cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
+            displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
         }
+
+        cvf::ref<cvf::DrawableGeo> geo = createGeo(triangleIndices, displayCoords);
+
+        m_part = new cvf::Part;
+        m_part->setDrawable(geo.p());
+
+        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN)), caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        m_part->setEffect(eff.p());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellFracturesPartMgr::createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords)
+void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
+{
+    if (m_part.isNull())
+    {
+        updatePartGeometry(displayCoordTransform);
+    }
+
+    if (m_part.notNull())
+    {
+        model->addPart(m_part.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::clearGeometryCache()
+{
+    m_part = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords)
 {
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 

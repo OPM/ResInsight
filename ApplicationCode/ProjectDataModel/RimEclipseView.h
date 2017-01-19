@@ -59,7 +59,6 @@ class RiuViewer;
 class RivReservoirPipesPartMgr;
 class RivReservoirWellSpheresPartMgr;
 class RivIntersectionPartMgr;
-class RivReservoirFracturesPartMgr;
 
 namespace cvf
 {
@@ -187,7 +186,6 @@ private:
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
 	cvf::ref<RivReservoirWellSpheresPartMgr>        m_wellSpheresPartManager;
-    cvf::ref<RivReservoirFracturesPartMgr>          m_simWellFracturesPartManager;
 	
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };

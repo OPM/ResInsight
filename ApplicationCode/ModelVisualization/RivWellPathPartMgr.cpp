@@ -30,7 +30,7 @@
 #include "RimWellPathFractureCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivWellFracturesPartMgr.h"
+#include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
 
@@ -90,19 +90,14 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
-    // Append well path fractures
-    std::vector<RimFracture*> fractures;
-    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection->fractures)
+    if (!m_rimWellPath) return;
+
+    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
     {
-        if (!f->hasValidGeometry())
-        {
-            f->computeGeometry();
-        }
+        CVF_ASSERT(f);
 
-        fractures.push_back(f);
+        f->fracturePartManager()->appendGeometryPartsToModel(model, displayCoordTransform);
     }
-
-    RivWellFracturesPartMgr::appendFracturePartsToModel(fractures, model, displayCoordTransform);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +106,8 @@ void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, 
 void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
                                             cvf::BoundingBox wellPathClipBoundingBox)
 {
+    if (!m_rimWellPath) return;
+
     RimWellPathCollection* wellPathCollection = NULL;
     m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
@@ -257,11 +254,11 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
     double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, caf::DisplayCoordTransform* displayCoordTransform)
 {
-    RimWellPathCollection* wellPathCollection = NULL;
+    if (!m_rimWellPath) return;
+
+    RimWellPathCollection* wellPathCollection = nullptr;
     m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
-
-    if (m_rimWellPath.isNull()) return;
 
     if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
         return;

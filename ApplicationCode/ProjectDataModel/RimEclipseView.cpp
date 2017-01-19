@@ -45,6 +45,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimFlowDiagSolution.h"
+#include "RimFracture.h"
 #include "RimGridCollection.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
@@ -60,15 +61,16 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
-#include "RivReservoirFracturesPartMgr.h"
 #include "RivReservoirPipesPartMgr.h"
 #include "RivReservoirWellSpheresPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathCollectionPartMgr.h"
+#include "RivWellFracturePartMgr.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -138,7 +140,6 @@ RimEclipseView::RimEclipseView()
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
 	m_wellSpheresPartManager = new RivReservoirWellSpheresPartMgr(this);
-    m_simWellFracturesPartManager = new RivReservoirFracturesPartMgr(this);
 	
 	m_reservoir = NULL;
 }
@@ -671,7 +672,15 @@ void RimEclipseView::updateCurrentTimeStep()
 
             m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
 			m_wellSpheresPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
-            m_simWellFracturesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
+
+            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+
+            std::vector<RimFracture*> fractures;
+            this->descendantsIncludingThisOfType(fractures);
+            for (RimFracture* f : fractures)
+            {
+                f->fracturePartManager()->appendGeometryPartsToModel(wellPipeModelBasicList.p(), transForm.p());
+            }
 
             wellPipeModelBasicList->updateBoundingBoxesRecursive();
 
@@ -906,7 +915,6 @@ void RimEclipseView::schedulePipeGeometryRegen()
 {
     m_pipesPartManager->scheduleGeometryRegen();
     m_wellSpheresPartManager->clearGeometryCache();
-    m_simWellFracturesPartManager->clearGeometryCache();
 }
 
 
@@ -1281,7 +1289,6 @@ void RimEclipseView::updateDisplayModelForWellResults()
     m_reservoirGridPartManager->clearGeometryCache();
     m_pipesPartManager->clearGeometryCache();
     m_wellSpheresPartManager->clearGeometryCache();
-    m_simWellFracturesPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 

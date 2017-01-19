@@ -17,7 +17,6 @@ ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirFaultsPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.h
-${CEE_CURRENT_LIST_DIR}RivReservoirFracturesPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.h
@@ -37,7 +36,7 @@ ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.h
 ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.h
-${CEE_CURRENT_LIST_DIR}RivWellFracturesPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -53,7 +52,6 @@ ${CEE_CURRENT_LIST_DIR}RivReservoirPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.cpp
-${CEE_CURRENT_LIST_DIR}RivReservoirFracturesPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.cpp
@@ -71,7 +69,7 @@ ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.cpp
 ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.cpp
-${CEE_CURRENT_LIST_DIR}RivWellFracturesPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

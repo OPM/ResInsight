@@ -30,6 +30,7 @@
 
 class RimEllipseFractureTemplate;
 class RigFracture;
+class RivWellFracturePartMgr;
 
 //==================================================================================================
 ///  
@@ -50,6 +51,8 @@ public:
 
     virtual RimEllipseFractureTemplate*  attachedFractureDefinition() = 0;
     cvf::ref<RigFracture>           attachedRigFracture() const;
+
+    RivWellFracturePartMgr*         fracturePartManager();
 
     bool                            hasValidGeometry() const;
     void                            computeGeometry();
@@ -78,8 +81,8 @@ private:
 
 
 private:
-
     cvf::ref<RigFracture>   m_rigFracture;
     bool                    m_recomputeGeometry;
 
+    cvf::ref<RivWellFracturePartMgr> m_rivFracture;
 };
