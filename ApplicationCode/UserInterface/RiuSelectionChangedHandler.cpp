@@ -127,7 +127,8 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         curveName += ", ";
         curveName += RigTimeHistoryResultAccessor::topologyText(eclipseView->eclipseCase()->reservoirData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex);
 
-        std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex, timeStepDates.size());
+
+        std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->eclipseCase()->reservoirData(), eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex, timeStepDates.size());
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
         RiuMainWindow::instance()->resultPlot()->addCurve(curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);
