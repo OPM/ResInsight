@@ -23,19 +23,18 @@
 #include "RigActiveCellsResultAccessor.h"
 #include "RigAllGridCellsResultAccessor.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCombMultResultAccessor.h"
 #include "RigCombTransResultAccessor.h"
-#include "RigEclipseCaseData.h"
-#include "RigFlowDiagResults.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 
-#include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimFlowDiagSolution.h"
 
 #include <math.h>
+#include "RimFlowDiagSolution.h"
+#include "RigFlowDiagResults.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -168,16 +167,11 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigE
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(size_t gridIndex,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(RigEclipseCaseData* eclipseCase,
+                                                                                 size_t gridIndex,
                                                                                  size_t timeStepIndex,
                                                                                  RimEclipseResultDefinition* resultDefinition)
 {
-    RimEclipseCase* rimEclipseCase = nullptr;
-    resultDefinition->firstAncestorOrThisOfType(rimEclipseCase);
-
-    RigEclipseCaseData* eclipseCase = rimEclipseCase->reservoirData();
-    if (!eclipseCase) return new RigHugeValResultAccessor;
-
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultDefinition->porosityModel());
 
     if (resultDefinition->resultType() != RimDefines::FLOW_DIAGNOSTICS)
@@ -198,7 +192,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
     else
     {
         RimFlowDiagSolution* flowSol = resultDefinition->flowDiagSolution();
-        if (!flowSol) return new RigHugeValResultAccessor;
+        if (!flowSol) return new RigHugeValResultAccessor;;
 
         const std::vector<double>* resultValues = flowSol->flowDiagResults()->resultValues( resultDefinition->flowDiagResAddress(), timeStepIndex);
         if (!resultValues) return new RigHugeValResultAccessor;

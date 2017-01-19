@@ -789,7 +789,9 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
             {
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(grid->gridIndex(),  timeStepIndex, propertyFilter->resultDefinition);
+                RigEclipseCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
+
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, grid->gridIndex(),  timeStepIndex, propertyFilter->resultDefinition);
 
                 CVF_ASSERT(resultAccessor.notNull());
 

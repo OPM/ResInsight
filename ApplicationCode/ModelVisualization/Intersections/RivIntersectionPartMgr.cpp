@@ -134,7 +134,8 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(0,
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
+                                                                                          0,
                                                                                           timeStepIndex,
                                                                                           cellResultColors);
                 }
