@@ -1935,6 +1935,7 @@ void RiaApplication::applyPreferences()
     if (RiuMainWindow::instance() && RiuMainWindow::instance()->projectTreeView())
     {
         RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
+        if (mainPlotWindow()) mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
     caf::FixedAtlasFont::FontSize fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
