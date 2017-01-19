@@ -478,9 +478,11 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFracture> RimFracture::attachedRigFracture() const
+const RigFracture* RimFracture::attachedRigFracture() const
 {
-    return m_rigFracture;
+    CVF_ASSERT(m_rigFracture.notNull());
+
+    return m_rigFracture.p();
 }
 
 //--------------------------------------------------------------------------------------------------

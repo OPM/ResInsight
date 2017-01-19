@@ -50,7 +50,7 @@ public:
     cvf::Mat4f                      transformMatrix(); 
 
     virtual RimEllipseFractureTemplate*  attachedFractureDefinition() = 0;
-    cvf::ref<RigFracture>           attachedRigFracture() const;
+    const RigFracture*                  attachedRigFracture() const;
 
     RivWellFracturePartMgr*         fracturePartManager();
 
