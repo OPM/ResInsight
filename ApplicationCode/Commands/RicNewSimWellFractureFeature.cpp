@@ -69,11 +69,10 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
         RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->fractureDefinition = fracDef;
+        fracture->setFractureTemplate(fracDef);
     }
 
     fracture->setIJK(0, 0, 0);
-    fracture->setCellCenterPosition();
 
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);

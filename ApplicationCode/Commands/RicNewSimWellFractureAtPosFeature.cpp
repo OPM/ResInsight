@@ -75,8 +75,6 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     fracture->name = "Simulation Well Fracture";
     fracture->setIJK(simWellItem->i, simWellItem->j, simWellItem->k);
-    fracture->setCellCenterPosition();
-
 
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);
@@ -85,7 +83,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
         RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->fractureDefinition = fracDef;
+        fracture->setFractureTemplate(fracDef);
     }
 
 

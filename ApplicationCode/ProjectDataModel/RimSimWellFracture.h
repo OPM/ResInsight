@@ -45,28 +45,14 @@ public:
     RimSimWellFracture(void);
     virtual ~RimSimWellFracture(void);
 
-    caf::PdmField<QString>                          name;
-    caf::PdmPtrField<RimEllipseFractureTemplate*>        fractureDefinition;
-    size_t                                          gridindex;
-
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual caf::PdmFieldHandle*                    userDescriptionField() override;
     void                                            setIJK(size_t i, size_t j, size_t k);
-    void                                            setCellCenterPosition();
-    // Overrides from RimFracture
-    virtual cvf::Vec3d                              centerPointForFracture() override;
-    virtual RimEllipseFractureTemplate*                  attachedFractureDefinition() override;
 
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    
+   
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    cvf::Vec3d                                      fracturePositionForUi() const;
+    cvf::Vec3d                                      findCellCenterPosition(size_t i, size_t j, size_t k) const;
 
 private:
-    caf::PdmField<int>                              m_i;  //Eclipse indexing, lowest value is 1
-    caf::PdmField<int>                              m_j;
-    caf::PdmField<int>                              m_k;
-    caf::PdmField<cvf::Vec3d>                       cellCenterPosition;
-    caf::PdmProxyValueField<cvf::Vec3d>             ui_cellCenterPosition;
 };

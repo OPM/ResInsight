@@ -18,27 +18,33 @@
 
 #include "RimFracture.h"
 
+#include "RiaApplication.h"
+
+#include "RigCell.h"
 #include "RigFracture.h"
+#include "RigMainGrid.h"
 #include "RigTesselatorTools.h"
 
+#include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimFractureDefinitionCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimView.h"
 
-#include "cafPdmUiDoubleSliderEditor.h"
+#include "RivWellFracturePartMgr.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
+#include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+
+#include "cvfBoundingBox.h"
+#include "cvfGeometryTools.h"
 #include "cvfMath.h"
 #include "cvfMatrix4.h"
-#include "RiaApplication.h"
-#include "RigMainGrid.h"
-#include "RigCell.h"
-#include "RimEclipseView.h"
-#include "cvfBoundingBox.h"
 #include "cvfPlane.h"
-#include "cvfGeometryTools.h"
-#include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+
 #include "custom-clipper/clipper/clipper.hpp"
 
-#include "RivWellFracturePartMgr.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
@@ -50,8 +56,32 @@ RimFracture::RimFracture(void)
 {
     CAF_PDM_InitObject("Fracture", "", "", "");
 
+    CAF_PDM_InitField(&name, "Name", QString("Fracture Name"), "Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "FractureDef", "Fracture Template", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_anchorPosition, "anchorPosition", "Anchor Position", "", "", "");
+    m_anchorPosition.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position at Well Path", "", "", "");
+    m_uiAnchorPosition.registerGetMethod(this, &RimFracture::fracturePositionForUi);
+    m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
+
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
+    m_i.uiCapability()->setUiHidden(true);
+    
+    CAF_PDM_InitField(&m_j, "J", 1, "Fracture location cell J", "", "", "");
+    m_j.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_k, "K", 1, "Fracture location cell K", "", "", "");
+    m_k.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_displayIJK, "Cell_IJK", "Cell IJK", "", "", "");
+    m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJK);
+    m_displayIJK.uiCapability()->setUiReadOnly(true);
 
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
@@ -116,15 +146,25 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells()
 //--------------------------------------------------------------------------------------------------
 void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &azimuth)
+    if (changedField == &azimuth || 
+        changedField == &m_fractureTemplate)
     {
-        computeGeometry();
+        setRecomputeGeometryFlag();
 
         RimView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {
             rimView->createDisplayModelAndRedraw();
+        }
+        else
+        {
+            // Can be triggered from well path, find active view
+            RimView* activeView = RiaApplication::instance()->activeReservoirView();
+            if (activeView)
+            {
+                activeView->createDisplayModelAndRedraw();
+            }
         }
     }
 }
@@ -158,9 +198,17 @@ void RimFracture::computeGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimFracture::anchorPosition()
+{
+    return m_anchorPosition();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Mat4f RimFracture::transformMatrix()
 {
-    cvf::Vec3d center = centerPointForFracture();
+    cvf::Vec3d center = anchorPosition();
 
     // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
     cvf::Mat4f rotationFromTesselator = cvf::Mat4f::fromRotation(cvf::Vec3f::X_AXIS, cvf::Math::toRadians(90.0f));
@@ -453,10 +501,67 @@ bool RimFracture::isRecomputeGeometryFlagSet()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimFracture::fracturePositionForUi() const
+{
+    cvf::Vec3d v = m_anchorPosition;
+
+    v.z() = -v.z();
+
+    return v;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFracture::createOneBasedIJK() const
+{
+    return QString("I: %1 J: %2 K:%3 ").arg(m_i + 1).arg(m_j + 1).arg(m_k + 1);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    CVF_ASSERT(proj);
+
+    RimOilField* oilField = proj->activeOilField();
+    if (oilField == nullptr) return options;
+
+    if (fieldNeedingOptions == &m_fractureTemplate)
+    {
+        RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
+        if (fracDefColl == nullptr) return options;
+
+        for (RimEllipseFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+        {
+            options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&name);
+
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
     geometryGroup->add(&azimuth);
+    geometryGroup->add(&m_fractureTemplate);
+
+    geometryGroup->add(&m_i);
+    geometryGroup->add(&m_j);
+    geometryGroup->add(&m_k);
+    geometryGroup->add(&m_uiAnchorPosition);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,11 +583,72 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
+{
+    m_anchorPosition = pos;
+    setRecomputeGeometryFlag();
+
+    // Update ijk
+    {
+        std::vector<size_t> cellindecies;
+
+        RiaApplication* app = RiaApplication::instance();
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        if (!activeView) return;
+
+        RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+        if (!activeRiv) return;
+
+        const RigMainGrid* mainGrid = activeRiv->mainGrid();
+        if (!mainGrid) return;
+
+        cvf::BoundingBox polygonBBox;
+        polygonBBox.add(m_anchorPosition);
+
+        mainGrid->findIntersectingCells(polygonBBox, &cellindecies);
+
+        if (cellindecies.size() > 0)
+        {
+            size_t i = cvf::UNDEFINED_SIZE_T;
+            size_t j = cvf::UNDEFINED_SIZE_T;
+            size_t k = cvf::UNDEFINED_SIZE_T;
+
+            size_t gridCellIndex = cellindecies[0];
+
+            if (mainGrid->ijkFromCellIndex(gridCellIndex, &i, &j, &k))
+            {
+                m_i = static_cast<int>(i);
+                m_j = static_cast<int>(j);
+                m_k = static_cast<int>(k);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigFracture* RimFracture::attachedRigFracture() const
 {
     CVF_ASSERT(m_rigFracture.notNull());
 
     return m_rigFracture.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::setFractureTemplate(RimEllipseFractureTemplate* fractureTemplate)
+{
+    m_fractureTemplate = fractureTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEllipseFractureTemplate* RimFracture::attachedFractureDefinition() const
+{
+    return m_fractureTemplate();
 }
 
 //--------------------------------------------------------------------------------------------------

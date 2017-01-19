@@ -27,9 +27,12 @@
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"
 
+#include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
-class RimEllipseFractureTemplate;
+
 class RigFracture;
+class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
 
 //==================================================================================================
@@ -44,13 +47,18 @@ public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
-    caf::PdmField<double>           azimuth;
+    caf::PdmField<QString>                          name;
+    caf::PdmField<double>                           azimuth;
 
-    virtual cvf::Vec3d              centerPointForFracture() = 0;
+    cvf::Vec3d                      anchorPosition();
+    void                            setAnchorPosition(const cvf::Vec3d& pos);
+
     cvf::Mat4f                      transformMatrix(); 
 
-    virtual RimEllipseFractureTemplate*  attachedFractureDefinition() = 0;
-    const RigFracture*                  attachedRigFracture() const;
+    const RigFracture*              attachedRigFracture() const;
+
+    void                            setFractureTemplate(RimEllipseFractureTemplate* fractureTemplate);
+    RimEllipseFractureTemplate*     attachedFractureDefinition() const;
 
     RivWellFracturePartMgr*         fracturePartManager();
 
@@ -63,16 +71,21 @@ public:
 
 
     virtual std::vector<size_t>     getPotentiallyFracturedCells();
-    void                                            computeTransmissibility();
+    void                            computeTransmissibility();
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+
 
 private:
     bool                            isRecomputeGeometryFlagSet();
+    cvf::Vec3d                      fracturePositionForUi() const;
+    
+    QString                         createOneBasedIJK() const;
 
     //Functions for area calculations - should these be in separate class
     bool planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons);
@@ -81,8 +94,19 @@ private:
 
 
 private:
-    cvf::ref<RigFracture>   m_rigFracture;
-    bool                    m_recomputeGeometry;
+    caf::PdmPtrField<RimEllipseFractureTemplate*>   m_fractureTemplate;
+    caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
+    caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
 
-    cvf::ref<RivWellFracturePartMgr> m_rivFracture;
+    cvf::ref<RigFracture>                           m_rigFracture;
+    bool                                            m_recomputeGeometry;
+
+
+    caf::PdmProxyValueField<QString>                m_displayIJK;
+
+    caf::PdmField<int>                              m_i;
+    caf::PdmField<int>                              m_j;
+    caf::PdmField<int>                              m_k;
+
+    cvf::ref<RivWellFracturePartMgr>                m_rivFracture;
 };

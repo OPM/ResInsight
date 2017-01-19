@@ -81,7 +81,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     fractureCollection->fractures.push_back(fracture);
         
     fracture->name = "Well Path Fracture";
-    fracture->positionAtWellpath = wellPathItem->m_pipeCenterlineIntersectionInDomainCoords;
+    fracture->setAnchorPosition(wellPathItem->m_pipeCenterlineIntersectionInDomainCoords);
     fracture->measuredDepth = wellPathItem->m_measuredDepth;
 
     RimOilField* oilfield = nullptr;
@@ -91,7 +91,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
         RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->fractureDefinition = fracDef;
+        fracture->setFractureTemplate(fracDef);
     }
 
 

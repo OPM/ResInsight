@@ -73,7 +73,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
     cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(md_default);
-    fracture->positionAtWellpath = positionAtWellpath;
+    fracture->setAnchorPosition(positionAtWellpath);
 
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);
@@ -82,7 +82,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
         RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
-        fracture->fractureDefinition = fracDef;
+        fracture->setFractureTemplate(fracDef);
     }
 
     fractureCollection->updateConnectedEditors();

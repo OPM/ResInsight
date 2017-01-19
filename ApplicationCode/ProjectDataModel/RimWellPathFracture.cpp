@@ -50,21 +50,7 @@ RimWellPathFracture::RimWellPathFracture(void)
 {
     CAF_PDM_InitObject("Fracture", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,    "UserDescription", QString("Fracture Name"), "Name", "", "", "");
-
     CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location (if along well path)", "", "", "");
-    CAF_PDM_InitField(         &positionAtWellpath,     "PositionAtWellpath",   cvf::Vec3d::ZERO, "Fracture Position along Well Path", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&ui_positionAtWellpath, "ui_positionAtWellpath", "Fracture Position at Well Path", "", "", "");
-    ui_positionAtWellpath.registerGetMethod(this, &RimWellPathFracture::fracturePositionForUi);
-    ui_positionAtWellpath.uiCapability()->setUiReadOnly(true);
-
-    CAF_PDM_InitField(&i,               "I",                1,      "Fracture location cell I", "", "", "");
-    CAF_PDM_InitField(&j,               "J",                1,      "Fracture location cell J", "", "", "");
-    CAF_PDM_InitField(&k,               "K",                1,      "Fracture location cell K", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&fractureDefinition, "FractureDef", "Fracture Template", "", "", "");
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,48 +65,7 @@ RimWellPathFracture::~RimWellPathFracture()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-
-    QList<caf::PdmOptionItemInfo> options;
-
-    RimProject* proj = RiaApplication::instance()->project();
-    CVF_ASSERT(proj);
-
-    RimOilField* oilField = proj->activeOilField();
-    if (oilField == nullptr) return options;
-
-    if (fieldNeedingOptions == &fractureDefinition)
-    {
-
-        RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
-        if (fracDefColl == nullptr) return options;
-
-        for (RimEllipseFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
-        {
-            options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
-        }
-    }
-  
-    return options;
-
-
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathFracture::centerPointForFracture()
-{
-    //return cvf::Vec3d::UNDEFINED;
-    return positionAtWellpath;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEllipseFractureTemplate* RimWellPathFracture::attachedFractureDefinition()
-{
-    return fractureDefinition();
+    return RimFracture::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,9 +73,11 @@ RimEllipseFractureTemplate* RimWellPathFracture::attachedFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (changedField == &measuredDepth)
     {
-        positionAtWellpath = cvf::Vec3d::ZERO;
+        cvf::Vec3d positionAtWellpath = cvf::Vec3d::ZERO;
         
         caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
         if (!objHandle) return;
@@ -141,14 +88,13 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
         RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
         positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
+
+        this->setAnchorPosition(positionAtWellpath);
+
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj) proj->createDisplayModelAndRedrawAllViews();
     }
-
-    setRecomputeGeometryFlag();
-
-    RimProject* proj;
-    this->firstAncestorOrThisOfType(proj);
-    if (proj) proj->createDisplayModelAndRedrawAllViews();
-    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,27 +110,8 @@ caf::PdmFieldHandle* RimWellPathFracture::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&name);
+    RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fractures");
-    geometryGroup->add(&fractureDefinition);
-
-    geometryGroup->add(&measuredDepth);
-    geometryGroup->add(&ui_positionAtWellpath);
-
-    uiOrdering.setForgetRemainingFields(true);
-
+    uiOrdering.add(&measuredDepth);
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathFracture::fracturePositionForUi() const
-{
-    cvf::Vec3d v = positionAtWellpath;
-
-    v.z() = -v.z();
-
-    return v;
-}
