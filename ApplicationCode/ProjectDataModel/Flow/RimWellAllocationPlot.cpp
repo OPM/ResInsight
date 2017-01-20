@@ -103,6 +103,13 @@ void RimWellAllocationPlot::updateFromWell()
         simName = m_simulationWell->name();
         wellResultFrame =  &(m_simulationWell->wellResults()->wellResultFrame(1));
         branchCount = static_cast<int>( wellResultFrame->m_wellResultBranches.size());
+       // // Todo : Use this instead, and use to calculate accumulated flow
+       //
+       // size_t timeStep = 0; // make field
+       // std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+       // std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+       // m_simulationWell->calculateWellPipeDynamicCenterLine(timeStep, pipeBranchesCLCoords, pipeBranchesCellIds);
+       // branchCount = static_cast<int>( pipeBranchesCLCoords.size());
     }
 
     int existingTrackCount = static_cast<int>(accumulatedWellFlowPlot()->trackCount());
@@ -120,11 +127,12 @@ void RimWellAllocationPlot::updateFromWell()
         accumulatedWellFlowPlot()->removeTrackByIndex(accumulatedWellFlowPlot()->trackCount()- 1);
     }
 
+
     for (size_t brIdx = 0; brIdx < branchCount; ++brIdx)
     {
         RimWellLogTrack* plotTrack = accumulatedWellFlowPlot()->trackByIndex(brIdx);
 
-        plotTrack->setDescription(QString("Branch %1").arg(wellResultFrame->m_wellResultBranches[brIdx].m_ertBranchId));
+        plotTrack->setDescription(QString("Branch %1").arg(brIdx+1));
 
     }
 
