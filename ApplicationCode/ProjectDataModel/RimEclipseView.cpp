@@ -183,21 +183,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     RimView::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &showWindow)
-    {
-        if (showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateMdiWindowVisibility();
-        }
-
-        this->updateUiIconFromToggleField();
-    }
-
-    else if (changedField == &showInvalidCells)
+    if (changedField == &showInvalidCells)
     {
         this->scheduleGeometryRegen(INACTIVE);
         this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);

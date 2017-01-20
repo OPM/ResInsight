@@ -59,9 +59,6 @@ RimWellLogPlot::RimWellLogPlot()
 
     m_viewer = NULL;
 
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
-    m_showWindow.uiCapability()->setUiHidden(true);
-    
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
@@ -98,20 +95,9 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_showWindow)
-    {
-        if (m_showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateMdiWindowVisibility();
-        }
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-        uiCapability()->updateUiIconFromToggleField();
-    }
-    else if (changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth)
+    if (changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth)
     {
         applyDepthZoomFromVisibleDepth();
 
@@ -130,14 +116,6 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateTracks();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
-{
-    return &m_showWindow;
 }
 
 //--------------------------------------------------------------------------------------------------

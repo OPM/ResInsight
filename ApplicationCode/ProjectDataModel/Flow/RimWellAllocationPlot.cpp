@@ -40,8 +40,6 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 RimWellAllocationPlot::RimWellAllocationPlot()
 {
     CAF_PDM_InitObject("Well Allocation Plot", ":/newIcon16x16.png", "", "");
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Flow Diagnostics Plot", "", "", "");
-    m_showWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Flow Diagnostics Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
@@ -196,20 +194,9 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_showWindow)
-    {
-        if (m_showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateMdiWindowVisibility();
-        }
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-        uiCapability()->updateUiIconFromToggleField();
-    }
-    else if (changedField == &m_userName ||
+    if (changedField == &m_userName ||
         changedField == &m_showPlotTitle)
     {
         updateMdiWindowTitle();

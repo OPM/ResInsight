@@ -32,6 +32,9 @@ RimViewWindow::RimViewWindow(void)
     m_windowController.uiCapability()->setUiHidden(true);
     m_windowController.uiCapability()->setUiTreeChildrenHidden(true);
 
+    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Window", "", "", "");
+    m_showWindow.uiCapability()->setUiHidden(true);
+
     // Obsolete field
     CAF_PDM_InitFieldNoDefault(&obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "");
     obsoleteField_windowGeometry.uiCapability()->setUiHidden(true);
@@ -67,7 +70,24 @@ void RimViewWindow::handleMdiWindowClosed()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::updateMdiWindowVisibility()
 {
-    if ( m_windowController() ) m_windowController->updateViewerWidget();
+    if (m_windowController())
+    {
+        m_windowController->updateViewerWidget();
+    }
+    else
+    {
+        if (viewWidget())
+        {
+            if (m_showWindow)
+            {
+                viewWidget()->show();
+            }
+            else
+            {
+                viewWidget()->hide();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,14 +116,27 @@ RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimViewWindow::objectToggleField()
+{
+    return &m_showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if ( m_windowController() )
+    if ( changedField == &m_showWindow )
     {
-        if ( changedField  == getShowWindowField() )
+        if (m_showWindow)
         {
-            m_windowController()->showWindowFieldChangedByUi();
+            loadDataAndUpdate();
         }
+        else
+        {
+            updateMdiWindowVisibility();
+        }
+        uiCapability()->updateUiIconFromToggleField();
     }
 }
 

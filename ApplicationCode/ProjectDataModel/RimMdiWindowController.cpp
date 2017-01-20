@@ -17,9 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimMdiWindowController.h"
-#include "RiuMainWindowBase.h"
+
 #include "RiaApplication.h"
 #include "RimViewWindow.h"
+#include "RiuMainWindowBase.h"
 
 CAF_PDM_XML_SOURCE_INIT(RimMdiWindowController, "MdiWindowController"); 
 
@@ -79,7 +80,7 @@ RimMdiWindowGeometry RimMdiWindowController::mdiWindowGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimMdiWindowController::handleViewerDeletion()
 {
-    showWindowField() = false;
+    viewPdmObject()->m_showWindow = false;
 
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
@@ -97,29 +98,11 @@ void RimMdiWindowController::removeWindowFromMDI()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimMdiWindowController::showWindowFieldChangedByUi()
-{
-    updateViewerWidget();
-
-    viewPdmObject()->uiCapability()->updateUiIconFromToggleField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimViewWindow* RimMdiWindowController::viewPdmObject()
 {
     RimViewWindow * viewWindowObj;
     this->firstAncestorOrThisOfType(viewWindowObj);
     return viewWindowObj;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmField<bool>& RimMdiWindowController::showWindowField()
-{
-    return *(viewPdmObject()->getShowWindowField());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,11 +140,10 @@ void RimMdiWindowController::updateViewerWidget()
     RiuMainWindowBase* mainWindow =  getMainWindow();
     if ( !mainWindow ) return;
 
-    if ( showWindowField() )
+    if ( viewPdmObject()->m_showWindow() )
     {
         if ( !viewWidget() )
         {
-            // m_wellAllocationPlotWidget = new RiuWellAllocationPlot(this, mainPlotWindow);
             QWidget * viewWidget = viewPdmObject()->createViewWidget(mainWindow);
 
             mainWindow->addViewer(viewWidget, this->mdiWindowGeometry());

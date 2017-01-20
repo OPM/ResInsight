@@ -24,10 +24,10 @@
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
 
-#include <QPointer>
 #include "RimDefines.h"
-
 #include "RimViewWindow.h"
+
+#include <QPointer>
 
 class RiuWellLogPlot;
 class RimWellLogTrack;
@@ -96,7 +96,6 @@ protected:
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual caf::PdmFieldHandle*                    objectToggleField();
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
 
     virtual QImage                                  snapshotWindowContent() override;
@@ -111,12 +110,10 @@ private:
 public: // Needed by RiuWellAllocation Plot
     // RimViewWindow overrides
 
-    virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
 private:
-    caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;

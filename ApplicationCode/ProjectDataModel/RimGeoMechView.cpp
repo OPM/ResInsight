@@ -476,20 +476,6 @@ cvf::Transform* RimGeoMechView::scaleTransform()
 void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimView::fieldChangedByUi(changedField, oldValue, newValue);
-
-    if (changedField == &showWindow)
-    {
-        if (showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateMdiWindowVisibility();
-        }
-
-        this->updateUiIconFromToggleField();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

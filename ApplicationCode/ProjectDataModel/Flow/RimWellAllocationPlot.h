@@ -64,7 +64,6 @@ public:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    objectToggleField() { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
@@ -75,14 +74,11 @@ private:
 
     // RimViewWindow overrides
 
-    virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
 
 private:
-    caf::PdmField<bool>                             m_showWindow;
-
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
     //caf::PdmField<bool>                             m_showAccWellFlowPlot;

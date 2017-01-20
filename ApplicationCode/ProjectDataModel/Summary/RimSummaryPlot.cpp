@@ -51,8 +51,6 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitObject("Summary Plot", ":/SummaryPlot16x16.png", "", "");
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Summary Plot", "", "", "");
-    m_showWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
@@ -475,21 +473,10 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_showWindow)
-    {
-        if (m_showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateMdiWindowVisibility();
-        }
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-        uiCapability()->updateUiIconFromToggleField();
-    }
-    else if (changedField == &m_userName || 
-             changedField == &m_showPlotTitle)
+    if (changedField == &m_userName || 
+        changedField == &m_showPlotTitle)
     {
         updateMdiWindowTitle();
     }

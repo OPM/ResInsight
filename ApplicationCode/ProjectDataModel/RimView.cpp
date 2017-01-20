@@ -73,9 +73,6 @@ RimView::RimView(void)
 
     CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
 
-    CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
-    showWindow.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
     
@@ -523,6 +520,8 @@ bool RimView::isLightingDisabled() const
 //--------------------------------------------------------------------------------------------------
 void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (changedField == &meshMode)
     {
         createDisplayModel();
@@ -964,5 +963,13 @@ QWidget* RimView::viewWidget()
 {
     if ( m_viewer ) return m_viewer->layoutWidget();
     else return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::forceShowWindowOn()
+{
+    m_showWindow.setValueWithFieldChanged(true);
 }
 
