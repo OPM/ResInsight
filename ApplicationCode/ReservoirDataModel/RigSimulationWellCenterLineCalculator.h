@@ -23,6 +23,7 @@
 #include <vector>
 
 class RimEclipseWell;
+class RigEclipseCaseData;
 
 class RigSimulationWellCenterLineCalculator
 {
@@ -30,7 +31,18 @@ public:
     static void calculateWellPipeCenterline(RimEclipseWell* m_rimWell, 
                                             std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                             std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
+
+    static void calculateWellPipeCenterlineFromWellFrame(const RigWellResultFrame& wellFrame, 
+                                                         const RigEclipseCaseData* eclipseCaseData, 
+                                                         bool isMultiSegmentWell, 
+                                                         bool isAutoDetectBranches, 
+                                                         std::vector<std::vector<cvf::Vec3d>> & pipeBranchesCLCoords, 
+                                                         std::vector<std::vector<RigWellResultPoint>> & pipeBranchesCellIds);
+
+
 private:
+    static bool hasAnyResultCells(const std::vector<RigWellResultBranch> &resBranches);
+    static bool hasAnyValidDataCells(const RigWellResultBranch& branch);
     static void finishPipeCenterLine( std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter ) ;
 };
 
