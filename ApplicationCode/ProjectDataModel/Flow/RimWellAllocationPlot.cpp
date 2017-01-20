@@ -249,6 +249,7 @@ QString RimWellAllocationPlot::description() const
 void RimWellAllocationPlot::loadDataAndUpdate()
 {
     updateViewerWidgetBasic();
+    updateFromWell();
 }
 
 //--------------------------------------------------------------------------------------------------
