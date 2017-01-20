@@ -152,7 +152,7 @@ RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
     if (m_plotDefinition)
     {
         m_plotDefinition->detachAllCurves();
-        m_plotDefinition->handleViewerDeletion();
+        m_plotDefinition->handleMdiWindowClosed();
     }
 
     m_plotMarker->detach();

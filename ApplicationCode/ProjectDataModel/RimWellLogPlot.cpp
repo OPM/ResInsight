@@ -86,7 +86,7 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
-    removeWidgetFromMDI();
+    removeMdiWindowFromMdiArea();
     
     m_tracks.deleteAllChildObjects();
 
@@ -106,7 +106,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         }
         else
         {
-            updateViewerWidgetBasic();
+            updateMdiWindowVisibility();
         }
 
         uiCapability()->updateUiIconFromToggleField();
@@ -123,7 +123,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_userName)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
     }
     if (changedField == &m_depthType ||
         changedField == &m_depthUnit)
@@ -390,7 +390,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::loadDataAndUpdate()
 {
-    updateViewerWidgetBasic();
+    updateMdiWindowVisibility();
     updateTracks();
 }
 

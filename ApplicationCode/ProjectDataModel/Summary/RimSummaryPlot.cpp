@@ -86,7 +86,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Auto Zoom", "", "", "");
     m_isAutoZoom.uiCapability()->setUiHidden(true);
 
-    setAsPlotMDI();
+    setAsPlotMdiWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ RimSummaryPlot::RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::~RimSummaryPlot()
 {
-    removeWidgetFromMDI();
+    removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
 
@@ -483,7 +483,7 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         }
         else
         {
-            updateViewerWidgetBasic();
+            updateMdiWindowVisibility();
         }
 
         uiCapability()->updateUiIconFromToggleField();
@@ -491,7 +491,7 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_userName || 
              changedField == &m_showPlotTitle)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
     }
 }
 
@@ -539,7 +539,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::loadDataAndUpdate()
 {
-   updateViewerWidgetBasic();    
+   updateMdiWindowVisibility();    
 
    for (RimSummaryCurveFilter* curveFilter: m_curveFilters)
    {
@@ -667,7 +667,7 @@ void RimSummaryPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateViewerWidgetWindowTitle()
+void RimSummaryPlot::updateMdiWindowTitle()
 {
     if (m_qwtPlot)
     {

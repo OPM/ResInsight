@@ -39,7 +39,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
     CVF_ASSERT(wellLogPlotColl);
 
     RimWellLogPlot* plot = new RimWellLogPlot();
-    plot->setAsPlotMDI();
+    plot->setAsPlotMdiWindow();
     wellLogPlotColl->wellLogPlots().push_back(plot);
 
     // Make sure the summary plot window is created and visible

@@ -134,7 +134,7 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.incrementProgress();
     progress.setProgressDescription("Create Display model");
    
-    updateViewerWidgetBasic();
+    updateMdiWindowVisibility();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     
@@ -481,24 +481,11 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         if (showWindow)
         {
-            bool generateDisplayModel = (viewer() == NULL);
-            updateViewerWidgetBasic();
-
-            if (generateDisplayModel)
-            {
-                scheduleCreateDisplayModelAndRedraw();
-            }
+            loadDataAndUpdate();
         }
         else
         {
-            if (m_viewer)
-            {
-                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
-
-                RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
-                delete m_viewer;
-                m_viewer = NULL;
-            }
+            updateMdiWindowVisibility();
         }
 
         this->updateUiIconFromToggleField();

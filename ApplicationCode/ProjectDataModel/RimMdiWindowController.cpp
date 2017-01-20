@@ -174,7 +174,7 @@ void RimMdiWindowController::updateViewerWidget()
             mainWindow->setActiveViewer(viewWidget());
         }
 
-        viewPdmObject()->updateViewerWidgetWindowTitle();
+        viewPdmObject()->updateMdiWindowTitle();
     }
     else
     {

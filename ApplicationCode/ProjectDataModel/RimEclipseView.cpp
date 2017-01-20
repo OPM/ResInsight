@@ -187,24 +187,11 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         if (showWindow)
         {
-            bool generateDisplayModel = (viewer() == NULL);
-            updateViewerWidgetBasic();
-
-            if (generateDisplayModel)
-            {
-                updateDisplayModelForWellResults();
-            }
+            loadDataAndUpdate();
         }
         else
         {
-            if (m_viewer)
-            {
-                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
-                
-                RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
-                delete m_viewer;
-                m_viewer = NULL;
-            }
+            updateMdiWindowVisibility();
         }
 
         this->updateUiIconFromToggleField();
@@ -689,7 +676,7 @@ void RimEclipseView::loadDataAndUpdate()
 
     this->faultResultSettings()->customFaultResult()->loadResult();
 
-    updateViewerWidgetBasic();
+    updateMdiWindowVisibility();
 
     this->m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 
@@ -697,6 +684,8 @@ void RimEclipseView::loadDataAndUpdate()
     this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
+    m_pipesPartManager->clearGeometryCache();
+    m_wellSpheresPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 

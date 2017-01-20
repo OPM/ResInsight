@@ -53,7 +53,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
 
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
-    this->setAsPlotMDI();
+    this->setAsPlotMdiWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::~RimWellAllocationPlot()
 {
-    removeWidgetFromMDI();
+    removeMdiWindowFromMdiArea();
     
     delete m_accumulatedWellFlowPlot();
 
@@ -198,14 +198,21 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 {
     if (changedField == &m_showWindow)
     {
-        updateViewerWidgetBasic();
+        if (m_showWindow)
+        {
+            loadDataAndUpdate();
+        }
+        else
+        {
+            updateMdiWindowVisibility();
+        }
 
         uiCapability()->updateUiIconFromToggleField();
     }
     else if (changedField == &m_userName ||
         changedField == &m_showPlotTitle)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
     }
     else if (changedField == &m_simulationWell)
     {
@@ -232,7 +239,7 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 void RimWellAllocationPlot::setDescription(const QString& description)
 {
     m_userName = description;
-    this->updateViewerWidgetWindowTitle();
+    this->updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,7 +255,7 @@ QString RimWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::loadDataAndUpdate()
 {
-    updateViewerWidgetBasic();
+    updateMdiWindowVisibility();
     updateFromWell();
 }
 

@@ -33,9 +33,9 @@ RimViewWindow::RimViewWindow(void)
     m_windowController.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete field
-    CAF_PDM_InitFieldNoDefault(&m_windowGeometry, "WindowGeometry", "", "", "", "");
-    m_windowGeometry.uiCapability()->setUiHidden(true);
-    m_windowGeometry.xmlCapability()->setIOWritable(false);
+    CAF_PDM_InitFieldNoDefault(&obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "");
+    obsoleteField_windowGeometry.uiCapability()->setUiHidden(true);
+    obsoleteField_windowGeometry.xmlCapability()->setIOWritable(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ RimViewWindow::~RimViewWindow(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::removeWidgetFromMDI()
+void RimViewWindow::removeMdiWindowFromMdiArea()
 {
     if ( m_windowController() ) m_windowController->removeWindowFromMDI();
 }
@@ -57,7 +57,7 @@ void RimViewWindow::removeWidgetFromMDI()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::handleViewerDeletion()
+void RimViewWindow::handleMdiWindowClosed()
 {
     if ( m_windowController() ) m_windowController->handleViewerDeletion();
 }
@@ -65,7 +65,7 @@ void RimViewWindow::handleViewerDeletion()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::updateViewerWidgetBasic()
+void RimViewWindow::updateMdiWindowVisibility()
 {
     if ( m_windowController() ) m_windowController->updateViewerWidget();
 }
@@ -110,7 +110,7 @@ void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::updateViewerWidgetWindowTitle()
+void RimViewWindow::updateMdiWindowTitle()
 {
     if ( viewWidget() )
     {
@@ -126,7 +126,7 @@ void RimViewWindow::updateViewerWidgetWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setAsMDI(int mainWindowID)
+void RimViewWindow::setAsMdiWindow(int mainWindowID)
 {
     if ( !m_windowController() )
     {
@@ -145,7 +145,7 @@ void RimViewWindow::setAsMDI(int mainWindowID)
 
 void RimViewWindow::initAfterRead()
 {
-   if (m_windowGeometry.value().size() == 5)
+   if (obsoleteField_windowGeometry.value().size() == 5)
    {
        RimMdiWindowGeometry wg;
        int mainWindowID = -1;
@@ -156,13 +156,13 @@ void RimViewWindow::initAfterRead()
           mainWindowID = 1;
 
        wg.mainWindowID = mainWindowID; 
-       wg.x = m_windowGeometry.value()[0];
-       wg.y = m_windowGeometry.value()[1];
-       wg.width = m_windowGeometry.value()[2];
-       wg.height = m_windowGeometry.value()[3];
-       wg.isMaximized = m_windowGeometry.value()[4];
+       wg.x = obsoleteField_windowGeometry.value()[0];
+       wg.y = obsoleteField_windowGeometry.value()[1];
+       wg.width = obsoleteField_windowGeometry.value()[2];
+       wg.height = obsoleteField_windowGeometry.value()[3];
+       wg.isMaximized = obsoleteField_windowGeometry.value()[4];
 
-       setAsMDI(mainWindowID);
+       setAsMdiWindow(mainWindowID);
        setMdiWindowGeometry(wg);
    }
 }

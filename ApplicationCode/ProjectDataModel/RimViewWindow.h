@@ -47,24 +47,23 @@ public:
     RimViewWindow(void);
     virtual ~RimViewWindow(void);
 
-    void                 removeWidgetFromMDI(); 
-    void                 handleViewerDeletion();
-    void                 updateViewerWidgetBasic(); 
-
-    void                 setAs3DMDI()   { setAsMDI(0); }
-    void                 setAsPlotMDI() { setAsMDI(1); }
-
-    void                 setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
-    RimMdiWindowGeometry mdiWindowGeometry();
-
-    virtual QImage       snapshotWindowContent() = 0;
-    virtual QWidget*     viewWidget() = 0;
-
-    virtual void         zoomAll() = 0;
-
-protected:
-    virtual void         fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
+    void                         handleMdiWindowClosed();
+                                 
+    void                         setAs3DViewMdiWindow()  { setAsMdiWindow(0); }
+    void                         setAsPlotMdiWindow()    { setAsMdiWindow(1); }
+                                 
+    void                         setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
+    RimMdiWindowGeometry         mdiWindowGeometry();
+                                 
+    virtual QWidget*             viewWidget() = 0;
+                                 
+    virtual QImage               snapshotWindowContent() = 0;
+    virtual void                 zoomAll() = 0;
+                                 
+protected:                       
+                                 
+    void                         removeMdiWindowFromMdiArea(); 
+    void                         updateMdiWindowVisibility(); 
 
     ///////// Interface for the Window controller
     friend class RimMdiWindowController;
@@ -72,20 +71,19 @@ protected:
     virtual caf::PdmField<bool>* getShowWindowField() = 0; 
     virtual QWidget*             createViewWidget(QWidget* mainWindowParent) = 0; 
     virtual void                 updateViewWidgetAfterCreation() {};
-    virtual void                 updateViewerWidgetWindowTitle(); // Has real default implementation
+    virtual void                 updateMdiWindowTitle(); // Has real default implementation
     virtual void                 deleteViewWidget() = 0; 
-
-
     //////////
 
-    void                 setAsMDI(int mainWindowID);
+    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                 initAfterRead() override;
+                                 
+private:                         
+    void                         setAsMdiWindow(int mainWindowID);
 
     caf::PdmChildField<RimMdiWindowController*> m_windowController;
 
     // Obsoleted field
-    virtual void initAfterRead() override;
-    caf::PdmField< std::vector<int> > m_windowGeometry;
-
-
+    caf::PdmField< std::vector<int> > obsoleteField_windowGeometry;
 };
 

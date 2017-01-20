@@ -141,7 +141,7 @@ RimView::RimView(void)
     m_wellPathPipeVizModel = new cvf::ModelBasicList;
     m_wellPathPipeVizModel->setName("WellPathPipeModel");
 
-    this->setAs3DMDI();
+    this->setAs3DViewMdiWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ RimView::~RimView(void)
 
     delete this->m_overlayInfoConfig();
 
-    removeWidgetFromMDI();
+    removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
 
@@ -231,7 +231,7 @@ void RimView::updateViewWidgetAfterCreation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::updateViewerWidgetWindowTitle()
+void RimView::updateMdiWindowTitle()
 {
     if (m_viewer)
     {
@@ -595,7 +595,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
     else if (changedField == &name)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
 
         if (viewController())
         {

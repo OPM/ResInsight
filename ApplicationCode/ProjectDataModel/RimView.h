@@ -220,7 +220,7 @@ protected:
     virtual caf::PdmField<bool>*            getShowWindowField() override { return &showWindow; } 
     virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                            updateViewWidgetAfterCreation() override; 
-    virtual void                            updateViewerWidgetWindowTitle() override;
+    virtual void                            updateMdiWindowTitle() override;
     virtual void                            deleteViewWidget() override;
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;

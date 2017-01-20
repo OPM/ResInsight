@@ -108,7 +108,7 @@ private:
 
     virtual caf::PdmField<bool>*                    getShowWindowField() override { return &m_showWindow; } 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    void                                            updateViewerWidgetWindowTitle() override;
+    void                                            updateMdiWindowTitle() override;
     virtual void                                    deleteViewWidget() override; 
 
 private:
