@@ -243,6 +243,16 @@ void RimFracture::computeTransmissibility()
 
     for (auto fracCell : fracCells)
     {
+        //TODO: Remove - only for simplifying debugging...
+        RiaApplication* app = RiaApplication::instance();
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+        const RigMainGrid* mainGrid = activeRiv->mainGrid();
+
+        size_t i, j, k;
+        mainGrid->ijkFromCellIndex(fracCell, &i, &j, &k);
+
+        //End of code only for debugging... 
 
 
         std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
@@ -258,6 +268,13 @@ void RimFracture::computeTransmissibility()
         {
             double areaOfCellPlaneFractureOverlap = 0.0;
             std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon();
+
+            //TODO: remove if - only intended for adding break point for debug!
+            if (fracCell == 186234)
+            {
+                double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
+            }
+
             calculateFracturePlaneCellPolygonOverlap(planeCellPolygons, fracPolygon, areaOfCellPlaneFractureOverlap);
 
             //TODO: get correct input values...
@@ -267,6 +284,7 @@ void RimFracture::computeTransmissibility()
 
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
 
+
             transmissibility = 8 * c * attachedFractureDefinition()->permeability * areaOfCellPlaneFractureOverlap /
                             ( flowLength + (attachedFractureDefinition()->skinFactor * fractureLength) / cvf::PI_D);
         }
@@ -274,7 +292,11 @@ void RimFracture::computeTransmissibility()
 
         fracData.transmissibility = transmissibility;
         //only keep fracData if transmissibility is non-zero
-        if (transmissibility > 0) fracDataVec.push_back(fracData);
+        if (transmissibility > 0)
+        {
+            fracDataVec.push_back(fracData);
+        }
+
     }
 
     m_rigFracture->setFractureData(fracDataVec);
@@ -306,6 +328,11 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
 
     RigCell cell = mainGrid->globalCellArray()[cellindex];
     if (cell.isInvalid()) return isCellIntersected;
+
+    if (cellindex == 186234)
+    {
+        cvf::Vec3d cellcenter = cell.center();
+    }
 
     //Copied (and adapted) from RigEclipseWellLogExtractor
     cvf::Vec3d hexCorners[8];
@@ -374,9 +401,14 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
         //Search remaining list for next point...
         
         bool isFound = false;
+        float tolerance = 0.0001f;
+
         for (std::list<std::pair<cvf::Vec3d, cvf::Vec3d > >::iterator lIt = intersectionLineSegments.begin(); lIt != intersectionLineSegments.end(); lIt++)
         {
-            if (lIt->first.equals(polygon.back()))
+            cvf::Vec3d lineSegmentStart = lIt->first;
+            cvf::Vec3d lineSegmentEnd = lIt->second;
+            cvf::Vec3d polygonEnd = polygon.back();
+            if(((lineSegmentStart - polygonEnd).lengthSquared() < tolerance*tolerance ))
             {
                 polygon.push_back(lIt->second);
                 intersectionLineSegments.erase(lIt);
@@ -384,7 +416,7 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
                 break;
             }
 
-            if (lIt->second.equals(polygon.back()))
+            if (((lineSegmentEnd - polygonEnd).lengthSquared() < tolerance*tolerance))
             {
                 polygon.push_back(lIt->first);
                 intersectionLineSegments.erase(lIt);
@@ -399,7 +431,6 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
         }
         else
         {
-            break;
             startNewPolygon = true;
         }
     }
@@ -464,15 +495,14 @@ void RimFracture::calculateFracturePlaneCellPolygonOverlap(std::vector<std::vect
             std::vector<cvf::Vec3d> clippedPolygon;
             for (ClipperLib::IntPoint IntPosition : pathInSol)
             {
-                cvf::Vec3d v; 
-                v.x() = IntPosition.X / polygonScaleFactor;
-                v.y() = IntPosition.Y / polygonScaleFactor;
+                cvf::Vec3d v = cvf::Vec3d::ZERO; 
+                v.x() = (float)IntPosition.X / (float)polygonScaleFactor;
+                v.y() = (float)IntPosition.Y / (float)polygonScaleFactor;
                 clippedPolygon.push_back(v);
             }
             clippedPolygons.push_back(clippedPolygon);
         }
 
-        //We should only have one solution polygon / path!?!?
 
         //calculate area
         for (std::vector<cvf::Vec3d> areaPolygon : clippedPolygons)
