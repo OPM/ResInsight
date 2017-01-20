@@ -36,6 +36,7 @@ public:
                                                          const RigEclipseCaseData* eclipseCaseData, 
                                                          bool isMultiSegmentWell, 
                                                          bool isAutoDetectBranches, 
+                                                         bool useAllCellCenters,
                                                          std::vector<std::vector<cvf::Vec3d>> & pipeBranchesCLCoords, 
                                                          std::vector<std::vector<RigWellResultPoint>> & pipeBranchesCellIds);
 
@@ -44,5 +45,7 @@ private:
     static bool hasAnyResultCells(const std::vector<RigWellResultBranch> &resBranches);
     static bool hasAnyValidDataCells(const RigWellResultBranch& branch);
     static void finishPipeCenterLine( std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter ) ;
+
+    static void addCellCenterPoints(const RigEclipseCaseData* eclipseCaseData, std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds);
 };
 

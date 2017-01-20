@@ -299,6 +299,17 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseWell::isUsingCellCenterForPipe()
+{
+    RimEclipseWellCollection* wellColl = nullptr;
+    this->firstAncestorOrThisOfType(wellColl);
+
+    return (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseWell::setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex)
 {
     m_wellResults = wellResults;

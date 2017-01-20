@@ -61,11 +61,13 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(RimEclip
 
     const RigWellResultFrame& staticWellFrame = wellResults->m_staticWellCells;
     bool isMultiSegmentWell = wellResults->isMultiSegmentWell();
+    bool useAllCellCenters = rimWell->isUsingCellCenterForPipe();
 
     calculateWellPipeCenterlineFromWellFrame(staticWellFrame, 
                                              eclipseCaseData, 
                                              isMultiSegmentWell, 
-                                             isAutoDetectBranches, 
+                                             isAutoDetectBranches,
+                                             useAllCellCenters,
                                              pipeBranchesCLCoords, 
                                              pipeBranchesCellIds);
     return;
@@ -73,12 +75,15 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(RimEclip
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Based on the points and cells, calculate a pipe centerline
+/// The returned CellIds is one less than the number of centerline points,
+/// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
 void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(const RigWellResultFrame &wellFrame, 
                                                                                      const RigEclipseCaseData* eclipseCaseData, 
                                                                                      bool isMultiSegmentWell, 
                                                                                      bool isAutoDetectBranches,
+                                                                                     bool useAllCellCenters,
                                                                                      std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, 
                                                                                      std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds)
 {
@@ -360,6 +365,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
         }
     }
 
+    if (useAllCellCenters) addCellCenterPoints(eclipseCaseData, pipeBranchesCLCoords, pipeBranchesCellIds);
 
     CVF_ASSERT(pipeBranchesCellIds.size() == pipeBranchesCLCoords.size());
     for (size_t i = 0 ; i < pipeBranchesCellIds.size() ; ++i)
@@ -368,6 +374,41 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigSimulationWellCenterLineCalculator::addCellCenterPoints(const RigEclipseCaseData* eclipseCaseData, 
+                                                                std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, 
+                                                                std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds)
+{
+    for ( size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); brIdx++ )
+    {
+        const std::vector<RigWellResultPoint>& branchResPoints = pipeBranchesCellIds[brIdx];
+        const std::vector<cvf::Vec3d>& branchClPoints = pipeBranchesCLCoords[brIdx];
+        
+        std::vector<RigWellResultPoint> branchResPointsWithCellCenters;
+        std::vector<cvf::Vec3d> branchClPointsWithCellCenters;
+
+        for ( size_t cIdx = 0; cIdx < branchResPoints.size(); cIdx++ )
+        {
+            branchResPointsWithCellCenters.push_back(branchResPoints[cIdx]);
+            branchClPointsWithCellCenters.push_back(branchClPoints[cIdx]);
+
+            if ( branchResPoints[cIdx].isCell() )
+            {
+                const RigCell& cell = eclipseCaseData->cellFromWellResultCell(branchResPoints[cIdx]);
+                cvf::Vec3d center = cell.center();
+                branchClPointsWithCellCenters.push_back(center);
+                branchResPointsWithCellCenters.push_back(branchResPoints[cIdx]);          
+            }
+        }
+        
+        branchClPointsWithCellCenters.push_back(branchClPoints[branchResPoints.size()]);
+
+        pipeBranchesCellIds[brIdx]  = branchResPointsWithCellCenters;
+        pipeBranchesCLCoords[brIdx] = branchClPointsWithCellCenters;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

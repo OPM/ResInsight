@@ -50,6 +50,7 @@ public:
 
     bool                                isWellPipeVisible(size_t frameIndex);
     bool                                isWellSpheresVisible(size_t frameIndex);
+    bool                                isUsingCellCenterForPipe();
 
     bool                                visibleCellsInstersectsWell(size_t frameIndex);
 
