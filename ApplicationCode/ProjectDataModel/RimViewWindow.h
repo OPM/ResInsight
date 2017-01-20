@@ -59,11 +59,6 @@ public:
                                  
     virtual QImage               snapshotWindowContent() = 0;
     virtual void                 zoomAll() = 0;
-                                 
-    // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
-    // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
-    // can be controlled from the project tree using check box toggles
-    virtual caf::PdmFieldHandle* objectToggleField() override final;
 
 protected:
     void                         removeMdiWindowFromMdiArea(); 
@@ -79,6 +74,10 @@ protected:
     virtual void                 loadDataAndUpdate() = 0; 
     //////////
 
+    // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
+    // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
+    // can be controlled from the project tree using check box toggles
+    virtual caf::PdmFieldHandle* objectToggleField() override final;
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                 initAfterRead() override;
                                  
