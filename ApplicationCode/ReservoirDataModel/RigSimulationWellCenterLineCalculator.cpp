@@ -34,7 +34,7 @@
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(RimEclipseWell* rimWell, 
+void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(RimEclipseWell* rimWell, 
                                                                         std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
@@ -73,6 +73,45 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(RimEclip
     return;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(RimEclipseWell* rimWell, 
+                                                                               size_t timeStepIndex, 
+                                                                               std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
+                                                                               std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
+{
+    bool isAutoDetectBranches = false;
+    RigEclipseCaseData*   eclipseCaseData = NULL;
+    RigSingleWellResultsData* wellResults = NULL;
+
+    {
+        CVF_ASSERT(rimWell);
+        RimEclipseView* eclipseView;
+        rimWell->firstAncestorOrThisOfType(eclipseView);
+        CVF_ASSERT(eclipseView);
+
+        isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
+        eclipseCaseData      = eclipseView->eclipseCase()->reservoirData();
+        wellResults          = rimWell->wellResults();
+
+        if ( !wellResults || !wellResults->hasWellResult(timeStepIndex) ) return;
+    }
+    
+
+    const RigWellResultFrame& wellFrame = wellResults->wellResultFrame(timeStepIndex);
+    bool isMultiSegmentWell             = wellResults->isMultiSegmentWell();
+    bool useAllCellCenters              = rimWell->isUsingCellCenterForPipe();
+
+    calculateWellPipeCenterlineFromWellFrame(wellFrame, 
+                                             eclipseCaseData, 
+                                             isMultiSegmentWell, 
+                                             isAutoDetectBranches,
+                                             useAllCellCenters,
+                                             pipeBranchesCLCoords, 
+                                             pipeBranchesCellIds);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Based on the points and cells, calculate a pipe centerline

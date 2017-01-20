@@ -30,7 +30,7 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"   
 
-class RigSingleWellResultsData;
+#include "RigSingleWellResultsData.h"
 
 //==================================================================================================
 ///  
@@ -57,8 +57,12 @@ public:
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                                calculateWellPipeStaticCenterLine( std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                                           std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
+
+    void                                calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
+                                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
     caf::PdmField<bool>                 showWell;
 
@@ -72,6 +76,10 @@ public:
     caf::PdmField<bool>                 showWellSpheres;
     caf::PdmField<cvf::Color3f>         wellPipeColor;
     caf::PdmField<double>               pipeRadiusScaleFactor;
+
+protected:
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;

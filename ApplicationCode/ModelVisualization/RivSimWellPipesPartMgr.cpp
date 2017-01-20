@@ -82,7 +82,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
     m_pipeBranchesCLCoords.clear();
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(m_rimWell.p(), m_pipeBranchesCLCoords, pipeBranchesCellIds);
+    m_rimWell->calculateWellPipeStaticCenterLine(m_pipeBranchesCLCoords, pipeBranchesCellIds);
 
     double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
