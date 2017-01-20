@@ -288,14 +288,14 @@ const cvf::UIntArray* RigEclipseCaseData::gridCellToResultWellIndex(size_t gridI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCell& RigEclipseCaseData::cellFromWellResultCell(const RigWellResultPoint& wellResultCell)
+const RigCell& RigEclipseCaseData::cellFromWellResultCell(const RigWellResultPoint& wellResultCell) const
 {
     CVF_ASSERT(wellResultCell.isCell());
 
     size_t gridIndex     = wellResultCell.m_gridIndex;
     size_t gridCellIndex = wellResultCell.m_gridCellIndex;
 
-    std::vector<RigGridBase*> grids;
+    std::vector<const RigGridBase*> grids;
     allGrids(&grids);
 
     return grids[gridIndex]->cell(gridCellIndex);
