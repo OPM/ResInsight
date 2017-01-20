@@ -256,7 +256,7 @@ void RimFracture::computeTransmissibility()
 
 
         std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = planeCellIntersection(fracCell, planeCellPolygons);
+        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons);
         if (!isPlanIntersected || planeCellPolygons.size()==0) continue;
 
         RigFractureData fracData; 
@@ -268,23 +268,16 @@ void RimFracture::computeTransmissibility()
         {
             double areaOfCellPlaneFractureOverlap = 0.0;
             std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon();
-
-            //TODO: remove if - only intended for adding break point for debug!
-            if (fracCell == 186234)
-            {
-                double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
-            }
-
-            calculateFracturePlaneCellPolygonOverlap(planeCellPolygons, fracPolygon, areaOfCellPlaneFractureOverlap);
+            calculateFracturePlaneCellPolygonOverlapArea(planeCellPolygons, fracPolygon, areaOfCellPlaneFractureOverlap);
 
             //TODO: get correct input values...
-            //double area = 2.468 - calculated!
             double fractureLength = 1.2345;
             double flowLength = 2.718281828;
 
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
 
-
+            //transmissibility = areaOfCellPlaneFractureOverlap; //TODO: Only for debug - write area to file instead of transmissibility!
+            //TODO: Les perm fra data-strukturer... 
             transmissibility = 8 * c * attachedFractureDefinition()->permeability * areaOfCellPlaneFractureOverlap /
                             ( flowLength + (attachedFractureDefinition()->skinFactor * fractureLength) / cvf::PI_D);
         }
@@ -306,7 +299,7 @@ void RimFracture::computeTransmissibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons)
+bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons)
 {
     
     cvf::Plane fracturePlane;
@@ -350,6 +343,21 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
 
     //Find line-segments where cell and fracture plane intersects
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > intersectionLineSegments;
+
+    isCellIntersected = planeHexCellIntersection(hexCorners, fracturePlane, intersectionLineSegments);
+       
+    createPolygonFromLineSegments(intersectionLineSegments, polygons);
+
+    return isCellIntersected;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFracture::planeHexCellIntersection(cvf::Vec3d * hexCorners, cvf::Plane fracturePlane, std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > &intersectionLineSegments)
+{
+    bool isCellIntersected = false;
     for (int face = 0; face < 6; ++face)
     {
         cvf::ubyte faceVertexIndices[4];
@@ -377,10 +385,14 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
                 intersectionLineSegments.push_back({ triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx });
             }
         }
-    }
+    }    return isCellIntersected;
+}
 
-       
-    //Create polygon from line-segments   
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons)
+{
     bool startNewPolygon = true;
     while (!intersectionLineSegments.empty())
     {
@@ -395,11 +407,11 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
             polygons.push_back(polygon);
             startNewPolygon = false;
         }
-        
+
         std::vector<cvf::Vec3d>& polygon = polygons.back();
 
         //Search remaining list for next point...
-        
+
         bool isFound = false;
         float tolerance = 0.0001f;
 
@@ -408,7 +420,7 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
             cvf::Vec3d lineSegmentStart = lIt->first;
             cvf::Vec3d lineSegmentEnd = lIt->second;
             cvf::Vec3d polygonEnd = polygon.back();
-            if(((lineSegmentStart - polygonEnd).lengthSquared() < tolerance*tolerance ))
+            if (((lineSegmentStart - polygonEnd).lengthSquared() < tolerance*tolerance))
             {
                 polygon.push_back(lIt->second);
                 intersectionLineSegments.erase(lIt);
@@ -434,24 +446,19 @@ bool RimFracture::planeCellIntersection(size_t cellindex, std::vector<std::vecto
             startNewPolygon = true;
         }
     }
-
-    //rotere winding?? 
-
-    return isCellIntersected;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::calculateFracturePlaneCellPolygonOverlap(std::vector<std::vector<cvf::Vec3d> > planeCellPolygons, 
+void RimFracture::calculateFracturePlaneCellPolygonOverlapArea(std::vector<std::vector<cvf::Vec3d> > planeCellPolygons, 
                                                            std::vector<cvf::Vec3f> fracturePolygon, double & areaOfCellPlaneFractureOverlap)
 {
     cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
     int polygonScaleFactor = 10000; //For transform to clipper int 
     int xInt, yInt;
     cvf::Vec3d areaVector = cvf::Vec3d::ZERO;
-    
+
     for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons) 
     {
   
@@ -503,8 +510,6 @@ void RimFracture::calculateFracturePlaneCellPolygonOverlap(std::vector<std::vect
             clippedPolygons.push_back(clippedPolygon);
         }
 
-
-        //calculate area
         for (std::vector<cvf::Vec3d> areaPolygon : clippedPolygons)
         {
             areaVector += cvf::GeometryTools::polygonAreaNormal3D(areaPolygon);
