@@ -39,7 +39,8 @@ struct RigWellResultPoint
         m_isOpen(false),
         m_ertBranchId(-1),
         m_ertSegmentId(-1),
-        m_bottomPosition(cvf::Vec3d::UNDEFINED)
+        m_bottomPosition(cvf::Vec3d::UNDEFINED),
+        m_flowRate(0.0)
     { }
 
     bool isPointValid() const
@@ -66,6 +67,7 @@ struct RigWellResultPoint
     int                               m_ertSegmentId;
 
     cvf::Vec3d                        m_bottomPosition;    //< The estimated bottom position of the well segment, when we have no grid cell connections for the segment.
+    double                            m_flowRate;
 };
 
 //==================================================================================================
