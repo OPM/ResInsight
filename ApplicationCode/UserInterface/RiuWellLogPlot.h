@@ -19,9 +19,11 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QList>
 #include "cafPdmPointer.h"
+
+#include <QList>
+#include <QPointer>
+#include <QWidget>
 
 class RimWellLogPlot;
 class RiuWellLogTrack;
