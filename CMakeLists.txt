@@ -185,13 +185,14 @@ else()
 	        ecl_well 
 	        ert_geometry 
 	        ert_util  
+	        ert_utilxx
     )
 
     if (MSVC)
       set_property(TARGET  
           ${ERT_LIBRARIES}
           ecl_lfs
-	      PROPERTY FOLDER "ERT"
+	      PROPERTY FOLDER "Thirdparty/ERT"
       )
     endif()
     
@@ -210,11 +211,31 @@ add_subdirectory(ThirdParty/custom-opm-parser/custom-opm-parser-tests)
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 
+list(APPEND OPM_LIBRARIES
+    custom-opm-parser
+    custom-opm-flowdiagnostics
+    custom-opm-flowdiag-app
+)
+
+set_property(TARGET  
+    ${OPM_LIBRARIES}
+	PROPERTY FOLDER "Thirdparty/OPM"
+)
+
+set_property(TARGET  
+    opm-parser-tests
+	PROPERTY FOLDER "Thirdparty/OPM"
+)
+
 ################################################################################
 # NRLib
 ################################################################################
 
 add_subdirectory(ThirdParty/NRLib)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    NRLib
+)
 
 
 ################################################################################
@@ -240,6 +261,15 @@ find_package( OpenGL )
 ################################################################################
 
 add_subdirectory(ThirdParty/Qwt/src)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    Qwt
+)
+
+set_property(TARGET  
+    ${THIRD_PARTY_LIBRARIES}
+	PROPERTY FOLDER "Thirdparty"
+)
 
 ################################################################################
 # Vizualization Framework
