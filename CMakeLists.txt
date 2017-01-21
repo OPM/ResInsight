@@ -266,10 +266,6 @@ list(APPEND THIRD_PARTY_LIBRARIES
     Qwt
 )
 
-set_property(TARGET  
-    ${THIRD_PARTY_LIBRARIES}
-	PROPERTY FOLDER "Thirdparty"
-)
 
 ################################################################################
 # Nightcharts
@@ -281,6 +277,14 @@ list(APPEND THIRD_PARTY_LIBRARIES
     nightcharts
 )
 
+
+################################################################################
+# Thirdparty libraries are put in ThirdParty solution folder
+################################################################################
+set_property(TARGET  
+    ${THIRD_PARTY_LIBRARIES}
+	PROPERTY FOLDER "Thirdparty"
+)
 
 ################################################################################
 # Vizualization Framework
