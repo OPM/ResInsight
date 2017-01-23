@@ -18,14 +18,14 @@
 
 #include "RiuWellAllocationPlot.h"
 
-
 #include "RiaApplication.h"
 
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "QBoxLayout"
+#include "RimTotalWellAllocationPlot.h"
 
+#include "QBoxLayout"
 
 
 
@@ -36,14 +36,16 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     : QFrame(parent)
 {
     Q_ASSERT(plotDefinition);
-    this->setLayout(new QVBoxLayout());
+    this->setLayout(new QHBoxLayout());
     this->layout()->setMargin(0);
 
     m_plotDefinition = plotDefinition;
+    
+    QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
+    this->layout()->addWidget(totalFlowAllocationWidget);
+
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
     this->layout()->addWidget(wellFlowWidget);
-
- 
 }
 
 //--------------------------------------------------------------------------------------------------

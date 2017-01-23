@@ -27,11 +27,10 @@
 
 #include <QPointer>
 
-class RimEclipseWell;
-class RimTotalWellAllocationPlot;
-class RimWellLogPlot;
 class RiuWellAllocationPlot;
-class RimEclipseResultCase;
+class RimEclipseWell;
+class RimWellLogPlot;
+class RiuNightchartsWidget;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -42,15 +41,15 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RimWellAllocationPlot : public RimViewWindow
+class RimTotalWellAllocationPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellAllocationPlot();
-    virtual ~RimWellAllocationPlot();
+    RimTotalWellAllocationPlot();
+    virtual ~RimTotalWellAllocationPlot();
 
-    void                                            setFromSimulationWell(RimEclipseWell* simWell);
+    void                                            setSimulationWell(RimEclipseWell* simWell);
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
@@ -60,10 +59,12 @@ public:
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
-    RimWellLogPlot*                                 accumulatedWellFlowPlot();
-    RimTotalWellAllocationPlot*                     totalWellFlowPlot();
-
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+
+    // RimViewWindow overrides
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
 
 protected:
     // Overridden PDM methods
@@ -75,22 +76,12 @@ protected:
 private:
     void                                            updateFromWell();
 
-    // RimViewWindow overrides
-
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
-    caf::PdmPtrField<RimEclipseResultCase*>         m_case;
-    caf::PdmField<QString>                          m_wellName;
-    caf::PdmField<int>                              m_timeStep;
-    caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
+    caf::PdmPtrField<RimEclipseWell*>               m_simulationWell;
 
-    QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
-
-    caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
-    caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
+    QPointer<RiuNightchartsWidget>                  m_wellTotalAllocationPlotWidget;
 };

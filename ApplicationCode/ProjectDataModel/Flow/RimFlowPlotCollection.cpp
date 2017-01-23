@@ -47,5 +47,7 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
+    delete defaultPlot();
+
     flowPlots.deleteAllChildObjects();
 }

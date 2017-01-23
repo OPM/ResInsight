@@ -20,21 +20,23 @@
 
 #include "RiaApplication.h"
 
+#include "RigEclipseCaseData.h"
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigSingleWellResultsData.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimFlowDiagSolution.h"
+#include "RimTotalWellAllocationPlot.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RigSingleWellResultsData.h"
-#include "RimEclipseResultCase.h"
-#include "RimEclipseCellColors.h"
-#include "RimFlowDiagSolution.h"
-#include "RimEclipseCase.h"
-#include "RigEclipseCaseData.h"
-#include "RigSimulationWellCenterLineCalculator.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -62,6 +64,11 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
 
+    CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
+    m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
+
+    m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
+
     this->setAsPlotMdiWindow();
 }
 
@@ -73,6 +80,7 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
     removeMdiWindowFromMdiArea();
     
     delete m_accumulatedWellFlowPlot();
+    delete m_totalWellAllocationPlot();
 
     deleteViewWidget();
 }
@@ -187,6 +195,14 @@ void RimWellAllocationPlot::zoomAll()
 RimWellLogPlot* RimWellAllocationPlot::accumulatedWellFlowPlot()
 {
     return m_accumulatedWellFlowPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
+{
+    return m_totalWellAllocationPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
