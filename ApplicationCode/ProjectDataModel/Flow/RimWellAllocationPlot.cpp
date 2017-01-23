@@ -128,7 +128,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     if (!wellResults) return;
 
-    int branchCount = 0; 
+    size_t branchCount = 0; 
     
     const RigWellResultFrame* wellResultFrame = nullptr;
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
@@ -142,19 +142,19 @@ void RimWellAllocationPlot::updateFromWell()
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
 
-    branchCount = static_cast<int>(pipeBranchesCLCoords.size());
+    branchCount = pipeBranchesCLCoords.size();
 
-    int existingTrackCount = static_cast<int>(accumulatedWellFlowPlot()->trackCount());
+    size_t existingTrackCount = accumulatedWellFlowPlot()->trackCount();
     accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
 
-    int neededExtraTrackCount = branchCount - existingTrackCount;
-    for (int etc = 0; etc < neededExtraTrackCount; ++etc)
+    size_t neededExtraTrackCount = branchCount - existingTrackCount;
+    for (size_t etc = 0; etc < neededExtraTrackCount; ++etc)
     {
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
         accumulatedWellFlowPlot()->addTrack(plotTrack);
     }
 
-    for (int etc = branchCount; etc < existingTrackCount; ++etc)
+    for (size_t etc = branchCount; etc < existingTrackCount; ++etc)
     {
         accumulatedWellFlowPlot()->removeTrackByIndex(accumulatedWellFlowPlot()->trackCount()- 1);
     }
