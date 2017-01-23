@@ -27,11 +27,12 @@
 
 #include <QPointer>
 
+class RimEclipseResultCase;
 class RimEclipseWell;
+class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
-class RimEclipseResultCase;
 
 namespace caf {
     class PdmOptionItemInfo;
