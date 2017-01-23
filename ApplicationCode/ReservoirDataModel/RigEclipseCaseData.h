@@ -82,7 +82,8 @@ public:
 
     void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
     const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
-
+    const RigSingleWellResultsData*             findWellResult(QString wellName) const;
+    
     const cvf::UByteArray*                      wellCellsInGrid(size_t gridIndex);
     const cvf::UIntArray*                       gridCellToResultWellIndex(size_t gridIndex);
 

@@ -30,6 +30,7 @@
 class RiuWellAllocationPlot;
 class RimEclipseWell;
 class RimWellLogPlot;
+class RimEclipseResultCase;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -48,7 +49,7 @@ public:
     RimWellAllocationPlot();
     virtual ~RimWellAllocationPlot();
 
-    void                                            setSimulationWell(RimEclipseWell* simWell);
+    void                                            setFromSimulationWell(RimEclipseWell* simWell);
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
@@ -81,9 +82,11 @@ private:
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
-    //caf::PdmField<bool>                             m_showAccWellFlowPlot;
 
-    caf::PdmPtrField<RimEclipseWell*>               m_simulationWell;
+    caf::PdmPtrField<RimEclipseResultCase*>         m_case;
+    caf::PdmField<QString>                          m_wellName;
+    caf::PdmField<int>                              m_timeStep;
+    caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
 
     QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
 

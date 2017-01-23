@@ -38,14 +38,14 @@ public:
                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
 
 
-private:
-    static void calculateWellPipeCenterlineFromWellFrame(const RigWellResultFrame& wellFrame, 
-                                                         const RigEclipseCaseData* eclipseCaseData, 
-                                                         bool isMultiSegmentWell, 
-                                                         bool isAutoDetectBranches, 
+    static void calculateWellPipeCenterlineFromWellFrame(const RigEclipseCaseData* eclipseCaseData, 
+                                                         const RigSingleWellResultsData* wellResults,
+                                                         int timeStepIndex,
+                                                         bool isAutoDetectBranches,
                                                          bool useAllCellCenters,
-                                                         std::vector<std::vector<cvf::Vec3d>> & pipeBranchesCLCoords, 
-                                                         std::vector<std::vector<RigWellResultPoint>> & pipeBranchesCellIds);
+                                                         std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, 
+                                                         std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds);
+private:
 
     static bool hasAnyResultCells(const std::vector<RigWellResultBranch> &resBranches);
     static bool hasAnyValidDataCells(const RigWellResultBranch& branch);

@@ -262,6 +262,20 @@ void RigEclipseCaseData::setWellResults(const cvf::Collection<RigSingleWellResul
     computeWellCellsPrGrid();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigSingleWellResultsData* RigEclipseCaseData::findWellResult(QString wellName) const
+{
+    for (size_t wIdx = 0; wIdx < m_wellResults.size(); ++wIdx)
+    {
+        if (m_wellResults[wIdx]->m_wellName == wellName) return m_wellResults[wIdx].p();
+    }
+
+    return nullptr;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

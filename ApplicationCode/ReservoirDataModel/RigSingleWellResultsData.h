@@ -127,7 +127,7 @@ public:
 
     const RigWellResultFrame&         wellResultFrame(size_t resultTimeStepIndex) const;
 
-    void                              computeStaticWellCellPath();
+    void                              computeStaticWellCellPath() const ;
                                       
     void                              computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
                                       
@@ -137,6 +137,6 @@ public:
                                       
     std::vector<size_t>               m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
     std::vector< RigWellResultFrame > m_wellCellsTimeSteps;
-    RigWellResultFrame                m_staticWellCells;
+    mutable RigWellResultFrame                m_staticWellCells;
 };
 

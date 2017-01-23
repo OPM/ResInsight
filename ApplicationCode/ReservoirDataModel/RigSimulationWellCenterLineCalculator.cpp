@@ -38,39 +38,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
                                                                         std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
-    bool isAutoDetectBranches = false;
-    RigEclipseCaseData*   eclipseCaseData = NULL;
-    RigSingleWellResultsData* wellResults = NULL;
-
-    {
-        CVF_ASSERT(rimWell);
-        RimEclipseView* eclipseView;
-        rimWell->firstAncestorOrThisOfType(eclipseView);
-        CVF_ASSERT(eclipseView);
-
-        isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
-        eclipseCaseData = eclipseView->eclipseCase()->reservoirData();
-        wellResults = rimWell->wellResults();
-    }
-
-    // Make sure we have computed the static representation of the well
-    if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
-    {
-        wellResults->computeStaticWellCellPath();
-    }
-
-    const RigWellResultFrame& staticWellFrame = wellResults->m_staticWellCells;
-    bool isMultiSegmentWell = wellResults->isMultiSegmentWell();
-    bool useAllCellCenters = rimWell->isUsingCellCenterForPipe();
-
-    calculateWellPipeCenterlineFromWellFrame(staticWellFrame, 
-                                             eclipseCaseData, 
-                                             isMultiSegmentWell, 
-                                             isAutoDetectBranches,
-                                             useAllCellCenters,
-                                             pipeBranchesCLCoords, 
-                                             pipeBranchesCellIds);
-    return;
+    calculateWellPipeDynamicCenterline(rimWell, -1, pipeBranchesCLCoords, pipeBranchesCellIds);
 }
 
 
@@ -82,31 +50,23 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(R
                                                                                std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                                std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
 {
-    bool isAutoDetectBranches = false;
-    RigEclipseCaseData*   eclipseCaseData = NULL;
-    RigSingleWellResultsData* wellResults = NULL;
+    CVF_ASSERT(rimWell);
 
-    {
-        CVF_ASSERT(rimWell);
-        RimEclipseView* eclipseView;
-        rimWell->firstAncestorOrThisOfType(eclipseView);
-        CVF_ASSERT(eclipseView);
+    RigSingleWellResultsData*  wellResults = rimWell->wellResults();
 
-        isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
-        eclipseCaseData      = eclipseView->eclipseCase()->reservoirData();
-        wellResults          = rimWell->wellResults();
+    RimEclipseView* eclipseView;
+    rimWell->firstAncestorOrThisOfType(eclipseView);
 
-        if ( !wellResults || !wellResults->hasWellResult(timeStepIndex) ) return;
-    }
-    
+    CVF_ASSERT(eclipseView);
 
-    const RigWellResultFrame& wellFrame = wellResults->wellResultFrame(timeStepIndex);
-    bool isMultiSegmentWell             = wellResults->isMultiSegmentWell();
-    bool useAllCellCenters              = rimWell->isUsingCellCenterForPipe();
+    RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->reservoirData();
+    bool isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
 
-    calculateWellPipeCenterlineFromWellFrame(wellFrame, 
-                                             eclipseCaseData, 
-                                             isMultiSegmentWell, 
+    bool useAllCellCenters  = rimWell->isUsingCellCenterForPipe();
+
+    calculateWellPipeCenterlineFromWellFrame(eclipseCaseData,
+                                             wellResults,
+                                             static_cast<int>(timeStepIndex),
                                              isAutoDetectBranches,
                                              useAllCellCenters,
                                              pipeBranchesCLCoords, 
@@ -118,14 +78,37 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(R
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(const RigWellResultFrame &wellFrame, 
-                                                                                     const RigEclipseCaseData* eclipseCaseData, 
-                                                                                     bool isMultiSegmentWell, 
+void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(const RigEclipseCaseData* eclipseCaseData, 
+                                                                                     const RigSingleWellResultsData* wellResults,
+                                                                                     int timeStepIndex,
                                                                                      bool isAutoDetectBranches,
                                                                                      bool useAllCellCenters,
                                                                                      std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, 
                                                                                      std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds)
 {
+    if ( !wellResults) return;
+    if ( timeStepIndex >= 0 && !wellResults->hasWellResult(timeStepIndex) ) return;
+
+    const RigWellResultFrame* wellFramePtr = nullptr;
+    
+    if (timeStepIndex < 0) 
+    {
+        // Make sure we have computed the static representation of the well
+        if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
+        {
+            wellResults->computeStaticWellCellPath();
+        }
+
+        wellFramePtr =  &wellResults->m_staticWellCells;
+    }
+    else
+    {
+        wellFramePtr =  &(wellResults->wellResultFrame(timeStepIndex));
+    }
+
+    const RigWellResultFrame& wellFrame = *wellFramePtr;
+    bool isMultiSegmentWell             = wellResults->isMultiSegmentWell();
+
     // Initialize the return arrays
     pipeBranchesCLCoords.clear();
     pipeBranchesCellIds.clear();
