@@ -149,11 +149,15 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells()
 //--------------------------------------------------------------------------------------------------
 void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &m_fractureTemplate)
+    {
+        perforationLength = m_fractureTemplate->perforationLength();
+        azimuth = m_fractureTemplate->azimuthAngle();
+    }
+
     if (changedField == &azimuth || 
         changedField == &m_fractureTemplate)
     {
-
-        if (changedField == &m_fractureTemplate) azimuth = m_fractureTemplate->azimuthAngle();
 
         setRecomputeGeometryFlag();
 
@@ -175,10 +179,6 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     }
 
-    if (changedField == &perforationLength ||
-        changedField == & m_fractureTemplate)         
-        perforationLength = m_fractureTemplate->perforationLength();
-        azimuth = m_fractureTemplate->azimuthAngle();
 }
 
 //--------------------------------------------------------------------------------------------------
