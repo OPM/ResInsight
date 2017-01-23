@@ -56,6 +56,9 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&height,      "Height",           75.0f,   "Height", "", "", "");
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
     CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
+    CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Angle (if Azimuth Orientation)", "", "", ""); //Is this correct description?
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Lenght of well perforation", "", "", ""); //Is this correct description?
+
 
     CAF_PDM_InitField(&skinFactor,  "SkinFactor",       1.0f,    "Skin Factor", "", "", "");
     CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability", "", "", "");
@@ -160,7 +163,8 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     geometryGroup->add(&halfLength);
     geometryGroup->add(&height);
     geometryGroup->add(&orientation);
-
+    geometryGroup->add(&azimuthAngle);
+    geometryGroup->add(&perforationLength);
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fracture properties");
     group->add(&permeability);

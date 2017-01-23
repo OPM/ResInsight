@@ -51,6 +51,7 @@ public:
 
     caf::PdmField<QString>                          name;
     caf::PdmField<double>                           azimuth;
+    caf::PdmField<double>                           perforationLength;
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);

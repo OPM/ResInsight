@@ -85,6 +85,9 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     {
         RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
         fracture->setFractureTemplate(fracDef);
+
+        fracture->azimuth = fracDef->azimuthAngle();
+        fracture->perforationLength = fracDef->perforationLength();
     }
 
 

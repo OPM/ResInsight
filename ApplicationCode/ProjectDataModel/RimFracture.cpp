@@ -68,6 +68,9 @@ RimFracture::RimFracture(void)
     m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
 
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "PerforationLength", "", "", "");
+
+
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
@@ -149,6 +152,9 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     if (changedField == &azimuth || 
         changedField == &m_fractureTemplate)
     {
+
+        if (changedField == &m_fractureTemplate) azimuth = m_fractureTemplate->azimuthAngle();
+
         setRecomputeGeometryFlag();
 
         RimView* rimView = nullptr;
@@ -166,7 +172,13 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
                 activeView->createDisplayModelAndRedraw();
             }
         }
+
     }
+
+    if (changedField == &perforationLength ||
+        changedField == & m_fractureTemplate)         
+        perforationLength = m_fractureTemplate->perforationLength();
+        azimuth = m_fractureTemplate->azimuthAngle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -598,6 +610,7 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
     geometryGroup->add(&azimuth);
+    geometryGroup->add(&perforationLength);
     geometryGroup->add(&m_fractureTemplate);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
