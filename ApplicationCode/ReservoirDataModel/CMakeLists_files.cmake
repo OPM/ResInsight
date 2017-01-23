@@ -51,6 +51,7 @@ ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 ${CEE_CURRENT_LIST_DIR}RigFracture.h
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -96,6 +97,8 @@ ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 ${CEE_CURRENT_LIST_DIR}RigFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES
