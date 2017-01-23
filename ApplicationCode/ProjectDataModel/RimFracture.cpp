@@ -271,6 +271,17 @@ void RimFracture::computeTransmissibility()
         bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons);
         if (!isPlanIntersected || planeCellPolygons.size()==0) continue;
 
+        //Transform planCell polygon(s) to x/y coordinate system (where fracturePolygon already is located)
+        cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
+        for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
+        {
+            for (cvf::Vec3d& v : planeCellPolygon)
+            {
+                v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
+            }
+        }
+
+
         RigFractureData fracData; 
         fracData.reservoirCellIndex = fracCell;
 
@@ -280,6 +291,7 @@ void RimFracture::computeTransmissibility()
         {
             double areaOfCellPlaneFractureOverlap = 0.0;
             std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon();
+
             calculateFracturePlaneCellPolygonOverlapArea(planeCellPolygons, fracPolygon, areaOfCellPlaneFractureOverlap);
 
             //TODO: get correct input values...
@@ -288,8 +300,7 @@ void RimFracture::computeTransmissibility()
 
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage
 
-            //transmissibility = areaOfCellPlaneFractureOverlap; //TODO: Only for debug - write area to file instead of transmissibility!
-            //TODO: Les perm fra data-strukturer... 
+            //TODO: read permeability from file (should use matrix permeability and not fracture perm)... 
             transmissibility = 8 * c * attachedFractureDefinition()->permeability * areaOfCellPlaneFractureOverlap /
                             ( flowLength + (attachedFractureDefinition()->skinFactor * fractureLength) / cvf::PI_D);
         }
@@ -466,21 +477,12 @@ void RimFracture::createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, 
 void RimFracture::calculateFracturePlaneCellPolygonOverlapArea(std::vector<std::vector<cvf::Vec3d> > planeCellPolygons, 
                                                            std::vector<cvf::Vec3f> fracturePolygon, double & areaOfCellPlaneFractureOverlap)
 {
-    cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
     int polygonScaleFactor = 10000; //For transform to clipper int 
     int xInt, yInt;
     cvf::Vec3d areaVector = cvf::Vec3d::ZERO;
 
     for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons) 
     {
-  
-        //Transform planCell polygon(s) to x/y coordinate system (where fracturePolygon already is located)
-        for (cvf::Vec3d& v : planeCellPolygon)
-        {
-            v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
-        }
-
-
         //Convert to int for clipper library and store as clipper "path"
         ClipperLib::Path planeCellPath;
         for (cvf::Vec3d& v : planeCellPolygon)
@@ -498,11 +500,9 @@ void RimFracture::calculateFracturePlaneCellPolygonOverlapArea(std::vector<std::
             fracturePath.push_back(ClipperLib::IntPoint(xInt, yInt));
         }
 
-
         ClipperLib::Clipper clpr;
         clpr.AddPath(fracturePath, ClipperLib::ptSubject, true);
         clpr.AddPath(planeCellPath, ClipperLib::ptClip, true);
-
 
         ClipperLib::Paths solution;
         clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
@@ -524,15 +524,10 @@ void RimFracture::calculateFracturePlaneCellPolygonOverlapArea(std::vector<std::
 
         for (std::vector<cvf::Vec3d> areaPolygon : clippedPolygons)
         {
-            areaVector += cvf::GeometryTools::polygonAreaNormal3D(areaPolygon);
+            areaVector = cvf::GeometryTools::polygonAreaNormal3D(areaPolygon);
+            areaOfCellPlaneFractureOverlap += areaVector.length();
         }
-
-    }
-
-    areaOfCellPlaneFractureOverlap = areaVector.length();
-
-
-
+    }   
 }
 
 //--------------------------------------------------------------------------------------------------
