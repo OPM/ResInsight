@@ -121,7 +121,7 @@ bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSingleWellResultsData::computeStaticWellCellPath()
+void RigSingleWellResultsData::computeStaticWellCellPath() const
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
@@ -133,7 +133,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
         int branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
-        std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
        
         std::list< RigWellResultPoint >& branch =  staticWellBranches[branchErtId];
 
@@ -152,7 +152,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
             int branchId = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
-            std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
             std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
             std::list< RigWellResultPoint >::iterator sEndIt;

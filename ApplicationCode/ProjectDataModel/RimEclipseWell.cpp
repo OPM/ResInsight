@@ -28,6 +28,7 @@
 #include "RimSimWellFractureCollection.h"
 
 #include "cvfMath.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
 
@@ -118,6 +119,25 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 caf::PdmFieldHandle* RimEclipseWell::objectToggleField()
 {
     return &showWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWell::calculateWellPipeStaticCenterLine(std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
+                                                       std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
+{
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(this, pipeBranchesCLCoords, pipeBranchesCellIds);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
+                                                 std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
+                                                 std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
+{
+    RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(this, timeStepIdx, pipeBranchesCLCoords, pipeBranchesCellIds);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,6 +320,17 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
     CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseWell::isUsingCellCenterForPipe()
+{
+    RimEclipseWellCollection* wellColl = nullptr;
+    this->firstAncestorOrThisOfType(wellColl);
+
+    return (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER);
 }
 
 //--------------------------------------------------------------------------------------------------

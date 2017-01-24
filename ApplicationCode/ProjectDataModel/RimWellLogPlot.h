@@ -24,10 +24,10 @@
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
 
-#include <QPointer>
 #include "RimDefines.h"
-
 #include "RimViewWindow.h"
+
+#include <QPointer>
 
 class RiuWellLogPlot;
 class RimWellLogTrack;
@@ -66,9 +66,13 @@ public:
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
+    void                                            removeTrackByIndex(size_t index);
+
     void                                            removeTrack(RimWellLogTrack* track);
     size_t                                          trackIndex(RimWellLogTrack* track);
     void                                            moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove);
+
+    RimWellLogTrack*                                trackByIndex(size_t index);
 
     void                                            loadDataAndUpdate();
     void                                            updateTracks();
@@ -91,25 +95,25 @@ protected:
 
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                    setupBeforeSave();
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual caf::PdmFieldHandle*                    objectToggleField();
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
 
     virtual QImage                                  snapshotWindowContent() override;
 
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
     void                                            applyZoomAllDepths();
     void                                            applyDepthZoomFromVisibleDepth();
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
-    void                                            handleViewerDeletion();
+
+public: // Needed by RiuWellAllocation Plot
+    // RimViewWindow overrides
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
 
 private:
-    caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;

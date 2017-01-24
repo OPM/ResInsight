@@ -53,14 +53,19 @@ public:
 
     bool                                isWellPipeVisible(size_t frameIndex);
     bool                                isWellSpheresVisible(size_t frameIndex);
+    bool                                isUsingCellCenterForPipe();
 
     bool                                visibleCellsInstersectsWell(size_t frameIndex);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                                calculateWellPipeStaticCenterLine( std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                                           std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
+
+    void                                calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
+                                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
     caf::PdmField<bool>                 showWell;
 
@@ -77,6 +82,10 @@ public:
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 
+
+protected:
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;

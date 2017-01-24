@@ -332,7 +332,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         if ( !hasFlowDiagFluxes )
         {
             using ResCatEnum = caf::AppEnum< RimDefines::ResultCatType >;
-            for ( int i = 0; i < ResCatEnum::size(); ++i )
+            for ( size_t i = 0; i < ResCatEnum::size(); ++i )
             {
                 RimDefines::ResultCatType resType = ResCatEnum::fromIndex(i);
                 if ( resType != RimDefines::FLOW_DIAGNOSTICS )

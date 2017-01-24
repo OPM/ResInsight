@@ -20,13 +20,25 @@
 
 #include "RiaApplication.h"
 
+#include "RigEclipseCaseData.h"
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigSingleWellResultsData.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimFlowDiagSolution.h"
+#include "RimTotalWellAllocationPlot.h"
+#include "RimWellFlowRateCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
-
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -37,15 +49,29 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 RimWellAllocationPlot::RimWellAllocationPlot()
 {
     CAF_PDM_InitObject("Well Allocation Plot", ":/newIcon16x16.png", "", "");
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Flow Diagnostics Plot", "", "", "");
-    m_showWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Flow Diagnostics Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_simulationWell, "SimulationWell", "Simulation Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
+    m_case.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitField(&m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "");
+    CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "");
+    m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
+    m_accumulatedWellFlowPlot = new RimWellLogPlot;
+
+    CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
+    m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
+
+    m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
+
+    this->setAsPlotMdiWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,20 +79,29 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::~RimWellAllocationPlot()
 {
-    if (RiaApplication::instance()->mainPlotWindow())
-    {
-        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_wellAllocationPlot);
-    }
+    removeMdiWindowFromMdiArea();
+    
+    delete m_accumulatedWellFlowPlot();
+    delete m_totalWellAllocationPlot();
 
-    deletePlotWidget();
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::setSimulationWell(RimEclipseWell* simWell)
+void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
 {
-    m_simulationWell = simWell;
+    RimEclipseView* eclView;
+    simWell->firstAncestorOrThisOfType(eclView);
+    RimEclipseResultCase* eclCase;
+    simWell->firstAncestorOrThisOfType(eclCase);
+
+    m_case = eclCase;
+    m_wellName = simWell->wellResults()->m_wellName;
+    m_timeStep = eclView->currentTimeStep();
+
+    m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
 
     updateFromWell();
 }
@@ -74,12 +109,12 @@ void RimWellAllocationPlot::setSimulationWell(RimEclipseWell* simWell)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::deletePlotWidget()
+void RimWellAllocationPlot::deleteViewWidget()
 {
-    if (m_wellAllocationPlot)
+    if (m_wellAllocationPlotWidget)
     {
-        m_wellAllocationPlot->deleteLater();
-        m_wellAllocationPlot = nullptr;
+        m_wellAllocationPlotWidget->deleteLater();
+        m_wellAllocationPlotWidget = nullptr;
     }
 }
 
@@ -88,15 +123,93 @@ void RimWellAllocationPlot::deletePlotWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateFromWell()
 {
-    QString simName = "None";
+    if (!m_case) return;
 
-    if (m_simulationWell)
+    const RigSingleWellResultsData* wellResults = nullptr;
+    wellResults = m_case->reservoirData()->findWellResult(m_wellName);
+
+    if (!wellResults) return;
+
+    
+    const RigWellResultFrame* wellResultFrame = nullptr;
+    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+
+    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->reservoirData(),
+                                                                                    wellResults,
+                                                                                    m_timeStep,
+                                                                                    true,
+                                                                                    true,
+                                                                                    pipeBranchesCLCoords,
+                                                                                    pipeBranchesCellIds);
+
+    accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
+    
+
+    // Delete existing tracks
     {
-        simName = m_simulationWell->name();
+        std::vector<RimWellLogTrack*> tracks;
+        accumulatedWellFlowPlot()->descendantsIncludingThisOfType(tracks);
+
+        for (RimWellLogTrack* t : tracks)
+        {
+            accumulatedWellFlowPlot()->removeTrack(t);
+            delete t;
+        }
     }
 
-    setDescription(simName);
-    updateViewerWidget();
+    CVF_ASSERT(accumulatedWellFlowPlot()->trackCount() == 0);
+
+    size_t branchCount = pipeBranchesCLCoords.size();
+    for (size_t brIdx = 0; brIdx < branchCount; ++brIdx)
+    {
+        RimWellLogTrack* plotTrack = new RimWellLogTrack();
+
+        // TODO: Description is overwritten by RimWellLogPlot::updateTrackNames()
+        // Add flag to control if this behavior
+        plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
+
+        accumulatedWellFlowPlot()->addTrack(plotTrack);
+
+        std::vector<cvf::Vec3d> curveCoords;
+        std::vector<double> flowRate;
+
+        {
+            std::vector<cvf::Vec3d> branchCoords = pipeBranchesCLCoords[brIdx];
+            std::vector<RigWellResultPoint> branchResultPoints = pipeBranchesCellIds[brIdx];
+
+            RigWellResultPoint prevResultPoint;
+
+            for (size_t i = 0; i < branchResultPoints.size(); i++)
+            {
+                const RigWellResultPoint& resultPoint = branchResultPoints[i];
+
+                if (i > 0 && prevResultPoint.m_gridCellIndex != resultPoint.m_gridCellIndex)
+                {
+                    // Add an extra curve point when a cell transition is detected
+                    curveCoords.push_back(branchCoords[i]);
+                    flowRate.push_back(prevResultPoint.m_flowRate);
+                }
+
+                curveCoords.push_back(branchCoords[i]);
+                flowRate.push_back(branchResultPoints[i].m_flowRate);
+
+                prevResultPoint = resultPoint;
+            }
+        }
+
+        RigSimulationWellCoordsAndMD helper(curveCoords);
+        
+        RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
+        curve->setFlowValues(helper.measuredDepths(), flowRate);
+
+        plotTrack->addCurve(curve);
+
+        curve->loadDataAndUpdate();
+    }
+
+    setDescription("Well Allocation (" + m_wellName + ")");
+    accumulatedWellFlowPlot()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +217,7 @@ void RimWellAllocationPlot::updateFromWell()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellAllocationPlot::viewWidget()
 {
-    return m_wellAllocationPlot;
+    return m_wellAllocationPlotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,31 +230,62 @@ void RimWellAllocationPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RimWellAllocationPlot::accumulatedWellFlowPlot()
+{
+    return m_accumulatedWellFlowPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
+{
+    return m_totalWellAllocationPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_simulationWell)
+    if (fieldNeedingOptions == &m_wellName)
     {
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
-        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
-
-        if (eclView && eclView->wellCollection())
+        std::set<QString> sortedWellNames;
+        if ( m_case && m_case->reservoirData() )
         {
-            RimEclipseWellCollection* coll = eclView->wellCollection();
+            const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->reservoirData()->wellResults();
 
-            caf::PdmChildArrayField<RimEclipseWell*>& eclWells = coll->wells;
-
-            QIcon simWellIcon(":/Well.png");
-            for (RimEclipseWell* eclWell : eclWells)
+            for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
             {
-                options.push_back(caf::PdmOptionItemInfo(eclWell->name(), eclWell, false, simWellIcon));
+                sortedWellNames.insert(wellRes[wIdx]->m_wellName);
             }
+        }
+
+        QIcon simWellIcon(":/Well.png");
+        for ( const QString& wname: sortedWellNames )
+        {
+            options.push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));
         }
 
         if (options.size() == 0)
         {
             options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        }
+    }
+    else if (fieldNeedingOptions == &m_timeStep)
+    {
+        QStringList timeStepNames;
+
+        if (m_case && m_case->reservoirData())
+        {
+            timeStepNames = m_case->timeStepStrings();
+        }
+
+        for (int i = 0; i < timeStepNames.size(); i++)
+        {
+            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
         }
     }
 
@@ -151,12 +295,18 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::handleViewerDeletion()
+QString RimWellAllocationPlot::wellName() const
 {
-    m_showWindow = false;
+    return m_wellName();
+}
 
-    uiCapability()->updateUiIconFromToggleField();
-    updateConnectedEditors();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
+{
+    removeMdiWindowFromMdiArea();
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,31 +314,16 @@ void RimWellAllocationPlot::handleViewerDeletion()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_showWindow)
-    {
-        updateViewerWidget();
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-        uiCapability()->updateUiIconFromToggleField();
-    }
-    else if (changedField == &m_userName ||
+    if (changedField == &m_userName ||
         changedField == &m_showPlotTitle)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
     }
-    else if (changedField == &m_simulationWell)
+    else if (changedField == &m_wellName)
     {
         updateFromWell();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::setupBeforeSave()
-{
-    if (m_wellAllocationPlot && RiaApplication::instance()->mainPlotWindow())
-    {
-        this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_wellAllocationPlot));
     }
 }
 
@@ -210,6 +345,7 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 void RimWellAllocationPlot::setDescription(const QString& description)
 {
     m_userName = description;
+    this->updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,59 +361,17 @@ QString RimWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::loadDataAndUpdate()
 {
-    updateViewerWidget();
+    updateMdiWindowVisibility();
+    updateFromWell();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::updateViewerWidget()
+QWidget* RimWellAllocationPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-    if (!mainPlotWindow) return;
-
-    if (m_showWindow())
-    {
-        if (!m_wellAllocationPlot)
-        {
-            m_wellAllocationPlot = new RiuWellAllocationPlot(this, mainPlotWindow);
-
-            mainPlotWindow->addViewer(m_wellAllocationPlot, this->mdiWindowGeometry());
-            mainPlotWindow->setActiveViewer(m_wellAllocationPlot);
-        }
-
-        updateViewerWidgetWindowTitle();
-    }
-    else
-    {
-        if (m_wellAllocationPlot)
-        {
-            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_wellAllocationPlot));
-
-            mainPlotWindow->removeViewer(m_wellAllocationPlot);
-
-            deletePlotWidget();
-        }
-    }
+    m_wellAllocationPlotWidget = new RiuWellAllocationPlot(this, mainWindowParent);
+    return m_wellAllocationPlotWidget;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::updateViewerWidgetWindowTitle()
-{
-    if (m_wellAllocationPlot)
-    {
-        m_wellAllocationPlot->setWindowTitle(m_userName);
-
-        if (m_showPlotTitle)
-        {
-            m_wellAllocationPlot->setTitle(m_userName);
-        }
-        else
-        {
-            m_wellAllocationPlot->setTitle("");
-        }
-    }
-}
 

@@ -49,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
+${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
 ${CEE_CURRENT_LIST_DIR}RigFracture.h
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
@@ -95,6 +96,7 @@ ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
+${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
 ${CEE_CURRENT_LIST_DIR}RigFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp

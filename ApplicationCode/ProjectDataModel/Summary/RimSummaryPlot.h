@@ -64,7 +64,7 @@ public:
     
     void                                            loadDataAndUpdate();
 
-    void                                            handleViewerDeletion();
+    void                                            detachAllCurves();
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
@@ -88,19 +88,13 @@ public:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    setupBeforeSave() override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
-    void                                            detachAllCurves();
-    void                                            deletePlotWidget();
     
     void                                            updateAxis(RimDefines::PlotAxis plotAxis);
     std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
@@ -109,10 +103,13 @@ private:
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
 
+    // RimViewWindow overrides
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                            updateMdiWindowTitle() override;
+    virtual void                                    deleteViewWidget() override; 
 
 private:
-    caf::PdmField<bool>                             m_showWindow;
-    
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
     

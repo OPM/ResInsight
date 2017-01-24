@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QMainWindow>
+struct RimMdiWindowGeometry;
 
 class RiuMainWindowBase : public QMainWindow
 {
@@ -28,6 +29,12 @@ public:
     RiuMainWindowBase();
 
     virtual QString mainWindowName() = 0;
+
+    virtual void    removeViewer( QWidget* viewer ) = 0;
+    virtual void    addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)= 0;
+    virtual void    setActiveViewer(QWidget* subWindow) = 0;
+
+    virtual RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) = 0;
 
     void            loadWinGeoAndDockToolBarLayout();
     void            saveWinGeoAndDockToolBarLayout();

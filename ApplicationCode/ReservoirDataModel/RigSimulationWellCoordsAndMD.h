@@ -18,37 +18,32 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "cvfBase.h"
+#include "cvfVector3.h"
 
-#include "cafPdmPointer.h"
-
-#include <QPointer>
+#include <vector>
 
 
-class RimWellAllocationPlot;
+
 
 //==================================================================================================
-//
-//
-//
+///  
+///  
 //==================================================================================================
-class RiuWellAllocationPlot : public QFrame
+class RigSimulationWellCoordsAndMD
 {
-    Q_OBJECT;
 public:
-    RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellAllocationPlot();
+    RigSimulationWellCoordsAndMD(const std::vector<cvf::Vec3d>& wellPathPoints);
 
-    RimWellAllocationPlot*          ownerPlotDefinition();
+    const std::vector<cvf::Vec3d>&  wellPathPoints() const;
+    const std::vector<double>&      measuredDepths() const;
 
-protected:
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
+    cvf::Vec3d                      interpolatedPointAlongWellPath(double measuredDepth) const;
 
 private:
-    void                            setDefaults();
+    void                            computeMeasuredDepths();
 
 private:
-    caf::PdmPointer<RimWellAllocationPlot> m_plotDefinition;
+    std::vector<cvf::Vec3d> m_wellPathPoints;
+    std::vector<double>     m_measuredDepths;
 };
-

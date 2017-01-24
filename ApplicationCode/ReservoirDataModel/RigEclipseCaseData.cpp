@@ -262,6 +262,20 @@ void RigEclipseCaseData::setWellResults(const cvf::Collection<RigSingleWellResul
     computeWellCellsPrGrid();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigSingleWellResultsData* RigEclipseCaseData::findWellResult(QString wellName) const
+{
+    for (size_t wIdx = 0; wIdx < m_wellResults.size(); ++wIdx)
+    {
+        if (m_wellResults[wIdx]->m_wellName == wellName) return m_wellResults[wIdx].p();
+    }
+
+    return nullptr;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -288,14 +302,14 @@ const cvf::UIntArray* RigEclipseCaseData::gridCellToResultWellIndex(size_t gridI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCell& RigEclipseCaseData::cellFromWellResultCell(const RigWellResultPoint& wellResultCell)
+const RigCell& RigEclipseCaseData::cellFromWellResultCell(const RigWellResultPoint& wellResultCell) const
 {
     CVF_ASSERT(wellResultCell.isCell());
 
     size_t gridIndex     = wellResultCell.m_gridIndex;
     size_t gridCellIndex = wellResultCell.m_gridCellIndex;
 
-    std::vector<RigGridBase*> grids;
+    std::vector<const RigGridBase*> grids;
     allGrids(&grids);
 
     return grids[gridIndex]->cell(gridCellIndex);

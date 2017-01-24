@@ -289,9 +289,7 @@ endif()
 
 
 set( LINK_LIBRARIES
-    custom-opm-parser
-    custom-opm-flowdiagnostics
-    custom-opm-flowdiag-app
+    ${OPM_LIBRARIES}
         
     WellPathImportSsihub
 
@@ -303,15 +301,13 @@ set( LINK_LIBRARIES
     
     ${ERT_LIBRARIES}
     
-    NRLib
+    ${THIRD_PARTY_LIBRARIES}
     custom-clipper
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
     
     ${RI_BOOST_LIBRARIES}
-
-	Qwt
 )
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 

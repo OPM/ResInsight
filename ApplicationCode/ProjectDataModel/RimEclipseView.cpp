@@ -162,26 +162,6 @@ RimEclipseView::~RimEclipseView()
     m_reservoir = NULL;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateViewerWidgetWindowTitle()
-{
-    if (m_viewer)
-    {
-        QString windowTitle;
-        if (m_reservoir.notNull())
-        {
-            windowTitle = QString("%1 - %2").arg(m_reservoir->caseUserDescription()).arg(name);
-        }
-        else
-        {
-            windowTitle = name;
-        }
-
-        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// Clamp the current timestep to actual possibilities
@@ -206,34 +186,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     RimView::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &showWindow)
-    {
-        if (showWindow)
-        {
-            bool generateDisplayModel = (viewer() == NULL);
-            updateViewerWidget();
-
-            if (generateDisplayModel)
-            {
-                updateDisplayModelForWellResults();
-            }
-        }
-        else
-        {
-            if (m_viewer)
-            {
-                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
-                
-                RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
-                delete m_viewer;
-                m_viewer = NULL;
-            }
-        }
-
-        this->updateUiIconFromToggleField();
-    }
-
-    else if (changedField == &showInvalidCells)
+    if (changedField == &showInvalidCells)
     {
         this->scheduleGeometryRegen(INACTIVE);
         this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
@@ -721,7 +674,7 @@ void RimEclipseView::loadDataAndUpdate()
 
     this->faultResultSettings()->customFaultResult()->loadResult();
 
-    updateViewerWidget();
+    updateMdiWindowVisibility();
 
     this->m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 
@@ -729,6 +682,8 @@ void RimEclipseView::loadDataAndUpdate()
     this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
+    m_pipesPartManager->clearGeometryCache();
+    m_wellSpheresPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 
@@ -743,6 +698,8 @@ void RimEclipseView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
+
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);

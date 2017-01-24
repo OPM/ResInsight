@@ -393,7 +393,7 @@ void RimIntersection::updateWellCenterline() const
         {
             std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
-            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(simulationWell(), m_wellBranchCenterlines, pipeBranchesCellIds);
+            simulationWell->calculateWellPipeStaticCenterLine(m_wellBranchCenterlines, pipeBranchesCellIds);
         }
     }
     else

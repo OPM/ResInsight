@@ -65,7 +65,8 @@ RiuWellLogPlot::~RiuWellLogPlot()
 {
     if (m_plotDefinition)
     {
-        m_plotDefinition->handleViewerDeletion();
+        m_plotDefinition->detachAllCurves();
+        m_plotDefinition->handleMdiWindowClosed();
     }
 }
 

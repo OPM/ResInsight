@@ -82,7 +82,6 @@ public:
     caf::PdmField<QString>                  name;
     caf::PdmField<double>                   scaleZ;
 
-    caf::PdmField<bool>                     showWindow;
     caf::PdmField<cvf::Mat4d>               cameraPosition;
     caf::PdmField<cvf::Vec3d>               cameraPointOfInterest;
     caf::PdmField<bool>                     isPerspectiveView;
@@ -164,12 +163,12 @@ public:
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
 
     virtual QWidget*                        viewWidget() override;
+    void                                    forceShowWindowOn();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
     virtual RimCase*                        ownerCase() = 0;
 
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &showWindow; }
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:
 
@@ -199,9 +198,6 @@ protected:
     virtual void                            updateScaleTransform() = 0;
     virtual cvf::Transform*                 scaleTransform() = 0;
 
-    void                                    updateViewerWidget();
-    virtual void                            updateViewerWidgetWindowTitle() = 0;
-
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
 
@@ -217,8 +213,13 @@ protected:
     
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                            updateViewWidgetAfterCreation() override; 
+    virtual void                            updateMdiWindowTitle() override;
+    virtual void                            deleteViewWidget() override;
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
     

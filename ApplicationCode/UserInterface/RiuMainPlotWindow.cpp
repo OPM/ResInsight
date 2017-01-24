@@ -766,6 +766,7 @@ RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForWidget(QWidget* widget)
 
     if (widget)
     {
+        geo.mainWindowID = 1;
         geo.x = widget->pos().x();
         geo.y = widget->pos().y();
         geo.width = widget->size().width();

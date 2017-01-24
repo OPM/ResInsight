@@ -18,37 +18,31 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+
+#include "nightcharts/nightcharts.h"
 
 #include "cafPdmPointer.h"
 
-#include <QPointer>
+#include <QWidget>
+#include <QPaintEvent>
 
 
-class RimWellAllocationPlot;
-
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class RiuWellAllocationPlot : public QFrame
+class RiuNightchartsWidget : public QWidget
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
-    RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellAllocationPlot();
+    explicit RiuNightchartsWidget(QWidget* parent = 0);
 
-    RimWellAllocationPlot*          ownerPlotDefinition();
+    void addItem(QString name, QColor color, float value);
+    void setType(Nightcharts::type type);
+    void clear();
 
 protected:
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
+    virtual void paintEvent(QPaintEvent* e);
 
 private:
-    void                            setDefaults();
-
-private:
-    caf::PdmPointer<RimWellAllocationPlot> m_plotDefinition;
+    Nightcharts m_chart;
+    int m_marginLeft;
+    int m_marginTop;
 };
 

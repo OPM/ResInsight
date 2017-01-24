@@ -969,6 +969,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 
         resultPoint.m_ertBranchId = ertBranchId;
         resultPoint.m_ertSegmentId = ertSegmentId;
+        resultPoint.m_flowRate = 0.5; // Todo : Get from Ert
     }
 
     return resultPoint;

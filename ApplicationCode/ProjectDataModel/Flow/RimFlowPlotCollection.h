@@ -34,6 +34,8 @@ class RimFlowPlotCollection : public caf::PdmObject
 public:
     RimFlowPlotCollection();
     virtual ~RimFlowPlotCollection();
+
+    void closeDefaultPlotWindowAndDeletePlots();
     
     caf::PdmChildField<RimWellAllocationPlot*>      defaultPlot;
     caf::PdmChildArrayField<RimWellAllocationPlot*> flowPlots;

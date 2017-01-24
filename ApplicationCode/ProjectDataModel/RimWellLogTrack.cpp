@@ -72,7 +72,11 @@ RimWellLogTrack::~RimWellLogTrack()
 {
     curves.deleteAllChildObjects();
 
-    delete m_wellLogTrackPlotWidget;
+    if (m_wellLogTrackPlotWidget) 
+    {
+        m_wellLogTrackPlotWidget->deleteLater();
+        m_wellLogTrackPlotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

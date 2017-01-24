@@ -18,37 +18,36 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RimWellLogCurve.h"
 
-#include "cafPdmPointer.h"
+#include "cafPdmPtrField.h"
+#include "cafPdmChildField.h"
 
-#include <QPointer>
-
-
+class RimEclipseResultCase;
 class RimWellAllocationPlot;
 
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class RiuWellAllocationPlot : public QFrame
-{
-    Q_OBJECT;
-public:
-    RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellAllocationPlot();
 
-    RimWellAllocationPlot*          ownerPlotDefinition();
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimWellFlowRateCurve : public RimWellLogCurve
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimWellFlowRateCurve();
+    virtual ~RimWellFlowRateCurve();
+    
+    void setFlowValues(const std::vector<double>& measuredDepths, const std::vector<double>& flowRates);
+
+    virtual QString wellName() const override;
+    virtual QString wellLogChannelName() const override;
 
 protected:
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
+    virtual QString createCurveAutoName() override;
+    virtual void onLoadDataAndUpdate() override;
 
 private:
-    void                            setDefaults();
-
-private:
-    caf::PdmPointer<RimWellAllocationPlot> m_plotDefinition;
+    RimWellAllocationPlot* wellAllocationPlot() const;
 };
 

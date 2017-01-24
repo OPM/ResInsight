@@ -59,9 +59,6 @@ RimWellLogPlot::RimWellLogPlot()
 
     m_viewer = NULL;
 
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show well log plot", "", "", "");
-    m_showWindow.uiCapability()->setUiHidden(true);
-    
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
@@ -86,52 +83,11 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::~RimWellLogPlot()
 {
-    if (RiaApplication::instance()->mainPlotWindow())
-    {
-        RiaApplication::instance()->mainPlotWindow()->removeViewer(m_viewer);
-    }
+    removeMdiWindowFromMdiArea();
     
-    detachAllCurves();
     m_tracks.deleteAllChildObjects();
 
-    delete m_viewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateViewerWidget()
-{
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-    if (!mainPlotWindow) return;
-
-    if (m_showWindow())
-    {
-        if (!m_viewer)
-        {
-            m_viewer = new RiuWellLogPlot(this, mainPlotWindow);
-
-            recreateTrackPlots();
-
-            mainPlotWindow->addViewer(m_viewer, this->mdiWindowGeometry());
-            mainPlotWindow->setActiveViewer(m_viewer);
-        }
-
-        updateViewerWidgetWindowTitle();
-    }
-    else
-    {
-        if (m_viewer)
-        {
-            this->setMdiWindowGeometry(mainPlotWindow->windowGeometryForViewer(m_viewer));
-
-            mainPlotWindow->removeViewer(m_viewer);
-            detachAllCurves();
-
-            delete m_viewer;
-            m_viewer = NULL;
-        }
-    }
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,20 +95,9 @@ void RimWellLogPlot::updateViewerWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_showWindow)
-    {
-        if (m_showWindow)
-        {
-            loadDataAndUpdate();
-        }
-        else
-        {
-            updateViewerWidget();
-        }
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-        uiCapability()->updateUiIconFromToggleField();
-    }
-    else if (changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth)
+    if (changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth)
     {
         applyDepthZoomFromVisibleDepth();
 
@@ -164,21 +109,13 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_userName)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
     }
     if (changedField == &m_depthType ||
         changedField == &m_depthUnit)
     {
         updateTracks();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlot::objectToggleField()
-{
-    return &m_showWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +180,17 @@ void RimWellLogPlot::removeTrack(RimWellLogTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::removeTrackByIndex(size_t index)
+{
+    CVF_ASSERT(index < m_tracks.size());
+
+    RimWellLogTrack* track = m_tracks[index];
+    this->removeTrack(track);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove)
 {
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
@@ -267,6 +215,14 @@ void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::ve
     }
 
     updateTrackNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogTrack* RimWellLogPlot::trackByIndex(size_t index)
+{
+    return m_tracks[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -394,21 +350,6 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::setupBeforeSave()
-{
-    if (m_viewer)
-    {
-        if (RiaApplication::instance()->mainPlotWindow())
-        {
-            this->setMdiWindowGeometry(RiaApplication::instance()->mainPlotWindow()->windowGeometryForViewer(m_viewer));
-        }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
@@ -427,7 +368,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::loadDataAndUpdate()
 {
-    updateViewerWidget();
+    updateMdiWindowVisibility();
     updateTracks();
 }
 
@@ -548,29 +489,27 @@ QString RimWellLogPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateViewerWidgetWindowTitle()
+QWidget* RimWellLogPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    if (m_viewer)
-    {
-        m_viewer->setWindowTitle(m_userName);
-    }
+    m_viewer = new RiuWellLogPlot(this, mainWindowParent);
+
+    recreateTrackPlots();
+
+    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::handleViewerDeletion()
+void RimWellLogPlot::deleteViewWidget()
 {
-    m_showWindow = false;
+    detachAllCurves();
 
-    if (m_viewer)
-    {
-        detachAllCurves();
-        m_viewer = NULL;
-    }
- 
-    uiCapability()->updateUiIconFromToggleField();
-    updateConnectedEditors();
+   if (m_viewer)
+   {
+       m_viewer->deleteLater();
+       m_viewer = nullptr;
+   }
 }
 
 //--------------------------------------------------------------------------------------------------

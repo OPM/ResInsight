@@ -16,77 +16,89 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellAllocationPlot.h"
-
-#include "RiaApplication.h"
-
-#include "RimWellAllocationPlot.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RimTotalWellAllocationPlot.h"
-
-#include "QBoxLayout"
-
-
+#include "RigSimulationWellCoordsAndMD.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent)
-    : QFrame(parent)
+RigSimulationWellCoordsAndMD::RigSimulationWellCoordsAndMD(const std::vector<cvf::Vec3d>& wellPathPoints)
 {
-    Q_ASSERT(plotDefinition);
-    this->setLayout(new QHBoxLayout());
-    this->layout()->setMargin(0);
+    m_wellPathPoints = wellPathPoints;
 
-    m_plotDefinition = plotDefinition;
-    
-    QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
-    this->layout()->addWidget(totalFlowAllocationWidget);
-
-    QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
-    this->layout()->addWidget(wellFlowWidget);
+    computeMeasuredDepths();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::~RiuWellAllocationPlot()
+const std::vector<cvf::Vec3d>& RigSimulationWellCoordsAndMD::wellPathPoints() const
 {
-    if (m_plotDefinition)
+    return m_wellPathPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigSimulationWellCoordsAndMD::measuredDepths() const
+{
+    return m_measuredDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath(double measuredDepth) const
+{
+    cvf::Vec3d wellPathPoint = cvf::Vec3d::ZERO;
+
+    size_t i = 0;
+    while (i < m_measuredDepths.size() && m_measuredDepths.at(i) < measuredDepth)
     {
-        m_plotDefinition->handleMdiWindowClosed();
+        i++;
+    }
+
+    if (m_measuredDepths.size() > i)
+    {
+        if (i == 0)
+        {
+            //For measuredDepth same or lower than first point, use this first point
+            wellPathPoint = m_wellPathPoints.at(0);
+        }
+        else
+        {
+            //Do interpolation
+            double stepsize = (measuredDepth - m_measuredDepths.at(i - 1)) /
+                (m_measuredDepths.at(i) - m_measuredDepths.at(i - 1));
+            wellPathPoint = m_wellPathPoints.at(i - 1) + stepsize * (m_wellPathPoints.at(i) - m_wellPathPoints.at(i - 1));
+        }
+    }
+    else
+    {
+        //Use endpoint if measuredDepth same or higher than last point
+        wellPathPoint = m_wellPathPoints.at(i - 1);
+    }
+
+    return wellPathPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigSimulationWellCoordsAndMD::computeMeasuredDepths()
+{
+    cvf::Vec3d prev = cvf::Vec3d::UNDEFINED;
+
+    double accumulatedMD = 0;
+
+    for (const auto& point : m_wellPathPoints)
+    {
+        if (!prev.isUndefined())
+        {
+            accumulatedMD += point.pointDistance(prev);
+        }
+
+        m_measuredDepths.push_back(accumulatedMD);
+
+        prev = point;
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QSize RiuWellAllocationPlot::minimumSizeHint() const
-{
-    return QSize(0, 100);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QSize RiuWellAllocationPlot::sizeHint() const
-{
-    return QSize(0, 0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::setDefaults()
-{
-}
-

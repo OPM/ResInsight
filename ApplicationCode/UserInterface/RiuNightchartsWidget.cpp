@@ -16,77 +16,64 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellAllocationPlot.h"
-
-#include "RiaApplication.h"
-
-#include "RimWellAllocationPlot.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RimTotalWellAllocationPlot.h"
-
-#include "QBoxLayout"
-
+#include "RiuNightchartsWidget.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent)
-    : QFrame(parent)
+RiuNightchartsWidget::RiuNightchartsWidget(QWidget* parent) :
+    QWidget(parent)
 {
-    Q_ASSERT(plotDefinition);
-    this->setLayout(new QHBoxLayout());
-    this->layout()->setMargin(0);
-
-    m_plotDefinition = plotDefinition;
-    
-    QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
-    this->layout()->addWidget(totalFlowAllocationWidget);
-
-    QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
-    this->layout()->addWidget(wellFlowWidget);
+    clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::~RiuWellAllocationPlot()
+void RiuNightchartsWidget::setType(Nightcharts::type t)
 {
-    if (m_plotDefinition)
-    {
-        m_plotDefinition->handleMdiWindowClosed();
-    }
+    m_chart.setType(t);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
+void RiuNightchartsWidget::clear()
 {
-    return m_plotDefinition;
+    m_chart = Nightcharts();
+    m_chart.setType(Nightcharts::Pie);
+    m_chart.setLegendType(Nightcharts::Vertical);
+
+    m_marginLeft = 16;
+    m_marginTop = 16;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuWellAllocationPlot::minimumSizeHint() const
+void RiuNightchartsWidget::paintEvent(QPaintEvent* e)
 {
-    return QSize(0, 100);
+    QWidget::paintEvent(e);
+
+    if(!m_chart.pieceCount()) return ;
+
+    QPainter painter;
+    QFont font;
+    painter.begin(this);
+    int w = (this->width() - m_marginLeft - 150);
+    int h = (this->height() - m_marginTop - 100);
+    int size = (w<h)?w:h;
+    m_chart.setCords(m_marginLeft, m_marginTop,size, size);
+
+    m_chart.draw(&painter);
+    m_chart.drawLegend(&painter);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuWellAllocationPlot::sizeHint() const
+void RiuNightchartsWidget::addItem(QString name, QColor color, float value)
 {
-    return QSize(0, 0);
+    m_chart.addPiece(name,color,value);
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::setDefaults()
-{
-}
-

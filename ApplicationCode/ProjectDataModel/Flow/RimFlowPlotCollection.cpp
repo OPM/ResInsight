@@ -47,5 +47,17 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
+    delete defaultPlot();
+
+    flowPlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
+{
+    defaultPlot->removeFromMdiAreaAndDeleteViewWidget();
+
     flowPlots.deleteAllChildObjects();
 }

@@ -1594,6 +1594,16 @@ RiuMainPlotWindow* RiaApplication::mainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuMainWindowBase* RiaApplication::mainWindowByID(int mainWindowID)
+{
+    if (mainWindowID == 0) return RiuMainWindow::instance();
+    else if (mainWindowID == 1) return m_mainPlotWindow;
+    else return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimViewWindow* RiaApplication::activeViewWindow()
 {
     RimViewWindow* viewWindow = NULL;
@@ -1925,6 +1935,7 @@ void RiaApplication::applyPreferences()
     if (RiuMainWindow::instance() && RiuMainWindow::instance()->projectTreeView())
     {
         RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
+        if (mainPlotWindow()) mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
     caf::FixedAtlasFont::FontSize fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
