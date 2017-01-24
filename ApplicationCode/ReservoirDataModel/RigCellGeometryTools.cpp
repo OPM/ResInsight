@@ -138,4 +138,36 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Returns the a vector normal to the vectors between face centers in I and J direction 
+///  
+//--------------------------------------------------------------------------------------------------
+void RigCellGeometryTools::findCellAverageZdirection(cvf::Vec3d * hexCorners, cvf::Vec3d &averageZdirection)
+{
+    cvf::ubyte faceVertexIndices[4];
+    cvf::StructGridInterface::FaceEnum face;
+
+    face = cvf::StructGridInterface::NEG_I;
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+    cvf::Vec3d faceCenterNegI = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+    face = cvf::StructGridInterface::POS_I;
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+    cvf::Vec3d faceCenterPosI = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+    face = cvf::StructGridInterface::NEG_J;
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+    cvf::Vec3d faceCenterNegJ = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+    face = cvf::StructGridInterface::POS_J;
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+    cvf::Vec3d faceCenterPosJ = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+    
+    cvf::Vec3d faceCenterCenterVectorI = faceCenterPosI - faceCenterNegI;
+    cvf::Vec3d faceCenterCenterVectorJ = faceCenterPosJ - faceCenterNegJ;
+
+    averageZdirection.cross(faceCenterCenterVectorI, faceCenterCenterVectorJ);
+    averageZdirection.normalize();
+}
+
 

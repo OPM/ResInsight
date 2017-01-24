@@ -37,4 +37,6 @@ public:
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons);
 
+    static void findCellAverageZdirection(cvf::Vec3d * hexCorners, cvf::Vec3d &averageZdirection);
+
 };
