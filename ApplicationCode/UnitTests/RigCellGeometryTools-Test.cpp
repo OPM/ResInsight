@@ -111,24 +111,35 @@ TEST(RigCellGeometryTools, planeHexCellIntersectionTest)
 TEST(RigCellGeometryTools, findCellAverageZTest)
 {
     cvf::Vec3d hexCorners[8];
+ 
     hexCorners[0] = cvf::Vec3d(0, 0, 0);
     hexCorners[1] = cvf::Vec3d(1, 0, 0);
-    hexCorners[2] = cvf::Vec3d(0, 1, 0);
-    hexCorners[3] = cvf::Vec3d(1, 1, 0);
+    hexCorners[2] = cvf::Vec3d(1, 1, 0);
+    hexCorners[3] = cvf::Vec3d(0, 1, 0);
 
     hexCorners[4] = cvf::Vec3d(0, 0, 1);
     hexCorners[5] = cvf::Vec3d(1, 0, 1);
     hexCorners[6] = cvf::Vec3d(1, 1, 1);
-    hexCorners[7] = cvf::Vec3d(1, 0, 1);
+    hexCorners[7] = cvf::Vec3d(0, 1, 1);
 
-    cvf::Vec3d averageZdirection;
 
-    RigCellGeometryTools::findCellAverageZdirection(hexCorners, averageZdirection);
+    cvf::Vec3d localX;
+    cvf::Vec3d localY;
+    cvf::Vec3d localZ;
 
-    EXPECT_DOUBLE_EQ(averageZdirection[0], 0);
-    EXPECT_DOUBLE_EQ(averageZdirection[1], 0);
-    EXPECT_DOUBLE_EQ(averageZdirection[2], 1);
+    RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
+    EXPECT_DOUBLE_EQ(localX[0], 1);
+    EXPECT_DOUBLE_EQ(localX[1], 0);
+    EXPECT_DOUBLE_EQ(localX[2], 0);
+
+    EXPECT_DOUBLE_EQ(localY[0], 0);
+    EXPECT_DOUBLE_EQ(localY[1], 1);
+    EXPECT_DOUBLE_EQ(localY[2], 0);
+
+    EXPECT_DOUBLE_EQ(localZ[0], 0);
+    EXPECT_DOUBLE_EQ(localZ[1], 0);
+    EXPECT_DOUBLE_EQ(localZ[2], 1);
 
 }
 

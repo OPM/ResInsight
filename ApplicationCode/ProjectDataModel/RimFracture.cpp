@@ -269,10 +269,15 @@ void RimFracture::computeTransmissibility()
 
 
         std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons);
+        cvf::Vec3d localX;
+        cvf::Vec3d localY;
+        cvf::Vec3d localZ;
+
+        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
+        
         if (!isPlanIntersected || planeCellPolygons.size()==0) continue;
 
-        //Transform planCell polygon(s) to x/y coordinate system (where fracturePolygon already is located)
+        //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
         cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
         for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
         {
@@ -282,6 +287,9 @@ void RimFracture::computeTransmissibility()
             }
         }
 
+
+        //TODO: Make copy of z dir vector, we need it both in fracture coords and domain cords
+        localZ.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
 
         RigFractureData fracData; 
         fracData.reservoirCellIndex = fracCell;
@@ -323,7 +331,8 @@ void RimFracture::computeTransmissibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons)
+bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, 
+                                                cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ)
 {
     
     cvf::Plane fracturePlane;
@@ -371,6 +380,8 @@ bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<st
     isCellIntersected = RigCellGeometryTools::planeHexCellIntersection(hexCorners, fracturePlane, intersectionLineSegments);
        
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
+
+    RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
     return isCellIntersected;
 }

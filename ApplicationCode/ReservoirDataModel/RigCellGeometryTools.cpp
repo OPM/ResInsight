@@ -139,10 +139,9 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the a vector normal to the vectors between face centers in I and J direction 
 ///  
 //--------------------------------------------------------------------------------------------------
-void RigCellGeometryTools::findCellAverageZdirection(cvf::Vec3d * hexCorners, cvf::Vec3d &averageZdirection)
+void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection)
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::FaceEnum face;
@@ -150,6 +149,7 @@ void RigCellGeometryTools::findCellAverageZdirection(cvf::Vec3d * hexCorners, cv
     face = cvf::StructGridInterface::NEG_I;
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
     cvf::Vec3d faceCenterNegI = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+    //TODO: Should we use face centroids instead of face centers?
 
     face = cvf::StructGridInterface::POS_I;
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
@@ -166,8 +166,18 @@ void RigCellGeometryTools::findCellAverageZdirection(cvf::Vec3d * hexCorners, cv
     cvf::Vec3d faceCenterCenterVectorI = faceCenterPosI - faceCenterNegI;
     cvf::Vec3d faceCenterCenterVectorJ = faceCenterPosJ - faceCenterNegJ;
 
-    averageZdirection.cross(faceCenterCenterVectorI, faceCenterCenterVectorJ);
-    averageZdirection.normalize();
-}
+    localZdirection.cross(faceCenterCenterVectorI, faceCenterCenterVectorJ);
+    localZdirection.normalize();
 
+    cvf::Vec3d crossPoductJZ;
+    crossPoductJZ.cross(faceCenterCenterVectorJ, localZdirection);
+    localXdirection = faceCenterCenterVectorI + crossPoductJZ;
+    localXdirection.normalize();
+
+    cvf::Vec3d crossPoductIZ;
+    crossPoductIZ.cross(faceCenterCenterVectorI, localZdirection);
+    localYdirection = faceCenterCenterVectorJ - crossPoductIZ;
+    localYdirection.normalize();
+    
+}
 

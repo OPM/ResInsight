@@ -92,7 +92,7 @@ private:
     QString                         createOneBasedIJK() const;
 
     //Functions for area calculations - should these be in separate class
-    bool planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons);
+    bool planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ);
 
     void calculateFracturePlaneCellPolygonOverlapArea(std::vector<std::vector<cvf::Vec3d> > planeCellPolygons,
         std::vector<cvf::Vec3f> fracturePolygon, double & area);
