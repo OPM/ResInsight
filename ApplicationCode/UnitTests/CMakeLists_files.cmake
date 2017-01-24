@@ -24,6 +24,7 @@ ${CEE_CURRENT_LIST_DIR}WellPathAsciiFileReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}opm-parser-Test.cpp
 ${CEE_CURRENT_LIST_DIR}opm-parser-Performance-Test.cpp
 ${CEE_CURRENT_LIST_DIR}opm-flowdiagnostics-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
