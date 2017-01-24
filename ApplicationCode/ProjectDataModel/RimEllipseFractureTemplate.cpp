@@ -126,8 +126,8 @@ void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeC
 {
     RigEllipsisTesselator tesselator(20);
 
-    float a = height / 2.0f;
-    float b = halfLength;
+    float a = halfLength;
+    float b = height / 2.0f;
 
     tesselator.tesselateEllipsis(a, b, polygonIndices, nodeCoords);
 }
