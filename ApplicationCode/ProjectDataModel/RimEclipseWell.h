@@ -24,15 +24,15 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"
 
 #include "cvfObject.h"
 
-// Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
-#include "cafPdmChildField.h"
+#include "RigSingleWellResultsData.h"
 
-class RigSingleWellResultsData;
-class RimEclipseView;
 class RimSimWellFractureCollection;
 
 //==================================================================================================
