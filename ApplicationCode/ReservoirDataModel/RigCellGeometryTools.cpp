@@ -21,7 +21,8 @@
 #include "cvfStructGrid.h"
 #include "cvfGeometryTools.h"
 
-#include "cafHexGridIntersectionTools\cafHexGridIntersectionTools.h"
+#include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+#include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -179,5 +180,32 @@ void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d 
     localYdirection = faceCenterCenterVectorJ - crossPoductIZ;
     localYdirection.normalize();
     
+    //TODO: Check if we end up with 0-vectors, and handle this case...
 }
 
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
+void RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygon2d)
+{
+    //TODO: Check that polygon is in xy plane
+
+    //Find bounding box
+    cvf::BoundingBox polygonBBox;
+    for (cvf::Vec3d nodeCoord : polygon2d) polygonBBox.add(nodeCoord);
+    cvf::Vec3d bboxCorners[8];
+    polygonBBox.cornerVertices(bboxCorners);
+
+
+    //Split bounding box in multplie polygons (2D)
+    int resolutionOfLengthCalc = 20;
+
+
+    //Use clipper to find overlap between bbpolygon and fracture
+
+    //Calculate length (max-min) and area
+
+    //Calculate area-weighted average of above vectors. 
+
+
+}
