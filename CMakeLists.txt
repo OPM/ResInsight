@@ -242,7 +242,11 @@ list(APPEND THIRD_PARTY_LIBRARIES
 # clipper
 ################################################################################
 
-add_subdirectory(ThirdParty/custom-clipper)
+add_subdirectory(ThirdParty/clipper)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    clipper
+)
 
 
 ################################################################################

@@ -44,7 +44,7 @@
 #include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
-#include "custom-clipper/clipper/clipper.hpp"
+#include "clipper/clipper.hpp"
 
 
 

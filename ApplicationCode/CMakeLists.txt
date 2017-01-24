@@ -302,7 +302,6 @@ set( LINK_LIBRARIES
     ${ERT_LIBRARIES}
     
     ${THIRD_PARTY_LIBRARIES}
-    custom-clipper
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
