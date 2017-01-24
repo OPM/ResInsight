@@ -18,25 +18,36 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmChildArrayField.h"
+#include "RimWellLogCurve.h"
+
+#include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
+class RimEclipseResultCase;
 class RimWellAllocationPlot;
+
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimFlowPlotCollection : public caf::PdmObject
+class RimWellFlowRateCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimFlowPlotCollection();
-    virtual ~RimFlowPlotCollection();
-
-    void closeDefaultPlotWindowAndDeletePlots();
+    RimWellFlowRateCurve();
+    virtual ~RimWellFlowRateCurve();
     
-    caf::PdmChildField<RimWellAllocationPlot*>      defaultPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*> flowPlots;
+    void setFlowValues(const std::vector<double>& measuredDepths, const std::vector<double>& flowRates);
+
+    virtual QString wellName() const override;
+    virtual QString wellLogChannelName() const override;
+
+protected:
+    virtual QString createCurveAutoName() override;
+    virtual void onLoadDataAndUpdate() override;
+
+private:
+    RimWellAllocationPlot* wellAllocationPlot() const;
 };
+

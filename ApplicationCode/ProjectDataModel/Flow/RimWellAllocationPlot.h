@@ -66,6 +66,10 @@ public:
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
+    QString                                         wellName() const;
+
+    void                                            removeFromMdiAreaAndDeleteViewWidget();
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }

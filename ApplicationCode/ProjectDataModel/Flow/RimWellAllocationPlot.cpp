@@ -22,6 +22,7 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigSimulationWellCoordsAndMD.h"
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"
@@ -32,6 +33,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimTotalWellAllocationPlot.h"
+#include "RimWellFlowRateCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -128,7 +130,6 @@ void RimWellAllocationPlot::updateFromWell()
 
     if (!wellResults) return;
 
-    size_t branchCount = 0; 
     
     const RigWellResultFrame* wellResultFrame = nullptr;
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
@@ -142,33 +143,70 @@ void RimWellAllocationPlot::updateFromWell()
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
 
-    branchCount = pipeBranchesCLCoords.size();
-
-    size_t existingTrackCount = accumulatedWellFlowPlot()->trackCount();
     accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
+    
 
-    size_t neededExtraTrackCount = branchCount - existingTrackCount;
-    for (size_t etc = 0; etc < neededExtraTrackCount; ++etc)
+    // Delete existing tracks
     {
-        RimWellLogTrack* plotTrack = new RimWellLogTrack();
-        accumulatedWellFlowPlot()->addTrack(plotTrack);
+        std::vector<RimWellLogTrack*> tracks;
+        accumulatedWellFlowPlot()->descendantsIncludingThisOfType(tracks);
+
+        for (RimWellLogTrack* t : tracks)
+        {
+            accumulatedWellFlowPlot()->removeTrack(t);
+            delete t;
+        }
     }
 
-    for (size_t etc = branchCount; etc < existingTrackCount; ++etc)
-    {
-        accumulatedWellFlowPlot()->removeTrackByIndex(accumulatedWellFlowPlot()->trackCount()- 1);
-    }
+    CVF_ASSERT(accumulatedWellFlowPlot()->trackCount() == 0);
 
-
+    size_t branchCount = pipeBranchesCLCoords.size();
     for (size_t brIdx = 0; brIdx < branchCount; ++brIdx)
     {
-        RimWellLogTrack* plotTrack = accumulatedWellFlowPlot()->trackByIndex(brIdx);
+        RimWellLogTrack* plotTrack = new RimWellLogTrack();
 
-        plotTrack->setDescription(QString("Branch %1").arg(brIdx+1));
+        // TODO: Description is overwritten by RimWellLogPlot::updateTrackNames()
+        // Add flag to control if this behavior
+        plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
 
+        accumulatedWellFlowPlot()->addTrack(plotTrack);
+
+        std::vector<cvf::Vec3d> curveCoords;
+        std::vector<double> flowRate;
+
+        {
+            std::vector<cvf::Vec3d> branchCoords = pipeBranchesCLCoords[brIdx];
+            std::vector<RigWellResultPoint> branchResultPoints = pipeBranchesCellIds[brIdx];
+
+            RigWellResultPoint prevResultPoint;
+
+            for (size_t i = 0; i < branchResultPoints.size(); i++)
+            {
+                const RigWellResultPoint& resultPoint = branchResultPoints[i];
+
+                if (i > 0 && prevResultPoint.m_gridCellIndex != resultPoint.m_gridCellIndex)
+                {
+                    // Add an extra curve point when a cell transition is detected
+                    curveCoords.push_back(branchCoords[i]);
+                    flowRate.push_back(prevResultPoint.m_flowRate);
+                }
+
+                curveCoords.push_back(branchCoords[i]);
+                flowRate.push_back(branchResultPoints[i].m_flowRate);
+
+                prevResultPoint = resultPoint;
+            }
+        }
+
+        RigSimulationWellCoordsAndMD helper(curveCoords);
+        
+        RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
+        curve->setFlowValues(helper.measuredDepths(), flowRate);
+
+        plotTrack->addCurve(curve);
+
+        curve->loadDataAndUpdate();
     }
-
-    // Todo: Calculate curve data
 
     setDescription("Well Allocation (" + m_wellName + ")");
     accumulatedWellFlowPlot()->updateConnectedEditors();
@@ -215,7 +253,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     if (fieldNeedingOptions == &m_wellName)
     {
         std::set<QString> sortedWellNames;
-        if ( m_case )
+        if ( m_case && m_case->reservoirData() )
         {
             const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->reservoirData()->wellResults();
 
@@ -240,7 +278,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     {
         QStringList timeStepNames;
 
-        if (m_case)
+        if (m_case && m_case->reservoirData())
         {
             timeStepNames = m_case->timeStepStrings();
         }
@@ -252,6 +290,23 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellAllocationPlot::wellName() const
+{
+    return m_wellName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
+{
+    removeMdiWindowFromMdiArea();
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +326,6 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         updateFromWell();
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

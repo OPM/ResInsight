@@ -169,7 +169,8 @@ void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
     m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
-    m_flowPlotCollection()->flowPlots.deleteAllChildObjects();
+
+    m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
 }
 
 #if 0
