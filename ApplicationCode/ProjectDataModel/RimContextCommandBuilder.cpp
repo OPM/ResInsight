@@ -403,6 +403,13 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
+        else if (dynamic_cast<RimEclipseWell*>(uiItem))
+        {
+            commandIds << "RicEclipseWellShowLabelFeature";
+            commandIds << "RicEclipseWellShowHeadFeature";
+            commandIds << "RicEclipseWellShowPipeFeature";
+            commandIds << "RicEclipseWellShowSpheresFeature";
+        }
     }
 
 
