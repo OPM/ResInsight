@@ -160,7 +160,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         pipeGeomGenerator->setPipeColor(well->wellPipeColor());
         pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
 
-        double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() * m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
+        double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
         pipeGeomGenerator->setRadius(pipeRadius);
 
         cvf::ref<cvf::DrawableGeo> pipeSurface = pipeGeomGenerator->createPipeSurface();
@@ -349,6 +349,7 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     }
     
     if (wellCollection->showWellHead() &&
+        m_rimWell->showWellHead() &&
         m_wellHeadArrowPart.notNull())
     {
         model->addPart(m_wellHeadArrowPart.p());

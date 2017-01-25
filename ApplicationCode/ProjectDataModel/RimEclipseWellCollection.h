@@ -99,7 +99,7 @@ public:
     caf::PdmField<double>               wellCellTransparencyLevel;
 
     caf::PdmField<WellVisibilityEnum>   wellPipeVisibility;
-    caf::PdmField<double>               pipeRadiusScaleFactor;
+    caf::PdmField<double>               pipeScaleFactor;
     caf::PdmField<int>                  pipeCrossSectionVertexCount;
     caf::PdmField<WellPipeCoordEnum>    wellPipeCoordType;
 

@@ -107,7 +107,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
 
-    CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Coords", "", "", "");
@@ -264,7 +264,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         }
     }
     else if (  &pipeCrossSectionVertexCount == changedField 
-            || &pipeRadiusScaleFactor == changedField 
+            || &pipeScaleFactor == changedField 
             || &wellHeadScaleFactor == changedField 
             || &showWellHead == changedField
             || &isAutoDetectingBranches == changedField
@@ -307,7 +307,7 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
     wellPipe->add(&wellPipeVisibility);
-    wellPipe->add(&pipeRadiusScaleFactor);
+    wellPipe->add(&pipeScaleFactor);
     wellPipe->add(&wellPipeCoordType);
 
     caf::PdmUiGroup* cellCenterSpheres = uiOrdering.addNewGroup("Well cell center spheres");

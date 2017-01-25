@@ -38,19 +38,21 @@ RimEclipseWell::RimEclipseWell()
 {
     CAF_PDM_InitObject("Well", ":/Well.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&name,       "WellName",             "Name", "", "", "");
-    CAF_PDM_InitField(&showWell,         "ShowWell",      true, "Show well ", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&name,           "WellName", "Name", "", "", "");
+
+    CAF_PDM_InitField(&showWell,                "ShowWell",             true,   "Show well ", "", "", "");
     showWell.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showWellLabel,         "ShowWellLabel",      true, "Show well label", "", "", "");
+    CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Show well label", "", "", "");
+    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Show well head", "", "", "");
+    CAF_PDM_InitField(&showWellPipes,           "ShowWellPipe",         true,   "Show well pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      true,   "Show well spheres", "", "", "");
 
-    CAF_PDM_InitField(&showWellPipes,       "ShowWellPipe",         true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,     "ShowWellSpheres",      true,   "Show well spheres", "", "", "");
-    CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",1.0,    "Pipe radius scale", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,       "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Well Pipe Scale Factor", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "Use well fence", "", "", "");
+    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Use well fence", "", "", "");
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
@@ -83,6 +85,7 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (!m_reservoirView) return;
 
     if (&showWellLabel == changedField ||
+        &showWellHead == changedField ||
         &showWellPipes == changedField ||
         &showWellSpheres == changedField ||
         &wellPipeColor == changedField)
@@ -97,7 +100,7 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
         m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
-    else if (&pipeRadiusScaleFactor == changedField)
+    else if (&pipeScaleFactor == changedField)
     {
         if (m_reservoirView)
         {
@@ -199,11 +202,14 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
 void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Appearance");
+    pipeGroup->add(&showWellLabel);
+    pipeGroup->add(&showWellHead);
     pipeGroup->add(&showWellPipes);
     pipeGroup->add(&showWellSpheres);
-    pipeGroup->add(&showWellLabel);
+    
+    pipeGroup->add(&pipeScaleFactor);
+    
     pipeGroup->add(&wellPipeColor);
-    pipeGroup->add(&pipeRadiusScaleFactor);
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
     filterGroup->add(&showWellCells);
