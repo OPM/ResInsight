@@ -22,10 +22,15 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RigSingleWellResultsData.h"
+
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+
 #include "RivReservoirViewPartMgr.h"
+
+#include "cafPdmUiPushButtonEditor.h"
 
 
 namespace caf
@@ -102,19 +107,34 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", true, "Show Wells Intersecting Visible Cells", "", "", "");
 
     // Appearance
-    CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
-    CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
-    CAF_PDM_InitField(&showWellPipe,        "ShowWellPipe",     true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,     "ShowWellSpheres",  true,   "Show well spheres", "", "", "");
+    CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show Well Head", "", "", "");
+    CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show Well Label", "", "", "");
+    CAF_PDM_InitField(&showWellPipe,        "ShowWellPipe",     true,   "Show Well Pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,     "ShowWellSpheres",  true,   "Show Well Spheres", "", "", "");
 
     // Scaling
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",            1.0,    "Well Head Scale Factor", "", "", "");
     CAF_PDM_InitField(&pipeScaleFactor,     "WellPipeRadiusScale",      0.1,    "Well Pipe Scale Factor", "", "", "");
-    CAF_PDM_InitField(&spheresScaleFactor,  "CellCenterSphereScale",    0.2,    "Well Sphere Scale factor", "", "", "");
+    CAF_PDM_InitField(&spheresScaleFactor,  "CellCenterSphereScale",    0.2,    "Well Sphere Scale Factor", "", "", "");
 
     // Color
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
+
+    cvf::Color3f defaultApplyColor = cvf::Color3f::YELLOW;
+    CAF_PDM_InitField(&m_wellColorForApply, "WellColorForApply", defaultApplyColor, "Color", "", "", "");
+
+    CAF_PDM_InitField(&m_applySingleColorToWells, "ApplySingleColorToWells", false, "Apply Single Color", "", "", "");
+    m_applySingleColorToWells.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_applySingleColorToWells.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_applySingleColorToWells.xmlCapability()->setIOReadable(false);
+    m_applySingleColorToWells.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_applyIndividualColorsToWells, "ApplyIndividualColorsToWells", false, "Apply Individual Colors", "", "", "");
+    m_applyIndividualColorsToWells.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_applyIndividualColorsToWells.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_applyIndividualColorsToWells.xmlCapability()->setIOReadable(false);
+    m_applyIndividualColorsToWells.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
@@ -197,7 +217,7 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Used to know if we need animation of timesteps due to the wells
+/// Used to know if we need animation of time steps due to the wells
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWellCollection::hasVisibleWellPipes() 
 {
@@ -264,6 +284,36 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             w->updateConnectedEditors();
         }
     }
+
+    if (&m_applyIndividualColorsToWells == changedField)
+    {
+        for (size_t i = 0; i < wells.size(); i++)
+        {
+            cvf::Color3f col = cycledPaletteColor(i);
+
+            wells[i]->wellPipeColor = col;
+            wells[i]->updateConnectedEditors();
+        }
+        
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+
+        m_applyIndividualColorsToWells = false;
+    }
+
+    if (&m_applySingleColorToWells == changedField)
+    {
+        cvf::Color3f col = m_wellColorForApply();
+
+        for (size_t i = 0; i < wells.size(); i++)
+        {
+            wells[i]->wellPipeColor = col;
+            wells[i]->updateConnectedEditors();
+        }
+
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+
+        m_applySingleColorToWells = false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +344,11 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Color");
     colorGroup->add(&wellLabelColor);
+    colorGroup->add(&m_applyIndividualColorsToWells);
+
+    caf::PdmUiGroup* singleColorGroup = colorGroup->addNewGroup("Single Well Color");
+    singleColorGroup->add(&m_wellColorForApply);
+    singleColorGroup->add(&m_applySingleColorToWells);
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
     wellPipe->add(&wellPipeCoordType);
@@ -356,6 +411,39 @@ void RimEclipseWellCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (&m_applyIndividualColorsToWells == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* editorAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        if (editorAttr)
+        {
+            editorAttr->m_buttonText = "Apply Individual Well Colors";
+        }
+    }
+
+    if (&m_applySingleColorToWells == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* editorAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        if (editorAttr)
+        {
+            QColor col;
+            col.setRgbF(m_wellColorForApply().r(), m_wellColorForApply().g(), m_wellColorForApply().b());
+
+            QPixmap pixmap(100, 100);
+            pixmap.fill(col);
+
+            QIcon colorIcon(pixmap);
+
+            editorAttr->m_buttonIcon = colorIcon;
+            editorAttr->m_buttonText = "Apply Single Well Color";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellGeometryVisibilities(size_t frameIndex)
 {
     calculateWellGeometryVisibility(frameIndex);
@@ -390,6 +478,39 @@ void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex
 
         m_framesOfResultWellPipeVisibilities[frameIndex][wells[i]->resultWellIndex()] = wellPipeVisible || wellSphereVisible;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Consider creating a factory for colors, see also RimSummaryCurveAppearanceCalculator
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEclipseWellCollection::cycledPaletteColor(size_t colorIndex)
+{
+    static const size_t colorCount = 15;
+    static const cvf::ubyte colorData[][3] =
+    {
+      {  0,  112, 136 }, // Dark Green-Blue
+      { 202,   0,   0 }, // Red
+      { 78,  204,   0 }, // Clear Green
+      { 236, 118,   0 }, // Orange
+      {  0 ,   0,   0 }, // Black
+      { 56,   56, 255 }, // Vivid Blue
+      { 248,   0, 170 }, // Magenta
+      { 169,   2, 240 }, // Purple
+      { 0,   221, 221 }, // Turquoise
+      { 201, 168, 206 }, // Light Violet
+      { 0,   205,  68 }, // Bluish Green
+      { 236, 188,   0 }, // Mid Yellow
+      { 51,  204, 255 },  // Bluer Turquoise
+      { 164, 193,   0 }, // Mid Yellowish Green
+      { 0,   143, 239 }, // Dark Light Blue
+    };
+
+    size_t paletteIdx = colorIndex % colorCount;
+
+    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
+    cvf::Color3f cvfColor(ubColor);
+
+    return cvfColor;
 }
 
 bool lessEclipseWell(const caf::PdmPointer<RimEclipseWell>& w1,  const caf::PdmPointer<RimEclipseWell>& w2)
