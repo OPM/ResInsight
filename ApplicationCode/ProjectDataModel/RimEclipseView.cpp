@@ -1131,7 +1131,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     visibleCells->setAll(false);
 
     // If all wells are forced off, return
-    if (this->wellCollection()->wellCellsToRangeFilterMode() == RimEclipseWellCollection::RANGE_ADD_NONE) return;
+    if (!this->wellCollection()->showWellCells()) return;
 
     RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
 
@@ -1141,7 +1141,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
-        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimEclipseWellCollection::RANGE_ADD_ALL || (well->showWell() && well->showWellCells()) )
+        if (this->wellCollection()->showWellCells() && well->showWell() && well->showWellCells())
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;
@@ -1180,7 +1180,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                             (*visibleCells)[gridCellIndex] = true;
 
                             // Calculate well fence cells
-                            if (well->showWellCellFence() || this->wellCollection()->showWellCellFences())
+                            if (well->showWellCellFence() && this->wellCollection()->showWellCellFence())
                             {
                                 size_t i, j, k;
                                 grid->ijkFromCellIndex(gridCellIndex, &i, &j, &k);

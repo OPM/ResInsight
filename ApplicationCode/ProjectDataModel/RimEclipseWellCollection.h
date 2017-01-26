@@ -101,9 +101,8 @@ public:
     caf::PdmField<cvf::Color3f>         wellLabelColor;
     caf::PdmField<bool>                 showConnectionStatusColors;
 
-
-    caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
-    caf::PdmField<bool>                 showWellCellFences;
+    caf::PdmField<bool>                 showWellCells;
+    caf::PdmField<bool>                 showWellCellFence;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
 
@@ -145,5 +144,6 @@ private:
     caf::PdmField<bool>                 m_applyIndividualColorsToWells;
 
     // Obsolete fields
-    caf::PdmField<WellVisibilityEnum>   obsoleteField_wellPipeVisibility;
+    caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;
+    caf::PdmField<WellCellsRangeFilterEnum> obsoleteField_wellCellsToRangeFilterMode;
 };

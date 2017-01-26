@@ -289,11 +289,10 @@ void RiuMainWindow::createActions()
     m_toggleFaultsLabelAction->setCheckable(true);
     connect(m_toggleFaultsLabelAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
 
-    m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
-    m_addWellCellsToRangeFilterAction->setCheckable(true);
-    m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
-    connect(m_addWellCellsToRangeFilterAction,    SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
-
+    m_showWellCellsAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Show Well Cells", this);
+    m_showWellCellsAction->setCheckable(true);
+    m_showWellCellsAction->setToolTip("Show Well Cells");
+    connect(m_showWellCellsAction,    SIGNAL(toggled(bool)), SLOT(slotShowWellCellsAction(bool)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,7 +473,7 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction(m_disableLightingAction);
         dsToolBar->addAction(m_drawStyleHideGridCellsAction);
         dsToolBar->addAction(m_toggleFaultsLabelAction);
-        dsToolBar->addAction(m_addWellCellsToRangeFilterAction);
+        dsToolBar->addAction(m_showWellCellsAction);
     }
 
     // Create animation toolbar
@@ -1376,7 +1375,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     enable = enable && eclView;
 
     m_toggleFaultsLabelAction->setEnabled(enable);
-    m_addWellCellsToRangeFilterAction->setEnabled(enable);
+    m_showWellCellsAction->setEnabled(enable);
 
     if (enable) 
     {   
@@ -1384,9 +1383,9 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
         m_toggleFaultsLabelAction->blockSignals(false);
 
-        m_addWellCellsToRangeFilterAction->blockSignals(true);
-        m_addWellCellsToRangeFilterAction->setChecked(eclView->wellCollection()->wellCellsToRangeFilterMode() != RimEclipseWellCollection::RANGE_ADD_NONE);
-        m_addWellCellsToRangeFilterAction->blockSignals(false);
+        m_showWellCellsAction->blockSignals(true);
+        m_showWellCellsAction->setChecked(eclView->wellCollection()->showWellCells());
+        m_showWellCellsAction->blockSignals(false);
     }
 }
 
@@ -1573,15 +1572,12 @@ void RiuMainWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
+void RiuMainWindow::slotShowWellCellsAction(bool doAdd)
 {
     RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
-        caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
-        rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
-
-        riv->wellCollection()->wellCellsToRangeFilterMode.setValueWithFieldChanged(rangeAddType);
+        riv->wellCollection()->showWellCells.setValueWithFieldChanged(doAdd);
     }
 }
 

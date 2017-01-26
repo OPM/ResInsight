@@ -28,6 +28,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 
+#include "RiuMainWindow.h"
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiPushButtonEditor.h"
@@ -49,6 +50,7 @@ namespace caf
 
 namespace caf
 {
+    // OBSOLETE enum
     template<>
     void RimEclipseWellCollection::WellCellsRangeFilterEnum::setUp()
     {
@@ -142,9 +144,9 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Geometry", "", "", "");
 
-    CAF_PDM_InitField(&wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "Use well fence", "", "", "");
-    CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "Well Fence direction", "", "", "");
+    CAF_PDM_InitField(&showWellCells,       "ShowWellCells",            false,   "Show Well Cells", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,   "ShowWellFences",           false,  "Show Well Cell Fence", "", "", "");
+    CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION), "Well Fence Direction", "", "", "");
 
     CAF_PDM_InitField(&wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well Cell Transparency", "", "", "");
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Branch Detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
@@ -156,6 +158,10 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
     obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);
     obsoleteField_wellPipeVisibility.xmlCapability()->setIOWritable(false);
+    
+    CAF_PDM_InitField(&obsoleteField_wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
+    obsoleteField_wellCellsToRangeFilterMode.uiCapability()->setUiHidden(true);
+    obsoleteField_wellCellsToRangeFilterMode.xmlCapability()->setIOWritable(false);
 
     m_reservoirView = NULL;
 }
@@ -189,14 +195,14 @@ RimEclipseWell* RimEclipseWellCollection::findWell(QString name)
 bool RimEclipseWellCollection::hasVisibleWellCells()
 {
     if (!this->isActive()) return false;
-    if (this->wellCellsToRangeFilterMode() == RANGE_ADD_NONE) return false;
+    if (!this->showWellCells()) return false;
     if (this->wells().size() == 0 ) return false;
 
     bool hasCells = false;
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
         RimEclipseWell* well = this->wells()[i];
-        if ( well && well->wellResults() && ((well->showWell() && well->showWellCells()) || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
+        if ( well && well->wellResults() && ((well->showWell() && well->showWellCells())) )
         {
             for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
@@ -210,8 +216,6 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
     }
 
     if (!hasCells) return false;
-
-    if (this->wellCellsToRangeFilterMode() == RANGE_ADD_INDIVIDUAL || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) return true;
 
     // Todo: Handle range filter intersection
 
@@ -243,8 +247,8 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         if (   &isActive == changedField
             || &showWellLabel == changedField
-            || &wellCellsToRangeFilterMode == changedField
-            || &showWellCellFences == changedField
+            || &showWellCells == changedField
+            || &showWellCellFence == changedField
             || &wellCellFenceType == changedField)
         {
             m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
@@ -317,6 +321,11 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
         m_applySingleColorToWells = false;
     }
+
+    if (&showWellCells == changedField)
+    {
+        RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,9 +371,10 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     
     uiOrdering.add(&wellHeadPosition);
 
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
-    filterGroup->add(&wellCellsToRangeFilterMode);
-    filterGroup->add(&showWellCellFences);
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells");
+    filterGroup->add(&obsoleteField_wellCellsToRangeFilterMode);
+    filterGroup->add(&showWellCells);
+    filterGroup->add(&showWellCellFence);
     filterGroup->add(&wellCellFenceType);
 }
 
@@ -407,6 +417,24 @@ void RimEclipseWellCollection::initAfterRead()
     else if (obsoleteField_wellPipeVisibility() == PIPES_INDIVIDUALLY)
     {
         showWellsIntersectingVisibleCells = false;
+    }
+
+    if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_NONE)
+    {
+        showWellCells = false;
+    }
+    else if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_ALL)
+    {
+        showWellCells = true;
+
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWellCells = true;
+        }
+    }
+    else if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_INDIVIDUAL)
+    {
+        showWellCells = true;
     }
 }
 

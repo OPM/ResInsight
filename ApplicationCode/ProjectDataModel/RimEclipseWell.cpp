@@ -51,8 +51,8 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Well Pipe Scale Factor", "", "", "");
     CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Use well fence", "", "", "");
+    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        true,   "Show Well Cells", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Show Well Cell Fence", "", "", "");
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
