@@ -409,6 +409,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEclipseWellShowHeadFeature";
             commandIds << "RicEclipseWellShowPipeFeature";
             commandIds << "RicEclipseWellShowSpheresFeature";
+            commandIds << "RicEclipseWellShowWellCellsFeature";
+            commandIds << "RicEclipseWellShowWellCellFenceFeature";
         }
     }
 
