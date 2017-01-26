@@ -101,18 +101,21 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", true, "Show Wells Intersecting Visible Cells", "", "", "");
 
+    // Appearance
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
-    CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "Well head scale", "", "", "");
-    CAF_PDM_InitField(&wellHeadPosition,    "WellHeadPosition", WellHeadPositionEnum(WELLHEAD_POS_TOP_COLUMN), "Well head position",  "", "", "");
+    CAF_PDM_InitField(&showWellPipe,        "ShowWellPipe",     true,   "Show well pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,     "ShowWellSpheres",  true,   "Show well spheres", "", "", "");
+
+    // Scaling
+    CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",            1.0,    "Well Head Scale Factor", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor,     "WellPipeRadiusScale",      0.1,    "Well Pipe Scale Factor", "", "", "");
+    CAF_PDM_InitField(&spheresScaleFactor,  "CellCenterSphereScale",    0.2,    "Well Sphere Scale factor", "", "", "");
+
+    // Color
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
 
-    CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
-    obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);
-    obsoleteField_wellPipeVisibility.xmlCapability()->setIOWritable(false);
-
-    CAF_PDM_InitField(&pipeScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Coords", "", "", "");
@@ -122,13 +125,15 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "Well Fence direction", "", "", "");
 
     CAF_PDM_InitField(&wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well cell transparency", "", "", "");
-
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
-
-    CAF_PDM_InitField(&cellCenterSpheresScaleFactor, "CellCenterSphereScale", 0.2, "Cell Center sphere radius", "", "", "");
+    CAF_PDM_InitField(&wellHeadPosition,    "WellHeadPosition", WellHeadPositionEnum(WELLHEAD_POS_TOP_COLUMN), "Well head position",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
     wells.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
+    obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);
+    obsoleteField_wellPipeVisibility.xmlCapability()->setIOWritable(false);
 
     m_reservoirView = NULL;
 }
@@ -207,69 +212,56 @@ bool RimEclipseWellCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showWellLabel == changedField || &isActive == changedField)
+    if (&isActive == changedField)
     {
         this->updateUiIconFromToggleField();
-
-        if (m_reservoirView) 
-        {
-            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-    if (&wellCellsToRangeFilterMode == changedField)
-    {
-        if (m_reservoirView) 
-        {
-            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-    else if (&showWellCellFences == changedField)
-    {
-        if (m_reservoirView) 
-        {   
-            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-    else if (&wellCellTransparencyLevel == changedField)
-    {
-        if (m_reservoirView) 
-        {   
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-    else if (&cellCenterSpheresScaleFactor == changedField)
-    {
-        if (m_reservoirView)
-        {
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
     }
 
-    else if (&wellCellFenceType == changedField)
+    if (m_reservoirView)
     {
-        if (m_reservoirView) 
-        {   
+        if (   &isActive == changedField
+            || &showWellLabel == changedField
+            || &wellCellsToRangeFilterMode == changedField
+            || &showWellCellFences == changedField
+            || &wellCellFenceType == changedField)
+        {
             m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
-    }
-    else if (  &pipeCrossSectionVertexCount == changedField 
-            || &pipeScaleFactor == changedField 
-            || &wellHeadScaleFactor == changedField 
-            || &showWellHead == changedField
-            || &isAutoDetectingBranches == changedField
-            || &wellHeadPosition == changedField
-            || &wellLabelColor == changedField
-            || &showWellsIntersectingVisibleCells == changedField
-            || &wellPipeCoordType == changedField)
-    {
-        if (m_reservoirView) 
+        else if (&wellCellTransparencyLevel == changedField)
+        {
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+        else if (  &spheresScaleFactor == changedField
+                || &showWellSpheres == changedField)
         {
             m_reservoirView->schedulePipeGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+        else if (  &pipeCrossSectionVertexCount == changedField 
+                || &pipeScaleFactor == changedField 
+                || &wellHeadScaleFactor == changedField 
+                || &showWellHead == changedField
+                || &isAutoDetectingBranches == changedField
+                || &wellHeadPosition == changedField
+                || &wellLabelColor == changedField
+                || &showWellsIntersectingVisibleCells == changedField
+                || &wellPipeCoordType == changedField
+                || &showWellPipe == changedField)
+        {
+            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    if (   &showWellPipe == changedField
+        || &showWellSpheres == changedField
+        || &showWellHead == changedField
+        || &showWellLabel == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            w->updateConnectedEditors();
         }
     }
 }
@@ -289,28 +281,34 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 {
     uiOrdering.add(&showWellsIntersectingVisibleCells);
 
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
-    filterGroup->add(&wellCellsToRangeFilterMode);
-    filterGroup->add(&showWellCellFences);
-    filterGroup->add(&wellCellFenceType);
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&showWellLabel);
+    appearanceGroup->add(&showWellHead);
+    appearanceGroup->add(&showWellPipe);
+    appearanceGroup->add(&showWellSpheres);
 
-    caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well head");
-    wellHeadGroup->add(&showWellHead);
-    wellHeadGroup->add(&wellHeadScaleFactor);
-    wellHeadGroup->add(&showWellLabel);
-    wellHeadGroup->add(&wellHeadPosition);
-    wellHeadGroup->add(&wellLabelColor);
+    caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
+    sizeScalingGroup->add(&wellHeadScaleFactor);
+    sizeScalingGroup->add(&pipeScaleFactor);
+    sizeScalingGroup->add(&spheresScaleFactor);
+
+    caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Color");
+    colorGroup->add(&wellLabelColor);
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
-    wellPipe->add(&pipeScaleFactor);
     wellPipe->add(&wellPipeCoordType);
-
-    caf::PdmUiGroup* cellCenterSpheres = uiOrdering.addNewGroup("Well cell center spheres");
-    cellCenterSpheres->add(&cellCenterSpheresScaleFactor);
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
     advancedGroup->add(&wellCellTransparencyLevel);
     advancedGroup->add(&isAutoDetectingBranches);
+    
+    caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well head");
+    wellHeadGroup->add(&wellHeadPosition);
+
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
+    filterGroup->add(&wellCellsToRangeFilterMode);
+    filterGroup->add(&showWellCellFences);
+    filterGroup->add(&wellCellFenceType);
 }
 
 //--------------------------------------------------------------------------------------------------

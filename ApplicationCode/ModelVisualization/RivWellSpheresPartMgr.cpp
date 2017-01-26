@@ -153,7 +153,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf:
 
     cvf::GeometryBuilderTriangles builder;
     double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
-    double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
+    double cellRadius = m_rimReservoirView->wellCollection()->spheresScaleFactor() * characteristicCellSize;
     cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
 
     vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());

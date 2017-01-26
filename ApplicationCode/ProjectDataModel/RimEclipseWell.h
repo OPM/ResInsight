@@ -70,7 +70,7 @@ public:
     
     caf::PdmField<bool>                 showWellLabel;
     caf::PdmField<bool>                 showWellHead;
-    caf::PdmField<bool>                 showWellPipes;
+    caf::PdmField<bool>                 showWellPipe;
     caf::PdmField<bool>                 showWellSpheres;
     
     caf::PdmField<double>               pipeScaleFactor;

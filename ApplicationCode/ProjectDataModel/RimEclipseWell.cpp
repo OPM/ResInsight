@@ -45,7 +45,7 @@ RimEclipseWell::RimEclipseWell()
 
     CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Show well label", "", "", "");
     CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Show well head", "", "", "");
-    CAF_PDM_InitField(&showWellPipes,           "ShowWellPipe",         true,   "Show well pipe", "", "", "");
+    CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Show well pipe", "", "", "");
     CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Show well spheres", "", "", "");
 
     CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Well Pipe Scale Factor", "", "", "");
@@ -86,7 +86,7 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     if (&showWellLabel == changedField ||
         &showWellHead == changedField ||
-        &showWellPipes == changedField ||
+        &showWellPipe == changedField ||
         &showWellSpheres == changedField ||
         &wellPipeColor == changedField)
     {
@@ -204,7 +204,7 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Appearance");
     pipeGroup->add(&showWellLabel);
     pipeGroup->add(&showWellHead);
-    pipeGroup->add(&showWellPipes);
+    pipeGroup->add(&showWellPipe);
     pipeGroup->add(&showWellSpheres);
     
     pipeGroup->add(&pipeScaleFactor);
@@ -214,6 +214,16 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
     filterGroup->add(&showWellCells);
     filterGroup->add(&showWellCellFence);
+
+    RimEclipseWellCollection* wellColl = nullptr;
+    this->firstAncestorOrThisOfType(wellColl);
+    if (wellColl)
+    {
+        showWellLabel.uiCapability()->setUiReadOnly(!wellColl->showWellLabel());
+        showWellHead.uiCapability()->setUiReadOnly(!wellColl->showWellHead());
+        showWellPipe.uiCapability()->setUiReadOnly(!wellColl->showWellPipe());
+        showWellSpheres.uiCapability()->setUiReadOnly(!wellColl->showWellSpheres());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,10 +231,10 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 {
-    RimEclipseView* m_reservoirView = nullptr;
-    this->firstAncestorOrThisOfType(m_reservoirView);
+    RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
 
-    if (m_reservoirView == nullptr) return false;
+    if (reservoirView == nullptr) return false;
     if (this->wellResults() == nullptr) return false;
 
     if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
@@ -238,19 +248,22 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
         return false;
     }
 
-    if (!m_reservoirView->wellCollection()->isActive())
+    if (!reservoirView->wellCollection()->isActive())
         return false;
 
-    if (this->showWell() == false)
+    if (!this->showWell())
         return false;
 
-    if (this->showWellPipes() == false)
+    if (!this->showWellPipe())
         return false;
 
-    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
+    if (!reservoirView->wellCollection()->showWellPipe())
+        return false;
+
+    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
         return visibleCellsInstersectsWell(frameIndex);
     }
@@ -285,10 +298,13 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
     if (!m_reservoirView->wellCollection()->isActive())
         return false;
 
-    if (this->showWell() == false)
+    if (!this->showWell())
         return false;
 
-    if (this->showWellSpheres() == false)
+    if (!m_reservoirView->wellCollection()->showWellSpheres())
+        return false;
+
+    if (!this->showWellSpheres())
         return false;
 
     if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))

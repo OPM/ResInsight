@@ -19,7 +19,9 @@
 #include "RicEclipseWellShowFeatures.h"
 
 #include "RicEclipseWellFeatureImpl.h"
+
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 
 #include <QAction>
 
@@ -33,14 +35,9 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowLabelFeature, "RicEclipseWellShowLabelFeat
 void RicEclipseWellShowLabelFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if (selection.size() > 0)
+    for (RimEclipseWell* w : selection)
     {
-        RimEclipseWell* well = selection[0];
-
-        for (RimEclipseWell* w : selection)
-        {
-            w->showWellLabel.setValueWithFieldChanged(isChecked);
-        }
+        w->showWellLabel.setValueWithFieldChanged(isChecked);
     }
 }
 
@@ -59,6 +56,12 @@ void RicEclipseWellShowLabelFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowLabelFeature::isCommandEnabled()
 {
+    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
+    if (wellColl && !wellColl->showWellLabel())
+    {
+        return false;
+    }
+
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -93,14 +96,9 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowHeadFeature, "RicEclipseWellShowHeadFeatur
 void RicEclipseWellShowHeadFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if (selection.size() > 0)
+    for (RimEclipseWell* w : selection)
     {
-        RimEclipseWell* well = selection[0];
-
-        for (RimEclipseWell* w : selection)
-        {
-            w->showWellHead.setValueWithFieldChanged(isChecked);
-        }
+        w->showWellHead.setValueWithFieldChanged(isChecked);
     }
 }
 
@@ -119,6 +117,12 @@ void RicEclipseWellShowHeadFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowHeadFeature::isCommandEnabled()
 {
+    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
+    if (wellColl && !wellColl->showWellHead())
+    {
+        return false;
+    }
+
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -154,14 +158,9 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowPipeFeature, "RicEclipseWellShowPipeFeatur
 void RicEclipseWellShowPipeFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if (selection.size() > 0)
+    for (RimEclipseWell* w : selection)
     {
-        RimEclipseWell* well = selection[0];
-
-        for (RimEclipseWell* w : selection)
-        {
-            w->showWellPipes.setValueWithFieldChanged(isChecked);
-        }
+        w->showWellPipe.setValueWithFieldChanged(isChecked);
     }
 }
 
@@ -180,6 +179,12 @@ void RicEclipseWellShowPipeFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowPipeFeature::isCommandEnabled()
 {
+    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
+    if (wellColl && !wellColl->showWellPipe())
+    {
+        return false;
+    }
+
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -193,7 +198,7 @@ bool RicEclipseWellShowPipeFeature::isCommandChecked()
     {
         RimEclipseWell* well = selection[0];
 
-        return well->showWellPipes();
+        return well->showWellPipe();
     }
 
     return false;
@@ -215,14 +220,9 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowSpheresFeature, "RicEclipseWellShowSpheres
 void RicEclipseWellShowSpheresFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if (selection.size() > 0)
+    for (RimEclipseWell* w : selection)
     {
-        RimEclipseWell* well = selection[0];
-
-        for (RimEclipseWell* w : selection)
-        {
-            w->showWellSpheres.setValueWithFieldChanged(isChecked);
-        }
+        w->showWellSpheres.setValueWithFieldChanged(isChecked);
     }
 }
 
@@ -241,6 +241,12 @@ void RicEclipseWellShowSpheresFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
 {
+    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
+    if (wellColl && !wellColl->showWellSpheres())
+    {
+        return false;
+    }
+
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 

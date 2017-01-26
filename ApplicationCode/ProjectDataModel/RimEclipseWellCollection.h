@@ -88,30 +88,34 @@ public:
     typedef caf::AppEnum<RimEclipseWellCollection::WellPipeCoordType> WellPipeCoordEnum;
 
 
+    caf::PdmField<bool>                 isActive;
     caf::PdmField<bool>                 showWellsIntersectingVisibleCells;
     
     caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<bool>                 showWellHead;
+    caf::PdmField<bool>                 showWellPipe;
+    caf::PdmField<bool>                 showWellSpheres;
+
+    caf::PdmField<double>               wellHeadScaleFactor;
+    caf::PdmField<double>               pipeScaleFactor;
+    caf::PdmField<double>               spheresScaleFactor;
+
     caf::PdmField<cvf::Color3f>         wellLabelColor;
 
-    caf::PdmField<bool>                 isActive;
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
 
-    caf::PdmField<double>               pipeScaleFactor;
     caf::PdmField<int>                  pipeCrossSectionVertexCount;
     caf::PdmField<WellPipeCoordEnum>    wellPipeCoordType;
 
-    caf::PdmField<double>               wellHeadScaleFactor;
-    caf::PdmField<bool>                 showWellHead;
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
-    caf::PdmField<double>               cellCenterSpheresScaleFactor;
 
 	
 	caf::PdmChildArrayField<RimEclipseWell*>     wells;

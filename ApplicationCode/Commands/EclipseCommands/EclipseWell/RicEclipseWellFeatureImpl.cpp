@@ -19,6 +19,7 @@
 #include "RicEclipseWellFeatureImpl.h"
 
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -47,5 +48,24 @@ std::vector<RimEclipseWell*> RicEclipseWellFeatureImpl::selectedWells()
     caf::SelectionManager::instance()->objectsByType(&selection);
 
     return selection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseWellCollection* RicEclipseWellFeatureImpl::wellCollectionFromSelection()
+{
+    std::vector<RimEclipseWell*> selection = selectedWells();
+    if (selection.size() > 0)
+    {
+        RimEclipseWell* firstWell = selection[0];
+
+        RimEclipseWellCollection* wellCollection = nullptr;
+        firstWell->firstAncestorOrThisOfType(wellCollection);
+
+        return wellCollection;
+    }
+
+    return nullptr;
 }
 
