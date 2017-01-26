@@ -99,6 +99,8 @@ public:
     caf::PdmField<double>               spheresScaleFactor;
 
     caf::PdmField<cvf::Color3f>         wellLabelColor;
+    caf::PdmField<bool>                 showConnectionStatusColors;
+
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
@@ -110,10 +112,7 @@ public:
 
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
-
     caf::PdmField<bool>                 isAutoDetectingBranches;
-
-
 	
 	caf::PdmChildArrayField<RimEclipseWell*>     wells;
 

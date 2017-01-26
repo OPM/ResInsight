@@ -240,49 +240,57 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
         wellCellStates.clear();
         wellCellStates.resize(brIt->m_cellIds.size(), closed);
 
-        const std::vector <RigWellResultPoint>& cellIds =  brIt->m_cellIds;
-
-        for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
+        RimEclipseWellCollection* wellColl = nullptr;
+        if (m_rimWell)
         {
-            // we need a faster lookup, I guess
-            const RigWellResultPoint* wResCell = NULL;
+            m_rimWell->firstAncestorOrThisOfType(wellColl);
+        }
+
+        if (wellColl && wellColl->showConnectionStatusColors())
+        {
+            const std::vector <RigWellResultPoint>& cellIds =  brIt->m_cellIds;
+            for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
+            {
+                // we need a faster lookup, I guess
+                const RigWellResultPoint* wResCell = NULL;
             
-            if (cellIds[wcIdx].isCell())
-            {
-                wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
-            }
-
-            if (wResCell == NULL) 
-            {
-                // We cant find any state. This well cell is closed.
-            }
-            else
-            {
-                double cellState = closed;
-
-                if (wResCell->m_isOpen)
+                if (cellIds[wcIdx].isCell())
                 {
-                    switch (wResFrame.m_productionType)
-                    {
-                    case RigWellResultFrame::PRODUCER:
-                        cellState = producing;
-                        break;
-                    case RigWellResultFrame::OIL_INJECTOR:
-                        cellState = hcInjection;
-                        break;
-                    case RigWellResultFrame::GAS_INJECTOR:
-                        cellState = hcInjection;
-                        break;
-                    case RigWellResultFrame::WATER_INJECTOR:
-                        cellState = water;
-                        break;
-                    case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
-                        cellState = closed;
-                        break;
-                    }
+                    wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
                 }
 
-                wellCellStates[wcIdx] = cellState;
+                if (wResCell == NULL) 
+                {
+                    // We cant find any state. This well cell is closed.
+                }
+                else
+                {
+                    double cellState = closed;
+
+                    if (wResCell->m_isOpen)
+                    {
+                        switch (wResFrame.m_productionType)
+                        {
+                        case RigWellResultFrame::PRODUCER:
+                            cellState = producing;
+                            break;
+                        case RigWellResultFrame::OIL_INJECTOR:
+                            cellState = hcInjection;
+                            break;
+                        case RigWellResultFrame::GAS_INJECTOR:
+                            cellState = hcInjection;
+                            break;
+                        case RigWellResultFrame::WATER_INJECTOR:
+                            cellState = water;
+                            break;
+                        case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+                            cellState = closed;
+                            break;
+                        }
+                    }
+
+                    wellCellStates[wcIdx] = cellState;
+                }
             }
         }
 

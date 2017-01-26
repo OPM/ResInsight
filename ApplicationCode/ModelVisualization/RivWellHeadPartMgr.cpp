@@ -250,24 +250,38 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         part->setDrawable(geo1.p());
 
         cvf::Color4f headColor(cvf::Color3::GRAY);
-        if (wellResultFrame.m_isOpen)
+
+        RimEclipseWellCollection* wellColl = nullptr;
+        if (m_rimWell)
         {
-            if (wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER)
+            m_rimWell->firstAncestorOrThisOfType(wellColl);
+        }
+
+        if (wellColl && wellColl->showConnectionStatusColors())
+        {
+            if (wellResultFrame.m_isOpen)
             {
-                headColor = cvf::Color4f(cvf::Color3::GREEN);
+                if (wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER)
+                {
+                    headColor = cvf::Color4f(cvf::Color3::GREEN);
+                }
+                else if (wellResultFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR)
+                {
+                    headColor = cvf::Color4f(cvf::Color3::ORANGE);
+                }
+                else if (wellResultFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR)
+                {
+                    headColor = cvf::Color4f(cvf::Color3::RED);
+                }
+                else if (wellResultFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR)
+                {
+                    headColor = cvf::Color4f(cvf::Color3::BLUE);
+                }
             }
-            else if (wellResultFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR)
-            {
-                headColor = cvf::Color4f(cvf::Color3::ORANGE);
-            }
-            else if (wellResultFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR)
-            {
-                headColor = cvf::Color4f(cvf::Color3::RED);
-            }
-            else if (wellResultFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR)
-            {
-                headColor = cvf::Color4f(cvf::Color3::BLUE);
-            }
+        }
+        else
+        {
+            headColor = cvf::Color4f(m_rimWell->wellPipeColor());
         }
 
         caf::SurfaceEffectGenerator surfaceGen(headColor, caf::PO_1);

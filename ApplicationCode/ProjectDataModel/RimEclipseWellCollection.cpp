@@ -75,8 +75,8 @@ namespace caf
     template<>
     void RimEclipseWellCollection::WellHeadPositionEnum::setUp()
     {
-        addItem(RimEclipseWellCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of active cells BB");
-        addItem(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Top of active cells IJ-column");
+        addItem(RimEclipseWellCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "All Active Cells");
+        addItem(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Active Cell Column");
         setDefault(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN);
     }
 }
@@ -121,16 +121,18 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
 
-    cvf::Color3f defaultApplyColor = cvf::Color3f::YELLOW;
-    CAF_PDM_InitField(&m_wellColorForApply, "WellColorForApply", defaultApplyColor, "Color", "", "", "");
+    CAF_PDM_InitField(&showConnectionStatusColors, "ShowConnectionStatusColors", true, "Show Connection Status Colors Along Well", "", "", "");
 
-    CAF_PDM_InitField(&m_applySingleColorToWells, "ApplySingleColorToWells", false, "Apply Single Color", "", "", "");
+    cvf::Color3f defaultApplyColor = cvf::Color3f::YELLOW;
+    CAF_PDM_InitField(&m_wellColorForApply, "WellColorForApply", defaultApplyColor, "Single Well Color", "", "", "");
+
+    CAF_PDM_InitField(&m_applySingleColorToWells, "ApplySingleColorToWells", false, "", "", "", "");
     m_applySingleColorToWells.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applySingleColorToWells.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_applySingleColorToWells.xmlCapability()->setIOReadable(false);
     m_applySingleColorToWells.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitField(&m_applyIndividualColorsToWells, "ApplyIndividualColorsToWells", false, "Apply Individual Colors", "", "", "");
+    CAF_PDM_InitField(&m_applyIndividualColorsToWells, "ApplyIndividualColorsToWells", false, "", "", "", "");
     m_applyIndividualColorsToWells.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyIndividualColorsToWells.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_applyIndividualColorsToWells.xmlCapability()->setIOReadable(false);
@@ -138,15 +140,15 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Coords", "", "", "");
+    CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Geometry", "", "", "");
 
     CAF_PDM_InitField(&wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "Use well fence", "", "", "");
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "Well Fence direction", "", "", "");
 
-    CAF_PDM_InitField(&wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well cell transparency", "", "", "");
-    CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
-    CAF_PDM_InitField(&wellHeadPosition,    "WellHeadPosition", WellHeadPositionEnum(WELLHEAD_POS_TOP_COLUMN), "Well head position",  "", "", "");
+    CAF_PDM_InitField(&wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well Cell Transparency", "", "", "");
+    CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Branch Detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
+    CAF_PDM_InitField(&wellHeadPosition,    "WellHeadPosition", WellHeadPositionEnum(WELLHEAD_POS_TOP_COLUMN), "Well Head Position On Top Of",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
     wells.uiCapability()->setUiHidden(true);
@@ -253,7 +255,8 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if (  &spheresScaleFactor == changedField
-                || &showWellSpheres == changedField)
+                || &showWellSpheres == changedField
+                || &showConnectionStatusColors == changedField)
         {
             m_reservoirView->schedulePipeGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -346,19 +349,18 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     colorGroup->add(&wellLabelColor);
     colorGroup->add(&m_applyIndividualColorsToWells);
 
-    caf::PdmUiGroup* singleColorGroup = colorGroup->addNewGroup("Single Well Color");
-    singleColorGroup->add(&m_wellColorForApply);
-    singleColorGroup->add(&m_applySingleColorToWells);
+    colorGroup->add(&m_wellColorForApply);
+    colorGroup->add(&m_applySingleColorToWells);
 
-    caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
-    wellPipe->add(&wellPipeCoordType);
+    colorGroup->add(&showConnectionStatusColors);
+
+    uiOrdering.add(&wellPipeCoordType);
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
-    advancedGroup->add(&wellCellTransparencyLevel);
     advancedGroup->add(&isAutoDetectingBranches);
+    advancedGroup->add(&wellCellTransparencyLevel);
     
-    caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well head");
-    wellHeadGroup->add(&wellHeadPosition);
+    uiOrdering.add(&wellHeadPosition);
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
     filterGroup->add(&wellCellsToRangeFilterMode);
