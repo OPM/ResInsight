@@ -153,7 +153,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf:
 
     cvf::GeometryBuilderTriangles builder;
     double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
-    double cellRadius = m_rimReservoirView->wellCollection()->cellCenterSpheresScaleFactor() * characteristicCellSize;
+    double cellRadius = m_rimReservoirView->wellCollection()->spheresScaleFactor() * characteristicCellSize;
     cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
 
     vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
@@ -186,28 +186,41 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& well
 {
     // Colours should be synchronized with RivWellPipesPartMgr::updatePipeResultColor
 
-    cvf::Color3f cellColor(cvf::Color3f::GRAY);
-      
-    if (wellResultPoint.m_isOpen)
+    cvf::Color3f cellColor(m_rimWell->wellPipeColor());
+
+    RimEclipseWellCollection* wellColl = nullptr;
+    if (m_rimWell)
     {
-        switch (wellResultFrame.m_productionType)
+        m_rimWell->firstAncestorOrThisOfType(wellColl);
+    }
+
+    if (wellColl && wellColl->showConnectionStatusColors())
+    {
+        if (wellResultPoint.m_isOpen)
         {
-        case RigWellResultFrame::PRODUCER:
-            cellColor = cvf::Color3f::GREEN;
-            break;
-        case RigWellResultFrame::OIL_INJECTOR:
-            cellColor = cvf::Color3f::RED;
-            break;
-        case RigWellResultFrame::GAS_INJECTOR:
-            cellColor = cvf::Color3f::RED;
-            break;
-        case RigWellResultFrame::WATER_INJECTOR:
-            cellColor = cvf::Color3f::BLUE;
-            break;
-        case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
-            cellColor = cvf::Color3f::GRAY;
-            break;
+            switch (wellResultFrame.m_productionType)
+            {
+            case RigWellResultFrame::PRODUCER:
+                cellColor = cvf::Color3f::GREEN;
+                break;
+            case RigWellResultFrame::OIL_INJECTOR:
+                cellColor = cvf::Color3f::RED;
+                break;
+            case RigWellResultFrame::GAS_INJECTOR:
+                cellColor = cvf::Color3f::RED;
+                break;
+            case RigWellResultFrame::WATER_INJECTOR:
+                cellColor = cvf::Color3f::BLUE;
+                break;
+            case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+                cellColor = cvf::Color3f::GRAY;
+                break;
+            }
         }
+    }
+    else
+    {
+        cellColor = m_rimWell->wellPipeColor();
     }
 
     return cellColor;

@@ -185,7 +185,6 @@ else()
 	        ecl_well 
 	        ert_geometry 
 	        ert_util  
-	        ert_utilxx
     )
 
     if (MSVC)

@@ -61,8 +61,6 @@ void RivReservoirWellSpheresPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 void RivReservoirWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (m_reservoirView->wellCollection()->wellSphereVisibility == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
-    
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
     if (m_reservoirView->wellCollection()->wells.size() != m_wellSpheresPartMgrs.size())

@@ -70,15 +70,18 @@ public:
     caf::PdmField<bool>                 showWell;
 
     caf::PdmField<QString>              name;
+    
     caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<bool>                 showWellHead;
+    caf::PdmField<bool>                 showWellPipe;
+    caf::PdmField<bool>                 showWellSpheres;
+    
+    caf::PdmField<double>               pipeScaleFactor;
+
+    caf::PdmField<cvf::Color3f>         wellPipeColor;
     
     caf::PdmField<bool>                 showWellCells;
     caf::PdmField<bool>                 showWellCellFence;
-    
-    caf::PdmField<bool>                 showWellPipes;
-    caf::PdmField<bool>                 showWellSpheres;
-    caf::PdmField<cvf::Color3f>         wellPipeColor;
-    caf::PdmField<double>               pipeRadiusScaleFactor;
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 

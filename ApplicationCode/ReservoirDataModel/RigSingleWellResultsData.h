@@ -42,7 +42,7 @@ struct RigWellResultPoint
         m_bottomPosition(cvf::Vec3d::UNDEFINED),
         m_flowRate(0.0)
     { }
-
+    
     bool isPointValid() const
     {
         return m_bottomPosition != cvf::Vec3d::UNDEFINED;

@@ -29,8 +29,6 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
-#include <QString>
-
 class RimEclipseView;
 class RimEclipseWell;
 
@@ -88,31 +86,33 @@ public:
     typedef caf::AppEnum<RimEclipseWellCollection::WellPipeCoordType> WellPipeCoordEnum;
 
 
-    caf::PdmField<bool>                 showWellLabel;
-    caf::PdmField<cvf::Color3f>         wellLabelColor;
-
     caf::PdmField<bool>                 isActive;
+    caf::PdmField<bool>                 showWellsIntersectingVisibleCells;
+    
+    caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<bool>                 showWellHead;
+    caf::PdmField<bool>                 showWellPipe;
+    caf::PdmField<bool>                 showWellSpheres;
+
+    caf::PdmField<double>               wellHeadScaleFactor;
+    caf::PdmField<double>               pipeScaleFactor;
+    caf::PdmField<double>               spheresScaleFactor;
+
+    caf::PdmField<cvf::Color3f>         wellLabelColor;
+    caf::PdmField<bool>                 showConnectionStatusColors;
+
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
 
-    caf::PdmField<WellVisibilityEnum>   wellPipeVisibility;
-    caf::PdmField<double>               pipeRadiusScaleFactor;
     caf::PdmField<int>                  pipeCrossSectionVertexCount;
     caf::PdmField<WellPipeCoordEnum>    wellPipeCoordType;
 
-    caf::PdmField<double>               wellHeadScaleFactor;
-    caf::PdmField<bool>                 showWellHead;
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
-
     caf::PdmField<bool>                 isAutoDetectingBranches;
-
-    caf::PdmField<WellVisibilityEnum>   wellSphereVisibility;
-    caf::PdmField<double>               cellCenterSpheresScaleFactor;
-
 	
 	caf::PdmChildArrayField<RimEclipseWell*>     wells;
 
@@ -125,14 +125,25 @@ public:
     void                                scheduleIsWellPipesVisibleRecalculation();
 
 protected:
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    virtual void                        initAfterRead() override;
+    virtual void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
 private:
-
     void                                calculateWellGeometryVisibility(size_t frameIndex);
+    static cvf::Color3f                 cycledPaletteColor(size_t colorIndex);
 
-    RimEclipseView*   m_reservoirView;
-    std::vector< std::vector< cvf::ubyte > >             
-                                        m_framesOfResultWellPipeVisibilities;  
+private:
+    RimEclipseView*                     m_reservoirView;
+    std::vector< std::vector< cvf::ubyte > > m_framesOfResultWellPipeVisibilities;  
+    
+    // Fields
+    caf::PdmField<cvf::Color3f>         m_wellColorForApply;
+    caf::PdmField<bool>                 m_applySingleColorToWells;
+    caf::PdmField<bool>                 m_applyIndividualColorsToWells;
+
+    // Obsolete fields
+    caf::PdmField<WellVisibilityEnum>   obsoleteField_wellPipeVisibility;
 };
