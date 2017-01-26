@@ -103,8 +103,6 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
 {
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF) return;
-
     if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
     {
         clearGeometryCache();

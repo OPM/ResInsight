@@ -30,6 +30,7 @@
 
 namespace caf
 {
+    // OBSOLETE enum
     template<>
     void RimEclipseWellCollection::WellVisibilityEnum::setUp()
     {
@@ -98,6 +99,8 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", true, "Show Wells Intersecting Visible Cells", "", "", "");
+
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "Well head scale", "", "", "");
@@ -105,7 +108,9 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
 
-    CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
+    CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
+    obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);
+    obsoleteField_wellPipeVisibility.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitField(&pipeScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
@@ -120,7 +125,6 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
-    CAF_PDM_InitField(&wellSphereVisibility, "wellSphereVisibility", WellVisibilityEnum(PIPES_FORCE_ALL_OFF), "Global well sphere visibility", "", "", "");
     CAF_PDM_InitField(&cellCenterSpheresScaleFactor, "CellCenterSphereScale", 0.2, "Cell Center sphere radius", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
@@ -193,10 +197,7 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
 bool RimEclipseWellCollection::hasVisibleWellPipes() 
 {
     if (!this->isActive()) return false;
-    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF && this->wellSphereVisibility() == PIPES_FORCE_ALL_OFF ) return false;
     if (this->wells().size() == 0 ) return false;
-    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
-    if (this->wellSphereVisibility() == PIPES_FORCE_ALL_ON) return true;
 
     return true;
 }
@@ -239,8 +240,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
-    else if (  &wellSphereVisibility == changedField
-            || &cellCenterSpheresScaleFactor == changedField)
+    else if (&cellCenterSpheresScaleFactor == changedField)
     {
         if (m_reservoirView)
         {
@@ -256,13 +256,6 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
-    else if (&wellPipeVisibility == changedField)
-    {
-        if (m_reservoirView) 
-        {   
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
     else if (  &pipeCrossSectionVertexCount == changedField 
             || &pipeScaleFactor == changedField 
             || &wellHeadScaleFactor == changedField 
@@ -270,6 +263,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             || &isAutoDetectingBranches == changedField
             || &wellHeadPosition == changedField
             || &wellLabelColor == changedField
+            || &showWellsIntersectingVisibleCells == changedField
             || &wellPipeCoordType == changedField)
     {
         if (m_reservoirView) 
@@ -293,6 +287,8 @@ void RimEclipseWellCollection::setReservoirView(RimEclipseView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&showWellsIntersectingVisibleCells);
+
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
     filterGroup->add(&wellCellsToRangeFilterMode);
     filterGroup->add(&showWellCellFences);
@@ -306,12 +302,10 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     wellHeadGroup->add(&wellLabelColor);
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
-    wellPipe->add(&wellPipeVisibility);
     wellPipe->add(&pipeScaleFactor);
     wellPipe->add(&wellPipeCoordType);
 
     caf::PdmUiGroup* cellCenterSpheres = uiOrdering.addNewGroup("Well cell center spheres");
-    cellCenterSpheres->add(&wellSphereVisibility);
     cellCenterSpheres->add(&cellCenterSpheresScaleFactor);
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
@@ -327,6 +321,39 @@ caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
     return &isActive;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::initAfterRead()
+{
+    if (obsoleteField_wellPipeVisibility() == PIPES_OPEN_IN_VISIBLE_CELLS)
+    {
+        showWellsIntersectingVisibleCells = true;
+    }
+    else if (obsoleteField_wellPipeVisibility() == PIPES_FORCE_ALL_OFF)
+    {
+        showWellsIntersectingVisibleCells = false;
+
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWell = false;
+        }
+    }
+    else if (obsoleteField_wellPipeVisibility() == PIPES_FORCE_ALL_ON)
+    {
+        showWellsIntersectingVisibleCells = false;
+
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWell = true;
+        }
+    }
+    else if (obsoleteField_wellPipeVisibility() == PIPES_INDIVIDUALLY)
+    {
+        showWellsIntersectingVisibleCells = false;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

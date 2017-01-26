@@ -20,6 +20,7 @@
 
 #include "RimEclipseWell.h"
 
+#include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseView.h"
@@ -27,7 +28,6 @@
 #include "RimIntersectionCollection.h"
 
 #include "cvfMath.h"
-#include "RigSimulationWellCenterLineCalculator.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
 
@@ -46,7 +46,7 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Show well label", "", "", "");
     CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Show well head", "", "", "");
     CAF_PDM_InitField(&showWellPipes,           "ShowWellPipe",         true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      true,   "Show well spheres", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Show well spheres", "", "", "");
 
     CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Well Pipe Scale Factor", "", "", "");
     CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
@@ -241,32 +241,23 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
     if (!m_reservoirView->wellCollection()->isActive())
         return false;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
-        return true;
-
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
-        return false;
-
     if (this->showWell() == false)
         return false;
 
     if (this->showWellPipes() == false)
         return false;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
-        return true;
-
     if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
         return visibleCellsInstersectsWell(frameIndex);
     }
-
-    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
-
-    return false;
+    else
+    {
+        return true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,27 +285,22 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
     if (!m_reservoirView->wellCollection()->isActive())
         return false;
 
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_ON)
-        return true;
-
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_FORCE_ALL_OFF)
-        return false;
-
     if (this->showWell() == false)
         return false;
 
     if (this->showWellSpheres() == false)
         return false;
 
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_INDIVIDUALLY)
-        return true;
-
     if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (m_reservoirView->wellCollection()->wellSphereVisibility() == RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
         return visibleCellsInstersectsWell(frameIndex);
+    }
+    else
+    {
+        return true;
     }
 
     CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?

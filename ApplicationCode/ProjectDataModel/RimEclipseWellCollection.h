@@ -88,6 +88,8 @@ public:
     typedef caf::AppEnum<RimEclipseWellCollection::WellPipeCoordType> WellPipeCoordEnum;
 
 
+    caf::PdmField<bool>                 showWellsIntersectingVisibleCells;
+    
     caf::PdmField<bool>                 showWellLabel;
     caf::PdmField<cvf::Color3f>         wellLabelColor;
 
@@ -98,7 +100,6 @@ public:
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
 
-    caf::PdmField<WellVisibilityEnum>   wellPipeVisibility;
     caf::PdmField<double>               pipeScaleFactor;
     caf::PdmField<int>                  pipeCrossSectionVertexCount;
     caf::PdmField<WellPipeCoordEnum>    wellPipeCoordType;
@@ -110,7 +111,6 @@ public:
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 
-    caf::PdmField<WellVisibilityEnum>   wellSphereVisibility;
     caf::PdmField<double>               cellCenterSpheresScaleFactor;
 
 	
@@ -128,11 +128,14 @@ protected:
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*        objectToggleField();
-private:
+    virtual void                        initAfterRead() override;
 
+private:
     void                                calculateWellGeometryVisibility(size_t frameIndex);
 
-    RimEclipseView*   m_reservoirView;
-    std::vector< std::vector< cvf::ubyte > >             
-                                        m_framesOfResultWellPipeVisibilities;  
+private:
+    RimEclipseView*                             m_reservoirView;
+    std::vector< std::vector< cvf::ubyte > >    m_framesOfResultWellPipeVisibilities;  
+    
+    caf::PdmField<WellVisibilityEnum>           obsoleteField_wellPipeVisibility;
 };
