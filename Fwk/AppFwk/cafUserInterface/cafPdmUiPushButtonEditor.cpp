@@ -93,7 +93,8 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_pushButton->setIcon(attributes.m_buttonIcon);
     }
-    else if (!attributes.m_buttonText.isEmpty())
+    
+    if (!attributes.m_buttonText.isEmpty())
     {
         m_pushButton->setText(attributes.m_buttonText);
     }
