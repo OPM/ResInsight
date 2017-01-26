@@ -23,6 +23,9 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "cvfBoundingBox.h"
+#include "custom-clipper/clipper/clipper.hpp"
+
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -186,26 +189,165 @@ void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d 
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-void RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygon2d)
+double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygonToCalcLengthOf)
 {
     //TODO: Check that polygon is in xy plane
 
     //Find bounding box
     cvf::BoundingBox polygonBBox;
-    for (cvf::Vec3d nodeCoord : polygon2d) polygonBBox.add(nodeCoord);
+    for (cvf::Vec3d nodeCoord : polygonToCalcLengthOf) polygonBBox.add(nodeCoord);
     cvf::Vec3d bboxCorners[8];
     polygonBBox.cornerVertices(bboxCorners);
 
 
-    //Split bounding box in multplie polygons (2D)
+    //Split bounding box in multiple polygons (2D)
     int resolutionOfLengthCalc = 20;
+    cvf::Vec3d widthOfPolygon = polygonBBox.extent() / resolutionOfLengthCalc;
 
+    std::vector<double> areasOfPolygonContributions;
+    std::vector<double> lengthOfPolygonContributions;
 
-    //Use clipper to find overlap between bbpolygon and fracture
+    for (int i = 0; i < resolutionOfLengthCalc; i++)
+    {
+        //Doing the same thing twice, this part can be optimized... 
+        std::pair<cvf::Vec3d, cvf::Vec3d> line1 = getLineThroughBoundingBox(directionOfLength, polygonBBox, bboxCorners[0] + widthOfPolygon*i);    
+        std::pair<cvf::Vec3d, cvf::Vec3d> line2 = getLineThroughBoundingBox(directionOfLength, polygonBBox, bboxCorners[0] + widthOfPolygon*(i+1));
+        std::vector<cvf::Vec3d> polygon;
+        polygon.push_back(line1.first);
+        polygon.push_back(line1.second);
+        polygon.push_back(line2.second);
+        polygon.push_back(line2.first);
 
-    //Calculate length (max-min) and area
+        //Use clipper to find overlap between bbpolygon and fracture
+        std::vector<std::vector<cvf::Vec3d> > clippedPolygons = clipPolygons(polygonToCalcLengthOf, polygon);
 
-    //Calculate area-weighted average of above vectors. 
+        double area = 0;
+        double length = 0;
+        cvf::Vec3d areaVector = cvf::Vec3d::ZERO;
 
+        //Calculate length (max-min) and area    
+        for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
+        {
+            areaVector = cvf::GeometryTools::polygonAreaNormal3D(clippedPolygon);
+            area += areaVector.length();
+            length += getLengthOfPolygonAlongLine(line1, clippedPolygon); //For testing that parts of code fit together... 
+        }
+        areasOfPolygonContributions.push_back(area);
+        lengthOfPolygonContributions.push_back(length);
+    }
 
+    //Calculate area-weighted length average.  
+    double totalArea = 0.0;
+    double totalAreaXlength = 0.0;
+
+    for (int i = 0; i < areasOfPolygonContributions.size(); i++)
+    {
+        totalArea += areasOfPolygonContributions[i];
+        totalAreaXlength += (areasOfPolygonContributions[i] * lengthOfPolygonContributions[i]);
+    }
+
+    double areaWeightedLength = totalAreaXlength / totalArea;
+    return areaWeightedLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2)
+{
+    int polygonScaleFactor = 10000; //For transform to clipper int 
+    int xInt, yInt;
+    
+    //Convert to int for clipper library and store as clipper "path"
+    ClipperLib::Path polygon1path;
+    for (cvf::Vec3d& v : polygon1)
+    {
+        xInt = v.x()*polygonScaleFactor;
+        yInt = v.y()*polygonScaleFactor;
+        polygon1path.push_back(ClipperLib::IntPoint(xInt, yInt));
+    }
+
+    ClipperLib::Path polygon2path;
+    for (cvf::Vec3d& v : polygon2)
+    {
+        xInt = v.x()*polygonScaleFactor;
+        yInt = v.y()*polygonScaleFactor;
+        polygon2path.push_back(ClipperLib::IntPoint(xInt, yInt));
+    }
+
+    ClipperLib::Clipper clpr;
+    clpr.AddPath(polygon1path, ClipperLib::ptSubject, true);
+    clpr.AddPath(polygon2path, ClipperLib::ptClip, true);
+
+    ClipperLib::Paths solution;
+    clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+    //Convert back to std::vector<std::vector<cvf::Vec3d> >
+    std::vector<std::vector<cvf::Vec3d> > clippedPolygons;
+    for (ClipperLib::Path pathInSol : solution)
+    {
+        std::vector<cvf::Vec3d> clippedPolygon;
+        for (ClipperLib::IntPoint IntPosition : pathInSol)
+        {
+            cvf::Vec3d v = cvf::Vec3d::ZERO;
+            v.x() = (float)IntPosition.X / (float)polygonScaleFactor;
+            v.y() = (float)IntPosition.Y / (float)polygonScaleFactor;
+            clippedPolygon.push_back(v);
+        }
+        clippedPolygons.push_back(clippedPolygon);
+    }
+
+    return clippedPolygons;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox(cvf::Vec3d lineDirection, cvf::BoundingBox polygonBBox, cvf::Vec3d pointOnLine)
+{
+    cvf::Vec3d bboxCorners[8];
+    polygonBBox.cornerVertices(bboxCorners);
+
+    cvf::Vec3d startPoint = pointOnLine;
+    cvf::Vec3d endPoint = pointOnLine;
+    
+
+    //To avoid doing many iterations in loops below linedirection should be quite large. 
+    lineDirection.normalize();
+    lineDirection = lineDirection * polygonBBox.extent().length() / 5;
+
+    //Extend line in positive direction
+    while (polygonBBox.contains(startPoint))
+    {
+        startPoint = startPoint + lineDirection;
+    }
+    //Extend line in negative direction
+    while (polygonBBox.contains(endPoint))
+    {
+        endPoint = endPoint - lineDirection;
+    }
+
+    std::pair<cvf::Vec3d, cvf::Vec3d> line;
+    line = { startPoint, endPoint };
+    return line;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCellGeometryTools::getLengthOfPolygonAlongLine(std::pair<cvf::Vec3d, cvf::Vec3d> line, std::vector<cvf::Vec3d> polygon)
+{
+    cvf::BoundingBox lineBoundingBox;
+
+    std::vector<cvf::Vec3d> pointsOnLine;
+
+    for (cvf::Vec3d polygonPoint : polygon)
+    {
+        cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine(line.first, line.second, polygonPoint, nullptr);
+        lineBoundingBox.add(pointOnLine);
+    }
+
+    double length = lineBoundingBox.extent().length();
+    return length;
 }

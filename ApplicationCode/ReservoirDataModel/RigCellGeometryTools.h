@@ -21,9 +21,11 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfPlane.h"
 
 #include <list>
+#include <vector>
 
 
 
@@ -39,5 +41,11 @@ public:
 
     static void findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection);
     
-    static void polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygon2d);
+    static double polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygon2d);
+   
+    static std::vector<std::vector<cvf::Vec3d> >  clipPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2);
+
+    static std::pair<cvf::Vec3d, cvf::Vec3d> getLineThroughBoundingBox(cvf::Vec3d lineDirection, cvf::BoundingBox polygonBBox, cvf::Vec3d pointOnLine);
+
+    static double getLengthOfPolygonAlongLine(std::pair<cvf::Vec3d, cvf::Vec3d> line, std::vector<cvf::Vec3d> polygon);
 };
