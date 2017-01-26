@@ -34,7 +34,7 @@ public:
 
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior.
-    void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute);
+    void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute* attribute);
 
     /// Return object editor specific parameters used to customize the editor behavior.
     void                    objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute);
@@ -56,7 +56,7 @@ public: // Virtual
     virtual void            fieldChangedByUi(const PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
     /// Method to re-implement to supply option values for a specific field
     virtual QList<PdmOptionItemInfo>
-        calculateValueOptions(const PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
+        calculateValueOptions(const PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
 
 protected:
     /// Override to customize the order and grouping of the Gui.
@@ -69,10 +69,10 @@ protected:
     virtual void            defineUiTreeOrdering(PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") { }
 
     /// Override to provide editor specific data for the field and uiConfigName 
-    virtual void            defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute) {}
+    virtual void            defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute* attribute) {}
 
     /// Override to provide editor specific data for the uiConfigName for the object
-    virtual void            defineObjectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute * attribute) {}
+    virtual void            defineObjectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute) {}
 
     /// This method is intended to be used in macros to make compile time errors 
     // if user uses them on wrong type of objects
