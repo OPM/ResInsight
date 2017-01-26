@@ -304,10 +304,10 @@ void RimFracture::computeTransmissibility()
             cvf::Vec3d areaVector;
             
 
-            for (auto planeCellPolygon : planeCellPolygons)
+            for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
             {
                 std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::clipPolygons(planeCellPolygon, fracPolygonDouble);
-                for (auto clippedPolygon : clippedPolygons)
+                for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
                 {
                     polygonsDescribingFractureInCell.push_back(clippedPolygon);
                 }
@@ -319,13 +319,28 @@ void RimFracture::computeTransmissibility()
             double length;
             std::vector<double> lengthXareaOfFractureParts;
 
-            for (auto fracturePartPolygon : polygonsDescribingFractureInCell)
+            for (std::vector<cvf::Vec3d> fracturePartPolygon : polygonsDescribingFractureInCell)
             {
                 areaVector = cvf::GeometryTools::polygonAreaNormal3D(fracturePartPolygon);
                 area = areaVector.length();
                 areaOfFractureParts.push_back(area);
                 length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, fracturePartPolygon);
                 lengthXareaOfFractureParts.push_back(length * area);
+                double AreaX = calculateProjectedArea(fracturePartPolygon, localX);
+
+
+                //Calculating area in x, y and z direction 
+                cvf::Vec3d planeNormal = cvf::Vec3d::ZERO;
+                planeNormal.cross(localX, -localZ);
+                double Ax = calculateProjectedArea(fracturePartPolygon, planeNormal);
+
+                planeNormal.cross(localY, localZ);
+                double Ay = calculateProjectedArea(fracturePartPolygon, planeNormal);
+
+                planeNormal.cross(localX, localY);
+                double Az = calculateProjectedArea(fracturePartPolygon, planeNormal);
+
+
             }
 
             double totalArea = 0.0;
@@ -334,6 +349,8 @@ void RimFracture::computeTransmissibility()
             double totalAreaXLength = 0.0;
             for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
             double fractureAreaWeightedlength = totalAreaXLength / totalArea;
+
+
 
 
             
@@ -419,6 +436,24 @@ bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<st
     RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
     return isCellIntersected;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFracture::calculateProjectedArea(std::vector<cvf::Vec3d> polygon, cvf::Vec3d planeNormal)
+{
+    //Set up plane 
+    cvf::Plane plane;
+    plane.setFromPointAndNormal(polygon[0], planeNormal); 
+
+    //Project points
+    for (cvf::Vec3d v : polygon) plane.projectPoint(v);
+
+    //calculate Area
+    cvf::Vec3d areaVector = cvf::GeometryTools::polygonAreaNormal3D(polygon);
+    double AreaInPlane = areaVector.length();
+    return AreaInPlane;
 }
 
 //--------------------------------------------------------------------------------------------------
