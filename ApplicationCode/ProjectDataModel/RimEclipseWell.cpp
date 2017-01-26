@@ -211,7 +211,7 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     
     pipeGroup->add(&wellPipeColor);
 
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells");
     filterGroup->add(&showWellCells);
     filterGroup->add(&showWellCellFence);
 
@@ -223,6 +223,11 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         showWellHead.uiCapability()->setUiReadOnly(!wellColl->showWellHead());
         showWellPipe.uiCapability()->setUiReadOnly(!wellColl->showWellPipe());
         showWellSpheres.uiCapability()->setUiReadOnly(!wellColl->showWellSpheres());
+        showWellCells.uiCapability()->setUiReadOnly(!wellColl->showWellCells());
+
+        bool isFenceEnabled = false;
+        if (wellColl->showWellCells() && wellColl->showWellCellFence()) isFenceEnabled = true;
+        showWellCellFence.uiCapability()->setUiReadOnly(!isFenceEnabled);
     }
 }
 

@@ -376,6 +376,9 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     filterGroup->add(&showWellCells);
     filterGroup->add(&showWellCellFence);
     filterGroup->add(&wellCellFenceType);
+
+    showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
+    wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());
 }
 
 //--------------------------------------------------------------------------------------------------
