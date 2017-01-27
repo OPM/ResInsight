@@ -33,6 +33,11 @@ public:
 
     size_t reservoirCellIndex;
     double transmissibility;
+    
+    double totalArea;
+    double fractureLenght;
+    cvf::Vec3d projectedAreas;
+
 
 };
 

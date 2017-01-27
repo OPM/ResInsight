@@ -253,8 +253,8 @@ void RimFracture::computeTransmissibility()
     std::vector<RigFractureData> fracDataVec;
 
     std::vector<size_t> fracCells = getPotentiallyFracturedCells();
-
-    for (auto fracCell : fracCells)
+    
+    for (size_t fracCell : fracCells)
     {
         //TODO: Remove - only for simplifying debugging...
         RiaApplication* app = RiaApplication::instance();
@@ -274,6 +274,7 @@ void RimFracture::computeTransmissibility()
 
         //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
         cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
+
         for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
         {
             for (cvf::Vec3d& v : planeCellPolygon)
@@ -287,11 +288,18 @@ void RimFracture::computeTransmissibility()
         localZinFracPlane.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
         cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
         directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
+        directionOfLength.normalize();
 
         RigFractureData fracData; 
         fracData.reservoirCellIndex = fracCell;
 
         double transmissibility;
+        double fractureArea = 0.0;
+        double fractureAreaWeightedlength = 0.0;
+        double Ax = 0.0;
+        double Ay = 0.0;
+        double Az = 0.0;
+
 
         if (attachedFractureDefinition())
         {
@@ -326,34 +334,26 @@ void RimFracture::computeTransmissibility()
                 areaOfFractureParts.push_back(area);
                 length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, fracturePartPolygon);
                 lengthXareaOfFractureParts.push_back(length * area);
-                double AreaX = calculateProjectedArea(fracturePartPolygon, localX);
+        
+                cvf::Plane fracturePlane;
+                cvf::Mat4f m = transformMatrix();
+                bool isCellIntersected = false;
 
+                fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
+                    static_cast<cvf::Vec3d>(m.col(2)));
 
-                //Calculating area in x, y and z direction 
-                cvf::Vec3d planeNormal = cvf::Vec3d::ZERO;
-                planeNormal.cross(localX, -localZ);
-                double Ax = calculateProjectedArea(fracturePartPolygon, planeNormal);
-
-                planeNormal.cross(localY, localZ);
-                double Ay = calculateProjectedArea(fracturePartPolygon, planeNormal);
-
-                planeNormal.cross(localX, localY);
-                double Az = calculateProjectedArea(fracturePartPolygon, planeNormal);
-
-
+                Ax += abs(area*(fracturePlane.normal().dot(localX)));
+                Ay += abs(area*(fracturePlane.normal().dot(localY)));
+                Az += abs(area*(fracturePlane.normal().dot(localZ)));
             }
 
-            double totalArea = 0.0;
-            for (double area : areaOfFractureParts) totalArea += area;
+
+            fractureArea = 0.0;
+            for (double area : areaOfFractureParts) fractureArea += area;
             
             double totalAreaXLength = 0.0;
             for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
-            double fractureAreaWeightedlength = totalAreaXLength / totalArea;
-
-
-
-
-            
+            double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
             //TODO: FInd direction for length calculation (normal to z, in fracture plane)
             double flowLength = 2.718281828;
@@ -361,13 +361,17 @@ void RimFracture::computeTransmissibility()
 
 
             //TODO: read permeability from file (should use matrix permeability and not fracture perm)... 
-            transmissibility = totalArea;
-            //transmissibility = 8 * c * attachedFractureDefinition()->permeability * areaOfCellPlaneFractureOverlap /
+            transmissibility = 8 * c * attachedFractureDefinition()->permeability * fractureArea /
                             ( flowLength + (attachedFractureDefinition()->skinFactor * fractureAreaWeightedlength) / cvf::PI_D);
         }
-        else transmissibility = cvf::UNDEFINED_DOUBLE;
-
+        else transmissibility = cvf::UNDEFINED_DOUBLE; 
+        
         fracData.transmissibility = transmissibility;
+        fracData.fractureLenght = fractureAreaWeightedlength;
+        fracData.totalArea = fractureArea;
+        fracData.projectedAreas = cvf::Vec3d(Ax, Ay, Az);
+        
+
         //only keep fracData if transmissibility is non-zero
         if (transmissibility > 0)
         {
@@ -436,24 +440,6 @@ bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<st
     RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
     return isCellIntersected;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimFracture::calculateProjectedArea(std::vector<cvf::Vec3d> polygon, cvf::Vec3d planeNormal)
-{
-    //Set up plane 
-    cvf::Plane plane;
-    plane.setFromPointAndNormal(polygon[0], planeNormal); 
-
-    //Project points
-    for (cvf::Vec3d v : polygon) plane.projectPoint(v);
-
-    //calculate Area
-    cvf::Vec3d areaVector = cvf::GeometryTools::polygonAreaNormal3D(polygon);
-    double AreaInPlane = areaVector.length();
-    return AreaInPlane;
 }
 
 //--------------------------------------------------------------------------------------------------

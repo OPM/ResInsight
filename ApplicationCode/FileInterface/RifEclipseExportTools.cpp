@@ -34,6 +34,7 @@
 
 #include <QTextStream>
 #include <QFile>
+#include <QString>
 
 
 
@@ -59,17 +60,21 @@ RifEclipseExportTools::~RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures)
 {
+    RiaApplication* app = RiaApplication::instance();
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return false;
+    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+    if (!activeRiv) return false;
+
+    const RigMainGrid* mainGrid = activeRiv->mainGrid();
+    if (!mainGrid) return false;
+
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         return false;
     }
-
-    QTextStream out(&file);
-    out << "\n";
-    out << "-- Exported from ResInsight" << "\n\n";
-    out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
 
     caf::ProgressInfo pi(fractures.size(), QString("Writing data to file %1").arg(fileName));
 
@@ -79,6 +84,89 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     size_t progress =0;
     std::vector<size_t> ijk;
 
+    QTextStream out(&file);
+    out << "\n";
+    out << "-- Exported from ResInsight" << "\n\n";
+
+    out << "-- Background data for calculation" << "\n\n";
+
+
+    //Write header line
+    out << qSetFieldWidth(4);
+    out << "--";
+    out << qSetFieldWidth(12);
+    out << "Well name";
+    
+    out << qSetFieldWidth(16);
+    out << "Fracture Name";
+
+    out << qSetFieldWidth(5);
+    out << "i";
+    out << "j";
+    out << "k";
+
+    out << qSetFieldWidth(8);
+    out << "Ax";
+    out << " ";
+    out << "Ay";
+    out << " ";
+    out << "Az";
+    out << " ";
+    out << "TotalArea";
+
+    out << "\n";
+
+
+
+    //Write background numbers (with -- first to comment out line)
+    for (RimFracture* fracture : fractures)
+    {
+        fracture->computeTransmissibility();
+        std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
+
+        for (RigFractureData fracData : fracDataVector)
+        {
+            out << qSetFieldWidth(4);
+            out << "--";
+            out << qSetFieldWidth(12);
+            
+            wellPath, simWell = nullptr;
+            fracture->firstAncestorOrThisOfType(simWell);
+            if (simWell) out << simWell->name;    // 1. Well name 
+            fracture->firstAncestorOrThisOfType(wellPath);
+            if (wellPath) out << wellPath->name;  // 1. Well name 
+
+            out << qSetFieldWidth(16);
+            out << fracture->name();
+
+
+            out << qSetFieldWidth(5);
+            size_t i, j, k;
+            mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
+            out << i + 1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
+            out << j + 1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
+            out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
+            out << " ";
+
+            
+
+            out << fracData.projectedAreas.x();
+            out << " ";
+            out << fracData.projectedAreas.y();
+            out << " ";
+            out << fracData.projectedAreas.z();
+            out << " ";
+            out << fracData.totalArea;
+
+            out << "\n";
+
+        }
+    }
+
+    out << "\n";
+
+    //Write COMPDAT keyword and entries
+    out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
     for (RimFracture* fracture : fractures)
     {
         fracture->computeTransmissibility();
@@ -97,15 +185,6 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
             out << qSetFieldWidth(5);
 
-            RiaApplication* app = RiaApplication::instance();
-            RimView* activeView = RiaApplication::instance()->activeReservoirView();
-            if (!activeView) return false;
-            RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-            if (!activeRiv) return false;
-
-            const RigMainGrid* mainGrid = activeRiv->mainGrid();
-            if (!mainGrid) return false;
-
             size_t i, j, k;
             mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k); 
             out << i+1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
@@ -113,8 +192,9 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
             out << k+1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
             out << k+1;          // 5. K location of lower connecting grid block, adding 1 to go to eclipse 1-based grid definition
 
-            out << "OPEN";          // 6. Open / Shut flag of connection
-            out << "1* ";            // 7. Saturation table number for connection rel perm. Default value
+            out << "2*";         // Default value for 
+                                 //6. Open / Shut flag of connection
+                                 // 7. Saturation table number for connection rel perm. Default value
 
             out << qSetFieldWidth(8);
             // 8. Transmissibility 
@@ -122,29 +202,27 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
             else out << "UNDEF";
 
             out << qSetFieldWidth(4);
-            out << "1* ";            // 9. Well bore diameter. Set to default
-
-            out << qSetFieldWidth(8);
+            out << "2*";         // Default value for 
+                                 // 9. Well bore diameter. Set to default
+                                 // 10. Effective Kh (perm times width)
+            
             if (fracture->attachedFractureDefinition())
             {
-                out << fracture->attachedFractureDefinition()->effectiveKh(); // 10. Effective Kh (perm times width)
-                out << qSetFieldWidth(4);
                 out << fracture->attachedFractureDefinition()->skinFactor;    // 11. Skin factor
             }
             else //If no attached fracture definition these parameters are set to UNDEF
             {
-                out << "UNDEF";
-                out << qSetFieldWidth(4);
                 out << "UNDEF";  
             }
 
-            out << "1*";            // 12. D-factor for handling non-Darcy flow of free gas. Default value. 
-            out << "Z";             // 13. Direction well is penetrating the grid block. Z is default. 
-            out << "1*";            // 14. Pressure equivalent radius, Default
-
-            out << "/" << "\n";
+            out << "/";
+            out << " " << fracture->name(); //Fracture name as comment
+            out << "\n"; // Terminating entry
         }
         
+
+        //TODO: If same cell is used for multiple fractures, the sum of contributions should be added to table. 
+
         progress++;
         pi.setProgress(progress);
     }
