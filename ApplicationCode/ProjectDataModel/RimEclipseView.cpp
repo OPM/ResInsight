@@ -791,6 +791,13 @@ void RimEclipseView::updateDisplayModelVisibility()
     m_viewer->update();
 
     faultCollection->updateConnectedEditors();
+
+    // This is required to update the read-only state of simulation wells
+    // when a range filter is manipulated and visible simulation wells might change
+    //
+    // The visibility is controlled by RimEclipseWell::defineUiTreeOrdering
+    // updateConnectedEditors will call recursively on child objects
+    wellCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
