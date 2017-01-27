@@ -23,7 +23,8 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "cvfBoundingBox.h"
-#include "custom-clipper/clipper/clipper.hpp"
+
+#include "clipper/clipper.hpp"
 
 #include <vector>
 
