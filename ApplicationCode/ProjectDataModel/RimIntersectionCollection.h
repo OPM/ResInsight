@@ -51,7 +51,7 @@ public:
     void appendIntersection(RimIntersection* intersection);
     void appendIntersectionBox(RimIntersectionBox* intersectionBox);
 
-    bool hasActiveIntersectionForSimulationWell(RimEclipseWell* eclipseWell) const;
+    bool hasActiveIntersectionForSimulationWell(const RimEclipseWell* eclipseWell) const;
 
     void updateIntersectionBoxGeometry();
 

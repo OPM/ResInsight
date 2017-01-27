@@ -140,7 +140,7 @@ void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
+bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
 {
     if (this->wellResults() == nullptr) return false;
 
@@ -152,10 +152,10 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
     const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
     cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
 
-    for (size_t gpIdx = 0; gpIdx < visGridParts.size(); ++gpIdx)
-    {
-        const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
 
+    for (const RivCellSetEnum& visGridPart : visGridParts)
+    {
         // First check the wellhead:
 
         size_t gridIndex = wrsf.m_wellHead.m_gridIndex;
@@ -163,7 +163,7 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
 
         if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
         {
-            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
             if ((*cellVisibility)[gridCellIndex])
             {
                 return true;
@@ -173,17 +173,17 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
         // Then check the rest of the well, with all the branches
 
         const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
-        for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
+        for (const RigWellResultBranch& branchSegment : wellResSegments)
         {
-            const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
-            for (size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx)
+            const std::vector<RigWellResultPoint>& wsResCells = branchSegment.m_branchResultPoints;
+            for (const RigWellResultPoint& wellResultPoint : wsResCells)
             {
-                if (wsResCells[cIdx].isCell())
+                if (wellResultPoint.isCell())
                 {
-                    gridIndex = wsResCells[cIdx].m_gridIndex;
-                    gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+                    gridIndex = wellResultPoint.m_gridIndex;
+                    gridCellIndex = wellResultPoint.m_gridCellIndex;
 
-                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
                     if ((*cellVisibility)[gridCellIndex])
                     {
                         return true;
@@ -234,9 +234,9 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
+bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
 {
-    RimEclipseView* reservoirView = nullptr;
+    const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
 
     if (reservoirView == nullptr) return false;
@@ -270,7 +270,7 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 
     if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return visibleCellsInstersectsWell(frameIndex);
+        return intersectsVisibleCells(frameIndex);
     }
     else
     {
@@ -281,9 +281,9 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
+bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
 {
-    RimEclipseView* m_reservoirView = nullptr;
+    const RimEclipseView* m_reservoirView = nullptr;
     this->firstAncestorOrThisOfType(m_reservoirView);
 
     if (m_reservoirView == nullptr) return false;
@@ -317,7 +317,7 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 
     if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return visibleCellsInstersectsWell(frameIndex);
+        return intersectsVisibleCells(frameIndex);
     }
     else
     {
@@ -332,9 +332,9 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isUsingCellCenterForPipe()
+bool RimEclipseWell::isUsingCellCenterForPipe() const
 {
-    RimEclipseWellCollection* wellColl = nullptr;
+    const RimEclipseWellCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
 
     return (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER);
@@ -360,7 +360,15 @@ RigSingleWellResultsData* RimEclipseWell::wellResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimEclipseWell::resultWellIndex()
+const RigSingleWellResultsData* RimEclipseWell::wellResults() const
+{
+    return m_wellResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimEclipseWell::resultWellIndex() const
 {
     return m_resultWellIndex;
 }
