@@ -320,7 +320,6 @@ void RimFracture::computeTransmissibility()
                     polygonsDescribingFractureInCell.push_back(clippedPolygon);
                 }
             }
-                
              
             double area;
             std::vector<double> areaOfFractureParts;
@@ -342,9 +341,12 @@ void RimFracture::computeTransmissibility()
                 fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
                     static_cast<cvf::Vec3d>(m.col(2)));
 
-                Ax += abs(area*(fracturePlane.normal().dot(localX)));
-                Ay += abs(area*(fracturePlane.normal().dot(localY)));
-                Az += abs(area*(fracturePlane.normal().dot(localZ)));
+
+                Ax += abs(area*(fracturePlane.normal().dot(localY)));
+                Ay += abs(area*(fracturePlane.normal().dot(localX)));
+                Az += abs(area*(fracturePlane.normal().dot(localZ))); 
+                //TODO: resulting values have only been checked for vertical fracture
+                //      (Dip angle = 90). 
             }
 
 
@@ -355,14 +357,27 @@ void RimFracture::computeTransmissibility()
             for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
             double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-            //TODO: FInd direction for length calculation (normal to z, in fracture plane)
-            double flowLength = 2.718281828;
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage       
 
+            //TODO: Read these values from file!
+            double Lx = 134.34; 
+            double Ly = 134.34; 
+            double Lz = 24.34; 
+            
+            double permX;
+            double permY;
+            double permZ;
+            
+            double slDivPi = (attachedFractureDefinition()->skinFactor * fractureAreaWeightedlength) / cvf::PI_D;
+            
+            //TODO: Use permx, permy, permz
+            double transmissibility_X = 8 * c * attachedFractureDefinition()->permeability * Ax / (Lx + slDivPi / cvf::PI_D);
+            double transmissibility_Y = 8 * c * attachedFractureDefinition()->permeability * Ay / (Ly + slDivPi / cvf::PI_D);
+            double transmissibility_Z = 8 * c * attachedFractureDefinition()->permeability * Az / (Lz + slDivPi / cvf::PI_D);
 
-            //TODO: read permeability from file (should use matrix permeability and not fracture perm)... 
+
             transmissibility = 8 * c * attachedFractureDefinition()->permeability * fractureArea /
-                            ( flowLength + (attachedFractureDefinition()->skinFactor * fractureAreaWeightedlength) / cvf::PI_D);
+                            ( Lx + (attachedFractureDefinition()->skinFactor * fractureAreaWeightedlength) / cvf::PI_D);
         }
         else transmissibility = cvf::UNDEFINED_DOUBLE; 
         
@@ -370,6 +385,7 @@ void RimFracture::computeTransmissibility()
         fracData.fractureLenght = fractureAreaWeightedlength;
         fracData.totalArea = fractureArea;
         fracData.projectedAreas = cvf::Vec3d(Ax, Ay, Az);
+        fracData.fractureLenght = fractureAreaWeightedlength;
         
 
         //only keep fracData if transmissibility is non-zero
