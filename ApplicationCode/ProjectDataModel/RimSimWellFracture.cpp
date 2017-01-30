@@ -22,7 +22,10 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
 #include "RimProject.h"
+
+#include "cafPdmUiDoubleSliderEditor.h"
 
 
 
@@ -35,6 +38,10 @@ RimSimWellFracture::RimSimWellFracture(void)
 {
     CAF_PDM_InitObject("SimWellFracture", ":/FractureSymbol16x16.png", "", "");
 
+    CAF_PDM_InitField(&measuredDepth, "MeasuredDepth", 0.0f, "Measured Depth Location", "", "", "");
+    measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_branchIndex, "Branch", 0, "Branch", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +68,118 @@ void RimSimWellFracture::setIJK(size_t i, size_t j, size_t k)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
+
+    if (   changedField == &measuredDepth
+        || changedField == &m_branchIndex
+        )
+    {
+        updateFractureAnchorPosition();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::updateFractureAnchorPosition()
+{
+    if (m_branchCenterLines.size() == 0)
+    {
+        updateBranchGeometry();
+    }
+
+    if (m_branchCenterLines.size() > 0)
+    {
+        cvf::Vec3d interpolated = m_branchCenterLines[m_branchIndex()].interpolatedPointAlongWellPath(measuredDepth());
+
+        this->setAnchorPosition(interpolated);
+
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj) proj->createDisplayModelAndRedrawAllViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&name);
+
+    uiOrdering.add(&measuredDepth);
+
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
+    geometryGroup->add(&azimuth);
+    geometryGroup->add(&m_fractureTemplate);
+
+    caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
+    fractureCenterGroup->add(&m_uiAnchorPosition);
+    fractureCenterGroup->add(&m_displayIJK);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (field == &measuredDepth)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+
+        if (myAttr)
+        {
+            if (m_branchCenterLines.size() == 0)
+            {
+                updateBranchGeometry();
+            }
+
+            if (m_branchCenterLines.size() > 0)
+            {
+                const RigSimulationWellCoordsAndMD& pointAndMd = m_branchCenterLines[m_branchIndex];
+
+                myAttr->m_minimum = pointAndMd.measuredDepths().front();
+                myAttr->m_maximum = pointAndMd.measuredDepths().back();
+                myAttr->m_sliderTickCount = pointAndMd.measuredDepths().back();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options = RimFracture::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+
+    if (fieldNeedingOptions == &m_branchIndex)
+    {
+        if (m_branchCenterLines.size() == 0)
+        {
+            updateBranchGeometry();
+        }
+
+        if (m_branchCenterLines.size() > 0)
+        {
+            size_t branchCount = m_branchCenterLines.size();
+
+            for (size_t bIdx = 0; bIdx < branchCount; ++bIdx)
+            {
+                // Use 1-based index in UI
+                options.push_back(caf::PdmOptionItemInfo(QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
+            }
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimSimWellFracture::findCellCenterPosition(size_t i, size_t j, size_t k) const
 {
     cvf::Vec3d undef = cvf::Vec3d::UNDEFINED;
@@ -80,5 +199,29 @@ cvf::Vec3d RimSimWellFracture::findCellCenterPosition(size_t i, size_t j, size_t
     cvf::Vec3d center = rigCell.center();
 
     return center;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::updateBranchGeometry()
+{
+    m_branchCenterLines.clear();
+
+    RimEclipseWell* rimWell = nullptr;
+    this->firstAncestorOrThisOfType(rimWell);
+    CVF_ASSERT(rimWell);
+
+    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+
+    rimWell->calculateWellPipeStaticCenterLine(pipeBranchesCLCoords, pipeBranchesCellIds);
+
+    for (const auto& branch : pipeBranchesCLCoords)
+    {
+        RigSimulationWellCoordsAndMD wellPathWithMD(branch);
+
+        m_branchCenterLines.push_back(wellPathWithMD);
+    }
 }
 
