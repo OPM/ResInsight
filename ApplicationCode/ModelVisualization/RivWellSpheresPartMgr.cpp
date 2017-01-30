@@ -194,7 +194,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& well
         m_rimWell->firstAncestorOrThisOfType(wellColl);
     }
 
-    if (wellColl && wellColl->showConnectionStatusColors())
+    if (wellColl)
     {
         if (wellResultPoint.m_isOpen)
         {
