@@ -27,6 +27,8 @@
 
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
 
 #include "RivReservoirViewPartMgr.h"
 
@@ -316,6 +318,17 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 
         m_applySingleColorToWells = false;
+    }
+
+    if (&wellPipeCoordType)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())
+            {
+                frac->recomputeWellCenterlineCoordinates();
+            }
+        }
     }
 }
 

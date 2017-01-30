@@ -75,7 +75,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fractureCollection->simwellFractures.push_back(fracture);
 
     fracture->name = "Simulation Well Fracture";
-    fracture->setIJK(simWellItem->i, simWellItem->j, simWellItem->k);
+    fracture->setClosestWellCoord(simWellItem->m_domainCoord, simWellItem->m_branchIndex);
 
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);

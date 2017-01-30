@@ -35,13 +35,12 @@ public:
     RimSimWellFracture(void);
     virtual ~RimSimWellFracture(void);
 
-    caf::PdmField<float>                            measuredDepth;
-
-    void                                            setIJK(size_t i, size_t j, size_t k);
+    void                                            setClosestWellCoord(cvf::Vec3d& position, size_t branchIndex);
 
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    void updateFractureAnchorPosition();
+    void                                            recomputeWellCenterlineCoordinates();
+
 
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -49,10 +48,12 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 private:
-    cvf::Vec3d                                      findCellCenterPosition(size_t i, size_t j, size_t k) const;
+    void                                            updateFracturePositionFromLocation();
     void                                            updateBranchGeometry();
+    void                                            setBranchGeometry();
 
 private:
+    caf::PdmField<float>                            m_location;
     caf::PdmField<int>                              m_branchIndex;
     std::vector<RigSimulationWellCoordsAndMD>       m_branchCenterLines;
 };

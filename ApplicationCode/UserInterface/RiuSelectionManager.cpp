@@ -221,13 +221,11 @@ RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSimWellSelectionItem::RiuSimWellSelectionItem(const RivSimWellPipeSourceInfo* simwellSourceInfo, 
-                                                  size_t i, 
-                                                  size_t j,
-                                                  size_t k)
-    : i(i),
-      j(j),
-      k(k)
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimEclipseWell* simwell, 
+                                                  cvf::Vec3d m_domainCoord,
+                                                  size_t m_branchIndex)
+    : m_simWell(simwell),
+    m_domainCoord(m_domainCoord),
+    m_branchIndex(m_branchIndex)
 {
-    m_simWell = simwellSourceInfo->well();
 }

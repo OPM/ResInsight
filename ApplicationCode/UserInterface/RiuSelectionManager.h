@@ -222,8 +222,7 @@ public:
 class RiuSimWellSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuSimWellSelectionItem(const RivSimWellPipeSourceInfo* simwellSourceInfo,
-                                     size_t i, size_t j, size_t k);
+    explicit RiuSimWellSelectionItem(RimEclipseWell* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
 
 
     virtual ~RiuSimWellSelectionItem() {};
@@ -234,9 +233,7 @@ public:
     }
 
 public:
-//    const RivSimWellPipeSourceInfo* m_simwellSourceInfo;
     RimEclipseWell* m_simWell;
-    size_t i;
-    size_t j;
-    size_t k;
+    cvf::Vec3d      m_domainCoord;
+    size_t          m_branchIndex;
 };

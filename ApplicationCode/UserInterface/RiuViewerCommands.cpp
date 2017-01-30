@@ -321,23 +321,10 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 commandIds << "RicNewSimWellIntersectionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
-                size_t gridIndex = cvf::UNDEFINED_SIZE_T;
-                size_t gridCellIndex = cvf::UNDEFINED_SIZE_T;
 
-                eclipseWellSourceInfo->findGridIndexAndCellIndex(firstPartTriangleIndex, &gridIndex, &gridCellIndex);
-
-                if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
-                {
-                size_t i = 0;
-                size_t j = 0;
-                size_t k = 0;
-                ijkFromCellIndex(gridIndex, gridCellIndex, &i, &j, &k);
-
-                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo, i, j, k);
+                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 commandIds << "RicNewSimWellFractureAtPosFeature";
-                }
-                
             }
         }
 

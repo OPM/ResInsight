@@ -32,6 +32,8 @@ public:
 
     RimEclipseWell* well() const;
 
+    size_t branchIndex() const;
+
     void findGridIndexAndCellIndex(size_t triangleIndex, size_t* gridIndex, size_t* gridCellIndex) const;
 
 private:    

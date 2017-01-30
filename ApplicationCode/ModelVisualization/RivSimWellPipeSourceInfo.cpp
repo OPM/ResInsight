@@ -44,6 +44,14 @@ RimEclipseWell* RivSimWellPipeSourceInfo::well() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RivSimWellPipeSourceInfo::branchIndex() const
+{
+    return m_branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivSimWellPipeSourceInfo::findGridIndexAndCellIndex(size_t triangleIndex, size_t* gridIndex, size_t* gridCellIndex) const
 {
     RimEclipseView* rimEclView = nullptr;
