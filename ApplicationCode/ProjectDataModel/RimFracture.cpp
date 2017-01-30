@@ -274,7 +274,6 @@ void RimFracture::computeTransmissibility()
         size_t i, j, k;
         mainGrid->ijkFromCellIndex(fracCell, &i, &j, &k);
 
-
         caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
         if (!objHandle) return;
         RimEclipseCase* eclipseCase;
@@ -284,8 +283,8 @@ void RimFracture::computeTransmissibility()
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
 
         cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
-        cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
-        cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+        cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
+        cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
         double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
         double permY = dataAccessObjectPermY->cellScalarGlobIdx(fracCell);
         double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(fracCell);
@@ -334,7 +333,9 @@ void RimFracture::computeTransmissibility()
         double Ay = 0.0;
         double Az = 0.0;
         double skinfactor = 0.0;
-
+        double transmissibility_X = 0.0;
+        double transmissibility_Y = 0.0;
+        double transmissibility_Z = 0.0;
 
         if (attachedFractureDefinition())
         {
@@ -386,7 +387,7 @@ void RimFracture::computeTransmissibility()
             
             double totalAreaXLength = 0.0;
             for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
-            double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
+            fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage       
 
@@ -394,10 +395,9 @@ void RimFracture::computeTransmissibility()
             
             double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
             
-            //TODO: Use permx, permy, permz
-            double transmissibility_X = 8 * c * ( permY * NTG ) * Ay / (dx + slDivPi);
-            double transmissibility_Y = 8 * c * ( permX * NTG ) * Ax / (dy + slDivPi);
-            double transmissibility_Z = 8 * c * permZ * Az / (dz + slDivPi);
+            transmissibility_X = 8 * c * ( permY * NTG ) * Ay / (dx + slDivPi);
+            transmissibility_Y = 8 * c * ( permX * NTG ) * Ax / (dy + slDivPi);
+            transmissibility_Z = 8 * c * permZ * Az / (dz + slDivPi);
             
             transmissibility = sqrt(transmissibility_X * transmissibility_X
                               + transmissibility_Y * transmissibility_Y 
@@ -410,6 +410,7 @@ void RimFracture::computeTransmissibility()
 
         
         fracData.transmissibility = transmissibility;
+        fracData.transmissibilities = cvf::Vec3d(transmissibility_X, transmissibility_Y, transmissibility_Z);
 
         fracData.totalArea = fractureArea;
         fracData.projectedAreas = cvf::Vec3d(Ax, Ay, Az);

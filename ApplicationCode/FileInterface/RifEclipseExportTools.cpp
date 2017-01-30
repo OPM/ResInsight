@@ -32,9 +32,9 @@
 
 #include "cafProgressInfo.h"
 
-#include <QTextStream>
 #include <QFile>
 #include <QString>
+#include <QTextStream>
 
 
 
@@ -88,37 +88,10 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "\n";
     out << "-- Exported from ResInsight" << "\n\n";
 
-    out << "-- Background data for calculation" << "\n\n";
-
-
-    //Write header line
-    out << qSetFieldWidth(4);
-    out << "--";
-    out << qSetFieldWidth(12);
-    out << "Well name";
-    
-    out << qSetFieldWidth(16);
-    out << "Fracture Name";
-
-    out << qSetFieldWidth(5);
-    out << "i";
-    out << "j";
-    out << "k";
-
-    out << qSetFieldWidth(8);
-    out << "Ax";
-    out << " ";
-    out << "Ay";
-    out << " ";
-    out << "Az";
-    out << " ";
-    out << "TotalArea";
-
-    out << "\n";
+    printBackgroundDataHeaderLine(out);
 
 
 
-    //Write background numbers (with -- first to comment out line)
     for (RimFracture* fracture : fractures)
     {
         fracture->computeTransmissibility();
@@ -126,46 +99,12 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
         for (RigFractureData fracData : fracDataVector)
         {
-            out << qSetFieldWidth(4);
-            out << "--";
-            out << qSetFieldWidth(12);
-            
-            wellPath, simWell = nullptr;
-            fracture->firstAncestorOrThisOfType(simWell);
-            if (simWell) out << simWell->name;    // 1. Well name 
-            fracture->firstAncestorOrThisOfType(wellPath);
-            if (wellPath) out << wellPath->name;  // 1. Well name 
-
-            out << qSetFieldWidth(16);
-            out << fracture->name();
-
-
-            out << qSetFieldWidth(5);
-            size_t i, j, k;
-            mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
-            out << i + 1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
-            out << j + 1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
-            out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
-            out << " ";
-
-            
-
-            out << fracData.projectedAreas.x();
-            out << " ";
-            out << fracData.projectedAreas.y();
-            out << " ";
-            out << fracData.projectedAreas.z();
-            out << " ";
-            out << fracData.totalArea;
-
-            out << "\n";
-
+            printBackgroundData(out, wellPath, simWell, fracture, mainGrid, fracData);
         }
     }
 
     out << "\n";
 
-    //Write COMPDAT keyword and entries
     out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
     for (RimFracture* fracture : fractures)
     {
@@ -174,53 +113,9 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
         for (RigFractureData fracData : fracDataVector)
         {
-            out << qSetFieldWidth(8);
-            if (fracData.transmissibility == cvf::UNDEFINED_DOUBLE || !(fracture->attachedFractureDefinition())) out << "--"; //Commenting out line in output file
-
-            wellPath, simWell = nullptr;
-            fracture->firstAncestorOrThisOfType(simWell);
-            if (simWell) out << simWell->name;    // 1. Well name 
-            fracture->firstAncestorOrThisOfType(wellPath);
-            if (wellPath) out << wellPath->name;  // 1. Well name 
-
-            out << qSetFieldWidth(5);
-
-            size_t i, j, k;
-            mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k); 
-            out << i+1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
-            out << j+1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
-            out << k+1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
-            out << k+1;          // 5. K location of lower connecting grid block, adding 1 to go to eclipse 1-based grid definition
-
-            out << "2*";         // Default value for 
-                                 //6. Open / Shut flag of connection
-                                 // 7. Saturation table number for connection rel perm. Default value
-
-            out << qSetFieldWidth(8);
-            // 8. Transmissibility 
-            if (fracData.transmissibility != cvf::UNDEFINED_DOUBLE) out << fracData.transmissibility;
-            else out << "UNDEF";
-
-            out << qSetFieldWidth(4);
-            out << "2*";         // Default value for 
-                                 // 9. Well bore diameter. Set to default
-                                 // 10. Effective Kh (perm times width)
-            
-            if (fracture->attachedFractureDefinition())
-            {
-                out << fracture->attachedFractureDefinition()->skinFactor;    // 11. Skin factor
-            }
-            else //If no attached fracture definition these parameters are set to UNDEF
-            {
-                out << "UNDEF";  
-            }
-
-            out << "/";
-            out << " " << fracture->name(); //Fracture name as comment
-            out << "\n"; // Terminating entry
+            printCOMPDATvalues(out, fracData, fracture, wellPath, simWell, mainGrid);
         }
         
-
         //TODO: If same cell is used for multiple fractures, the sum of contributions should be added to table. 
 
         progress++;
@@ -228,4 +123,166 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::printCOMPDATvalues(QTextStream & out, RigFractureData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+{
+    out << qSetFieldWidth(8);
+    if (fracData.transmissibility == cvf::UNDEFINED_DOUBLE || !(fracture->attachedFractureDefinition())) out << "--"; //Commenting out line in output file
+
+    wellPath, simWell = nullptr;
+    fracture->firstAncestorOrThisOfType(simWell);
+    if (simWell) out << simWell->name;    // 1. Well name 
+    fracture->firstAncestorOrThisOfType(wellPath);
+    if (wellPath) out << wellPath->name;  // 1. Well name 
+
+    out << qSetFieldWidth(5);
+
+    size_t i, j, k;
+    mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
+    out << i + 1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
+    out << j + 1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
+    out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
+    out << k + 1;          // 5. K location of lower connecting grid block, adding 1 to go to eclipse 1-based grid definition
+
+    out << "2* ";         // Default value for 
+                         //6. Open / Shut flag of connection
+                         // 7. Saturation table number for connection rel perm. Default value
+
+    out << qSetFieldWidth(8);
+    // 8. Transmissibility 
+    if (fracData.transmissibility != cvf::UNDEFINED_DOUBLE) out << QString::number(fracData.transmissibility, 'g', 6);
+    else out << "UNDEF";
+
+    out << qSetFieldWidth(4);
+    out << "2* ";         // Default value for 
+                         // 9. Well bore diameter. Set to default
+                         // 10. Effective Kh (perm times width)
+
+    if (fracture->attachedFractureDefinition())
+    {
+        out << fracture->attachedFractureDefinition()->skinFactor;    // 11. Skin factor
+    }
+    else //If no attached fracture definition these parameters are set to UNDEF
+    {
+        out << "UNDEF";
+    }
+
+    out << "/";
+    out << " " << fracture->name(); //Fracture name as comment
+    out << "\n"; // Terminating entry
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
+{
+    out << "-- Background data for calculation" << "\n\n";
+
+
+    //Write header line
+    out << qSetFieldWidth(4);
+    out << "--";
+    out << qSetFieldWidth(12);
+    out << "Well ";
+
+    out << qSetFieldWidth(16);
+    out << "Fracture ";
+
+    out << qSetFieldWidth(5);
+    out << "i";
+    out << "j";
+    out << "k";
+
+    out << qSetFieldWidth(12);
+    out << "Ax";
+    out << "Ay";
+    out << "Az";
+    out << "TotArea";
+
+    out << "skinfac";
+    out << "FracLen";
+
+    out << qSetFieldWidth(10);
+    out << "DX";
+    out << "DY";
+    out << "DZ";
+
+    out << "PermX";
+    out << "PermY";
+    out << "PermZ";
+    out << "NTG";
+
+    out << qSetFieldWidth(12);
+    out << "T_x";
+    out << "T_y";
+    out << "T_z";
+
+    out << qSetFieldWidth(15);
+    out << "Transm";
+
+    out << "\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFractureData &fracData)
+{
+    out << qSetFieldWidth(4);
+    out << "--";
+    out << qSetFieldWidth(12);
+
+    wellPath, simWell = nullptr;
+    fracture->firstAncestorOrThisOfType(simWell);
+    if (simWell) out << simWell->name + " " ;    // 1. Well name 
+    fracture->firstAncestorOrThisOfType(wellPath);
+    if (wellPath) out << wellPath->name + " ";  // 1. Well name 
+
+    out << qSetFieldWidth(16);
+    out << fracture->name().left(15) + " ";
+
+
+    out << qSetFieldWidth(5);
+    size_t i, j, k;
+    mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
+    out << i + 1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
+    out << j + 1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
+    out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
+
+    out << qSetFieldWidth(12);
+    //Use f for float, e for exponent float and g for best choice of these two. 
+    out << QString::number(fracData.projectedAreas.x(), 'g', 4);
+    out << QString::number(fracData.projectedAreas.y(), 'g', 4);
+    out << QString::number(fracData.projectedAreas.z(), 'g', 4);
+    out << QString::number(fracData.totalArea, 'g', 4);
+
+    out << QString::number(fracData.skinFactor, 'f', 2);
+    out << QString::number(fracData.fractureLenght, 'g', 3);
+
+    out << qSetFieldWidth(10);
+    out << QString::number(fracData.cellSizes.x(), 'f', 2);
+    out << QString::number(fracData.cellSizes.y(), 'f', 2);
+    out << QString::number(fracData.cellSizes.z(), 'f', 2);
+
+    out << QString::number(fracData.permeabilities.x(), 'f', 4);
+    out << QString::number(fracData.permeabilities.y(), 'f', 4);
+    out << QString::number(fracData.permeabilities.z(), 'f', 4);
+    out << QString::number(fracData.NTG, 'f', 2);
+
+    out << qSetFieldWidth(12);
+    out << QString::number(fracData.transmissibilities.x(), 'e', 3);
+    out << QString::number(fracData.transmissibilities.y(), 'e', 3);
+    out << QString::number(fracData.transmissibilities.z(), 'e', 3);
+
+    out << qSetFieldWidth(15);
+    out << QString::number(fracData.transmissibility, 'f', 3);
+
+    out << "\n";
+
 }

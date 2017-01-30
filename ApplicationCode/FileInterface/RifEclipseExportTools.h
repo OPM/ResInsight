@@ -30,7 +30,12 @@
 
 class RimFracture;
 class QFile;
-
+class QTextStream;
+class RimWellPath;
+class RimEclipseWell;
+class RimFracture;
+class RigMainGrid;
+class RigFractureData;
 
 
 
@@ -46,6 +51,12 @@ public:
     virtual ~RifEclipseExportTools();
 
     static bool     writeFracturesToTextFile(const QString& fileName, const std::vector<RimFracture*>& fractures);
+
+    static void printCOMPDATvalues(QTextStream & out, RigFractureData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
+
+    static void printBackgroundDataHeaderLine(QTextStream & out);
+
+    static void printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFractureData &fracData);
 
 
 };
