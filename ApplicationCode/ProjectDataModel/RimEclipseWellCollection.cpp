@@ -121,7 +121,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     // Color
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
-    CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
+    CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well Label Color",  "", "", "");
 
     CAF_PDM_InitField(&showConnectionStatusColors, "ShowConnectionStatusColors", true, "Show Connection Status Colors Along Well", "", "", "");
 
@@ -142,7 +142,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Well Pipe Geometry", "", "", "");
+    CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Type", "", "", "");
 
     CAF_PDM_InitField(&showWellCells,       "ShowWellCells",            false,   "Show Well Cells", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,   "ShowWellFences",           false,  "Show Well Cell Fence", "", "", "");
@@ -343,7 +343,7 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 {
     uiOrdering.add(&showWellsIntersectingVisibleCells);
 
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
     appearanceGroup->add(&showWellLabel);
     appearanceGroup->add(&showWellHead);
     appearanceGroup->add(&showWellPipe);
@@ -363,13 +363,13 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     colorGroup->add(&showConnectionStatusColors);
 
-    uiOrdering.add(&wellPipeCoordType);
+    caf::PdmUiGroup* wellPipeGroup = uiOrdering.addNewGroup("Well Pipe Geometry");
+    wellPipeGroup->add(&wellPipeCoordType);
+    wellPipeGroup->add(&isAutoDetectingBranches);
 
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
-    advancedGroup->add(&isAutoDetectingBranches);
     advancedGroup->add(&wellCellTransparencyLevel);
-    
-    uiOrdering.add(&wellHeadPosition);
+    advancedGroup->add(&wellHeadPosition);
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells");
     filterGroup->add(&obsoleteField_wellCellsToRangeFilterMode);
