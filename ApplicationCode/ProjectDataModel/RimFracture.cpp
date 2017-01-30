@@ -20,12 +20,20 @@
 
 #include "RiaApplication.h"
 
+#include "RifReaderInterface.h"
+
+#include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
+#include "RigEclipseCaseData.h"
 #include "RigFracture.h"
 #include "RigMainGrid.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 #include "RigTesselatorTools.h"
 
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureDefinitionCollection.h"
@@ -45,6 +53,7 @@
 #include "cvfPlane.h"
 
 #include "clipper/clipper.hpp"
+#include <math.h>
 
 
 
@@ -256,14 +265,40 @@ void RimFracture::computeTransmissibility()
     
     for (size_t fracCell : fracCells)
     {
-        //TODO: Remove - only for simplifying debugging...
         RiaApplication* app = RiaApplication::instance();
         RimView* activeView = RiaApplication::instance()->activeReservoirView();
         RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+        
+        //TODO: Remove - only for simplifying debugging...
         const RigMainGrid* mainGrid = activeRiv->mainGrid();
         size_t i, j, k;
         mainGrid->ijkFromCellIndex(fracCell, &i, &j, &k);
-        //End of code only for debugging... 
+
+
+        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+        if (!objHandle) return;
+        RimEclipseCase* eclipseCase;
+        objHandle->firstAncestorOrThisOfType(eclipseCase);
+        RigEclipseCaseData* eclipseCaseData = eclipseCase->reservoirData();
+        RimEclipseCellColors* resultColors = activeRiv->cellResult();
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
+
+        cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+        cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+        cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+        double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
+        double permY = dataAccessObjectPermY->cellScalarGlobIdx(fracCell);
+        double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(fracCell);
+
+        cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
+        cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
+        cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
+        double dx = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
+        double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
+        double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
+
+        cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
+        double NTG = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
 
         cvf::Vec3d localX;
         cvf::Vec3d localY;
@@ -274,7 +309,6 @@ void RimFracture::computeTransmissibility()
 
         //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
         cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
-
         for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
         {
             for (cvf::Vec3d& v : planeCellPolygon)
@@ -299,6 +333,7 @@ void RimFracture::computeTransmissibility()
         double Ax = 0.0;
         double Ay = 0.0;
         double Az = 0.0;
+        double skinfactor = 0.0;
 
 
         if (attachedFractureDefinition())
@@ -310,7 +345,6 @@ void RimFracture::computeTransmissibility()
 
             std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
             cvf::Vec3d areaVector;
-            
 
             for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
             {
@@ -341,14 +375,11 @@ void RimFracture::computeTransmissibility()
                 fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
                     static_cast<cvf::Vec3d>(m.col(2)));
 
-
                 Ax += abs(area*(fracturePlane.normal().dot(localY)));
                 Ay += abs(area*(fracturePlane.normal().dot(localX)));
                 Az += abs(area*(fracturePlane.normal().dot(localZ))); 
-                //TODO: resulting values have only been checked for vertical fracture
-                //      (Dip angle = 90). 
+                //TODO: resulting values have only been checked for vertical fracture...
             }
-
 
             fractureArea = 0.0;
             for (double area : areaOfFractureParts) fractureArea += area;
@@ -359,34 +390,35 @@ void RimFracture::computeTransmissibility()
 
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage       
 
-            //TODO: Read these values from file!
-            double Lx = 134.34; 
-            double Ly = 134.34; 
-            double Lz = 24.34; 
+            double skinfactor = attachedFractureDefinition()->skinFactor;
             
-            double permX;
-            double permY;
-            double permZ;
-            
-            double slDivPi = (attachedFractureDefinition()->skinFactor * fractureAreaWeightedlength) / cvf::PI_D;
+            double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
             
             //TODO: Use permx, permy, permz
-            double transmissibility_X = 8 * c * attachedFractureDefinition()->permeability * Ax / (Lx + slDivPi / cvf::PI_D);
-            double transmissibility_Y = 8 * c * attachedFractureDefinition()->permeability * Ay / (Ly + slDivPi / cvf::PI_D);
-            double transmissibility_Z = 8 * c * attachedFractureDefinition()->permeability * Az / (Lz + slDivPi / cvf::PI_D);
-
-
-            transmissibility = 8 * c * attachedFractureDefinition()->permeability * fractureArea /
-                            ( Lx + (attachedFractureDefinition()->skinFactor * fractureAreaWeightedlength) / cvf::PI_D);
+            double transmissibility_X = 8 * c * ( permY * NTG ) * Ay / (dx + slDivPi);
+            double transmissibility_Y = 8 * c * ( permX * NTG ) * Ax / (dy + slDivPi);
+            double transmissibility_Z = 8 * c * permZ * Az / (dz + slDivPi);
+            
+            transmissibility = sqrt(transmissibility_X * transmissibility_X
+                              + transmissibility_Y * transmissibility_Y 
+                              + transmissibility_Z * transmissibility_Z); 
         }
-        else transmissibility = cvf::UNDEFINED_DOUBLE; 
+        else
+        {
+            transmissibility = cvf::UNDEFINED_DOUBLE;
+        }
+
         
         fracData.transmissibility = transmissibility;
-        fracData.fractureLenght = fractureAreaWeightedlength;
+
         fracData.totalArea = fractureArea;
         fracData.projectedAreas = cvf::Vec3d(Ax, Ay, Az);
         fracData.fractureLenght = fractureAreaWeightedlength;
-        
+    
+        fracData.cellSizes = cvf::Vec3d(dx, dy, dz);
+        fracData.permeabilities = cvf::Vec3d(permX, permY, permZ);
+        fracData.NTG = NTG;
+        fracData.skinFactor = skinfactor;
 
         //only keep fracData if transmissibility is non-zero
         if (transmissibility > 0)

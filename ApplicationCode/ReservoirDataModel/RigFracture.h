@@ -38,6 +38,12 @@ public:
     double fractureLenght;
     cvf::Vec3d projectedAreas;
 
+    cvf::Vec3d permeabilities;
+    cvf::Vec3d cellSizes;
+    double NTG;
+    double skinFactor;
+    
+
 
 };
 
