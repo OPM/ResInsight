@@ -421,7 +421,11 @@ void RimFracture::computeTransmissibility()
         fracData.NTG = NTG;
         fracData.skinFactor = skinfactor;
 
-        fracDataVec.push_back(fracData);
+        //Since we loop over all potentially fractured cells, we only keep FractureData for cells where fracture have an non-zero area. 
+        if (!fractureArea < 1e-5)
+        {
+            fracDataVec.push_back(fracData);
+        }
 
     }
 
