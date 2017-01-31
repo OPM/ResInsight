@@ -152,7 +152,7 @@ void RifEclipseExportTools::printCOMPDATvalues(QTextStream & out, RigFractureDat
                          //6. Open / Shut flag of connection
                          // 7. Saturation table number for connection rel perm. Default value
 
-    out << qSetFieldWidth(8);
+    out << qSetFieldWidth(12);
     // 8. Transmissibility 
     if (fracData.transmissibility != cvf::UNDEFINED_DOUBLE) out << QString::number(fracData.transmissibility, 'g', 6);
     else out << "UNDEF";
