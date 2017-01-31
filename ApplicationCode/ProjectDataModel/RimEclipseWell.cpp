@@ -41,21 +41,18 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitFieldNoDefault(&name,           "WellName", "Name", "", "", "");
 
     CAF_PDM_InitField(&showWell,                "ShowWell",             true,   "Show well ", "", "", "");
-    showWell.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Show well label", "", "", "");
-    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Show well head", "", "", "");
-    CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Show well spheres", "", "", "");
+    CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Label", "", "", "");
+    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Well head", "", "", "");
+    CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Spheres", "", "", "");
 
-    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Well Pipe Scale Factor", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
+    CAF_PDM_InitField(&wellHeadScaleFactor,     "WellHeadScaleFactor",  1.0,    "Well Head Scale Factor", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Scale Factor", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe color", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        true,   "Show Well Cells", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Show Well Cell Fence", "", "", "");
-
-    name.uiCapability()->setUiHidden(true);
-    name.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        true,   "Well Cells", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 }
@@ -100,7 +97,8 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
         m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
-    else if (&pipeScaleFactor == changedField)
+    else if (   &pipeScaleFactor == changedField
+             || &wellHeadScaleFactor == changedField)
     {
         if (m_reservoirView)
         {
@@ -201,34 +199,24 @@ bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Appearance");
-    pipeGroup->add(&showWellLabel);
-    pipeGroup->add(&showWellHead);
-    pipeGroup->add(&showWellPipe);
-    pipeGroup->add(&showWellSpheres);
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
+    appearanceGroup->add(&showWellLabel);
+    appearanceGroup->add(&showWellHead);
+    appearanceGroup->add(&showWellPipe);
+    appearanceGroup->add(&showWellSpheres);
     
-    pipeGroup->add(&pipeScaleFactor);
+    caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
+    sizeScalingGroup->add(&pipeScaleFactor);
+    sizeScalingGroup->add(&wellHeadScaleFactor);
     
-    pipeGroup->add(&wellPipeColor);
+    uiOrdering.add(&wellPipeColor);
 
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells");
-    filterGroup->add(&showWellCells);
-    filterGroup->add(&showWellCellFence);
+    uiOrdering.add(&showWellCells);
+    uiOrdering.add(&showWellCellFence);
 
-    RimEclipseWellCollection* wellColl = nullptr;
-    this->firstAncestorOrThisOfType(wellColl);
-    if (wellColl)
-    {
-        showWellLabel.uiCapability()->setUiReadOnly(!wellColl->showWellLabel());
-        showWellHead.uiCapability()->setUiReadOnly(!wellColl->showWellHead());
-        showWellPipe.uiCapability()->setUiReadOnly(!wellColl->showWellPipe());
-        showWellSpheres.uiCapability()->setUiReadOnly(!wellColl->showWellSpheres());
-        showWellCells.uiCapability()->setUiReadOnly(!wellColl->showWellCells());
+    showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
 
-        bool isFenceEnabled = false;
-        if (wellColl->showWellCells() && wellColl->showWellCellFence()) isFenceEnabled = true;
-        showWellCellFence.uiCapability()->setUiReadOnly(!isFenceEnabled);
-    }
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

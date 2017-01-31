@@ -73,6 +73,7 @@ public:
     caf::PdmField<bool>                 showWellPipe;
     caf::PdmField<bool>                 showWellSpheres;
     
+    caf::PdmField<double>               wellHeadScaleFactor;
     caf::PdmField<double>               pipeScaleFactor;
 
     caf::PdmField<cvf::Color3f>         wellPipeColor;

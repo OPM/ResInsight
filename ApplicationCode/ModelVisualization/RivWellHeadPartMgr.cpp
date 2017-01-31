@@ -197,7 +197,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         }
     }
 
-    double arrowLength = characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor();
+    double arrowLength = characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
     cvf::Vec3d textPosition = arrowPosition;
     textPosition.z() += 1.2 * arrowLength;
     
