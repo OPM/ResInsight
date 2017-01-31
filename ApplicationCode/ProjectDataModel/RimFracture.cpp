@@ -22,6 +22,7 @@
 
 #include "RifReaderInterface.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
@@ -39,6 +40,7 @@
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 
 #include "RivWellFracturePartMgr.h"
@@ -54,8 +56,6 @@
 
 #include "clipper/clipper.hpp"
 #include <math.h>
-#include "RimReservoirCellResultsStorage.h"
-#include "RigActiveCellInfo.h"
 
 
 

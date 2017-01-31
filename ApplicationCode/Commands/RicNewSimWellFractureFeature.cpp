@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureDefinitionCollection.h"
@@ -36,7 +37,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include "RimEclipseView.h"
 
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureFeature, "RicNewSimWellFractureFeature");
 

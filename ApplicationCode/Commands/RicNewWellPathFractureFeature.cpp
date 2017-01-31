@@ -25,6 +25,7 @@
 #include "RimFractureDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
@@ -36,7 +37,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include "RimWellPath.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeature");
