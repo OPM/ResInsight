@@ -54,6 +54,8 @@
 
 #include "clipper/clipper.hpp"
 #include <math.h>
+#include "RimReservoirCellResultsStorage.h"
+#include "RigActiveCellInfo.h"
 
 
 
@@ -280,18 +282,32 @@ void RimFracture::computeTransmissibility()
         objHandle->firstAncestorOrThisOfType(eclipseCase);
         RigEclipseCaseData* eclipseCaseData = eclipseCase->reservoirData();
         RimEclipseCellColors* resultColors = activeRiv->cellResult();
+     
+        RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
 
+        size_t scalarSetIndex;
+        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+        cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
+        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+        cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
+        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+        cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
+
+        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
         cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
         cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
+        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
         cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
+        
+        RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+        bool cellIsActive = activeCellInfo->isActive(fracCell);
+
         double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
         double permY = dataAccessObjectPermY->cellScalarGlobIdx(fracCell);
         double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(fracCell);
 
-        cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
-        cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
-        cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
         double dx = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
         double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
         double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
@@ -420,9 +436,10 @@ void RimFracture::computeTransmissibility()
         fracData.permeabilities = cvf::Vec3d(permX, permY, permZ);
         fracData.NTG = NTG;
         fracData.skinFactor = skinfactor;
+        fracData.cellIsActive = cellIsActive;
 
         //Since we loop over all potentially fractured cells, we only keep FractureData for cells where fracture have an non-zero area. 
-        if (!fractureArea < 1e-5)
+        if (fractureArea > 1e-5)
         {
             fracDataVec.push_back(fracData);
         }

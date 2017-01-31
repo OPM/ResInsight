@@ -43,6 +43,8 @@ public:
     cvf::Vec3d cellSizes;
     double NTG;
     double skinFactor;
+
+    bool cellIsActive;
     
 
 

@@ -237,7 +237,13 @@ void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFractureData &fracData)
 {
-    if (fracData.transmissibility > 0)
+    if (!fracData.cellIsActive)
+    {
+        out << qSetFieldWidth(20);
+        out << "-- INACTIVE CELL ";
+    }
+    
+    else if (fracData.cellIsActive && fracData.transmissibility > 0)
     {
         out << qSetFieldWidth(4);
         out << "--";
@@ -245,7 +251,7 @@ void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* 
     else
     {
         out << qSetFieldWidth(20);
-        out << "-- INVALID DATA --";
+        out << "-- INVALID DATA ";
     }
     out << qSetFieldWidth(12);
 
