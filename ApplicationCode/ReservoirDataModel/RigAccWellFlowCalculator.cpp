@@ -113,13 +113,16 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
 
         if ( m_tracerCellFractionValues )
         {
-            size_t resCellIndex = m_cellIndexCalculator.resultCellIndex(branchCells[clSegIdx].m_gridIndex,
-                                                                        branchCells[clSegIdx].m_gridCellIndex);
-            size_t tracerIdx = 0;
-            for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
+            if ( branchCells[clSegIdx].isCell() && branchCells[clSegIdx].m_isOpen )
             {
-                accFlow[tracerIdx] += (*tracerFractionIt.second)[resCellIndex] * branchCells[clSegIdx].flowRate();
-                tracerIdx++;
+                size_t resCellIndex = m_cellIndexCalculator.resultCellIndex(branchCells[clSegIdx].m_gridIndex,
+                                                                            branchCells[clSegIdx].m_gridCellIndex);
+                size_t tracerIdx = 0;
+                for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
+                {
+                    accFlow[tracerIdx] += (*tracerFractionIt.second)[resCellIndex] * branchCells[clSegIdx].flowRate();
+                    tracerIdx++;
+                }
             }
         }
         else
