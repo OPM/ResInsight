@@ -58,6 +58,18 @@ struct RigWellResultPoint
         return isCell() || isPointValid();
     }
 
+    double flowRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_flowRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
     size_t                            m_gridIndex;
     size_t                            m_gridCellIndex;     //< Index to cell which is included in the well
 

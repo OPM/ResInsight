@@ -39,136 +39,15 @@
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
+#include "RigAccWellFlowCalculator.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
 
-//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
 /// 
-/// 
-//==================================================================================================
-
-class RigAccWellFlowCalculator
-{
-
-public:
-    RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                             const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds):
-        m_pipeBranchesCLCoords(pipeBranchesCLCoords), m_pipeBranchesCellIds(pipeBranchesCellIds)
-    {
-        m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
-
-        calculateAccumulatedFlowPrConnection(0,1);
-    }
-
-    // Returned pair is connection number from top of well with accumulated flow
-
-    const std::vector<std::pair <size_t, double> >& accumulatedFlowPrConnection(size_t branchIdx)
-    {
-        return m_accConnectionFlowPrBranch[branchIdx];
-    }
-
-private:
-
-
-
-    const std::vector<std::pair <size_t, double> >& calculateAccumulatedFlowPrConnection(size_t branchIdx, size_t startConnectionNumberFromTop)
-    {
-        std::vector<std::pair <size_t, double> >& accConnectionFlow = m_accConnectionFlowPrBranch[branchIdx];
-
-        const std::vector<RigWellResultPoint>& branchCells =  m_pipeBranchesCellIds[branchIdx];
-        int clSegIdx = static_cast<int>( branchCells.size()) - 1;
-        double accFlow = 0.0;
-
-        size_t prevGridIdx = -1;
-        size_t prevGridCellIdx = -1;
-
-        std::vector<size_t> resPointToConnectionIndexFromBottom;
-        resPointToConnectionIndexFromBottom.resize(branchCells.size(), -1);
-
-        size_t connIdxFromBottom = 0;
-
-        while (clSegIdx >= 0)
-        {
-            resPointToConnectionIndexFromBottom[clSegIdx] = connIdxFromBottom;
-
-            if ( branchCells[clSegIdx].m_gridIndex != prevGridIdx
-                && branchCells[clSegIdx].m_gridCellIndex != prevGridIdx )
-            {
-                ++connIdxFromBottom;
-            }
-
-            prevGridIdx = branchCells[clSegIdx].m_gridIndex ;
-            prevGridCellIdx = branchCells[clSegIdx].m_gridCellIndex;
-
-            --clSegIdx;
-        }
-
-        size_t prevConnIndx = -1;
-        clSegIdx = static_cast<int>( branchCells.size()) - 1;
-
-        while (clSegIdx >= 0)
-        {
-            // Skip point if referring to the same cell as in the previous point did
-            {
-                if (resPointToConnectionIndexFromBottom[clSegIdx] == prevConnIndx)
-                {
-                    --clSegIdx;
-                    continue;
-                }
-
-                prevConnIndx = resPointToConnectionIndexFromBottom[clSegIdx];
-            }
-
-            size_t connNumFromTop = connecionIdxFromTop(resPointToConnectionIndexFromBottom, clSegIdx) + startConnectionNumberFromTop;
-
-            accFlow += branchCells[clSegIdx].m_flowRate;
-            std::vector<size_t> downstreamBranches = findDownstreamBranchIdxs(branchCells[clSegIdx]);
-            for (size_t dsBidx :  downstreamBranches )
-            {
-                if ( dsBidx != branchIdx &&  m_accConnectionFlowPrBranch[dsBidx].size() == 0) // Not this branch or already calculated
-                {
-                    const std::pair <size_t, double>& brancFlowPair = calculateAccumulatedFlowPrConnection(dsBidx, connNumFromTop).back();
-                    accFlow += brancFlowPair.second;
-                }
-            }
-
-            accConnectionFlow.push_back(std::make_pair(connNumFromTop, accFlow));
-
-            --clSegIdx;
-        }
-
-        return m_accConnectionFlowPrBranch[branchIdx];
-    }
-
-    static size_t connecionIdxFromTop( std::vector<size_t> resPointToConnectionIndexFromBottom, size_t clSegIdx)
-    {
-        return resPointToConnectionIndexFromBottom.front() - resPointToConnectionIndexFromBottom[clSegIdx];
-    }
-
-    std::vector<size_t> findDownstreamBranchIdxs(const RigWellResultPoint& connectionPoint)
-    {
-        std::vector<size_t> downStreamBranchIdxs;
-
-        for (size_t bIdx = 0; bIdx < m_pipeBranchesCellIds.size(); ++bIdx)
-        {
-            if ( m_pipeBranchesCellIds[bIdx][0].m_gridIndex == connectionPoint.m_gridIndex 
-                && m_pipeBranchesCellIds[bIdx][0].m_gridCellIndex == connectionPoint.m_gridCellIndex)
-            {
-                downStreamBranchIdxs.push_back(bIdx);        
-            }
-        }
-        return downStreamBranchIdxs;
-    }
-
-
-    const std::vector< std::vector <cvf::Vec3d> >& m_pipeBranchesCLCoords;
-    const std::vector< std::vector <RigWellResultPoint> >& m_pipeBranchesCellIds;
-
-    std::vector< std::vector<std::pair <size_t, double> > > m_accConnectionFlowPrBranch;
-
-};
-
+//--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -250,30 +129,6 @@ void RimWellAllocationPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateFromWell()
 {
-    if (!m_case) return;
-
-    const RigSingleWellResultsData* wellResults = nullptr;
-    wellResults = m_case->reservoirData()->findWellResult(m_wellName);
-
-    if (!wellResults) return;
-
-    
-    const RigWellResultFrame* wellResultFrame = nullptr;
-    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
-
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->reservoirData(),
-                                                                                    wellResults,
-                                                                                    m_timeStep,
-                                                                                    true,
-                                                                                    true,
-                                                                                    pipeBranchesCLCoords,
-                                                                                    pipeBranchesCellIds);
-
-    accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
-
-    RigAccWellFlowCalculator wfCalculator(pipeBranchesCLCoords, pipeBranchesCellIds);
-
     // Delete existing tracks
     {
         std::vector<RimWellLogTrack*> tracks;
@@ -288,9 +143,75 @@ void RimWellAllocationPlot::updateFromWell()
 
     CVF_ASSERT(accumulatedWellFlowPlot()->trackCount() == 0);
 
+    accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
+
+    if (!m_case) return;
+
+    const RigSingleWellResultsData* wellResults = nullptr;
+    wellResults = m_case->reservoirData()->findWellResult(m_wellName);
+
+    if (!wellResults) return;
+   
+    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+
+    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->reservoirData(),
+                                                                                    wellResults,
+                                                                                    m_timeStep,
+                                                                                    true,
+                                                                                    true,
+                                                                                    pipeBranchesCLCoords,
+                                                                                    pipeBranchesCellIds);
+    std::unique_ptr< RigAccWellFlowCalculator > wfCalculator;
+    std::map<QString, const std::vector<double>* > tracerCellFractionValues;
+
+    if ( m_flowDiagSolution )
+    {
+        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
+
+        const RigWellResultFrame& wellResultFrame = wellResults->wellResultFrame(m_timeStep);
+        if (wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER)
+        {
+            requestedTracerType = RimFlowDiagSolution::INJECTOR;
+        }
+        else
+        {
+            requestedTracerType = RimFlowDiagSolution::PRODUCER;
+        }
+
+
+        std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+        for ( const QString& tracerName : tracerNames )
+        {
+            if (m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType)
+            {
+                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
+                const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
+                tracerCellFractionValues[tracerName] = tracerCellFractions;
+            }
+        }
+
+        RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
+                                              pipeBranchesCellIds,
+                                              tracerCellFractionValues,
+                                              cellIdxCalc));
+      
+    }
+    else
+    {
+        wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
+                                              pipeBranchesCellIds));
+
+ 
+    }
+
     size_t branchCount = pipeBranchesCLCoords.size();
     for (size_t brIdx = 0; brIdx < branchCount; ++brIdx)
     {
+        // Skip Tiny dummy branches
+        if (pipeBranchesCellIds[brIdx].size() <= 3) continue;
+
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
 
         // TODO: Description is overwritten by RimWellLogPlot::updateTrackNames()
@@ -299,54 +220,48 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
-        #if 0
-        std::vector<cvf::Vec3d> curveCoords;
-        std::vector<double> flowRate;
 
+
+        if ( m_flowDiagSolution )
         {
-            std::vector<cvf::Vec3d> branchCoords = pipeBranchesCLCoords[brIdx];
-            std::vector<RigWellResultPoint> branchResultPoints = pipeBranchesCellIds[brIdx];
-
-            RigWellResultPoint prevResultPoint;
-
-            for (size_t i = 0; i < branchResultPoints.size(); i++)
+            std::vector<double> connNumbers;
             {
-                const RigWellResultPoint& resultPoint = branchResultPoints[i];
+                const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
+                for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
+            }
 
-                if (i > 0 && prevResultPoint.m_gridCellIndex != resultPoint.m_gridCellIndex)
-                {
-                    // Add an extra curve point when a cell transition is detected
-                    curveCoords.push_back(branchCoords[i]);
-                    flowRate.push_back(prevResultPoint.m_flowRate);
-                }
+            std::vector<QString> tracerNames = wfCalculator->tracerNames();
+            for (const QString& tracerName: tracerNames)
+            {
+                std::vector<double> accFlow;
 
-                curveCoords.push_back(branchCoords[i]);
-                flowRate.push_back(branchResultPoints[i].m_flowRate);
+                accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx); 
 
-                prevResultPoint = resultPoint;
+                RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
+                curve->setFlowValues(tracerName, connNumbers, accFlow);
+
+                plotTrack->addCurve(curve);
+                curve->loadDataAndUpdate();
             }
         }
-
-        RigSimulationWellCoordsAndMD helper(curveCoords);
-        #endif
-
-        const std::vector<std::pair <size_t, double> >& flowPrConnection =  wfCalculator.accumulatedFlowPrConnection(brIdx);
-
-        std::vector<double> connNumbers;
-        std::vector<double> accFlow;
-
-        for (const std::pair<size_t, double> & flowPair: flowPrConnection)
+        else
         {
-            connNumbers.push_back(flowPair.first);
-            accFlow.push_back(flowPair.second);
+            std::vector<double> connNumbers;
+            std::vector<double> accFlow;
+
+            accFlow = wfCalculator->accumulatedTotalFlowPrConnection(brIdx);
+
+            const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
+            for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
+
+            RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
+            curve->setFlowValues("Total", connNumbers, accFlow);
+
+            plotTrack->addCurve(curve);
+
+            curve->loadDataAndUpdate();
         }
 
-        RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-        curve->setFlowValues(connNumbers, accFlow);
-
-        plotTrack->addCurve(curve);
-
-        curve->loadDataAndUpdate();
     }
 
     setDescription("Well Allocation (" + m_wellName + ")");

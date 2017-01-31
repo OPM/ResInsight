@@ -76,7 +76,7 @@ QString RimWellFlowRateCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::wellLogChannelName() const
 {
-    return "Flow Rate";
+    return "AccumulatedFlowRate";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,8 +84,7 @@ QString RimWellFlowRateCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::createCurveAutoName()
 {
-    return QString("%1 (%2)").arg(wellLogChannelName()).arg(wellName());
-    
+    return m_tracerName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,9 +126,11 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::setFlowValues(const std::vector<double>& measuredDepths, const std::vector<double>& flowRates)
+void RimWellFlowRateCurve::setFlowValues(const QString& tracerName, const std::vector<double>& measuredDepths, const std::vector<double>& flowRates)
 {
     m_curveData = new RigWellLogCurveData;
     m_curveData->setValuesAndMD(flowRates, measuredDepths, RimDefines::UNIT_METER, false);
+
+    m_tracerName = tracerName;
 }
 
