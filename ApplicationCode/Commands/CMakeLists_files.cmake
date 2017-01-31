@@ -47,7 +47,9 @@ ${CEE_CURRENT_LIST_DIR}RicFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportSimWellFractureWellCompletionFeature.h
+${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.h
+
 
 
 # General delete of any object in a child array field
@@ -98,6 +100,7 @@ ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportSimWellFractureWellCompletionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.cpp
 
 

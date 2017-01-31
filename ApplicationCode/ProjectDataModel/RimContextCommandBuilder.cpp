@@ -343,6 +343,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
             commandIds << "RicNewSimWellIntersectionFeature";
+            commandIds << "RicExportSelectedSimWellFractureWellCompletionFeature";
         }
         else if (dynamic_cast<RimEclipseWellCollection*>(uiItem))
         {

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportSimWellFractureWellCompletionFeature.h"
+#include "RicExportSelectedSimWellFractureWellCompletionFeature.h"
 
 
 #include "RiaApplication.h"
@@ -26,6 +26,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFracture.h"
 #include "RimFractureExportSettings.h"
@@ -42,24 +43,37 @@
 #include <QMessageBox>
 #include <QString>
 
-CAF_CMD_SOURCE_INIT(RicExportSimWellFractureWellCompletionFeature, "RicExportSimWellFractureWellCompletionFeature");
+CAF_CMD_SOURCE_INIT(RicExportSelectedSimWellFractureWellCompletionFeature, "RicExportSelectedSimWellFractureWellCompletionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportSimWellFractureWellCompletionFeature::onActionTriggered(bool isChecked)
+void RicExportSelectedSimWellFractureWellCompletionFeature::onActionTriggered(bool isChecked)
 {
+
+    std::vector<RimEclipseWell*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+
+
+
+    std::vector<RimFracture*> fractures;
+    for (RimEclipseWell* well : selection)
+    {
+
+        std::vector<RimFracture*> fracListForWell;
+        well->descendantsIncludingThisOfType(fracListForWell);
+        for (RimFracture* fracture : fracListForWell)
+        {
+            fractures.push_back(fracture);
+        }
+    }
+
 
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return;
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
-
-    RimEclipseWellCollection* eclipseWellColl = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWellColl);
-    std::vector<RimFracture*> fractures;
-    eclipseWellColl->descendantsIncludingThisOfType(fractures);
 
     RimEclipseView* eclipseWiew = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseWiew);
@@ -93,16 +107,16 @@ void RicExportSimWellFractureWellCompletionFeature::onActionTriggered(bool isChe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportSimWellFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
+void RicExportSelectedSimWellFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    actionToSetup->setText("Export Fracture Well Completion Data");
+    actionToSetup->setText("Export Fracture Well Completion Data for Selected wells");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportSimWellFractureWellCompletionFeature::isCommandEnabled()
+bool RicExportSelectedSimWellFractureWellCompletionFeature::isCommandEnabled()
 {
     return true;
 }
