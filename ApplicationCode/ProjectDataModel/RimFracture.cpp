@@ -261,47 +261,52 @@ cvf::Mat4f RimFracture::transformMatrix()
 //--------------------------------------------------------------------------------------------------
 void RimFracture::computeTransmissibility()
 { 
+    RiaApplication* app = RiaApplication::instance();
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+    if (!objHandle) return;
+    RimEclipseCase* eclipseCase;
+    objHandle->firstAncestorOrThisOfType(eclipseCase);
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->reservoirData();
+    RimEclipseCellColors* resultColors = activeRiv->cellResult();
+
+    RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
+
+    size_t scalarSetIndex;
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
+
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+    cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
+
+
+    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+
+
     std::vector<RigFractureData> fracDataVec;
 
     std::vector<size_t> fracCells = getPotentiallyFracturedCells();
     
     for (size_t fracCell : fracCells)
     {
-        RiaApplication* app = RiaApplication::instance();
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
-        RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-        
         //TODO: Remove - only for simplifying debugging...
         const RigMainGrid* mainGrid = activeRiv->mainGrid();
         size_t i, j, k;
         mainGrid->ijkFromCellIndex(fracCell, &i, &j, &k);
 
-        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-        if (!objHandle) return;
-        RimEclipseCase* eclipseCase;
-        objHandle->firstAncestorOrThisOfType(eclipseCase);
-        RigEclipseCaseData* eclipseCaseData = eclipseCase->reservoirData();
-        RimEclipseCellColors* resultColors = activeRiv->cellResult();
-     
-        RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
-
-        size_t scalarSetIndex;
-        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
-        cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
-        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
-        cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
-        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
-        cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
-
-        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
-        cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
-        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
-        cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
-        scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
-        cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
-        
-        RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
         bool cellIsActive = activeCellInfo->isActive(fracCell);
 
         double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
@@ -312,7 +317,6 @@ void RimFracture::computeTransmissibility()
         double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
         double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
 
-        cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
         double NTG = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
 
         cvf::Vec3d localX;
