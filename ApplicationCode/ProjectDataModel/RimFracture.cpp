@@ -421,11 +421,7 @@ void RimFracture::computeTransmissibility()
         fracData.NTG = NTG;
         fracData.skinFactor = skinfactor;
 
-        //only keep fracData if transmissibility is non-zero
-        if (transmissibility > 0)
-        {
-            fracDataVec.push_back(fracData);
-        }
+        fracDataVec.push_back(fracData);
 
     }
 

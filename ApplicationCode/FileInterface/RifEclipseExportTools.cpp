@@ -113,7 +113,10 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
         for (RigFractureData fracData : fracDataVector)
         {
+            if (fracData.transmissibility > 0)
+            {
             printCOMPDATvalues(out, fracData, fracture, wellPath, simWell, mainGrid);
+            }
         }
         
         //TODO: If same cell is used for multiple fractures, the sum of contributions should be added to table. 
@@ -234,8 +237,16 @@ void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFractureData &fracData)
 {
-    out << qSetFieldWidth(4);
-    out << "--";
+    if (fracData.transmissibility > 0)
+    {
+        out << qSetFieldWidth(4);
+        out << "--";
+    }
+    else
+    {
+        out << qSetFieldWidth(20);
+        out << "-- INVALID DATA --";
+    }
     out << qSetFieldWidth(12);
 
     wellPath, simWell = nullptr;
