@@ -80,13 +80,19 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->fractures.push_back(fracture);
         
-    fracture->name = "Well Path Fracture";
     fracture->setAnchorPosition(wellPathItem->m_pipeCenterlineIntersectionInDomainCoords);
     fracture->measuredDepth = wellPathItem->m_measuredDepth;
 
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
+    
+    std::vector<RimFracture* > oldFractures;
+    oilfield->descendantsIncludingThisOfType(oldFractures);
+    QString fracNum = QString("%1").arg(oldFractures.size(), 2, 10, QChar('0'));
+
+    fracture->name = QString("Fracture_") + fracNum;
+
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
