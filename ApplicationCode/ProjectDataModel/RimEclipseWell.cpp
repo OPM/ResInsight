@@ -164,7 +164,7 @@ bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
         if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
         {
             cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
-            if ((*cellVisibility)[gridCellIndex])
+            if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
             {
                 return true;
             }
@@ -184,7 +184,7 @@ bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
                     gridCellIndex = wellResultPoint.m_gridCellIndex;
 
                     cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
-                    if ((*cellVisibility)[gridCellIndex])
+                    if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
                     {
                         return true;
                     }
