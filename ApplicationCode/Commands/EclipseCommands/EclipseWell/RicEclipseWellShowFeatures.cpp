@@ -56,12 +56,6 @@ void RicEclipseWellShowLabelFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowLabelFeature::isCommandEnabled()
 {
-    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
-    if (wellColl && !wellColl->showWellLabel())
-    {
-        return false;
-    }
-
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -117,12 +111,6 @@ void RicEclipseWellShowHeadFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowHeadFeature::isCommandEnabled()
 {
-    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
-    if (wellColl && !wellColl->showWellHead())
-    {
-        return false;
-    }
-
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -179,12 +167,6 @@ void RicEclipseWellShowPipeFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowPipeFeature::isCommandEnabled()
 {
-    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
-    if (wellColl && !wellColl->showWellPipe())
-    {
-        return false;
-    }
-
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -241,12 +223,6 @@ void RicEclipseWellShowSpheresFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
 {
-    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
-    if (wellColl && !wellColl->showWellSpheres())
-    {
-        return false;
-    }
-
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -302,12 +278,6 @@ void RicEclipseWellShowWellCellsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellsFeature::isCommandEnabled()
 {
-    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
-    if (wellColl && !wellColl->showWellCells())
-    {
-        return false;
-    }
-
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
@@ -362,12 +332,6 @@ void RicEclipseWellShowWellCellFenceFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled()
 {
-    RimEclipseWellCollection* wellColl = RicEclipseWellFeatureImpl::wellCollectionFromSelection();
-    if (wellColl && !(wellColl->showWellCells() || wellColl->showWellCellFence()))
-    {
-        return false;
-    }
-
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
 
