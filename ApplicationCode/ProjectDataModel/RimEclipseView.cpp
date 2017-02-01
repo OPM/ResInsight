@@ -223,6 +223,9 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
@@ -231,10 +234,16 @@ void RimEclipseView::updateScaleTransform()
     this->scaleTransform()->setLocalTransform(scale);
     m_pipesPartManager->setScaleTransform(this->scaleTransform());
 
+    // Regenerate fracture geometry
+    std::vector<RimFracture*> fractures;
+    this->descendantsIncludingThisOfType(fractures);
+    for (RimFracture* fracture : fractures)
+    {
+        fracture->setRecomputeGeometryFlag();
+    }
+
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// Create display model,
