@@ -270,6 +270,12 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     {
         // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
         buildWellPathParts(displayModelOffset, characteristicCellSize, wellPathClipBoundingBox);
+
+        for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
+        {
+            // Always recompute geometry, as the well part can be displayed in more than one view
+            f->fracturePartManager()->clearGeometryCache();
+        }
     }
  
     if (m_pipeBranchData.m_surfacePart.notNull())
@@ -300,6 +306,14 @@ void RivWellPathPartMgr::setScaleTransform( cvf::Transform * scaleTransform )
         m_scaleTransform = scaleTransform; 
         scheduleGeometryRegen(); 
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::scheduleGeometryRegen()
+{
+    m_needsTransformUpdate = true;
 }
 
 //--------------------------------------------------------------------------------------------------

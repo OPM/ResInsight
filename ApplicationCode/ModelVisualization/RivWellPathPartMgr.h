@@ -50,16 +50,19 @@ public:
 
     void                                    setScaleTransform(cvf::Transform * scaleTransform);
 
-    void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; }//printf("R"); }
+    void                                    scheduleGeometryRegen();
 
-    void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                            double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, caf::DisplayCoordTransform* displayCoordTransform);
+    void                                    appendStaticGeometryPartsToModel(   cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+                                                                                double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+                                                                                caf::DisplayCoordTransform* displayCoordTransform);
 
 
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
     void                                    appendFracturePartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
+    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                                    clearAllBranchData();
 
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
@@ -67,8 +70,6 @@ private:
     cvf::ref<cvf::Transform>                m_scaleTransform; 
     bool                                    m_needsTransformUpdate;
 
-    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
-    void                                    clearAllBranchData();
     struct RivPipeBranchData
     {
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
