@@ -245,8 +245,10 @@ cvf::Mat4f RimFracture::transformMatrix()
     // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
     cvf::Mat4f rotationFromTesselator = cvf::Mat4f::fromRotation(cvf::Vec3f::X_AXIS, cvf::Math::toRadians(90.0f));
 
+
     // Azimuth rotation
     cvf::Mat4f azimuthRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(-azimuth()));
+    //TODO: Adjust angle with 90 deg
 
     cvf::Mat4f m = azimuthRotation * rotationFromTesselator;
     m.setTranslation(cvf::Vec3f(center));

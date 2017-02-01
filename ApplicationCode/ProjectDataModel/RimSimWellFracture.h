@@ -40,6 +40,7 @@ public:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     void                                            recomputeWellCenterlineCoordinates();
+    void                                            updateFracturePositionFromLocation();
 
 
 protected:
@@ -48,7 +49,6 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 private:
-    void                                            updateFracturePositionFromLocation();
     void                                            updateBranchGeometry();
     void                                            setBranchGeometry();
 

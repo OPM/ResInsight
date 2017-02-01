@@ -107,6 +107,34 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
             proj->createDisplayModelAndRedrawAllViews();
         }
     }
+
+    if (changedField == &azimuthAngle)
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            std::vector<RimFracture*> fractures;
+            proj->descendantsIncludingThisOfType(fractures);
+
+            for (RimFracture* fracture : fractures)
+            {
+                if (fracture->attachedFractureDefinition() == this)
+                {
+                    if (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5 )
+                    {
+                        fracture->azimuth = azimuthAngle;
+                        fracture->setRecomputeGeometryFlag();
+                    }
+                }
+            }
+
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+
+    }
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
