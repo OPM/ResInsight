@@ -80,6 +80,8 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
         fracture->perforationLength = fracDef->perforationLength();
     }
 
+    fracture->updateFracturePositionFromLocation();
+
     fractureCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
