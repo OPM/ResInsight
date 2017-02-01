@@ -275,9 +275,6 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
     if (!this->showWellPipe())
         return false;
 
-    if (!reservoirView->wellCollection()->showWellPipe())
-        return false;
-
     if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
@@ -317,9 +314,6 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
         return false;
 
     if (!this->showWell())
-        return false;
-
-    if (!m_reservoirView->wellCollection()->showWellSpheres())
         return false;
 
     if (!this->showWellSpheres())

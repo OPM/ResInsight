@@ -293,7 +293,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         m_wellHeadArrowPart = part;
     }
 
-    if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel() && !well->name().isEmpty())
+    if (well->showWellLabel() && !well->name().isEmpty())
     {
         cvf::Font* font = RiaApplication::instance()->customFont();
 
@@ -355,15 +355,13 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
     if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
 
-    if (wellCollection->showWellLabel() && 
-        m_rimWell->showWellLabel() && 
+    if (m_rimWell->showWellLabel() && 
         m_wellHeadLabelPart.notNull())
     {
         model->addPart(m_wellHeadLabelPart.p());
     }
     
-    if (wellCollection->showWellHead() &&
-        m_rimWell->showWellHead() &&
+    if (m_rimWell->showWellHead() &&
         m_wellHeadArrowPart.notNull())
     {
         model->addPart(m_wellHeadArrowPart.p());

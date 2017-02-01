@@ -32,6 +32,7 @@
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiCheckBoxTristateEditor.h"
 
 
 namespace caf
@@ -109,10 +110,26 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", true, "Show Wells Intersecting Visible Cells", "", "", "");
 
     // Appearance
-    CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show Well Head", "", "", "");
-    CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show Well Label", "", "", "");
-    CAF_PDM_InitField(&showWellPipe,        "ShowWellPipe",     true,   "Show Well Pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,     "ShowWellSpheres",  true,   "Show Well Spheres", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_showWellHead,        "ShowWellHead",     "Show Well Head", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_showWellLabel,       "ShowWellLabel",    "Show Well Label", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_showWellPipe,        "ShowWellPipe",     "Show Well Pipe", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_showWellSpheres,     "ShowWellSpheres",  "Show Well Spheres", "", "", "");
+
+    m_showWellHead.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
+    m_showWellHead.xmlCapability()->setIOReadable(false);
+    m_showWellHead.xmlCapability()->setIOWritable(false);
+
+    m_showWellLabel.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
+    m_showWellLabel.xmlCapability()->setIOReadable(false);
+    m_showWellLabel.xmlCapability()->setIOWritable(false);
+
+    m_showWellPipe.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
+    m_showWellPipe.xmlCapability()->setIOReadable(false);
+    m_showWellPipe.xmlCapability()->setIOWritable(false);
+
+    m_showWellSpheres.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
+    m_showWellSpheres.xmlCapability()->setIOReadable(false);
+    m_showWellSpheres.xmlCapability()->setIOWritable(false);
 
     // Scaling
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",            1.0,    "Well Head Scale Factor", "", "", "");
@@ -243,10 +260,43 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         this->updateUiIconFromToggleField();
     }
 
+    if (&m_showWellLabel == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWellLabel = !(m_showWellLabel().isFalse());
+        }
+    }
+
+    if (&m_showWellHead == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWellHead = !(m_showWellHead().isFalse());
+        }
+    }
+
+    if (&m_showWellPipe == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWellPipe = !(m_showWellPipe().isFalse());
+        }
+    }
+
+    if (&m_showWellSpheres == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWellSpheres = !(m_showWellSpheres().isFalse());
+        }
+    }
+
+
     if (m_reservoirView)
     {
         if (   &isActive == changedField
-            || &showWellLabel == changedField
+            || &m_showWellLabel == changedField
             || &showWellCells == changedField
             || &showWellCellFence == changedField
             || &wellCellFenceType == changedField)
@@ -259,7 +309,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if (  &spheresScaleFactor == changedField
-                || &showWellSpheres == changedField
+                || &m_showWellSpheres == changedField
                 || &showConnectionStatusColors == changedField)
         {
             m_reservoirView->schedulePipeGeometryRegen();
@@ -268,23 +318,23 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         else if (  &pipeCrossSectionVertexCount == changedField 
                 || &pipeScaleFactor == changedField 
                 || &wellHeadScaleFactor == changedField 
-                || &showWellHead == changedField
+                || &m_showWellHead == changedField
                 || &isAutoDetectingBranches == changedField
                 || &wellHeadPosition == changedField
                 || &wellLabelColor == changedField
                 || &showWellsIntersectingVisibleCells == changedField
                 || &wellPipeCoordType == changedField
-                || &showWellPipe == changedField)
+                || &m_showWellPipe == changedField)
         {
             m_reservoirView->schedulePipeGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 
-    if (   &showWellPipe == changedField
-        || &showWellSpheres == changedField
-        || &showWellHead == changedField
-        || &showWellLabel == changedField)
+    if (   &m_showWellPipe == changedField
+        || &m_showWellSpheres == changedField
+        || &m_showWellHead == changedField
+        || &m_showWellLabel == changedField)
     {
         for (RimEclipseWell* w : wells)
         {
@@ -341,13 +391,15 @@ void RimEclipseWellCollection::setReservoirView(RimEclipseView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    updateStateForVisibilityCheckboxes();
+
     uiOrdering.add(&showWellsIntersectingVisibleCells);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
-    appearanceGroup->add(&showWellLabel);
-    appearanceGroup->add(&showWellHead);
-    appearanceGroup->add(&showWellPipe);
-    appearanceGroup->add(&showWellSpheres);
+    appearanceGroup->add(&m_showWellLabel);
+    appearanceGroup->add(&m_showWellHead);
+    appearanceGroup->add(&m_showWellPipe);
+    appearanceGroup->add(&m_showWellSpheres);
 
     caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
     sizeScalingGroup->add(&wellHeadScaleFactor);
@@ -379,6 +431,53 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
     wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::updateStateForVisibilityCheckboxes()
+{
+    size_t showLabelCount = 0;
+    size_t showWellHeadCount = 0;
+    size_t showPipeCount = 0;
+    size_t showSphereCount = 0;
+
+    for (RimEclipseWell* w : wells)
+    {
+        if (w->showWellLabel())     showLabelCount++;
+        if (w->showWellHead())      showWellHeadCount++;
+        if (w->showWellPipe())      showPipeCount++;
+        if (w->showWellSpheres())   showSphereCount++;
+    }
+
+    updateStateFromEnabledChildCount(showLabelCount, &m_showWellLabel);
+    updateStateFromEnabledChildCount(showWellHeadCount, &m_showWellHead);
+    updateStateFromEnabledChildCount(showPipeCount, &m_showWellPipe);
+    updateStateFromEnabledChildCount(showSphereCount, &m_showWellSpheres);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::updateStateFromEnabledChildCount(size_t enabledChildCount, caf::PdmField<caf::Tristate>* fieldToUpdate)
+{
+    caf::Tristate tristate;
+
+    if (enabledChildCount == 0)
+    {
+        tristate = caf::Tristate::State::False;
+    }
+    else if (enabledChildCount == wells.size())
+    {
+        tristate = caf::Tristate::State::True;
+    }
+    else
+    {
+        tristate = caf::Tristate::State::PartiallyTrue;
+    }
+
+    fieldToUpdate->setValue(tristate);
 }
 
 //--------------------------------------------------------------------------------------------------
