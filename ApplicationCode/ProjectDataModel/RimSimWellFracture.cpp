@@ -133,6 +133,8 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
+    RimFracture::defineEditorAttribute(field, uiConfigName, attribute);
+
     if (field == &m_location)
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
