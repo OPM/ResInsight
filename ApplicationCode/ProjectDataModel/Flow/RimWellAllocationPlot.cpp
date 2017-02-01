@@ -152,6 +152,8 @@ void RimWellAllocationPlot::updateFromWell()
 
     if (!wellResults) return;
    
+   // Set up the Accumulated Well Flow Calculator
+
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
@@ -206,6 +208,8 @@ void RimWellAllocationPlot::updateFromWell()
  
     }
 
+    // Create tracks and curves from the calculated data
+
     size_t branchCount = pipeBranchesCLCoords.size();
     for (size_t brIdx = 0; brIdx < branchCount; ++brIdx)
     {
@@ -220,8 +224,6 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
-
-
         if ( m_flowDiagSolution )
         {
             std::vector<double> connNumbers;
@@ -233,9 +235,7 @@ void RimWellAllocationPlot::updateFromWell()
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for (const QString& tracerName: tracerNames)
             {
-                std::vector<double> accFlow;
-
-                accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx); 
+                const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx); 
 
                 RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
                 curve->setFlowValues(tracerName, connNumbers, accFlow);
@@ -247,12 +247,12 @@ void RimWellAllocationPlot::updateFromWell()
         else
         {
             std::vector<double> connNumbers;
-            std::vector<double> accFlow;
+            {
+                const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
+                for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
+            }
 
-            accFlow = wfCalculator->accumulatedTotalFlowPrConnection(brIdx);
-
-            const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
-            for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
+            const std::vector<double>& accFlow = wfCalculator->accumulatedTotalFlowPrConnection(brIdx);
 
             RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
             curve->setFlowValues("Total", connNumbers, accFlow);

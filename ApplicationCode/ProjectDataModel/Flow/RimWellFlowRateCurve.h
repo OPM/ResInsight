@@ -39,6 +39,7 @@ public:
     virtual ~RimWellFlowRateCurve();
     
     void setFlowValues(const QString& tracerName , const std::vector<double>& measuredDepths, const std::vector<double>& flowRates);
+    void updateStackedPlotData();
 
     virtual QString wellName() const override;
     virtual QString wellLogChannelName() const override;
@@ -46,6 +47,7 @@ public:
 protected:
     virtual QString createCurveAutoName() override;
     virtual void onLoadDataAndUpdate() override;
+    virtual void updateCurveAppearance() override;
 
 private:
     RimWellAllocationPlot* wellAllocationPlot() const;

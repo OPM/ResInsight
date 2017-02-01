@@ -120,7 +120,11 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
                 size_t tracerIdx = 0;
                 for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
                 {
-                    accFlow[tracerIdx] += (*tracerFractionIt.second)[resCellIndex] * branchCells[clSegIdx].flowRate();
+                    double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
+                    if (cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction)
+                    {
+                        accFlow[tracerIdx] += (*tracerFractionIt.second)[resCellIndex] * branchCells[clSegIdx].flowRate();
+                    }
                     tracerIdx++;
                 }
             }

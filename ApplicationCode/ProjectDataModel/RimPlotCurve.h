@@ -86,7 +86,7 @@ protected:
     virtual void                    onLoadDataAndUpdate() = 0;
 
     void                            updateCurvePresentation();
-    void                            updateCurveAppearance();
+    virtual void                    updateCurveAppearance();
 
     void                            updateOptionSensitivity();
 
