@@ -19,8 +19,9 @@
 
 #include "RicWellPathFracturesDeleteAllFeature.h"
 
-#include "RimWellPathFractureCollection.h"
 #include "RimEclipseView.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -64,10 +65,9 @@ void RicWellPathFracturesDeleteAllFeature::onActionTriggered(bool isChecked)
     
         fractureCollection->uiCapability()->updateConnectedEditors();
 
-        RimEclipseView* mainView = nullptr;
-        fractureCollection->firstAncestorOrThisOfType(mainView);
-        if (mainView) mainView->scheduleCreateDisplayModelAndRedraw();
-
+        RimWellPathCollection* wellPathColl = nullptr;
+        fractureCollection->firstAncestorOrThisOfType(wellPathColl);
+        if (wellPathColl) wellPathColl->scheduleGeometryRegenAndRedrawViews();
     }
 }
 
