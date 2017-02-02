@@ -203,10 +203,11 @@ void RimWellAllocationPlot::updateFromWell()
     }
     else
     {
-        wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
-                                              pipeBranchesCellIds));
-
- 
+        if (pipeBranchesCLCoords.size() > 0)
+        {
+            wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
+                                                  pipeBranchesCellIds));
+        }
     }
 
     // Create tracks and curves from the calculated data
@@ -251,36 +252,39 @@ void RimWellAllocationPlot::updateFromWell()
     /// Pie chart
 
     m_totalWellAllocationPlot->clearSlices();
-    std::vector<QString> tracerNames =  wfCalculator->tracerNames();
-    std::vector<std::pair<QString, double> > tracerWithValues;
 
-    for (const QString& tracerName: tracerNames)
+    if (wfCalculator)
     {
-        const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, 0);
-        tracerWithValues.push_back(std::make_pair(tracerName, accFlow.back()));
-    }
+        std::vector<QString> tracerNames =  wfCalculator->tracerNames();
+        std::vector<std::pair<QString, double> > tracerWithValues;
 
-    float sumTracerVals = 0.0f;
-    for ( const auto& tracerVal:tracerWithValues)
-    {
-         sumTracerVals += tracerVal.second;
-    }
-
-    if ( sumTracerVals != 0.0f )
-    {
-        for ( const auto& tracerVal : tracerWithValues )
+        for (const QString& tracerName: tracerNames)
         {
-            cvf::Color3f color;
-            if ( m_flowDiagSolution )
-                color = m_flowDiagSolution->tracerColor(tracerVal.first);
-            else
-                color = cvf::Color3f::DARK_GRAY;
+            const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, 0);
+            tracerWithValues.push_back(std::make_pair(tracerName, accFlow.back()));
+        }
 
-            m_totalWellAllocationPlot->addSlice(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
+        float sumTracerVals = 0.0f;
+        for ( const auto& tracerVal:tracerWithValues)
+        {
+             sumTracerVals += tracerVal.second;
+        }
+
+        if ( sumTracerVals != 0.0f )
+        {
+            for ( const auto& tracerVal : tracerWithValues )
+            {
+                cvf::Color3f color;
+                if ( m_flowDiagSolution )
+                    color = m_flowDiagSolution->tracerColor(tracerVal.first);
+                else
+                    color = cvf::Color3f::DARK_GRAY;
+
+                m_totalWellAllocationPlot->addSlice(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
+            }
         }
     }
     m_totalWellAllocationPlot->updateConnectedEditors();
-
 
     setDescription("Well Allocation (" + m_wellName + ")");
     
