@@ -23,8 +23,6 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -35,6 +33,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimFault.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
@@ -42,7 +41,9 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimIntersectionCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -51,6 +52,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
@@ -71,7 +73,6 @@
 #include <vector>
 
 #include <QMenu>
-#include "RimFault.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -350,6 +351,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFault*>(uiItem) )
         {
             commandIds << "RicExportFaultsFeature";
+        }
+        else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
+        {
+            commandIds << "RicAddStoredWellAllocationPlotFeature";
         }
 
 

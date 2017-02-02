@@ -6,10 +6,12 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicShowWellAllocationPlotFeature.h
+${CEE_CURRENT_LIST_DIR}RicAddStoredWellAllocationPlotFeature
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicShowWellAllocationPlotFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicAddStoredWellAllocationPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
