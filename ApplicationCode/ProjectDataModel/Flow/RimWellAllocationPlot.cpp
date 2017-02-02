@@ -168,7 +168,7 @@ void RimWellAllocationPlot::updateFromWell()
     std::unique_ptr< RigAccWellFlowCalculator > wfCalculator;
     std::map<QString, const std::vector<double>* > tracerCellFractionValues;
 
-    if ( m_flowDiagSolution )
+    if ( m_flowDiagSolution && wellResults->hasWellResult(m_timeStep))
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
 
@@ -268,7 +268,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     if ( sumTracerVals != 0.0f )
     {
-        for ( const auto& tracerVal:tracerWithValues )
+        for ( const auto& tracerVal : tracerWithValues )
         {
             cvf::Color3f color;
             if ( m_flowDiagSolution )
@@ -283,6 +283,7 @@ void RimWellAllocationPlot::updateFromWell()
 
 
     setDescription("Well Allocation (" + m_wellName + ")");
+    
     accumulatedWellFlowPlot()->updateConnectedEditors();
 }
 
