@@ -116,6 +116,8 @@ public:
 
     const std::vector<cvf::ubyte>&      resultWellGeometryVisibilities(size_t frameIndex);       
     void                                scheduleIsWellPipesVisibleRecalculation();
+    
+    static cvf::Color3f                 cycledPaletteColor(size_t colorIndex);
 
 protected:
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -128,7 +130,6 @@ protected:
 
 private:
     void                                calculateWellGeometryVisibility(size_t frameIndex);
-    static cvf::Color3f                 cycledPaletteColor(size_t colorIndex);
     void                                updateStateForVisibilityCheckboxes();
     void                                updateStateFromEnabledChildCount(size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate);
 

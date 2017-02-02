@@ -26,6 +26,7 @@
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
+#include "RimEclipseWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 
@@ -268,6 +269,31 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
     CVF_ASSERT(false);
 
     return UNDEFINED;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimFlowDiagSolution::tracerColor(QString tracerName)
+{
+    RimEclipseResultCase* eclCase;
+    this->firstAncestorOrThisOfType(eclCase);
+
+    if ( eclCase )
+    {
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+
+        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        {
+            if ( wellResults[wIdx]->m_wellName == tracerName )
+            {
+
+                return RimEclipseWellCollection::cycledPaletteColor(wIdx);
+            }
+        }
+    }
+
+    return cvf::Color3f::DARK_GRAY;
 }
 
 //--------------------------------------------------------------------------------------------------

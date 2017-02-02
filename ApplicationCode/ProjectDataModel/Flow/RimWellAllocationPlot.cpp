@@ -239,8 +239,10 @@ void RimWellAllocationPlot::updateFromWell()
 
                 RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
                 curve->setFlowValues(tracerName, connNumbers, accFlow);
+                curve->setColor( m_flowDiagSolution->tracerColor(tracerName));
 
                 plotTrack->addCurve(curve);
+                
                 curve->loadDataAndUpdate();
             }
         }
@@ -256,6 +258,7 @@ void RimWellAllocationPlot::updateFromWell()
 
             RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
             curve->setFlowValues("Total", connNumbers, accFlow);
+            curve->setColor( cvf::Color3f::DARK_GRAY);
 
             plotTrack->addCurve(curve);
 

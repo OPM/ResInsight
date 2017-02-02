@@ -25,6 +25,7 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfColor3.h"
 
 class RimEclipseWell;
 class RigFlowDiagResults;
@@ -57,6 +58,7 @@ public:
 
     TracerStatusType tracerStatusOverall(QString tracerName);
     TracerStatusType tracerStatusInTimeStep(QString tracerName, size_t timeStepIndex);
+    cvf::Color3f     tracerColor(QString tracerName);
 
 
 protected:
