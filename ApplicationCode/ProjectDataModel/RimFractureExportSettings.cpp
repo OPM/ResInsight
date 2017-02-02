@@ -19,6 +19,9 @@
 #include "RimFractureExportSettings.h"
 
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmPtrField.h"
+#include "RimEclipseCase.h"
+#include "RimTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFractureExportSettings, "RimFractureExportSettings");
@@ -32,9 +35,23 @@ RimFractureExportSettings::RimFractureExportSettings()
 
     CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
     fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-//     CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "EclipseKeyword", "Eclipse Keyword", "", "", "");
-//     CAF_PDM_InitField(&undefinedValue, "UndefinedValue", 0.0, "Undefined value", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&caseToApply, "CaseToApply", "Case to apply", "", "", "");
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFractureExportSettings::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &caseToApply)
+    {
+        RimTools::caseOptionItems(&options);
+    }
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

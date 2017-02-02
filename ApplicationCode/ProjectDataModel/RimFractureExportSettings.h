@@ -20,7 +20,11 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+#include "cafPdmUiItem.h"
 
+
+class RimEclipseCase;
 
 //==================================================================================================
 ///  
@@ -32,9 +36,10 @@ class RimFractureExportSettings : public caf::PdmObject
 public:
     RimFractureExportSettings();
 
-    caf::PdmField<QString>  fileName;
-//     caf::PdmField<QString>  eclipseKeyword;
-//     caf::PdmField<double>   undefinedValue;
+    caf::PdmField<QString>      fileName;
+    caf::PdmPtrField<RimEclipseCase*>  caseToApply;
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

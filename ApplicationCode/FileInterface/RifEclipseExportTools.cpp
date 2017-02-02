@@ -23,6 +23,7 @@
 #include "RigFracture.h"
 #include "RigMainGrid.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
@@ -58,7 +59,7 @@ RifEclipseExportTools::~RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures)
+bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
 {
     RiaApplication* app = RiaApplication::instance();
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
@@ -94,7 +95,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     for (RimFracture* fracture : fractures)
     {
-        fracture->computeTransmissibility();
+        fracture->computeTransmissibility(caseToApply);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         for (RigFractureData fracData : fracDataVector)
@@ -108,7 +109,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
     for (RimFracture* fracture : fractures)
     {
-        fracture->computeTransmissibility();
+        fracture->computeTransmissibility(caseToApply);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         for (RigFractureData fracData : fracDataVector)

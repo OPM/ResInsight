@@ -41,6 +41,7 @@
 #include <QAction>
 #include <QMessageBox>
 #include <QString>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT(RicExportSimWellFractureWellCompletionFeature, "RicExportSimWellFractureWellCompletionFeature");
 
@@ -73,13 +74,24 @@ void RicExportSimWellFractureWellCompletionFeature::onActionTriggered(bool isChe
         projectFolder = eclipseWiew->eclipseCase()->locationOnDisc();
     }
 
-    QString outputFileName = projectFolder + "/Fractures";
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FRACTURE_EXPORT_DIR", projectFolder);
+
+
+    QString outputFileName = defaultDir + "/Fractures";
     exportSettings.fileName = outputFileName;
 
+    RimEclipseCase* caseToApply;
+    objHandle->firstAncestorOrThisOfType(caseToApply);
+    exportSettings.caseToApply = caseToApply;
+    
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Fracture Well Completion Data", "");
+    propertyDialog.resize(QSize(400, 200));
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures);
+        RiaApplication::instance()->setLastUsedDialogDirectory("FRACTURE_EXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
+
+        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
 
         if (!isOk)
         {

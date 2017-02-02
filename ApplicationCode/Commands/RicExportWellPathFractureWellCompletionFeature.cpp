@@ -41,6 +41,7 @@
 #include <QAction>
 #include <QMessageBox>
 #include <QString>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT(RicExportWellPathFractureWellCompletionFeature, "RicExportWellPathFractureWellCompletionFeature");
 
@@ -65,6 +66,13 @@ void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isCh
 
     RiaApplication* app = RiaApplication::instance();
     QString projectFolder = app->currentProjectPath();
+    
+    RimView* view = app->activeReservoirView();
+    objHandle = dynamic_cast<caf::PdmObjectHandle*>(view);
+    if (!objHandle) return;
+    RimEclipseCase* caseToApply;
+    objHandle->firstAncestorOrThisOfType(caseToApply);
+    exportSettings.caseToApply = caseToApply;
 
     if (projectFolder.isEmpty())
     {
@@ -74,21 +82,24 @@ void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isCh
         if (!activeRiv) return;
         projectFolder = activeRiv->eclipseCase()->locationOnDisc();
     }
+    
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FRACTURE_EXPORT_DIR", projectFolder);
 
-    QString outputFileName = projectFolder + "/Fractures";
+    QString outputFileName = defaultDir + "/Fractures";
     exportSettings.fileName = outputFileName;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Fracture Well Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures);
+        RiaApplication::instance()->setLastUsedDialogDirectory("FRACTURE_EXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
+
+        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
 
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
         }
     }
-
 
 }
 

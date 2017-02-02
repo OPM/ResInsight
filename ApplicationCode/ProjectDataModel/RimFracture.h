@@ -36,6 +36,7 @@
 class RigFracture;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
+class RimEclipseCase;
 
 //==================================================================================================
 ///  
@@ -74,7 +75,7 @@ public:
 
 
     std::vector<size_t>             getPotentiallyFracturedCells();
-    void                            computeTransmissibility();
+    void                            computeTransmissibility(RimEclipseCase* caseToApply);
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*    userDescriptionField() override;

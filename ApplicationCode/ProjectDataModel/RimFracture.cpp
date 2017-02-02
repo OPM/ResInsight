@@ -261,21 +261,12 @@ cvf::Mat4f RimFracture::transformMatrix()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::computeTransmissibility()
+void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 { 
-    RiaApplication* app = RiaApplication::instance();
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
+    RigEclipseCaseData* eclipseCaseData = caseToApply->reservoirData();
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-    if (!objHandle) return;
-    RimEclipseCase* eclipseCase;
-    objHandle->firstAncestorOrThisOfType(eclipseCase);
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->reservoirData();
-    RimEclipseCellColors* resultColors = activeRiv->cellResult();
-
-    RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
+    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
 
     size_t scalarSetIndex;
     scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
@@ -304,11 +295,6 @@ void RimFracture::computeTransmissibility()
     
     for (size_t fracCell : fracCells)
     {
-        //TODO: Remove - only for simplifying debugging...
-        const RigMainGrid* mainGrid = activeRiv->mainGrid();
-        size_t i, j, k;
-        mainGrid->ijkFromCellIndex(fracCell, &i, &j, &k);
-
         bool cellIsActive = activeCellInfo->isActive(fracCell);
 
         double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
