@@ -1384,6 +1384,7 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_toggleFaultsLabelAction->blockSignals(false);
 
         m_showWellCellsAction->blockSignals(true);
+        eclView->wellCollection()->updateStateForVisibilityCheckboxes();
         m_showWellCellsAction->setChecked(eclView->wellCollection()->showWellCells());
         m_showWellCellsAction->blockSignals(false);
     }
@@ -1577,7 +1578,7 @@ void RiuMainWindow::slotShowWellCellsAction(bool doAdd)
     RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
-        riv->wellCollection()->showWellCells.setValueWithFieldChanged(doAdd);
+        riv->wellCollection()->setShowWellCellsState(doAdd);
     }
 }
 

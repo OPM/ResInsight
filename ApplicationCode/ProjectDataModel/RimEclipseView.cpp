@@ -1141,9 +1141,6 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     }
     visibleCells->setAll(false);
 
-    // If all wells are forced off, return
-    if (!this->wellCollection()->showWellCells()) return;
-
     RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
 
     CVF_ASSERT(activeCellInfo);
@@ -1152,7 +1149,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
-        if (this->wellCollection()->showWellCells() && well->showWell() && well->showWellCells())
+        if (well->showWell() && well->showWellCells())
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;

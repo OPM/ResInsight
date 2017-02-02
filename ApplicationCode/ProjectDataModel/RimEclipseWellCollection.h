@@ -95,7 +95,9 @@ public:
     caf::PdmField<cvf::Color3f>         wellLabelColor;
     caf::PdmField<bool>                 showConnectionStatusColors;
 
-    caf::PdmField<bool>                 showWellCells;
+    void                                setShowWellCellsState(bool enable);
+    bool                                showWellCells();
+
     caf::PdmField<bool>                 showWellCellFence;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
@@ -116,6 +118,8 @@ public:
 
     const std::vector<cvf::ubyte>&      resultWellGeometryVisibilities(size_t frameIndex);       
     void                                scheduleIsWellPipesVisibleRecalculation();
+    void                                updateStateForVisibilityCheckboxes();
+
     
     static cvf::Color3f                 cycledPaletteColor(size_t colorIndex);
 
@@ -130,7 +134,6 @@ protected:
 
 private:
     void                                calculateWellGeometryVisibility(size_t frameIndex);
-    void                                updateStateForVisibilityCheckboxes();
     void                                updateStateFromEnabledChildCount(size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate);
 
 private:
@@ -146,6 +149,7 @@ private:
     caf::PdmField<caf::Tristate>        m_showWellHead;
     caf::PdmField<caf::Tristate>        m_showWellPipe;
     caf::PdmField<caf::Tristate>        m_showWellSpheres;
+    caf::PdmField<caf::Tristate>        m_showWellCells;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;

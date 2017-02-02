@@ -27,6 +27,8 @@
 #include "RimEclipseWellCollection.h"
 #include "RimIntersectionCollection.h"
 
+#include "RiuMainWindow.h"
+
 #include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
@@ -51,7 +53,7 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Scale Factor", "", "", "");
     CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe color", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        true,   "Well Cells", "", "", "");
+    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
@@ -77,34 +79,44 @@ caf::PdmFieldHandle* RimEclipseWell::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimEclipseView* m_reservoirView = nullptr;
-    this->firstAncestorOrThisOfType(m_reservoirView);
-    if (!m_reservoirView) return;
-
-    if (&showWellLabel == changedField ||
-        &showWellHead == changedField ||
-        &showWellPipe == changedField ||
-        &showWellSpheres == changedField ||
-        &wellPipeColor == changedField)
+    RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
+    if (reservoirView)
     {
-        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-    }
-    else if (&showWell == changedField ||
-             &showWellCells == changedField ||
-             &showWellCellFence == changedField)
-             
-    {
-        m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-    }
-    else if (   &pipeScaleFactor == changedField
-             || &wellHeadScaleFactor == changedField)
-    {
-        if (m_reservoirView)
+        if (&showWellLabel == changedField ||
+            &showWellHead == changedField ||
+            &showWellPipe == changedField ||
+            &showWellSpheres == changedField ||
+            &wellPipeColor == changedField)
         {
-            m_reservoirView->schedulePipeGeometryRegen();
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
+        else if (&showWell == changedField ||
+                 &showWellCells == changedField ||
+                 &showWellCellFence == changedField)
+             
+        {
+            reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+        else if (   &pipeScaleFactor == changedField
+                 || &wellHeadScaleFactor == changedField)
+        {
+            if (reservoirView)
+            {
+                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
+
+    RimEclipseWellCollection* wellColl = nullptr;
+    this->firstAncestorOrThisOfType(wellColl);
+    if (wellColl)
+    {
+        wellColl->updateStateForVisibilityCheckboxes();
+
+        RiuMainWindow::instance()->refreshDrawStyleActions();
     }
 }
 

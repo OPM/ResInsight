@@ -161,7 +161,11 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&wellPipeCoordType,           "WellPipeCoordType", WellPipeCoordEnum(WELLPIPE_INTERPOLATED), "Type", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,       "ShowWellCells",            false,   "Show Well Cells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_showWellCells,       "ShowWellCells", "Show Well Cells", "", "", "");
+    m_showWellCells.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
+    m_showWellCells.xmlCapability()->setIOReadable(false);
+    m_showWellCells.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitField(&showWellCellFence,   "ShowWellFences",           false,  "Show Well Cell Fence", "", "", "");
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION), "Well Fence Direction", "", "", "");
 
@@ -194,6 +198,40 @@ RimEclipseWellCollection::~RimEclipseWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::setShowWellCellsState(bool enable)
+{
+    for (RimEclipseWell* w : wells)
+    {
+        w->showWellCells = enable;
+    }
+
+    updateConnectedEditors();
+
+    if (m_reservoirView)
+    {
+        m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
+        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseWellCollection::showWellCells()
+{
+    if (m_showWellCells().isFalse())
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimEclipseWell* RimEclipseWellCollection::findWell(QString name)
 {
     for (size_t i = 0; i < this->wells().size(); ++i)
@@ -212,7 +250,6 @@ RimEclipseWell* RimEclipseWellCollection::findWell(QString name)
 bool RimEclipseWellCollection::hasVisibleWellCells()
 {
     if (!this->isActive()) return false;
-    if (!this->showWellCells()) return false;
     if (this->wells().size() == 0 ) return false;
 
     bool hasCells = false;
@@ -292,12 +329,19 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         }
     }
 
+    if (&m_showWellCells == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWellCells = !(m_showWellCells().isFalse());
+        }
+    }
 
     if (m_reservoirView)
     {
         if (   &isActive == changedField
             || &m_showWellLabel == changedField
-            || &showWellCells == changedField
+            || &m_showWellCells == changedField
             || &showWellCellFence == changedField
             || &wellCellFenceType == changedField)
         {
@@ -372,7 +416,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         m_applySingleColorToWells = false;
     }
 
-    if (&showWellCells == changedField)
+    if (&m_showWellCells == changedField)
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
@@ -425,7 +469,7 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells");
     filterGroup->add(&obsoleteField_wellCellsToRangeFilterMode);
-    filterGroup->add(&showWellCells);
+    filterGroup->add(&m_showWellCells);
     filterGroup->add(&showWellCellFence);
     filterGroup->add(&wellCellFenceType);
 
@@ -442,6 +486,7 @@ void RimEclipseWellCollection::updateStateForVisibilityCheckboxes()
     size_t showWellHeadCount = 0;
     size_t showPipeCount = 0;
     size_t showSphereCount = 0;
+    size_t showWellCellsCount = 0;
 
     for (RimEclipseWell* w : wells)
     {
@@ -449,12 +494,14 @@ void RimEclipseWellCollection::updateStateForVisibilityCheckboxes()
         if (w->showWellHead())      showWellHeadCount++;
         if (w->showWellPipe())      showPipeCount++;
         if (w->showWellSpheres())   showSphereCount++;
+        if (w->showWellCells())     showWellCellsCount++;
     }
 
     updateStateFromEnabledChildCount(showLabelCount, &m_showWellLabel);
     updateStateFromEnabledChildCount(showWellHeadCount, &m_showWellHead);
     updateStateFromEnabledChildCount(showPipeCount, &m_showWellPipe);
     updateStateFromEnabledChildCount(showSphereCount, &m_showWellSpheres);
+    updateStateFromEnabledChildCount(showWellCellsCount, &m_showWellCells);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,20 +570,17 @@ void RimEclipseWellCollection::initAfterRead()
 
     if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_NONE)
     {
-        showWellCells = false;
+        for (RimEclipseWell* w : wells)
+        {
+            w->showWell = false;
+        }
     }
     else if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_ALL)
     {
-        showWellCells = true;
-
         for (RimEclipseWell* w : wells)
         {
             w->showWellCells = true;
         }
-    }
-    else if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_INDIVIDUAL)
-    {
-        showWellCells = true;
     }
 }
 
