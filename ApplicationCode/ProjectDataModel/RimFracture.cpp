@@ -247,8 +247,7 @@ cvf::Mat4f RimFracture::transformMatrix()
 
 
     // Azimuth rotation
-    cvf::Mat4f azimuthRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(-azimuth()));
-    //TODO: Adjust angle with 90 deg
+    cvf::Mat4f azimuthRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(-azimuth()-90));
 
     cvf::Mat4f m = azimuthRotation * rotationFromTesselator;
     m.setTranslation(cvf::Vec3f(center));
