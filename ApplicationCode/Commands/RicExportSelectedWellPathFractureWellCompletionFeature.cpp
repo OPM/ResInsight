@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportWellPathFractureWellCompletionFeature.h"
+#include "RicExportSelectedWellPathFractureWellCompletionFeature.h"
 
 
 #include "RiaApplication.h"
@@ -26,10 +26,12 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimFracture.h"
 #include "RimFractureExportSettings.h"
-#include "RimView.h"
-#include "RimWellPathCollection.h"
+#include "RimWellPath.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafPdmObjectHandle.h"
@@ -43,32 +45,38 @@
 #include <QString>
 #include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT(RicExportWellPathFractureWellCompletionFeature, "RicExportWellPathFractureWellCompletionFeature");
+CAF_CMD_SOURCE_INIT(RicExportSelectedWellPathFractureWellCompletionFeature, "RicExportSelectedWellPathFractureWellCompletionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isChecked)
+void RicExportSelectedWellPathFractureWellCompletionFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return;
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return;
+    std::vector<RimWellPath*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
 
-    RimWellPathCollection* wellpathColl = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellpathColl);
+
     std::vector<RimFracture*> fractures;
-    wellpathColl->descendantsIncludingThisOfType(fractures);
+    for (RimWellPath* well : selection)
+    {
+        std::vector<RimFracture*> fracListForWell;
+        well->descendantsIncludingThisOfType(fracListForWell);
+        for (RimFracture* fracture : fracListForWell)
+        {
+            fractures.push_back(fracture);
+        }
+    }
 
     RimFractureExportSettings exportSettings;
 
     RiaApplication* app = RiaApplication::instance();
     QString projectFolder = app->currentProjectPath();
-    
+
     RimView* view = app->activeReservoirView();
-    objHandle = dynamic_cast<caf::PdmObjectHandle*>(view);
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(view);
     if (!objHandle) return;
+
     RimEclipseCase* caseToApply;
     objHandle->firstAncestorOrThisOfType(caseToApply);
     exportSettings.caseToApply = caseToApply;
@@ -81,7 +89,7 @@ void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isCh
         if (!activeRiv) return;
         projectFolder = activeRiv->eclipseCase()->locationOnDisc();
     }
-    
+
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FRACTURE_EXPORT_DIR", projectFolder);
 
     QString outputFileName = defaultDir + "/Fractures";
@@ -100,21 +108,22 @@ void RicExportWellPathFractureWellCompletionFeature::onActionTriggered(bool isCh
         }
     }
 
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportWellPathFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
+void RicExportSelectedWellPathFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    actionToSetup->setText("Export Fracture Well Completion Data");
+    actionToSetup->setText("Export Fracture Well Completion Data for Selected wells");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportWellPathFractureWellCompletionFeature::isCommandEnabled()
+bool RicExportSelectedWellPathFractureWellCompletionFeature::isCommandEnabled()
 {
     return true;
 }

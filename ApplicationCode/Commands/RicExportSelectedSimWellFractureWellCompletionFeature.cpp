@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "EclipseWell\RicEclipseWellFeatureImpl.h"
+
 #include "RifEclipseExportTools.h"
 #include "RifEclipseExportTools.h"
 
@@ -52,15 +54,11 @@ CAF_CMD_SOURCE_INIT(RicExportSelectedSimWellFractureWellCompletionFeature, "RicE
 void RicExportSelectedSimWellFractureWellCompletionFeature::onActionTriggered(bool isChecked)
 {
 
-    std::vector<RimEclipseWell*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-
+    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
 
     std::vector<RimFracture*> fractures;
     for (RimEclipseWell* well : selection)
     {
-
         std::vector<RimFracture*> fracListForWell;
         well->descendantsIncludingThisOfType(fracListForWell);
         for (RimFracture* fracture : fracListForWell)
@@ -69,11 +67,7 @@ void RicExportSelectedSimWellFractureWellCompletionFeature::onActionTriggered(bo
         }
     }
 
-
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(selection[0]);
     if (!objHandle) return;
 
     RimEclipseView* eclipseWiew = nullptr;

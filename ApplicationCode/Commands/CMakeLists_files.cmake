@@ -49,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportSimWellFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.h
+${CEE_CURRENT_LIST_DIR}RicExportSelectedWellPathFractureWellCompletionFeature.h
 
 
 
@@ -102,6 +103,7 @@ ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportSimWellFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExportSelectedWellPathFractureWellCompletionFeature.cpp
 
 
 
