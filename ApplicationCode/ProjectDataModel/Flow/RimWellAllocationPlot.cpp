@@ -443,7 +443,9 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         updateMdiWindowTitle();
     }
-    else if (changedField == &m_wellName)
+    else if (   changedField == &m_wellName
+             || changedField == &m_case
+             || changedField == &m_timeStep)
     {
         updateFromWell();
     }
