@@ -32,6 +32,7 @@
 #include "RiuMainPlotWindow.h"
 #include "RiuNightchartsWidget.h"
 #include "RiuWellAllocationPlot.h"
+
 #include "cvfColor3.h"
 
 

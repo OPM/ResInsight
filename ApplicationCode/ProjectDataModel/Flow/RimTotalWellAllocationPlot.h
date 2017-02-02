@@ -37,7 +37,7 @@ namespace caf {
 }
 
 namespace cvf {
-    class cvf::Color3f;
+    class Color3f;
 }
 
 
