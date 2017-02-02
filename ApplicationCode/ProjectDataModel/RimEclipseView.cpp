@@ -1188,7 +1188,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                             (*visibleCells)[gridCellIndex] = true;
 
                             // Calculate well fence cells
-                            if (well->showWellCellFence() && this->wellCollection()->showWellCellFence())
+                            if (well->showWellCellFence())
                             {
                                 size_t i, j, k;
                                 grid->ijkFromCellIndex(gridCellIndex, &i, &j, &k);

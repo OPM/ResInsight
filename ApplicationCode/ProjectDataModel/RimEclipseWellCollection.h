@@ -98,7 +98,6 @@ public:
     void                                setShowWellCellsState(bool enable);
     bool                                showWellCells();
 
-    caf::PdmField<bool>                 showWellCellFence;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
 
@@ -150,6 +149,7 @@ private:
     caf::PdmField<caf::Tristate>        m_showWellPipe;
     caf::PdmField<caf::Tristate>        m_showWellSpheres;
     caf::PdmField<caf::Tristate>        m_showWellCells;
+    caf::PdmField<caf::Tristate>        m_showWellCellFence;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;
@@ -157,5 +157,5 @@ private:
 
     caf::PdmField<bool>                     obsoleteField_showWellLabel;
     caf::PdmField<bool>                     obsoleteField_showWellHead;
-    caf::PdmField<bool>                     obsoleteField_showWellCells;
+    caf::PdmField<bool>                     obsoleteField_showWellCellFence;
 };
