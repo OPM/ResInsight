@@ -42,15 +42,16 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     QVBoxLayout* mainLayout = new QVBoxLayout();
     this->setLayout(mainLayout);
     this->layout()->setMargin(0);
+    this->layout()->setSpacing(0);
 
     m_titleLabel = new QLabel(this);
 
     QFont font = m_titleLabel->font();
-    font.setPointSize(36);
+    font.setPointSize(16);
     font.setBold(true);
     m_titleLabel->setFont(font);
 
-    mainLayout->addWidget(m_titleLabel, 1, Qt::AlignCenter);
+    mainLayout->addWidget(m_titleLabel, 0, Qt::AlignCenter);
 
     QHBoxLayout* plotWidgetsLayout =  new QHBoxLayout();
     mainLayout->addLayout(plotWidgetsLayout, 10);
