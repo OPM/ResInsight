@@ -33,6 +33,7 @@ class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
+class RimWellLogTrack;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -79,6 +80,11 @@ protected:
 
 private:
     void                                            updateFromWell();
+
+    void                                            addStackedCurve(const QString& tracerName, 
+                                                                    const std::vector<double>& connNumbers, 
+                                                                    const std::vector<double>& accFlow, 
+                                                                    RimWellLogTrack* plotTrack);
 
     // RimViewWindow overrides
 

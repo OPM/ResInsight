@@ -225,51 +225,86 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
+        std::vector<double> connNumbers;
+        {
+            const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
+            for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
+        }
+
         if ( m_flowDiagSolution )
         {
-            std::vector<double> connNumbers;
-            {
-                const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
-                for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
-            }
-
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for (const QString& tracerName: tracerNames)
             {
                 const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx); 
-
-                RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-                curve->setFlowValues(tracerName, connNumbers, accFlow);
-                curve->setColor( m_flowDiagSolution->tracerColor(tracerName));
-
-                plotTrack->addCurve(curve);
-                
-                curve->loadDataAndUpdate();
+                addStackedCurve(tracerName, connNumbers, accFlow, plotTrack);
             }
         }
         else
         {
-            std::vector<double> connNumbers;
-            {
-                const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
-                for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
-            }
-
             const std::vector<double>& accFlow = wfCalculator->accumulatedTotalFlowPrConnection(brIdx);
-
-            RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-            curve->setFlowValues("Total", connNumbers, accFlow);
-            curve->setColor( cvf::Color3f::DARK_GRAY);
-
-            plotTrack->addCurve(curve);
-
-            curve->loadDataAndUpdate();
+            addStackedCurve("Total", connNumbers, accFlow, plotTrack);
         }
 
     }
 
+    /// Pie chart
+
+    m_totalWellAllocationPlot->clearSlices();
+    std::vector<QString> tracerNames =  wfCalculator->tracerNames();
+    std::vector<std::pair<QString, double> > tracerWithValues;
+
+    for (const QString& tracerName: tracerNames)
+    {
+        const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, 0);
+        tracerWithValues.push_back(std::make_pair(tracerName, accFlow.back()));
+    }
+
+    float sumTracerVals = 0.0f;
+    for ( const auto& tracerVal:tracerWithValues)
+    {
+         sumTracerVals += tracerVal.second;
+    }
+
+    if ( sumTracerVals != 0.0f )
+    {
+        for ( const auto& tracerVal:tracerWithValues )
+        {
+            cvf::Color3f color;
+            if ( m_flowDiagSolution )
+                color = m_flowDiagSolution->tracerColor(tracerVal.first);
+            else
+                color = cvf::Color3f::DARK_GRAY;
+
+            m_totalWellAllocationPlot->addSlice(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
+        }
+    }
+    m_totalWellAllocationPlot->updateConnectedEditors();
+
+
     setDescription("Well Allocation (" + m_wellName + ")");
     accumulatedWellFlowPlot()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::addStackedCurve(const QString& tracerName, 
+                                            const std::vector<double>& connNumbers, 
+                                            const std::vector<double>& accFlow, 
+                                            RimWellLogTrack* plotTrack)
+{
+    RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
+    curve->setFlowValues(tracerName, connNumbers, accFlow);
+
+    if ( m_flowDiagSolution )
+        curve->setColor(m_flowDiagSolution->tracerColor(tracerName));
+    else
+        curve->setColor(cvf::Color3f::DARK_GRAY);
+    
+    plotTrack->addCurve(curve);
+
+    curve->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

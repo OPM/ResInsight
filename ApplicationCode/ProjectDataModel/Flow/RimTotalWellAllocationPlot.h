@@ -36,6 +36,10 @@ namespace caf {
     class PdmOptionItemInfo;
 }
 
+namespace cvf {
+    class cvf::Color3f;
+}
+
 
 //==================================================================================================
 ///  
@@ -49,39 +53,31 @@ public:
     RimTotalWellAllocationPlot();
     virtual ~RimTotalWellAllocationPlot();
 
-    void                                            setSimulationWell(RimEclipseWell* simWell);
-
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    void                                            loadDataAndUpdate();
+    void                                            addSlice(const QString& name, const cvf::Color3f& color, float value);
+    void                                            clearSlices();
+    // RimViewWindow overrides
 
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
-
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
-    // RimViewWindow overrides
-
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
 protected:
+    // RimViewWindow overrides
+
+    virtual void                                    loadDataAndUpdate() override;
+    virtual QImage                                  snapshotWindowContent() override;
+
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    virtual QImage                                  snapshotWindowContent() override;
-
-private:
-    void                                            updateFromWell();
-
-
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
-
-    caf::PdmPtrField<RimEclipseWell*>               m_simulationWell;
 
     QPointer<RiuNightchartsWidget>                  m_wellTotalAllocationPlotWidget;
 };
