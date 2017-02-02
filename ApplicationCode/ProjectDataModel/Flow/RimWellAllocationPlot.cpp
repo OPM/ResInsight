@@ -40,6 +40,7 @@
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
 #include "RigAccWellFlowCalculator.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -345,6 +346,33 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
         for (int i = 0; i < timeStepNames.size(); i++)
         {
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+        }
+    }
+    else if (fieldNeedingOptions == &m_case)
+    {
+        RimProject* proj = nullptr;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            std::vector<RimEclipseResultCase*> cases;
+            proj->descendantsIncludingThisOfType(cases);
+
+            for (RimEclipseResultCase* c : cases)
+            {
+                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+            }
+        }
+    }
+    else if (fieldNeedingOptions == &m_flowDiagSolution)
+    {
+        if (m_case)
+        {
+            std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
+
+            for (RimFlowDiagSolution* flowSol : flowSols)
+            {
+                options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+            }
         }
     }
 
