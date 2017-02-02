@@ -194,14 +194,17 @@ void RimWellAllocationPlot::updateFromWell()
             }
         }
 
-        RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
-        wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
-                                              pipeBranchesCellIds,
-                                              tracerCellFractionValues,
-                                              cellIdxCalc));
-      
+        if ( tracerCellFractionValues.size() )
+        {
+            RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+            wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
+                                                            pipeBranchesCellIds,
+                                                            tracerCellFractionValues,
+                                                            cellIdxCalc));
+        }
     }
-    else
+
+    if (!wfCalculator)
     {
         if (pipeBranchesCLCoords.size() > 0)
         {
@@ -249,6 +252,8 @@ void RimWellAllocationPlot::updateFromWell()
 
     }
 
+    setDescription(m_wellName + " - Allocation");
+ 
     /// Pie chart
 
     m_totalWellAllocationPlot->clearSlices();
@@ -284,10 +289,9 @@ void RimWellAllocationPlot::updateFromWell()
             }
         }
     }
+    
     m_totalWellAllocationPlot->updateConnectedEditors();
 
-    setDescription("Well Allocation (" + m_wellName + ")");
-    
     accumulatedWellFlowPlot()->updateConnectedEditors();
 }
 
