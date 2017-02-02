@@ -23,12 +23,15 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RigEclipseCaseData.h"
 #include "RigSingleWellResultsData.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 
 #include "RiuMainWindow.h"
+
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiPushButtonEditor.h"
@@ -407,14 +410,8 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_applyIndividualColorsToWells == changedField)
     {
-        for (size_t i = 0; i < wells.size(); i++)
-        {
-            cvf::Color3f col = cycledPaletteColor(i);
+        assignDefaultWellColors();
 
-            wells[i]->wellPipeColor = col;
-            wells[i]->updateConnectedEditors();
-        }
-        
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 
         m_applyIndividualColorsToWells = false;
@@ -438,6 +435,34 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     if (&m_showWellCells == changedField)
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::assignDefaultWellColors()
+{
+    // The wells are sorted, use ordering of single well results data to assign colors
+
+    RimEclipseCase* rimEclipseCase = nullptr;
+    this->firstAncestorOrThisOfType(rimEclipseCase);
+    if (!rimEclipseCase) return;
+
+    if (!rimEclipseCase->reservoirData()) return;
+
+    cvf::Collection<RigSingleWellResultsData> wellResults = rimEclipseCase->reservoirData()->wellResults();
+
+    for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
+    {
+        RimEclipseWell* well = this->findWell(wellResults[wIdx]->m_wellName);
+        if (well)
+        {
+            cvf::Color3f col = cycledPaletteColor(wIdx);
+
+            well->wellPipeColor = col;
+            well->updateConnectedEditors();
+        }
     }
 }
 
