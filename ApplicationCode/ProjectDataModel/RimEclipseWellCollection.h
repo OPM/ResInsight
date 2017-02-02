@@ -154,4 +154,8 @@ private:
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;
     caf::PdmField<WellCellsRangeFilterEnum> obsoleteField_wellCellsToRangeFilterMode;
+
+    caf::PdmField<bool>                     obsoleteField_showWellLabel;
+    caf::PdmField<bool>                     obsoleteField_showWellHead;
+    caf::PdmField<bool>                     obsoleteField_showWellCells;
 };
