@@ -156,6 +156,7 @@ void RimTotalWellAllocationPlot::addSlice(const QString& name, const cvf::Color3
 void RimTotalWellAllocationPlot::clearSlices()
 {
     m_wellTotalAllocationPlotWidget->clear();
+    m_wellTotalAllocationPlotWidget->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +164,6 @@ void RimTotalWellAllocationPlot::clearSlices()
 //--------------------------------------------------------------------------------------------------
 void RimTotalWellAllocationPlot::loadDataAndUpdate()
 {
-    updateMdiWindowVisibility();
 
 }
 
