@@ -85,6 +85,8 @@ private:
                                                                     const std::vector<double>& connNumbers, 
                                                                     const std::vector<double>& accFlow, 
                                                                     RimWellLogTrack* plotTrack);
+    
+    void                                            updateWidgetTitleWindowTitle();
 
     // RimViewWindow overrides
 

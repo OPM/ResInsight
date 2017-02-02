@@ -315,6 +315,26 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateWidgetTitleWindowTitle()
+{
+    updateMdiWindowTitle();
+
+    if (m_wellAllocationPlotWidget)
+    {
+        if (m_showPlotTitle)
+        {
+            m_wellAllocationPlotWidget->showTitle(m_userName);
+        }
+        else
+        {
+            m_wellAllocationPlotWidget->hideTitle();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* RimWellAllocationPlot::viewWidget()
 {
     return m_wellAllocationPlotWidget;
@@ -446,7 +466,7 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     if (changedField == &m_userName ||
         changedField == &m_showPlotTitle)
     {
-        updateMdiWindowTitle();
+        updateWidgetTitleWindowTitle();
     }
     else if (   changedField == &m_wellName
              || changedField == &m_case
@@ -474,7 +494,8 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 void RimWellAllocationPlot::setDescription(const QString& description)
 {
     m_userName = description;
-    this->updateMdiWindowTitle();
+
+    updateWidgetTitleWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------

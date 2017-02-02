@@ -25,27 +25,41 @@
 #include "RimWellLogTrack.h"
 #include "RimTotalWellAllocationPlot.h"
 
-#include "QBoxLayout"
+#include <QBoxLayout>
+#include <QLabel>
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent)
-    : QFrame(parent)
+RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent) 
+    :   m_plotDefinition(plotDefinition),
+        QFrame(parent)
 {
-    Q_ASSERT(plotDefinition);
-    this->setLayout(new QHBoxLayout());
+    Q_ASSERT(m_plotDefinition);
+    
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    this->setLayout(mainLayout);
     this->layout()->setMargin(0);
 
-    m_plotDefinition = plotDefinition;
+    m_titleLabel = new QLabel(this);
+
+    QFont font = m_titleLabel->font();
+    font.setPointSize(36);
+    font.setBold(true);
+    m_titleLabel->setFont(font);
+
+    mainLayout->addWidget(m_titleLabel, 1, Qt::AlignCenter);
+
+    QHBoxLayout* plotWidgetsLayout =  new QHBoxLayout();
+    mainLayout->addLayout(plotWidgetsLayout, 10);
     
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
-    this->layout()->addWidget(totalFlowAllocationWidget);
+    plotWidgetsLayout->addWidget(totalFlowAllocationWidget);
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
-    this->layout()->addWidget(wellFlowWidget);
+    plotWidgetsLayout->addWidget(wellFlowWidget);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +79,24 @@ RiuWellAllocationPlot::~RiuWellAllocationPlot()
 RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
 {
     return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellAllocationPlot::showTitle(const QString& title)
+{
+    m_titleLabel->show();
+
+    m_titleLabel->setText(title);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellAllocationPlot::hideTitle()
+{
+    m_titleLabel->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
