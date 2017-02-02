@@ -35,8 +35,8 @@ RimWellPathFracture::RimWellPathFracture(void)
 {
     CAF_PDM_InitObject("Fracture", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(         &measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location", "", "", "");
-    measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(         &m_measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location", "", "", "");
+    m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,30 +49,56 @@ RimWellPathFracture::~RimWellPathFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimWellPathFracture::measuredDepth() const
+{
+    return m_measuredDepth();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::setMeasuredDepth(double mdValue)
+{
+    m_measuredDepth = mdValue;
+
+    updatePositionFromMeasuredDepth();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &measuredDepth)
+    if (changedField == &m_measuredDepth)
     {
-        cvf::Vec3d positionAtWellpath = cvf::Vec3d::ZERO;
-        
-        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-        if (!objHandle) return;
+        updatePositionFromMeasuredDepth();
 
-        RimWellPath* wellPath = nullptr;
-        objHandle->firstAncestorOrThisOfType(wellPath);
-        if (!wellPath) return;
-
-        RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-        positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
-
-        this->setAnchorPosition(positionAtWellpath);
-
-        RimProject* proj;
+        RimProject* proj = nullptr;
         this->firstAncestorOrThisOfType(proj);
         if (proj) proj->createDisplayModelAndRedrawAllViews();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::updatePositionFromMeasuredDepth()
+{
+    cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+    if (!objHandle) return;
+
+    RimWellPath* wellPath = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPath);
+    if (!wellPath) return;
+
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath(m_measuredDepth());
+
+    this->setAnchorPosition(positionAlongWellpath);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +108,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 {
     uiOrdering.add(&name);
 
-    uiOrdering.add(&measuredDepth);
+    uiOrdering.add(&m_measuredDepth);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
     geometryGroup->add(&azimuth);
@@ -100,7 +126,7 @@ void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field
 {
     RimFracture::defineEditorAttribute(field, uiConfigName, attribute);
 
-    if (field == &measuredDepth)
+    if (field == &m_measuredDepth)
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
 

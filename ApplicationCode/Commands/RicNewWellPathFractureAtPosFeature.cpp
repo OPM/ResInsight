@@ -80,8 +80,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->fractures.push_back(fracture);
         
-    fracture->setAnchorPosition(wellPathItem->m_pipeCenterlineIntersectionInDomainCoords);
-    fracture->measuredDepth = wellPathItem->m_measuredDepth;
+    fracture->setMeasuredDepth(wellPathItem->m_measuredDepth);
 
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);

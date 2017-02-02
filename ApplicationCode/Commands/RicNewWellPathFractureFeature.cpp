@@ -63,7 +63,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     fractureCollection->fractures.push_back(fracture);
         
     float md_default = 0.0f;
-    fracture->measuredDepth = md_default;
+    fracture->setMeasuredDepth(md_default);
 
     RimWellPath* wellPath = nullptr;
     objHandle->firstAncestorOrThisOfType(wellPath);

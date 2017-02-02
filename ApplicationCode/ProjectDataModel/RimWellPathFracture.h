@@ -37,12 +37,18 @@ public:
     RimWellPathFracture(void);
     virtual ~RimWellPathFracture(void);
 
-    caf::PdmField<float>                            measuredDepth;
+    double                          measuredDepth() const;
+    void                            setMeasuredDepth(double mdValue);
 
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
+private:
+    void                            updatePositionFromMeasuredDepth();
+
+private:
+    caf::PdmField<float>            m_measuredDepth;
 };
