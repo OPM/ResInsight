@@ -135,7 +135,6 @@ public:
     bool                              isMultiSegmentWell() const;
 
     bool                              hasWellResult(size_t resultTimeStepIndex) const;
-    size_t                            firstResultTimeStep() const;
 
     const RigWellResultFrame&         wellResultFrame(size_t resultTimeStepIndex) const;
 

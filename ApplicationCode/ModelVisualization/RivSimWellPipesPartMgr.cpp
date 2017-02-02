@@ -205,7 +205,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     RigSingleWellResultsData* wRes = m_rimWell->wellResults();
     if (wRes == NULL) return;
 
-    if (frameIndex < wRes->firstResultTimeStep()) return; // Or reset colors or something
+    if (!wRes->hasWellResult(frameIndex)) return; // Or reset colors or something
 
     const double closed = -0.1, producing = 1.5, water = 2.5, hcInjection = 3.5; // Closed set to -0.1 instead of 0.5 to workaround bug in the scalar mapper.
 

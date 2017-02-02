@@ -729,7 +729,7 @@ QString RiuResultTextBuilder::wellResultText()
         {
             RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
 
-            if (m_timeStepIndex < singleWellResultData->firstResultTimeStep())
+            if (!singleWellResultData->hasWellResult(m_timeStepIndex))
             {
                 continue;
             }
