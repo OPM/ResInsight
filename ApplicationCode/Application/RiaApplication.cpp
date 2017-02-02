@@ -868,6 +868,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     riv->loadDataAndUpdate();
 
+    riv->wellCollection()->assignDefaultWellColors();
+
     // Add a corresponding summary case if it exists
     {
         RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
