@@ -183,11 +183,11 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     m_showWellCellFence.xmlCapability()->setIOReadable(false);
     m_showWellCellFence.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
+    CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_INDIVIDUALLY), "Global well pipe visibility",  "", "", "");
     obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);
     obsoleteField_wellPipeVisibility.xmlCapability()->setIOWritable(false);
     
-    CAF_PDM_InitField(&obsoleteField_wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
+    CAF_PDM_InitField(&obsoleteField_wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_INDIVIDUAL),  "Add cells to range filter", "", "", "");
     obsoleteField_wellCellsToRangeFilterMode.uiCapability()->setUiHidden(true);
     obsoleteField_wellCellsToRangeFilterMode.xmlCapability()->setIOWritable(false);
 
@@ -609,10 +609,6 @@ void RimEclipseWellCollection::initAfterRead()
         {
             w->showWellPipe = true;
         }
-    }
-    else if (obsoleteField_wellPipeVisibility() == PIPES_INDIVIDUALLY)
-    {
-        showWellsIntersectingVisibleCells = false;
     }
 
     if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_NONE)
