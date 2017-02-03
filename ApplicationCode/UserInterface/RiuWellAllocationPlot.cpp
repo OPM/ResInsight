@@ -42,12 +42,12 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     QVBoxLayout* mainLayout = new QVBoxLayout();
     this->setLayout(mainLayout);
     this->layout()->setMargin(0);
-    this->layout()->setSpacing(0);
+    this->layout()->setSpacing(2);
 
     m_titleLabel = new QLabel(this);
 
     QFont font = m_titleLabel->font();
-    font.setPointSize(16);
+    font.setPointSize(14);
     font.setBold(true);
     m_titleLabel->setFont(font);
 

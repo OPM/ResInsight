@@ -252,7 +252,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     }
 
-    setDescription(m_wellName + " - Allocation");
+    setDescription("Well Allocation: " + m_wellName +", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
  
     /// Pie chart
 
