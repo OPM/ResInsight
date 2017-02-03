@@ -59,7 +59,7 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth)
 {
     cvf::Vec3d wellPathPoint = cvf::Vec3d::ZERO;
 
-    int i = 0;
+    size_t i = 0;
     while (i < m_measuredDepths.size() && m_measuredDepths.at(i) < measuredDepth )
     {
         i++;

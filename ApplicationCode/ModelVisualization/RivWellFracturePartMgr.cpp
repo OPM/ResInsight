@@ -69,7 +69,7 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
         const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
         std::vector<cvf::Vec3f> displayCoords;
 
-        for (int i = 0; i < nodeCoords.size(); i++)
+        for (size_t i = 0; i < nodeCoords.size(); i++)
         {
             cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoords[i]);
             cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);

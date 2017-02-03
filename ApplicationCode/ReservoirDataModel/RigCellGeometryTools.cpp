@@ -241,7 +241,7 @@ double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLen
     double totalArea = 0.0;
     double totalAreaXlength = 0.0;
 
-    for (int i = 0; i < areasOfPolygonContributions.size(); i++)
+    for (size_t i = 0; i < areasOfPolygonContributions.size(); i++)
     {
         totalArea += areasOfPolygonContributions[i];
         totalAreaXlength += (areasOfPolygonContributions[i] * lengthOfPolygonContributions[i]);
