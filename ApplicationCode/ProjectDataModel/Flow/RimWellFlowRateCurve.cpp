@@ -134,8 +134,13 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::updateStackedPlotData()
 {
+    RimWellLogPlot* wellLogPlot;
+    firstAncestorOrThisOfType(wellLogPlot);
+
     RimWellLogTrack* wellLogTrack;
     firstAncestorOrThisOfType(wellLogTrack);
+
+    bool isFirstTrack =  (wellLogTrack == wellLogPlot->trackByIndex(0));
 
     RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
 
@@ -156,12 +161,18 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         if ( stCurve == this ) break;
         zPos -= 1.0;
     }
+    
+    // Add a dummy point for the zeroth connection to make the "end" distribution show better.
+
+    stackedValues.push_back(stackedValues.back());
+    depthValues.push_back(0.0);
+    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
+
+    if ( isFirstTrack ) polyLineStartStopIndices.front().second += 2;
+    else                polyLineStartStopIndices.front().second += 1;
 
 
     m_qwtPlotCurve->setSamples(stackedValues.data(), depthValues.data(), static_cast<int>(depthValues.size()));
-
-    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
-    polyLineStartStopIndices.front().second += 1;
     m_qwtPlotCurve->setLineSegmentStartStopIndices(polyLineStartStopIndices);
     
     m_qwtPlotCurve->setZ(zPos);
