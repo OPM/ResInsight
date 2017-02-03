@@ -438,9 +438,8 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
-}
 
-    if (&wellPipeCoordType)
+    if (&wellPipeCoordType == changedField)
     {
         for (RimEclipseWell* w : wells)
         {
