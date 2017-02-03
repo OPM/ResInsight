@@ -18,6 +18,8 @@
 
 #include "RigSimulationWellCoordsAndMD.h"
 
+#include "cvfGeometryTools.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +81,44 @@ cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath(double m
     }
 
     return wellPathPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigSimulationWellCoordsAndMD::locationAlongWellCoords(const cvf::Vec3d& position) const
+{
+    double location = 0.0;
+
+    size_t closestIndex = cvf::UNDEFINED_SIZE_T;
+    double closestDistance = cvf::UNDEFINED_DOUBLE;
+
+    for (size_t i = 1; i < m_wellPathPoints.size(); i++)
+    {
+        cvf::Vec3d p1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d p2 = m_wellPathPoints[i - 0];
+
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist(p1, p2, position);
+        if (candidateDistance < closestDistance)
+        {
+            closestDistance = candidateDistance;
+            closestIndex = i;
+        }
+    }
+
+    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    {
+        cvf::Vec3d p1 = m_wellPathPoints[closestIndex - 1];
+        cvf::Vec3d p2 = m_wellPathPoints[closestIndex - 0];
+
+        double intersection = 0.0;
+        cvf::GeometryTools::projectPointOnLine(p1, p2, position, &intersection);
+
+        location = m_measuredDepths[closestIndex - 1];
+        location += intersection * (p1-p2).length();
+    }
+
+    return location;
 }
 
 //--------------------------------------------------------------------------------------------------

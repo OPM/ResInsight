@@ -39,6 +39,7 @@ public:
     const std::vector<double>&      measuredDepths() const;
 
     cvf::Vec3d                      interpolatedPointAlongWellPath(double measuredDepth) const;
+    double                          locationAlongWellCoords(const cvf::Vec3d& position) const;
 
 private:
     void                            computeMeasuredDepths();
