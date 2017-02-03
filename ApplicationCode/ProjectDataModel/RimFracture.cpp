@@ -304,7 +304,7 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
         double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
         double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
 
-        double NTG = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
+        double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
 
         cvf::Vec3d localX;
         cvf::Vec3d localY;
