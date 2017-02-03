@@ -112,7 +112,18 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
             cvf::Vec3d lineSegmentStart = lIt->first;
             cvf::Vec3d lineSegmentEnd = lIt->second;
             cvf::Vec3d polygonEnd = polygon.back();
-            if (((lineSegmentStart - polygonEnd).lengthSquared() < tolerance*tolerance))
+            
+            double lineSegmentLength = (lineSegmentStart - lineSegmentEnd).lengthSquared();
+            if (lineSegmentLength < tolerance*tolerance)
+            {
+                intersectionLineSegments.erase(lIt);
+                isFound = true; 
+                break;
+            }
+
+
+            double lineSegmentStartDiff = (lineSegmentStart - polygonEnd).lengthSquared();
+            if (lineSegmentStartDiff < tolerance*tolerance)
             {
                 polygon.push_back(lIt->second);
                 intersectionLineSegments.erase(lIt);
@@ -120,7 +131,8 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
                 break;
             }
 
-            if (((lineSegmentEnd - polygonEnd).lengthSquared() < tolerance*tolerance))
+            double lineSegmentEndDiff = (lineSegmentEnd - polygonEnd).lengthSquared();
+            if (lineSegmentEndDiff < tolerance*tolerance)
             {
                 polygon.push_back(lIt->first);
                 intersectionLineSegments.erase(lIt);
