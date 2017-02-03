@@ -20,7 +20,9 @@
 
 #include "RigSingleWellResultsData.h"
 
-
+#define RIG_FLOW_TOTAL_NAME "Total"
+#define RIG_RESERVOIR_TRACER_NAME "Reservoir"
+#define RIG_TINY_TRACER_GROUP_NAME "Other"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -33,6 +35,9 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 {
     m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
     for ( const auto& it: (*m_tracerCellFractionValues) ) m_tracerNames.push_back(it.first);
+    
+    m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
+
     calculateAccumulatedFlowPrConnection(0, 1);
 }
 
@@ -46,7 +51,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
     m_cellIndexCalculator(RigEclCellIndexCalculator(nullptr, nullptr))
 {
     m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
-    m_tracerNames.push_back("GrandTotalOnly");
+    m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
     calculateAccumulatedFlowPrConnection(0, 1);
 }
 
@@ -55,9 +60,9 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigAccWellFlowCalculator::accumulatedTotalFlowPrConnection(size_t branchIdx)
 {
-    CVF_ASSERT(m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.find("GrandTotalOnly") != m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.end());
+    CVF_ASSERT(m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.find(RIG_FLOW_TOTAL_NAME) != m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.end());
 
-    return m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer["GrandTotalOnly"];
+    return m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer[RIG_FLOW_TOTAL_NAME];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,15 +123,20 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
                 size_t resCellIndex = m_cellIndexCalculator.resultCellIndex(branchCells[clSegIdx].m_gridIndex,
                                                                             branchCells[clSegIdx].m_gridCellIndex);
                 size_t tracerIdx = 0;
+                double totalTracerFractionInCell = 0.0;
                 for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
                 {
                     double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
                     if (cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction)
                     {
-                        accFlow[tracerIdx] += (*tracerFractionIt.second)[resCellIndex] * branchCells[clSegIdx].flowRate();
+                        accFlow[tracerIdx] += cellTracerFraction * branchCells[clSegIdx].flowRate();
+                        totalTracerFractionInCell += cellTracerFraction;
                     }
                     tracerIdx++;
                 }
+
+                double reservoirFraction = 1.0 - totalTracerFractionInCell;
+                accFlow[tracerIdx] += reservoirFraction * branchCells[clSegIdx].flowRate();
             }
         }
         else
