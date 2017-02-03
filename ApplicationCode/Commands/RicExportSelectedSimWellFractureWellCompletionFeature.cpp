@@ -21,9 +21,8 @@
 
 #include "RiaApplication.h"
 
-#include "EclipseWell\RicEclipseWellFeatureImpl.h"
+#include "EclipseWell/RicEclipseWellFeatureImpl.h"
 
-#include "RifEclipseExportTools.h"
 #include "RifEclipseExportTools.h"
 
 #include "RimEclipseCase.h"
