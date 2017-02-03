@@ -654,6 +654,10 @@ void RimEclipseView::updateCurrentTimeStep()
     }
 
     m_overlayInfoConfig()->update3DInfo();
+
+    // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
+    // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
+    wellCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -812,6 +816,13 @@ void RimEclipseView::updateDisplayModelVisibility()
     m_viewer->update();
 
     faultCollection->updateConnectedEditors();
+
+    // This is required to update the read-only state of simulation wells
+    // when a range filter is manipulated and visible simulation wells might change
+    //
+    // The visibility is controlled by RimEclipseWell::defineUiTreeOrdering
+    // updateConnectedEditors will call recursively on child objects
+    wellCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1151,9 +1162,6 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     }
     visibleCells->setAll(false);
 
-    // If all wells are forced off, return
-    if (this->wellCollection()->wellCellsToRangeFilterMode() == RimEclipseWellCollection::RANGE_ADD_NONE) return;
-
     RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
 
     CVF_ASSERT(activeCellInfo);
@@ -1162,7 +1170,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
-        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimEclipseWellCollection::RANGE_ADD_ALL || (well->showWell() && well->showWellCells()) )
+        if (well->showWell() && well->showWellCells())
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;
@@ -1201,7 +1209,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                             (*visibleCells)[gridCellIndex] = true;
 
                             // Calculate well fence cells
-                            if (well->showWellCellFence() || this->wellCollection()->showWellCellFences())
+                            if (well->showWellCellFence())
                             {
                                 size_t i, j, k;
                                 grid->ijkFromCellIndex(gridCellIndex, &i, &j, &k);

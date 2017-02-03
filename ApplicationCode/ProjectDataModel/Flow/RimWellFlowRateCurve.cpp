@@ -24,6 +24,8 @@
 
 #include "qwt_plot.h"
 #include "RimWellLogPlot.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+#include "RimWellLogTrack.h"
 
 
 
@@ -40,6 +42,7 @@ CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "RimWellFlowRateCurve");
 RimWellFlowRateCurve::RimWellFlowRateCurve()
 {
     CAF_PDM_InitObject("Flow Rate Curve", "", "", "");
+    m_curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +79,7 @@ QString RimWellFlowRateCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::wellLogChannelName() const
 {
-    return "Flow Rate";
+    return "AccumulatedFlowRate";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,8 +87,7 @@ QString RimWellFlowRateCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::createCurveAutoName()
 {
-    return QString("%1 (%2)").arg(wellLogChannelName()).arg(wellName());
-    
+    return m_tracerName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,20 +99,72 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate()
 
     if (isCurveVisible())
     {
-        RimWellLogPlot* wellLogPlot;
-        firstAncestorOrThisOfType(wellLogPlot);
-        CVF_ASSERT(wellLogPlot);
-
         m_qwtPlotCurve->setTitle(createCurveAutoName());
 
-        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
-        m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
+        updateStackedPlotData();
 
         updateZoomInParentPlot();
 
         if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::updateCurveAppearance()
+{
+    RimWellLogCurve::updateCurveAppearance();
+   
+    m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
+    QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
+    m_qwtPlotCurve->setBrush(QBrush( curveQColor));
+    
+    QPen curvePen = m_qwtPlotCurve->pen();
+    curvePen.setColor(curveQColor.darker());
+    m_qwtPlotCurve->setPen(curvePen);
+    m_qwtPlotCurve->setOrientation(Qt::Horizontal);
+    m_qwtPlotCurve->setBaseline(0.0);
+    m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::updateStackedPlotData()
+{
+    RimWellLogTrack* wellLogTrack;
+    firstAncestorOrThisOfType(wellLogTrack);
+
+    RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+
+    std::vector<double> depthValues = m_curveData->measuredDepthPlotValues(displayUnit);
+    if (depthValues.size()) depthValues.insert(depthValues.begin(), depthValues[0]); // Insert the first depth position again, to make room for a real 0 value
+    std::vector<double> stackedValues(depthValues.size(), 0.0);
+     
+    std::vector<RimWellFlowRateCurve*> stackedCurves =  wellLogTrack->visibleStackedCurves();
+    double zPos = -0.1;
+    for ( RimWellFlowRateCurve * stCurve: stackedCurves )
+    {
+        std::vector<double> values = stCurve->curveData()->xPlotValues();
+        for ( size_t i = 0; i < values.size(); ++i )
+        {
+            stackedValues[i+1] += values[i];
+        }
+
+        if ( stCurve == this ) break;
+        zPos -= 1.0;
+    }
+
+
+    m_qwtPlotCurve->setSamples(stackedValues.data(), depthValues.data(), static_cast<int>(depthValues.size()));
+
+    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
+    polyLineStartStopIndices.front().second += 1;
+    m_qwtPlotCurve->setLineSegmentStartStopIndices(polyLineStartStopIndices);
+    
+    m_qwtPlotCurve->setZ(zPos);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,9 +181,11 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::setFlowValues(const std::vector<double>& measuredDepths, const std::vector<double>& flowRates)
+void RimWellFlowRateCurve::setFlowValues(const QString& tracerName, const std::vector<double>& measuredDepths, const std::vector<double>& flowRates)
 {
     m_curveData = new RigWellLogCurveData;
     m_curveData->setValuesAndMD(flowRates, measuredDepths, RimDefines::UNIT_METER, false);
+
+    m_tracerName = tracerName;
 }
 

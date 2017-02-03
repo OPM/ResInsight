@@ -49,16 +49,16 @@ public:
     
     void                                setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex);
     RigSingleWellResultsData*           wellResults();
-    size_t                              resultWellIndex();
+    const RigSingleWellResultsData*     wellResults() const;
+    size_t                              resultWellIndex() const;
 
-    bool                                isWellPipeVisible(size_t frameIndex);
-    bool                                isWellSpheresVisible(size_t frameIndex);
-    bool                                isUsingCellCenterForPipe();
+    bool                                isWellPipeVisible(size_t frameIndex) const;
+    bool                                isWellSpheresVisible(size_t frameIndex) const;
+    bool                                isUsingCellCenterForPipe() const;
 
-    bool                                visibleCellsInstersectsWell(size_t frameIndex);
 
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    virtual caf::PdmFieldHandle*        userDescriptionField() override;
+    virtual caf::PdmFieldHandle*        objectToggleField() override;
 
     void                                calculateWellPipeStaticCenterLine( std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                                            std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
@@ -76,6 +76,7 @@ public:
     caf::PdmField<bool>                 showWellPipe;
     caf::PdmField<bool>                 showWellSpheres;
     
+    caf::PdmField<double>               wellHeadScaleFactor;
     caf::PdmField<double>               pipeScaleFactor;
 
     caf::PdmField<cvf::Color3f>         wellPipeColor;
@@ -87,8 +88,12 @@ public:
 
 
 protected:
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
+private:
+    bool                                intersectsVisibleCells(size_t frameIndex) const;
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;

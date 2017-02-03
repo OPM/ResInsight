@@ -191,7 +191,7 @@ private slots:
     void slotToggleFaultLabelsAction(bool);
     void slotDisableLightingAction(bool);
 
-    void slotAddWellCellsToRangeFilterAction(bool doAdd);
+    void slotShowWellCellsAction(bool doAdd);
 
     // Debug slots
     void    slotUseShaders(bool enable);
@@ -246,7 +246,7 @@ private:
     QAction*                    m_drawStyleLinesSolidAction;
     QAction*                    m_drawStyleFaultLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
-    QAction*                    m_addWellCellsToRangeFilterAction;
+    QAction*                    m_showWellCellsAction;
 
     std::vector<QPointer<QDockWidget> > additionalProjectViews;
 

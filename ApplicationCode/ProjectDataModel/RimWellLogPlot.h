@@ -74,7 +74,7 @@ public:
 
     RimWellLogTrack*                                trackByIndex(size_t index);
 
-    void                                            loadDataAndUpdate();
+    virtual void                                    loadDataAndUpdate() override;
     void                                            updateTracks();
     void                                            updateTrackNames();
 

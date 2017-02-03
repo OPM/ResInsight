@@ -57,6 +57,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
@@ -363,6 +364,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
+        else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
+        {
+            commandIds << "RicAddStoredWellAllocationPlotFeature";
+        }
         else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) || 
                  dynamic_cast<RimWellPathFracture*>(uiItem) )
         {
@@ -439,6 +444,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEclipseWellShowHeadFeature";
             commandIds << "RicEclipseWellShowPipeFeature";
             commandIds << "RicEclipseWellShowSpheresFeature";
+            commandIds << "RicEclipseWellShowWellCellsFeature";
+            commandIds << "RicEclipseWellShowWellCellFenceFeature";
             commandIds << "RicExportSelectedSimWellFractureWellCompletionFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))

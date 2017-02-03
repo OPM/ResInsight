@@ -28,6 +28,8 @@
 #include "RimIntersectionCollection.h"
 #include "RimSimWellFractureCollection.h"
 
+#include "RiuMainWindow.h"
+
 #include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
@@ -42,18 +44,18 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitFieldNoDefault(&name,           "WellName", "Name", "", "", "");
 
     CAF_PDM_InitField(&showWell,                "ShowWell",             true,   "Show well ", "", "", "");
-    showWell.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Show well label", "", "", "");
-    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Show well head", "", "", "");
-    CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Show well spheres", "", "", "");
+    CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Label", "", "", "");
+    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Well head", "", "", "");
+    CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Spheres", "", "", "");
 
-    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Well Pipe Scale Factor", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
+    CAF_PDM_InitField(&wellHeadScaleFactor,     "WellHeadScaleFactor",  1.0,    "Well Head Scale Factor", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Scale Factor", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe color", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "Use well fence", "", "", "");
+    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
     CAF_PDM_InitFieldNoDefault(&simwellFractureCollection, "FractureCollection", "Fractures", "", "", "");
 
     name.uiCapability()->setUiHidden(true);
@@ -86,33 +88,44 @@ caf::PdmFieldHandle* RimEclipseWell::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimEclipseView* m_reservoirView = nullptr;
-    this->firstAncestorOrThisOfType(m_reservoirView);
-    if (!m_reservoirView) return;
-
-    if (&showWellLabel == changedField ||
-        &showWellHead == changedField ||
-        &showWellPipe == changedField ||
-        &showWellSpheres == changedField ||
-        &wellPipeColor == changedField)
+    RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
+    if (reservoirView)
     {
-        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-    }
-    else if (&showWell == changedField ||
-             &showWellCells == changedField ||
-             &showWellCellFence == changedField)
-             
-    {
-        m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-        m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-    }
-    else if (&pipeScaleFactor == changedField)
-    {
-        if (m_reservoirView)
+        if (&showWellLabel == changedField ||
+            &showWellHead == changedField ||
+            &showWellPipe == changedField ||
+            &showWellSpheres == changedField ||
+            &wellPipeColor == changedField)
         {
-            m_reservoirView->schedulePipeGeometryRegen();
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
+        else if (&showWell == changedField ||
+                 &showWellCells == changedField ||
+                 &showWellCellFence == changedField)
+             
+        {
+            reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+        else if (   &pipeScaleFactor == changedField
+                 || &wellHeadScaleFactor == changedField)
+        {
+            if (reservoirView)
+            {
+                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
+    }
+
+    RimEclipseWellCollection* wellColl = nullptr;
+    this->firstAncestorOrThisOfType(wellColl);
+    if (wellColl)
+    {
+        wellColl->updateStateForVisibilityCheckboxes();
+
+        RiuMainWindow::instance()->refreshDrawStyleActions();
     }
 }
 
@@ -146,7 +159,7 @@ void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
+bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
 {
     if (this->wellResults() == nullptr) return false;
 
@@ -158,10 +171,10 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
     const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
     cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
 
-    for (size_t gpIdx = 0; gpIdx < visGridParts.size(); ++gpIdx)
-    {
-        const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
 
+    for (const RivCellSetEnum& visGridPart : visGridParts)
+    {
         // First check the wellhead:
 
         size_t gridIndex = wrsf.m_wellHead.m_gridIndex;
@@ -169,8 +182,8 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
 
         if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
         {
-            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-            if ((*cellVisibility)[gridCellIndex])
+            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
+            if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
             {
                 return true;
             }
@@ -179,18 +192,18 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
         // Then check the rest of the well, with all the branches
 
         const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
-        for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
+        for (const RigWellResultBranch& branchSegment : wellResSegments)
         {
-            const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
-            for (size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx)
+            const std::vector<RigWellResultPoint>& wsResCells = branchSegment.m_branchResultPoints;
+            for (const RigWellResultPoint& wellResultPoint : wsResCells)
             {
-                if (wsResCells[cIdx].isCell())
+                if (wellResultPoint.isCell())
                 {
-                    gridIndex = wsResCells[cIdx].m_gridIndex;
-                    gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+                    gridIndex = wellResultPoint.m_gridIndex;
+                    gridCellIndex = wellResultPoint.m_gridCellIndex;
 
-                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                    if ((*cellVisibility)[gridCellIndex])
+                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
+                    if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
                     {
                         return true;
                     }
@@ -207,37 +220,57 @@ bool RimEclipseWell::visibleCellsInstersectsWell(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Appearance");
-    pipeGroup->add(&showWellLabel);
-    pipeGroup->add(&showWellHead);
-    pipeGroup->add(&showWellPipe);
-    pipeGroup->add(&showWellSpheres);
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
+    appearanceGroup->add(&showWellLabel);
+    appearanceGroup->add(&showWellHead);
+    appearanceGroup->add(&showWellPipe);
+    appearanceGroup->add(&showWellSpheres);
     
-    pipeGroup->add(&pipeScaleFactor);
+    caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
+    sizeScalingGroup->add(&pipeScaleFactor);
+    sizeScalingGroup->add(&wellHeadScaleFactor);
     
-    pipeGroup->add(&wellPipeColor);
+    uiOrdering.add(&wellPipeColor);
 
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
-    filterGroup->add(&showWellCells);
-    filterGroup->add(&showWellCellFence);
+    uiOrdering.add(&showWellCells);
+    uiOrdering.add(&showWellCellFence);
 
-    RimEclipseWellCollection* wellColl = nullptr;
+    showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
+
+    uiOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
+    if (!reservoirView) return;
+
+    const RimEclipseWellCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
-    if (wellColl)
+    if (!wellColl) return;
+
+    if (wellColl->showWellsIntersectingVisibleCells() && !this->intersectsVisibleCells(static_cast<size_t>(reservoirView->currentTimeStep())))
     {
-        showWellLabel.uiCapability()->setUiReadOnly(!wellColl->showWellLabel());
-        showWellHead.uiCapability()->setUiReadOnly(!wellColl->showWellHead());
-        showWellPipe.uiCapability()->setUiReadOnly(!wellColl->showWellPipe());
-        showWellSpheres.uiCapability()->setUiReadOnly(!wellColl->showWellSpheres());
+        // Mark well as read only if well is not intersecting visible cells
+
+        this->uiCapability()->setUiReadOnly(true);
+    }
+    else
+    {
+        this->uiCapability()->setUiReadOnly(false);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
+bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
 {
-    RimEclipseView* reservoirView = nullptr;
+    const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
 
     if (reservoirView == nullptr) return false;
@@ -263,15 +296,12 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
     if (!this->showWellPipe())
         return false;
 
-    if (!reservoirView->wellCollection()->showWellPipe())
-        return false;
-
     if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
     if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return visibleCellsInstersectsWell(frameIndex);
+        return intersectsVisibleCells(frameIndex);
     }
     else
     {
@@ -282,9 +312,9 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
+bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
 {
-    RimEclipseView* m_reservoirView = nullptr;
+    const RimEclipseView* m_reservoirView = nullptr;
     this->firstAncestorOrThisOfType(m_reservoirView);
 
     if (m_reservoirView == nullptr) return false;
@@ -307,9 +337,6 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
     if (!this->showWell())
         return false;
 
-    if (!m_reservoirView->wellCollection()->showWellSpheres())
-        return false;
-
     if (!this->showWellSpheres())
         return false;
 
@@ -318,7 +345,7 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 
     if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return visibleCellsInstersectsWell(frameIndex);
+        return intersectsVisibleCells(frameIndex);
     }
     else
     {
@@ -333,9 +360,9 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isUsingCellCenterForPipe()
+bool RimEclipseWell::isUsingCellCenterForPipe() const
 {
-    RimEclipseWellCollection* wellColl = nullptr;
+    const RimEclipseWellCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
 
     return (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER);
@@ -361,7 +388,15 @@ RigSingleWellResultsData* RimEclipseWell::wellResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimEclipseWell::resultWellIndex()
+const RigSingleWellResultsData* RimEclipseWell::wellResults() const
+{
+    return m_wellResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimEclipseWell::resultWellIndex() const
 {
     return m_resultWellIndex;
 }

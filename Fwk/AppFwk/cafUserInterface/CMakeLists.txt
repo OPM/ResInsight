@@ -20,6 +20,7 @@ include_directories (
 set( QOBJECT_HEADERS    
     cafPdmUiCheckBoxDelegate.h
     cafPdmUiCheckBoxEditor.h
+    cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
     cafPdmUiDoubleSliderEditor.h
@@ -55,6 +56,8 @@ set( PROJECT_FILES
     cafPdmUiCheckBoxDelegate.h
     cafPdmUiCheckBoxEditor.cpp
     cafPdmUiCheckBoxEditor.h
+    cafPdmUiCheckBoxTristateEditor.cpp
+    cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.cpp
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.cpp

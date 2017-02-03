@@ -34,6 +34,7 @@
 #include "qwt_scale_engine.h"
 
 #include <math.h>
+#include "RimWellFlowRateCurve.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
@@ -311,6 +312,9 @@ void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateXZoom()
 {
+    std::vector<RimWellFlowRateCurve*> stackCurves = visibleStackedCurves();
+    for (RimWellFlowRateCurve* stCurve: stackCurves) stCurve->updateStackedPlotData();
+
     if (!m_isAutoScaleXEnabled())
     {
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
@@ -458,4 +462,22 @@ void RimWellLogTrack::setLogarithmicScale(bool enable)
 
     updateAxisScaleEngine();
     computeAndSetXRangeMinForLogarithmicScale();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellFlowRateCurve*> RimWellLogTrack::visibleStackedCurves()
+{
+    std::vector<RimWellFlowRateCurve*> stackedCurves;
+    for (RimWellLogCurve* curve: curves)
+    {
+        if (curve && curve->isCurveVisible() )
+        {
+            RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>(curve);
+            if (wfrCurve) stackedCurves.push_back(wfrCurve);
+        }
+    }
+
+    return stackedCurves;
 }

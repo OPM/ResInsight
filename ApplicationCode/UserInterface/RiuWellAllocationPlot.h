@@ -23,9 +23,11 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
-
+#include <QFrame>
 
 class RimWellAllocationPlot;
+
+class QLabel;
 
 //==================================================================================================
 //
@@ -41,6 +43,9 @@ public:
 
     RimWellAllocationPlot*          ownerPlotDefinition();
 
+    void                            showTitle(const QString& title);
+    void                            hideTitle();
+
 protected:
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
@@ -50,5 +55,6 @@ private:
 
 private:
     caf::PdmPointer<RimWellAllocationPlot> m_plotDefinition;
+    QPointer<QLabel> m_titleLabel;
 };
 

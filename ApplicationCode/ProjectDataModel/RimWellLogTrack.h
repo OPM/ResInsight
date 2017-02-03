@@ -29,6 +29,7 @@
 
 class RimWellLogCurve;
 class RiuWellLogTrack;
+class RimWellFlowRateCurve;
 
 class QwtPlotCurve;
 
@@ -66,6 +67,7 @@ public:
 
     void setLogarithmicScale(bool enable);
 
+    std::vector<RimWellFlowRateCurve*> visibleStackedCurves();
 protected:
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

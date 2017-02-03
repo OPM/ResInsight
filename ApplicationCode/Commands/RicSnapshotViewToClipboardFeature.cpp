@@ -211,6 +211,7 @@ void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString 
                 fileName = caf::Utils::makeValidFileBasename(fileName);
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+                absoluteFileName.replace(" ", "_");
 
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, wellLogPlot);
             }
@@ -229,6 +230,7 @@ void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString 
                 fileName = caf::Utils::makeValidFileBasename(fileName);
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+                absoluteFileName.replace(" ", "_");
 
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, summaryPlot);
             }

@@ -95,20 +95,6 @@ bool RigSingleWellResultsData::hasWellResult(size_t resultTimeStepIndex) const
     return wellTimeStepIndex != cvf::UNDEFINED_SIZE_T;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigSingleWellResultsData::firstResultTimeStep() const
-{
-    size_t i = 0;
-    for(i = 0; i < m_resultTimeStepIndexToWellTimeStepIndex.size(); ++i)
-    {
-        if (m_resultTimeStepIndexToWellTimeStepIndex[i] != cvf::UNDEFINED_SIZE_T) return i;
-    }
-
-    return cvf::UNDEFINED_SIZE_T;
-}
-
 bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 {
     return 

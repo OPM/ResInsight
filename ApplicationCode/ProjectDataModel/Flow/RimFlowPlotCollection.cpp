@@ -38,8 +38,6 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     defaultPlot.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&flowPlots, "FlowPlots", "Stored Plots",  "", "", "");
-    flowPlots.push_back(new RimWellAllocationPlot);
-    flowPlots.push_back(new RimWellAllocationPlot);
 }
 
 //--------------------------------------------------------------------------------------------------

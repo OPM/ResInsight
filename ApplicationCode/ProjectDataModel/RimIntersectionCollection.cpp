@@ -191,7 +191,7 @@ void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell(RimEclipseWell* eclipseWell) const
+bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell(const RimEclipseWell* eclipseWell) const
 {
     if (!isActive) return false;
 

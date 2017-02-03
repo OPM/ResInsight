@@ -33,6 +33,7 @@ class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
+class RimWellLogTrack;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -64,7 +65,6 @@ public:
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
 
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     QString                                         wellName() const;
 
@@ -74,11 +74,19 @@ protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
     void                                            updateFromWell();
+
+    void                                            addStackedCurve(const QString& tracerName, 
+                                                                    const std::vector<double>& connNumbers, 
+                                                                    const std::vector<double>& accFlow, 
+                                                                    RimWellLogTrack* plotTrack);
+    
+    void                                            updateWidgetTitleWindowTitle();
 
     // RimViewWindow overrides
 

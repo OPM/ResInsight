@@ -18,40 +18,21 @@
 
 #pragma once
 
-#include "RimWellLogCurve.h"
-
-#include "cafPdmPtrField.h"
-#include "cafPdmChildField.h"
-
-class RimEclipseResultCase;
-class RimWellAllocationPlot;
+#include "cafCmdFeature.h"
 
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimWellFlowRateCurve : public RimWellLogCurve
+class RicAddStoredWellAllocationPlotFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    RimWellFlowRateCurve();
-    virtual ~RimWellFlowRateCurve();
-    
-    void setFlowValues(const QString& tracerName , const std::vector<double>& measuredDepths, const std::vector<double>& flowRates);
-    void updateStackedPlotData();
-
-    virtual QString wellName() const override;
-    virtual QString wellLogChannelName() const override;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual QString createCurveAutoName() override;
-    virtual void onLoadDataAndUpdate() override;
-    virtual void updateCurveAppearance() override;
-
-private:
-    RimWellAllocationPlot* wellAllocationPlot() const;
-
-    QString m_tracerName;
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
+
 
