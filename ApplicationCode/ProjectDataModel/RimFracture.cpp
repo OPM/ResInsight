@@ -398,7 +398,7 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 
             double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage       
 
-            double skinfactor = attachedFractureDefinition()->skinFactor;
+            skinfactor = attachedFractureDefinition()->skinFactor;
             
             double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
             
