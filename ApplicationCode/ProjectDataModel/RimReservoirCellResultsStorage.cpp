@@ -649,19 +649,19 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
         if (computeDx)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
-            dx[0][cellIdx] =  cvf::Math::abs(cellWidth.x());
+            dx[0][cellIdx] =  cellWidth.length();
         }
 
         if (computeDy)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
-            dy[0][cellIdx] =  cvf::Math::abs(cellWidth.y());
+            dy[0][cellIdx] =  cellWidth.length();
         }
 
         if (computeDz)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
-            dz[0][cellIdx] = cvf::Math::abs(cellWidth.z());
+            dz[0][cellIdx] = cellWidth.length();
         }
 
         if (computeTops)
