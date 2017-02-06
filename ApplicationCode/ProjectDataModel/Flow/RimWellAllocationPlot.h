@@ -87,6 +87,7 @@ private:
                                                                     RimWellLogTrack* plotTrack);
     
     void                                            updateWidgetTitleWindowTitle();
+    static QString                                  wellStatusTextForTimeStep(const QString& wellName, const RimEclipseResultCase* eclipseResultCase, size_t timeStep);
 
     // RimViewWindow overrides
 
