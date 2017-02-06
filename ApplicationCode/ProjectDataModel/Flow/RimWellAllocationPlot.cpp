@@ -252,7 +252,34 @@ void RimWellAllocationPlot::updateFromWell()
 
     }
 
-    setDescription("Well Allocation: " + m_wellName +", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
+    QString wellStatusText;
+    
+    {
+        QString wellStatus;
+
+        RimFlowDiagSolution::TracerStatusType wellStatusForTimeStep = m_flowDiagSolution->tracerStatusInTimeStep(m_wellName, m_timeStep);
+        switch (wellStatusForTimeStep)
+        {
+        case RimFlowDiagSolution::CLOSED:
+            wellStatus = "Closed";
+            break;
+        case RimFlowDiagSolution::PRODUCER:
+            wellStatus = "Producer";
+            break;
+        case RimFlowDiagSolution::INJECTOR:
+            wellStatus = "Injector";
+            break;
+        case RimFlowDiagSolution::UNDEFINED:
+            wellStatus = "Undefined";
+            break;
+        default:
+            break;
+        }
+
+        wellStatusText = QString("(%1)").arg(wellStatus);
+    }
+
+    setDescription("Well Allocation: " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
  
     /// Pie chart
 
