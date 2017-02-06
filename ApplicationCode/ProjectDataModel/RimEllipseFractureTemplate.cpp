@@ -59,7 +59,7 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&height,      "Height",           75.0f,   "Height", "", "", "");
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
     CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
-    CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Angle (if Azimuth Orientation)", "", "", ""); //Is this correct description?
+    CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Lenght of well perforation", "", "", ""); //Is this correct description?
 
 
@@ -199,10 +199,22 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     geometryGroup->add(&height);
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
-    geometryGroup->add(&perforationLength);
 
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fracture properties");
-    group->add(&permeability);
-    group->add(&width);
-    group->add(&skinFactor);
+    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH
+        || orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+    {
+        azimuthAngle.uiCapability()->setUiReadOnly(true);
+    }
+    else if (orientation == RimEllipseFractureTemplate::AZIMUTH)
+    {
+        azimuthAngle.uiCapability()->setUiReadOnly(false);
+    }
+
+
+
+    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
+    propertyGroup->add(&permeability);
+    propertyGroup->add(&width);
+    propertyGroup->add(&skinFactor);
+    propertyGroup->add(&perforationLength);
 }

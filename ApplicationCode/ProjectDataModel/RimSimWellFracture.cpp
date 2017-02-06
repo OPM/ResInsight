@@ -154,11 +154,10 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 {
     uiOrdering.add(&name);
 
-    uiOrdering.add(&m_location);
-
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
-
-    geometryGroup->add(&azimuth);
+    caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
+    locationGroup->add(&m_location);
+    locationGroup->add(&m_branchIndex);
+    locationGroup->add(&azimuth);
     if (attachedFractureDefinition())
     {
         if (attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH
@@ -172,9 +171,9 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
         }
     }
 
-
-
-    geometryGroup->add(&m_fractureTemplate);
+    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
+    propertyGroup->add(&m_fractureTemplate);
+    propertyGroup->add(&perforationLength);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
