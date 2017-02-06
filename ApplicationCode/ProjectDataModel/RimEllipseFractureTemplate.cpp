@@ -18,10 +18,13 @@
 
 #include "RimEllipseFractureTemplate.h"
 
-#include "cafPdmObject.h"
-#include "RimProject.h"
-#include "RimFracture.h"
 #include "RigTesselatorTools.h"
+
+#include "RimFracture.h"
+#include "RimProject.h"
+
+#include "cafPdmObject.h"
+
 #include "cvfVector3.h"
 
 

@@ -35,9 +35,9 @@
 
 
 class RigFracture;
+class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
-class RimEclipseCase;
 
 //==================================================================================================
 ///  

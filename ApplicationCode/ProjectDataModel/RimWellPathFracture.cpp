@@ -19,11 +19,12 @@
 #include "RimWellPathFracture.h"
 
 #include "RigWellPath.h"
+
+#include "RimEllipseFractureTemplate.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "RimEllipseFractureTemplate.h"
 
 
 

@@ -23,11 +23,11 @@
 
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimEllipseFractureTemplate.h"
+#include "RimFracture.h"
 #include "RimProject.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "RimEllipseFractureTemplate.h"
-#include "RimFracture.h"
 
 
 
