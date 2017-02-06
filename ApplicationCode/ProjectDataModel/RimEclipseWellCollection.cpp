@@ -219,6 +219,11 @@ RimEclipseWellCollection::~RimEclipseWellCollection()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::setShowWellCellsState(bool enable)
 {
+    if (enable)
+    {
+        showWellsIntersectingVisibleCells = false;
+    }
+
     for (RimEclipseWell* w : wells)
     {
         w->showWellCells = enable;
