@@ -25,6 +25,8 @@
 namespace caf 
 {
 
+class PdmObject;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -37,6 +39,10 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
+
+private:
+    static bool isAnyCopyableObjectSelected();
+    static bool isCopyOfObjectSupported(PdmObject* pdmObject);
 };
 
 

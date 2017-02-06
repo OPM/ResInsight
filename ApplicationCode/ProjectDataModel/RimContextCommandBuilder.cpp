@@ -372,6 +372,17 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     // Command supporting multiple selected objects
     if (uiItems.size() > 0)
     {
+        // Work in progress -- Start
+        // All commands should be aware of selection of multiple objects
+        // Based on the selection, the command feature can decide if the command
+        // can be executed, communicated by isCommandEnabled(). When a command feature
+        // is aware of multiple selected items, move the command to this list
+        // without using dyncamic_cast.
+
+        commandIds << "RicCopyReferencesToClipboardFeature";
+
+        // Work in progress -- End
+
         caf::PdmUiItem* uiItem = uiItems[0];
         if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
@@ -388,7 +399,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryCurve*>(uiItem) ||
                  dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
         {
-            commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         }
@@ -396,7 +406,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
                  dynamic_cast<RimWellLogPlot*>(uiItem))
         {
-            commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicExportToLasFileFeature";
             commandIds << "RicChangeDataSourceFeature";
         }
