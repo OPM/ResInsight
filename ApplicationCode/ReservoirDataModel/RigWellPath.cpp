@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigWellPath.h"
+#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -88,5 +89,64 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth)
 
 
     return wellPathPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
+{
+    size_t closestIndex = cvf::UNDEFINED_SIZE_T;
+    double closestDistance = cvf::UNDEFINED_DOUBLE;
+
+    for (size_t i = 1; i < m_wellPathPoints.size(); i++)
+    {
+        cvf::Vec3d p1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d p2 = m_wellPathPoints[i - 0];
+
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist(p1, p2, position);
+        if (candidateDistance < closestDistance)
+        {
+            closestDistance = candidateDistance;
+            closestIndex = i;
+        }
+    }
+
+    //For vertical well (x-component of direction = 0) returned angle will be 0. 
+    double AzimuthAngle = 0.0;
+
+    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    {
+        cvf::Vec3d p1;
+        cvf::Vec3d p2;
+
+        if (closestIndex > 0)
+        {
+            p1 = m_wellPathPoints[closestIndex - 1];
+            p2 = m_wellPathPoints[closestIndex - 0];
+        }
+        else
+        {
+            p1 = m_wellPathPoints[closestIndex + 1];
+            p2 = m_wellPathPoints[closestIndex + 0];
+        }
+
+        cvf::Vec3d direction = p1 - p2;
+
+
+        if (abs(direction.x()) > 1e-5)
+        {
+            double atanValue = direction.y() / direction.x();
+            AzimuthAngle = atan(atanValue);
+            AzimuthAngle = cvf::Math::toDegrees(AzimuthAngle);
+            AzimuthAngle = -AzimuthAngle;
+        }
+    }
+
+    return AzimuthAngle;
+
+
+
+
 }
 

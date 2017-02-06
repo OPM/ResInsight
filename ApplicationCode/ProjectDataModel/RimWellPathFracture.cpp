@@ -75,6 +75,7 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     if (changedField == &m_measuredDepth)
     {
         updatePositionFromMeasuredDepth();
+        setAzimuth();
 
         RimProject* proj = nullptr;
         this->firstAncestorOrThisOfType(proj);
@@ -85,27 +86,39 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::setAzimuth(RimEllipseFractureTemplate::FracOrientationEnum orientation)
+void RimWellPathFracture::setAzimuth()
 {
+    RimEllipseFractureTemplate::FracOrientationEnum orientation;
+    if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();
+    else orientation = RimEllipseFractureTemplate::AZIMUTH;
 
     if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH || orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
     {
-//         updateBranchGeometry();
-//         double simWellAzimuth = m_branchCenterLines[m_branchIndex].wellPathAzimuthAngle(fracturePosition());
-        //TODO: Calculate well path azimuth angle
-        double WellPathAzimuth = 0.0;
-        if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH)
-        {
-            azimuth = WellPathAzimuth;
-        }
+
+        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+        if (!objHandle) return;
+
+        RimWellPath* wellPath = nullptr;
+        objHandle->firstAncestorOrThisOfType(wellPath);
+        if (!wellPath) return;
+
+        RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+        double wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
         if (orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
         {
-            if (WellPathAzimuth + 90 < 360) azimuth = WellPathAzimuth + 90;
-            else azimuth = WellPathAzimuth - 90;
+            azimuth = wellPathAzimuth;
         }
-
+        if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH)
+        {
+            if (wellPathAzimuth + 90 < 360) azimuth = wellPathAzimuth + 90;
+            else azimuth = wellPathAzimuth - 90;
+        }
     }
-
+    //TODO: Reset value if choosing azimuth in frac template!
+    //     else //Azimuth value read from template 
+//     {
+//         azimuth = attachedFractureDefinition()->azimuthAngle;
+//     }
 }
 
 //--------------------------------------------------------------------------------------------------

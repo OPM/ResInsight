@@ -114,7 +114,12 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
                     if (changedField == &orientation)
                     {
-                        fracture->setAzimuth(orientation());
+                        fracture->setAzimuth();
+                        if (orientation() == FracOrientationEnum::AZIMUTH)
+                        {
+                            fracture->azimuth = azimuthAngle;
+                        }
+
                         fracture->setRecomputeGeometryFlag();
                     }
 

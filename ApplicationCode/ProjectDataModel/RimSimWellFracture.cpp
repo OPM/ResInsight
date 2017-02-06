@@ -71,8 +71,12 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::setAzimuth(RimEllipseFractureTemplate::FracOrientationEnum orientation)
+void RimSimWellFracture::setAzimuth()
 {
+    RimEllipseFractureTemplate::FracOrientationEnum orientation;
+    if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();
+    else orientation = RimEllipseFractureTemplate::AZIMUTH;
+
     if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH || orientation== RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
     {
     updateBranchGeometry();
@@ -88,12 +92,10 @@ void RimSimWellFracture::setAzimuth(RimEllipseFractureTemplate::FracOrientationE
     }
 
     }
-    else //Azimuth value, read from template 
+    else //Azimuth value read from template 
     {
         azimuth = attachedFractureDefinition()->azimuthAngle;
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +110,11 @@ void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         )
     {
         updateFracturePositionFromLocation();
+        setAzimuth();
+
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj) proj->createDisplayModelAndRedrawAllViews();
     }
 }
 

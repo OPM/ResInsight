@@ -57,7 +57,7 @@ public:
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);
-    virtual void                    setAzimuth(RimEllipseFractureTemplate::FracOrientationEnum  orientation) =0;
+    virtual void                    setAzimuth() =0;
 
     cvf::Mat4f                      transformMatrix(); 
 

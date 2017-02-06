@@ -41,6 +41,7 @@ public:
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
     cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth);
+    double                      wellPathAzimuthAngle(const cvf::Vec3d& position) const;
 
 private:
     bool    m_hasDatumElevation;
