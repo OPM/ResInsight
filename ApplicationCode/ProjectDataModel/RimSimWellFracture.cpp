@@ -76,7 +76,7 @@ void RimSimWellFracture::setAzimuth(RimEllipseFractureTemplate::FracOrientationE
     if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH || orientation== RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
     {
     updateBranchGeometry();
-    double simWellAzimuth = m_branchCenterLines[m_branchIndex].wellPathAzimuthAngle(fracturePosition());
+    double simWellAzimuth = m_branchCenterLines[m_branchIndex].simWellAzimuthAngle(fracturePosition());
     if (orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH )
     {
         azimuth = simWellAzimuth;

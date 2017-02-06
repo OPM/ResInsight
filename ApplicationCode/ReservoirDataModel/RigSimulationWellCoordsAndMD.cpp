@@ -134,7 +134,7 @@ size_t RigSimulationWellCoordsAndMD::findClosestIndex(const cvf::Vec3d& position
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigSimulationWellCoordsAndMD::wellPathAzimuthAngle(const cvf::Vec3d& position) const
+double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& position) const
 {
     size_t closestIndex = findClosestIndex(position);
 
