@@ -86,7 +86,7 @@ caf::PdmFieldHandle* RimEllipseFractureTemplate::userDescriptionField()
 void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 
-    if (changedField == &halfLength || changedField == &height || changedField == &azimuthAngle || changedField == &perforationLength)
+    if (changedField == &halfLength || changedField == &height || changedField == &azimuthAngle || changedField == &perforationLength || changedField == &orientation)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -109,6 +109,12 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
                     if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
                     {
                         fracture->azimuth = azimuthAngle;
+                        fracture->setRecomputeGeometryFlag();
+                    }
+
+                    if (changedField == &orientation)
+                    {
+                        fracture->setAzimuth(orientation());
                         fracture->setRecomputeGeometryFlag();
                     }
 

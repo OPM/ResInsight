@@ -26,6 +26,8 @@
 #include "RimProject.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "RimEllipseFractureTemplate.h"
+#include "RimFracture.h"
 
 
 
@@ -64,6 +66,34 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 
     m_location = location;
     updateFracturePositionFromLocation();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::setAzimuth(RimEllipseFractureTemplate::FracOrientationEnum orientation)
+{
+    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH || orientation== RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+    {
+    updateBranchGeometry();
+    double simWellAzimuth = m_branchCenterLines[m_branchIndex].wellPathAzimuthAngle(fracturePosition());
+    if (orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH )
+    {
+        azimuth = simWellAzimuth;
+    }
+    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH)
+    {
+        if (simWellAzimuth + 90 < 360) azimuth = simWellAzimuth + 90;
+        else azimuth = simWellAzimuth - 90;
+    }
+
+    }
+    else //Azimuth value, read from template 
+    {
+        azimuth = attachedFractureDefinition()->azimuthAngle;
+    }
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +150,23 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add(&m_location);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
+
     geometryGroup->add(&azimuth);
+    if (attachedFractureDefinition())
+    {
+        if (attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH
+            || attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+        {
+            azimuth.uiCapability()->setUiReadOnly(true);
+        }
+        else if (attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::AZIMUTH)
+        {
+            azimuth.uiCapability()->setUiReadOnly(false);
+        }
+    }
+
+
+
     geometryGroup->add(&m_fractureTemplate);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");

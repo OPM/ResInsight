@@ -21,6 +21,7 @@
 #include "RimFracture.h"
 
 #include "RigSimulationWellCoordsAndMD.h"
+#include "RimEllipseFractureTemplate.h"
 
 
 //==================================================================================================
@@ -41,6 +42,7 @@ public:
 
     void                                            recomputeWellCenterlineCoordinates();
     void                                            updateFracturePositionFromLocation();
+    void                                            setAzimuth(RimEllipseFractureTemplate::FracOrientationEnum  orientation) override;
 
 
 protected:

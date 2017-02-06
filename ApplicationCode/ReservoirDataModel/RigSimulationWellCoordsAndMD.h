@@ -41,6 +41,11 @@ public:
     cvf::Vec3d                      interpolatedPointAlongWellPath(double measuredDepth) const;
     double                          locationAlongWellCoords(const cvf::Vec3d& position) const;
 
+    size_t findClosestIndex(const cvf::Vec3d& position) const;
+
+    double                          wellPathAzimuthAngle(const cvf::Vec3d& position) const;
+
+
 private:
     void                            computeMeasuredDepths();
 

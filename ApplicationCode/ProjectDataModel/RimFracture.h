@@ -31,6 +31,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cvfPlane.h"
+#include "RimEllipseFractureTemplate.h"
 
 
 class RigFracture;
@@ -56,6 +57,7 @@ public:
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);
+    virtual void                    setAzimuth(RimEllipseFractureTemplate::FracOrientationEnum  orientation) =0;
 
     cvf::Mat4f                      transformMatrix(); 
 
@@ -79,6 +81,8 @@ public:
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
+    cvf::Vec3d                      fracturePosition() const;
+
 
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

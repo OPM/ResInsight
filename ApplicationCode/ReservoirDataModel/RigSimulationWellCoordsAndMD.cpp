@@ -19,6 +19,7 @@
 #include "RigSimulationWellCoordsAndMD.h"
 
 #include "cvfGeometryTools.h"
+#include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -89,7 +90,29 @@ cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath(double m
 double RigSimulationWellCoordsAndMD::locationAlongWellCoords(const cvf::Vec3d& position) const
 {
     double location = 0.0;
+    
+    size_t closestIndex = findClosestIndex(position);
 
+    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    {
+        cvf::Vec3d p1 = m_wellPathPoints[closestIndex - 1];
+        cvf::Vec3d p2 = m_wellPathPoints[closestIndex - 0];
+
+        double intersection = 0.0;
+        cvf::GeometryTools::projectPointOnLine(p1, p2, position, &intersection);
+
+        location = m_measuredDepths[closestIndex - 1];
+        location += intersection * (p1-p2).length();
+    }
+
+    return location;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigSimulationWellCoordsAndMD::findClosestIndex(const cvf::Vec3d& position) const
+{
     size_t closestIndex = cvf::UNDEFINED_SIZE_T;
     double closestDistance = cvf::UNDEFINED_DOUBLE;
 
@@ -105,20 +128,48 @@ double RigSimulationWellCoordsAndMD::locationAlongWellCoords(const cvf::Vec3d& p
             closestIndex = i;
         }
     }
+    return closestIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigSimulationWellCoordsAndMD::wellPathAzimuthAngle(const cvf::Vec3d& position) const
+{
+    size_t closestIndex = findClosestIndex(position);
+
+     //For vertical well (x-component of direction = 0) returned angle will be 0. 
+    double AzimuthAngle = 0.0;
 
     if (closestIndex != cvf::UNDEFINED_DOUBLE)
     {
-        cvf::Vec3d p1 = m_wellPathPoints[closestIndex - 1];
-        cvf::Vec3d p2 = m_wellPathPoints[closestIndex - 0];
+        cvf::Vec3d p1;
+        cvf::Vec3d p2;
 
-        double intersection = 0.0;
-        cvf::GeometryTools::projectPointOnLine(p1, p2, position, &intersection);
+        if (closestIndex > 0)
+        {
+            p1 = m_wellPathPoints[closestIndex - 1];
+            p2 = m_wellPathPoints[closestIndex - 0];
+        }
+        else
+        {
+            p1 = m_wellPathPoints[closestIndex + 1];
+            p2 = m_wellPathPoints[closestIndex + 0];
+        }
 
-        location = m_measuredDepths[closestIndex - 1];
-        location += intersection * (p1-p2).length();
-    }
+        cvf::Vec3d direction = p1 - p2;
 
-    return location;
+
+        if (abs(direction.x()) > 1e-5) 
+         {
+             double atanValue = direction.y() / direction.x();
+             AzimuthAngle = atan(atanValue);
+             AzimuthAngle = cvf::Math::toDegrees(AzimuthAngle);
+             AzimuthAngle = -AzimuthAngle;
+         }
+     }
+
+    return AzimuthAngle;
 }
 
 //--------------------------------------------------------------------------------------------------
