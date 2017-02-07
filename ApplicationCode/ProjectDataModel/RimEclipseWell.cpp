@@ -166,6 +166,17 @@ bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
 
     for (const RivCellSetEnum& visGridPart : visGridParts)
     {
+        if (   visGridPart == ALL_WELL_CELLS
+            || visGridPart == VISIBLE_WELL_CELLS
+            || visGridPart == VISIBLE_WELL_FENCE_CELLS
+            || visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
+            || visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER
+            )
+        {
+            // Exclude all cells related to well cells
+            continue;
+        }
+
         // First check the wellhead:
 
         size_t gridIndex = wrsf.m_wellHead.m_gridIndex;
