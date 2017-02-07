@@ -54,6 +54,9 @@ ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
 ${CEE_CURRENT_LIST_DIR}RigFracture.h
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
+${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
+
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -102,6 +105,8 @@ ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
 ${CEE_CURRENT_LIST_DIR}RigFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
+${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
+
 
 )
 

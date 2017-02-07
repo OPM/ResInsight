@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017 -     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include "RimFractureTemplate.h"
@@ -31,29 +30,25 @@
 
 #include <vector>
 
+class RimStimPlanFractureDefinition;
+
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimEllipseFractureTemplate : public RimFractureTemplate 
+class RimStimPlanFractureTemplate : public RimFractureTemplate 
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimEllipseFractureTemplate(void);
-    virtual ~RimEllipseFractureTemplate(void);
+    RimStimPlanFractureTemplate(void);
+    virtual ~RimStimPlanFractureTemplate(void);
     
-    caf::PdmField<float>     halfLength;
-    caf::PdmField<float>     height;
-    caf::PdmField<float>     perforationLength;
+    RimStimPlanFractureDefinition*  stimPlanFracDef;
 
-    caf::PdmField<float>     width;
-    caf::PdmField<float>     permeability;
     
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    
-    double                          effectiveKh();
     
     void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
     std::vector<cvf::Vec3f>         fracturePolygon();

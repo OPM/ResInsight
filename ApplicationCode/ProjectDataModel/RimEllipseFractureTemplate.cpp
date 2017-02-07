@@ -21,6 +21,7 @@
 #include "RigTesselatorTools.h"
 
 #include "RimFracture.h"
+#include "RimFractureTemplate.h"
 #include "RimProject.h"
 
 #include "cafPdmObject.h"
@@ -29,22 +30,7 @@
 
 
 
-namespace caf
-{
-    template<>
-   
-    void caf::AppEnum< RimEllipseFractureTemplate::FracOrientationEnum>::setUp()
-    {
-        addItem(RimEllipseFractureTemplate::AZIMUTH, "Az", "Azimuth");
-        addItem(RimEllipseFractureTemplate::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path");
-        addItem(RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path");
-
-        setDefault(RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH);
-    }
-}
-
-
-CAF_PDM_SOURCE_INIT(RimEllipseFractureTemplate, "FractureDefinition");
+CAF_PDM_SOURCE_INIT(RimEllipseFractureTemplate, "RimEllipseFractureTemplate");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -53,17 +39,11 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
-
     CAF_PDM_InitField(&halfLength,  "HalfLength",       650.0f,  "Halflength X_f", "", "", "");
     CAF_PDM_InitField(&height,      "Height",           75.0f,   "Height", "", "", "");
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
-    CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
-    CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Lenght of well perforation", "", "", ""); //Is this correct description?
 
-
-    CAF_PDM_InitField(&skinFactor,  "SkinFactor",       1.0f,    "Skin Factor", "", "", "");
     CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability", "", "", "");
 }
 
@@ -74,14 +54,6 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
 {
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEllipseFractureTemplate::userDescriptionField()
-{
-    return &name;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -200,17 +172,15 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
 
-    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH
-        || orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (orientation == RimFractureTemplate::ALONG_WELL_PATH
+        || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         azimuthAngle.uiCapability()->setUiReadOnly(true);
     }
-    else if (orientation == RimEllipseFractureTemplate::AZIMUTH)
+    else if (orientation == RimFractureTemplate::AZIMUTH)
     {
         azimuthAngle.uiCapability()->setUiReadOnly(false);
     }
-
-
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
     propertyGroup->add(&permeability);

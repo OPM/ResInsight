@@ -25,6 +25,7 @@
 #include "RimEclipseWell.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
+#include "RimFractureTemplate.h"
 #include "RimProject.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -73,19 +74,19 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::setAzimuth()
 {
-    RimEllipseFractureTemplate::FracOrientationEnum orientation;
+    RimFractureTemplate::FracOrientationEnum orientation;
     if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();
-    else orientation = RimEllipseFractureTemplate::AZIMUTH;
+    else orientation = RimFractureTemplate::AZIMUTH;
 
-    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH || orientation== RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation== RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
     updateBranchGeometry();
     double simWellAzimuth = m_branchCenterLines[m_branchIndex].simWellAzimuthAngle(fracturePosition());
-    if (orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH )
+    if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH )
     {
         azimuth = simWellAzimuth;
     }
-    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH)
+    if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
     {
         if (simWellAzimuth + 90 < 360) azimuth = simWellAzimuth + 90;
         else azimuth = simWellAzimuth - 90;

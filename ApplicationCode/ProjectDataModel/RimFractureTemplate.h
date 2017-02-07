@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017 -     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RimFractureTemplate.h"
-
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
@@ -36,29 +34,32 @@
 ///  
 ///  
 //==================================================================================================
-class RimEllipseFractureTemplate : public RimFractureTemplate 
+class RimFractureTemplate : public caf::PdmObject 
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimEllipseFractureTemplate(void);
-    virtual ~RimEllipseFractureTemplate(void);
+    RimFractureTemplate(void);
+    virtual ~RimFractureTemplate(void);
     
-    caf::PdmField<float>     halfLength;
-    caf::PdmField<float>     height;
-    caf::PdmField<float>     perforationLength;
+    caf::PdmField<QString>   name;
+    caf::PdmField<float>     azimuthAngle;
 
-    caf::PdmField<float>     width;
-    caf::PdmField<float>     permeability;
+    caf::PdmField<float>     skinFactor;
+
+    enum FracOrientationEnum
+    {
+        AZIMUTH,
+        ALONG_WELL_PATH,
+        TRANSVERSE_WELL_PATH
+    };
+    caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientation;
     
+    virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
-    double                          effectiveKh();
-    
-    void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
-    std::vector<cvf::Vec3f>         fracturePolygon();
-
-
+    virtual void                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices) = 0;
+    virtual std::vector<cvf::Vec3f> fracturePolygon() = 0;
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 };

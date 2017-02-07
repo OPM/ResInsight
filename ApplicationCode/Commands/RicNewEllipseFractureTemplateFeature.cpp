@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewFractureDefinitionFeature.h"
+#include "RicNewEllipseFractureTemplateFeature.h"
 
 #include "RiaApplication.h"
 
@@ -34,12 +34,12 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicNewFractureDefinitionFeature, "RicNewFractureDefinitionFeature");
+CAF_CMD_SOURCE_INIT(RicNewEllipseFractureTemplateFeature, "RicNewEllipseFractureTemplateFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
+void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
@@ -53,7 +53,7 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
     {
         RimEllipseFractureTemplate* fractureDef = new RimEllipseFractureTemplate();
         fracDefColl->fractureDefinitions.push_back(fractureDef);
-        fractureDef->name = "Fracture Template";
+        fractureDef->name = "Ellipse Fracture Template";
         
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
@@ -63,16 +63,16 @@ void RicNewFractureDefinitionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureDefinitionFeature::setupActionLook(QAction* actionToSetup)
+void RicNewEllipseFractureTemplateFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    actionToSetup->setText("New Fracture Template");
+    actionToSetup->setText("New Ellipse Fracture Template");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewFractureDefinitionFeature::isCommandEnabled()
+bool RicNewEllipseFractureTemplateFeature::isCommandEnabled()
 {
     return true;
 }

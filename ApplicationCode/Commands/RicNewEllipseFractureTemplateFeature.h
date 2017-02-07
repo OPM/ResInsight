@@ -18,28 +18,22 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmChildArrayField.h"
+#include "cafCmdFeature.h"
 
-class RimFractureTemplate;
+#include <vector>
+
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimFractureDefinitionCollection : public caf::PdmObject
+class RicNewEllipseFractureTemplateFeature : public caf::CmdFeature
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
+protected:
 
-public:
-    RimFractureDefinitionCollection(void);
-    virtual ~RimFractureDefinitionCollection(void);
-    
-    caf::PdmChildArrayField<RimFractureTemplate*>   fractureDefinitions;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
+    virtual bool isCommandEnabled() override;
 
-    caf::PdmField<bool>                             isActive;
-
-    void                                deleteFractureDefinitions();
-
+ 
 };

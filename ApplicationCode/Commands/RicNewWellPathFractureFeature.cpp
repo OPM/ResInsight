@@ -85,11 +85,11 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
-        RimEllipseFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
+        RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
         fracture->setFractureTemplate(fracDef);
 
         fracture->azimuth = fracDef->azimuthAngle();
-        fracture->perforationLength = fracDef->perforationLength();
+        //fracture->perforationLength = fracDef->perforationLength();
     }
 
     fractureCollection->updateConnectedEditors();

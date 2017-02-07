@@ -16,42 +16,63 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RicNewStimPlanFractureTemplateFeature.h"
+
+#include "RiaApplication.h"
+
+#include "RimOilField.h"
 #include "RimFractureDefinitionCollection.h"
+#include "RimProject.h"
+#include "RimStimPlanFractureTemplate.h"
 
-#include "RimFractureTemplate.h"
-#include "cafPdmObject.h"
+#include "RiuMainWindow.h"
+
+#include "cafSelectionManager.h"
+
+#include "cvfAssert.h"
+
+#include <QAction>
 
 
-
-
-CAF_PDM_SOURCE_INIT(RimFractureDefinitionCollection, "FractureDefinitionCollection");
+CAF_CMD_SOURCE_INIT(RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractureTemplateFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
+void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
-    CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplate16x16.png", "", "");
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT(project);
 
-    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "FractureDefinitions", "", "", "", "");
-    fractureDefinitions.uiCapability()->setUiHidden(true);
+    RimOilField* oilfield = project->activeOilField();
+    if (oilfield == nullptr) return;
+
+    RimFractureDefinitionCollection* fracDefColl = oilfield->fractureDefinitionCollection();
+
+    if (fracDefColl)
+    {
+        RimStimPlanFractureTemplate* fractureDef = new RimStimPlanFractureTemplate();
+        fracDefColl->fractureDefinitions.push_back(fractureDef);
+        fractureDef->name = "StimPlan Fracture Template";
+        
+        fracDefColl->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureDefinitionCollection::~RimFractureDefinitionCollection()
+void RicNewStimPlanFractureTemplateFeature::setupActionLook(QAction* actionToSetup)
 {
-    fractureDefinitions.deleteAllChildObjects();
+    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
+    actionToSetup->setText("New StimPlan Fracture Template");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureDefinitionCollection::deleteFractureDefinitions()
+bool RicNewStimPlanFractureTemplateFeature::isCommandEnabled()
 {
-    fractureDefinitions.deleteAllChildObjects();
+    return true;
 }
-

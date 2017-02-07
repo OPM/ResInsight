@@ -26,7 +26,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewFractureDefinitionFeature : public caf::CmdFeature
+class RicNewStimPlanFractureTemplateFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:

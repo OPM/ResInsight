@@ -163,7 +163,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 {
     if (changedField == &m_fractureTemplate)
     {
-        perforationLength = m_fractureTemplate->perforationLength();
+        //perforationLength = m_fractureTemplate->perforationLength();
+        //TODO: Find out if performationLength should be in RimFractureTemplate or in RimEllipseFracTemplate
         azimuth = m_fractureTemplate->azimuthAngle();
     }
 
@@ -217,7 +218,7 @@ void RimFracture::computeGeometry()
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  polygonIndices;
 
-    RimEllipseFractureTemplate* fractureDef = attachedFractureDefinition();
+    RimFractureTemplate* fractureDef = attachedFractureDefinition();
     if (fractureDef )
     {
         fractureDef->fractureGeometry(&nodeCoords, &polygonIndices);
@@ -564,7 +565,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
         RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
         if (fracDefColl == nullptr) return options;
 
-        for (RimEllipseFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
+        for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())
         {
             options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
         }
@@ -664,7 +665,7 @@ const RigFracture* RimFracture::attachedRigFracture() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::setFractureTemplate(RimEllipseFractureTemplate* fractureTemplate)
+void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
     m_fractureTemplate = fractureTemplate;
 }
@@ -672,7 +673,7 @@ void RimFracture::setFractureTemplate(RimEllipseFractureTemplate* fractureTempla
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEllipseFractureTemplate* RimFracture::attachedFractureDefinition() const
+RimFractureTemplate* RimFracture::attachedFractureDefinition() const
 {
     return m_fractureTemplate();
 }

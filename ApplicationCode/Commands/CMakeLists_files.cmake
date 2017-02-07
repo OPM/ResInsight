@@ -39,7 +39,9 @@ ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.h
-${CEE_CURRENT_LIST_DIR}RicNewFractureDefinitionFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.h
+
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.h
@@ -93,7 +95,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicNewFractureDefinitionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.cpp

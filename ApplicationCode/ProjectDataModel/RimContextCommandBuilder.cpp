@@ -383,7 +383,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimFractureDefinitionCollection*>(uiItem) ||
                  dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
         {
-            commandIds << "RicNewFractureDefinitionFeature";
+            commandIds << "RicNewEllipseFractureTemplateFeature";
+            commandIds << "RicNewStimPlanFractureTemplateFeature";
             commandIds << "RicFractureDefinitionsDeleteAllFeature";
         }
 

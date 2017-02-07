@@ -89,11 +89,11 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::setAzimuth()
 {
-    RimEllipseFractureTemplate::FracOrientationEnum orientation;
+    RimFractureTemplate::FracOrientationEnum orientation;
     if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();
-    else orientation = RimEllipseFractureTemplate::AZIMUTH;
+    else orientation = RimFractureTemplate::AZIMUTH;
 
-    if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH || orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
 
         caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
@@ -105,11 +105,11 @@ void RimWellPathFracture::setAzimuth()
 
         RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
         double wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
-        if (orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             azimuth = wellPathAzimuth;
         }
-        if (orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH)
+        if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
         {
             if (wellPathAzimuth + 90 < 360) azimuth = wellPathAzimuth + 90;
             else azimuth = wellPathAzimuth - 90;
@@ -154,12 +154,12 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     locationGroup->add(&azimuth);
     if (attachedFractureDefinition())
     {
-        if (attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::ALONG_WELL_PATH
-            || attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH
+            || attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             azimuth.uiCapability()->setUiReadOnly(true);
         }
-        else if (attachedFractureDefinition()->orientation == RimEllipseFractureTemplate::AZIMUTH)
+        else if (attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
         {
             azimuth.uiCapability()->setUiReadOnly(false);
         }
