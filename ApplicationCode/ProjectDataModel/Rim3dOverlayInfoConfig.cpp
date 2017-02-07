@@ -251,12 +251,17 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 }
                 else if (m_statisticsTimeRange == CURRENT_TIMESTEP )
                 {
-                    int timeStepIdx = eclipseView->currentTimeStep();
-                    eclipseView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, timeStepIdx, min, max);
-                    eclipseView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, timeStepIdx, p10, p90);
-                    eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, timeStepIdx, mean);
-                    eclipseView->currentGridCellResults()->cellResults()->sumCellScalarValues(scalarIndex, timeStepIdx, sum);
-                    histogram = &(eclipseView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex, timeStepIdx));
+                    int currentTimeStep = eclipseView->currentTimeStep();
+                    if (eclipseView->cellResult()->hasStaticResult())
+                    {
+                        currentTimeStep = 0;
+                    }
+
+                    eclipseView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, min, max);
+                    eclipseView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, p10, p90);
+                    eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, mean);
+                    eclipseView->currentGridCellResults()->cellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, sum);
+                    histogram = &(eclipseView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
                 }
                 else
                 {
@@ -279,6 +284,11 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
                 {
                     int currentTimeStep = eclipseView->currentTimeStep();
+                    if (eclipseView->cellResult()->hasStaticResult())
+                    {
+                        currentTimeStep = 0;
+                    }
+
                     m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
                     m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
                     m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
