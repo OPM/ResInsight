@@ -22,7 +22,7 @@
 
 #include "RimCase.h"
 #include "RimEllipseFractureTemplate.h"
-#include "RimFractureDefinitionCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"

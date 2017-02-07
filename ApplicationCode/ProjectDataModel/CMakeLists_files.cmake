@@ -85,14 +85,13 @@ ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.h
 ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimMdiWindowController.h
 ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.h
-${CEE_CURRENT_LIST_DIR}RimFractureDefinitionCollection.h
+${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFracture.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.h
 ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.h
-${CEE_CURRENT_LIST_DIR}RimStimPlanFractureDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.h
 
@@ -179,14 +178,13 @@ ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.cpp
 ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimMdiWindowController.cpp
 ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.cpp
-${CEE_CURRENT_LIST_DIR}RimFractureDefinitionCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.cpp
-${CEE_CURRENT_LIST_DIR}RimStimPlanFractureDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
 

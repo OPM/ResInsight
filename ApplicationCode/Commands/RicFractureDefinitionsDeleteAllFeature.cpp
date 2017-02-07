@@ -19,7 +19,7 @@
 
 #include "RicFractureDefinitionsDeleteAllFeature.h"
 
-#include "RimFractureDefinitionCollection.h"
+#include "RimFractureTemplateCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT(RicFractureDefinitionsDeleteAllFeature, "RicFractureDefiniti
 //--------------------------------------------------------------------------------------------------
 bool RicFractureDefinitionsDeleteAllFeature::isCommandEnabled()
 {
-    std::vector<RimFractureDefinitionCollection*> objects;
+    std::vector<RimFractureTemplateCollection*> objects;
     caf::SelectionManager::instance()->objectsByType(&objects);
 
     if (objects.size() == 1)
@@ -52,10 +52,10 @@ bool RicFractureDefinitionsDeleteAllFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicFractureDefinitionsDeleteAllFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimFractureDefinitionCollection*> objects;
+    std::vector<RimFractureTemplateCollection*> objects;
     caf::SelectionManager::instance()->objectsByType(&objects);
 
-    RimFractureDefinitionCollection* fractureDefinitionCollection = nullptr;
+    RimFractureTemplateCollection* fractureDefinitionCollection = nullptr;
     if (objects.size() > 0)
     {
         fractureDefinitionCollection = objects[0];

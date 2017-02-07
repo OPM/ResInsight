@@ -28,13 +28,13 @@ class RimFractureTemplate;
 ///  
 ///  
 //==================================================================================================
-class RimFractureDefinitionCollection : public caf::PdmObject
+class RimFractureTemplateCollection : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimFractureDefinitionCollection(void);
-    virtual ~RimFractureDefinitionCollection(void);
+    RimFractureTemplateCollection(void);
+    virtual ~RimFractureTemplateCollection(void);
     
     caf::PdmChildArrayField<RimFractureTemplate*>   fractureDefinitions;
 

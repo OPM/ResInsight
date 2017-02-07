@@ -28,7 +28,7 @@
 class RimEclipseCaseCollection;
 class RimGeoMechModels;
 class RimWellPathCollection;
-class RimFractureDefinitionCollection;
+class RimFractureTemplateCollection;
 class RimSummaryCaseCollection;
 class RimFormationNamesCollection;
 
@@ -47,7 +47,7 @@ public:
     caf::PdmChildField<RimEclipseCaseCollection*>           analysisModels;
     caf::PdmChildField<RimGeoMechModels*>                   geoMechModels;
     caf::PdmChildField<RimWellPathCollection*>              wellPathCollection;
-    caf::PdmChildField<RimFractureDefinitionCollection*>    fractureDefinitionCollection;
+    caf::PdmChildField<RimFractureTemplateCollection*>    fractureDefinitionCollection;
     caf::PdmChildField<RimSummaryCaseCollection*>           summaryCaseCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
 

@@ -21,16 +21,17 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
-#include "cafPdmFieldCvfVec3d.h"
-
+#include "cafPdmPtrField.h"
 #include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <vector>
 
-class RimStimPlanFractureDefinition;
+class RigStimPlanFractureDefinition;
 
 
 //==================================================================================================
@@ -45,15 +46,30 @@ public:
     RimStimPlanFractureTemplate(void);
     virtual ~RimStimPlanFractureTemplate(void);
     
-    RimStimPlanFractureDefinition*  stimPlanFracDef;
-
-    
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
     void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
     std::vector<cvf::Vec3f>         fracturePolygon();
 
 
+    void                        setFileName(const QString& fileName);
+    const QString&              fileName();
+    QString                     fileNameWoPath();
+    void                        readStimPlanXMLFile(QString * errorMessage);
+
+
+
+
+
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
+
+private:
+    void                        updateUiTreeName();
+
+    caf::PdmField<QString>                      m_StimPlanFileName;
+    cvf::ref<RigStimPlanFractureDefinition>     m_StimPlanFractureDefinitionData;
+
+
 };

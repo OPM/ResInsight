@@ -103,7 +103,7 @@ private:
     bool planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ);
 
 protected:
-    caf::PdmPtrField<RimFractureTemplate*>   m_fractureTemplate;
+    caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
     caf::PdmProxyValueField<QString>                m_displayIJK;
 

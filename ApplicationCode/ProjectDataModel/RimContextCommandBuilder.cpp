@@ -38,7 +38,8 @@
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimEllipseFractureTemplate.h"
-#include "RimFractureDefinitionCollection.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -380,8 +381,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSimWellFractureFeature";
             commandIds << "RicSimWellFracturesDeleteAllFeature";
         }
-        else if (dynamic_cast<RimFractureDefinitionCollection*>(uiItem) ||
-                 dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
+        else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem) ||
+                 dynamic_cast<RimEllipseFractureTemplate*>(uiItem) ||
+                 dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
         {
             commandIds << "RicNewEllipseFractureTemplateFeature";
             commandIds << "RicNewStimPlanFractureTemplateFeature";

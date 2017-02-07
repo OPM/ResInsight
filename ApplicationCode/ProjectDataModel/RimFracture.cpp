@@ -37,7 +37,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
-#include "RimFractureDefinitionCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -562,7 +562,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 
     if (fieldNeedingOptions == &m_fractureTemplate)
     {
-        RimFractureDefinitionCollection* fracDefColl = oilField->fractureDefinitionCollection();
+        RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
         if (fracDefColl == nullptr) return options;
 
         for (RimFractureTemplate* fracDef : fracDefColl->fractureDefinitions())

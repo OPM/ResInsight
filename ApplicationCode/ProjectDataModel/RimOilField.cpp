@@ -22,7 +22,7 @@
 
 #include "RimEclipseCaseCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureDefinitionCollection.h"
+#include "RimFractureTemplateCollection.h"
 
 #include "RimGeoMechModels.h"
 #include "RimSummaryCaseCollection.h"
@@ -44,7 +44,7 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&summaryCaseCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
     CAF_PDM_InitFieldNoDefault(&formationNamesCollection,"FormationNamesCollection","Formations","","","");
 
-    fractureDefinitionCollection = new RimFractureDefinitionCollection();
+    fractureDefinitionCollection = new RimFractureTemplateCollection();
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
     summaryCaseCollection = new RimSummaryCaseCollection();

@@ -25,7 +25,7 @@
 #include <vector>
 
 class RigStimPlanFractureDefinition: public cvf::Object
-{
+{ 
 public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();

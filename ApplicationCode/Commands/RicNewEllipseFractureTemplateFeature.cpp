@@ -22,7 +22,7 @@
 
 #include "RimOilField.h"
 #include "RimEllipseFractureTemplate.h"
-#include "RimFractureDefinitionCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
@@ -47,7 +47,7 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
     RimOilField* oilfield = project->activeOilField();
     if (oilfield == nullptr) return;
 
-    RimFractureDefinitionCollection* fracDefColl = oilfield->fractureDefinitionCollection();
+    RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
 
     if (fracDefColl)
     {

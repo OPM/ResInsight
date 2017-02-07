@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFractureDefinitionCollection.h"
+#include "RimFractureTemplateCollection.h"
 
 #include "RimFractureTemplate.h"
 #include "cafPdmObject.h"
@@ -24,12 +24,12 @@
 
 
 
-CAF_PDM_SOURCE_INIT(RimFractureDefinitionCollection, "FractureDefinitionCollection");
+CAF_PDM_SOURCE_INIT(RimFractureTemplateCollection, "FractureDefinitionCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
+RimFractureTemplateCollection::RimFractureTemplateCollection(void)
 {
     CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplate16x16.png", "", "");
 
@@ -42,7 +42,7 @@ RimFractureDefinitionCollection::RimFractureDefinitionCollection(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureDefinitionCollection::~RimFractureDefinitionCollection()
+RimFractureTemplateCollection::~RimFractureTemplateCollection()
 {
     fractureDefinitions.deleteAllChildObjects();
 }
@@ -50,7 +50,7 @@ RimFractureDefinitionCollection::~RimFractureDefinitionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureDefinitionCollection::deleteFractureDefinitions()
+void RimFractureTemplateCollection::deleteFractureDefinitions()
 {
     fractureDefinitions.deleteAllChildObjects();
 }
