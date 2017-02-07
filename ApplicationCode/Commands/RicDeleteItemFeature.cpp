@@ -21,6 +21,23 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimCellRangeFilter.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseView.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechView.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersection.h"
+#include "RimIntersectionBox.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimViewController.h"
+#include "RimWellFlowRateCurve.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -32,22 +49,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RimGeoMechView.h"
-#include "RimEclipseView.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimEclipseInputProperty.h"
-#include "RimCellRangeFilter.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimViewController.h"
-#include "RimWellLogCurve.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
-#include "RimSummaryPlot.h"
 
 namespace caf
 {
@@ -55,6 +56,8 @@ namespace caf
 
 bool isDeletable(PdmUiItem * uiItem)
 {
+    if (dynamic_cast<RimWellFlowRateCurve*>(uiItem))         return false;
+
     if (dynamic_cast<RimGeoMechView*>(uiItem))               return true;
     if (dynamic_cast<RimEclipseView*>(uiItem))               return true;
     if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))    return true;
