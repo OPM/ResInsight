@@ -23,6 +23,7 @@
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSingleWellResultsData.h"
 
+#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimIntersectionCollection.h"
@@ -220,6 +221,78 @@ bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseWell::intersectsStaticWellCellsRangeFilteredCells() const
+{
+    if (this->wellResults() == nullptr) return false;
+
+    RimEclipseView* m_reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(m_reservoirView);
+
+    const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
+    cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
+
+    // NOTE: Read out static well cells, union of well cells across all time steps
+    const RigWellResultFrame& wrsf = this->wellResults()->m_staticWellCells;
+
+    for (const RivCellSetEnum& visGridPart : visGridParts)
+    {
+        if (visGridPart == ALL_WELL_CELLS
+            || visGridPart == VISIBLE_WELL_CELLS
+            || visGridPart == VISIBLE_WELL_FENCE_CELLS
+            || visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
+            || visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER
+            )
+        {
+            // Exclude all cells related to well cells
+            continue;
+        }
+
+        // NOTE: Use first time step for visibility evaluation
+        size_t frameIndex = 0;
+
+        // First check the wellhead:
+
+        size_t gridIndex = wrsf.m_wellHead.m_gridIndex;
+        size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
+
+        if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
+            if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
+            {
+                return true;
+            }
+        }
+
+        // Then check the rest of the well, with all the branches
+
+        const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
+        for (const RigWellResultBranch& branchSegment : wellResSegments)
+        {
+            const std::vector<RigWellResultPoint>& wsResCells = branchSegment.m_branchResultPoints;
+            for (const RigWellResultPoint& wellResultPoint : wsResCells)
+            {
+                if (wellResultPoint.isCell())
+                {
+                    gridIndex = wellResultPoint.m_gridIndex;
+                    gridCellIndex = wellResultPoint.m_gridCellIndex;
+
+                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
+                    if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
@@ -251,6 +324,13 @@ void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     this->firstAncestorOrThisOfType(reservoirView);
     if (!reservoirView) return;
 
+    if (reservoirView->rangeFilterCollection() && !reservoirView->rangeFilterCollection()->hasActiveFilters())
+    {
+        this->uiCapability()->setUiReadOnly(false);
+
+        return;
+    }
+    
     const RimEclipseWellCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
     if (!wellColl) return;
@@ -264,6 +344,40 @@ void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     else
     {
         this->uiCapability()->setUiReadOnly(false);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseWell::isWellCellsVisible() const
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
+
+    if (reservoirView == nullptr) return false;
+    if (this->wellResults() == nullptr) return false;
+
+    if (!reservoirView->wellCollection()->isActive())
+        return false;
+
+    if (!this->showWell())
+        return false;
+
+    if (!this->showWellCells())
+        return false;
+
+    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
+        return true;
+
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
+    {
+        return intersectsStaticWellCellsRangeFilteredCells();
+    }
+    else
+    {
+        return true;
     }
 }
 

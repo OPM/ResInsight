@@ -49,6 +49,7 @@ public:
     const RigSingleWellResultsData*     wellResults() const;
     size_t                              resultWellIndex() const;
 
+    bool                                isWellCellsVisible() const;
     bool                                isWellPipeVisible(size_t frameIndex) const;
     bool                                isWellSpheresVisible(size_t frameIndex) const;
     bool                                isUsingCellCenterForPipe() const;
@@ -88,6 +89,7 @@ protected:
 
 private:
     bool                                intersectsVisibleCells(size_t frameIndex) const;
+    bool                                intersectsStaticWellCellsRangeFilteredCells() const;
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;

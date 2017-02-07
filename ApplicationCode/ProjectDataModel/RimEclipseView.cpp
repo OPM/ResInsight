@@ -1149,7 +1149,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
-        if (well->showWell() && well->showWellCells())
+        if (well->isWellCellsVisible())
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;

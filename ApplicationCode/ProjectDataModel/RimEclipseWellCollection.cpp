@@ -399,10 +399,15 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
                 || &isAutoDetectingBranches == changedField
                 || &wellHeadPosition == changedField
                 || &wellLabelColor == changedField
-                || &showWellsIntersectingVisibleCells == changedField
                 || &wellPipeCoordType == changedField
                 || &m_showWellPipe == changedField)
         {
+            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+        else if (&showWellsIntersectingVisibleCells == changedField)
+        {
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->schedulePipeGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
