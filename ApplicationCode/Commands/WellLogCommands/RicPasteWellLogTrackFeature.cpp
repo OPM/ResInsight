@@ -19,6 +19,7 @@
 #include "RicPasteWellLogTrackFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -39,6 +40,8 @@ CAF_CMD_SOURCE_INIT(RicPasteWellLogTrackFeature, "RicPasteWellLogTrackFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicPasteWellLogTrackFeature::isCommandEnabled()
 {
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimWellLogPlot* wellLogPlot = nullptr;
@@ -56,6 +59,8 @@ bool RicPasteWellLogTrackFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteWellLogTrackFeature::onActionTriggered(bool isChecked)
 {
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
+
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimWellLogPlot* wellLogPlot = nullptr;

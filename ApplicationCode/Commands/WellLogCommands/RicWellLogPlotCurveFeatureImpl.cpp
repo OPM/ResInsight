@@ -19,6 +19,7 @@
 
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 
 #include "cafSelectionManager.h"
@@ -91,4 +92,18 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
     }
 
     return allCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()
+{
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    if (!destinationObject) return nullptr;
+
+    RimWellAllocationPlot* wellAllocationPlot = nullptr;
+    destinationObject->firstAncestorOrThisOfType(wellAllocationPlot);
+
+    return wellAllocationPlot;
 }
