@@ -193,22 +193,25 @@ std::vector<size_t> RigAccWellFlowCalculator::wrpToConnectionIndexFromBottom(con
     
     if (clSegIdx < 0) return resPointToConnectionIndexFromBottom;
 
-    size_t prevGridIdx =  branchCells[clSegIdx].m_gridIndex;
+    size_t prevGridIdx     =  branchCells[clSegIdx].m_gridIndex;
     size_t prevGridCellIdx = branchCells[clSegIdx].m_gridCellIndex;
-    int    prevErtSegId = branchCells[clSegIdx].m_ertSegmentId;
+    int    prevErtSegId    = branchCells[clSegIdx].m_ertSegmentId;
     int    prevErtBranchId = branchCells[clSegIdx].m_ertBranchId;
 
     while ( clSegIdx >= 0 )
     {
-        if (   branchCells[clSegIdx].m_gridIndex     != prevGridIdx
-            || branchCells[clSegIdx].m_gridCellIndex != prevGridCellIdx 
-            || branchCells[clSegIdx].m_ertSegmentId  != prevErtSegId
-            || branchCells[clSegIdx].m_ertBranchId   != prevErtBranchId)
+        if ( branchCells[clSegIdx].isValid()
+            && (   branchCells[clSegIdx].m_gridIndex     != prevGridIdx
+                || branchCells[clSegIdx].m_gridCellIndex != prevGridCellIdx
+                || branchCells[clSegIdx].m_ertSegmentId  != prevErtSegId
+                || branchCells[clSegIdx].m_ertBranchId   != prevErtBranchId) )
         {
             ++connIdxFromBottom;
 
             prevGridIdx     = branchCells[clSegIdx].m_gridIndex ;
             prevGridCellIdx = branchCells[clSegIdx].m_gridCellIndex;
+            prevErtSegId    = branchCells[clSegIdx].m_ertSegmentId;
+            prevErtBranchId = branchCells[clSegIdx].m_ertBranchId;
         }
 
         resPointToConnectionIndexFromBottom[clSegIdx] = connIdxFromBottom;
@@ -246,3 +249,4 @@ std::vector<size_t> RigAccWellFlowCalculator::findDownstreamBranchIdxs(const Rig
     }
     return downStreamBranchIdxs;
 }
+
