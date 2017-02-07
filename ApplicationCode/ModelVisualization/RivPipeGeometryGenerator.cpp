@@ -470,21 +470,14 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 
     double squareDistanceTolerance = 1e-4*1e-4;
 
-    size_t firstSegmentWithLength = 0;
-    size_t i;
-    for (i = 0; i < m_originalPipeCenterCoords->size() - 1; i++)
-    {
-        cvf::Vec3d candidateDir = (*m_originalPipeCenterCoords)[i] - (*m_originalPipeCenterCoords)[i+1];
-        double dirLengthSq = candidateDir.lengthSquared();
-        if (dirLengthSq > squareDistanceTolerance && candidateDir.normalize()) 
-        {
-            firstSegmentWithLength = i;
-            break;
-        }
-    }
+    const size_t lastOriginalCoordIdx = m_originalPipeCenterCoords->size() - 1;
+    const size_t originalSegmentCount = m_originalPipeCenterCoords->size() - 1;
 
-    // Only zero-length segments
-    if (i == m_originalPipeCenterCoords->size() - 1) return;
+    size_t firstSegmentWithLength = findFirstSegmentWithLenght(squareDistanceTolerance);
+
+    // Return if we have only zero-length segments
+
+    if (firstSegmentWithLength == cvf::UNDEFINED_SIZE_T) return;
 
     m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(firstSegmentWithLength));
     m_filteredPipeSegmentToResult.push_back(firstSegmentWithLength);
@@ -492,30 +485,37 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     cvf::Vec3d lastValidDirectionAB;
     size_t lastValidSegment = 0;
 
-    for (i = firstSegmentWithLength + 1; i < m_originalPipeCenterCoords->size() - 1; i++)
+    // Go along the line, inserting bends, and skipping zero segments.
+    // The zero segments are skipped by ignoring the _first_ coordinate(s) equal to the next ones
+
+    for (size_t coordBIdx = firstSegmentWithLength + 1; coordBIdx < lastOriginalCoordIdx; coordBIdx++)
     {
-        cvf::Vec3d coordA = m_originalPipeCenterCoords->get(i - 1);
-        cvf::Vec3d coordB = m_originalPipeCenterCoords->get(i + 0);
-        cvf::Vec3d coordC = m_originalPipeCenterCoords->get(i + 1);
+        cvf::Vec3d coordA = m_originalPipeCenterCoords->get(coordBIdx - 1);
+        cvf::Vec3d coordB = m_originalPipeCenterCoords->get(coordBIdx + 0);
+        cvf::Vec3d coordC = m_originalPipeCenterCoords->get(coordBIdx + 1);
 
         cvf::Vec3d directionAB = coordB - coordA;
 
-        // Skip segment lengths below tolerance
         if (directionAB.lengthSquared() > squareDistanceTolerance)
         {
             lastValidDirectionAB = directionAB.getNormalized();
-            lastValidSegment = i;
+            lastValidSegment = coordBIdx;
         }
 
+        // Wait to store a segment until we find an endpoint that is the start point of a valid segment
+         
         cvf::Vec3d directionBC = coordC - coordB;
         if (directionBC.lengthSquared() < squareDistanceTolerance)
         {
             continue;
         }
 
+        // Check if the angle between AB and BC is sharper than m_minimumBendAngle (Straight == 180 deg)
+        // Sharper angle detected, insert bending stuff
+
         double cosMinBendAngle = cvf::Math::cos(cvf::Math::toRadians(m_minimumBendAngle));
         double dotProduct = lastValidDirectionAB * (-directionBC).getNormalized();
-        if (dotProduct > cosMinBendAngle)
+        if (dotProduct > cosMinBendAngle) 
         {
             bool success = false;
 
@@ -533,40 +533,48 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
 
             double bendRadius = m_bendScalingFactor * m_radius + 1.0e-30;
             cvf::Vec3d firstIntermediate = coordB - pipeIntermediateDirection * bendRadius;
+            cvf::Vec3d secondIntermediate = coordB + pipeIntermediateDirection * bendRadius;
 
             m_filteredPipeCenterCoords.push_back(firstIntermediate);
             m_filteredPipeSegmentToResult.push_back(lastValidSegment);
 
             m_filteredPipeCenterCoords.push_back(coordB);
-            m_filteredPipeSegmentToResult.push_back(i);
+            m_filteredPipeSegmentToResult.push_back(coordBIdx);
 
-            cvf::Vec3d secondIntermediate = coordB + pipeIntermediateDirection * bendRadius;
             m_filteredPipeCenterCoords.push_back(secondIntermediate);
-            m_filteredPipeSegmentToResult.push_back(i);
+            m_filteredPipeSegmentToResult.push_back(coordBIdx);
         }
         else
         {
             m_filteredPipeCenterCoords.push_back(coordB);
-            m_filteredPipeSegmentToResult.push_back(i);
+            m_filteredPipeSegmentToResult.push_back(coordBIdx);
         }
     }
 
-    // Add last cross section if not duplicate coordinate
-    cvf::Vec3d coordA = m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 2);
-    cvf::Vec3d coordB = m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1);
+    // Add the last point, as the above loop will not end the last none-zero segment, but wait for the start of the next valid one.
 
-    cvf::Vec3d directionAB = coordB - coordA;
-    if (directionAB.lengthSquared() > squareDistanceTolerance)
-    {
-        m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1));
-    }
-    else
-    {
-        // Remove last segment as the length is below tolerance
-        m_filteredPipeSegmentToResult.pop_back();
-    }
-
+    m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(lastOriginalCoordIdx));
+   
     CVF_ASSERT(m_filteredPipeCenterCoords.size() - 1 == m_filteredPipeSegmentToResult.size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RivPipeGeometryGenerator::findFirstSegmentWithLenght(double squareDistanceTolerance)
+{
+    size_t segIdx;
+    for ( segIdx = 0; segIdx < m_originalPipeCenterCoords->size() - 1; segIdx++ )
+    {
+        cvf::Vec3d candidateDir = (*m_originalPipeCenterCoords)[segIdx] - (*m_originalPipeCenterCoords)[segIdx+1];
+        double dirLengthSq = candidateDir.lengthSquared();
+        if ( dirLengthSq > squareDistanceTolerance && candidateDir.normalize() )
+        {
+            return segIdx;
+        }
+    }
+
+    return cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------

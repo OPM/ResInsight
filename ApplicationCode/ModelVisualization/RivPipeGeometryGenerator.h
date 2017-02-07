@@ -63,6 +63,8 @@ private:
     void clearComputedData();
     void updateFilteredPipeCenterCoords();
 
+    size_t findFirstSegmentWithLenght(double squareDistanceTolerance);
+
     static void computeCircle(double radius, size_t tesselationCount, const cvf::Vec3d& center, const cvf::Vec3d& orient1, const cvf::Vec3d& orient2, std::vector<cvf::Vec3d>* nodes);
 
     static cvf::ref<cvf::DrawableGeo> generateLine(const cvf::Vec3dArray* coords);
