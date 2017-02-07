@@ -104,7 +104,7 @@
 #define DEFAULT_ENKF_MODE                  ENKF_STANDARD
 #define DEFAULT_NCOMP                      1
 #define DEFAULT_ENKF_TRUNCATION            0.99
-#define DEFAULT_ENKF_ALPHA                 1.50      /* Should be raised ?? */
+#define DEFAULT_ENKF_ALPHA                 3.0
 #define DEFAULT_ENKF_STD_CUTOFF            1e-6
 #define DEFAULT_MERGE_OBSERVATIONS         false
 #define DEFAULT_RERUN                      false
@@ -134,7 +134,6 @@
 /* Default directories. */
 #define DEFAULT_QC_PATH          "QC"
 #define DEFAULT_REPORT_PATH      "reports" 
-#define DEFAULT_PLOT_PATH        "plots"
 #define DEFAULT_RUNPATH          "simulations/realization%d"
 #define DEFAULT_ENSPATH          "storage"
 #define DEFAULT_RFTPATH          "rft"

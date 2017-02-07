@@ -277,6 +277,16 @@ matrix_type * matrix_safe_alloc(int rows, int columns) {
   return matrix_alloc__( rows , columns , true );
 }
 
+matrix_type * matrix_alloc_identity(int dim) {
+  if (dim < 1)
+    util_abort("%s: identity matrix must have positive size. \n",__func__);
+
+  matrix_type * idty = matrix_alloc(dim, dim);
+  for (int i = 0; i < dim; ++i)
+    matrix_iset(idty, i, i, 1);
+  return idty;
+}
+
 /*****************************************************************/
 
 /**

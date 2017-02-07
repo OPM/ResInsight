@@ -13,23 +13,38 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import CustomKWConfig
 
 
 class CustomKW(BaseCClass):
+    TYPE_NAME = "custom_kw"
+
+    _alloc          = EnkfPrototype("void*  custom_kw_alloc(custom_kw_config)", bind = False)
+    _free           = EnkfPrototype("void   custom_kw_free(custom_kw)")
+    _fload          = EnkfPrototype("bool   custom_kw_fload(custom_kw, char*)")
+    _key_is_null    = EnkfPrototype("bool   custom_kw_key_is_null(custom_kw, char*)")
+    _iget_as_double = EnkfPrototype("double custom_kw_iget_as_double(custom_kw, int)")
+    _iget_as_string = EnkfPrototype("char*  custom_kw_iget_as_string(custom_kw, int)")
+    _set_string     = EnkfPrototype("void   custom_kw_set_string(custom_kw, char*, char*)")
+    _set_double     = EnkfPrototype("void   custom_kw_set_double(custom_kw, char*, double)")
+    _get_config     = EnkfPrototype("custom_kw_config_ref custom_kw_get_config(custom_kw)")
+
     def __init__(self, custom_kw_config):
         assert isinstance(custom_kw_config, CustomKWConfig)
-        c_ptr = CustomKW.cNamespace().alloc(custom_kw_config)
-        super(CustomKW, self).__init__(c_ptr)
+        c_ptr = self._alloc(custom_kw_config)
+        if c_ptr:
+            super(CustomKW, self).__init__(c_ptr)
+        else:
+            raise ValueError('Unable to construct CustomKW with given config!')
 
     def fload(self, filename):
         """
         @type filename: str
         @rtype: bool
         """
-        return CustomKW.cNamespace().fload(self, filename)
+        return self._fload(filename)
 
 
     def __getitem__(self, key):
@@ -41,13 +56,13 @@ class CustomKW(BaseCClass):
 
         index = config.indexOfKey(key)
 
-        if CustomKW.cNamespace().key_is_null(self, key):
+        if self._key_is_null(key):
             return None
 
         if config.keyIsDouble(key):
-            return CustomKW.cNamespace().iget_as_double(self, index)
+            return self._iget_as_double(index)
 
-        return CustomKW.cNamespace().iget_as_string(self, index)
+        return self._iget_as_string(index)
 
     def __setitem__(self, key, value):
         """
@@ -61,27 +76,17 @@ class CustomKW(BaseCClass):
             raise KeyError("The key: '%s' is not available!" % key)
 
         if isinstance(value, (float, int, long)):
-            CustomKW.cNamespace().set_double(self, key, value)
+            self._set_double(key, value)
         else:
-            CustomKW.cNamespace().set_string(self, key, str(value))
+            self._set_string(key, str(value))
 
 
     def getConfig(self):
         """ @rtype: CustomKWConfig """
-        return CustomKW.cNamespace().get_config(self)
+        return self._get_config()
 
     def free(self):
-       CustomKW.cNamespace().free(self)
+       self._free()
 
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("custom_kw", CustomKW)
-
-CustomKW.cNamespace().free = cwrapper.prototype("void custom_kw_free(custom_kw)")
-CustomKW.cNamespace().alloc = cwrapper.prototype("void* custom_kw_alloc(custom_kw_config)")
-CustomKW.cNamespace().fload = cwrapper.prototype("bool custom_kw_fload(custom_kw, char*)")
-CustomKW.cNamespace().get_config = cwrapper.prototype("custom_kw_config_ref custom_kw_get_config(custom_kw)")
-CustomKW.cNamespace().key_is_null = cwrapper.prototype("bool custom_kw_key_is_null(custom_kw, char*)")
-CustomKW.cNamespace().iget_as_double = cwrapper.prototype("double custom_kw_iget_as_double(custom_kw, int)")
-CustomKW.cNamespace().iget_as_string = cwrapper.prototype("char* custom_kw_iget_as_string(custom_kw, int)")
-CustomKW.cNamespace().set_string = cwrapper.prototype("void custom_kw_set_string(custom_kw, char*, char*)")
-CustomKW.cNamespace().set_double = cwrapper.prototype("void custom_kw_set_double(custom_kw, char*, double)")
+    def __repr__(self):
+        return 'CustomKw() %s' % self._ad_str()

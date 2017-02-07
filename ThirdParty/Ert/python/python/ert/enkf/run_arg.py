@@ -14,33 +14,34 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 
-
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
-
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 
 class RunArg(BaseCClass):
+    TYPE_NAME = "run_arg"
+
+    _alloc_ENSEMBLE_EXPERIMENT = EnkfPrototype("run_arg_obj run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs , int, int, char*)", bind = False)
+    _free                      = EnkfPrototype("void run_arg_free(run_arg)")
+    _get_queue_index           = EnkfPrototype("int  run_arg_get_queue_index(run_arg)")
+    _is_submitted              = EnkfPrototype("bool run_arg_is_submitted(run_arg)")
+
     def __init__(self):
-        raise NotImplementedError("Class can not be instantiated directly")
+        raise NotImplementedError("Cannot instantiat RunArg directly!")
 
     @classmethod
     def createEnsembleExperimentRunArg(cls, fs, iens, runpath, iter=0):
-        return RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT(fs, iens, iter, runpath)
+        return cls._alloc_ENSEMBLE_EXPERIMENT(fs, iens, iter, runpath)
 
     def free(self):
-        RunArg.cNamespace().free(self)
+        self._free()
 
     def getQueueIndex(self):
-        return RunArg.cNamespace().get_queue_index(self)
+        return self._get_queue_index()
 
     def isSubmitted(self):
-        return RunArg.cNamespace().is_submitted(self)
+        return self._is_submitted()
 
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("run_arg", RunArg)
-
-RunArg.cNamespace().alloc_ENSEMBLE_EXPERIMENT = cwrapper.prototype("run_arg_obj run_arg_alloc_ENSEMBLE_EXPERIMENT(enkf_fs , int, int, char*)")
-RunArg.cNamespace().free = cwrapper.prototype("void run_arg_free(run_arg)")
-RunArg.cNamespace().get_queue_index = cwrapper.prototype("int run_arg_get_queue_index(run_arg)")
-RunArg.cNamespace().is_submitted = cwrapper.prototype("bool run_arg_is_submitted(run_arg)")
+    def __repr__(self):
+        su = 'submitted' if self.isSubmitted() else 'not submitted'
+        qi = self.getQueueIndex()
+        return 'RunArg(queue_index = %d, %s) %s' % (qi, su, self._ad_str())

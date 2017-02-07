@@ -44,17 +44,17 @@ extern "C" {
 
    
 
-#define UTIL_IS_INSTANCE_FUNCTION(type , TYPE_ID)          \
-bool type ## _is_instance( const void * __arg ) {          \
-   if (__arg == NULL)                                      \
-      return false;                                        \
-   else {                                                  \
-      const type ## _type * arg = (type ## _type *) __arg; \
-      if ( arg->__type_id == TYPE_ID)                      \
-         return true;                                      \
-      else                                                 \
-         return false;                                     \
-   }                                                       \
+#define UTIL_IS_INSTANCE_FUNCTION(type , TYPE_ID)                 \
+bool type ## _is_instance( const void * __arg ) {                 \
+   if (__arg == NULL)                                             \
+      return false;                                               \
+   else {                                                         \
+     const type ## _type * arg =  (const type ## _type * ) __arg; \
+      if ( arg->__type_id == TYPE_ID)                             \
+         return true;                                             \
+      else                                                        \
+         return false;                                            \
+   }                                                              \
 }
 
 

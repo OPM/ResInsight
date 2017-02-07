@@ -30,7 +30,6 @@ extern "C" {
 typedef struct active_list_struct active_list_type;
 
   active_list_type * active_list_alloc( );
-  void               active_list_reset(active_list_type * );
   void               active_list_add_index(active_list_type * , int);
   void               active_list_free( active_list_type *);
   const int        * active_list_get_active(const active_list_type * );

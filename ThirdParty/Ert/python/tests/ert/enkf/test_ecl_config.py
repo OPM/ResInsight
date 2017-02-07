@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Copyright (C) 2013  Statoil ASA, Norway.
 #
-#  The file 'test_analysis_config.py' is part of ERT - Ensemble based Reservoir Tool.
+#  This file is part of ERT - Ensemble based Reservoir Tool.
 #
 #  ERT is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
-import os
 import os.path
 from ert.enkf import EclConfig
 from ert.test import ExtendedTestCase

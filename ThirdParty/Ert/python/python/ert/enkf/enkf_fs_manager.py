@@ -36,7 +36,6 @@ class FileSystemRotator(object):
             del self._fs_list[0]
             del self._fs_map[case_name]
 
-            print("Dropped filesystem: %s" % case_name)
 
     def atCapacity(self):
         return len(self._fs_list) == self._capacity

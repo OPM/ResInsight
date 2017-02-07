@@ -1,11 +1,13 @@
 from ert.test import ExtendedTestCase
+from ert.enkf import PlotSettings
 from ert_gui.plottery import PlotConfig, PlotConfigHistory
 
 
 class PlotConfigHistoryTest(ExtendedTestCase):
 
     def test_plot_config_history(self):
-        test_pc = PlotConfig("test_1")
+        ps = PlotSettings( )
+        test_pc = PlotConfig(ps , title = "test_1")
         history = PlotConfigHistory("test", test_pc)
 
         self.assertEqual(history.getPlotConfig().title(), test_pc.title())
@@ -14,7 +16,7 @@ class PlotConfigHistoryTest(ExtendedTestCase):
         self.assertFalse(history.isUndoPossible())
         self.assertFalse(history.isRedoPossible())
 
-        history.applyChanges(PlotConfig("test_2"))
+        history.applyChanges(PlotConfig(ps, title = "test_2"))
         self.assertTrue(history.isUndoPossible())
         self.assertFalse(history.isRedoPossible())
         self.assertEqual(history.getPlotConfig().title(), "test_2")

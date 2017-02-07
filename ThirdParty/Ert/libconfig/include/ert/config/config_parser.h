@@ -97,6 +97,7 @@ typedef struct config_parser_struct              config_parser_type;
   const subst_list_type * config_get_define_list( const config_parser_type * config);
   int                     config_get_schema_size( const config_parser_type * config );
   config_content_node_type       * config_get_value_node( const config_parser_type * config , const char * kw);
+  void                             config_parser_deprecate(config_parser_type * config , const char * kw, const char * msg);
 
 #ifdef __cplusplus
 }

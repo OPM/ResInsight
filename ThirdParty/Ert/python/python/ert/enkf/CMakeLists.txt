@@ -31,7 +31,7 @@ set(PYTHON_SOURCES
     node_id.py
     obs_block.py
     obs_data.py
-    plot_config.py
+    plot_settings.py
     hook_manager.py
     hook_workflow.py
     run_arg.py

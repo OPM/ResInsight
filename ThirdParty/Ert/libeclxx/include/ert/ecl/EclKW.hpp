@@ -77,6 +77,10 @@ namespace ERT {
             return *static_cast< T* >( ecl_kw_iget_ptr( this->m_kw, i ) );
         }
 
+        T& operator[](size_t i) {
+            return *static_cast< T* >( ecl_kw_iget_ptr( this->m_kw, i ) );
+        }
+
         const typename std::remove_pointer< T >::type* data() const {
             using Tp = const typename std::remove_pointer< T >::type*;
             return static_cast< Tp >( ecl_kw_get_ptr( this->m_kw ) );
@@ -84,6 +88,10 @@ namespace ERT {
 
         ecl_kw_type* get() const {
             return this->m_kw;
+        }
+
+        void resize(size_t new_size) {
+            ecl_kw_resize( this->m_kw , new_size );
         }
 
     protected:
@@ -94,6 +102,17 @@ template<>
 inline const char* EclKW_ref< const char* >::at( size_t i ) const {
     return ecl_kw_iget_char_ptr( this->m_kw, i );
 }
+
+
+/*
+  The current implementation of "string" storage in the underlying C
+  ecl_kw structure does not lend itself to easily implement
+  operator[]. We have therefor explicitly deleted it here.
+*/
+
+template<>
+const char*& EclKW_ref< const char* >::operator[]( size_t i )  = delete;
+
 
 template< typename T >
 class EclKW : public EclKW_ref< T > {

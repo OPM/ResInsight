@@ -13,6 +13,7 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
+import os.path
 
 import ert
 from ert.test import ExtendedTestCase
@@ -95,3 +96,9 @@ class VersionTest(ExtendedTestCase):
     def test_root_version(self):
         cv = Version.currentVersion( )
         self.assertEqual( ert.__version__ , cv.versionString() )
+
+
+    def test_root_path(self):
+        self.assertTrue( os.path.isdir( os.path.join( ert.root() , "ert")))
+        self.assertTrue( os.path.isfile( os.path.join( ert.root() , "ert", "__init__.py")))
+        

@@ -25,7 +25,7 @@ class TimeVector(VectorTemplate):
 
     _alloc               = UtilPrototype("void*   time_t_vector_alloc(int, time_t )" , bind = False)
     _alloc_copy          = UtilPrototype("time_t_vector_obj time_t_vector_alloc_copy(time_t_vector )")
-    _strided_copy        = UtilPrototype("time_t_vector_obj time_t_vector_alloc_strided_copy(time_t_vector , time_t , time_t , time_t)")
+    _strided_copy        = UtilPrototype("time_t_vector_obj time_t_vector_alloc_strided_copy(time_t_vector , int , int , int)")
     _free                = UtilPrototype("void   time_t_vector_free( time_t_vector )")
     _iget                = UtilPrototype("time_t   time_t_vector_iget( time_t_vector , int )")
     _safe_iget           = UtilPrototype("time_t   time_t_vector_safe_iget( time_t_vector , int )")

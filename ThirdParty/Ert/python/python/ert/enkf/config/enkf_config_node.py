@@ -13,67 +13,85 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import FieldConfig, GenDataConfig, GenKwConfig, SummaryConfig, CustomKWConfig
 from ert.enkf.enums import EnkfTruncationType, ErtImplType, LoadFailTypeEnum, EnkfVarType
 from ert.ecl import EclGrid
-
-
+from ert.util import PathFormat
 
 class EnkfConfigNode(BaseCClass):
+    TYPE_NAME = "enkf_config_node"
+
+    _alloc_summary_node = EnkfPrototype("enkf_config_node_obj enkf_config_node_alloc_summary(char*, load_fail_type)", bind = False)
+    _alloc_field_node   = EnkfPrototype("enkf_config_node_obj enkf_config_node_alloc_field(char*, ecl_grid, void*, bool)", bind = False)
+    _get_ref            = EnkfPrototype("void* enkf_config_node_get_ref(enkf_config_node)") #todo: fix return type
+    _get_impl_type      = EnkfPrototype("ert_impl_type_enum enkf_config_node_get_impl_type(enkf_config_node)")
+    _get_enkf_outfile   = EnkfPrototype("char* enkf_config_node_get_enkf_outfile(enkf_config_node)")
+    _get_min_std_file   = EnkfPrototype("char* enkf_config_node_get_min_std_file(enkf_config_node)")
+    _get_enkf_infile    = EnkfPrototype("char* enkf_config_node_get_enkf_infile(enkf_config_node)")
+    _get_init_file      = EnkfPrototype("char* enkf_config_node_get_FIELD_fill_file(enkf_config_node, path_fmt)")
+    _get_init_file_fmt  = EnkfPrototype("char* enkf_config_node_get_init_file_fmt(enkf_config_node)")
+    _get_var_type       = EnkfPrototype("enkf_var_type_enum enkf_config_node_get_var_type(enkf_config_node)") #todo: fix return type as enum
+    _get_key            = EnkfPrototype("char* enkf_config_node_get_key(enkf_config_node)")
+    _get_obs_keys       = EnkfPrototype("stringlist_ref enkf_config_node_get_obs_keys(enkf_config_node)")
+    _update_state_field = EnkfPrototype("void enkf_config_node_update_state_field(enkf_config_node, enkf_truncation_type_enum, double, double)")
+    _free               = EnkfPrototype("void enkf_config_node_free(enkf_config_node)")
 
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
     def getImplementationType( self ):
         """ @rtype: ErtImplType """
-        return EnkfConfigNode.cNamespace().get_impl_type(self)
+        return self._get_impl_type()
 
     def getVariableType( self ):
-         return EnkfConfigNode.cNamespace().get_var_type(self)
+         return self._get_var_type()
 
     def getPointerReference(self):
-        return EnkfConfigNode.cNamespace().get_ref(self)
+        return self._get_ref()
+
+    def getInitFile(self, model_config):
+        return self._enkf_config_node_get_init_file(model_config.getRunpathFormat())
 
     # def get_min_std_file(self):
-    #     return EnkfConfigNode.cNamespace().get_min_std_file(self)
+    #     return self._get_min_std_file()
 
     # def get_enkf_outfile(self):
-    #     return EnkfConfigNode.cNamespace().get_enkf_outfile(self)
+    #     return self._get_enkf_outfile()
 
     def getFieldModelConfig(self):
         """ @rtype: FieldConfig """
-        return FieldConfig.createCReference(EnkfConfigNode.cNamespace().get_ref(self), parent=self)
+        return FieldConfig.createCReference(self._get_ref(), parent=self)
 
     def getDataModelConfig(self):
         """ @rtype: GenDataConfig """
-        return GenDataConfig.createCReference(EnkfConfigNode.cNamespace().get_ref(self), parent=self)
+        return GenDataConfig.createCReference(self._get_ref(), parent=self)
 
     def getKeywordModelConfig(self):
         """ @rtype: GenKWConfig """
-        return GenKwConfig.createCReference(EnkfConfigNode.cNamespace().get_ref(self), parent=self)
+        return GenKwConfig.createCReference(self._get_ref(), parent=self)
 
     def getCustomKeywordModelConfig(self):
         """ @rtype: CustomKWConfig """
-        return CustomKWConfig.createCReference(EnkfConfigNode.cNamespace().get_ref(self), parent=self)
+        return CustomKWConfig.createCReference(self._get_ref(), parent=self)
 
     # def get_enkf_infile(self):
-    #     return EnkfConfigNode.cNamespace().get_enkf_infile(self)
+    #     return self._get_enkf_infile()
 
     # def alloc_node(self):
     #     return EnkfNode(self)
 
     # def get_init_file_fmt(self):
-    #     return EnkfConfigNode.cNamespace().get_init_file_fmt(self)
+    #     return self._get_init_file_fmt()
 
     def getObservationKeys(self):
         """ @rtype:  StringList """
-        return EnkfConfigNode.cNamespace().get_obs_keys(self).setParent(self)
+        return self._get_obs_keys().setParent(self)
 
     def updateStateField(self, truncation, value_min, value_max):
         assert isinstance(truncation, EnkfTruncationType)
-        EnkfConfigNode.cNamespace().update_state_field(self, truncation, value_min, value_max)
+        self._update_state_field(truncation, value_min, value_max)
 
     @classmethod
     def createSummaryConfigNode(cls, key, load_fail_type):
@@ -84,7 +102,7 @@ class EnkfConfigNode(BaseCClass):
         """
 
         assert isinstance(load_fail_type, LoadFailTypeEnum)
-        return EnkfConfigNode.cNamespace().alloc_summary_node(key, load_fail_type)
+        return cls._alloc_summary_node(key, load_fail_type)
 
     @classmethod
     def createFieldConfigNode(cls, key, grid, trans_table = None, forward_init = False):
@@ -92,10 +110,17 @@ class EnkfConfigNode(BaseCClass):
         @type grid: EclGrid
         @rtype: EnkfConfigNode
         """
-        return EnkfConfigNode.cNamespace().alloc_field_node(key, grid, trans_table, forward_init)
+        return cls._alloc_field_node(key, grid, trans_table, forward_init)
 
     def free(self):
-        EnkfConfigNode.cNamespace().free(self)
+        self._free()
+
+    def __repr__(self):
+        key = self.getKey()
+        vt  = self.getVariableType()
+        imp = self.getImplementationType()
+        content = 'key = %s, var_type = %s, implementation = %s' % (key, vt, imp)
+        return self._create_repr(content)
 
     def getModelConfig(self):
         implementation_type = self.getImplementationType()
@@ -115,23 +140,4 @@ class EnkfConfigNode(BaseCClass):
             # raise NotImplementedError("Unknown model type: %i" % type)
 
     def getKey(self):
-        return EnkfConfigNode.cNamespace().get_key( self )
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("enkf_config_node", EnkfConfigNode)
-
-EnkfConfigNode.cNamespace().free = cwrapper.prototype("void enkf_config_node_free(enkf_config_node)")
-EnkfConfigNode.cNamespace().get_ref = cwrapper.prototype("c_void_p enkf_config_node_get_ref(enkf_config_node)") #todo: fix return type
-EnkfConfigNode.cNamespace().get_impl_type = cwrapper.prototype("ert_impl_type_enum enkf_config_node_get_impl_type(enkf_config_node)")
-
-EnkfConfigNode.cNamespace().get_enkf_outfile = cwrapper.prototype("char* enkf_config_node_get_enkf_outfile(enkf_config_node)")
-EnkfConfigNode.cNamespace().get_min_std_file = cwrapper.prototype("char* enkf_config_node_get_min_std_file(enkf_config_node)")
-EnkfConfigNode.cNamespace().get_enkf_infile = cwrapper.prototype("char* enkf_config_node_get_enkf_infile(enkf_config_node)")
-EnkfConfigNode.cNamespace().get_init_file_fmt = cwrapper.prototype("char* enkf_config_node_get_init_file_fmt(enkf_config_node)")
-EnkfConfigNode.cNamespace().get_var_type = cwrapper.prototype("enkf_var_type_enum enkf_config_node_get_var_type(enkf_config_node)") #todo: fix return type as enum
-EnkfConfigNode.cNamespace().get_key = cwrapper.prototype("char* enkf_config_node_get_key(enkf_config_node)") 
-EnkfConfigNode.cNamespace().get_obs_keys = cwrapper.prototype("stringlist_ref enkf_config_node_get_obs_keys(enkf_config_node)")
-EnkfConfigNode.cNamespace().alloc_summary_node = cwrapper.prototype("enkf_config_node_obj enkf_config_node_alloc_summary(char*, load_fail_type)")
-EnkfConfigNode.cNamespace().alloc_field_node = cwrapper.prototype("enkf_config_node_obj enkf_config_node_alloc_field(char*, ecl_grid, c_void_p, bool)")
-EnkfConfigNode.cNamespace().update_state_field = cwrapper.prototype("void enkf_config_node_update_state_field(enkf_config_node, enkf_truncation_type_enum, double, double)")
+        return self._get_key()

@@ -37,7 +37,7 @@ extern "C" {
   well_state_type     * well_ts_get_state_from_report( const well_ts_type * well_ts , int report_nr);
   well_state_type     * well_ts_iget_state( const well_ts_type * well_ts , int index);
   int                   well_ts_get_size( const well_ts_type * well_ts);
-
+  char                * well_ts_get_name( const well_ts_type * well_ts);
   well_state_type     * well_ts_get_first_state( const well_ts_type * well_ts);
   well_state_type     * well_ts_get_last_state( const well_ts_type * well_ts);
 

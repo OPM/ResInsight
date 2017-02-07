@@ -1,3 +1,5 @@
+import warnings
+
 from cwrap import BaseCClass
 from ert.ecl import EclPrototype
 
@@ -32,39 +34,18 @@ class EclSMSPECNode(BaseCClass):
 
     @property
     def is_total(self):
-        """
-        Will check if the node corresponds to a total quantity.
-
-        The question of whether a variable corresponds to a 'total'
-        quantity or not can be interesting for e.g. interpolation
-        purposes. The actual question whether a quantity is total or
-        not is based on a hardcoded list in smspec_node_set_flags() in
-        smspec_node.c; this list again is based on the tables 2.7 -
-        2.11 in the ECLIPSE fileformat documentation.
-        """
-        return self._node_is_total( )
+        warnings.warn("The is_total property is deprecated - use method isTotal()" , DeprecationWarning)
+        return self.isTotal( )
 
     @property
     def is_rate(self):
-        """
-        Will check if the variable in question is a rate variable.
-
-        The conecpt of rate variabel is important (internally) when
-        interpolation values to arbitrary times.
-        """
-        return self._node_is_rate()
-
+        warnings.warn("The is_rate property is deprecated - use method isRate()" , DeprecationWarning)
+        return self.isRate()
 
     @property
     def is_historical(self):
-        """
-        Checks if the key corresponds to a historical variable.
-
-        The check is only based on the last character; all variables
-        ending with 'H' are considered historical.
-        """
-        return self._node_is_historical( )
-
+        warnings.warn("The is_historical property is deprecated - use method isHistorical()" , DeprecationWarning)
+        return self.isHistorical( )
 
     @property
     def unit(self):
@@ -148,3 +129,37 @@ class EclSMSPECNode(BaseCClass):
             return self._node_num( )
         else:
             return None
+
+    def isRate(self):
+        """
+        Will check if the variable in question is a rate variable.
+
+        The conecpt of rate variabel is important (internally) when
+        interpolation values to arbitrary times.
+        """
+        return self._node_is_rate()
+
+        
+    def isTotal(self):
+        """
+        Will check if the node corresponds to a total quantity.
+
+        The question of whether a variable corresponds to a 'total'
+        quantity or not can be interesting for e.g. interpolation
+        purposes. The actual question whether a quantity is total or
+        not is based on a hardcoded list in smspec_node_set_flags() in
+        smspec_node.c; this list again is based on the tables 2.7 -
+        2.11 in the ECLIPSE fileformat documentation.
+        """
+        return self._node_is_total( )
+
+
+    def isHistorical(self):
+        """
+        Checks if the key corresponds to a historical variable.
+
+        The check is only based on the last character; all variables
+        ending with 'H' are considered historical.
+        """
+        return self._node_is_historical( )
+

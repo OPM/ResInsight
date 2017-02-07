@@ -78,20 +78,19 @@ void enkf_tui_run_iterated_ES(void * arg) {
 void enkf_tui_run_exp(void * enkf_main) {
   const int ens_size          = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive  = bool_vector_alloc(0,false);
-
+  bool ok = false; // is active_list select_string within range (< ens_size)
   {
 
-    char * prompt = util_alloc_sprintf("Which realizations to simulate (Ex: 1,3-5) <Enter for all> [M to return to menu] : " , ens_size);
+    char * prompt = util_alloc_sprintf("Which realizations [0,%d) to simulate (Ex: 1,3-5) <Enter for all> [M to return to menu] : " , ens_size);
     char * select_string;
 
     util_printf_prompt(prompt , PROMPT_LEN , '=' , "=> ");
     select_string = util_alloc_stdin_line();
-    enkf_tui_util_sscanf_active_list( iactive , select_string , ens_size);
-
+    ok = enkf_tui_util_sscanf_active_list( iactive , select_string , ens_size);
     util_safe_free( select_string );
     free( prompt );
   }
-  if (bool_vector_count_equal(iactive , true))
+  if (ok && bool_vector_count_equal(iactive , true))
     enkf_main_run_tui_exp(enkf_main , iactive );
 
   bool_vector_free(iactive);

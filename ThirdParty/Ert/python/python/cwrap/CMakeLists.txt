@@ -3,12 +3,8 @@ set(PYTHON_SOURCES
     basecclass.py
     basecenum.py
     basecvalue.py
-    cclass.py
-    cenum.py
     cfile.py
     clib.py
-    cnamespace.py
-    cwrap.py
     metacwrap.py
     prototype.py
 )

@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class LoadFailTypeEnum(BaseCEnum):
+    TYPE_NAME = "load_fail_type"
     LOAD_FAIL_SILENT = None
     LOAD_FAIL_WARN = None
     LOAD_FAIL_EXIT = None
@@ -26,7 +25,3 @@ class LoadFailTypeEnum(BaseCEnum):
 LoadFailTypeEnum.addEnum("LOAD_FAIL_SILENT", 0)
 LoadFailTypeEnum.addEnum("LOAD_FAIL_WARN", 2)
 LoadFailTypeEnum.addEnum("LOAD_FAIL_EXIT", 4)
-LoadFailTypeEnum.registerEnum(ENKF_LIB, "load_fail_type")
-
-
-

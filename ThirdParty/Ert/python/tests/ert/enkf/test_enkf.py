@@ -18,7 +18,7 @@ import os
 
 from ert.util import BoolVector
 
-from ert.enkf import EnsembleConfig, AnalysisConfig, ModelConfig, SiteConfig, EclConfig, PlotConfig, EnkfObs, ErtTemplates, EnkfFs, EnKFState, EnkfVarType, ObsVector , RunArg
+from ert.enkf import EnsembleConfig, AnalysisConfig, ModelConfig, SiteConfig, EclConfig, PlotSettings, EnkfObs, ErtTemplates, EnkfFs, EnKFState, EnkfVarType, ObsVector , RunArg
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_main import EnKFMain
 from ert.enkf.enums import EnkfObservationImplementationType, LoadFailTypeEnum, EnkfInitModeEnum, ErtImplType, RealizationStateEnum , EnkfRunType, EnkfFieldFileFormatEnum, EnkfTruncationType, ActiveMode
@@ -31,6 +31,14 @@ class EnKFTest(ExtendedTestCase):
     def setUp(self):
         self.case_directory = self.createTestPath("local/simple_config/")
 
+
+    def test_repr( self ):
+        with TestAreaContext("enkf_test", store_area=True) as work_area:
+            work_area.copy_directory(self.case_directory)
+            main = EnKFMain("simple_config/minimum_config")
+            pfx = 'EnKFMain(ensemble_size'
+            self.assertEqual(pfx, repr(main)[:len(pfx)])
+            main.free()
 
     def test_bootstrap( self ):
         with TestAreaContext("enkf_test", store_area=True) as work_area:
@@ -122,7 +130,7 @@ class EnKFTest(ExtendedTestCase):
             #self.assertIsInstance(main.local_config(), LocalConfig) #warn: Should this be None?
             self.assertIsInstance(main.siteConfig(), SiteConfig)
             self.assertIsInstance(main.eclConfig(), EclConfig)
-            self.assertIsInstance(main.plotConfig(), PlotConfig)
+            self.assertIsInstance(main.plotConfig(), PlotSettings)
 
             # self.main.load_obs(obs_config_file)
             self.assertIsInstance(main.getObservations(), EnkfObs)

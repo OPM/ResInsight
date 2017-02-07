@@ -14,6 +14,7 @@ extern "C" {
 #define  ENKF_TRUNCATION_KEY_      "ENKF_TRUNCATION"
 #define  ENKF_NCOMP_KEY_           "ENKF_NCOMP"
 #define  USE_EE_KEY_               "USE_EE"
+#define  USE_GE_KEY_               "USE_GE"
 #define  ANALYSIS_SCALE_DATA_KEY_  "ANALYSIS_SCALE_DATA"
 
   typedef struct std_enkf_data_struct std_enkf_data_type;

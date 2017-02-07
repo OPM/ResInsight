@@ -39,13 +39,15 @@ class EclSumVector(object):
     def __str__(self):
         return "<Summary vector: %s>" % self.key
 
+    def __repr__(self):
+        return 'EclSumVector(key = %s, size = %d, unit = %s)' % (self.key, len(self), self.unit)
 
     @property
     def unit( self ):
         """
         The unit of this vector.
         """
-        return self.parent.get_unit(self.key)
+        return self.parent.unit(self.key)
 
     def assert_values( self ):
         """

@@ -4,6 +4,7 @@ from ert_gui.plottery import PlotConfig
 from ert_gui.tools.plot import StyleChooser
 from ert_gui.tools.plot.widgets.clearable_line_edit import ClearableLineEdit
 
+from ert_gui.tools.plot import style_chooser as sc
 
 class CustomizationView(QWidget):
     def __init__(self):
@@ -77,8 +78,8 @@ class CustomizationView(QWidget):
         self.updateProperty(attribute_name, getter, setter)
         return sb
 
-    def addStyleChooser(self, attribute_name, title, tool_tip=None, area_supported=False):
-        style_chooser = StyleChooser(area_supported=area_supported)
+    def addStyleChooser(self, attribute_name, title, tool_tip=None, line_style_set=sc.STYLESET_DEFAULT):
+        style_chooser = StyleChooser(line_style_set=line_style_set)
         self[attribute_name] = style_chooser
         self.addRow(title, self[attribute_name])
 

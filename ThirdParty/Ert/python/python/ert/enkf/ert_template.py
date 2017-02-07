@@ -13,35 +13,32 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import CWrapper, BaseCClass
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 
 
 class ErtTemplate(BaseCClass):
+    TYPE_NAME = "ert_template"
+
+    _free               = EnkfPrototype("void  ert_template_free( ert_template )")
+    _get_template_file  = EnkfPrototype("char* ert_template_get_template_file(ert_template)")
+    _get_target_file    = EnkfPrototype("char* ert_template_get_target_file(ert_template)")
+    _get_args_as_string = EnkfPrototype("char* ert_template_get_args_as_string(ert_template)")
+
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
     def get_template_file(self):
         """ @rtype: str """
-        return ErtTemplate.cNamespace().get_template_file(self)
+        return self._get_template_file()
 
     def get_target_file(self):
         """ @rtype: str """
-        return ErtTemplate.cNamespace().get_target_file(self)
+        return self._get_target_file()
 
     def get_args_as_string(self):
         """ @rtype: str """
-        return ErtTemplate.cNamespace().get_args_as_string(self)
+        return self._get_args_as_string()
 
     def free(self):
-        ErtTemplate.cNamespace().free(self)
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("ert_template", ErtTemplate)
-cwrapper.registerType("ert_template_obj", ErtTemplate.createPythonObject)
-cwrapper.registerType("ert_template_ref", ErtTemplate.createCReference)
-
-ErtTemplate.cNamespace().free = cwrapper.prototype("void ert_template_free( ert_template )")
-ErtTemplate.cNamespace().get_template_file = cwrapper.prototype("char* ert_template_get_template_file(ert_template)")
-ErtTemplate.cNamespace().get_target_file = cwrapper.prototype("char* ert_template_get_target_file(ert_template)")
-ErtTemplate.cNamespace().get_args_as_string = cwrapper.prototype("char* ert_template_get_args_as_string(ert_template)")
+        self._free()

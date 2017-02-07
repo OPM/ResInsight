@@ -3,7 +3,6 @@ set(PYTHON_SOURCES
     bool_vector.py
     buffer.py
     ctime.py
-    cstring.py
     double_vector.py
     hash.py
     int_vector.py

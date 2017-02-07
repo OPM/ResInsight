@@ -89,7 +89,9 @@ class MultipleDataAssimilation(BaseRunModel):
             # We exit if there are too few realisations left for updating.
             self.checkHaveSufficientRealizations(num_successful_realizations)
 
+            self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.PRE_UPDATE )
             self.update(target_case_format, iteration, weights[iteration])
+            self.ert().getEnkfSimulationRunner().runWorkflows( HookRuntime.POST_UPDATE )
 
         self.setPhaseName("Post processing...", indeterminate=True)
         self.simulateAndPostProcess(target_case_format, active_realization_mask, iteration_count)

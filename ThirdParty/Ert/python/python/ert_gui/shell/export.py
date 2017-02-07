@@ -56,7 +56,8 @@ class Export(ErtShellCollection):
 
                 fs_manager = self.ert().getEnkfFsManager()
                 fs = fs_manager.getCurrentFileSystem()
-                init_file = self.ert().fieldInitFile(config_node)
+                mc = self.ert().getModelConfig()
+                init_file = config_node.getInitFile(mc.getRunpathFormat())
                 if init_file:
                     print('Using init file: %s' % init_file)
 

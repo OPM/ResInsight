@@ -100,13 +100,14 @@
 
 #define LSF_DRIVER_TYPE_ID  10078365
 #define LSF_JOB_TYPE_ID     9963900
-#define BJOBS_REFRESH_TIME  10
 #define MAX_ERROR_COUNT     100
 #define SUBMIT_ERROR_SLEEP  2
+#define BJOBS_REFRESH_TIME  "10"
 #define DEFAULT_RSH_CMD     "/usr/bin/ssh"
 #define DEFAULT_BSUB_CMD    "bsub"
 #define DEFAULT_BJOBS_CMD   "bjobs"
 #define DEFAULT_BKILL_CMD   "bkill"
+#define DEFAULT_BHIST_CMD   "bhist"
 
 
 
@@ -158,6 +159,7 @@ struct lsf_driver_struct {
   char              * bsub_cmd;
   char              * bjobs_cmd;
   char              * bkill_cmd;
+  char              * bhist_cmd;
 };
 
 
@@ -256,14 +258,14 @@ stringlist_type * lsf_job_alloc_parse_hostnames(const char* fname) {
   return stringlist_alloc_new();
 }
 
-const char* lsf_job_write_bjobs_to_file(const char * bjobs_cmd, lsf_driver_type * driver, const long jobid) {
+char* lsf_job_write_bjobs_to_file(const char * bjobs_cmd, lsf_driver_type * driver, const long jobid) {
   // will typically run "bjobs -noheader -o 'EXEC_HOST' jobid"
 
   const char * noheader = "-noheader";
   const char * fields = "EXEC_HOST";
-  const char * cmd = util_alloc_sprintf("%s %s -o '%s' %d", bjobs_cmd, noheader, fields, jobid);
+  char * cmd = util_alloc_sprintf("%s %s -o '%s' %d", bjobs_cmd, noheader, fields, jobid);
 
-  const char * tmp_file = util_alloc_tmp_file("/tmp", "ert_job_exec_host", true);
+  char * tmp_file = util_alloc_tmp_file("/tmp", "ert_job_exec_host", true);
 
   if (driver->submit_method == LSF_SUBMIT_REMOTE_SHELL) {
     char ** argv = util_calloc(2, sizeof *argv);
@@ -277,6 +279,7 @@ const char* lsf_job_write_bjobs_to_file(const char * bjobs_cmd, lsf_driver_type 
     util_spawn_blocking(cmd, 1, (const char **) argv, tmp_file, NULL);
   }
   free(cmd);
+
   return tmp_file;
 }
 
@@ -641,6 +644,96 @@ static int lsf_driver_get_job_status_libary(void * __driver , void * __job) {
 }
 
 
+static bool lsf_driver_run_bhist(lsf_driver_type * driver , lsf_job_type * job , int * pend_time , int * run_time) {
+  bool bhist_ok = true;
+  char * output_file   = util_alloc_tmp_file("/tmp" , "bhist" , true);
+
+  if (driver->submit_method == LSF_SUBMIT_REMOTE_SHELL) {
+    char ** argv = util_calloc( 2 , sizeof * argv);
+    argv[0] = driver->remote_lsf_server;
+    argv[1] = util_alloc_sprintf("%s %s" , driver->bhist_cmd , job->lsf_jobnr_char);
+    util_spawn_blocking(driver->rsh_cmd, 2, (const char **) argv, output_file, NULL);
+    free( argv[1] );
+    free( argv );
+  } else if (driver->submit_method == LSF_SUBMIT_LOCAL_SHELL) {
+    char ** argv = util_calloc( 1 , sizeof * argv);
+    argv[0] = job->lsf_jobnr_char;
+    util_spawn_blocking(driver->bjobs_cmd, 2, (const char **) argv, output_file, NULL);
+    free( argv );
+  }
+
+  {
+    char job_id[16];
+    char user[32];
+    char job_name[32];
+    int psusp_time;
+
+    FILE *stream = util_fopen(output_file , "r");;
+    util_fskip_lines(stream , 2);
+
+    if ( fscanf( stream , "%s %s %s %d %d %d" , job_id , user , job_name , pend_time , &psusp_time , run_time) == 6)
+      bhist_ok = true;
+    else
+      bhist_ok = false;
+
+    fclose( stream );
+  }
+  util_unlink_existing(output_file);
+  free(output_file);
+
+  return bhist_ok;
+}
+
+/*
+  When a job has completed you can query the status using the bjobs
+  command for a while, and then the job will be evicted from the LSF
+  status table. If there have been connection problems with the LSF
+  server we can risk a situation where a job has completed and
+  subsequently evicted from the LSF status table, before we are able
+  to record the DONE/EXIT status.
+
+  When a job is missing from the bjobs_cache table we as a last resort
+  invoke the bhist command (which is based on internal LSF data with
+  much longer lifetime) and measure the change in run_time and
+  pend_time between two subsequent calls:
+
+
+    1. ((pend_time1 == pend_time2) && (run_time1 == run_time2)) :
+       Nothing is happening, and we assume that the job is DONE (this
+       method can not distinguish between DONE and EXIT).
+
+    2. (run_time2 > run_time1) : The job is running.
+
+    3. (pend_tim2 > pend_time1) : The job is pending.
+
+    4. Status unknown - have not got a clue?!
+*/
+
+
+static int lsf_driver_get_bhist_status_shell( lsf_driver_type * driver , lsf_job_type * job) {
+  int status = JOB_STAT_UNKWN;
+  int sleep_time = 4;
+  int run_time1, run_time2, pend_time1 , pend_time2;
+
+  fprintf(stderr,"** Warning: could not find status of job:%s using \'bjobs\' - trying with \'bhist\'.\n" , job->lsf_jobnr_char);
+  if (!lsf_driver_run_bhist( driver , job ,  &pend_time1 , &run_time1))
+    return status;
+
+  sleep( sleep_time );
+  if (!lsf_driver_run_bhist( driver , job , &pend_time2 , &run_time2))
+    return status;
+
+  if ((run_time1 == run_time2) && (pend_time1 == pend_time2))
+    status = JOB_STAT_DONE;
+
+  if (pend_time2 > pend_time1)
+    status = JOB_STAT_PEND;
+
+  if (run_time2 > run_time1)
+    status = JOB_STAT_RUN;
+
+  return status;
+}
 
 
 static int lsf_driver_get_job_status_shell(void * __driver , void * __job) {
@@ -659,22 +752,27 @@ static int lsf_driver_get_job_status_shell(void * __driver , void * __job) {
       */
       pthread_mutex_lock( &driver->bjobs_mutex );
       {
-        if (difftime(time(NULL) , driver->last_bjobs_update) > driver->bjobs_refresh_interval) {
+        bool update_cache = ((difftime(time(NULL) , driver->last_bjobs_update) > driver->bjobs_refresh_interval) ||
+                             (!hash_has_key( driver->bjobs_cache , job->lsf_jobnr_char) ));
+        if (update_cache) {
           lsf_driver_update_bjobs_table(driver);
           driver->last_bjobs_update = time( NULL );
         }
       }
       pthread_mutex_unlock( &driver->bjobs_mutex );
 
-
       if (hash_has_key( driver->bjobs_cache , job->lsf_jobnr_char) )
         status = hash_get_int(driver->bjobs_cache , job->lsf_jobnr_char);
-      else
+      else {
         /*
-           It might be running - but since job != NULL it is at least in the queue system.
+           The job was not in the status cache, this *might* mean that
+           it has completed/exited and fallen out of the bjobs status
+           table maintained by LSF. We try calling bhist to get the status.
         */
-        status = JOB_STAT_PEND;
-
+        status = lsf_driver_get_bhist_status_shell( driver , job );
+        if (status != JOB_STAT_UNKWN)
+          hash_insert_int( driver->bjobs_cache , job->lsf_jobnr_char , status );
+      }
     }
   }
 
@@ -753,12 +851,12 @@ void lsf_driver_free_job(void * __job) {
 }
 
 static void lsf_driver_node_failure(lsf_driver_type * driver, long lsf_job_id) {
-  fprintf(stderr, "%s attempting to blacklist nodes for job id %d.\n", __func__, lsf_job_id);
+  fprintf(stderr, "%s attempting to blacklist nodes for job id %ld.\n", __func__, lsf_job_id);
 
   {
-    const char * fname = lsf_job_write_bjobs_to_file(driver->bsub_cmd, driver, lsf_job_id);
+    char * fname = lsf_job_write_bjobs_to_file(driver->bsub_cmd, driver, lsf_job_id);
     stringlist_type * hosts = lsf_job_alloc_parse_hostnames(fname);
-    const char* hostnames = stringlist_alloc_joined_string(hosts, ", ");
+    char* hostnames = stringlist_alloc_joined_string(hosts, ", ");
     fprintf(stderr, "%s blacklisting nodes %s.\n", __func__, hostnames);
 
     lsf_driver_add_exclude_hosts(driver, hostnames);
@@ -875,6 +973,7 @@ void lsf_driver_free(lsf_driver_type * driver ) {
   util_safe_free(driver->remote_lsf_server );
   util_safe_free(driver->rsh_cmd );
   stringlist_free(driver->exclude_hosts);
+  free( driver->bhist_cmd );
   free( driver->bkill_cmd );
   free( driver->bjobs_cmd );
   free( driver->bsub_cmd );
@@ -921,6 +1020,10 @@ static void lsf_driver_set_bjobs_cmd( lsf_driver_type * driver , const char * bj
 
 static void lsf_driver_set_bkill_cmd( lsf_driver_type * driver , const char * bkill_cmd) {
   driver->bkill_cmd = util_realloc_string_copy( driver->bkill_cmd , bkill_cmd );
+}
+
+static void lsf_driver_set_bhist_cmd( lsf_driver_type * driver , const char * bhist_cmd) {
+  driver->bhist_cmd = util_realloc_string_copy( driver->bhist_cmd , bhist_cmd );
 }
 
 #ifdef HAVE_LSF_LIBRARY
@@ -995,6 +1098,12 @@ static bool lsf_driver_set_submit_sleep( lsf_driver_type * driver , const char *
   return OK;
 }
 
+void lsf_driver_set_bjobs_refresh_interval_option( lsf_driver_type * driver , const char * option_value) {
+  int refresh_interval;
+  if (util_sscanf_int( option_value , &refresh_interval))
+    lsf_driver_set_bjobs_refresh_interval( driver , refresh_interval );
+}
+
 
 
 /*****************************************************************/
@@ -1025,12 +1134,16 @@ bool lsf_driver_set_option( void * __driver , const char * option_key , const vo
       lsf_driver_set_bjobs_cmd( driver , value );
     else if (strcmp( LSF_BKILL_CMD , option_key) == 0)
       lsf_driver_set_bkill_cmd( driver , value );
+    else if (strcmp( LSF_BHIST_CMD , option_key) == 0)
+      lsf_driver_set_bhist_cmd( driver , value );
     else if (strcmp( LSF_DEBUG_OUTPUT , option_key) == 0)
       lsf_driver_set_debug_output( driver , value );
     else if (strcmp( LSF_SUBMIT_SLEEP , option_key) == 0)
       lsf_driver_set_submit_sleep( driver , value );
     else if (strcmp( LSF_EXCLUDE_HOST , option_key) == 0)
       lsf_driver_add_exclude_hosts( driver , value );
+    else if (strcmp( LSF_BJOBS_TIMEOUT , option_key) == 0)
+      lsf_driver_set_bjobs_refresh_interval_option( driver , value );
     else
       has_option = false;
   }
@@ -1057,7 +1170,13 @@ const void * lsf_driver_get_option( const void * __driver , const char * option_
       return driver->bsub_cmd;
     else if (strcmp( LSF_BKILL_CMD , option_key ) == 0)
       return driver->bkill_cmd;
-    else {
+    else if (strcmp( LSF_BHIST_CMD , option_key ) == 0)
+      return driver->bhist_cmd;
+    else if (strcmp( LSF_BJOBS_TIMEOUT , option_key ) == 0) {
+      /* This will leak. */
+      char * timeout_string = util_alloc_sprintf( "%d"  , driver->bjobs_refresh_interval );
+      return timeout_string;
+    } else {
       util_abort("%s: option_id:%s not recognized for LSF driver \n",__func__ , option_key);
       return NULL;
     }
@@ -1079,6 +1198,8 @@ void lsf_driver_init_option_list(stringlist_type * option_list) {
   stringlist_append_ref(option_list, LSF_BSUB_CMD);
   stringlist_append_ref(option_list, LSF_BJOBS_CMD);
   stringlist_append_ref(option_list, LSF_BKILL_CMD);
+  stringlist_append_ref(option_list, LSF_BHIST_CMD);
+  stringlist_append_ref(option_list, LSF_BJOBS_TIMEOUT);
 }
 
 
@@ -1094,6 +1215,8 @@ void lsf_driver_init_option_list(stringlist_type * option_list) {
 void lsf_driver_set_bjobs_refresh_interval( lsf_driver_type * driver , int refresh_interval) {
   driver->bjobs_refresh_interval = refresh_interval;
 }
+
+
 
 
 static void lsf_driver_lib_init( lsf_driver_type * lsf_driver ) {
@@ -1130,6 +1253,7 @@ static void lsf_driver_shell_init( lsf_driver_type * lsf_driver ) {
   lsf_driver->bsub_cmd            = NULL;
   lsf_driver->bjobs_cmd           = NULL;
   lsf_driver->bkill_cmd           = NULL;
+  lsf_driver->bhist_cmd           = NULL;
 
 
   hash_insert_int(lsf_driver->status_map , "PEND"   , JOB_STAT_PEND);
@@ -1160,7 +1284,6 @@ void * lsf_driver_alloc( ) {
   lsf_driver->max_error_count      = MAX_ERROR_COUNT;
   lsf_driver->submit_error_sleep   = SUBMIT_ERROR_SLEEP * 1000000;
   lsf_driver->exclude_hosts        = stringlist_alloc_new();
-  lsf_driver_set_bjobs_refresh_interval( lsf_driver , BJOBS_REFRESH_TIME );
   pthread_mutex_init( &lsf_driver->submit_lock , NULL );
 
   lsf_driver_lib_init( lsf_driver );
@@ -1171,8 +1294,10 @@ void * lsf_driver_alloc( ) {
   lsf_driver_set_option( lsf_driver , LSF_BSUB_CMD  , DEFAULT_BSUB_CMD );
   lsf_driver_set_option( lsf_driver , LSF_BJOBS_CMD , DEFAULT_BJOBS_CMD );
   lsf_driver_set_option( lsf_driver , LSF_BKILL_CMD , DEFAULT_BKILL_CMD );
+  lsf_driver_set_option( lsf_driver , LSF_BHIST_CMD , DEFAULT_BHIST_CMD );
   lsf_driver_set_option( lsf_driver , LSF_DEBUG_OUTPUT , "FALSE");
   lsf_driver_set_option( lsf_driver , LSF_SUBMIT_SLEEP , DEFAULT_SUBMIT_SLEEP);
+  lsf_driver_set_option( lsf_driver , LSF_BJOBS_TIMEOUT , BJOBS_REFRESH_TIME);
   return lsf_driver;
 }
 

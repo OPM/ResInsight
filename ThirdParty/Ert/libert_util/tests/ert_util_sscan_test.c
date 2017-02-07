@@ -79,7 +79,6 @@ void test_date(time_t expected , const char * date_string, bool expected_return)
 
 void test_scan_iso_date() {
   time_t expected = util_make_date_utc(10,  11 , 2011);
-  time_t  parsed;
   test_date( expected , "2011-11-10", true);
 
   test_assert_false( util_sscanf_isodate( "2017.10.07" , NULL ));

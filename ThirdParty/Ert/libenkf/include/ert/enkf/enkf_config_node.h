@@ -186,14 +186,15 @@ extern "C" {
   bool                    enkf_config_node_include_type(const enkf_config_node_type * , int);
   ert_impl_type           enkf_config_node_get_impl_type(const enkf_config_node_type *);
   enkf_var_type           enkf_config_node_get_var_type(const enkf_config_node_type *);
-  void     *        enkf_config_node_get_ref(const enkf_config_node_type * );
-  const char     *        enkf_config_node_get_key(const enkf_config_node_type * );
+  void                  * enkf_config_node_get_ref(const enkf_config_node_type * );
+  const char            * enkf_config_node_get_key(const enkf_config_node_type * );
+  const char            * enkf_config_node_get_FIELD_fill_file(enkf_config_node_type * config_node, const path_fmt_type * runpath_fmt);
   void                    enkf_config_node_init_internalization(enkf_config_node_type * );
   void                    enkf_config_node_set_min_std( enkf_config_node_type * config_node , enkf_node_type * min_std );
-  const            char * enkf_config_node_get_min_std_file( const enkf_config_node_type * config_node );
-  const            char * enkf_config_node_get_enkf_outfile( const enkf_config_node_type * conifg_node );
-  const            char * enkf_config_node_get_enkf_infile( const enkf_config_node_type * config_node );
-  const            char * enkf_config_node_get_init_file_fmt( const enkf_config_node_type * config_node );
+  const char            * enkf_config_node_get_min_std_file( const enkf_config_node_type * config_node );
+  const char            * enkf_config_node_get_enkf_outfile( const enkf_config_node_type * conifg_node );
+  const char            * enkf_config_node_get_enkf_infile( const enkf_config_node_type * config_node );
+  const char            * enkf_config_node_get_init_file_fmt( const enkf_config_node_type * config_node );
   char                  * enkf_config_node_alloc_initfile( const enkf_config_node_type * node , const char * path , int iens);
 
   void enkf_config_node_set_internalize(enkf_config_node_type * node, int report_step);
@@ -203,18 +204,18 @@ extern "C" {
   enkf_config_node_type       * enkf_config_node_container_iget( const enkf_config_node_type * node , int index);
   int                           enkf_config_node_container_size( const enkf_config_node_type * node );
 
-  enkf_config_node_type *       enkf_config_node_new_container( const char * key );
+  enkf_config_node_type       * enkf_config_node_new_container( const char * key );
   void                          enkf_config_node_update_container( enkf_config_node_type * config_node , const enkf_config_node_type * child_node);
   const char *                  enkf_config_node_iget_container_key( const enkf_config_node_type * config_node , int index);
   /*
     The enkf_node_free() function declaration is in the enkf_config_node.h header,
     because the enkf_config_node needs to know how to free the min_std node.
   */
-  void                  enkf_node_free(enkf_node_type *enkf_node);
+  void                   enkf_node_free(enkf_node_type *enkf_node);
   const enkf_node_type * enkf_config_node_get_min_std( const enkf_config_node_type * config_node );
 
-  bool                  enkf_config_node_use_forward_init(const enkf_config_node_type * config_node);
-  void                  enkf_config_node_set_forward_init(enkf_config_node_type * config_node, bool forward_init);
+  bool                   enkf_config_node_use_forward_init(const enkf_config_node_type * config_node);
+  void                   enkf_config_node_set_forward_init(enkf_config_node_type * config_node, bool forward_init);
 
   /*****************************************************************/
 

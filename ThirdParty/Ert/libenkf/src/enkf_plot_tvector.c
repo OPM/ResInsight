@@ -142,7 +142,7 @@ void enkf_plot_tvector_load( enkf_plot_tvector_type * plot_tvector ,
     bool has_data = enkf_node_user_get_vector(work_node , fs , index_key , plot_tvector->iens , plot_tvector->work);
 
     if(has_data) {
-        for (int step = 0; step < time_map_get_size(time_map); step++)
+      for (int step = 0; step < double_vector_size( plot_tvector->work ); step++)
           enkf_plot_tvector_iset( plot_tvector ,
                                   step ,
                                   time_map_iget( time_map , step ) ,

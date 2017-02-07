@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class ActiveMode(BaseCEnum):
+    TYPE_NAME = "active_mode_enum"
     ALL_ACTIVE = None
     INACTIVE = None
     PARTLY_ACTIVE = None
@@ -26,6 +25,3 @@ class ActiveMode(BaseCEnum):
 ActiveMode.addEnum("ALL_ACTIVE", 1)
 ActiveMode.addEnum("INACTIVE", 2)
 ActiveMode.addEnum("PARTLY_ACTIVE", 3)
-
-ActiveMode.registerEnum(ENKF_LIB, "active_mode_enum")
-

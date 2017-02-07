@@ -39,6 +39,8 @@ rml_enkf_log_type * rml_enkf_log_alloc() {
   rml_log->log_file = NULL;
   rml_log->log_stream = NULL;
   rml_enkf_log_set_clear_log( rml_log , DEFAULT_CLEAR_LOG );
+
+  rml_enkf_log_set_log_file( rml_log, DEFAULT_LOG_FILE );
   return rml_log;
 }
 

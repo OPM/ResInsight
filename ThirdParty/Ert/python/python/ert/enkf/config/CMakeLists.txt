@@ -2,6 +2,7 @@ set(PYTHON_SOURCES
     __init__.py
     custom_kw_config.py
     enkf_config_node.py
+    field_type_enum.py
     field_config.py
     gen_data_config.py
     gen_kw_config.py

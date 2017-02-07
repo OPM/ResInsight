@@ -83,7 +83,7 @@ def load( lib, so_version = None, path = None):
         try:
             dll = ctypes.CDLL(lib_file , ctypes.RTLD_GLOBAL)
             return dll
-        except Exception, exc:
+        except Exception as exc:
             error = exc
 
     error_msg = "\nFailed to load shared library:%s\n\ndlopen() error: %s\n" % (lib , error)

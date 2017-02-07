@@ -67,8 +67,6 @@ extern "C" {
 #define  ENKF_ALPHA_KEY                    "ENKF_ALPHA"
 #define  ENKF_CROSS_VALIDATION_KEY         "ENKF_CROSS_VALIDATION"
 #define  ENKF_CV_FOLDS_KEY                 "ENKF_CV_FOLDS"
-#define  ENKF_FORCE_NCOMP_KEY              "ENKF_FORCE_NCOMP"
-#define  ENKF_NCOMP_KEY                    "ENKF_NCOMP"
 #define  ENKF_SCALING_KEY                  "ENKF_SCALING"
 #define  ENKF_KERNEL_REG_KEY               "ENKF_KERNEL_REGRESSION"
 #define  ENKF_KERNEL_FUNC_KEY              "ENKF_KERNEL_FUNCTION"
@@ -154,6 +152,8 @@ extern "C" {
 #define  TIME_MAP_KEY                      "TIME_MAP"
 #define  EXT_JOB_SEARCH_PATH_KEY           "EXT_JOB_SEARCH_PATH"
 #define  STD_SCALE_CORRELATED_OBS_KEY      "STD_SCALE_CORRELATED_OBS"
+#define  PLOT_SETTING_KEY                  "PLOT_SETTINGS"
+#define  UPDATE_SETTING_KEY                "UPDATE_SETTINGS"
 
 #define CONFIG_BOOL_STRING( var ) (var) ? "TRUE" : "FALSE"
 

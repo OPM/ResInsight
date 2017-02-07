@@ -4,6 +4,7 @@ set(PYTHON_SOURCES
     config_error.py
     config_parser.py
     config_content.py
+    config_settings.py
     content_type_enum.py
     unrecognized_enum.py
 )

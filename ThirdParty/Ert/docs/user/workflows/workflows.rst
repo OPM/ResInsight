@@ -295,28 +295,37 @@ Automatically run workflows : HOOK_WORKFLOW
 
 With the keyword :code:`HOOK_WORKFLOW` you can configure workflow
 'hooks'; meaning workflows which will be run automatically at certain
-points during ERTs execution. Currently there are two points in ERTs
-flow of execution where you can hook in a workflow, either just before
-the simulations start, :code:`PRE_SIMULATION` - or after all the
-simulations have completed :code:`POST_SIMULATION`. The
+points during ERTs execution. Currently there are four points in ERTs
+flow of execution where you can hook in a workflow, before
+the simulations start, :code:`PRE_SIMULATION`;  after all the
+simulations have completed :code:`POST_SIMULATION`; 
+before the update step, :code:`PRE_UPDATE` and after the update step, :code:`POST_UPDATE`. The
 :code:`POST_SIMULATION` hook is typically used to trigger QC
 workflows:
 
 ::
 
-   HOOK_WORKFLOW initWFLOW  PRE_SIMULATION
-   HOOK_WORKFLOW QC_WFLOW1  POST_SIMULATION
-   HOOK_WORKFLOW QC_WFLOW2  POST_SIMULATION
+   HOOK_WORKFLOW initWFLOW        PRE_SIMULATION
+   HOOK_WORKFLOW preUpdateWFLOW   PRE_UPDATE
+   HOOK_WORKFLOW postUpdateWFLOW  POST_UPDATE
+   HOOK_WORKFLOW QC_WFLOW1        POST_SIMULATION
+   HOOK_WORKFLOW QC_WFLOW2        POST_SIMULATION
 
-In this example the the workflow :code:`initWFLOW` will run after all
-the simulation directiories have been created, just before the forward
-model is submitted to the queue. When all the simulations are complete
+
+In this example the workflow :code:`initWFLOW` will run after all
+the simulation directories have been created, just before the forward
+model is submitted to the queue. The workflow :code:`preUpdateWFLOW` will be run before the 
+update step and :code:`postUpdateWFLOW` will be run after the 
+update step.  When all the simulations are complete
 the two workflows :code:`QC_WFLOW1` and :code:`QC_WFLOW2` will be
-run. Observe that the workflows being 'hooked in' with the
+run. 
+
+Observe that the workflows being 'hooked in' with the
 :code:`HOOK_WORKFLOW` must be loaded with the :code:`LOAD_WORKFLOW`
 keyword.
 
-
+Currently, :code:`PRE_UPDATE` and :code:`POST_UPDATE` are only
+available from python.
 
 Locating the realisations: <RUNPATH_FILE>
 -----------------------------------------

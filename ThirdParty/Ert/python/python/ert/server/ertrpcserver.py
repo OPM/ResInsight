@@ -166,24 +166,26 @@ class ErtRPCServer(SimpleXMLRPCServer):
 
 
     def _initializeRealization(self, target_fs, geo_id, iens, keywords):
-        state = self.ert.getRealisation(iens)
         ens_config = self.ert.ensembleConfig()
 
         for kw in ens_config.getKeylistFromVarType(EnkfVarType.PARAMETER):
             if not kw in keywords:
-                node = state[kw]
+                config_node = ens_config[kw]
+                data_node = EnkfNode( config_node )
                 init_id = NodeId(0, geo_id)
                 run_id = NodeId(0, iens)
-                node.load(self._getInitializationCase(), init_id)
-                node.save(target_fs, run_id)
+                data_node.load(self._getInitializationCase(), init_id)
+                data_node.save(target_fs, run_id)
 
         for key, value in keywords.iteritems():
-            node = state[key]
-            gen_kw = node.asGenKw()
+            config_node = ens_config[kw]
+            data_node = EnkfNode( config_node )
+
+            gen_kw = data_node.asGenKw()
             gen_kw.setValues(value)
 
             run_id = NodeId(0, iens)
-            node.save(target_fs, run_id)
+            data_node.save(target_fs, run_id)
 
         target_fs.fsync()
         state_map = target_fs.getStateMap()

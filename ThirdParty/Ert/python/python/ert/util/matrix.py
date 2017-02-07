@@ -34,6 +34,7 @@ from ert.util import UtilPrototype
 
 class Matrix(BaseCClass):
     _matrix_alloc      = UtilPrototype("void*  matrix_alloc(int, int )" , bind = False)
+    _matrix_alloc_identity = UtilPrototype("matrix_obj  matrix_alloc_identity( int )" , bind = False)
     _alloc_transpose   = UtilPrototype("matrix_obj  matrix_alloc_transpose(matrix)")
     _inplace_transpose = UtilPrototype("void        matrix_inplace_transpose(matrix)")
     _copy              = UtilPrototype("matrix_obj  matrix_alloc_copy(matrix)" )
@@ -76,6 +77,13 @@ class Matrix(BaseCClass):
 
     def copy(self):
         return self._copy( )
+
+    @classmethod
+    def identity(cls, dim):
+        """Returns a dim x dim identity matrix."""
+        if dim < 1:
+            raise ValueError('Identity matrix must have positive size, %d not allowed.' % dim)
+        return cls._matrix_alloc_identity(dim)
 
     def subCopy(self, row_offset, column_offset, rows, columns):
         if row_offset < 0 or row_offset >= self.rows():

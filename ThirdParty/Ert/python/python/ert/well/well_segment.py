@@ -1,7 +1,20 @@
-from cwrap import BaseCClass, CWrapper
-from ert.well import ECL_WELL_LIB
+from cwrap import BaseCClass
+from ert.well import WellPrototype
 
 class WellSegment(BaseCClass):
+    TYPE_NAME = "well_segment"
+
+    _active           = WellPrototype("bool well_segment_active(well_segment)")
+    _main_stem        = WellPrototype("bool well_segment_main_stem(well_segment)")
+    _nearest_wellhead = WellPrototype("bool well_segment_nearest_wellhead(well_segment)")
+    _id               = WellPrototype("int well_segment_get_id(well_segment)")
+    _link_count       = WellPrototype("int well_segment_get_link_count(well_segment)")
+    _branch_id        = WellPrototype("int well_segment_get_branch_id(well_segment)")
+    _outlet_id        = WellPrototype("int well_segment_get_outlet_id(well_segment)")
+    _depth            = WellPrototype("double well_segment_get_depth(well_segment)")
+    _length           = WellPrototype("double well_segment_get_length(well_segment)")
+    _total_length     = WellPrototype("double well_segment_get_total_length(well_segment)")
+    _diameter         = WellPrototype("double well_segment_get_diameter(well_segment)")
 
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly")
@@ -9,68 +22,55 @@ class WellSegment(BaseCClass):
     def free(self):
         pass
 
+    def __repr__(self):
+        return 'WellSegment(%s) at 0x%x' % (str(self), self._address())
+
     def __str__(self):
         return "{Segment ID:%d   BranchID:%d  Length:%g}" % (self.id() , self.branchId() , self.length())
 
     def id(self):
         """ @rtype: int """
-        return WellSegment.cNamespace().id(self)
+        return self._id()
 
     def linkCount(self):
         """ @rtype: int """
-        return WellSegment.cNamespace().link_count(self)
+        return self._link_count()
 
     def branchId(self):
         """ @rtype: int """
-        return WellSegment.cNamespace().branch_id(self)
+        return self._branch_id()
 
     def outletId(self):
         """ @rtype: int """
-        return WellSegment.cNamespace().outlet_id(self)
+        return self._outlet_id()
 
     def isActive(self):
         """ @rtype: bool """
-        return WellSegment.cNamespace().active(self)
+        return self._active()
 
     def isMainStem(self):
         """ @rtype: bool """
-        return WellSegment.cNamespace().main_stem(self)
+        return self._main_stem()
 
     def isNearestWellHead(self):
         """ @rtype: bool """
-        return WellSegment.cNamespace().nearest_wellhead(self)
+        return self._nearest_wellhead()
 
     def depth(self):
         """ @rtype: float """
-        return WellSegment.cNamespace().depth(self)
+        return self._depth()
+
+    def __len__(self):
+        return self.length()
 
     def length(self):
         """ @rtype: float """
-        return WellSegment.cNamespace().length(self)
+        return self._length()
 
     def totalLength(self):
         """ @rtype: float """
-        return WellSegment.cNamespace().total_length(self)
+        return self._total_length()
 
     def diameter(self):
         """ @rtype: float """
-        return WellSegment.cNamespace().diameter(self)
-
-
-CWrapper.registerObjectType("well_segment", WellSegment)
-cwrapper = CWrapper(ECL_WELL_LIB)
-
-
-WellSegment.cNamespace().active = cwrapper.prototype("bool well_segment_active(well_segment)")
-WellSegment.cNamespace().main_stem = cwrapper.prototype("bool well_segment_main_stem(well_segment)")
-WellSegment.cNamespace().nearest_wellhead = cwrapper.prototype("bool well_segment_nearest_wellhead(well_segment)")
-
-WellSegment.cNamespace().id = cwrapper.prototype("int well_segment_get_id(well_segment)")
-WellSegment.cNamespace().link_count = cwrapper.prototype("int well_segment_get_link_count(well_segment)")
-WellSegment.cNamespace().branch_id = cwrapper.prototype("int well_segment_get_branch_id(well_segment)")
-WellSegment.cNamespace().outlet_id = cwrapper.prototype("int well_segment_get_outlet_id(well_segment)")
-
-WellSegment.cNamespace().depth = cwrapper.prototype("double well_segment_get_depth(well_segment)")
-WellSegment.cNamespace().length = cwrapper.prototype("double well_segment_get_length(well_segment)")
-WellSegment.cNamespace().total_length = cwrapper.prototype("double well_segment_get_total_length(well_segment)")
-WellSegment.cNamespace().diameter = cwrapper.prototype("double well_segment_get_diameter(well_segment)")
+        return self._diameter()

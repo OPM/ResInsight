@@ -98,6 +98,9 @@ def splitArguments(line):
 
 def widthAsPercentageOfConsoleWidth(percentage):
     width, height = getTerminalSize()
+    if width == 0:
+        width = 80
+
     return int(floor(percentage * width / 100.0))
 
 

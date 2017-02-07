@@ -37,6 +37,8 @@
 #define QC_WORKFLOW_NAME              "QC WORKFLOW"
 #define RUN_MODE_PRE_SIMULATION_NAME  "PRE_SIMULATION"
 #define RUN_MODE_POST_SIMULATION_NAME "POST_SIMULATION"
+#define RUN_MODE_PRE_UPDATE_NAME      "PRE_UPDATE"
+#define RUN_MODE_POST_UPDATE_NAME     "POST_UPDATE"
 
 struct hook_manager_struct {
   vector_type            * hook_workflow_list;  /* vector of hook_workflow_type instances */
@@ -152,11 +154,13 @@ void hook_manager_add_config_items( config_parser_type * config ) {
   config_schema_item_iset_type( item , 0 , CONFIG_STRING );
   config_schema_item_iset_type( item , 1 , CONFIG_STRING );
   {
-    char ** argv = util_malloc( 2 * sizeof * argv );
+    char ** argv = util_malloc( 4 * sizeof * argv );
 
     argv[0] = RUN_MODE_PRE_SIMULATION_NAME;
     argv[1] = RUN_MODE_POST_SIMULATION_NAME;
-    config_schema_item_set_indexed_selection_set(item, 1, 2, (const char **) argv);
+    argv[2] = RUN_MODE_PRE_UPDATE_NAME;
+    argv[3] = RUN_MODE_POST_UPDATE_NAME;
+    config_schema_item_set_indexed_selection_set(item, 1, 4, (const char **) argv);
 
     free( argv );
   }

@@ -152,7 +152,8 @@ class ConfigContent(BaseCClass):
     _has_key = ConfigPrototype("bool config_content_has_item( config_content , char*)")
     _get_item = ConfigPrototype("content_item_ref config_content_get_item( config_content , char*)")
     _get_errors = ConfigPrototype("config_error_ref config_content_get_errors( config_content )")
-
+    _get_warnings =  ConfigPrototype("stringlist_ref config_content_get_warnings( config_content )")
+    
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
@@ -196,3 +197,8 @@ class ConfigContent(BaseCClass):
     def getErrors(self):
         """ @rtype: ConfigError """
         return self._get_errors()
+
+
+    def getWarnings(self):
+        """ @rtype: ConfigError """
+        return self._get_warnings( )

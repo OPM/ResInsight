@@ -1,22 +1,23 @@
-#  Copyright (C) 2016  Statoil ASA, Norway. 
-#   
-#  The file 'surface' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2016  Statoil ASA, Norway.
+#
+#  The file 'surface' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 """
 Create a polygon
 """
 import os.path
+import ctypes
 
 from cwrap import BaseCClass
 from ert.geo import GeoPrototype
@@ -27,6 +28,7 @@ class Surface(BaseCClass):
 
     _alloc        = GeoPrototype("void*  geo_surface_fload_alloc_irap( char* , bool )" , bind = False)
     _free         = GeoPrototype("void   geo_surface_free( surface )")
+    _new          = GeoPrototype("void*  geo_surface_alloc_new( int, int, double, double, double, double, double )", bind = False)
     _get_nx       = GeoPrototype("int    geo_surface_get_nx( surface )")
     _get_ny       = GeoPrototype("int    geo_surface_get_ny( surface )")
     _iget_zvalue  = GeoPrototype("double geo_surface_iget_zvalue( surface , int)")
@@ -42,20 +44,29 @@ class Surface(BaseCClass):
     _imul         = GeoPrototype("void   geo_surface_imul( surface , surface )")
     _isub         = GeoPrototype("void   geo_surface_isub( surface , surface )")
     _isqrt        = GeoPrototype("void   geo_surface_isqrt( surface )")
+    _iget_xy       = GeoPrototype("void   geo_surface_iget_xy(surface, int, double*, double*)")
 
-    
-    def __init__(self, filename):
+
+    def __init__(self, filename=None, nx=None, ny=None, xinc=None, yinc=None,
+                                      xstart=None, ystart=None, angle=None):
         """
         This will load a irap surface from file. The surface should
         consist of a header and a set z values.
         """
-        if os.path.isfile( filename ):
-            c_ptr = self._alloc(filename , True)
-            super(Surface , self).__init__(c_ptr)
+        if filename is not None:
+            filename = str(filename)
+            if os.path.isfile( filename ):
+                c_ptr = self._alloc(filename , True)
+                super(Surface , self).__init__(c_ptr)
+            else:
+                raise IOError('No such file "%s".' % filename)
         else:
-            raise IOError("No such file: %s" % filename)
+            s_args = [nx, ny, xinc, yinc, xstart, ystart, angle]
+            if None in s_args:
+                raise ValueError('Missing argument for creating surface, all values must be set, was: %s' % str(s_args))
+            c_ptr = self._new(*s_args)
+            super(Surface , self).__init__(c_ptr)
 
-    
     def __eq__(self , other):
         """
         Compares two Surface instances, both header and data must be equal
@@ -69,7 +80,7 @@ class Surface(BaseCClass):
 
     def headerEqual(self , other):
         return self._header_equal( other)
-        
+
 
     def __iadd__(self , other):
         if isinstance(other , Surface):
@@ -126,23 +137,23 @@ class Surface(BaseCClass):
         copy -= other
         return copy
 
-    
+
     def __div__(self , other):
         copy = self.copy()
         copy /= other
         return copy
 
-    
+
     def __len__(self):
         """
         The number of values in the surface.
         """
-        return self.getNX() * self.getNY() 
+        return self.getNX() * self.getNY()
 
 
     def inplaceSqrt(self):
         """
-        Will do an inplcae sqrt opearation.
+        Will do an inplace sqrt operation.
         """
         self._isqrt( )
         return self
@@ -157,13 +168,13 @@ class Surface(BaseCClass):
         copy.inplaceSqrt( )
         return copy
 
-    
+
     def copy(self , copy_data = True):
         """Will create a deep copy of self, if copy_data is set to False the
         copy will have all z-values set to zero.
         """
         return self._copy( copy_data)
-        
+
 
     def write(self , filename):
 
@@ -205,13 +216,30 @@ class Surface(BaseCClass):
         else:
              raise TypeError("Invalid index type:%s - must be integer" % index)
 
+
+    def getXY(self, index):
+        if isinstance(index, int):
+            if index < 0:
+                index += len(self)
+            if index >= len(self) or index < 0:
+                raise IndexError("Invalid index:%d - valid range [0,%d)" % (index, len(self)))
+        else:
+            raise TypeError("Invalid index type:%s - must be integer" % index)
+
+        x = ctypes.c_double()
+        y = ctypes.c_double()
+        self._iget_xy(index, ctypes.byref(x), ctypes.byref(y))
+
+        return x.value, y.value
+
+
     def getNX(self):
         return self._get_nx(  )
 
 
     def getNY(self):
         return self._get_ny(  )
-        
+
 
     def free(self):
         self._free( )

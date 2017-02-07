@@ -5,7 +5,7 @@ PROJECT_NAME           = "Ert"
 PROJECT_NUMBER         = ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR}
 PROJECT_BRIEF          = "ERT is a software initially developed by Statoil which main feature is to handle several ECLIPSE simulations in an Ensemble setting. --- http://ert.nr.no/ert"
 PROJECT_LOGO           =
-OUTPUT_DIRECTORY       = ${PROJECT_BINARY_DIR}/doxy
+OUTPUT_DIRECTORY       = ${PROJECT_BINARY_DIR}/documentation/doxy
 CREATE_SUBDIRS         = NO
 STRIP_FROM_PATH        =
 STRIP_FROM_INC_PATH    =
@@ -25,7 +25,7 @@ WARN_IF_DOC_ERROR      = NO
 WARN_NO_PARAMDOC       = NO
 WARN_FORMAT            = "$file:$line: $text"
 
-INPUT = ${PROJECT_SOURCE_DIR}/libanalysis ${PROJECT_SOURCE_DIR}/libconfig ${PROJECT_SOURCE_DIR}/libecl ${PROJECT_SOURCE_DIR}/libecl_well ${PROJECT_SOURCE_DIR}/libeclxx ${PROJECT_SOURCE_DIR}/libenkf ${PROJECT_SOURCE_DIR}/libert_util ${PROJECT_SOURCE_DIR}/libert_utilxx ${PROJECT_SOURCE_DIR}/libgeometry ${PROJECT_SOURCE_DIR}/libjob_queue ${PROJECT_SOURCE_DIR}/librms ${PROJECT_SOURCE_DIR}/libsched
+INPUT = ${DOXYGEN_INPUT}
 
 RECURSIVE         = YES
 EXCLUDE_PATTERNS  = */test/* */build/* */test-data/* */docs/* */python*/

@@ -60,7 +60,17 @@ class GenKwTest(ExtendedTestCase):
 
             self.assertTrue("MULTFLT1" in gen_kw )
 
+            items = gen_kw.items()
+            self.assertEqual( len(items) , 3 )
+            self.assertEqual( items[0][0] , "MULTFLT1" )
+            self.assertEqual( items[1][0] , "MULTFLT2" )
+            self.assertEqual( items[2][0] , "MULTFLT3" )
 
+            self.assertEqual( items[0][1] ,  4)
+            self.assertEqual( items[1][1] ,  8)
+            self.assertEqual( items[2][1] ,  12)
+
+            
 
     def test_gen_kw_get_set_vector(self):
         with TestAreaContext("enkf/data/gen_kwt"):

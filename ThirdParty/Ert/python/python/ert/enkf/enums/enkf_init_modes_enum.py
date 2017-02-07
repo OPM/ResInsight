@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class EnkfInitModeEnum(BaseCEnum):
+    TYPE_NAME = "enkf_init_mode_enum"
     INIT_NONE = None
     INIT_CONDITIONAL = None
     INIT_FORCE = None
@@ -26,7 +25,3 @@ class EnkfInitModeEnum(BaseCEnum):
 EnkfInitModeEnum.addEnum("INIT_NONE", 0)
 EnkfInitModeEnum.addEnum("INIT_CONDITIONAL", 1)
 EnkfInitModeEnum.addEnum("INIT_FORCE", 2)
-EnkfInitModeEnum.registerEnum(ENKF_LIB, "enkf_init_mode_enum")
-
-
-

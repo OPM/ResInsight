@@ -17,7 +17,7 @@
 Module implementing a queue for managing external jobs.
 
 """
-from cwrap import BaseCClass, CWrapper
+from cwrap import BaseCClass
 from ert.job_queue import QueuePrototype, Job, JobStatusType
 
 class JobQueueManager(BaseCClass):

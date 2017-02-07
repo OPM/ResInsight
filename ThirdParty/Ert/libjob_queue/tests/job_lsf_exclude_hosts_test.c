@@ -60,7 +60,7 @@ void test_bjobs_parse_hosts() {
     exit(1);
   }
 
-  const char * fname = util_alloc_tmp_file("/tmp", "ert_job_exec_host", true);
+  char * fname = util_alloc_tmp_file("/tmp", "ert_job_exec_host", true);
 
   FILE * fptr;
   fptr = fopen(fname, "w");

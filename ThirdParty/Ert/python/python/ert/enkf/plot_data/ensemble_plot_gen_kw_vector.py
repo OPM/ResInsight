@@ -14,16 +14,22 @@
 # See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 # for more details.
 
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 
 class EnsemblePlotGenKWVector(BaseCClass):
+    TYPE_NAME = "ensemble_plot_gen_kw_vector"
+
+    _size      = EnkfPrototype("int    enkf_plot_gen_kw_vector_get_size(ensemble_plot_gen_kw_vector)")
+    _get_value = EnkfPrototype("double enkf_plot_gen_kw_vector_iget(ensemble_plot_gen_kw_vector, int)")
+
+
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
     def __len__(self):
         """ @rtype: int """
-        return EnsemblePlotGenKWVector.cNamespace().size(self)
+        return self._size()
 
     def getValue(self, index):
         """ @rtype: float """
@@ -37,16 +43,7 @@ class EnsemblePlotGenKWVector(BaseCClass):
 
     def __getitem__(self, index):
         """ @rtype: float """
-        return EnsemblePlotGenKWVector.cNamespace().get_value(self, index)
+        return self._get_value(index)
 
-
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("ensemble_plot_gen_kw_vector", EnsemblePlotGenKWVector)
-cwrapper.registerType("ensemble_plot_gen_kw_vector_obj", EnsemblePlotGenKWVector.createPythonObject)
-cwrapper.registerType("ensemble_plot_gen_kw_vector_ref", EnsemblePlotGenKWVector.createCReference)
-
-EnsemblePlotGenKWVector.cNamespace().size = cwrapper.prototype("int enkf_plot_gen_kw_vector_get_size(ensemble_plot_gen_kw_vector)")
-EnsemblePlotGenKWVector.cNamespace().get_value = cwrapper.prototype("double enkf_plot_gen_kw_vector_iget(ensemble_plot_gen_kw_vector, int)")
-
+    def __repr__(self):
+        return 'EnsemblePlotGenKWVector(size = %d) %s' % (len(self), self._ad_str())

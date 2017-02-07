@@ -37,11 +37,13 @@ extern "C" {
 
 #include <ert/sched/sched_file.h>
 
+#include <ert/config/config_settings.h>
+
 #include <ert/job_queue/job_queue.h>
 #include <ert/job_queue/ext_joblist.h>
 #include <ert/job_queue/forward_model.h>
 
-#include <ert/enkf/plot_config.h>
+#include <ert/enkf/plot_settings.h>
 #include <ert/enkf/enkf_config_node.h>
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/enkf_state.h>
@@ -143,7 +145,7 @@ extern "C" {
   //const enkf_sched_type       * enkf_main_get_enkf_sched(const enkf_main_type *);
   model_config_type           * enkf_main_get_model_config( const enkf_main_type * );
   local_config_type           * enkf_main_get_local_config( const enkf_main_type * enkf_main );
-  plot_config_type            * enkf_main_get_plot_config( const enkf_main_type * enkf_main );
+  config_settings_type        * enkf_main_get_plot_config( const enkf_main_type * enkf_main );
   void                          enkf_main_load_obs( enkf_main_type * enkf_main , const char * obs_config_file , bool clear_existing);
   enkf_obs_type               * enkf_main_get_obs(const enkf_main_type * );
   bool                          enkf_main_have_obs( const enkf_main_type * enkf_main );
@@ -208,9 +210,6 @@ extern "C" {
   rng_config_type     * enkf_main_get_rng_config( const enkf_main_type * enkf_main );
   void                  enkf_main_rng_init( enkf_main_type * enkf_main);
 
-
-  char * enkf_main_alloc_abs_path_to_init_file(const enkf_main_type * enkf_main, const enkf_config_node_type * enkf_config_node);
-
   bool enkf_main_export_field(const enkf_main_type * enkf_main,
                               const char * kw,
                               const char * path,
@@ -227,9 +226,9 @@ extern "C" {
                               enkf_fs_type * fs);
 
 
-  void enkf_main_load_from_forward_model_with_fs(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, stringlist_type ** realizations_msg_list, enkf_fs_type * fs);
-  void enkf_main_load_from_forward_model(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, stringlist_type ** realizations_msg_list);
-  void enkf_main_load_from_forward_model_from_gui(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, enkf_fs_type * fs);
+  int enkf_main_load_from_forward_model_with_fs(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, stringlist_type ** realizations_msg_list, enkf_fs_type * fs);
+  int enkf_main_load_from_forward_model(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, stringlist_type ** realizations_msg_list);
+  int enkf_main_load_from_forward_model_from_gui(enkf_main_type * enkf_main, int iter , bool_vector_type * iactive, enkf_fs_type * fs);
 
   void enkf_main_rank_on_observations(enkf_main_type * enkf_main,
                                       const char * ranking_key,

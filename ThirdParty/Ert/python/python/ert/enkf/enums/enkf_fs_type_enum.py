@@ -14,19 +14,14 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
 
 
 class EnKFFSType(BaseCEnum):
+    TYPE_NAME = "enkf_fs_type_enum"
     INVALID_DRIVER_ID = None
     PLAIN_DRIVER_ID = None
     BLOCK_FS_DRIVER_ID = None
 
-
 EnKFFSType.addEnum("INVALID_DRIVER_ID", 0)
 EnKFFSType.addEnum("PLAIN_DRIVER_ID", 1005)
 EnKFFSType.addEnum("BLOCK_FS_DRIVER_ID", 3001)
-EnKFFSType.registerEnum(ENKF_LIB, "enkf_fs_type_enum")
-
-
-

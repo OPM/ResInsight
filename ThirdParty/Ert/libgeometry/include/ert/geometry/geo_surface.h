@@ -29,12 +29,14 @@ extern "C" {
 
 
   typedef struct geo_surface_struct geo_surface_type;
+
   bool                geo_surface_equal_header( const geo_surface_type * surface1 , const geo_surface_type * surface2 );
   bool                geo_surface_equal( const geo_surface_type * surface1 , const geo_surface_type * surface2);
   void                geo_surface_free( geo_surface_type * geo_surface );
   void                geo_surface_free__( void * arg);
   geo_pointset_type * geo_surface_get_pointset( const geo_surface_type * surface );
   geo_surface_type  * geo_surface_fload_alloc_irap( const char * filename , bool loadz);
+  geo_surface_type  * geo_surface_alloc_new( int nx, int ny, double xinc, double yinc, double xstart, double ystart, double angle );
   bool                geo_surface_fload_irap_zcoord( const geo_surface_type * surface, const char * filename, double *zlist);
   double              geo_surface_iget_zvalue(const geo_surface_type * surface, int index);
   int                 geo_surface_get_size( const geo_surface_type * surface );
@@ -42,6 +44,7 @@ extern "C" {
   void                geo_surface_fprintf_irap_external_zcoord( const geo_surface_type * surface, const char * filename , const double * zcoord);
   int                 geo_surface_get_nx( const geo_surface_type * surface );
   int                 geo_surface_get_ny( const geo_surface_type * surface );
+  void                geo_surface_iget_xy( const geo_surface_type* surface, int index, double* x, double* y);
 
 #ifdef __cplusplus
 }

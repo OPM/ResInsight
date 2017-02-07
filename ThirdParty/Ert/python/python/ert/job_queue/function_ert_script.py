@@ -1,7 +1,15 @@
 import ert as ert_module
-from cwrap import CWrapper
+from cwrap import Prototype
+
 from ert.job_queue import ErtScript
 from ert.util.stringlist import StringList
+
+
+class _NonePrototype(Prototype):
+    lib = ert_module.load(None)
+
+    def __init__(self, prototype, bind=True):
+        super(_NonePrototype, self).__init__(_NonePrototype.lib, prototype, bind=bind)
 
 
 class FunctionErtScript(ErtScript):
@@ -9,13 +17,10 @@ class FunctionErtScript(ErtScript):
     def __init__(self, ert, function_name, argument_types, argument_count):
         super(FunctionErtScript, self).__init__(ert)
 
-        lib = ert_module.load(None)
-        wrapper = CWrapper(lib)
-
         parsed_argument_types = []
 
         if ert is not None:
-            self.__function = wrapper.prototype("c_void_p %s(c_void_p, stringlist)" % function_name)
+            self.__function = _NonePrototype("void* %s(void*, stringlist)" % function_name)
 
         else:
             for arg in argument_types:
@@ -30,7 +35,7 @@ class FunctionErtScript(ErtScript):
                 else:
                     raise TypeError("Unknown type: %s" % arg)
 
-            self.__function = wrapper.prototype("c_void_p %s(%s)" % (function_name, ", ".join(parsed_argument_types[:argument_count])))
+            self.__function = _NonePrototype("void* %s(%s)" % (function_name, ", ".join(parsed_argument_types[:argument_count])))
 
 
     def run(self, *args):

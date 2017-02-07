@@ -13,18 +13,36 @@
 #
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
-import os.path 
+import os.path
 
-from cwrap import BaseCClass, CWrapper
+from cwrap import BaseCClass
 from ert.util import IntVector
-from ert.enkf import ENKF_LIB
+from ert.enkf import EnkfPrototype
+from ert.enkf import GenDataConfig
 
 
 class GenObservation(BaseCClass):
+    TYPE_NAME = "gen_obs"
+
+    _alloc              = EnkfPrototype("void*  gen_obs_alloc__(gen_data_config , char*)", bind = False)
+    _free               = EnkfPrototype("void   gen_obs_free(gen_obs)")
+    _load               = EnkfPrototype("void   gen_obs_load_observation(gen_obs , char*)")
+    _scalar_set         = EnkfPrototype("void   gen_obs_set_scalar(gen_obs , double , double)")
+    _get_std            = EnkfPrototype("double gen_obs_iget_std(gen_obs, int)")
+    _get_value          = EnkfPrototype("double gen_obs_iget_value(gen_obs, int)")
+    _get_std_scaling    = EnkfPrototype("double gen_obs_iget_std_scaling(gen_obs, int)")
+    _get_size           = EnkfPrototype("int    gen_obs_get_size(gen_obs)")
+    _get_data_index     = EnkfPrototype("int    gen_obs_get_obs_index(gen_obs, int)")
+    _load_data_index    = EnkfPrototype("void   gen_obs_load_data_index(gen_obs , char*)")
+    _add_data_index     = EnkfPrototype("void   gen_obs_attach_data_index(gen_obs , int_vector)")
+    _update_std_scaling = EnkfPrototype("void   gen_obs_update_std_scale(gen_obs , double , active_list)")
 
     def __init__(self , obs_key , data_config , scalar_value = None , obs_file = None , data_index = None):
-        c_pointer = GenObservation.cNamespace().alloc( data_config , obs_key )
-        super(GenObservation, self).__init__(c_pointer)
+        c_ptr = self._alloc( data_config , obs_key )
+        if c_ptr:
+            super(GenObservation, self).__init__(c_ptr)
+        else:
+            raise ValueError('Unable to construct GenObservation with given obs_key and data_config!')
 
         if scalar_value is None and obs_file is None:
             raise ValueError("Exactly one the scalar_value and obs_file arguments must be present")
@@ -36,21 +54,21 @@ class GenObservation(BaseCClass):
             if not os.path.isfile( obs_file ):
                 raise IOError("The file with observation data:%s does not exist" % obs_file )
             else:
-                GenObservation.cNamespace().load( self , obs_file )
+                self._load( obs_file )
         else:
             obs_value , obs_std = scalar_value
-            GenObservation.cNamespace().scalar_set( self , obs_value , obs_std )
+            self._scalar_set( obs_value , obs_std )
 
         if not data_index is None:
             if os.path.isfile( data_index ):
-                GenObservation.cNamespace().load_data_index( self , data_index )
+                self._load_data_index( data_index )
             else:
                 index_list = IntVector.active_list( data_index )
-                GenObservation.cNamespace().add_data_index( self , index_list )
+                self._add_data_index( index_list )
     
     
     def __len__(self):
-        return GenObservation.cNamespace().get_size(self)
+        return self._get_size()
 
     def __getitem__(self , obs_index):
         if obs_index < 0:
@@ -59,23 +77,23 @@ class GenObservation(BaseCClass):
         if 0 <= obs_index < len(self):
             return (self.getValue(obs_index) , self.getStandardDeviation(obs_index))
         else:
-            raise IndexError("Valid range: [0,%d)" % len(self))
+            raise IndexError("Invalid index.  Valid range: [0,%d)" % len(self))
 
 
     def getValue(self, obs_index):
         """ @rtype: float """
-        return GenObservation.cNamespace().get_value(self, obs_index)
+        return self._get_value(obs_index)
 
     def getStandardDeviation(self, obs_index):
         """ @rtype: float """
-        return GenObservation.cNamespace().get_std(self, obs_index)
+        return self._get_std(obs_index)
 
     def getStdScaling(self, obs_index):
         """ @rtype: float """
-        return GenObservation.cNamespace().get_std_scaling(self, obs_index)
+        return self._get_std_scaling(obs_index)
 
     def updateStdScaling(self , factor , active_list):
-        GenObservation.cNamespace().update_std_scaling(self, factor , active_list)
+        self._update_std_scaling(factor , active_list)
 
 
     def getSize(self):
@@ -87,27 +105,12 @@ class GenObservation(BaseCClass):
         return self.getDataIndex( obs_index )
         
     def getDataIndex(self, obs_index):
-        return GenObservation.cNamespace().get_data_index(self, obs_index)
+        return self._get_data_index(obs_index)
 
     def free(self):
-        GenObservation.cNamespace().free(self)
+        self._free()
 
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("gen_obs", GenObservation)
-cwrapper.registerType("gen_obs_obj", GenObservation.createPythonObject)
-cwrapper.registerType("gen_obs_ref", GenObservation.createCReference)
-
-GenObservation.cNamespace().alloc = cwrapper.prototype("c_void_p gen_obs_alloc__(gen_data_config , char*)")
-GenObservation.cNamespace().free = cwrapper.prototype("void gen_obs_free(gen_data_config)")
-GenObservation.cNamespace().load = cwrapper.prototype("void gen_obs_load_observation(gen_obs , char*)")
-GenObservation.cNamespace().scalar_set = cwrapper.prototype("void gen_obs_set_scalar(gen_obs , double , double)")
-GenObservation.cNamespace().get_value = cwrapper.prototype("double gen_obs_iget_value(summary_obs)")
-GenObservation.cNamespace().get_std_scaling = cwrapper.prototype("double gen_obs_iget_std_scaling(summary_obs)")
-GenObservation.cNamespace().get_std = cwrapper.prototype("double gen_obs_iget_std(gen_obs, int)")
-GenObservation.cNamespace().get_size = cwrapper.prototype("int gen_obs_get_size(gen_obs)")
-GenObservation.cNamespace().get_data_index = cwrapper.prototype("int gen_obs_get_obs_index(gen_obs, int)")
-GenObservation.cNamespace().load_data_index = cwrapper.prototype("void gen_obs_load_data_index(gen_obs , char*)")
-GenObservation.cNamespace().add_data_index = cwrapper.prototype("void gen_obs_attach_data_index(gen_obs , int_vector)")
-GenObservation.cNamespace().update_std_scaling = cwrapper.prototype("void gen_obs_update_std_scale(gen_obs , double , active_list)")
+    def __repr__(self):
+        si = len(self)
+        ad = self._ad_str()
+        return 'GenObservation(size = %d) %s' % (si, ad)

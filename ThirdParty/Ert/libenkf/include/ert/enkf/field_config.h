@@ -51,7 +51,8 @@ extern "C" {
 typedef enum {
   ECLIPSE_RESTART   = 1,
   ECLIPSE_PARAMETER = 2,
-  GENERAL           = 3
+  GENERAL           = 3,
+  UNKNOWN_FIELD_TYPE= 4
 } field_type_enum;
  
 

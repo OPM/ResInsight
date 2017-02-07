@@ -28,6 +28,7 @@
 
 #include <ert/config/config_parser.h>
 #include <ert/config/config_content.h>
+#include <ert/config/config_settings.h>
 
 #include <ert/analysis/analysis_module.h>
 
@@ -36,6 +37,10 @@
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/config_keys.h>
 #include <ert/enkf/analysis_iter_config.h>
+
+
+#define UPDATE_OVERLAP_KEY      "OVERLAP_LIMIT"
+#define UPDATE_STD_CUTOFF_KEY   "STD_CUTOFF"
 
 
 #define ANALYSIS_CONFIG_TYPE_ID 64431306
@@ -48,9 +53,7 @@ struct analysis_config_struct {
   bool                            merge_observations;          /* When observing from time1 to time2 - should ALL observations in between be used? */
   bool                            rerun;                       /* Should we rerun the simulator when the parameters have been updated? */
   int                             rerun_start;                 /* When rerunning - from where should we start? */
-
-  double                          overlap_alpha;
-  double                          std_cutoff;
+  config_settings_type          * update_settings;
 
   char                          * PC_filename;
   char                          * PC_path;
@@ -171,17 +174,9 @@ static void analysis_config_set_min_realisations( analysis_config_type * config 
   config->min_realisations = min_realisations;
 }
 
-void analysis_config_set_alpha( analysis_config_type * config , double alpha) {
-  config->overlap_alpha = alpha;
-}
 
 stringlist_type * analysis_config_alloc_module_names( analysis_config_type * config ) {
   return hash_alloc_stringlist( config->analysis_modules );
-}
-
-
-double analysis_config_get_alpha(const analysis_config_type * config) {
-  return config->overlap_alpha;
 }
 
 void analysis_config_set_store_PC( analysis_config_type * config , bool store_PC) {
@@ -209,12 +204,22 @@ const char * analysis_config_get_PC_path( const analysis_config_type * config ) 
   return config->PC_path;
 }
 
+
+void analysis_config_set_alpha( analysis_config_type * config , double alpha) {
+  config_settings_set_double_value(config->update_settings, UPDATE_OVERLAP_KEY, alpha );
+}
+
+
+double analysis_config_get_alpha(const analysis_config_type * config) {
+  return config_settings_get_double_value(config->update_settings, UPDATE_OVERLAP_KEY);
+}
+
 void analysis_config_set_std_cutoff( analysis_config_type * config , double std_cutoff ) {
-  config->std_cutoff = std_cutoff;
+  config_settings_set_double_value(config->update_settings, UPDATE_STD_CUTOFF_KEY, std_cutoff );
 }
 
 double analysis_config_get_std_cutoff(const analysis_config_type * config) {
-  return config->std_cutoff;
+  return config_settings_get_double_value(config->update_settings, UPDATE_STD_CUTOFF_KEY);
 }
 
 
@@ -447,6 +452,8 @@ void analysis_config_load_internal_modules( analysis_config_type * config ) {
 */
 
 void analysis_config_init( analysis_config_type * analysis , const config_content_type * config ) {
+  config_settings_apply(analysis->update_settings , config);
+
   if (config_content_has_item( config , UPDATE_LOG_PATH_KEY ))
     analysis_config_set_log_path( analysis , config_content_get_value( config , UPDATE_LOG_PATH_KEY ));
 
@@ -573,6 +580,7 @@ analysis_iter_config_type * analysis_config_get_iter_config( const analysis_conf
 void analysis_config_free(analysis_config_type * config) {
   analysis_iter_config_free( config->iter_config );
   hash_free( config->analysis_modules );
+  config_settings_free( config->update_settings );
   free( config->log_path );
   free( config->PC_filename );
   free( config->PC_path );
@@ -588,9 +596,10 @@ analysis_config_type * analysis_config_alloc( rng_type * rng ) {
   config->log_path                  = NULL;
   config->PC_filename               = NULL;
   config->PC_path                   = NULL;
+  config->update_settings           = config_settings_alloc( UPDATE_SETTING_KEY );
+  config_settings_add_double_setting(config->update_settings, UPDATE_OVERLAP_KEY , DEFAULT_ENKF_ALPHA);
+  config_settings_add_double_setting(config->update_settings, UPDATE_STD_CUTOFF_KEY, DEFAULT_ENKF_STD_CUTOFF );
 
-  analysis_config_set_alpha( config                    , DEFAULT_ENKF_ALPHA );
-  analysis_config_set_std_cutoff( config               , DEFAULT_ENKF_STD_CUTOFF );
   analysis_config_set_merge_observations( config       , DEFAULT_MERGE_OBSERVATIONS );
   analysis_config_set_rerun( config                    , DEFAULT_RERUN );
   analysis_config_set_rerun_start( config              , DEFAULT_RERUN_START );
@@ -626,6 +635,8 @@ void analysis_config_add_config_items( config_parser_type * config ) {
 
   config_add_key_value( config , ENKF_ALPHA_KEY              , false , CONFIG_FLOAT);
   config_add_key_value( config , STD_CUTOFF_KEY              , false , CONFIG_FLOAT);
+  config_settings_init_parser__( UPDATE_SETTING_KEY , config , false );
+
   config_add_key_value( config , ENKF_MERGE_OBSERVATIONS_KEY , false , CONFIG_BOOL);
   config_add_key_value( config , SINGLE_NODE_UPDATE_KEY      , false , CONFIG_BOOL);
   config_add_key_value( config , ENKF_CROSS_VALIDATION_KEY   , false , CONFIG_BOOL);
@@ -635,8 +646,6 @@ void analysis_config_add_config_items( config_parser_type * config ) {
   config_add_key_value( config , ENKF_KERNEL_REG_KEY         , false , CONFIG_BOOL);
   config_add_key_value( config , ENKF_KERNEL_FUNC_KEY        , false , CONFIG_INT);
   config_add_key_value( config , ENKF_KERNEL_PARAM_KEY       , false , CONFIG_INT);
-  config_add_key_value( config , ENKF_FORCE_NCOMP_KEY        , false , CONFIG_BOOL);
-  config_add_key_value( config , ENKF_NCOMP_KEY              , false , CONFIG_INT);
   config_add_key_value( config , ENKF_CV_FOLDS_KEY           , false , CONFIG_INT);
   config_add_key_value( config , ENKF_RERUN_KEY              , false , CONFIG_BOOL);
   config_add_key_value( config , RERUN_START_KEY             , false , CONFIG_INT);
@@ -675,19 +684,6 @@ void analysis_config_fprintf_config( analysis_config_type * config , FILE * stre
   if (config->merge_observations != DEFAULT_MERGE_OBSERVATIONS) {
     fprintf( stream , CONFIG_KEY_FORMAT        , ENKF_MERGE_OBSERVATIONS_KEY);
     fprintf( stream , CONFIG_ENDVALUE_FORMAT   , CONFIG_BOOL_STRING( config->merge_observations ));
-  }
-
-
-  if (config->std_cutoff != DEFAULT_ENKF_STD_CUTOFF) {
-    fprintf( stream , CONFIG_KEY_FORMAT   , STD_CUTOFF_KEY );
-    fprintf( stream , CONFIG_FLOAT_FORMAT , config->std_cutoff );
-    fprintf( stream , "\n");
-  }
-
-  if (config->overlap_alpha != DEFAULT_ENKF_ALPHA ) {
-    fprintf( stream , CONFIG_KEY_FORMAT   , ENKF_ALPHA_KEY );
-    fprintf( stream , CONFIG_FLOAT_FORMAT , config->overlap_alpha );
-    fprintf( stream , "\n");
   }
 
   if (config->single_node_update != DEFAULT_SINGLE_NODE_UPDATE) {

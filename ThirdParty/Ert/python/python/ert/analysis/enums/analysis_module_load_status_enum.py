@@ -21,6 +21,7 @@ from ert.analysis import ANALYSIS_LIB
 
 
 class AnalysisModuleLoadStatusEnum(BaseCEnum):
+    TYPE_NAME = "analysis_module_load_status_enum"
     LOAD_OK        = None
     DLOPEN_FAILURE = None
     LOAD_SYMBOL_TABLE_NOT_FOUND = None
@@ -28,7 +29,6 @@ class AnalysisModuleLoadStatusEnum(BaseCEnum):
 AnalysisModuleLoadStatusEnum.addEnum("LOAD_OK", 0)
 AnalysisModuleLoadStatusEnum.addEnum("DLOPEN_FAILURE", 1)
 AnalysisModuleLoadStatusEnum.addEnum("LOAD_SYMBOL_TABLE_NOT_FOUND", 2)
-AnalysisModuleLoadStatusEnum.registerEnum(ANALYSIS_LIB, "analysis_module_load_status_enum")
 
 
 

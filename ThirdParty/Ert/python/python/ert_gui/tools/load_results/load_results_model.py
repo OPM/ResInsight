@@ -26,9 +26,10 @@ class LoadResultsModel(object):
         @type selected_case: str
         @type realisations: BoolVector
         @type iteration: int
+        @rtype int: number of loaded realisations
         """
         fs = ERT.ert.getEnkfFsManager().getFileSystem(selected_case)
-        ERT.ert.loadFromForwardModel(realisations, iteration, fs)
+        return ERT.ert.loadFromForwardModel(realisations, iteration, fs)
 
     @staticmethod
     def isValidRunPath():

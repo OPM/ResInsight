@@ -90,9 +90,12 @@ class EnKFObsTest(ExtendedTestCase):
             for v in obs:
                 self.assertTrue(isinstance(v, ObsVector))
 
-            with self.assertRaises(IndexError):
-                v = obs[-1]
+            self.assertEqual(obs[-1].getKey(),    'RFT_TEST')
+            self.assertEqual(obs[-1].getDataKey(),'4289383' )
+            self.assertEqual(obs[-1].getObsKey(), 'RFT_TEST')
 
+            with self.assertRaises(IndexError):
+                v = obs[-40]
             with self.assertRaises(IndexError):
                 v = obs[40]
 
@@ -168,7 +171,7 @@ class EnKFObsTest(ExtendedTestCase):
         grid = EclGrid(self.grid)
         refcase = EclSum(self.refcase)
 
-        history = History.alloc_from_refcase( refcase , False )
+        history = History( refcase , False )
         obs = EnkfObs( ensemble_config , grid = grid , history = history )
         with self.assertRaises(IOError):
             obs.load("/does/not/exist")
@@ -185,8 +188,26 @@ class EnKFObsTest(ExtendedTestCase):
         self.assertEqual( len(obs) , 35 )
         self.assertTrue( "RFT2" in obs )
 
+    def test_hookmanager_runpathlist(self):
+        with ErtTestContext("obs_test", self.config_file) as test_context:
+            ert = test_context.getErt()
+            hm = ert.getHookManager()
+            pfx = 'HookManager(size = '
+            self.assertEqual(repr(hm)[:len(pfx)], pfx)
 
-        
+            rpl = hm.getRunpathList()
+            pfx = 'RunpathList(size = '
+            self.assertEqual(repr(rpl)[:len(pfx)], pfx)
+
+            ef = rpl.getExportFile()
+            self.assertTrue('.ert_runpath_list' in ef)
+            nf = 'myExportCamel'
+            rpl.setExportFile('myExportCamel')
+            ef = rpl.getExportFile()
+            self.assertTrue(nf in ef)
+
+
+
     def test_ert_obs_reload(self):
         with ErtTestContext("obs_test_reload", self.config_file) as test_context:
             ert = test_context.getErt()

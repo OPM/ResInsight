@@ -32,6 +32,8 @@
 
 #define RUN_MODE_PRE_SIMULATION_NAME     "PRE_SIMULATION"
 #define RUN_MODE_POST_SIMULATION_NAME    "POST_SIMULATION"
+#define RUN_MODE_PRE_UPDATE_NAME         "PRE_UPDATE"
+#define RUN_MODE_POST_UPDATE_NAME        "POST_UPDATE"
 
 #define HOOK_WORKFLOW_TYPE_ID 7321780
 
@@ -85,6 +87,10 @@ hook_run_mode_enum hook_workflow_run_mode_from_name( const char * run_mode ) {
     mode = PRE_SIMULATION;
   else if (strcmp( run_mode , RUN_MODE_POST_SIMULATION_NAME) == 0)
     mode = POST_SIMULATION;
+  else if (strcmp( run_mode , RUN_MODE_PRE_UPDATE_NAME) == 0)
+    mode = PRE_UPDATE;
+  else if (strcmp( run_mode , RUN_MODE_POST_UPDATE_NAME) == 0)
+    mode = POST_UPDATE;
   else {
     util_abort("%s: unrecognized run mode :%s \n",__func__ , run_mode);
     mode = -1; /* Dummy */

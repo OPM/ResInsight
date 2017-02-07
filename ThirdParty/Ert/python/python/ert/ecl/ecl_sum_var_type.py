@@ -18,6 +18,7 @@ from ert.ecl import ECL_LIB
 
 
 class EclSumVarType(BaseCEnum):
+    TYPE_NAME = "ecl_sum_var_type"
     ECL_SMSPEC_INVALID_VAR            = None
     ECL_SMSPEC_AQUIFER_VAR            = None
     ECL_SMSPEC_WELL_VAR               = None
@@ -52,4 +53,3 @@ EclSumVarType.addEnum("ECL_SMSPEC_REGION_2_REGION_VAR", 12)
 EclSumVarType.addEnum("ECL_SMSPEC_SEGMENT_VAR", 13)
 EclSumVarType.addEnum("ECL_SMSPEC_MISC_VAR", 14)
 
-EclSumVarType.registerEnum(ECL_LIB, "ecl_sum_var_type")

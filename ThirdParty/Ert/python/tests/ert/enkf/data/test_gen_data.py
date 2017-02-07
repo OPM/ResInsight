@@ -1,13 +1,10 @@
 import ert
-from cwrap import clib, CWrapper
+
 from ert.enkf.data.enkf_node import EnkfNode
 from ert.enkf.node_id import NodeId
 from ert.test import ErtTestContext
 from ert.test.extended_testcase import ExtendedTestCase
 from ert.util import BoolVector
-
-test_lib  = ert.load("libenkf")
-cwrapper =  CWrapper(test_lib)
 
 
 class GenDataTest(ExtendedTestCase):

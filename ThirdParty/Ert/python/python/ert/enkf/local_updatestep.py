@@ -1,42 +1,43 @@
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, LocalMinistep
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype, LocalMinistep
 
 class LocalUpdateStep(BaseCClass):
+    TYPE_NAME = "local_updatestep"
+
+    _alloc           = EnkfPrototype("void  local_updatestep_alloc(char*)", bind = False)
+    _size            = EnkfPrototype("int   local_updatestep_get_num_ministep(local_updatestep)")
+    _iget_ministep   = EnkfPrototype("local_ministep_ref local_updatestep_iget_ministep(local_updatestep, int)")
+    _free            = EnkfPrototype("void  local_updatestep_free(local_updatestep)")
+    _attach_ministep = EnkfPrototype("void  local_updatestep_add_ministep(local_updatestep, local_ministep)")
+    _name            = EnkfPrototype("char* local_updatestep_get_name(local_updatestep)")
 
     def __init__(self, updatestep_key):
         raise NotImplementedError("Class can not be instantiated directly!")
-    
+
     def __len__(self):
         """ @rtype: int """
-        return LocalUpdateStep.cNamespace().size(self)
-    
+        return self._size()
+
     def __getitem__(self, index):
         """ @rtype: LocalMinistep """
-        assert isinstance(index, int)
-        if index < len(self):
-            return LocalUpdateStep.cNamespace().iget_ministep(self, index)
+        if not isinstance(index, int):
+            raise TypeError('Keys must be ints, not %s' % str(type(index)))
+        if index < 0:
+            index += len(self)
+        if 0 <= index < len(self):
+            return self._iget_ministep(index)
         else:
-            raise IndexError("Invalid index")
-        
+            raise IndexError('Invalid index, valid range: [0, %d)' % len(self))
+
     def attachMinistep(self, ministep):
         assert isinstance(ministep, LocalMinistep)
-        LocalUpdateStep.cNamespace().attach_ministep(self,ministep)
-                    
+        self._attach_ministep(ministep)
+
+    def name(self):
+        return self._name()
     def getName(self):
-        """ @rtype: str """
-        return LocalUpdateStep.cNamespace().name(self)
-                       
+        """ deprecated. @rtype: str """
+        return self.name()
+
     def free(self):
-        LocalUpdateStep.cNamespace().free(self) 
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("local_updatestep", LocalUpdateStep)
-
-LocalUpdateStep.cNamespace().alloc               = cwrapper.prototype("c_void_p local_updatestep_alloc(char*)")
-LocalUpdateStep.cNamespace().size                = cwrapper.prototype("int local_updatestep_get_num_ministep(local_updatestep)")
-LocalUpdateStep.cNamespace().iget_ministep       = cwrapper.prototype("local_ministep_ref local_updatestep_iget_ministep(local_updatestep, int)")
-LocalUpdateStep.cNamespace().free                = cwrapper.prototype("void local_updatestep_free(local_updatestep)")
-LocalUpdateStep.cNamespace().attach_ministep     = cwrapper.prototype("void local_updatestep_add_ministep(local_updatestep,local_ministep)")
-LocalUpdateStep.cNamespace().name                = cwrapper.prototype("char* local_updatestep_get_name(local_updatestep)")
-
-
+        self._free(self)

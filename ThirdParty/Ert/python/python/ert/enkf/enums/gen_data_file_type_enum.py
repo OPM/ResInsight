@@ -14,25 +14,19 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
+from ert.enkf import EnkfPrototype
 
 
 class GenDataFileType(BaseCEnum):
+    TYPE_NAME               = "gen_data_file_format_type"
     GEN_DATA_UNDEFINED      = None
     ASCII                   = None       # The file is ASCII file with a vector of numbers formatted with "%g"
     ASCII_TEMPLATE          = None       # The data is inserted into a user defined template file.
     BINARY_DOUBLE           = None       #  The data is in a binary file with doubles.
     BINARY_FLOAT            = None       # The data is in a binary file with floats.
 
-
 GenDataFileType.addEnum("GEN_DATA_UNDEFINED", 0)
 GenDataFileType.addEnum("ASCII", 1)
 GenDataFileType.addEnum("ASCII_TEMPLATE", 2)
 GenDataFileType.addEnum("BINARY_DOUBLE", 3)
 GenDataFileType.addEnum("BINARY_FLOAT", 4)
-GenDataFileType.registerEnum(ENKF_LIB, "gen_data_file_format_type")
-
-
-
-
-

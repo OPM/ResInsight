@@ -1,22 +1,32 @@
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+
+from ert.enkf import EnkfPrototype
 from ert.util import Matrix
 
 
 class PcaPlotVector(BaseCClass):
+    TYPE_NAME = "pca_plot_vector"
+
+    _alloc              = EnkfPrototype("void*  pca_plot_vector_alloc(int, matrix, matrix)", bind = False)
+    _size               = EnkfPrototype("int    pca_plot_vector_get_size(pca_plot_vector)")
+    _get                = EnkfPrototype("double pca_plot_vector_iget_sim_value(pca_plot_vector, int)")
+    _get_obs            = EnkfPrototype("double pca_plot_vector_get_obs_value(pca_plot_vector)")
+    _get_singular_value = EnkfPrototype("double pca_plot_vector_get_singular_value(pca_plot_vector)")
+    _free               = EnkfPrototype("void   pca_plot_vector_free(pca_plot_vector)")
+
 
     def __init__(self, component, principal_component_matrix, observation_principal_component_matrix):
         assert isinstance(component, int)
         assert isinstance(principal_component_matrix, Matrix)
         assert isinstance(observation_principal_component_matrix, Matrix)
 
-        c_pointer = PcaPlotVector.cNamespace().alloc(component, principal_component_matrix, observation_principal_component_matrix)
+        c_pointer = self._alloc(component, principal_component_matrix, observation_principal_component_matrix)
         super(PcaPlotVector, self).__init__(c_pointer)
 
 
     def __len__(self):
         """ @rtype: int """
-        return PcaPlotVector.cNamespace().size(self)
+        return self._size()
 
 
     def __getitem__(self, index):
@@ -25,7 +35,7 @@ class PcaPlotVector(BaseCClass):
         @rtype: float 
         """
         assert isinstance(index, int)
-        return PcaPlotVector.cNamespace().get(self, index)
+        return self._get(index)
 
     def __iter__(self):
         cur = 0
@@ -35,28 +45,20 @@ class PcaPlotVector(BaseCClass):
 
     def getObservation(self):
         """ @rtype: float """
-        return PcaPlotVector.cNamespace().get_obs(self)
+        return self._get_obs()
 
     def getSingularValue(self):
         """ @rtype: float """
-        return PcaPlotVector.cNamespace().get_singular_value(self)
+        return self._get_singular_value()
         
 
     def free(self):
-        PcaPlotVector.cNamespace().free(self)
+        self._free()
 
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("pca_plot_vector", PcaPlotVector)
-cwrapper.registerType("pca_plot_vector_obj", PcaPlotVector.createPythonObject)
-cwrapper.registerType("pca_plot_vector_ref", PcaPlotVector.createCReference)
-
-PcaPlotVector.cNamespace().alloc   = cwrapper.prototype("c_void_p pca_plot_vector_alloc(int, matrix, matrix)")
-PcaPlotVector.cNamespace().free    = cwrapper.prototype("void pca_plot_vector_free(pca_plot_vector)")
-PcaPlotVector.cNamespace().size    = cwrapper.prototype("int pca_plot_vector_get_size(pca_plot_vector)")
-PcaPlotVector.cNamespace().get     = cwrapper.prototype("double pca_plot_vector_iget_sim_value(pca_plot_vector, int)")
-PcaPlotVector.cNamespace().get_obs = cwrapper.prototype("double pca_plot_vector_get_obs_value(pca_plot_vector)")
-PcaPlotVector.cNamespace().get_singular_value = cwrapper.prototype("double pca_plot_vector_get_singular_value(pca_plot_vector)")
-
-
+    def __repr__(self):
+        si = len(self)
+        ob = self.getObservation()
+        sv = self.getSingularValue()
+        ad = self._ad_str()
+        fmt = 'PcaPlotVector(size = %d, observation = %f, singular = %f) %s'
+        return fmt % (si, ob, sv, ad)

@@ -15,12 +15,27 @@
 #  for more details.
 import sys
 
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.util import StringList, IntegerHash
 
 
 class CustomKWConfig(BaseCClass):
+    TYPE_NAME = "custom_kw_config"
+
+    _alloc_empty           = EnkfPrototype("void* custom_kw_config_alloc_empty(char*, char*, char*)", bind = False)
+    _alloc_with_definition = EnkfPrototype("void* custom_kw_config_alloc_with_definition(char*, integer_hash)", bind = False)
+    _get_name              = EnkfPrototype("char* custom_kw_config_get_name(custom_kw_config)")
+    _get_result_file       = EnkfPrototype("char* custom_kw_config_get_result_file(custom_kw_config)")
+    _get_output_file       = EnkfPrototype("char* custom_kw_config_get_output_file(custom_kw_config)")
+    _parse_result_file     = EnkfPrototype("bool  custom_kw_config_parse_result_file(custom_kw_config, char*, stringlist)")
+    _has_key               = EnkfPrototype("bool  custom_kw_config_has_key(custom_kw_config, char*)")
+    _key_is_double         = EnkfPrototype("bool  custom_kw_config_key_is_double(custom_kw_config, char*)")
+    _index_of_key          = EnkfPrototype("int   custom_kw_config_index_of_key(custom_kw_config, char*)")
+    _size                  = EnkfPrototype("int   custom_kw_config_size(custom_kw_config)")
+    _keys                  = EnkfPrototype("stringlist_obj custom_kw_config_get_keys(custom_kw_config)")
+    _free                  = EnkfPrototype("void  custom_kw_config_free(custom_kw_config)")
+
     def __init__(self, key, result_file, output_file=None, definition=None):
         """
         @type key: str
@@ -34,42 +49,45 @@ class CustomKWConfig(BaseCClass):
                 sys.stderr.write("[%s] Will ignore result file and output file when constructing with a definition." % self.__class__.__name__)
 
             type_hash = CustomKWConfig.convertDefinition(definition)
-            c_ptr = CustomKWConfig.cNamespace().alloc_with_definition(key, type_hash)
+            c_ptr = self._alloc_with_definition(key, type_hash)
         else:
-            c_ptr = CustomKWConfig.cNamespace().alloc_empty(key, result_file, output_file)
+            c_ptr = self._alloc_empty(key, result_file, output_file)
         super(CustomKWConfig, self).__init__(c_ptr)
 
     def getName(self):
         """ @rtype: str """
-        return CustomKWConfig.cNamespace().get_name(self)
+        return self.name()
+
+    def name(self):
+        return self._get_name()
 
     def getResultFile(self):
         """ @rtype: str """
-        return CustomKWConfig.cNamespace().get_result_file(self)
+        return self._get_result_file()
 
     def getOutputFile(self):
         """ @rtype: str """
-        return CustomKWConfig.cNamespace().get_output_file(self)
+        return self._get_output_file()
 
     def parseResultFile(self, result_file, result):
         """ @rtype: bool """
-        return CustomKWConfig.cNamespace().parse_result_file(self, result_file, result)
+        return self._parse_result_file(result_file, result)
 
     def keyIsDouble(self, key):
         """ @rtype: bool """
-        return CustomKWConfig.cNamespace().key_is_double(self, key)
+        return self._key_is_double(key)
 
     def indexOfKey(self, key):
         """ @rtype: int """
-        return CustomKWConfig.cNamespace().index_of_key(self, key)
+        return self._index_of_key(key)
 
     def __contains__(self, item):
         """ @rtype: bool """
-        return CustomKWConfig.cNamespace().has_key(self, item)
+        return self._has_key(item)
 
     def __len__(self):
         """ @rtype: int """
-        return CustomKWConfig.cNamespace().size(self)
+        return self._size()
 
     def __iter__(self):
         keys = self.getKeys()
@@ -79,11 +97,14 @@ class CustomKWConfig(BaseCClass):
             index += 1
 
     def free(self):
-       CustomKWConfig.cNamespace().free(self)
+       self._free()
+
+    def __repr__(self):
+        return 'CustomKWConfig(name = %s, len = %d) %s' % (self.name(), len(self), self._ad_str())
 
     def getKeys(self):
         """ @rtype: StringList """
-        return CustomKWConfig.cNamespace().keys(self)
+        return self._keys()
 
     @classmethod
     def convertDefinition(cls, definition):
@@ -97,21 +118,3 @@ class CustomKWConfig(BaseCClass):
                 value_type = 0 #str
             type_hash[key] = value_type
         return type_hash
-
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("custom_kw_config", CustomKWConfig)
-
-CustomKWConfig.cNamespace().free = cwrapper.prototype("void custom_kw_config_free(custom_kw_config)")
-CustomKWConfig.cNamespace().alloc_empty = cwrapper.prototype("void* custom_kw_config_alloc_empty(char*, char*, char*)")
-CustomKWConfig.cNamespace().alloc_with_definition = cwrapper.prototype("void* custom_kw_config_alloc_with_definition(char*, integer_hash)")
-CustomKWConfig.cNamespace().get_name = cwrapper.prototype("char* custom_kw_config_get_name(custom_kw_config)")
-CustomKWConfig.cNamespace().get_result_file = cwrapper.prototype("char* custom_kw_config_get_result_file(custom_kw_config)")
-CustomKWConfig.cNamespace().get_output_file = cwrapper.prototype("char* custom_kw_config_get_output_file(custom_kw_config)")
-CustomKWConfig.cNamespace().parse_result_file = cwrapper.prototype("bool custom_kw_config_parse_result_file(custom_kw_config, char*, stringlist)")
-CustomKWConfig.cNamespace().has_key = cwrapper.prototype("bool custom_kw_config_has_key(custom_kw_config, char*)")
-CustomKWConfig.cNamespace().key_is_double = cwrapper.prototype("bool custom_kw_config_key_is_double(custom_kw_config, char*)")
-CustomKWConfig.cNamespace().index_of_key = cwrapper.prototype("int custom_kw_config_index_of_key(custom_kw_config, char*)")
-CustomKWConfig.cNamespace().size = cwrapper.prototype("int custom_kw_config_size(custom_kw_config)")
-CustomKWConfig.cNamespace().keys = cwrapper.prototype("stringlist_obj custom_kw_config_get_keys(custom_kw_config)")

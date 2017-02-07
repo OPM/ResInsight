@@ -13,23 +13,39 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.enums import RealizationStateEnum
 from ert.util import BoolVector
 
 
 class StateMap(BaseCClass):
+    TYPE_NAME = "state_map"
+
+    _alloc               = EnkfPrototype("void* state_map_alloc()", bind = False)
+    _fread               = EnkfPrototype("bool  state_map_fread(state_map , char*)")
+    _fwrite              = EnkfPrototype("void  state_map_fwrite(state_map , char*)")
+    _equal               = EnkfPrototype("bool  state_map_equal(state_map , state_map)")
+    _free                = EnkfPrototype("void  state_map_free(state_map)")
+    _size                = EnkfPrototype("int   state_map_get_size(state_map)")
+    _iget                = EnkfPrototype("realisation_state_enum state_map_iget(state_map, int)")
+    _iset                = EnkfPrototype("void  state_map_iset(state_map, int, realisation_state_enum)")
+    _select_matching     = EnkfPrototype("void  state_map_select_matching(state_map, bool_vector, realisation_state_enum)")
+    _is_read_only        = EnkfPrototype("bool  state_map_is_readonly(state_map)")
+    _is_legal_transition = EnkfPrototype("bool  state_map_legal_transition(realisation_state_enum, realisation_state_enum)", bind = False)
+
+
+
     def __init__(self , filename = None):
-        c_ptr = StateMap.cNamespace().alloc()
+        c_ptr = self._alloc()
         super(StateMap, self).__init__(c_ptr)
         if filename:
             self.load(filename)
-            
+
 
     def __len__(self):
         """ @rtype: int """
-        return StateMap.cNamespace().size(self)
+        return self._size()
 
     def __iter__(self):
         index = 0
@@ -40,7 +56,7 @@ class StateMap(BaseCClass):
             index += 1
 
     def __eq__(self , other):
-        return self.cNamespace().equal(self, other)
+        return self._equal(other)
 
 
     def __getitem__(self, index):
@@ -49,10 +65,11 @@ class StateMap(BaseCClass):
             raise TypeError("Expected an integer")
 
         size = len(self)
-        if index >= size:
-            raise IndexError("Index out of range: %d < %d" % (index, size))
-
-        return StateMap.cNamespace().iget(self, index)
+        if index < 0:
+            index += size
+        if 0 <= index < size:
+            return self._iget(index)
+        raise IndexError("Invalid index.  Valid range: [0, %d)" % size)
 
 
     def __setitem__(self, index, value):
@@ -66,23 +83,25 @@ class StateMap(BaseCClass):
             raise TypeError("Expected a RealizationStateEnum")
 
         if index < 0:
+            index += len(self)
+        if index < 0:
             raise IndexError("Index out of range: %d < 0" % index)
 
-        StateMap.cNamespace().iset(self, index, value)
+        self._iset(index, value)
 
-    @staticmethod
-    def isLegalTransition(realization_state1, realization_state2):
+    @classmethod
+    def isLegalTransition(cls, realization_state1, realization_state2):
         """ @rtype: bool """
 
         if not isinstance(realization_state1, RealizationStateEnum) or not isinstance(realization_state2, RealizationStateEnum):
             raise TypeError("Expected a RealizationStateEnum")
 
-        return StateMap.cNamespace().is_legal_transition(realization_state1, realization_state2)
+        return cls._is_legal_transition(realization_state1, realization_state2)
 
 
     def isReadOnly(self):
         """ @rtype: bool """
-        return StateMap.cNamespace().is_read_only(self)
+        return self._is_read_only()
 
     def selectMatching(self, select_target, select_mask):
         """
@@ -92,7 +111,7 @@ class StateMap(BaseCClass):
         assert isinstance(select_target, BoolVector)
         assert isinstance(select_mask, RealizationStateEnum)
 
-        StateMap.cNamespace().select_matching(self, select_target, select_mask)
+        self._select_matching(select_target, select_mask)
 
 
     def realizationList(self , state_value):
@@ -109,32 +128,16 @@ class StateMap(BaseCClass):
 
 
     def free(self):
-        StateMap.cNamespace().free(self)
+        self._free()
 
-    
+    def __repr__(self):
+        ro = 'read only' if self.isReadOnly() else 'read/write'
+        return 'StateMap(size = %d, %s) %s' % (len(self), ro, self._ad_str())
+
     def load(self,filename):
-        if not self.cNamespace().fread(self, filename):
+        if not self._fread(filename):
             raise IOError("Failed to load state map from:%s" % filename)
 
 
     def save(self, filename):
-        self.cNamespace().fwrite(self, filename)
-
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("state_map", StateMap)
-
-StateMap.cNamespace().alloc  = cwrapper.prototype("c_void_p state_map_alloc()")
-StateMap.cNamespace().fread  = cwrapper.prototype("bool state_map_fread(state_map , char*)")
-StateMap.cNamespace().fwrite = cwrapper.prototype("void state_map_fwrite(state_map , char*)")
-StateMap.cNamespace().equal  = cwrapper.prototype("bool state_map_equal(state_map , state_map)")
-StateMap.cNamespace().free   = cwrapper.prototype("void state_map_free(state_map)")
-StateMap.cNamespace().size   = cwrapper.prototype("int state_map_get_size(state_map)")
-StateMap.cNamespace().iget   = cwrapper.prototype("realisation_state_enum state_map_iget(state_map, int)")
-StateMap.cNamespace().iset   = cwrapper.prototype("void state_map_iset(state_map, int, realisation_state_enum)")
-StateMap.cNamespace().select_matching     = cwrapper.prototype("void state_map_select_matching(state_map, bool_vector, realisation_state_enum)")
-StateMap.cNamespace().is_read_only        = cwrapper.prototype("bool state_map_is_readonly(state_map)")
-StateMap.cNamespace().is_legal_transition = cwrapper.prototype("bool state_map_legal_transition(realisation_state_enum, realisation_state_enum)")
-
-
+        self._fwrite(filename)

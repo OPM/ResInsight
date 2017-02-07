@@ -180,4 +180,7 @@ void ext_joblist_add_jobs_in_directory(ext_joblist_type * joblist  , const char 
 }
 
 
+int ext_joblist_get_size( const ext_joblist_type * joblist ) {
+  return hash_get_size( joblist->jobs );
+}
 

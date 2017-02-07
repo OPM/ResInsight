@@ -205,13 +205,14 @@ class VectorTemplate(BaseCClass):
         """
         if isinstance(index, IntType):
             length = len(self)
-            if index < 0:
-                index += length
+            idx = index
+            if idx < 0:
+                idx += length
 
-            if index < 0 or index >= length:
-                raise IndexError("Index must be in range %d <= %d < %d" % (0, index, length))
+            if 0 <= idx < length:
+                return self._iget(idx)
             else:
-                return self._iget(index)
+                raise IndexError('Index must be in range %d <= %d < %d.' % (0, index, length))
         elif isinstance(index, SliceType):
             return self.strided_copy(index)
         else:
@@ -219,12 +220,19 @@ class VectorTemplate(BaseCClass):
 
     def __setitem__(self, index, value):
         """
-        Implements write [] operator - @index must be integer.
+        Implements write [] operator - @index must be integer or slice.
         """
+        ls = len(self)
         if isinstance(index, IntType):
-            self._iset(index, value)
+            idx = index
+            if idx < 0:
+                idx += ls
+            self._iset(idx, value)
+        elif isinstance( index, slice ):
+            for i in range(*index.indices(ls)):
+                self[i] = value
         else:
-            raise TypeError("Index should be integer type")
+            raise TypeError("Index should be integer type, not %s." % type(index))
 
     ##################################################################
     # Mathematical operations:
@@ -480,6 +488,9 @@ class VectorTemplate(BaseCClass):
 
     def free(self):
         self._free()
+
+    def __repr__(self):
+        return self._create_repr('size = %d' % len(self))
 
     def permute(self, permutation_vector):
         """

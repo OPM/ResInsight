@@ -39,6 +39,7 @@
 
 
 #define ECL_TYPE_NAME_CHAR     "CHAR"
+#define ECL_TYPE_NAME_C010     "C010"
 #define ECL_TYPE_NAME_FLOAT    "REAL"
 #define ECL_TYPE_NAME_INT      "INTE"
 #define ECL_TYPE_NAME_DOUBLE   "DOUB"
@@ -113,6 +114,9 @@ const char * ecl_util_get_type_name( ecl_type_enum ecl_type ) {
   case(ECL_CHAR_TYPE):
     return ECL_TYPE_NAME_CHAR ;
     break;
+  case(ECL_C010_TYPE):
+    return ECL_TYPE_NAME_C010;
+    break;
   case(ECL_FLOAT_TYPE):
     return ECL_TYPE_NAME_FLOAT;
     break;
@@ -146,6 +150,8 @@ ecl_type_enum ecl_util_get_type_from_name( const char * type_name ) {
     ecl_type = ECL_DOUBLE_TYPE;
   else if (strncmp( type_name , ECL_TYPE_NAME_CHAR , ECL_TYPE_LENGTH) == 0)
     ecl_type = ECL_CHAR_TYPE;
+  else if (strncmp( type_name , ECL_TYPE_NAME_C010 , ECL_TYPE_LENGTH) == 0)
+    ecl_type = ECL_C010_TYPE;
   else if (strncmp( type_name , ECL_TYPE_NAME_MESSAGE , ECL_TYPE_LENGTH) == 0)
     ecl_type = ECL_MESS_TYPE;
   else if (strncmp( type_name , ECL_TYPE_NAME_BOOL , ECL_TYPE_LENGTH) == 0)
@@ -161,7 +167,10 @@ ecl_type_enum ecl_util_get_type_from_name( const char * type_name ) {
 int ecl_util_get_sizeof_ctype_fortio(ecl_type_enum ecl_type) {
   int size = ecl_util_get_sizeof_ctype ( ecl_type );
   if (ecl_type == ECL_CHAR_TYPE)
-    size = ECL_STRING_LENGTH  * sizeof(char);
+    size = ECL_STRING8_LENGTH  * sizeof(char);
+
+  if (ecl_type == ECL_C010_TYPE)
+    size = ECL_STRING10_LENGTH  * sizeof(char);
 
   return size;
 }
@@ -176,7 +185,16 @@ int ecl_util_get_sizeof_ctype(ecl_type_enum ecl_type) {
        corresponds to the size requirements of ECL_CHAR_TYPE instance
        in memory; on disk the trailing \0 is not stored.
     */
-    sizeof_ctype = (ECL_STRING_LENGTH + 1) * sizeof(char);
+    sizeof_ctype = (ECL_STRING8_LENGTH + 1) * sizeof(char);
+    break;
+  case(ECL_C010_TYPE):
+    /*
+       One element of character data is a string section of 8
+       characters + \0.  Observe that the return value here
+       corresponds to the size requirements of ECL_CHAR_TYPE instance
+       in memory; on disk the trailing \0 is not stored.
+    */
+    sizeof_ctype = (ECL_STRING10_LENGTH + 1) * sizeof(char);
     break;
   case(ECL_FLOAT_TYPE):
     sizeof_ctype = sizeof(float);
@@ -1318,8 +1336,15 @@ static int ecl_util_get_num_slave_cpu__(basic_parser_type* parser, FILE* stream,
         if (first_item[0] == '/') {
           break;
         }
-        else
-          ++num_cpu;
+        else{
+                int no_of_tokens = stringlist_get_size(tokens);
+                int no_of_slaves =0;
+                if(no_of_tokens == 6 && util_sscanf_int(stringlist_iget(tokens, 4), &no_of_slaves)){
+                    num_cpu += no_of_slaves;
+                }else{
+                    ++num_cpu;
+                }
+            }
       }
       stringlist_free( tokens );
     }
@@ -1353,14 +1378,14 @@ int ecl_util_get_num_cpu(const char * data_file) {
 
 
 ert_ecl_unit_enum ecl_util_get_unit_set(const char * data_file) {
-  ert_ecl_unit_enum units = ERT_ECL_METRIC_UNITS;
+  ert_ecl_unit_enum units = ECL_METRIC_UNITS;
   basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   FILE * stream = util_fopen(data_file , "r");
 
   if (basic_parser_fseek_string( parser , stream , "FIELD" , true , true)) {  /* Seeks case insensitive. */
-    units = ERT_ECL_FIELD_UNITS;
+    units = ECL_FIELD_UNITS;
   } else if (basic_parser_fseek_string( parser , stream , "LAB" , true , true)) {  /* Seeks case insensitive. */
-    units = ERT_ECL_LAB_UNITS;
+    units = ECL_LAB_UNITS;
   }
 
   basic_parser_free( parser );

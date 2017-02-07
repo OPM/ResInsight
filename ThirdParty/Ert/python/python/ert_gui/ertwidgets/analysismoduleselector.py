@@ -7,7 +7,7 @@ from ert_gui.ertwidgets.analysismodulevariablespanel import AnalysisModuleVariab
 
 
 class AnalysisModuleSelector(QWidget):
-    def __init__(self, iterable=False, help_link=""):
+    def __init__(self, iterable=False, load_all = False, help_link=""):
         QWidget.__init__(self)
         self._iterable = iterable
 
@@ -17,13 +17,16 @@ class AnalysisModuleSelector(QWidget):
 
         analysis_module_combo = QComboBox()
 
-        module_names = getAnalysisModuleNames(self._iterable)
-        for module_name in module_names:
+        self._module_names = getAnalysisModuleNames(self._iterable)
+        if load_all:
+            self._module_names += getAnalysisModuleNames(not self._iterable)
+
+        for module_name in self._module_names:
             analysis_module_combo.addItem(module_name)
 
         self._current_module_name = self._getCurrentAnalysisModuleName()
         if self._current_module_name is not None:
-            analysis_module_combo.setCurrentIndex(module_names.index(self._current_module_name))
+            analysis_module_combo.setCurrentIndex(self._module_names.index(self._current_module_name))
 
         analysis_module_combo.currentIndexChanged[int].connect(self.analysisModuleChanged)
 
@@ -40,12 +43,11 @@ class AnalysisModuleSelector(QWidget):
         self.setLayout(layout)
 
     def analysisModuleChanged(self, index):
-        modules = getAnalysisModuleNames(self._iterable)
-        self._current_module_name = modules[index]
+        self._current_module_name = self._module_names[index]
 
     def _getCurrentAnalysisModuleName(self):
         active_name = getCurrentAnalysisModuleName()
-        modules = getAnalysisModuleNames(self._iterable)
+        modules = self._module_names
 
         if active_name in modules:
             return active_name

@@ -52,6 +52,7 @@
 #define INVALID_TRUNCATION          -1
 #define DEFAULT_SUBSPACE_DIMENSION  INVALID_SUBSPACE_DIMENSION
 #define DEFAULT_USE_EE              false
+#define DEFAULT_USE_GE              false
 #define DEFAULT_ANALYSIS_SCALE_DATA true
 
 
@@ -86,6 +87,7 @@ struct std_enkf_data_struct {
   int       subspace_dimension;    // Controlled by config key: ENKF_NCOMP_KEY (-1: use Truncation instead)
   long      option_flags;
   bool      use_EE;
+  bool      use_GE;
   bool      analysis_scale_data;
 };
 
@@ -133,6 +135,7 @@ void * std_enkf_data_alloc( rng_type * rng) {
   std_enkf_set_subspace_dimension( data , DEFAULT_SUBSPACE_DIMENSION );
   data->option_flags = ANALYSIS_NEED_ED;
   data->use_EE = DEFAULT_USE_EE;
+  data->use_GE = DEFAULT_USE_GE;
   data->analysis_scale_data = DEFAULT_ANALYSIS_SCALE_DATA;
   return data;
 }
@@ -153,7 +156,8 @@ static void std_enkf_initX__( matrix_type * X ,
                               double truncation,
                               int    ncomp,
                               bool   bootstrap ,
-                              bool   use_EE) {
+                              bool   use_EE ,
+                              bool   use_GE) {
 
   int nrobs         = matrix_get_rows( S );
   int ens_size      = matrix_get_columns( S );
@@ -165,17 +169,24 @@ static void std_enkf_initX__( matrix_type * X ,
   matrix_subtract_row_mean( S );           /* Shift away the mean */
 
   if (use_EE) {
-    matrix_type * Et = matrix_alloc_transpose( E );
-    matrix_type * Cee = matrix_alloc_matmul( E , Et );
-    matrix_scale( Cee , 1.0 / (ens_size - 1));
+     if (use_GE) {
+       enkf_linalg_lowrankE( S , E , W , eig , truncation , ncomp);
+     }
+     else {
+       matrix_type * Et = matrix_alloc_transpose( E );
+       matrix_type * Cee = matrix_alloc_matmul( E , Et );
+       matrix_scale( Cee , 1.0 / (ens_size - 1));
 
-    enkf_linalg_lowrankCinv( S , Cee , W , eig , truncation , ncomp);
+       enkf_linalg_lowrankCinv( S , Cee , W , eig , truncation , ncomp);
 
-    matrix_free( Et );
-    matrix_free( Cee );
-  } else
+       matrix_free( Et );
+       matrix_free( Cee );
+     }
+
+  }
+  else {
     enkf_linalg_lowrankCinv( S , R , W , eig , truncation , ncomp);
-
+  }
 
   enkf_linalg_init_stdX( X , S , D , W , eig , bootstrap);
 
@@ -203,7 +214,7 @@ void std_enkf_initX(void * module_data ,
     int ncomp         = data->subspace_dimension;
     double truncation = data->truncation;
 
-    std_enkf_initX__(X,S,R,E,D,truncation,ncomp,false,data->use_EE);
+    std_enkf_initX__(X,S,R,E,D,truncation,ncomp,false,data->use_EE,data->use_GE);
   }
 }
 
@@ -250,6 +261,8 @@ bool std_enkf_set_bool( void * arg , const char * var_name , bool value) {
 
     if (strcmp( var_name , USE_EE_KEY_) == 0)
       module_data->use_EE = value;
+    else if (strcmp( var_name , USE_GE_KEY_) == 0)
+      module_data->use_GE = value;
     else if (strcmp( var_name , ANALYSIS_SCALE_DATA_KEY_) == 0)
       module_data->analysis_scale_data = value;
     else
@@ -274,6 +287,8 @@ bool std_enkf_has_var( const void * arg, const char * var_name) {
     else if (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0)
       return true;
     else if (strcmp(var_name , USE_EE_KEY_) == 0)
+      return true;
+    else if (strcmp(var_name , USE_GE_KEY_) == 0)
       return true;
     else if (strcmp(var_name , ANALYSIS_SCALE_DATA_KEY_) == 0)
       return true;
@@ -308,7 +323,9 @@ bool std_enkf_get_bool( const void * arg, const char * var_name) {
   {
     if (strcmp(var_name , USE_EE_KEY_) == 0)
       return module_data->use_EE;
-    if (strcmp(var_name , ANALYSIS_SCALE_DATA_KEY_) == 0)
+    else if (strcmp(var_name , USE_GE_KEY_) == 0)
+      return module_data->use_GE;
+    else if (strcmp(var_name , ANALYSIS_SCALE_DATA_KEY_) == 0)
       return module_data->analysis_scale_data;
     else
       return false;

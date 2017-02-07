@@ -341,7 +341,7 @@ field_file_format_type field_config_guess_file_type(const char * filename ) {
     file_type = ECL_KW_FILE;
   else if (rms_file_is_roff(stream))
     file_type = RMS_ROFF_FILE;
-  else if (ecl_kw_is_grdecl_file(stream))  /* This is the weakest test - and should be last in a cascading if / else hierarchy. */
+  else if (ecl_kw_grdecl_fseek_next_kw(stream))  /* This is the weakest test - and should be last in a cascading if / else hierarchy. */
     file_type = ECL_GRDECL_FILE;
   else
     file_type = UNDEFINED_FORMAT;              /* MUST Check on this return value */
@@ -431,6 +431,7 @@ field_config_type * field_config_alloc_empty( const char * ecl_kw_name , ecl_gri
   config->__enkf_mode         = true;
   config->grid                = NULL;
   config->write_compressed    = true;
+  config->type                = UNKNOWN_FIELD_TYPE;
 
   config->output_transform      = NULL;
   config->input_transform       = NULL;

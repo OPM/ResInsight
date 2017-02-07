@@ -76,7 +76,3 @@ from .install_abort_signals import installAbortSignals, updateAbortSignals
 from .profiler import Profiler
 from .arg_pack import ArgPack
 from .path_format import PathFormat
-
-# This is only imported for the prototype side-effect; no symbols from
-# this module are actually used.
-import cstring

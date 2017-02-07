@@ -76,7 +76,12 @@ void enkf_linalg_lowrankCinv(const matrix_type * S ,
                              double truncation     ,
                              int    ncomp);
 
-
+void enkf_linalg_lowrankE(const matrix_type * S , /* (nrobs x nrens) */
+                          const matrix_type * E , /* (nrobs x nrens) */
+                          matrix_type * W       , /* (nrobs x nrmin) Corresponding to X1 from Eqs. 14.54-14.55 */
+                          double * eig          , /* (nrmin)         Corresponding to 1 / (1 + Lambda1^2) (14.54) */
+                          double truncation     ,
+                          int    ncomp);
 
 void enkf_linalg_genX2(matrix_type * X2 , const matrix_type * S , const matrix_type * W , const double * eig);
 void enkf_linalg_genX3(matrix_type * X3 , const matrix_type * W , const matrix_type * D , const double * eig);

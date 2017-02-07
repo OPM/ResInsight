@@ -476,6 +476,23 @@ double gen_data_iget_double(const gen_data_type * gen_data, int index) {
 }
 
 
+
+void gen_data_iset_double(gen_data_type * gen_data, int index, double value) {
+  gen_data_assert_index(gen_data , index);
+  {
+    ecl_type_enum internal_type = gen_data_config_get_internal_type(gen_data->config);
+    if (internal_type == ECL_DOUBLE_TYPE) {
+      double * data = (double *) gen_data->data;
+      data[index] = value;
+    } else {
+      float * data = (float *) gen_data->data;
+      data[index] = value;
+    }
+  }
+}
+
+
+
 void gen_data_export_data(const gen_data_type * gen_data , double_vector_type * export_data) {
   ecl_type_enum internal_type = gen_data_config_get_internal_type(gen_data->config);
   if (internal_type == ECL_DOUBLE_TYPE)

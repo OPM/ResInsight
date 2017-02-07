@@ -132,6 +132,7 @@ from ert_gui.tools.load_results import LoadResultsTool
 from ert_gui.tools.manage_cases import ManageCasesTool
 from ert_gui.tools.plot import PlotTool
 from ert_gui.tools.plugins import PluginHandler, PluginsTool
+from ert_gui.tools.run_analysis import RunAnalysisTool
 from ert_gui.tools.workflows import WorkflowsTool
 
 if os.getenv("ERT_SHARE_PATH"):
@@ -230,6 +231,7 @@ def main(argv):
     window.addTool(WorkflowsTool())
     window.addTool(ManageCasesTool())
     window.addTool(PluginsTool(plugin_handler))
+    window.addTool(RunAnalysisTool())
     window.addTool(LoadResultsTool())
     window.addTool(help_tool)
 

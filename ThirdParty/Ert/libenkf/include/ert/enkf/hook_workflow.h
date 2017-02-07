@@ -30,7 +30,9 @@ extern "C" {
 
 
   typedef enum {PRE_SIMULATION  = 0,
-                POST_SIMULATION = 1} hook_run_mode_enum;
+                POST_SIMULATION = 1,
+                PRE_UPDATE      = 2,
+                POST_UPDATE     = 3} hook_run_mode_enum;
 
   typedef struct hook_workflow_struct hook_workflow_type;
 

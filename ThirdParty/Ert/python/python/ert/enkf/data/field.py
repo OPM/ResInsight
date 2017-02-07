@@ -15,18 +15,24 @@
 #  for more details.
 import sys
 
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import FieldConfig
 
 
 class Field(BaseCClass):
+    TYPE_NAME = "field"
+
+    _free           = EnkfPrototype("void field_free( field )")
+    _ijk_get_double = EnkfPrototype("double field_ijk_get_double(field, int, int, int)")
+    _export         = EnkfPrototype("void field_export(field, char* , fortio , enkf_field_file_format_enum , bool , char*)")
+
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
     
     def ijk_get_double(self, i, j, k):
-        return Field.cNamespace().ijk_get_double(self, i, j, k)
+        return self._ijk_get_double(i, j, k)
 
     
     def export(self , filename , file_type = None , init_file = None):
@@ -38,19 +44,9 @@ class Field(BaseCClass):
                 sys.stderr.write("Sorry - could not infer output format from filename:%s\n" % filename)
                 return False
 
-        Field.cNamespace().export(self , filename , None , file_type , output_transform , init_file )
+        self._export(filename , None , file_type , output_transform , init_file )
         return True
 
     
     def free(self):
-        Field.cNamespace().free(self)
-
-
-##################################################################
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("field", Field)
-
-Field.cNamespace().free = cwrapper.prototype("void field_free( field )")
-Field.cNamespace().ijk_get_double = cwrapper.prototype("double field_ijk_get_double(field, int, int, int)")
-Field.cNamespace().export = cwrapper.prototype("void field_export(field, char* , fortio , enkf_field_file_format_enum , bool , char*)")
+        self._free()

@@ -521,7 +521,7 @@ ecl_config_type * ecl_config_alloc()
   ecl_config->static_kw_set = set_alloc_empty();
   ecl_config->user_static_kw = stringlist_alloc_new();
   ecl_config->num_cpu = 1; /* This must get a valid default in case no ECLIPSE datafile is provided. */
-  ecl_config->unit_system = ERT_ECL_METRIC_UNITS;
+  ecl_config->unit_system = ECL_METRIC_UNITS;
   ecl_config->data_file = NULL;
   ecl_config->input_init_section = NULL;
   ecl_config->init_section = NULL;
@@ -983,11 +983,11 @@ void ecl_config_fprintf_config(const ecl_config_type * ecl_config, FILE * stream
 const char * ecl_config_get_depth_unit(const ecl_config_type * ecl_config)
 {
   switch(ecl_config->unit_system) {
-  case ERT_ECL_METRIC_UNITS:
+  case ECL_METRIC_UNITS:
     return "M";
-  case ERT_ECL_FIELD_UNITS:
+  case ECL_FIELD_UNITS:
     return "FT";
-  case ERT_ECL_LAB_UNITS:
+  case ECL_LAB_UNITS:
     return "CM";
   default:
     util_abort("%s: unit system enum value:%d not recognized \n",__func__ , ecl_config->unit_system);
@@ -999,11 +999,11 @@ const char * ecl_config_get_depth_unit(const ecl_config_type * ecl_config)
 const char * ecl_config_get_pressure_unit(const ecl_config_type * ecl_config)
 {
   switch(ecl_config->unit_system) {
-  case ERT_ECL_METRIC_UNITS:
+  case ECL_METRIC_UNITS:
     return "BARSA";
-  case ERT_ECL_FIELD_UNITS:
+  case ECL_FIELD_UNITS:
     return "PSIA";
-  case ERT_ECL_LAB_UNITS:
+  case ECL_LAB_UNITS:
     return "ATMA";
   default:
     util_abort("%s: unit system enum value:%d not recognized \n",__func__ , ecl_config->unit_system);

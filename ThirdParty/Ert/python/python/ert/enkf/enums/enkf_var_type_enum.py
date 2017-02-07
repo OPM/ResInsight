@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class EnkfVarType(BaseCEnum):
+    TYPE_NAME        = "enkf_var_type_enum"
     INVALID_VAR = None
     PARAMETER = None
     DYNAMIC_STATE = None
@@ -32,7 +31,3 @@ EnkfVarType.addEnum("DYNAMIC_STATE", 2)
 EnkfVarType.addEnum("DYNAMIC_RESULT", 4)
 EnkfVarType.addEnum("STATIC_STATE", 8)
 EnkfVarType.addEnum("INDEX_STATE", 16)
-EnkfVarType.registerEnum(ENKF_LIB, "enkf_var_type_enum")
-
-
-

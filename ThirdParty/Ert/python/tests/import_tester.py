@@ -7,7 +7,11 @@ class ImportTester(object):
     @staticmethod
     def testImport(module):
         try:
-            # print(module)
+            if '__pycache__' in str(module):
+                # python 3 hack
+                return True
+            else:
+                print('Importing module %s.' % str(module))
             __import__(module)
             return True
         except ImportError:

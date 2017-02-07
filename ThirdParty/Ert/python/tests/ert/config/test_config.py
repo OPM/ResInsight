@@ -17,7 +17,7 @@
 import os
 
 import ert
-from ert.config import ContentTypeEnum, UnrecognizedEnum, SchemaItem, ContentItem, ContentNode, ConfigParser, ConfigContent
+from ert.config import ContentTypeEnum, UnrecognizedEnum, SchemaItem, ContentItem, ContentNode, ConfigParser, ConfigContent,ConfigSettings
 from cwrap import Prototype, clib
 from ert.test import ExtendedTestCase, TestAreaContext
 
@@ -137,6 +137,49 @@ class ConfigTest(ExtendedTestCase):
             self.assertFalse( content.isValid() )
             self.assertEqual( len(content.getErrors()) , 1 )
 
+
+    def test_parse_deprecated(self):
+        conf = ConfigParser()
+        item = conf.add("INT", value_type = ContentTypeEnum.CONFIG_INT )
+        msg = "ITEM INT IS DEPRECATED"
+        item.setDeprecated( msg )
+        with TestAreaContext("config/parse2"):
+            with open("config","w") as fileH:
+                fileH.write("INT 100\n")
+
+            content = conf.parse("config"  )
+            self.assertTrue( content.isValid() )
+
+            warnings = content.getWarnings()
+            self.assertEqual( len(warnings) , 1 )
+            self.assertEqual( warnings[0] , msg )
+
+
+    def test_parse_dotdot_relative(self):
+        conf = ConfigParser()
+        schema_item = conf.add("EXECUTABLE", False)
+        schema_item.iset_type(0 , ContentTypeEnum.CONFIG_PATH )
+        
+        
+        with TestAreaContext("config/parse_dotdot"):
+            os.makedirs("cwd/jobs")
+            os.makedirs("eclipse/bin")
+            script_path = os.path.join( os.getcwd() , "eclipse/bin/script.sh")
+            with open(script_path,"w") as f:
+                f.write("This is a test script")
+
+            with open("cwd/jobs/JOB","w") as fileH:
+                fileH.write("EXECUTABLE ../../eclipse/bin/script.sh\n")
+
+            os.makedirs("cwd/ert")
+            os.chdir("cwd/ert")
+            content = conf.parse("../jobs/JOB")
+            item = content["EXECUTABLE"]
+            node = item[0]
+            self.assertEqual( script_path , node.getPath( ))
+            
+
+
             
             
     def test_parser_content(self):
@@ -233,7 +276,91 @@ class ConfigTest(ExtendedTestCase):
         self.assertEqual(schema_item.iget_type(0), ContentTypeEnum.CONFIG_INT)
         schema_item.set_argc_minmax(3, 6)
 
+        self.assertTrue( SchemaItem.validString( ContentTypeEnum.CONFIG_INT , "100") )
+        self.assertFalse( SchemaItem.validString( ContentTypeEnum.CONFIG_INT , "100.99") )
+        self.assertTrue( SchemaItem.validString( ContentTypeEnum.CONFIG_FLOAT , "100.99") )
+        self.assertFalse( SchemaItem.validString( ContentTypeEnum.CONFIG_FLOAT , "100.99X") )
+        self.assertTrue( SchemaItem.validString( ContentTypeEnum.CONFIG_STRING , "100.99XX") )
+        self.assertTrue( SchemaItem.validString( ContentTypeEnum.CONFIG_PATH , "100.99XX") )
+        
+        
         del schema_item
 
 
+    
+
+    def test_settings(self):
+        cs = ConfigSettings("SETTINGS")
+        
+        with self.assertRaises(TypeError):
+            cs.addSetting("SETTING1" , ContentTypeEnum.CONFIG_INT , 100.67)
             
+        self.assertFalse( "SETTING1" in cs )
+        cs.addSetting("SETTING2" , ContentTypeEnum.CONFIG_INT , 100)
+        self.assertTrue( "SETTING2" in cs )
+
+        with self.assertRaises(KeyError):
+            value = cs["NO_SUCH_KEY"]
+
+        self.assertEqual( cs["SETTING2"] , 100 )
+
+        with self.assertRaises(KeyError):
+            cs["NO_SUCH_KEY"] = 100
+
+
+        parser = ConfigParser()
+        cs = ConfigSettings("SETTINGS")
+        cs.addSetting("A" , ContentTypeEnum.CONFIG_INT , 1)
+        cs.addSetting("B" , ContentTypeEnum.CONFIG_INT , 1)
+        cs.addSetting("C" , ContentTypeEnum.CONFIG_INT , 1)
+        cs.initParser( parser )
+
+        
+        with TestAreaContext("config/parse3"):
+            with open("config","w") as fileH:
+                fileH.write("SETTINGS A 100\n")
+                fileH.write("SETTINGS B 200\n")
+                fileH.write("SETTINGS C 300\n")
+
+            content = parser.parse( "config" )
+        cs.apply( content )
+        self.assertEqual( cs["A"] , 100)
+        self.assertEqual( cs["B"] , 200)
+        self.assertEqual( cs["C"] , 300)
+            
+        keys = cs.keys()
+        self.assertTrue("A" in keys )
+        self.assertTrue("B" in keys )
+        self.assertTrue("C" in keys )
+        self.assertEqual( len(keys) , 3 )
+
+        cs = ConfigSettings("SETTINGS")
+        cs.addDoubleSetting("A" , 1.0)
+        self.assertEqual( ContentTypeEnum.CONFIG_FLOAT , cs.getType("A"))
+        
+        cs = ConfigSettings("SETTINGS")
+        cs.addDoubleSetting("A" , 1.0)
+        cs.addIntSetting("B" , 1)
+        cs.addStringSetting("C" , "1")
+        cs.addBoolSetting("D" ,  True)
+        cs.initParser( parser )
+
+        with TestAreaContext("config/parse4"):
+            with open("config","w") as fileH:
+                fileH.write("SETTINGS A 100.1\n")
+                fileH.write("SETTINGS B 200\n")
+                fileH.write("SETTINGS C 300\n")
+                fileH.write("SETTINGS D False\n")
+
+            content = parser.parse( "config" )
+
+        cs.apply( content )
+        self.assertEqual( cs["A"] , 100.1)
+        self.assertEqual( cs["B"] , 200)
+        self.assertEqual( cs["C"] , "300")
+        self.assertEqual( cs["D"] , False)
+
+        with self.assertRaises(Exception):
+            cs["A"] = "Hei"
+
+

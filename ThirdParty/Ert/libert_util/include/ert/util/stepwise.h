@@ -11,7 +11,7 @@ extern "C" {
   typedef struct stepwise_struct stepwise_type;
 
 
-  stepwise_type * stepwise_alloc1(int nsample, int nvar, rng_type * rng);
+  stepwise_type * stepwise_alloc1(int nsample, int nvar, rng_type * rng, const matrix_type* St, const matrix_type* Et);
   stepwise_type * stepwise_alloc0(rng_type * rng);
   void            stepwise_free( stepwise_type * stepwise);
 

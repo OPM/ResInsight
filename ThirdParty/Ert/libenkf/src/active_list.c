@@ -50,7 +50,6 @@ a fault object. Then the code will be like:
 
 
    ....
-   active_list_reset(multflt_config->active_list);
    active_list_add_index(multflt_config->active_list , 0);
    active_list_add_index(multflt_config->active_list , 4);
    active_list_add_index(multflt_config->active_list , 5);
@@ -119,22 +118,13 @@ void active_list_free__( void * arg ) {
 
 
 
-
-
-/*
-  Setting the counter back to zero - i.e. a call to
-  active_list_reset() will mean that we have *NO* active elements.
-*/
-void active_list_reset(active_list_type * active_list) {
-  int_vector_reset( active_list->index_list );
-}
-
-
 /**
    Appends a new index to the current list of active indices, and
    setting the mode to PARTLY_ACTIVE.
 */
 void active_list_add_index(active_list_type * active_list, int new_index) {
+  if (int_vector_contains(active_list->index_list , new_index ))
+    return;
   active_list->mode = PARTLY_ACTIVE;
   int_vector_append( active_list->index_list , new_index );
 }

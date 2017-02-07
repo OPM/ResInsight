@@ -37,8 +37,8 @@ UTIL_SAFE_CAST_HEADER_CONST(hash);
 
 void              hash_lock  (hash_type * );
 void              hash_unlock(hash_type * );
-hash_type       * hash_alloc();
-hash_type       * hash_alloc_unlocked();
+hash_type       * hash_alloc(void);
+hash_type       * hash_alloc_unlocked(void);
 void              hash_iter_complete(hash_type * );
 void              hash_free(hash_type *);
 void              hash_free__(void *);

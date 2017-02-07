@@ -15,32 +15,53 @@
 #  for more details.
 import os.path
 
-from cwrap import BaseCClass, CWrapper, CFILE
+from cwrap import BaseCClass, CFILE
 
 from ert.util import DoubleVector
-
-from ert.enkf import ENKF_LIB
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import GenKwConfig
 
 
 class GenKw(BaseCClass):
+    TYPE_NAME = "gen_kw"
+    _alloc             = EnkfPrototype("void*  gen_kw_alloc(gen_kw_config)", bind = False)
+    _free              = EnkfPrototype("void   gen_kw_free(gen_kw_config)")
+    _export_parameters = EnkfPrototype("void   gen_kw_write_export_file(gen_kw , FILE)")
+    _export_template   = EnkfPrototype("void   gen_kw_ecl_write_template(gen_kw , char* )")
+    _data_iget         = EnkfPrototype("double gen_kw_data_iget(gen_kw, int, bool)")
+    _data_iset         = EnkfPrototype("void   gen_kw_data_iset(gen_kw, int, double)")
+    _set_values        = EnkfPrototype("void   gen_kw_data_set_vector(gen_kw, double_vector)")
+    _data_get          = EnkfPrototype("double gen_kw_data_get(gen_kw, char*, bool)")
+    _data_set          = EnkfPrototype("void   gen_kw_data_set(gen_kw, char*, double)")
+    _size              = EnkfPrototype("int    gen_kw_data_size(gen_kw)")
+    _has_key           = EnkfPrototype("bool   gen_kw_data_has_key(gen_kw, char*)")
+    _ecl_write         = EnkfPrototype("void   gen_kw_ecl_write(gen_kw,    char* , char* , FILE)")
+    _iget_key          = EnkfPrototype("char*  gen_kw_get_name(gen_kw, int)")
+    
+
     def __init__(self, gen_kw_config):
         """
          @type gen_kw_config: GenKwConfig
         """
-        c_ptr = GenKw.cNamespace().alloc(gen_kw_config)
-        super(GenKw, self).__init__(c_ptr)
+        c_ptr = self._alloc(gen_kw_config)
+
+        if c_ptr:
+            super(GenKw, self).__init__(c_ptr)
+            self.__str__ = self.__repr__
+        else:
+            raise ValueError('Cannot issue a GenKw from the given keyword config: %s.' % str(gen_kw_config))
+    
 
     def exportParameters(self, file_name):
         """ @type: str """
         with open(file_name , "w") as py_file:
             cfile  = CFILE( py_file )
-            GenKw.cNamespace().export_parameters(self, cfile)
+            self._export_parameters(cfile)
 
 
     def exportTemplate(self, file_name):
         """ @type: str """
-        GenKw.cNamespace().export_template(self, file_name)
+        self._export_template(file_name)
 
 
     def __getitem__(self, key):
@@ -52,11 +73,11 @@ class GenKw(BaseCClass):
         if isinstance(key, str):
             if not key in self:
                 raise KeyError("Key %s does not exist" % (key))
-            return GenKw.cNamespace().data_get(self, key, do_transform)
+            return self._data_get(key, do_transform)
         elif isinstance(key, int):
             if not 0 <= key < len(self):
                 raise IndexError("Index out of range 0 <= %d < %d" % (key, len(self)))
-            return GenKw.cNamespace().data_iget(self, key, do_transform)
+            return self._data_iget(key, do_transform)
         else:
             raise TypeError("Illegal type for indexing, must be int or str, got: %s" % (key))
 
@@ -69,33 +90,39 @@ class GenKw(BaseCClass):
         if isinstance(key, str):
             if not key in self:
                 raise KeyError("Key %s does not exist" % (key))
-            GenKw.cNamespace().data_set(self, key, value)
+            self._data_set(key, value)
         elif isinstance(key, int):
             if not 0 <= key < len(self):
                 raise IndexError("Index out of range 0 <= %d < %d" % (key, len(self)))
-            GenKw.cNamespace().data_iset(self, key, value)
+            self._data_iset(key, value)
         else:
             raise TypeError("Illegal type for indexing, must be int or str, got: %s" % (key))
 
 
+    def items(self):
+        do_transform = False
+        v = []
+        for index in range(len(self)):
+            v.append( ( self._iget_key( index ) ,
+                        self._data_iget(index, do_transform)) )
+        return v
+
+        
     def eclWrite(self , path , filename , export_file = None):
         if not path is None:
             if not os.path.isdir(path):
                 raise IOError("The directory:%s does not exist" % path)
-                
-                
         if export_file:
             with open(export_file , "w") as fileH:
-                GenKw.cNamespace().ecl_write(self , path , filename , CFILE( fileH ))
+                self._ecl_write(path , filename , CFILE( fileH ))
         else:
-            GenKw.cNamespace().ecl_write(self , path , filename , None )
+            self._ecl_write( path , filename , None )
 
-            
 
     def setValues(self , values):
         if len(values) == len(self):
             if isinstance(values , DoubleVector):
-                GenKw.cNamespace().set_values( self , d )
+                self._set_values( d )
             else:
                 d = DoubleVector()
                 for (index,v) in enumerate(values):
@@ -103,36 +130,23 @@ class GenKw(BaseCClass):
                         d[index] = v
                     else:
                         raise TypeError("Values must numeric: %s is invalid" % v)
-                GenKw.cNamespace().set_values( self , d )
+                self._set_values( d )
         else:
             raise ValueError("Size mismatch between GenKW and values")
 
     def __len__(self):
         """ @rtype: int """
-        return GenKw.cNamespace().size(self)
+        return self._size( )
 
+    
     def __contains__(self, item):
-        return GenKw.cNamespace().has_key(self, item)
+        return self._has_key(item)
 
 
     def free(self):
-        GenKw.cNamespace().free(self)
+        self._free()
+
+    def __repr__(self):
+        return 'GenKw(len = %d) at 0x%x' % (len(self), self._address())
 
 
-    ##################################################################
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("gen_kw", GenKw)
-
-GenKw.cNamespace().free = cwrapper.prototype("void gen_kw_free(gen_kw_config)")
-GenKw.cNamespace().alloc = cwrapper.prototype("c_void_p gen_kw_alloc(gen_kw_config)")
-GenKw.cNamespace().export_parameters = cwrapper.prototype("void gen_kw_write_export_file(gen_kw , FILE)")
-GenKw.cNamespace().export_template = cwrapper.prototype("void gen_kw_ecl_write_template(gen_kw , char* )")
-GenKw.cNamespace().data_iget = cwrapper.prototype("double gen_kw_data_iget(gen_kw, int, bool)")
-GenKw.cNamespace().data_iset = cwrapper.prototype("void gen_kw_data_iset(gen_kw, int, double)")
-GenKw.cNamespace().set_values = cwrapper.prototype("void gen_kw_data_set_vector(gen_kw, double_vector)")
-GenKw.cNamespace().data_get = cwrapper.prototype("double gen_kw_data_get(gen_kw, char*, bool)")
-GenKw.cNamespace().data_set = cwrapper.prototype("void gen_kw_data_set(gen_kw, char*, double)")
-GenKw.cNamespace().size = cwrapper.prototype("int gen_kw_data_size(gen_kw)")
-GenKw.cNamespace().has_key = cwrapper.prototype("bool gen_kw_data_has_key(gen_kw, char*)")
-GenKw.cNamespace().ecl_write = cwrapper.prototype("void gen_kw_ecl_write(gen_kw, char* , char* , FILE)")

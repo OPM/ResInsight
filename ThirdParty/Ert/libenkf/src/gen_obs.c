@@ -319,7 +319,7 @@ void gen_obs_measure(const gen_obs_type * gen_obs , const gen_data_type * gen_da
           if (!bool_vector_iget( forward_model_active , data_index ))
             continue;  /* Forward model has deactivated this index - just continue. */
         }
-        meas_block_iset( meas_block , node_id.iens , index , gen_data_iget_double( gen_data , gen_obs->data_index_list[iobs] ));
+        meas_block_iset( meas_block , node_id.iens , index , gen_data_iget_double( gen_data , data_index ));
       }
     }
   }
@@ -335,17 +335,17 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
   }
 
   {
-    int iobs;
-    active_mode_type active_mode                  = active_list_get_mode( __active_list );
-    obs_block_type * obs_block                    = obs_data_add_block( obs_data , gen_obs->obs_key , gen_obs->obs_size , NULL , false);
+    active_mode_type active_mode = active_list_get_mode( __active_list );
+    int active_size              = active_list_get_active_size( __active_list , gen_obs->obs_size );
+    obs_block_type * obs_block   = obs_data_add_block( obs_data , gen_obs->obs_key , active_size , NULL , false);
 
     if (active_mode == ALL_ACTIVE) {
-      for (iobs = 0; iobs < gen_obs->obs_size; iobs++)
+      for (int iobs = 0; iobs < gen_obs->obs_size; iobs++)
         obs_block_iset( obs_block , iobs , gen_obs->obs_data[iobs] , IGET_SCALED_STD( gen_obs , iobs ));
 
       /* Setting some of the elements as missing, i.e. deactivated by the forward model. */
       if (forward_model_active != NULL) {
-        for (iobs = 0; iobs < gen_obs->obs_size; iobs++) {
+        for (int iobs = 0; iobs < gen_obs->obs_size; iobs++) {
           int data_index = gen_obs->data_index_list[ iobs ];
           if (!bool_vector_iget( forward_model_active , data_index ))
             obs_block_iset_missing( obs_block , iobs );
@@ -354,15 +354,27 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
     } else if (active_mode == PARTLY_ACTIVE) {
       const int   * active_list    = active_list_get_active( __active_list );
       int active_size              = active_list_get_active_size( __active_list , gen_obs->obs_size);
-      int index;
+      /*
+	There are three different indices active at the same time here:
 
-      for (index = 0; index < active_size; index++) {
-        iobs = active_list[index];
-	obs_block_iset( obs_block , iobs , gen_obs->obs_data[iobs] , IGET_SCALED_STD( gen_obs , iobs ));
+	  active_index : [0 ... active_size> - running over the size of
+     	                 the current local observation.
+
+      	  iobs : [0 ... size(obs)> - running over the complete size of
+                  	 the observation node.
+
+          data_index : The index in the data space corresponding to
+                         the observation index iobs.
+
+      */
+
+      for (int active_index = 0; active_index < active_size; active_index++) {
+        int iobs = active_list[active_index];
+	obs_block_iset( obs_block , active_index , gen_obs->obs_data[iobs] , IGET_SCALED_STD( gen_obs , iobs ));
         {
           int data_index = gen_obs->data_index_list[ iobs ];
           if ((forward_model_active != NULL) && (!bool_vector_iget( forward_model_active , data_index )))
-            obs_block_iset_missing( obs_block , iobs );
+            obs_block_iset_missing( obs_block , active_index );
         }
       }
     }

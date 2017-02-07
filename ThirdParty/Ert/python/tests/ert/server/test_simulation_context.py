@@ -60,6 +60,8 @@ class SimulationContextTest(ExtendedTestCase):
                     self.assertEqual(first_half_state_map[iens], RealizationStateEnum.STATE_INITIALIZED)
                     self.assertEqual(other_half_state_map[iens], RealizationStateEnum.STATE_HAS_DATA)
 
+            pfx = 'SimulationContext('
+            self.assertEqual(pfx, repr(simulation_context)[:len(pfx)])
 
     def test_runpath(self):
         with ErtTestContext("ert/server/rpc/simulation_context_runpath", self.config2) as test_context:
@@ -90,4 +92,6 @@ class SimulationContextTest(ExtendedTestCase):
                 else:
                     path = "simulations/ODD/realisation-%d/iter-%d" % (iens , 0)
                     self.assertTrue( os.path.isdir(path) )
-                    
+
+            pfx = 'SimulationContext('
+            self.assertEqual(pfx, repr(simulation_context)[:len(pfx)])

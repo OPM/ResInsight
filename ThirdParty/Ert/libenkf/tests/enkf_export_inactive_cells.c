@@ -148,15 +148,15 @@ int main(int argc , char ** argv) {
   const char * key         = "PORO";
   int iens                 = 0;
 
-  ert_test_context_type * test_context         = ert_test_context_alloc("ExportInactiveCellsTest" , config_file);
-  enkf_main_type * enkf_main                   = ert_test_context_get_main(test_context);
-  enkf_fs_type * fs                            = enkf_main_get_fs(enkf_main);
+  ert_test_context_type      * test_context    = ert_test_context_alloc("ExportInactiveCellsTest" , config_file);
+  enkf_main_type             * enkf_main       = ert_test_context_get_main(test_context);
+  enkf_fs_type               * fs              = enkf_main_get_fs(enkf_main);
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
-  const enkf_config_node_type * config_node    = ensemble_config_get_node(ensemble_config , key);
-  const field_config_type * field_config       = enkf_config_node_get_ref( config_node );
-  enkf_state_type * state                      = enkf_main_iget_state( enkf_main , iens );
-  enkf_node_type * field_node                  = enkf_state_get_node( state , key );
-  field_type * field                           = enkf_node_value_ptr(field_node);
+  enkf_config_node_type      * config_node     = ensemble_config_get_node(ensemble_config , key);
+  const field_config_type    * field_config    = enkf_config_node_get_ref( config_node );
+  enkf_state_type            * state           = enkf_main_iget_state( enkf_main , iens );
+  enkf_node_type             * field_node      = enkf_state_get_node( state , key );
+  field_type                 * field           = enkf_node_value_ptr(field_node);
 
   {
     forward_initialize_node(enkf_main, init_file, field_node);
@@ -170,8 +170,9 @@ int main(int argc , char ** argv) {
   const char * export_file_grdecl = "my_test_dir/exported_field_test_file_grdecl";
   const char * export_file_roff   = "my_test_dir/exported_field_test_file_roff";
   field_file_format_type file_type;
-
-  char * found_init_file = enkf_main_alloc_abs_path_to_init_file(enkf_main, config_node);
+  model_config_type * mc = enkf_main_get_model_config(enkf_main);
+  path_fmt_type * runpath_fmt = model_config_get_runpath_fmt(mc);
+  const char * found_init_file = enkf_config_node_get_FIELD_fill_file(config_node, runpath_fmt);
   {
     file_type = ECL_GRDECL_FILE;
     field_export(field, export_file_grdecl, NULL, file_type, false, found_init_file);
@@ -183,7 +184,6 @@ int main(int argc , char ** argv) {
     check_exported_data(export_file_roff, init_file, file_type, field_config, field, nx, ny, nz);
   }
 
-  free(found_init_file);
   found_init_file = NULL;
   {
     file_type = ECL_GRDECL_FILE;

@@ -1,0 +1,188 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH ecl_summary "1" "November 8 2016"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+ecl_summary \- Program to extract summary vectors from ECLIPSE files
+.SH DESCRIPTION
+The ecl_summary program is used to quickly extract summary vectors
+from ECLIPSE summary files. The program is invoked as:
+.PP
+computer> ecl_summary \fI\,/Path/to/ECLIPSE\/\fP key1 key2 key3 ....
+.PP
+Here ECLIPSE is the name of an existing case, you can give it with
+extension, or without; the case need not be in the current directory.
+.PP
+The keys are formed by combining ECLIPSE variable names and
+qualifiers from the WGNAMES and NUMS arrays. Examples of keys are:
+.TP
+WWCT:F\-36
+\- The watercut in the well F\-36.
+.TP
+FOPT
+\- The total field oil production.
+.TP
+RPR:3
+\- The region pressure in region 3.
+.TP
+GGIT:NORTH
+\- The total gas injection group NORTH.
+.TP
+SPR:F\-12:18
+\- The segment pressure in well F\-12, segment 18.
+.TP
+BPR:10,10,10
+\- The block pressure in cell 10,10,10.
+.IP
+LBPR:LGR3:10,10,10 \- The block pressure in cell 10,10,10 \- in LGR3
+.PP
+The option \fB\-\-list\fR can be used to list all available keys.
+.SH OPTIONS
+.HP
+\fB\-\-list\fR : The program will list available keys.
+.HP
+\fB\-\-no\-restart\fR: If the simulation in question is a restart, i.e a prediction
+.IP
+which starts at the end of the historical period, the ecl_summary
+program will by default also load historical data. If the \fB\-\-no\-restart\fR
+option is used the program will not look for old results.
+.HP
+\fB\-\-no\-header\fR: By default ecl_summary will print a header line at the top, with the
+.IP
+option \fB\-\-no\-header\fR this will be suppressed.
+.HP
+\fB\-\-report\-only\fR: Will only report results at report times (i.e. DATES).
+.HP
+\fB\-\-help\fR: Print this message and exit.
+.PP
+The options should come before the ECLIPSE basename.
+.PP
+Example1:
+.TP
+computer> ecl_summary
+CASE1_XXX WWCT:F\-36   FOPT   FWPT
+.IP
+This example will load results from case 'CASE1_XXX' and print the
+results for keys 'WWCT:F\-36', 'FOPT' and 'FWPT' on standard out.
+.PP
+Example2:
+.TP
+computer> ecl_summary
+\fB\-\-list\fR CASE2_XXX "*:F\-36"  "BPR:*"
+.IP
+This example will list all the available keys which end with
+\&':F\-36' and those which start with 'BPR:'. Observe the use of
+quoting characters "" when using shell wildcards.
+.PP
+The ecl_summary program will look for and load both unified and
+non\-unified and formatted and non\-formatted files. The default
+search order is: UNSMRY, Snnnn, FUNSMRY, Annnn, however you can
+manipulate this with the extension to the basename:
+.PP
+* If the extension corresponds to an unformatted file, ecl_summary
+.IP
+will only look for unformatted files.
+.PP
+* If the extension corresponds to a unified file, ecl_summary will
+.IP
+only look for unified files.
+.PP
+Contact Joakim Hove / joaho@statoil.com / 92 68 57 04 for bugs
+and feature requests.
+.PP
+The ecl_summary program is used to quickly extract summary vectors
+from ECLIPSE summary files. The program is invoked as:
+.PP
+computer> ecl_summary \fI\,/Path/to/ECLIPSE\/\fP key1 key2 key3 ....
+.PP
+Here ECLIPSE is the name of an existing case, you can give it with
+extension, or without; the case need not be in the current directory.
+.PP
+The keys are formed by combining ECLIPSE variable names and
+qualifiers from the WGNAMES and NUMS arrays. Examples of keys are:
+.TP
+WWCT:F\-36
+\- The watercut in the well F\-36.
+.TP
+FOPT
+\- The total field oil production.
+.TP
+RPR:3
+\- The region pressure in region 3.
+.TP
+GGIT:NORTH
+\- The total gas injection group NORTH.
+.TP
+SPR:F\-12:18
+\- The segment pressure in well F\-12, segment 18.
+.TP
+BPR:10,10,10
+\- The block pressure in cell 10,10,10.
+.IP
+LBPR:LGR3:10,10,10 \- The block pressure in cell 10,10,10 \- in LGR3
+.PP
+The option \fB\-\-list\fR can be used to list all available keys.
+.HP
+\fB\-\-list\fR : The program will list available keys.
+.HP
+\fB\-\-no\-restart\fR: If the simulation in question is a restart, i.e a prediction
+.IP
+which starts at the end of the historical period, the ecl_summary
+program will by default also load historical data. If the \fB\-\-no\-restart\fR
+option is used the program will not look for old results.
+.HP
+\fB\-\-no\-header\fR: By default ecl_summary will print a header line at the top, with the
+.IP
+option \fB\-\-no\-header\fR this will be suppressed.
+.HP
+\fB\-\-report\-only\fR: Will only report results at report times (i.e. DATES).
+.HP
+\fB\-\-help\fR: Print this message and exit.
+.PP
+The options should come before the ECLIPSE basename.
+.PP
+Example1:
+.TP
+computer> ecl_summary
+CASE1_XXX WWCT:F\-36   FOPT   FWPT
+.IP
+This example will load results from case 'CASE1_XXX' and print the
+results for keys 'WWCT:F\-36', 'FOPT' and 'FWPT' on standard out.
+.PP
+Example2:
+.TP
+computer> ecl_summary
+\fB\-\-list\fR CASE2_XXX "*:F\-36"  "BPR:*"
+.IP
+This example will list all the available keys which end with
+\&':F\-36' and those which start with 'BPR:'. Observe the use of
+quoting characters "" when using shell wildcards.
+.PP
+The ecl_summary program will look for and load both unified and
+non\-unified and formatted and non\-formatted files. The default
+search order is: UNSMRY, Snnnn, FUNSMRY, Annnn, however you can
+manipulate this with the extension to the basename:
+.PP
+* If the extension corresponds to an unformatted file, ecl_summary
+.IP
+will only look for unformatted files.
+.PP
+* If the extension corresponds to a unified file, ecl_summary will
+.IP
+only look for unified files.
+.PP
+Contact Joakim Hove / joaho@statoil.com / 92 68 57 04 for bugs
+and feature requests.
+

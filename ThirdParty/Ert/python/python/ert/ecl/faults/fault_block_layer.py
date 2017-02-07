@@ -1,31 +1,48 @@
-#  Copyright (C) 2014  Statoil ASA, Norway. 
-#   
-#  The file 'fault_block_layer.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2014  Statoil ASA, Norway.
+#
+#  The file 'fault_block_layer.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 
 from __future__ import print_function
-from cwrap import BaseCClass, CWrapper
-from ert.ecl import ECL_LIB
-from ert.ecl import EclTypeEnum
+from cwrap import BaseCClass
+from ert.ecl import EclTypeEnum, EclPrototype
 from ert.ecl.faults import Fault
 
 class FaultBlockLayer(BaseCClass):
+    TYPE_NAME = "fault_block_layer"
+    _alloc                = EclPrototype("void*           fault_block_layer_alloc(ecl_grid ,  int)", bind = False)
+    _free                 = EclPrototype("void            fault_block_layer_free(fault_block_layer)")
+    _size                 = EclPrototype("int             fault_block_layer_get_size(fault_block_layer)")
+    _iget_block           = EclPrototype("fault_block_ref fault_block_layer_iget_block(fault_block_layer, int)")
+    _add_block            = EclPrototype("fault_block_ref fault_block_layer_add_block(fault_block_layer, int)")
+    _get_block            = EclPrototype("fault_block_ref fault_block_layer_get_block(fault_block_layer, int)")
+    _del_block            = EclPrototype("void            fault_block_layer_del_block(fault_block_layer, int)")
+    _has_block            = EclPrototype("bool            fault_block_layer_has_block(fault_block_layer, int)")
+    _scan_keyword         = EclPrototype("bool            fault_block_layer_scan_kw(fault_block_layer, ecl_kw)")
+    _load_keyword         = EclPrototype("bool            fault_block_layer_load_kw(fault_block_layer, ecl_kw)")
+    _getK                 = EclPrototype("int             fault_block_layer_get_k(fault_block_layer)")
+    _get_next_id          = EclPrototype("int             fault_block_layer_get_next_id(fault_block_layer)")
+    _scan_layer           = EclPrototype("void            fault_block_layer_scan_layer( fault_block_layer , layer)")
+    _insert_block_content = EclPrototype("void            fault_block_layer_insert_block_content( fault_block_layer , fault_block)")
+    _export_kw            = EclPrototype("bool            fault_block_layer_export( fault_block_layer , ecl_kw )")
+    _get_layer            = EclPrototype("layer_ref       fault_block_layer_get_layer( fault_block_layer )")
+
 
     def __init__(self , grid , k):
-        c_pointer = self.cNamespace().alloc( grid , k)
-        if c_pointer:
-            super(FaultBlockLayer, self).__init__(c_pointer)
+        c_ptr = self._alloc( grid , k)
+        if c_ptr:
+            super(FaultBlockLayer, self).__init__(c_ptr)
         else:
             raise ValueError("Invalid input - failed to create FaultBlockLayer")
 
@@ -37,7 +54,7 @@ class FaultBlockLayer(BaseCClass):
 
 
     def __len__(self):
-        return self.cNamespace().size(self)
+        return self._size()
 
     def __getitem__(self , index):
         """
@@ -46,9 +63,9 @@ class FaultBlockLayer(BaseCClass):
         if isinstance(index, int):
             if index < 0:
                 index += len(self)
-                
+
             if 0 <= index < len(self):
-                return self.cNamespace().iget_block( self , index ).setParent(self)
+                return self._iget_block( index ).setParent(self)
             else:
                 raise IndexError("Index:%d out of range: [0,%d)" % (index , len(self)))
         elif isinstance(index,tuple):
@@ -66,14 +83,14 @@ class FaultBlockLayer(BaseCClass):
             raise TypeError("Index should be integer type")
 
     def __contains__(self , block_id):
-        return self.cNamespace().has_block( self , block_id)
+        return self._has_block( block_id)
 
 
     def scanKeyword(self , fault_block_kw):
         """
         Will reorder the block ids, and ensure single connectedness. Assign block_id to zero blocks.
         """
-        ok = self.cNamespace().scan_keyword( self , fault_block_kw )
+        ok = self._scan_keyword( fault_block_kw )
         if not ok:
             raise ValueError("The fault block keyword had wrong type/size:  type:%s  size:%d  grid_size:%d" % (fault_block_kw.typeName() , len(fault_block_kw) , self.grid_ref.getGlobalSize()))
 
@@ -82,24 +99,24 @@ class FaultBlockLayer(BaseCClass):
         """
         Will load directly from keyword - without reorder; ignoring zero.
         """
-        ok = self.cNamespace().load_keyword( self , fault_block_kw )
+        ok = self._load_keyword( fault_block_kw )
         if not ok:
             raise ValueError("The fault block keyword had wrong type/size:  type:%s  size:%d  grid_size:%d" % (fault_block_kw.typeName() , len(fault_block_kw) , self.grid_ref.getGlobalSize()))
-            
+
 
     def getBlock(self , block_id):
         """
         @rtype: FaultBlock
         """
         if block_id in self:
-            return self.cNamespace().get_block( self , block_id).setParent(self)
+            return self._get_block(block_id).setParent(self)
         else:
             raise KeyError("No blocks with ID:%d in this layer" % block_id)
 
 
     def deleteBlock(self , block_id):
         if block_id in self:
-            self.cNamespace().del_block( self , block_id)
+            self._del_block( block_id)
         else:
             raise KeyError("No blocks with ID:%d in this layer" % block_id)
 
@@ -110,26 +127,26 @@ class FaultBlockLayer(BaseCClass):
         if block_id in self:
             raise KeyError("Layer already contains block with ID:%s" % block_id)
         else:
-            return self.cNamespace().add_block( self , block_id).setParent(self)
-    
+            return self._add_block(block_id).setParent(self)
+
     def getNextID(self):
-        return self.cNamespace().get_next_id( self )
+        return self._get_next_id( )
 
 
     def getK(self):
-        return self.cNamespace().getK( self )
-            
+        return self._getK( )
+
 
     def free(self):
-        self.cNamespace().free(self)
+        self._free( )
 
 
     def scanLayer( self , layer):
-        self.cNamespace().scan_layer(self , layer)
-    
+        self._scan_layer( layer )
+
 
     def insertBlockContent(self , block):
-        self.cNamespace().insert_block_content(self , block)
+        self._insert_block_content( block )
 
     def exportKeyword(self , kw):
         if len(kw) != self.grid_ref.getGlobalSize():
@@ -137,8 +154,8 @@ class FaultBlockLayer(BaseCClass):
 
         if kw.getEclType() != EclTypeEnum.ECL_INT_TYPE:
             raise TypeError("The target kewyord must be of integer type")
-            
-        self.cNamespace().export_kw( self , kw )
+
+        self._export_kw( kw )
 
 
     def addFaultBarrier(self , fault , link_segments = False):
@@ -180,32 +197,9 @@ class FaultBlockLayer(BaseCClass):
 
     def getGeoLayer(self):
         """Returns the underlying geometric layer."""
-        return self.cNamespace().get_layer( self )
+        return self._get_layer( )
 
 
     def cellContact(self , p1 , p2):
         layer = self.getGeoLayer()
         return layer.cellContact(p1,p2)
-        
-
-
-cwrapper = CWrapper(ECL_LIB)
-CWrapper.registerObjectType("fault_block_layer", FaultBlockLayer)
-
-
-FaultBlockLayer.cNamespace().alloc      = cwrapper.prototype("c_void_p         fault_block_layer_alloc(ecl_grid ,  int)")
-FaultBlockLayer.cNamespace().free       = cwrapper.prototype("void             fault_block_layer_free(fault_block_layer)")
-FaultBlockLayer.cNamespace().size       = cwrapper.prototype("int              fault_block_layer_get_size(fault_block_layer)")
-FaultBlockLayer.cNamespace().iget_block = cwrapper.prototype("fault_block_ref  fault_block_layer_iget_block(fault_block_layer, int)")
-FaultBlockLayer.cNamespace().add_block  = cwrapper.prototype("fault_block_ref  fault_block_layer_add_block(fault_block_layer, int)")
-FaultBlockLayer.cNamespace().get_block  = cwrapper.prototype("fault_block_ref  fault_block_layer_get_block(fault_block_layer, int)")
-FaultBlockLayer.cNamespace().del_block  = cwrapper.prototype("void  fault_block_layer_del_block(fault_block_layer, int)")
-FaultBlockLayer.cNamespace().has_block  = cwrapper.prototype("bool  fault_block_layer_has_block(fault_block_layer, int)")
-FaultBlockLayer.cNamespace().scan_keyword  = cwrapper.prototype("bool  fault_block_layer_scan_kw(fault_block_layer, ecl_kw)")
-FaultBlockLayer.cNamespace().load_keyword  = cwrapper.prototype("bool  fault_block_layer_load_kw(fault_block_layer, ecl_kw)")
-FaultBlockLayer.cNamespace().getK          = cwrapper.prototype("int   fault_block_layer_get_k(fault_block_layer)")
-FaultBlockLayer.cNamespace().get_next_id   = cwrapper.prototype("int   fault_block_layer_get_next_id(fault_block_layer)")
-FaultBlockLayer.cNamespace().scan_layer    = cwrapper.prototype("void  fault_block_layer_scan_layer( fault_block_layer , layer)")
-FaultBlockLayer.cNamespace().insert_block_content = cwrapper.prototype("void  fault_block_layer_insert_block_content( fault_block_layer , fault_block)")
-FaultBlockLayer.cNamespace().export_kw            = cwrapper.prototype("bool  fault_block_layer_export( fault_block_layer , ecl_kw )")
-FaultBlockLayer.cNamespace().get_layer            = cwrapper.prototype("layer_ref fault_block_layer_get_layer( fault_block_layer )")

@@ -11,6 +11,7 @@ set(PYTHON_SOURCES
     plot_widget.py
     plot_window.py
     style_chooser.py
+    filterable_kw_list_model.py
 )
 
 add_python_package("python.ert_gui.tools.plot" ${PYTHON_INSTALL_PREFIX}/ert_gui/tools/plot "${PYTHON_SOURCES}" True)

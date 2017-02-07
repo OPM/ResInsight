@@ -128,6 +128,14 @@ bool job_queue_status_transition(job_queue_status_type * status_count, job_statu
         job_status_type target_status) {
   if (src_status == target_status)
     return false;
+
+  /*
+    The target_status indicates that the routine which queried for new
+    status failed; we just remain in the current status.
+  */
+  if (target_status == JOB_QUEUE_STATUS_FAILURE)
+    return false;
+
   job_queue_status_dec( status_count, src_status );
   job_queue_status_inc( status_count, target_status );
   return true;

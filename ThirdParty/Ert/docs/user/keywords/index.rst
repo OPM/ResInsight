@@ -33,7 +33,6 @@ List of keywords
 Keyword name                                                        	Required by user?     			Default value         		Purpose
 =====================================================================	======================================	============================== 	==============================================================================================================================================
 :ref:`ADD_FIXED_LENGTH_SCHEDULE_KW <add_fixed_length_schedule_kw>`  	NO                                          				Supporting unknown SCHEDULE keywords.
-:ref:`ADD_STATIC_KW <add_Static_kw>`                                	NO                                          				Add static ECLIPSE keyword that should be stored
 :ref:`ANALYSIS_COPY <analysis_copy>`                                	NO                                          				Create new instance of analysis module
 :ref:`ANALYSIS_LOAD <analysis_load>`                                	NO                                          				Load analysis module
 :ref:`ANALYSIS_SET_VAR <analysis_set_var>`                          	NO                                          				Set analysis module internal state variable
@@ -52,20 +51,15 @@ Keyword name                                                        	Required by
 :ref:`ENKF_BOOTSTRAP <enkf_bootstrap>`                              	NO                    			FALSE                 		Should we bootstrap the Kalman gain estimate
 :ref:`ENKF_CROSS_VALIDATION <enkf_cross_validation>`                	NO                                          	...
 :ref:`ENKF_CV_FOLDS <enkf_cv_folds>`                                	NO                    			10                    		Number of folds used in the Cross-Validation scheme
-:ref:`ENKF_FORCE_NCOMP <enkf_force_ncomp>`                          	NO                    			FALSE                 		Should we want to use a spesific subspace dimension
-:ref:`ENKF_KERNEL_REGRESSION <enkf_kernel_regression>`              	NO                    			FALSE
-:ref:`ENKF_KERNEL_FUNCTION <enkf_kernel_function>`                  	NO                    			1
 :ref:`ENKF_KERNEL_PARAM <enkf_kernel_param>`                        	NO                    			1
 :ref:`ENKF_LOCAL_CV <enkf_local_cv>`                                	NO                    			FALSE                 		Should we estimate the subspace dimenseion using Cross-Validation
 :ref:`ENKF_MERGE_OBSERVATIONS <enkf_merge_observations>`            	NO                    			FALSE                 		Should observations from many times be merged together
 :ref:`ENKF_MODE <enkf_mode>`                                        	NO                    			STANDARD              		Which EnKF should be used
-:ref:`ENKF_NCOMP <enkf_ncomp>`                                       	NO                    			1                     		Dimension of the reduced order subspace (If ENKF_FORCE_NCOMP = TRUE)
 :ref:`ENKF_PEN_PRESS <enkf_pen_press>`                              	NO                    			FALSE                 		Should we want to use a penalised PRESS statistic in model selection? 
 :ref:`ENKF_RERUN <enkf_rerun>`                                      	NO                    			FALSE                 		Should the simulations be restarted from time zero after each update. 
 :ref:`ENKF_SCALING <enkf_scaling>`                                  	NO                    			TRUE           		       	Do we want to normalize the data ensemble to have unit variance? 
 :ref:`ENKF_TRUNCATION <enfk_truncation>`                            	NO                    			0.99        	          	Cutoff used on singular value spectrum. 
-:ref:`ENSPATH <enspath>`                                            	NO                    			storage     	          	Folder used for storage of simulation results. 
-:ref:`EQUIL_INIT_FILE <equil_init_file>`                            	NO                                          				Use INIT_SECTION instead 
+:ref:`ENSPATH <enspath>`                                            	NO                    			storage     	          	Folder used for storage of simulation results.
 :ref:`FIELD <field>`                                                	NO                                          				Ads grid parameters
 :ref:`FORWARD_MODEL <forward_model>`                                	NO                                          				Add the running of a job to the simulation forward model. 
 :ref:`GEN_DATA <gen_data>`                                          	NO                                          				Specify a general type of data created/updated by the forward model.
@@ -76,11 +70,7 @@ Keyword name                                                        	Required by
 :ref:`GRID <grid>`                                                  	NO                                         				Provide an ECLIPSE grid for the reservoir model. 
 :ref:`HISTORY_SOURCE <history_source>`                              	NO                    			REFCASE_HISTORY     	  	Source used for historical values.
 :ref:`HOOK_WORKFLOW <hook_workflow>` 					NO 									Install a workflow to be run automatically.
-:ref:`HOST_TYPE <host_type>`                                        	NO                                          
-:ref:`IGNORE_SCHEDULE <ignore_schedule>`                            	NO                                          
-:ref:`IMAGE_TYPE <image_type>`                                      	NO                    			png                   		The type of the images created when plotting.
-:ref:`IMAGE_VIEWER <image_viewer>`                                  	NO                    			/usr/bin/display      		External program spawned to view images.
-:ref:`INIT_SECTION <init_section>`                                  	NO                                         				Initialization code for the reservoir model.
+:ref:`IGNORE_SCHEDULE <ignore_schedule>`                            	NO
 :ref:`INSTALL_JOB <install_jobb>`                                   	NO                                          				Install a job for use in a forward model. 
 :ref:`ITER_CASE <iter_Case>`                                        	NO                    			IES%d         	        	Case name format - iterated ensemble smoother
 :ref:`ITER_COUNT <iter_count>`                                      	NO                    			4             	        	Number of iterations - iterated ensemble smoother 
@@ -99,22 +89,13 @@ Keyword name                                                        	Required by
 :ref:`LSF_SERVER <lsf_server>` 					    	NO 									Set server used when submitting LSF jobs. 
 :ref:`MAX_ITER_COUNT <max_iter_count>` 				    	NO 									Maximal number of iterations - iterated ensemble smoother. 
 :ref:`MAX_RESAMPLE <max_resample>`				    	NO 					1		 		How many times should ert resample & retry a simulation.
-:ref:`MAX_RUNNING_LOCAL <max_running_local>` 				NO 									The maximum number of running jobs when running locally. 
-:ref:`MAX_RUNNING_LSF <max_running_lsf>` 				NO 									The maximum number of simultaneous jobs submitted to LSF. 
 :ref:`MAX_RUNNING_RSH <max_running_rsh>` 				NO 									The maximum number of running jobs when using RSH queue system. 
 :ref:`MAX_RUNTIME <max_runtime>` 					NO 					0 				Set the maximum runtime in seconds for a realization. 
 :ref:`MAX_SUBMIT <max_submit>` 						NO 					2 				How many times should the queue system retry a simulation. 
 :ref:`MIN_REALIZATIONS <min_realizations>` 				NO 					0 				Set the number of minimum reservoir realizations to run before long running realizations are stopped. Keyword STOP_LONG_RUNNING must be set to TRUE when MIN_REALIZATIONS are set. 
 :ref:`NUM_REALIZATIONS <num_realizations>` 				YES 									Set the number of reservoir realizations to use. 
 :ref:`OBS_CONFIG <obs_config>` 						NO 									File specifying observations with uncertainties. 
-:ref:`PLOT_DRIVER <plot_driver>` 					NO 					PLPLOT 				Which plotting system should be used.
-:ref:`PLOT_ERRORBAR <plot_errorbar>` 					NO 					FALSE 				Should errorbars on observations be plotted? 
-:ref:`PLOT_ERRORBAR_MAX <plot_errorbar_max>` 				NO 					25 				Show error bars if less than this number of observations. 
-:ref:`PLOT_HEIGHT <plot_height>` 					NO 					768 				Pixel height of the plots. 
-:ref:`PLOT_PATH  <plot_path>`						NO 					plots 				Path to where the plots are stored. 
-:ref:`PLOT_REFCASE <plot_refcase>` 					NO 					TRUE 				TRUE (IF you want to plot the listed reference cases) FALSE if not. 
-:ref:`PLOT_REFCASE_LIST <plot_refcase_list>` 				NO 									Deprecated. Use REFCASE_LIST instead. 
-:ref:`PLOT_WIDTH <plot_width>` 						NO 					1024 				Pixel width of the plots. 
+:ref:`PLOT_SETTINGS <plot_driver>` 					NO 					  				Possibility to configure some aspects of plotting.
 :ref:`PRE_CLEAR_RUNPATH <pre_clear_runpath>` 				NO 					FALSE 				Should the runpath be cleared before initializing? 
 :ref:`QUEUE_SYSTEM <queue_system>` 					NO 									System used for running simulation jobs. 
 :ref:`REFCASE <refcase>` 						NO (see HISTORY_SOURCE and SUMMARY) 					Reference case used for observations and plotting. 
@@ -132,7 +113,6 @@ Keyword name                                                        	Required by
 :ref:`SCHEDULE_PREDICTION_FILE <schedule_prediction_file>`  		NO 									Schedule prediction file. 
 :ref:`SETENV <setenv>`  						NO 									You can modify the UNIX environment with SETENV calls. 
 :ref:`SINGLE_NODE_UPDATE <single_node_update>`  			NO 					FALSE 				... 
-:ref:`STD_CUTOFF <std_cutoff>`  					NO 					1e-6 				... 
 :ref:`STOP_LONG_RUNNING <stop_long_running>`  				NO 					FALSE 				Stop long running realizations after minimum number of realizations (MIN_REALIZATIONS) have run. 
 :ref:`STORE_SEED  <store_seed>` 					NO 									File where the random seed used is stored. 
 :ref:`SUMMARY  <summary>` 						NO 									Add summary variables for internalization. 
@@ -141,7 +121,8 @@ Keyword name                                                        	Required by
 :ref:`TIME_MAP  <time_map>`       					NO 									Ability to manually enter a list of dates to establish report step <-> dates mapping.
 :ref:`UMASK <umask>`  							NO 									Control the permissions on files created by ERT. 
 :ref:`UPDATE_LOG_PATH  <update_log_path>` 				NO 					update_log 			Summary of the EnKF update steps are stored in this directory. 
-:ref:`UPDATE_PATH  <update_path>` 					NO 									Modify a UNIX path variable like LD_LIBRARY_PATH. 
+:ref:`UPDATE_PATH  <update_path>` 					NO 									Modify a UNIX path variable like LD_LIBRARY_PATH.
+:ref:`UPDATE_SETTINGS <update_settings>` 				NO 					  				Possibility to configure some common aspects of the Smoother update.|
 :ref:`WORKFLOW_JOB_DIRECTORY  <workflow_job_directory>` 		NO 									Directory containing workflow jobs. 
 =====================================================================	======================================	============================== 	==============================================================================================================================================
 
@@ -205,29 +186,6 @@ These keywords must be set to make the enkf function properly.
 	
 		-- Load the .EGRID file called MY_GRID.EGRID
   		GRID MY_GRID.EGRID
-
-
-.. _init_section:
-.. topic:: INIT_SECTION
-
-	The INIT_SECTION keyword is used to handle initialization of the ECLIPSE run. See the documentation of the Initialization for more details on why this has to be done. The keyword can be used in two different ways:
-
-	* If it is set to the name of an existing file, the contents of this file will be used for the initialization.
-	* If it is set to the name of a non-existing file, it will be assumed that a file with this name in the simulation folder will be generated when simulations are submitted, either by the enkf application itself, or by some job installed by the user (see INSTALL_JOB). This generated file will then be used by ECLIPSE for initialization. 
-
-	*Example A:*
-
-	::
-  	
-		-- Use the contents of the file parameters/EQUIL.INC for initialization
-  		INIT_SECTION params/EQUIL.INC
-
-	*Example B:*
-
-	::
-
-	  	-- Use a generated file for the initialization
-	  	INIT_SECTION MY_GENERATED_EQUIL_KEYWORD.INC
 
 
 .. _num_realizations:
@@ -591,7 +549,26 @@ The keywords in this section are used to define a parametrization of the ECLIPSE
 
 	Here ID is again an arbitrary string, ECLIPSE_FILE is the name of the file the enkf will export this field to when running simulations. Note that there should be an IMPORT statement in the ECLIPSE data file corresponding to the name given with ECLIPSE_FILE. INIT_FILES is a filename (with an embedded %d) to load the initial field from. Can be RMS ROFF format, ECLIPSE restart format or ECLIPSE GRDECL format.
 
-	The options MIN, MAX, INIT_TRANSFORM and OUTPUT_TRANSFORM are all optional. MIN and MAX are as for dynamic fields. OUTPUT_TRANSFORM is the name of a mathematical function which will be applied to the field before it is exported, and INIT_TRANSFORM is the name of a function which will be applied to the fields when they are loaded. [Just use INIT_TRANSFORM:XXX to get a list of available functions.]
+	The input arguments MIN, MAX, INIT_TRANSFORM and OUTPUT_TRANSFORM are all optional. MIN and MAX are as for dynamic fields. 
+	
+	For Assisted history matching, the variables in ERT should be normally distributed internally - the purpose of the transformations is to enable working with normally distributed variables internally in ERT. Thus, the optional arguments INIT_TRANSFORM:FUNC and OUTPUT_TRANSFORM:FUNC are used to transform the user input of parameter distribution. INIT_TRANSFORM:FUNC is a function which will be applied when they are loaded to ERT. OUTPUT_TRANSFORM:FUNC is a function which will be applied to the field when it is exported from ERT, and  FUNC is the name of a transformation function to be applied. The avaialble functions are listed below:
+	
+	"POW10"       : This function will raise x to the power of 10: y = 10^x.
+	"TRUNC_POW10" : This function will raise x to the power of 10 - and truncate lower values at 0.001.
+	"LOG"         : This function will take the NATURAL logarithm of x: y = ln(x).
+	"LN"          : This function will take the NATURAL logarithm of x: y = ln(x).
+ 	"LOG10"       : This function will take the log10 logarithm of x: y = log10(x). 
+ 	"EXP"         : This function will calculate y = exp(x).  
+ 	"LN0"         : This function will calculate y = ln(x + 0.000001
+ 	"EXP0"        : This function will calculate y = exp(x) - 0.000001
+
+	For example, the most common scenario is that underlying log-normal distributed permeability in RMS are transformed to normally distributted in ERT, then you do:
+
+	INIT_TRANSFORM:LOG To ensure that the variables which were initially log-normal distributed are transformed to normal distribution when they are loaded into ert.
+
+	OUTPUT_TRANSFORM:EXP To ensure that the variables are reexponentiated to be log-normal distributed before going out to Eclipse.
+
+	If users specify the wrong function name (e.g INIT_TRANSFORM:I_DONT_KNOW), ERT will stop and print all the valid function names.
 
 	Regarding format of ECLIPSE_FILE: The default format for the parameter fields is binary format of the same type as used in the ECLIPSE restart files. This requires that the ECLIPSE datafile contains an IMPORT statement. The advantage with using a binary format is that the files are smaller, and reading/writing is faster than for plain text files. If you give the ECLIPSE_FILE with the extension .grdecl (arbitrary case), enkf will produce ordinary .grdecl files, which are loaded with an INCLUDE statement. This is probably what most users are used to beforehand - but we recomend the IMPORT form.
 
@@ -959,18 +936,8 @@ Keywords controlling the ES algorithm
 .. _enkf_alpha:
 .. topic:: ENKF_ALPHA 
 
-	ENKF_ALPHA has some latex letters - need to be handled!!
-	Scaling factor (double) used in outlier detection. Increasing this factor means that more observations will potentially be included in the assimilation. The default value is 1.50.
-
-	Including outliers in the EnKF algorithm can dramatically increase the coupling between the ensemble members. It is therefore important to filter out these outlier data prior to data assimilation. An observation, \textstyle d^o_i, will be classified as an outlier if
-
-	::
-
-		|d^o_i - \bar{d}_i| > \mathrm{ENKF\_ALPHA} \left(s_{d_i} + \sigma_{d^o_i}\right), 
-
-	where \textstyle\boldsymbol{d}^o is the vector of observed data, \textstyle\boldsymbol{\bar{d}} is the average of the forcasted data ensemble, \textstyle\boldsymbol{s_{d}} is the vector of estimated standard deviations for the forcasted data ensemble, and \textstyle\boldsymbol{s_{d}^o} is the vector standard deviations for the observation error (specified a priori). 
-
-
+See the sub keyword :code:`OVERLAP_LIMIT` under the :code:`UPDATE_SETTINGS`keyword.           
+	
 .. _enkf_bootstrap:
 .. topic:: ENKF_BOOTSTRAP
 
@@ -1219,27 +1186,6 @@ The keywords in this section, controls advanced features of the enkf application
 	Real low level fix for some SCHEDULE parsing problems.
 
 
-.. _add_static_kw:
-.. topic:: ADD_STATIC_KW
-
-	The restart files from ECLIPSE are organized by keywords, which are of three different types:
-
-	#. Keywords containing the dynamic solution, e.g. pressure and saturations.
-	#. Keywords containing various types of header information which is needed for a restart.
-	#. Keywords containing various types of diagnostic information which is not needed for a restart.
-
-	Keywords in category 2 and 3 are referred to as static keywords. To be able to restart ECLIPSE, the enkf application has to store the keywords in category 2, whereas keywords in category 3 can safely be dropped. To determine whether a particular keyword is in category 2 or 3 the enkf considers an internal list of keywords. The current list contains the keywords:
-
-	::
-
-		INTEHEAD LOGIHEAD DOUBHEAD IGRP SGRP XGRP ZGRP IWEL SWEL XWEL ZWEL 
-		ICON SCON XCON HIDDEN STARTSOL PRESSURE SWAT SGAS RS RV ENDSOL ICAQNUM ICAQ IAAQ
-		SCAQNUM SCAQ SAAQ ACAQNUM ACAQ XAAQ
-		ISEG ILBS ILBR RSEG ISTHW ISTHG
-
-	By using ADD_STATIC_KW you can dynamically add to this list. The magic string __ALL__ will add all static keywords. Use of the __ALL__ option is strongly discouraged, as it wastes a lot disk space.
-
-
 .. _define:
 .. topic:: DEFINE
 
@@ -1456,24 +1402,6 @@ option.
 	The name of the LSF queue you are running ECLIPSE simulations in.
 
 
-.. _max_running_lsf:
-.. topic:: MAX_RUNNING_LSF
-
-	The keyword MAX_RUNNING_LSF controls the maximum number of
-	simultaneous jobs submitted to the LSF (Load Sharing Facility)
-	queue when using the LSF option in QUEUE_SYSTEM.
-
-	*Example:*
-
-	::
-
-		-- Submit no more than 30 simultaneous jobs
-		-- to the LSF cluster.
-		MAX_RUNNING_LSF 30
-
-
-
-
 Configuring TORQUE access
 -------------------------
 .. _configuring_torque_access:
@@ -1599,25 +1527,6 @@ option DEBUG_OUTPUT:
    QUEUE_OPTION TORQUE DEBUG_OUTPUT torque_log.txt
 
 
-
-Configuring the LOCAL queue
----------------------------
-.. _configuring_the_local_queue:
-
-
-.. _max_running_local:
-.. topic:: MAX_RUNNING_LOCAL
-
-	The keyword MAX_RUNNING_LOCAL controls the maximum number of simultaneous jobs running when using the LOCAL option in QUEUE_SYSTEM. It is strongly recommended to not let MAX_RUNNING_LOCAL exceed the number of processors on the workstation used.
-
-	*Example:*
-
-	::
-
-		-- No more than 3 simultaneous jobs
-		MAX_RUNNING_LOCAL 3
-
-
 Configuring the RSH queue
 -------------------------
 .. _configuring_the_rsh_queue:
@@ -1659,24 +1568,6 @@ Configuring the RSH queue
 Keywords related to plotting
 ----------------------------
 .. _keywords_related_to_plotting:
-
-
-.. _image_viewer:
-.. topic:: IMAGE_VIEWER
-
-	The enkf application has some limited plotting capabilities. The plotting is based on creating a graphics file (currently a png file) and then viewing that file with an external application. The current default image viewer is a program called /usr/bin/display, but you can set IMAGE_VIEWER to point to another binary if that is desired. In particular it can be interesting to set as
-
-	::
-
-		IMAGE_VIEWER  /d/proj/bg/enkf/bin/noplot.sh
-
-	then the plot files will be created, but they will not be flashing in your face (which can be a bit annoying).
-
-
-.. _image_type:
-.. topic:: IMAGE_TYPE
-
-	This switch control the type of the plot figures/images created by the PLPLOT plot driver. It is by default set to png which works fine, but you can probably(??) use other popular graphics formats like gif and jpg as well.
 
 
 .. _plot_driver:
@@ -1733,22 +1624,31 @@ Keywords related to plotting
 
 
 
-.. _plot_path:
-.. topic:: PLOT_PATH
-
-	The plotting engine creates 'files' with plots, they are stored in a directory. You can tell what that directory should be. Observe that the current 'casename' will automatically be appended to the plot path.
 
 
-.. plot_width:
-.. topic:: PLOT_WIDTH
 
-	When the PLPLOT driver creates a plot file, it will have the width (in pixels) given by the PLOT_WIDTH keyword. The default value for PLOT_WIDTH is 1024 pixels. To create plots of half the size you use:
+.. _plot_settings:
+.. topic:: PLOT_SETTINGS
 
-	::
+        The :code:`PLOT_SETTINGS` keyword is a "master keyword" which
+        can be used to configure some aspects of the plotting. These
+        settings will affect the default behaviour when you create a
+        new plot, you can still changes these settings interactively.
 
-		PLOT_HEIGHT   384
-		PLOT_WIDTH    512
+        When using the :code:`PLOT_SETTINGS` keyword you supply a
+        secondary keyword and a values as the tow arguments:
 
+        ::
+
+           PLOT_SETTINGS SHOW_REFCASE False
+
+        Will make sure that your plots are created without the refcase
+        plotted as default. The available secondary keys are:
+
+        SHOW_REFCASE : Default True
+        SHOW_HISTORY : Default True
+        
+        
 
 
 .. _rft_config:
@@ -1796,27 +1696,37 @@ Keywords related to plotting
 
 With the keyword :code:`HOOK_WORKFLOW` you can configure workflow
 'hooks'; meaning workflows which will be run automatically at certain
-points during ERTs execution. Currently there are two points in ERTs
-flow of execution where you can hook in a workflow, either just before
-the simulations start, :code:`PRE_SIMULATION` - or after all the
-simulations have completed :code:`POST_SIMULATION`. The
+points during ERTs execution. Currently there are four points in ERTs
+flow of execution where you can hook in a workflow, before
+the simulations start, :code:`PRE_SIMULATION`;  after all the
+simulations have completed :code:`POST_SIMULATION`; 
+before the update step, :code:`PRE_UPDATE` and after the update step, :code:`POST_UPDATE`. The
 :code:`POST_SIMULATION` hook is typically used to trigger QC
 workflows:
 
 ::
 
-   HOOK_WORKFLOW initWFLOW  PRE_SIMULATION
-   HOOK_WORKFLOW QC_WFLOW1  POST_SIMULATION
-   HOOK_WORKFLOW QC_WFLOW2  POST_SIMULATION
+   HOOK_WORKFLOW initWFLOW        PRE_SIMULATION
+   HOOK_WORKFLOW preUpdateWFLOW   PRE_UPDATE
+   HOOK_WORKFLOW postUpdateWFLOW  POST_UPDATE
+   HOOK_WORKFLOW QC_WFLOW1        POST_SIMULATION
+   HOOK_WORKFLOW QC_WFLOW2        POST_SIMULATION
 
-In this example the the workflow :code:`initWFLOW` will run after all
-the simulation directiories have been created, just before the forward
-model is submitted to the queue. When all the simulations are complete
+
+In this example the workflow :code:`initWFLOW` will run after all
+the simulation directories have been created, just before the forward
+model is submitted to the queue. The workflow :code:`preUpdateWFLOW` will be run before the 
+update step and :code:`postUpdateWFLOW` will be run after the 
+update step.  When all the simulations are complete
 the two workflows :code:`QC_WFLOW1` and :code:`QC_WFLOW2` will be
-run. Observe that the workflows being 'hooked in' with the
+run. 
+
+Observe that the workflows being 'hooked in' with the
 :code:`HOOK_WORKFLOW` must be loaded with the :code:`LOAD_WORKFLOW`
 keyword.
 
+Currently, :code:`PRE_UPDATE` and :code:`POST_UPDATE` are only
+available from python.
 
 Manipulating the Unix environment
 ---------------------------------
@@ -1861,6 +1771,47 @@ The two keywords SETENV and UPDATE_PATH can be used to manipulate the Unix envir
 
 	The whole thing is just a workaround because we can not use $PATH.
 
+.. _update_settings:
+.. topic:: UPDATE_SETTINGS
+
+The :code:`UPDATE_SETTINGS` keyword is a *super-keyword* which can be
+used to control parameters which apply to the Ensemble Smoother update
+algorithm. The :code:`UPDATE_SETTINGS`currently supports the two
+subkeywords:
+
+   OVERLAP_LIMIT
+        Scaling factor used when detecting outliers. Increasing
+      	this factor means that more observations will potentially be
+      	included in the assimilation. The default value is 3.00..
+
+	Including outliers in the Smoother algorithm can dramatically
+	increase the coupling between the ensemble members. It is
+	therefore important to filter out these outlier data prior to
+	data assimilation. An observation, \textstyle d^o_i, will be
+	classified as an outlier if
+
+	::
+
+		|d^o_i - \bar{d}_i| > \mathrm{ENKF\_ALPHA} \left(s_{d_i} + \sigma_{d^o_i}\right), 
+
+	where \textstyle\boldsymbol{d}^o is the vector of observed
+	data, \textstyle\boldsymbol{\bar{d}} is the average of the
+	forcasted data ensemble, \textstyle\boldsymbol{s_{d}} is the
+	vector of estimated standard deviations for the forcasted data
+	ensemble, and \textstyle\boldsymbol{s_{d}^o} is the vector
+	standard deviations for the observation error (specified a
+	priori).
+
+        
+   STD_CUTOFF
+        If the ensemble variation for one particular measurment is
+        below this limit the observation will be deactivated. he
+        default value for this cutoff is 1e-6.
+      
+Observe that for the updates many settings should be applied on the
+analysis module in question.
+   
+           
 .. _umask:
 .. topic:: UMASK
 
@@ -1916,6 +1867,3 @@ The two keywords SETENV and UPDATE_PATH can be used to manipulate the Unix envir
          - Owner(7) can execute(1), write(2) and read(4).
          - Group(5) can execute(1) and read(4).
          - Others(2) can read(4)
-
-           
-        

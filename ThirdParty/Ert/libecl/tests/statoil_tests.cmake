@@ -185,6 +185,12 @@ target_link_libraries( ecl_rsthead ecl test_util )
 add_test( ecl_rsthead ${EXECUTABLE_OUTPUT_PATH}/ecl_rsthead ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST 
                                                             ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/DualPoro/DUALPORO.X0005 ) 
 
+add_executable( ecl_smspec ecl_smspec.c )
+target_link_libraries( ecl_smspec ecl test_util )
+add_test( ecl_smspec ${EXECUTABLE_OUTPUT_PATH}/ecl_smspec ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.SMSPEC 
+                                                          ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Heidrun/Summary/FF12_2013B3_CLEAN_RS.SMSPEC )
+
+
 add_executable( ecl_rft ecl_rft.c )
 target_link_libraries( ecl_rft ecl test_util )
 add_test( ecl_rft_rft ${EXECUTABLE_OUTPUT_PATH}/ecl_rft ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.RFT RFT)

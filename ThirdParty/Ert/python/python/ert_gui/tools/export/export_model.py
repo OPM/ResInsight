@@ -44,7 +44,8 @@ class ExportModel(object):
         iens_list = iactive.createActiveList()
         path_fmt = os.path.join(path, keyword + "_%d" + extension)
         config_node = ERT.ert.ensembleConfig()[keyword]
-        init_file = ERT.ert.fieldInitFile(config_node)
+        mc = ERT.ert.getModelConfig()
+        init_file = config_node.getInitFile(mc.getRunpathFormat())
         if init_file:
             print('Using init file:%s' % init_file)
         EnkfNode.exportMany(config_node, path_fmt, fs, iens_list, file_type=file_type, arg=init_file)

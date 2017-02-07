@@ -14,6 +14,7 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 import os
+import sys
 from PyQt4.QtCore import QDir
 from PyQt4.QtGui import QMessageBox
 from ert.enkf import EnkfFieldFileFormatEnum
@@ -34,6 +35,8 @@ class Exporter():
             self.exportGenKw(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["selected_case"])
         elif self.__export_keyword_model.isGenParamKw(keyword) or self.__export_keyword_model.isGenDataKw(keyword):
             self.exportGenData(keyword, file_name, values["iactive"], values["file_type_key"], values["report_step"], values["selected_case"])
+        else:
+            sys.stderr.write('** WARNING: Cannot export unknown keyword type "%s".\n' % keyword)
 
     def exportField(self, keyword, file_name, iactive, file_type_key, report_step, selected_case):
         if file_type_key == "Eclipse GRDECL":

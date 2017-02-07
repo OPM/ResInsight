@@ -24,7 +24,7 @@ class LocalConfigTest(ExtendedTestCase):
             main = test_context.getErt()
             self.assertTrue(main, "Load failed")
             
-            local_config = main.getLocalConfig()
+            local_config = main.getLocalConfig()  
             analysis_module = main.analysisConfig().getModule("STD_ENKF")
 
             self.AllActive(local_config)

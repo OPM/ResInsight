@@ -16,7 +16,6 @@
 
 import ctypes
 from .metacwrap import MetaCWrap
-from .cwrap import CWrapper
 
 
 class BaseCEnum(object):
@@ -81,6 +80,12 @@ class BaseCEnum(object):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        cn = self.__class__.__name__
+        na = self.name
+        va = self.value
+        return '%s(name = "%s", value = %s)' % (cn, na, va)
 
     def __add__(self, other):
         self.__assertOtherIsSameType(other)
@@ -158,7 +163,3 @@ class BaseCEnum(object):
             else:
                 break
 
-    @classmethod
-    def registerEnum(cls, library, enum_name):
-        cwrapper = CWrapper(library)
-        cwrapper.registerType(enum_name, cls)

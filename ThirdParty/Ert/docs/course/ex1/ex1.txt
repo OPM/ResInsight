@@ -1,0 +1,7 @@
+1. Create a small Python script which will load a ERT configuration
+  file and instantiate a EnkfMain object.
+
+2. Query the EnKFMain instance and print on standard out:
+
+   a) How many realisations there are.
+   b) List all GEN_KW keywords, and their internal keys.

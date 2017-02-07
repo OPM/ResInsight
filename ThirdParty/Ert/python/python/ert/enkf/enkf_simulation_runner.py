@@ -1,5 +1,5 @@
-from cwrap import CWrapper, BaseCClass
-from ert.enkf import ENKF_LIB, EnkfFs, EnkfPrototype
+from cwrap import BaseCClass
+from ert.enkf import EnkfFs
 from ert.enkf import EnkfPrototype
 from ert.enkf.enums import EnkfInitModeEnum
 from ert.util import BoolVector

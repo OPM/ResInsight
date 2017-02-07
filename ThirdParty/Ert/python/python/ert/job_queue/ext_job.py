@@ -15,7 +15,7 @@
 #  for more details.
 import os.path
 
-from cwrap import BaseCClass, CWrapper
+from cwrap import BaseCClass
 from ert.job_queue import QueuePrototype
 
 
@@ -61,6 +61,9 @@ class ExtJob(BaseCClass):
         else:
             raise IOError("No such file:%s" % config_file)
 
+    def __str__(self):
+        return "ExtJob(%s, config_file = %s)" % (self.name() , self.get_config_file())
+        
 
     def get_private_args_as_string(self):
         return self._get_private_args_as_string( )

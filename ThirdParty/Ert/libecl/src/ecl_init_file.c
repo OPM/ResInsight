@@ -37,12 +37,13 @@
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_util.h>
 
-static ecl_kw_type * ecl_init_file_alloc_INTEHEAD( const ecl_grid_type * ecl_grid , int phases, time_t start_date , int simulator) {
+static ecl_kw_type * ecl_init_file_alloc_INTEHEAD( const ecl_grid_type * ecl_grid , ert_ecl_unit_enum unit_system, int phases, time_t start_date , int simulator) {
   ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_INIT_SIZE , ECL_INT_TYPE );
   ecl_kw_scalar_set_int( intehead_kw , 0 );
 
-  ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , INTEHEAD_METRIC_VALUE );
+  ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , unit_system );
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NX_INDEX      , ecl_grid_get_nx( ecl_grid ));
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NY_INDEX      , ecl_grid_get_ny( ecl_grid ));
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NZ_INDEX      , ecl_grid_get_nz( ecl_grid ));
@@ -171,10 +172,10 @@ static void ecl_init_file_fwrite_poro( fortio_type * fortio , const ecl_grid_typ
   that.
 */
 
-void ecl_init_file_fwrite_header( fortio_type * fortio , const ecl_grid_type * ecl_grid , const ecl_kw_type * poro , int phases , time_t start_date) {
+void ecl_init_file_fwrite_header( fortio_type * fortio , const ecl_grid_type * ecl_grid , const ecl_kw_type * poro , ert_ecl_unit_enum unit_system, int phases , time_t start_date) {
   int simulator = INTEHEAD_ECLIPSE100_VALUE;
   {
-    ecl_kw_type * intehead_kw = ecl_init_file_alloc_INTEHEAD( ecl_grid , phases , start_date , simulator );
+    ecl_kw_type * intehead_kw = ecl_init_file_alloc_INTEHEAD( ecl_grid , unit_system , phases , start_date , simulator );
     ecl_kw_fwrite( intehead_kw , fortio );
     ecl_kw_free( intehead_kw );
   }

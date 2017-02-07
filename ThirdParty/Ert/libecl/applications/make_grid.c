@@ -48,7 +48,7 @@ int main(int argc, char ** argv) {
       char * EGRID_file = util_alloc_filename( path , basename , "EGRID");
 
       printf("Writing file: %s ...",EGRID_file); fflush(stdout);
-      ecl_grid_fwrite_EGRID2( ecl_grid , EGRID_file, ERT_ECL_METRIC_UNITS);
+      ecl_grid_fwrite_EGRID2( ecl_grid , EGRID_file, ECL_METRIC_UNITS);
       free( EGRID_file );
     }
 

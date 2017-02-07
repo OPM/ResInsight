@@ -29,4 +29,4 @@ from .config_error import ConfigError
 from .schema_item import SchemaItem
 from .config_content import ConfigContent , ContentItem, ContentNode
 from .config_parser import ConfigParser
-
+from .config_settings import ConfigSettings

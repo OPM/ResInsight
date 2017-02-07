@@ -487,7 +487,7 @@ static void config_parse__(config_parser_type * config ,
     free( abs_filename );
   }
   config_path_elm_type * current_path_elm;
-
+  
   char * config_file;
   {
     /* Extract the path component of the current input file and chdir() */
@@ -645,7 +645,7 @@ config_content_type * config_parse(config_parser_type * config ,
                                    config_schema_unrecognized_enum unrecognized_behaviour,
                                    bool validate) {
 
-  config_content_type * content = config_content_alloc( );
+  config_content_type * content = config_content_alloc( filename );
 
   if(pre_defined_kw_map != NULL) {
     hash_iter_type * keys = hash_iter_alloc(pre_defined_kw_map);
@@ -658,15 +658,11 @@ config_content_type * config_parse(config_parser_type * config ,
 
     hash_iter_free(keys);
   }
-//
+
 
   if (util_file_readable( filename )) {
     path_stack_type * path_stack = path_stack_alloc();
-    {
-      config_content_set_config_file( content , filename );
-      config_content_set_invoke_path( content );
-      config_parse__(config , content , path_stack , filename , comment_string , include_kw , define_kw , unrecognized_behaviour , validate);
-    }
+    config_parse__(config , content , path_stack , filename , comment_string , include_kw , define_kw , unrecognized_behaviour , validate);
     path_stack_free( path_stack );
   } else {
     char * error_message = util_alloc_sprintf("Could not open file:%s for parsing" , filename);
@@ -709,6 +705,13 @@ void config_install_message(config_parser_type * config , const char * kw, const
 }
 
 
+void config_parser_deprecate(config_parser_type * config , const char * kw, const char * msg) {
+  if (config_has_schema_item(config , kw)) {
+    config_schema_item_type * item = config_get_schema_item(config , kw);
+    config_schema_item_set_deprecated(item , msg);
+  } else
+    util_abort("%s: item:%s not recognized \n",__func__ , kw);
+}
 
 
 #include "config_get.c"
