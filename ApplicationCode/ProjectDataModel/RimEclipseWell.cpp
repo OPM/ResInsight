@@ -151,23 +151,33 @@ void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
+bool RimEclipseWell::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const
 {
     if (this->wellResults() == nullptr) return false;
 
     if (!wellResults()->hasWellResult(frameIndex)) return false;
 
-    RimEclipseView* m_reservoirView = nullptr;
-    this->firstAncestorOrThisOfType(m_reservoirView);
-
-    const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
-    cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
-
     const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
+
+    return intersectsWellCellsFilteredCells(wrsf, frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const
+{
+    RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
+    if (!reservoirView) return false;
+
+    const std::vector<RivCellSetEnum>& visGridParts = reservoirView->visibleGridParts();
+    cvf::cref<RivReservoirViewPartMgr> rvMan = reservoirView->reservoirGridPartManager();
+
 
     for (const RivCellSetEnum& visGridPart : visGridParts)
     {
-        if (   visGridPart == ALL_WELL_CELLS
+        if (visGridPart == ALL_WELL_CELLS
             || visGridPart == VISIBLE_WELL_CELLS
             || visGridPart == VISIBLE_WELL_FENCE_CELLS
             || visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
@@ -221,73 +231,17 @@ bool RimEclipseWell::intersectsVisibleCells(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::intersectsStaticWellCellsRangeFilteredCells() const
+bool RimEclipseWell::intersectsStaticWellCellsFilteredCells() const
 {
     if (this->wellResults() == nullptr) return false;
-
-    RimEclipseView* m_reservoirView = nullptr;
-    this->firstAncestorOrThisOfType(m_reservoirView);
-
-    const std::vector<RivCellSetEnum>& visGridParts = m_reservoirView->visibleGridParts();
-    cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
 
     // NOTE: Read out static well cells, union of well cells across all time steps
     const RigWellResultFrame& wrsf = this->wellResults()->m_staticWellCells;
 
-    for (const RivCellSetEnum& visGridPart : visGridParts)
-    {
-        if (visGridPart == ALL_WELL_CELLS
-            || visGridPart == VISIBLE_WELL_CELLS
-            || visGridPart == VISIBLE_WELL_FENCE_CELLS
-            || visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
-            || visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER
-            )
-        {
-            // Exclude all cells related to well cells
-            continue;
-        }
+    // NOTE: Use first time step for visibility evaluation
+    size_t frameIndex = 0;
 
-        // NOTE: Use first time step for visibility evaluation
-        size_t frameIndex = 0;
-
-        // First check the wellhead:
-
-        size_t gridIndex = wrsf.m_wellHead.m_gridIndex;
-        size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
-
-        if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
-        {
-            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
-            if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
-            {
-                return true;
-            }
-        }
-
-        // Then check the rest of the well, with all the branches
-
-        const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
-        for (const RigWellResultBranch& branchSegment : wellResSegments)
-        {
-            const std::vector<RigWellResultPoint>& wsResCells = branchSegment.m_branchResultPoints;
-            for (const RigWellResultPoint& wellResultPoint : wsResCells)
-            {
-                if (wellResultPoint.isCell())
-                {
-                    gridIndex = wellResultPoint.m_gridIndex;
-                    gridCellIndex = wellResultPoint.m_gridCellIndex;
-
-                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
-                    if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    return false;
+    return intersectsWellCellsFilteredCells(wrsf, frameIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,7 +289,7 @@ void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     this->firstAncestorOrThisOfType(wellColl);
     if (!wellColl) return;
 
-    if (wellColl->showWellsIntersectingVisibleCells() && !this->intersectsVisibleCells(static_cast<size_t>(reservoirView->currentTimeStep())))
+    if (wellColl->showWellsIntersectingVisibleCells() && !this->intersectsDynamicWellCellsFilteredCells(static_cast<size_t>(reservoirView->currentTimeStep())))
     {
         // Mark well as read only if well is not intersecting visible cells
 
@@ -373,7 +327,7 @@ bool RimEclipseWell::isWellCellsVisible() const
 
     if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return intersectsStaticWellCellsRangeFilteredCells();
+        return intersectsStaticWellCellsFilteredCells();
     }
     else
     {
@@ -417,7 +371,7 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
 
     if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return intersectsVisibleCells(frameIndex);
+        return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
     else
     {
@@ -461,7 +415,7 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
 
     if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
     {
-        return intersectsVisibleCells(frameIndex);
+        return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
     else
     {

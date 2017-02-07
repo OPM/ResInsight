@@ -88,8 +88,10 @@ protected:
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    bool                                intersectsVisibleCells(size_t frameIndex) const;
-    bool                                intersectsStaticWellCellsRangeFilteredCells() const;
+    bool                                intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const;
+    bool                                intersectsStaticWellCellsFilteredCells() const;
+
+    bool                                intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const;
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;
