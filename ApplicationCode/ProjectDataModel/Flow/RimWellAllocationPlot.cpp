@@ -41,6 +41,7 @@
 #include "RiuWellAllocationPlot.h"
 #include "RigAccWellFlowCalculator.h"
 #include "RimProject.h"
+#include "RiuWellLogTrack.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -110,7 +111,7 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
 
     m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
 
-    updateFromWell();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,6 +251,7 @@ void RimWellAllocationPlot::updateFromWell()
             addStackedCurve("Total", connNumbers, accFlow, plotTrack);
         }
 
+        plotTrack->setXAxisTitle("Flow Rate");
     }
 
     QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
@@ -524,7 +526,7 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
              || changedField == &m_case
              || changedField == &m_timeStep)
     {
-        updateFromWell();
+        loadDataAndUpdate();
     }
 }
 
@@ -565,6 +567,7 @@ void RimWellAllocationPlot::loadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateFromWell();
+    m_accumulatedWellFlowPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

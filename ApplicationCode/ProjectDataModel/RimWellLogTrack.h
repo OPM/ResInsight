@@ -51,6 +51,7 @@ public:
     void removeCurve(RimWellLogCurve* curve);
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
+    void setXAxisTitle(const QString& text);
 
     void recreateViewer();
     void detachAllCurves();
@@ -82,6 +83,10 @@ private:
     void updateAxisScaleEngine();
 
 private:
+    QString m_xAxisTitle;
+
+    // Fields
+
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
     caf::PdmChildArrayField<RimWellLogCurve*> curves;

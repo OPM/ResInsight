@@ -266,6 +266,13 @@ void RiuWellLogTrack::setDefaults()
     QFont xAxisFont = axisFont(QwtPlot::xTop);
     xAxisFont.setPixelSize(9);
     setAxisFont(QwtPlot::xTop, xAxisFont);
+    QwtText axisTitleX = axisTitle(QwtPlot::yLeft);
+    QFont xAxisTitleFont = axisTitleX.font();
+    xAxisTitleFont.setPixelSize(9);
+    xAxisTitleFont.setBold(false);
+    axisTitleX.setFont(xAxisTitleFont);
+    axisTitleX.setRenderFlags(Qt::AlignRight);
+    setAxisTitle(QwtPlot::xTop, axisTitleX);
 
     QFont yAxisFont = axisFont(QwtPlot::yLeft);
     yAxisFont.setPixelSize(9);
@@ -306,6 +313,16 @@ void RiuWellLogTrack::setDepthTitle(const QString& title)
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
     axisTitleY.setText(title);
     setAxisTitle(QwtPlot::yLeft, axisTitleY);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setXTitle(const QString& title)
+{
+    QwtText axisTitleX = axisTitle(QwtPlot::xTop);
+    axisTitleX.setText(title);
+    setAxisTitle(QwtPlot::xTop, axisTitleX);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,6 +47,7 @@ public:
 
     void                                    setDepthZoom(double minDepth, double maxDepth);
     void                                    setDepthTitle(const QString& title);
+    void                                    setXTitle(const QString& title);
 
     void                                    setXRange(double min, double max);
 
