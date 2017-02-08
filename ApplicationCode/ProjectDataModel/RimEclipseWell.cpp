@@ -325,7 +325,8 @@ bool RimEclipseWell::isWellCellsVisible() const
     if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
+        && reservoirView->rangeFilterCollection()->hasActiveFilters())
     {
         return intersectsStaticWellCellsFilteredCells();
     }
