@@ -110,7 +110,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
         }
     }
 
-    cvf::ref<cvf::Part> part = createPart(centerColorPairs);
+    cvf::ref<cvf::Part> part = createPart(centerColorPairs, wellResultFrame.m_isOpen);
 
     model->addPart(part.p());
 }
@@ -118,7 +118,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs)
+cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs, bool isWellOpen)
 {
     cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
     cvf::ref<cvf::Vec3fArray> vecRes = new cvf::Vec3fArray;
@@ -154,6 +154,13 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf:
     cvf::GeometryBuilderTriangles builder;
     double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
     double cellRadius = m_rimReservoirView->wellCollection()->spheresScaleFactor() * characteristicCellSize;
+
+    if (isWellOpen)
+    {
+        // Increase radius to make sure open connection are slightly larger than closed connections
+        cellRadius = 1.1 * cellRadius;
+    }
+
     cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
 
     vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());

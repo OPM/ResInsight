@@ -198,6 +198,13 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     }
 
     double arrowLength = characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
+
+    if (wellResultFrame.m_isOpen)
+    {
+        // Use slightly larger well head arrow when well is open
+        arrowLength = 1.1 * arrowLength;
+    }
+
     cvf::Vec3d textPosition = arrowPosition;
     textPosition.z() += 1.2 * arrowLength;
     
