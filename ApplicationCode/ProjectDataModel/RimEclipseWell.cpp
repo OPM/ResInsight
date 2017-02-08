@@ -375,10 +375,12 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
     if (!this->showWellPipe())
         return false;
 
+
     if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
+        && reservoirView->rangeFilterCollection()->hasActiveFilters())
     {
         return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
@@ -393,10 +395,10 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
 {
-    const RimEclipseView* m_reservoirView = nullptr;
-    this->firstAncestorOrThisOfType(m_reservoirView);
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType(reservoirView);
 
-    if (m_reservoirView == nullptr) return false;
+    if (reservoirView == nullptr) return false;
     if (this->wellResults() == nullptr) return false;
 
     if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
@@ -410,7 +412,7 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
         return false;
     }
 
-    if (!m_reservoirView->wellCollection()->isActive())
+    if (!reservoirView->wellCollection()->isActive())
         return false;
 
     if (!this->showWell())
@@ -419,10 +421,11 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
     if (!this->showWellSpheres())
         return false;
 
-    if (m_reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
+    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
         return true;
 
-    if (m_reservoirView->wellCollection()->showWellsIntersectingVisibleCells())
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
+        && reservoirView->rangeFilterCollection()->hasActiveFilters())
     {
         return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
