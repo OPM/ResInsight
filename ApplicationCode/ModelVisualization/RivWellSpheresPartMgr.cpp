@@ -186,7 +186,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& well
 {
     // Colours should be synchronized with RivWellPipesPartMgr::updatePipeResultColor
 
-    cvf::Color3f cellColor(m_rimWell->wellPipeColor());
+    cvf::Color3f cellColor(cvf::Color3f::GRAY);
 
     RimEclipseWellCollection* wellColl = nullptr;
     if (m_rimWell)
@@ -212,15 +212,8 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& well
             case RigWellResultFrame::WATER_INJECTOR:
                 cellColor = cvf::Color3f::BLUE;
                 break;
-            case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
-                cellColor = cvf::Color3f::GRAY;
-                break;
             }
         }
-    }
-    else
-    {
-        cellColor = m_rimWell->wellPipeColor();
     }
 
     return cellColor;
