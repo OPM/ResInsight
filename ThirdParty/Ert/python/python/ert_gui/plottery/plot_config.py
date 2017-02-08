@@ -1,18 +1,24 @@
-import os
 import itertools
 from ert_gui.plottery import PlotStyle, PlotLimits
 
 
 class PlotConfig(object):
 
-    def __init__(self, title="Unnamed", x_label=None, y_label=None):
-        super(PlotConfig, self).__init__()
+    # The plot_settings input argument is an internalisation of the (quite few) plot
+    # policy settings which can be set in the configuration file.
+    
+    def __init__(self, plot_settings, title="Unnamed", x_label=None, y_label=None):
         self._title = title
-
+        self._plot_settings = plot_settings
+        if self._plot_settings is None:
+            raise ValueError('PlotConfig needs a non-None plot settings.')
         self._line_color_cycle_colors = ["#000000"]
         self._line_color_cycle = itertools.cycle(self._line_color_cycle_colors) #Black
         # Blueish, Greenlike, Beigeoid, Pinkness, Orangy-Brown
         self.setLineColorCycle(["#386CB0", "#7FC97F", "#FDC086", "#F0027F", "#BF5B17"])
+        # alternative color cycle:
+        # ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
+        #  "#a65628", "#f781bf" ,"#386CB0", "#7FC97F", "#FDC086", "#F0027F", "#BF5B17"]
 
         self._legend_items = []
         self._legend_labels = []
@@ -23,16 +29,16 @@ class PlotConfig(object):
         self._limits = PlotLimits()
 
         self._default_style = PlotStyle(name="Default", color=None, alpha=0.8)
-        self._refcase_style = PlotStyle(name="Refcase", alpha=0.8, marker="x", width=2.0)
-        self._history_style = PlotStyle(name="History", alpha=0.8, marker="D", width=2.0)
 
-        # Insanely ugly implementation of user preferences.
-        if os.getenv("ERT_SHOW_HISTORY_VECTORS"):
-            self._history_style.setEnabled(True)
-        else:
-            self._history_style.setEnabled(False)
+        self._refcase_style = PlotStyle(name="Refcase", alpha=0.8, line_style="--", marker="", width=2.0,
+                                        enabled=self._plot_settings["SHOW_REFCASE"])
 
-        self._observation_style = PlotStyle(name="Observations")
+        self._history_style = PlotStyle(name="History", alpha=0.8, marker=".", width=2.0,
+                                        enabled=self._plot_settings["SHOW_HISTORY"])
+
+        self._observs_style = PlotStyle(name="Observations", line_style="-", alpha=0.8,
+                                        marker=".", width=1.0, color="#000000")
+
         self._histogram_style = PlotStyle(name="Histogram", width=2.0)
         self._distribution_style = PlotStyle(name="Distribution", line_style="", marker="o", alpha=0.5, size=10.0)
         self._distribution_line_style = PlotStyle(name="Distribution Lines", line_style="-", alpha=0.25, width=1.0)
@@ -91,10 +97,13 @@ class PlotConfig(object):
         style.color = self.currentColor()
         return style
 
+    def observationsColor(self):
+        return self._observs_style.color
+
     def observationsStyle(self):
         """ @rtype: PlotStyle """
         style = PlotStyle("Observations Style")
-        style.copyStyleFrom(self._observation_style)
+        style.copyStyleFrom(self._observs_style)
         return style
 
     def refcaseStyle(self):
@@ -148,10 +157,10 @@ class PlotConfig(object):
         self._y_label = label
 
     def setObservationsEnabled(self, enabled):
-        self._observation_style.setEnabled(enabled)
+        self._observs_style.setEnabled(enabled)
 
     def isObservationsEnabled(self):
-        return self._observation_style.isEnabled()
+        return self._observs_style.isEnabled()
 
     def setRefcaseEnabled(self, enabled):
         self._refcase_style.setEnabled(enabled)
@@ -222,6 +231,15 @@ class PlotConfig(object):
         self._history_style.width = style.width
         self._history_style.size = style.size
 
+    def setObservationsColor(self, color):
+        self._observs_style.color = color
+
+    def setObservationsStyle(self, style):
+        """ @type style: PlotStyle """
+        self._observs_style.line_style = style.line_style
+        self._observs_style.marker = style.marker
+        self._observs_style.width = style.width
+        self._observs_style.size = style.size
 
     def setDefaultStyle(self, style):
         """ @type style: PlotStyle """
@@ -252,7 +270,7 @@ class PlotConfig(object):
         self._refcase_style.copyStyleFrom(other._refcase_style, copy_enabled_state=True)
         self._history_style.copyStyleFrom(other._history_style, copy_enabled_state=True)
         self._histogram_style.copyStyleFrom(other._histogram_style, copy_enabled_state=True)
-        self._observation_style.copyStyleFrom(other._observation_style, copy_enabled_state=True)
+        self._observs_style.copyStyleFrom(other._observs_style, copy_enabled_state=True)
         self._distribution_style.copyStyleFrom(other._distribution_style, copy_enabled_state=True)
         self._distribution_line_style.copyStyleFrom(other._distribution_line_style, copy_enabled_state=True)
 
@@ -282,6 +300,6 @@ class PlotConfig(object):
 
     @classmethod
     def createCopy(cls, other):
-        copy = PlotConfig(None)
+        copy = PlotConfig(other._plot_settings )
         copy.copyConfigFrom(other)
         return copy

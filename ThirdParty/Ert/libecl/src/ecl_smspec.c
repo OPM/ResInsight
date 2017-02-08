@@ -139,7 +139,7 @@ struct ecl_smspec_struct {
   bool                has_lgr;
   float_vector_type * params_default;
 
-  stringlist_type   * restart_list;                  /* List of ECLBASE names of restart files this case has been restarted from (if any). */
+  char              * restart_case;
 };
 
 
@@ -269,12 +269,35 @@ static ecl_smspec_type * ecl_smspec_alloc_empty(bool write_mode , const char * k
   ecl_smspec->time_seconds = -1;
 
   ecl_smspec->index_map = int_vector_alloc(0,0);
-  ecl_smspec->restart_list = stringlist_alloc_new();
+  ecl_smspec->restart_case = NULL;
   ecl_smspec->params_default = float_vector_alloc(0 , PARAMS_GLOBAL_DEFAULT);
   ecl_smspec->write_mode = write_mode;
   ecl_smspec->need_nums = false;
 
   return ecl_smspec;
+}
+
+
+int * ecl_smspec_alloc_mapping( const ecl_smspec_type * self, const ecl_smspec_type * other) {
+  int params_size = ecl_smspec_get_params_size( self );
+  int * mapping = util_malloc( params_size * sizeof * mapping );
+
+  for (int i = 0; i < params_size; i++)
+    mapping[i] = -1;
+
+
+  for (int i=0; i < ecl_smspec_num_nodes( self ); i++) {
+    const smspec_node_type * self_node = ecl_smspec_iget_node( self , i );
+    int self_index = smspec_node_get_params_index( self_node );
+    const char * key = smspec_node_get_gen_key1( self_node );
+    if (ecl_smspec_has_general_var( other , key)) {
+      const smspec_node_type * other_node = ecl_smspec_get_general_var_node( other , key);
+      int other_index = smspec_node_get_params_index(other_node);
+      mapping[ self_index ]  =  other_index;
+    }
+  }
+
+  return mapping;
 }
 
 
@@ -907,62 +930,30 @@ bool ecl_smspec_needs_num( ecl_smspec_var_type var_type ) {
 }
 
 
-static bool ecl_smspec_kw_equal(const ecl_file_type * header , const ecl_file_type * restart_header , const char * kw , int cmp_elements) {
-  if (ecl_file_has_kw( header , kw ) == ecl_file_has_kw( restart_header , kw )) {
-    if (ecl_file_has_kw( header , kw)) {
-      ecl_kw_type *ecl_kw1  = ecl_file_iget_named_kw(header, kw , 0);
-      ecl_kw_type *ecl_kw2  = ecl_file_iget_named_kw(restart_header, kw , 0);
 
-      return ecl_kw_block_equal( ecl_kw1 , ecl_kw2 , cmp_elements);
-    } else
-      return true;  // None of the headers have this keyword - that is equality!
+
+bool ecl_smspec_equal( const ecl_smspec_type * self , const ecl_smspec_type * other) {
+  bool equal = true;
+
+  if (vector_get_size( self->smspec_nodes ) == vector_get_size( other->smspec_nodes)) {
+    for (int i=0; i < vector_get_size( self->smspec_nodes ); i++) {
+      const smspec_node_type * node1 = vector_iget_const( self->smspec_nodes , i );
+      const smspec_node_type * node2 = vector_iget_const( other->smspec_nodes , i );
+
+      if (!smspec_node_equal( node1,node2)) {
+        equal = false;
+        break;
+      }
+
+    }
   } else
-    return false;
+    equal = false;
+
+  return equal;
 }
 
 
-/**
-   When loading historical summary results the SMSPEC header of the
-   historical results is not internalized, i.e. it is essential that
-   the historical case has identical header as the main case. This
-   function compares the ecl_file represeantation of two SMSPEC
-   headers.
 
-   Unfortunately there are legitimate reasons why some of the headers
-   can be different; in particular new well can appear. In the code
-   below we therefor only check a limited set of keywords for
-   equality.
-*/
-
-static bool ecl_smspec_file_equal( const ecl_file_type * header1 , const ecl_file_type * header2) {
-  if (! ecl_smspec_kw_equal( header1 , header2 , KEYWORDS_KW , 0))
-    return false;
-
-  if (! ecl_smspec_kw_equal( header1 , header2 , STARTDAT_KW , 0))
-    return false;
-
-  if (! ecl_smspec_kw_equal( header1 , header2 , UNITS_KW , 0))
-    return false;
-
-  if (! ecl_smspec_kw_equal( header1 , header2 , DIMENS_KW , 4))  // Only the first four elements are compared.
-    return false;
-
-  if (!ecl_smspec_kw_equal( header1, header2 , LGRS_KW , 0))
-    return false;
-
-  return true;
-}
-
-
-/**
-   This will iterate backwards through the RESTART header in the
-   SMSPEC files to find names of the case(s) this case has been
-   restarted from.
-
-   The case names are internalized in the restart_list field of the
-   ecl_smspec instance. The actual loading of the restart summary data
-   is subsequently handled by the ecl_sum_data function.
-*/
 
 static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_file_type * header ) {
   if (ecl_file_has_kw( header , RESTART_KW )) {
@@ -981,32 +972,12 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
 
       util_alloc_file_components( ecl_smspec->header_file , &path , NULL , NULL );
       smspec_header = ecl_util_alloc_exfilename( path , restart_base , ECL_SUMMARY_HEADER_FILE , ecl_smspec->formatted , 0);
-      if (smspec_header == NULL)
-        fprintf(stderr,"Warning - the header file: %s refers to restart from case: %s - which was not found.... \n", ecl_smspec->header_file , restart_base);
-
-      else {
-        if (!util_same_file(smspec_header , ecl_smspec->header_file)) {   /* Restart from the current case is ignored. */
-          /*
-             Verify that this smspec_header is not already in the list of restart
-             cases. Don't know if this is at all possible, but this test
-             nevertheless prevents against a recursive death.
-          */
-          if (!stringlist_contains( ecl_smspec->restart_list , restart_base)) {
-            ecl_file_type * restart_header = ecl_file_open( smspec_header , 0);
-            if (restart_header) {
-              if (ecl_smspec_file_equal( header , restart_header)) {
-                stringlist_insert_copy( ecl_smspec->restart_list , 0 , restart_base );
-                ecl_smspec_load_restart( ecl_smspec , restart_header);   /* Recursive call */
-              } else
-                fprintf(stderr,"** Warning: the historical case: %s is not compatible with the current case - ignored.\n" ,
-                        ecl_file_get_src_file( restart_header));
-
-              ecl_file_close( restart_header );
-            } else
-              fprintf(stderr,"** Warning: failed to historical case:%s - ignored.\n", smspec_header);
-          }
-        }
+      if (!util_same_file(smspec_header , ecl_smspec->header_file))    /* Restart from the current case is ignored. */ {
+        char * tmp_path = util_alloc_filename( path , restart_base , NULL );
+        ecl_smspec->restart_case = util_alloc_abs_path(tmp_path);
+        free( tmp_path );
       }
+
       util_safe_free( path );
       util_safe_free( smspec_header );
     }
@@ -1620,8 +1591,8 @@ const char * ecl_smspec_get_header_file( const ecl_smspec_type * ecl_smspec ) {
 
 
 
-const stringlist_type * ecl_smspec_get_restart_list( const ecl_smspec_type * ecl_smspec) {
-  return ecl_smspec->restart_list;
+const char * ecl_smspec_get_restart_case( const ecl_smspec_type * ecl_smspec) {
+  return ecl_smspec->restart_case;
 }
 
 
@@ -1644,7 +1615,7 @@ void ecl_smspec_free(ecl_smspec_type *ecl_smspec) {
   int_vector_free( ecl_smspec->index_map );
   float_vector_free( ecl_smspec->params_default );
   vector_free( ecl_smspec->smspec_nodes );
-  stringlist_free( ecl_smspec->restart_list );
+  free( ecl_smspec->restart_case );
   free( ecl_smspec );
 }
 

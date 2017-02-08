@@ -22,6 +22,7 @@ from ert.job_queue import Job
 
 
 class QueueDriverEnum(BaseCEnum):
+    TYPE_NAME="queue_driver_enum"
     NULL_DRIVER = None
     LSF_DRIVER = None
     LOCAL_DRIVER = None
@@ -33,7 +34,6 @@ QueueDriverEnum.addEnum( "LSF_DRIVER" , 1 )
 QueueDriverEnum.addEnum( "LOCAL_DRIVER" , 2 )
 QueueDriverEnum.addEnum( "RSH_DRIVER" , 3 )
 QueueDriverEnum.addEnum( "TORQUE_DRIVER" , 4 )
-QueueDriverEnum.registerEnum(JOB_QUEUE_LIB, "queue_driver_enum")    
 
 
 LSF_DRIVER   = QueueDriverEnum.LSF_DRIVER

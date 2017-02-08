@@ -47,6 +47,8 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtr
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 {
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+
     return (selectedWellLogPlotTrack() != NULL || selectedWellPath() != NULL) && caseAvailable();
 }
 
@@ -55,6 +57,8 @@ bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 {
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
+
     RimWellLogTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {

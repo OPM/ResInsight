@@ -1,4 +1,4 @@
-from cwrap import CWrapper, BaseCClass
+from cwrap import BaseCClass
 from ert.enkf import EnkfPrototype
 
 class ESUpdate(BaseCClass):
@@ -24,16 +24,12 @@ class ESUpdate(BaseCClass):
             self.analysis_config.getModule( name )
         else:
             raise KeyError("No such module:%s " % name)
-        
+
 
     def setGlobalStdScaling(self , weight):
         self.analysis_config.setGlobalStdScaling( weight )
 
-        
-        
+
+
     def smootherUpdate( self , data_fs , target_fs):
         return self._smoother_update(data_fs , target_fs )
-
-    
-
-    

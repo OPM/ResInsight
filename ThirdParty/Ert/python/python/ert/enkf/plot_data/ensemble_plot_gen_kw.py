@@ -1,4 +1,4 @@
-#  Copyright (C) 2014 Statoil ASA, Norway.
+# Copyright (C) 2014 Statoil ASA, Norway.
 #
 #  The file 'ensemble_plot_gen_kw.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -14,8 +14,8 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_fs import EnkfFs
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType
@@ -24,11 +24,22 @@ from ert.enkf.plot_data import EnsemblePlotGenKWVector
 
 
 class EnsemblePlotGenKW(BaseCClass):
+    TYPE_NAME = "ensemble_plot_gen_kw"
+
+    _alloc                = EnkfPrototype("void* enkf_plot_gen_kw_alloc(enkf_config_node)", bind = False)
+    _size                 = EnkfPrototype("int   enkf_plot_gen_kw_get_size(ensemble_plot_gen_kw)")
+    _load                 = EnkfPrototype("void  enkf_plot_gen_kw_load(ensemble_plot_gen_kw, enkf_fs, bool, int, bool_vector)")
+    _get                  = EnkfPrototype("ensemble_plot_gen_kw_vector_ref enkf_plot_gen_kw_iget(ensemble_plot_gen_kw, int)")
+    _iget_key             = EnkfPrototype("char* enkf_plot_gen_kw_iget_key(ensemble_plot_gen_kw, int)")
+    _get_keyword_count    = EnkfPrototype("int   enkf_plot_gen_kw_get_keyword_count(ensemble_plot_gen_kw)")
+    _should_use_log_scale = EnkfPrototype("bool  enkf_plot_gen_kw_should_use_log_scale(ensemble_plot_gen_kw, int)")
+    _free                 = EnkfPrototype("void  enkf_plot_gen_kw_free(ensemble_plot_gen_kw)")
+
     def __init__(self, ensemble_config_node, file_system, input_mask=None):
         assert isinstance(ensemble_config_node, EnkfConfigNode)
         assert ensemble_config_node.getImplementationType() == ErtImplType.GEN_KW
 
-        c_pointer = EnsemblePlotGenKW.cNamespace().alloc(ensemble_config_node)
+        c_pointer = self._alloc(ensemble_config_node)
         super(EnsemblePlotGenKW, self).__init__(c_pointer)
 
         self.__load(file_system, input_mask)
@@ -39,15 +50,15 @@ class EnsemblePlotGenKW(BaseCClass):
         if not input_mask is None:
             assert isinstance(input_mask, BoolVector)
 
-        EnsemblePlotGenKW.cNamespace().load(self, file_system, True, 0, input_mask)
+        self._load(file_system, True, 0, input_mask)
 
     def __len__(self):
         """ @rtype: int """
-        return EnsemblePlotGenKW.cNamespace().size(self)
+        return self._size()
 
     def __getitem__(self, index):
         """ @rtype: EnsemblePlotGenKWVector """
-        return EnsemblePlotGenKW.cNamespace().get(self, index)
+        return self._get(index)
 
     def __iter__(self):
         cur = 0
@@ -57,11 +68,11 @@ class EnsemblePlotGenKW(BaseCClass):
 
     def getKeyWordCount(self):
         """ @rtype: int """
-        return EnsemblePlotGenKW.cNamespace().get_keyword_count(self)
+        return self._get_keyword_count()
 
     def getKeyWordForIndex(self, index):
         """ @rtype: str """
-        return EnsemblePlotGenKW.cNamespace().iget_key(self, index)
+        return self._iget_key(index)
 
     def getIndexForKeyword(self, keyword):
         """ @rtype: int """
@@ -73,31 +84,10 @@ class EnsemblePlotGenKW(BaseCClass):
 
     def shouldUseLogScale(self, index):
         """ @rtype: bool """
-        return bool(EnsemblePlotGenKW.cNamespace().should_use_log_scale(self, index))
+        return bool(self._should_use_log_scale(index))
 
     def free(self):
-        EnsemblePlotGenKW.cNamespace().free(self)
+        self._free()
 
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("ensemble_plot_gen_kw", EnsemblePlotGenKW)
-cwrapper.registerType("ensemble_plot_gen_kw_obj", EnsemblePlotGenKW.createPythonObject)
-cwrapper.registerType("ensemble_plot_gen_kw_ref", EnsemblePlotGenKW.createCReference)
-
-EnsemblePlotGenKW.cNamespace().free = cwrapper.prototype("void enkf_plot_gen_kw_free(ensemble_plot_gen_kw)")
-EnsemblePlotGenKW.cNamespace().alloc = cwrapper.prototype("c_void_p enkf_plot_gen_kw_alloc(enkf_config_node)")
-
-EnsemblePlotGenKW.cNamespace().size = cwrapper.prototype("int enkf_plot_gen_kw_get_size(ensemble_plot_gen_kw)")
-EnsemblePlotGenKW.cNamespace().load = cwrapper.prototype("void enkf_plot_gen_kw_load(ensemble_plot_gen_kw, enkf_fs, bool, int, bool_vector)")
-EnsemblePlotGenKW.cNamespace().get = cwrapper.prototype("ensemble_plot_gen_kw_vector_ref enkf_plot_gen_kw_iget(ensemble_plot_gen_kw, int)")
-EnsemblePlotGenKW.cNamespace().iget_key = cwrapper.prototype("char* enkf_plot_gen_kw_iget_key(ensemble_plot_gen_kw, int)")
-EnsemblePlotGenKW.cNamespace().get_keyword_count = cwrapper.prototype("int enkf_plot_gen_kw_get_keyword_count(ensemble_plot_gen_kw)")
-EnsemblePlotGenKW.cNamespace().should_use_log_scale = cwrapper.prototype("bool enkf_plot_gen_kw_should_use_log_scale(ensemble_plot_gen_kw, int)")
-
-
-
-
-
-
-
+    def __repr__(self):
+        return 'EnsemblePlotGenKW(size = %d) %s' % (len(self), self._ad_str())

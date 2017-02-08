@@ -18,6 +18,7 @@ from cwrap import BaseCClass
 from ert.util.rng import RandomNumberGenerator
 from ert.analysis import AnalysisPrototype
 
+from ert.util import Matrix
 
 class AnalysisModule(BaseCClass):
     TYPE_NAME = "analysis_module"
@@ -110,6 +111,15 @@ class AnalysisModule(BaseCClass):
     def free(self):
         self._free( )
 
+    def __repr__(self):
+        nm = self.name()
+        tn = self.getTableName()
+        ln = self.getLibName()
+        mi = 'internal' if self.getInternal() else 'external'
+        ad = self._ad_str()
+        fmt = 'AnalysisModule(name = %s, table = %s, lib = %s, %s) %s'
+        return fmt % (nm, tn, ln, mi, ad)
+
     def getLibName(self):
         return self._get_lib_name( )
 
@@ -131,6 +141,9 @@ class AnalysisModule(BaseCClass):
 
     def getName(self):
         """ :rtype: str """
+        return self.name()
+
+    def name(self):
         return self._get_name( )
 
     def checkOption(self, flag):

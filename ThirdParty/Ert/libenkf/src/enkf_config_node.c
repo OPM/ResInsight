@@ -59,6 +59,7 @@ struct enkf_config_node_struct {
   bool_vector_type      * internalize;      /* Should this node be internalized - observe that question of what to internalize is MOSTLY handled at a higher level - without consulting this variable. Can be NULL. */
   stringlist_type       * obs_keys;         /* Keys of observations which observe this node. */
   char                  * key;
+  char                  * init_file_abs_path;
   path_fmt_type         * init_file_fmt;    /* Format used to create files for initialization. */
   path_fmt_type         * enkf_infile_fmt;  /* Format used to load in file from forward model - one %d (if present) is replaced with report_step. */
   path_fmt_type         * enkf_outfile_fmt; /* Name of file which is written by EnKF, and read by the forward model. */
@@ -122,6 +123,7 @@ static enkf_config_node_type * enkf_config_node_alloc__(enkf_var_type  var_type,
     node->container_nodes = vector_alloc_new();
     node->vector_storage  = false;
 
+    node->init_file_abs_path = NULL,
     node->init_file_fmt    = NULL;
     node->enkf_infile_fmt  = NULL;
     node->enkf_outfile_fmt = NULL;
@@ -347,7 +349,7 @@ void enkf_config_node_update_surface( enkf_config_node_type * config_node , cons
 
 enkf_config_node_type * enkf_config_node_alloc_summary( const char * key , load_fail_type load_fail) {
   enkf_config_node_type * config_node = enkf_config_node_alloc__( DYNAMIC_RESULT , SUMMARY , key , false);
-  config_node->data = summary_config_alloc( key , config_node->vector_storage , load_fail );
+  config_node->data = summary_config_alloc( key , load_fail );
   return config_node;
 }
 
@@ -565,6 +567,8 @@ void enkf_config_node_free(enkf_config_node_type * node) {
   free(node->key);
   stringlist_free(node->obs_keys);
 
+  free(node->init_file_abs_path);
+
   if (node->enkf_infile_fmt != NULL)
     path_fmt_free( node->enkf_infile_fmt );
 
@@ -602,6 +606,35 @@ const char * enkf_config_node_get_enkf_outfile( const enkf_config_node_type * co
 const char * enkf_config_node_get_enkf_infile( const enkf_config_node_type * config_node ) {
   return path_fmt_get_fmt( config_node->enkf_infile_fmt );
 }
+
+
+const char * enkf_config_node_get_FIELD_fill_file(enkf_config_node_type * config_node, const path_fmt_type * runpath_fmt) {
+  if (config_node->init_file_abs_path)
+    return config_node->init_file_abs_path;
+
+  char * runpath                   = NULL;
+  bool   forward_init              = enkf_config_node_use_forward_init(config_node);
+
+  if (forward_init && runpath_fmt) {
+    runpath = path_fmt_alloc_path(runpath_fmt , false , 0, 0);  /* Replace first %d with iens, if a second %d replace with iter */
+    config_node->init_file_abs_path = enkf_config_node_alloc_initfile(config_node, runpath, 0);
+  } else
+    config_node->init_file_abs_path = enkf_config_node_alloc_initfile(config_node, NULL, 0);
+
+  if (config_node->init_file_abs_path) {
+    config_node->init_file_abs_path = util_alloc_abs_path(config_node->init_file_abs_path);
+    if (!util_file_exists(config_node->init_file_abs_path)) {
+      free(config_node->init_file_abs_path);
+      config_node->init_file_abs_path = NULL;
+    }
+  }
+
+  free(runpath);
+
+  return config_node->init_file_abs_path;
+}
+
+
 
 const char * enkf_config_node_get_init_file_fmt( const enkf_config_node_type * config_node)
 {

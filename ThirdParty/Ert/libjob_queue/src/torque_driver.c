@@ -303,6 +303,8 @@ static int torque_job_parse_qsub_stdout(const torque_driver_type * driver, const
     FILE * stream = util_fopen(stdout_file, "r");
     char * jobid_string = util_fscanf_alloc_upto(stream, ".", false);
 
+    torque_debug(driver, "Torque job ID string: '%s'", jobid_string);
+
     if (jobid_string == NULL || !util_sscanf_int(jobid_string, &jobid)) {
 
       char * file_content = util_fread_alloc_file_content(stdout_file, NULL);
@@ -328,27 +330,43 @@ void torque_job_create_submit_script(const char * script_filename, const char * 
 
   fprintf(script_file, "%s", submit_cmd);
   for (int i = 0; i < argc; i++) {
-
     fprintf(script_file, " %s", job_argv[i]);
   }
 
   util_fclose(script_file);
 }
 
+static void torque_debug_spawn_status_info(torque_driver_type *driver, int status) {
+  if (WIFEXITED((status))) {
+    torque_debug(driver, "Torque spawn exited with status=%d", WEXITSTATUS((status)));
+  } else if (WIFSIGNALED((status))) {
+    torque_debug(driver, "Torque spawn killed by signal %d", WTERMSIG((status)));
+  } else if (WIFSTOPPED((status))) {
+    torque_debug(driver, "Torque spawn stopped by signal %d", WSTOPSIG((status)));
+  } else if (WIFCONTINUED((status))) {
+    torque_debug(driver, "Torque spawn continued");
+  } else {
+    torque_debug(driver, "Torque spawn failed with unknown status code: %d", (status));
+  }
+}
 
 static int torque_driver_submit_shell_job(torque_driver_type * driver,
-        const char * run_path,
-        const char * job_name,
-        const char * submit_cmd,
-        int num_cpu,
-        int job_argc,
-        const char ** job_argv) {
+                                          const char * run_path,
+                                          const char * job_name,
+                                          const char * submit_cmd,
+                                          int num_cpu,
+                                          int job_argc,
+                                          const char ** job_argv) {
 
   usleep( driver->submit_sleep );
   {
     int job_id;
-    char * tmp_file = util_alloc_tmp_file("/tmp", "enkf-submit", true);
+    char * tmp_std_file = util_alloc_tmp_file("/tmp", "enkf-submit-std", true);
+    char * tmp_err_file = util_alloc_tmp_file("/tmp", "enkf-submit-err", true);
     char * script_filename = util_alloc_filename(run_path, "qsub_script", "sh");
+
+    torque_debug(driver, "Setting up submit stdout target '%s' for '%s'", tmp_std_file, script_filename);
+    torque_debug(driver, "Setting up submit stderr target '%s' for '%s'", tmp_err_file, script_filename);
     torque_job_create_submit_script(script_filename, submit_cmd, job_argc, job_argv);
     {
       int p_units_from_driver = driver->num_cpus_per_node * driver->num_nodes;
@@ -358,17 +376,23 @@ static int torque_driver_submit_shell_job(torque_driver_type * driver,
       }
       {
         stringlist_type * remote_argv = torque_driver_alloc_cmd(driver, job_name, script_filename);
+        torque_debug(driver, "Submit arguments: %s", stringlist_alloc_joined_string(remote_argv, " "));
         char ** argv = stringlist_alloc_char_ref(remote_argv);
-        util_spawn_blocking(driver->qsub_cmd, stringlist_get_size(remote_argv), (const char **) argv, tmp_file, NULL);
+        int status = util_spawn_blocking(driver->qsub_cmd, stringlist_get_size(remote_argv), (const char **) argv, tmp_std_file, tmp_err_file);
+        if (status != 0) {
+          torque_debug_spawn_status_info(driver, status);
+        }
         free(argv);
         stringlist_free(remote_argv);
       }
     }
 
-    job_id = torque_job_parse_qsub_stdout(driver, tmp_file);
+    job_id = torque_job_parse_qsub_stdout(driver, tmp_std_file);
 
-    util_unlink_existing(tmp_file);
-    free(tmp_file);
+    util_unlink_existing(tmp_std_file);
+    util_unlink_existing(tmp_err_file);
+    free(tmp_std_file);
+    free(tmp_err_file);
 
     return job_id;
   }
@@ -477,7 +501,8 @@ job_status_type torque_driver_get_job_status(void * __driver, void * __job) {
   } else if (strcmp(status, "Q") == 0) {
     result = JOB_QUEUE_PENDING;
   } else {
-    util_abort("%s: Unknown status found (%s), expecting one of R, E, C and Q.\n", __func__, status);
+    fprintf(stderr, "%s: Unknown status found (%s), expecting one of R, E, C and Q.\n", __func__, status);
+    result = JOB_QUEUE_STATUS_FAILURE;
   }
   free(status);
 

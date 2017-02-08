@@ -849,7 +849,8 @@ void obs_vector_measure(const obs_vector_type * obs_vector ,
     node_id_type node_id = { .report_step = report_step ,
                              .iens        = 0 };
 
-    for (int active_iens_index =0; active_iens_index < int_vector_size( ens_active_list ); active_iens_index++) {
+    int vec_size = int_vector_size( ens_active_list );
+    for (int active_iens_index = 0; active_iens_index < vec_size; active_iens_index++) {
       node_id.iens = int_vector_iget( ens_active_list , active_iens_index );
 
       enkf_node_load(enkf_node , fs , node_id);
@@ -893,23 +894,18 @@ static bool obs_vector_has_data_at_report_step( const obs_vector_type * obs_vect
 */
 
 static bool obs_vector_has_vector_data( const obs_vector_type * obs_vector , const bool_vector_type * active_mask , enkf_fs_type * fs) {
-  bool has_data = true;
-  int iens = 0;
+  int vec_size = bool_vector_size( active_mask );
 
-  while (true) {
+  for (int iens = 0; iens < vec_size; iens++) {
     const enkf_config_node_type * data_config = obs_vector->config_node;
     if (bool_vector_iget( active_mask , iens )) {
       if (!enkf_config_node_has_vector(data_config , fs , iens)) {
-        has_data = false;
-        break;
+        return false;
       }
     }
-    iens++;
-    if (iens >= bool_vector_size( active_mask ))
-      break;
   }
 
-  return has_data;
+  return true;
 }
 
 
@@ -918,13 +914,13 @@ bool obs_vector_has_data( const obs_vector_type * obs_vector , const bool_vector
   const enkf_config_node_type * data_config = obs_vector->config_node;
   if (enkf_config_node_vector_storage( data_config ))
     return obs_vector_has_vector_data( obs_vector , active_mask , fs );
-  else {
-    for (int report_step = 0; report_step < vector_get_size( obs_vector->nodes ); report_step++) {
-      if (!obs_vector_has_data_at_report_step( obs_vector , active_mask , fs, report_step))
-        return false;
-    }
-    return true;
+
+  int vec_size = vector_get_size( obs_vector->nodes );
+  for (int report_step = 0; report_step < vec_size; report_step++) {
+    if (!obs_vector_has_data_at_report_step( obs_vector , active_mask , fs, report_step))
+      return false;
   }
+  return true;
 }
 
 
@@ -952,7 +948,7 @@ bool obs_vector_has_data( const obs_vector_type * obs_vector , const bool_vector
 static double obs_vector_chi2__(const obs_vector_type * obs_vector , int report_step , const enkf_node_type * node, node_id_type node_id) {
   void * obs_node = vector_iget( obs_vector->nodes , report_step );
 
-  if ( obs_node != NULL)
+  if (obs_node)
     return obs_vector->chi2( obs_node , enkf_node_value_ptr( node ), node_id);
   else
     return 0.0;  /* Observation not active for this report step. */
@@ -1036,12 +1032,12 @@ void obs_vector_ensemble_chi2(const obs_vector_type * obs_vector ,
 
 
 double obs_vector_total_chi2(const obs_vector_type * obs_vector , enkf_fs_type * fs , int iens) {
-  int report_step;
   double sum_chi2 = 0;
   enkf_node_type * enkf_node = enkf_node_deep_alloc( obs_vector->config_node );
   node_id_type node_id = {.report_step = 0, .iens = iens };
 
-  for (report_step = 0; report_step < vector_get_size( obs_vector->nodes ); report_step++) {
+  int vec_size = vector_get_size( obs_vector->nodes );
+  for (int report_step = 0; report_step < vec_size; report_step++) {
     if (vector_iget(obs_vector->nodes , report_step) != NULL) {
       node_id.report_step = report_step;
 
@@ -1077,7 +1073,8 @@ void obs_vector_ensemble_total_chi2(const obs_vector_type * obs_vector , enkf_fs
   {
     node_id_type node_id = {.report_step = 0, .iens = iens };
     enkf_node_type * enkf_node = enkf_node_alloc( obs_vector->config_node );
-    for (report_step = 0; report_step < vector_get_size( obs_vector->nodes); report_step++) {
+    int vec_size = vector_get_size( obs_vector->nodes);
+    for (report_step = 0; report_step < vec_size; report_step++) {
       if (verbose) {
         msg_text = util_realloc_sprintf( msg_text , "%s[%03d]" , obs_vector->obs_key , report_step);
         msg_update(msg , msg_text);

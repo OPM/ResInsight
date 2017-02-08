@@ -19,7 +19,7 @@ Create a polygon
 import ctypes
 import os.path
 
-from cwrap import BaseCClass, CWrapper
+from cwrap import BaseCClass
 from ert.geo import GeoPrototype
 from .geometry_tools import GeometryTools
 

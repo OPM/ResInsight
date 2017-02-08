@@ -1,4 +1,5 @@
 from ert.enkf.enkf_fs_manager import naturalSortKey
+from ert.enkf import PlotSettings as ErtPlotSettings
 from ert_gui.plottery.plot_config import PlotConfig
 from ert_gui.shell import assertConfigLoaded, ErtShellCollection
 from ert_gui.shell.libshell import autoCompleteList, boolValidator, pathCompleter, splitArguments
@@ -18,9 +19,14 @@ def plotPathValidator(model, line):
 class PlotSettings(ErtShellCollection):
     def __init__(self, parent):
         super(PlotSettings, self).__init__("plot_settings", parent)
-
+        
         self.__cases = None
-        self.__plot_config = PlotConfig(None)
+        if self.ert():
+            ert_ps = self.ert().plotConfig( )
+        else:
+            ert_ps = ErtPlotSettings( )
+
+        self.__plot_config = PlotConfig( ert_ps )
         self.shellContext()["plot_settings"] = self
 
         self.addShellFunction(name="current",

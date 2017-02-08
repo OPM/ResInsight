@@ -80,6 +80,7 @@ extern "C" {
   double          ecl_grid_get_cell_volume1( const ecl_grid_type * ecl_grid, int global_index );
   double          ecl_grid_get_cell_volume1_tskille( const ecl_grid_type * ecl_grid, int global_index );
   double          ecl_grid_get_cell_volume3( const ecl_grid_type * ecl_grid, int i , int j , int k);
+  double          ecl_grid_get_cell_volume1A( const ecl_grid_type * ecl_grid, int active_index );
   bool            ecl_grid_cell_contains1(const ecl_grid_type * grid , int global_index , double x , double y , double z);
   bool            ecl_grid_cell_contains3(const ecl_grid_type * grid , int i , int j ,int k , double x , double y , double z);
   int             ecl_grid_get_global_index_from_xyz(ecl_grid_type * grid , double x , double y , double z , int start_index);
@@ -194,13 +195,15 @@ extern "C" {
 
   void                    ecl_grid_fwrite_dims( const ecl_grid_type * grid , fortio_type * init_file,  ert_ecl_unit_enum output_unit);
   void                    ecl_grid_fwrite_depth( const ecl_grid_type * grid , fortio_type * init_file , ert_ecl_unit_enum ouput_unit);
+
   void                    ecl_grid_fwrite_EGRID(  ecl_grid_type * grid , const char * filename, bool metric_output);
   void                    ecl_grid_fwrite_EGRID2( ecl_grid_type * grid , const char * filename, ert_ecl_unit_enum output_unit);
 
   void                    ecl_grid_fwrite_GRID( const ecl_grid_type * grid , const char * filename);
+  void                    ecl_grid_fwrite_GRID2( const ecl_grid_type * grid , const char * filename, ert_ecl_unit_enum output_unit);
+
   void                    ecl_grid_fprintf_grdecl(  ecl_grid_type * grid , FILE * stream );
-  void                    ecl_grid_fwrite_EGRID_header__( int dims[3] , const float mapaxes[6], int dualp_flag , fortio_type * fortio);
-  void                    ecl_grid_fwrite_EGRID_header( int dims[3] , const float mapaxes[6], fortio_type * fortio);
+  void                    ecl_grid_fprintf_grdecl2(  ecl_grid_type * grid , FILE * stream , ert_ecl_unit_enum output_unit);
 
   int              ecl_grid_zcorn_index(const ecl_grid_type * grid , int i, int j , int k , int c);
   ecl_grid_type * ecl_grid_alloc_EGRID(const char * grid_file, bool apply_mapaxes );

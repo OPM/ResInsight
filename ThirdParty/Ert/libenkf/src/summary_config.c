@@ -36,7 +36,6 @@
 
 struct summary_config_struct {
   int                   __type_id;
-  bool                  vector_storage;
   load_fail_type        load_fail;
   ecl_smspec_var_type   var_type;         /* The type of the variable - according to ecl_summary nomenclature. */
   char * var;                             /* This is ONE variable of summary.x format - i.e. WOPR:OP_2, RPR:4, ... */
@@ -55,11 +54,6 @@ const char * summary_config_get_var(const summary_config_type * config) {
 
 ecl_smspec_var_type summary_config_get_var_type(summary_config_type * config , const ecl_sum_type * ecl_sum) {
   return config->var_type;
-}
-
-
-bool summary_config_get_vector_storage( const summary_config_type * config) {
-  return config->vector_storage;
 }
 
 
@@ -94,13 +88,12 @@ void summary_config_update_load_fail_mode( summary_config_type * config , load_f
 }
 
 
-summary_config_type * summary_config_alloc(const char * var , bool vector_storage , load_fail_type load_fail) {
+summary_config_type * summary_config_alloc(const char * var , load_fail_type load_fail) {
   summary_config_type * config = util_malloc(sizeof *config );
   config->__type_id            = SUMMARY_CONFIG_TYPE_ID;
   config->var                  = util_alloc_string_copy( var );
   config->var_type             = ecl_smspec_identify_var_type( var );
   config->obs_set              = set_alloc_empty(); 
-  config->vector_storage       = vector_storage;
   summary_config_set_load_fail_mode( config , load_fail);
   return config;
 }

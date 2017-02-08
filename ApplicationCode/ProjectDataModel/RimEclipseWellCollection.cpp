@@ -112,7 +112,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", true, "Show Wells Intersecting Visible Cells", "", "", "");
+    CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", false, "Hide Wells Not Intersecting Filtered Cells", "", "", "");
 
     // Appearance
     CAF_PDM_InitFieldNoDefault(&m_showWellHead,        "ShowWellHeadTristate",      "Show Well Head", "", "", "");
@@ -401,10 +401,15 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
                 || &isAutoDetectingBranches == changedField
                 || &wellHeadPosition == changedField
                 || &wellLabelColor == changedField
-                || &showWellsIntersectingVisibleCells == changedField
                 || &wellPipeCoordType == changedField
                 || &m_showWellPipe == changedField)
         {
+            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+        else if (&showWellsIntersectingVisibleCells == changedField)
+        {
+            m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             m_reservoirView->schedulePipeGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }

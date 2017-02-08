@@ -16,14 +16,34 @@
 import os
 import errno 
 
-from cwrap import CWrapper, BaseCClass
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.util import CTime
 
 
 class TimeMap(BaseCClass):
+    TYPE_NAME = "time_map"
+
+    _fread_alloc_readonly       = EnkfPrototype("void*  time_map_fread_alloc_readonly(char*)", bind = False)
+    _alloc                      = EnkfPrototype("void*  time_map_alloc()", bind = False)
+    _load                       = EnkfPrototype("bool   time_map_fread(time_map , char*)")
+    _save                       = EnkfPrototype("void   time_map_fwrite(time_map , char*)")
+    _fload                      = EnkfPrototype("bool   time_map_fscanf(time_map , char*)")
+    _iget_sim_days              = EnkfPrototype("double time_map_iget_sim_days(time_map, int)")
+    _iget                       = EnkfPrototype("time_t time_map_iget(time_map, int)")
+    _size                       = EnkfPrototype("int    time_map_get_size(time_map)")
+    _try_update                 = EnkfPrototype("bool   time_map_try_update(time_map , int , time_t)")
+    _is_strict                  = EnkfPrototype("bool   time_map_is_strict( time_map )")
+    _set_strict                 = EnkfPrototype("void   time_map_set_strict( time_map , bool)")
+    _lookup_time                = EnkfPrototype("int    time_map_lookup_time( time_map , time_t)")
+    _lookup_time_with_tolerance = EnkfPrototype("int    time_map_lookup_time_with_tolerance( time_map , time_t , int , int)")
+    _lookup_days                = EnkfPrototype("int    time_map_lookup_days( time_map ,         double)")
+    _last_step                  = EnkfPrototype("int    time_map_get_last_step( time_map )")
+    _upgrade107                 = EnkfPrototype("void   time_map_summary_upgrade107( time_map , ecl_sum )")
+    _free                       = EnkfPrototype("void   time_map_free( time_map )")
+
     def __init__(self, filename = None):
-        c_ptr = TimeMap.cNamespace().alloc()
+        c_ptr = self._alloc()
         super(TimeMap, self).__init__(c_ptr)
         if filename:
             self.load(filename)
@@ -31,13 +51,13 @@ class TimeMap(BaseCClass):
 
     def load(self, filename):
         if os.path.isfile( filename ):
-            TimeMap.cNamespace().load(self , filename)
+            self._load(filename)
         else:
             raise IOError(( errno.ENOENT , "File not found: %s" % filename))
 
 
     def fwrite(self, filename):
-        TimeMap.cNamespace().save(self , filename)
+        self._save(filename)
 
 
     def fload(self , filename):
@@ -45,7 +65,7 @@ class TimeMap(BaseCClass):
         Will load a timemap as a formatted file consisting of a list of dates: DD/MM/YYYY
         """
         if os.path.isfile( filename ):
-            OK = TimeMap.cNamespace().fload(self , filename)
+            OK = self._fload(filename)
             if not OK:
                 raise Exception("Error occured when loading timemap from:%s" % filename)
         else:
@@ -54,11 +74,11 @@ class TimeMap(BaseCClass):
 
 
     def isStrict(self):
-        return TimeMap.cNamespace().is_strict( self )
+        return self._is_strict()
 
 
     def setStrict(self , strict):
-        return TimeMap.cNamespace().set_strict( self , strict)
+        return self._set_strict(strict)
         
 
     def getSimulationDays(self, step):
@@ -70,7 +90,7 @@ class TimeMap(BaseCClass):
         if step < 0 or step >= size:
             raise IndexError("Index out of range: 0 <= %d < %d" % (step, size))
 
-        return TimeMap.cNamespace().iget_sim_days(self, step)
+        return self._iget_sim_days(step)
 
 
     def __getitem__(self, index):
@@ -82,14 +102,14 @@ class TimeMap(BaseCClass):
         if index < 0 or index >= size:
             raise IndexError("Index out of range: 0 <= %d < %d" % (index, size))
 
-        return TimeMap.cNamespace().iget(self, index)
+        return self._iget(index)
 
     def __setitem__(self , index , time):
         self.update( index , time )
 
 
     def update(self , index , time):
-        if TimeMap.cNamespace().try_update(self , index , CTime(time)):
+        if self._try_update(index , CTime(time)):
             return True
         else:
             if self.isStrict():
@@ -107,7 +127,7 @@ class TimeMap(BaseCClass):
             cur += 1
 
     def __contains__(self , time):
-        index = TimeMap.cNamespace().lookup_time(self , CTime(time))
+        index = self._lookup_time(CTime(time))
         if index >= 0:
             return True
         else:
@@ -139,9 +159,9 @@ class TimeMap(BaseCClass):
 
         """
         if tolerance_seconds_before == 0 and tolerance_seconds_after == 0:
-            index = TimeMap.cNamespace().lookup_time(self , CTime(time))
+            index = self._lookup_time(CTime(time))
         else:
-            index = TimeMap.cNamespace().lookup_time_with_tolerance(self , CTime(time) , tolerance_seconds_before , tolerance_seconds_after)
+            index = self._lookup_time_with_tolerance(CTime(time) , tolerance_seconds_before , tolerance_seconds_after)
 
         if index >= 0:
             return index
@@ -150,7 +170,7 @@ class TimeMap(BaseCClass):
 
 
     def lookupDays(self , days):
-        index = TimeMap.cNamespace().lookup_days(self , days)
+        index = self._lookup_days(days)
         if index >= 0:
             return index
         else:
@@ -159,11 +179,17 @@ class TimeMap(BaseCClass):
 
     def __len__(self):
         """ @rtype: int """
-        return TimeMap.cNamespace().size(self)
+        return self._size()
 
     def free(self):
-        TimeMap.cNamespace().free(self)
+        self._free()
 
+    def __repr__(self):
+        ls = len(self)
+        la = self.getLastStep()
+        st = 'strict' if self.isStrict() else 'not strict'
+        cnt = 'size = %d, last_step = %d, %s' % (ls, la, st)
+        return self._create_repr(cnt)
 
     def dump(self):
         """ 
@@ -176,37 +202,8 @@ class TimeMap(BaseCClass):
 
 
     def getLastStep(self):
-        return TimeMap.cNamespace().last_step(self)
+        return self._last_step()
 
 
     def upgrade107(self, refcase):
-        TimeMap.cNamespace().upgrade107(self, refcase)
-
-    
-##################################################################
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("time_map", TimeMap)
-cwrapper.registerType("time_map_obj", TimeMap.createPythonObject)
-cwrapper.registerType("time_map_ref", TimeMap.createCReference)
-
-
-##################################################################
-##################################################################
-
-TimeMap.cNamespace().free = cwrapper.prototype("void time_map_free( time_map )")
-TimeMap.cNamespace().fread_alloc_readonly = cwrapper.prototype("c_void_p time_map_fread_alloc_readonly(char*)")
-TimeMap.cNamespace().alloc = cwrapper.prototype("c_void_p time_map_alloc()")
-TimeMap.cNamespace().load = cwrapper.prototype("bool time_map_fread(time_map , char*)")
-TimeMap.cNamespace().save = cwrapper.prototype("void time_map_fwrite(time_map , char*)")
-TimeMap.cNamespace().fload = cwrapper.prototype("bool time_map_fscanf(time_map , char*)")
-TimeMap.cNamespace().iget_sim_days = cwrapper.prototype("double time_map_iget_sim_days(time_map, int)")
-TimeMap.cNamespace().iget = cwrapper.prototype("time_t time_map_iget(time_map, int)")
-TimeMap.cNamespace().size = cwrapper.prototype("int time_map_get_size(time_map)")
-TimeMap.cNamespace().try_update = cwrapper.prototype("bool time_map_try_update(time_map , int , time_t)")
-TimeMap.cNamespace().is_strict = cwrapper.prototype("bool time_map_is_strict( time_map )")
-TimeMap.cNamespace().set_strict = cwrapper.prototype("void time_map_set_strict( time_map , bool)")
-TimeMap.cNamespace().lookup_time = cwrapper.prototype("int time_map_lookup_time( time_map , time_t)")
-TimeMap.cNamespace().lookup_time_with_tolerance = cwrapper.prototype("int time_map_lookup_time_with_tolerance( time_map , time_t , int , int)")
-TimeMap.cNamespace().lookup_days = cwrapper.prototype("int time_map_lookup_days( time_map , double)")
-TimeMap.cNamespace().last_step = cwrapper.prototype("int time_map_get_last_step( time_map )")
-TimeMap.cNamespace().upgrade107 = cwrapper.prototype("void time_map_summary_upgrade107( time_map , ecl_sum )")
+        self._upgrade107(refcase)

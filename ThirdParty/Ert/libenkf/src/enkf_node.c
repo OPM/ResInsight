@@ -190,8 +190,10 @@
 
 
 
+#define ENKF_NODE_TYPE_ID 71043086
 
 struct enkf_node_struct {
+  UTIL_TYPE_ID_DECLARATION;
   alloc_ftype                    * alloc;
   ecl_write_ftype                * ecl_write;
   forward_load_ftype             * forward_load;
@@ -236,6 +238,8 @@ const enkf_config_node_type * enkf_node_get_config(const enkf_node_type * node) 
 bool enkf_node_vector_storage( const enkf_node_type * node ) {
   return node->vector_storage;
 }
+
+static UTIL_IS_INSTANCE_FUNCTION( enkf_node , ENKF_NODE_TYPE_ID )
 
 
 /*****************************************************************/
@@ -1002,8 +1006,10 @@ bool enkf_node_has_func(const enkf_node_type * node , node_function_type functio
 
 
 
+
 enkf_node_type * enkf_node_alloc(const enkf_config_node_type * config) {
   enkf_node_type * node    = enkf_node_alloc_empty(config);
+  UTIL_TYPE_ID_INIT( node , ENKF_NODE_TYPE_ID );
   enkf_node_alloc_domain_object(node);
   return node;
 }

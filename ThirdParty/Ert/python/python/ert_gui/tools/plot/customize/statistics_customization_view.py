@@ -1,7 +1,7 @@
 from PyQt4.QtGui import QHBoxLayout, QLabel, QComboBox
 
 from ert_gui.tools.plot.customize import CustomizationView, WidgetProperty
-
+from ert_gui.tools.plot import style_chooser as sc
 
 class StatisticsCustomizationView(CustomizationView):
     mean_style = WidgetProperty()
@@ -25,13 +25,22 @@ class StatisticsCustomizationView(CustomizationView):
         self.addRow("", layout)
         self.addStyleChooser("mean_style", "Mean", "Line and marker style for the mean line.")
         self.addStyleChooser("p50_style", "P50", "Line and marker style for the P50 line.")
-        self.addStyleChooser("std_style", "Std dev", "Line and marker style for the unbiased standard deviation lines.", True)
-        self.addStyleChooser("min_max_style", "Min/Max", "Line and marker style for the min/max lines.", True)
-        self.addStyleChooser("p10_p90_style", "P10-P90", "Line and marker style for the P10-P90 lines.", True)
-        self.addStyleChooser("p33_p67_style", "P33-P67", "Line and marker style for the P33-P67 lines.", True)
+        self.addStyleChooser("std_style", "Std dev",
+                             "Line and marker style for the unbiased standard deviation lines.",
+                             line_style_set=sc.STYLESET_AREA)
+        self.addStyleChooser("min_max_style", "Min/Max",
+                             "Line and marker style for the min/max lines.",
+                             line_style_set=sc.STYLESET_AREA)
+        self.addStyleChooser("p10_p90_style", "P10-P90",
+                             "Line and marker style for the P10-P90 lines.",
+                             line_style_set=sc.STYLESET_AREA)
+        self.addStyleChooser("p33_p67_style", "P33-P67",
+                             "Line and marker style for the P33-P67 lines.",
+                             line_style_set=sc.STYLESET_AREA)
         self.addSpacing()
 
-        std_box = self.addSpinBox("std_dev_factor", "Std dev multiplier", "Choose which standard deviation to plot", max_value=3)
+        std_box = self.addSpinBox("std_dev_factor", "Std dev multiplier",
+                                  "Choose which standard deviation to plot", max_value=3)
 
         self.addCheckBox("distribution_lines", "Connection Lines", "Toggle distribution connection lines visibility.")
 

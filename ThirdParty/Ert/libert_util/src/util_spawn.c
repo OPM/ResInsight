@@ -66,7 +66,13 @@ pid_t util_spawn(const char *executable, int argc, const char **argv, const char
 
       pthread_mutex_lock( &spawn_mutex );
       {
-        int spawn_status = posix_spawn(&pid , executable, &file_actions, NULL, __argv, environ);
+        int spawn_status;
+        if (util_is_executable(executable)) { // the executable is in current directory or an absolute path
+          spawn_status = posix_spawn(&pid, executable, &file_actions, NULL, __argv, environ);
+        } else { // Try to find executable in path
+          spawn_status = posix_spawnp(&pid, executable, &file_actions, NULL, __argv, environ);
+        }
+
         if (spawn_status != 0)
           util_abort("%s: failed to spawn external command: \'%s\': %s \n", __func__, executable, strerror(spawn_status));
       }

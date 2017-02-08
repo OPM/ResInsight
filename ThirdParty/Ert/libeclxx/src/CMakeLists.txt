@@ -1,12 +1,14 @@
 set( source_files
      FortIO.cpp
      Smspec.cpp
+     EclFilename.cpp
      )
 
 set( header_files
      EclKW.hpp
      FortIO.hpp
      Smspec.hpp
+     EclFilename.hpp
      )
 
 

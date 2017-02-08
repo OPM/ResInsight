@@ -380,6 +380,11 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
             cvf::Vec3d centerLastCell = prevCell.center();
             finishPipeCenterLine(pipeBranchesCLCoords, centerLastCell);
         }
+        else if (prevWellResPoint && prevWellResPoint->isPointValid())
+        {
+            // Continue the line with the same point, just to keep the last Cell ID
+            pipeBranchesCLCoords.back().push_back(prevWellResPoint->m_bottomPosition);
+        }
         else
         {
             // Remove the ID that is superfluous since we will not add an ending point

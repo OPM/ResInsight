@@ -1,20 +1,15 @@
 import ctypes
 import ert
-from cwrap import CWrapper
+
+from ert.ecl import EclPrototype
 from ert.ecl import EclKW, EclFile, EclTypeEnum, FortIO
 from ert.test import ExtendedTestCase, TestAreaContext
 from ert.util import IntVector
 
-
-ecl_lib = ert.load("libecl")
-ecl_wrapper = CWrapper(ecl_lib)
-
-
-freadIndexedData = ecl_wrapper.prototype("void ecl_kw_fread_indexed_data(fortio, int, int, int, int_vector, char*)") # fortio, offset, type, count, index_map, buffer
-eclFileIndexedRead = ecl_wrapper.prototype("void ecl_file_indexed_read(ecl_file, char*, int, int_vector, char*)") # ecl_file, kw, index, index_map, buffer
-
-
 class EclIndexedReadTest(ExtendedTestCase):
+    _freadIndexedData   = EclPrototype("void ecl_kw_fread_indexed_data(fortio, int, int, int, int_vector, char*)", bind = False) # fortio, offset, type, count, index_map, buffer
+    _eclFileIndexedRead = EclPrototype("void ecl_file_indexed_read(ecl_file, char*, int, int_vector, char*)", bind = False) # ecl_file, kw, index, index_map, buffer
+
     def test_ecl_kw_indexed_read(self):
         with TestAreaContext("ecl_kw_indexed_read") as area:
             fortio = FortIO("index_test", mode=FortIO.WRITE_MODE)
@@ -59,7 +54,7 @@ class EclIndexedReadTest(ExtendedTestCase):
 
             char_buffer = ctypes.create_string_buffer(len(index_map) * ctypes.sizeof(ctypes.c_int))
 
-            freadIndexedData(fortio, 24, EclTypeEnum.ECL_INT_TYPE, element_count, index_map, char_buffer)
+            self._freadIndexedData(fortio, 24, EclTypeEnum.ECL_INT_TYPE, element_count, index_map, char_buffer)
 
             int_buffer = ctypes.cast(char_buffer, ctypes.POINTER(ctypes.c_int))
 
@@ -110,8 +105,8 @@ class EclIndexedReadTest(ExtendedTestCase):
             char_buffer_1 = ctypes.create_string_buffer(len(index_map) * ctypes.sizeof(ctypes.c_int))
             char_buffer_2 = ctypes.create_string_buffer(len(index_map) * ctypes.sizeof(ctypes.c_int))
 
-            eclFileIndexedRead(ecl_file, "TEST2", 0, index_map, char_buffer_2)
-            eclFileIndexedRead(ecl_file, "TEST1", 0, index_map, char_buffer_1)
+            self._eclFileIndexedRead(ecl_file, "TEST2", 0, index_map, char_buffer_2)
+            self._eclFileIndexedRead(ecl_file, "TEST1", 0, index_map, char_buffer_1)
 
             int_buffer_1 = ctypes.cast(char_buffer_1, ctypes.POINTER(ctypes.c_int))
             int_buffer_2 = ctypes.cast(char_buffer_2, ctypes.POINTER(ctypes.c_int))

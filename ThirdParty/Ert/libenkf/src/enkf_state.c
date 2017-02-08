@@ -1648,3 +1648,7 @@ keep_runpath_type enkf_state_get_keep_runpath( const enkf_state_type * enkf_stat
   return member_config_get_keep_runpath( enkf_state->my_config );
 }
 
+
+const ensemble_config_type * enkf_state_get_ensemble_config( const enkf_state_type * enkf_state ) {
+  return enkf_state->ensemble_config;
+}

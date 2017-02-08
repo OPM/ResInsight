@@ -65,7 +65,10 @@ class SumTest(ExtendedTestCase):
         self.assertEqual( EclSum.varType( "WNEWTON") , EclSumVarType.ECL_SMSPEC_MISC_VAR )
         self.assertEqual( EclSum.varType( "AARQ:4") , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
 
-        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0), ("AARQ" , None , 10)])
+        case = createEclSum("CSV" , [("FOPT", None , 0) ,
+                                     ("FOPR" , None , 0),
+                                     ("AARQ" , None , 10),
+                                     ("RGPT" , None  ,1)])
 
         node = case.smspec_node( "FOPT" )
         self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_FIELD_VAR )
@@ -74,8 +77,13 @@ class SumTest(ExtendedTestCase):
         self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
         self.assertEqual( node.getNum( ) , 10 )
 
-        
+        node = case.smspec_node("RGPT:1")
+        self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_REGION_VAR )
+        self.assertEqual( node.getNum( ) , 1 )
+        self.assertTrue( node.isTotal( ))
 
+        
+        
     def test_csv_export(self):
         case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
         sep = ";"

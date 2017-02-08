@@ -18,8 +18,8 @@ Constants from the header ecl_util.h - some stateless functions.
 
 This module does not contain any class definitions; it mostly consists
 of enum definitions/values from ecl_util.h; the enum values are
-extracted from the shared library using the
-cwrap.cenum.create_enum() function in a semi-automagic manner.
+extracted from the shared library in a semi-automagic manner using the
+BaseCEnum class from cwrap.
 
 In addition to the enum definitions there are a few stateless
 functions from ecl_util.c which are not bound to any class type.
@@ -29,6 +29,7 @@ from cwrap import BaseCEnum
 from ert.ecl import EclPrototype, ECL_LIB
 
 class EclFileEnum(BaseCEnum):
+    TYPE_NAME="ecl_file_enum"
     ECL_OTHER_FILE = None
     ECL_RESTART_FILE = None
     ECL_UNIFIED_RESTART_FILE = None
@@ -53,11 +54,11 @@ EclFileEnum.addEnum("ECL_INIT_FILE", 128)
 EclFileEnum.addEnum("ECL_RFT_FILE", 256)
 EclFileEnum.addEnum("ECL_DATA_FILE", 512)
 
-EclFileEnum.registerEnum(ECL_LIB, "ecl_file_enum")
 
 #-----------------------------------------------------------------
 
 class EclPhaseEnum(BaseCEnum):
+    TYPE_NAME="ecl_phase_enum"
     ECL_OIL_PHASE = None
     ECL_GAS_PHASE = None
     ECL_WATER_PHASE = None
@@ -66,11 +67,11 @@ EclPhaseEnum.addEnum("ECL_OIL_PHASE" , 1 )
 EclPhaseEnum.addEnum("ECL_GAS_PHASE" , 2 )
 EclPhaseEnum.addEnum("ECL_WATER_PHASE" , 4 )
 
-EclPhaseEnum.registerEnum(ECL_LIB, "ecl_phase_enum")
 
 #-----------------------------------------------------------------
 
 class EclTypeEnum(BaseCEnum):
+    TYPE_NAME="ecl_type_enum"
     ECL_CHAR_TYPE   = None
     ECL_FLOAT_TYPE  = None
     ECL_DOUBLE_TYPE = None
@@ -85,35 +86,32 @@ EclTypeEnum.addEnum("ECL_INT_TYPE" , 3 )
 EclTypeEnum.addEnum("ECL_BOOL_TYPE" , 4 )
 EclTypeEnum.addEnum("ECL_MESS_TYPE" , 5 )
 
-
-EclTypeEnum.registerEnum(ECL_LIB, "ecl_type_enum")
-
 #-----------------------------------------------------------------
 
 class EclUnitTypeEnum(BaseCEnum):
     TYPE_NAME = "ecl_unit_enum"
 
-    ERT_ECL_METRIC_UNITS = None
-    ERT_ECL_FIELD_UNITS  = None
-    ERT_ECL_LAB_UNITS    = None
+    ECL_METRIC_UNITS = None
+    ECL_FIELD_UNITS  = None
+    ECL_LAB_UNITS    = None
+    ECL_PVT_M_UNITS  = None
+    
+EclUnitTypeEnum.addEnum("ECL_METRIC_UNITS" , 1 )
+EclUnitTypeEnum.addEnum("ECL_FIELD_UNITS" , 2 )
+EclUnitTypeEnum.addEnum("ECL_LAB_UNITS" , 3 )
+EclUnitTypeEnum.addEnum("ECL_PVT_M_UNITS" , 4 )
 
-EclUnitTypeEnum.addEnum("ERT_ECL_METRIC_UNITS" , 0 )
-EclUnitTypeEnum.addEnum("ERT_ECL_FIELD_UNITS" , 1 )
-EclUnitTypeEnum.addEnum("ERT_ECL_LAB_UNITS" , 2 )
-
-EclUnitTypeEnum.registerEnum(ECL_LIB, "ecl_unit_enum")
 
 
 #-----------------------------------------------------------------
 
 class EclFileFlagEnum(BaseCEnum):
+    TYPE_NAME="ecl_file_flag_enum"
     ECL_FILE_CLOSE_STREAM = None
     ECL_FILE_WRITABLE = None
 
 EclFileFlagEnum.addEnum("ECL_FILE_CLOSE_STREAM" , 1 )
 EclFileFlagEnum.addEnum("ECL_FILE_WRITABLE" , 2 )
-
-EclFileFlagEnum.registerEnum(ECL_LIB, "ecl_file_flag_enum")
 
 
 #-----------------------------------------------------------------

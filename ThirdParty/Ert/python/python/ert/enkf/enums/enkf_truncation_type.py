@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class EnkfTruncationType(BaseCEnum):
+    TYPE_NAME = "enkf_truncation_type_enum"
     TRUNCATE_NONE = None
     TRUNCATE_MIN  = None
     TRUNCATE_MAX  = None
@@ -25,9 +24,3 @@ class EnkfTruncationType(BaseCEnum):
 EnkfTruncationType.addEnum("TRUNCATE_NONE", 0)
 EnkfTruncationType.addEnum("TRUNCATE_MIN", 1)
 EnkfTruncationType.addEnum("TRUNCATE_MAX", 2)
-
-EnkfTruncationType.registerEnum(ENKF_LIB, "enkf_truncation_type_enum")
-
-
-
-

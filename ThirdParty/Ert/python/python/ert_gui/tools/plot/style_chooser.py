@@ -10,8 +10,15 @@ STYLE_DASHED = ("Dashed", "--")
 STYLE_DOTTED = ("Dotted", ":")
 STYLE_DASH_DOTTED = ("Dash Dotted", "-.")
 
-STYLES = [STYLE_OFF, STYLE_AREA, STYLE_SOLID, STYLE_DASHED, STYLE_DOTTED, STYLE_DASH_DOTTED]
-STYLES_LINE_ONLY = [STYLE_OFF, STYLE_SOLID, STYLE_DASHED, STYLE_DOTTED, STYLE_DASH_DOTTED]
+STYLESET_DEFAULT = 'default'
+STYLESET_AREA = 'area'
+STYLESET_TOGGLE = 'toggle_only'
+
+STYLES = {
+    STYLESET_DEFAULT:  [STYLE_OFF, STYLE_SOLID, STYLE_DASHED, STYLE_DOTTED, STYLE_DASH_DOTTED],
+    STYLESET_AREA:     [STYLE_OFF, STYLE_AREA, STYLE_SOLID, STYLE_DASHED, STYLE_DOTTED, STYLE_DASH_DOTTED],
+    STYLESET_TOGGLE:   [STYLE_OFF, STYLE_SOLID]
+}
 
 MARKER_OFF = ("Off", None)
 MARKER_X = ("X", "x")
@@ -34,10 +41,11 @@ MARKERS = [MARKER_OFF, MARKER_X, MARKER_CIRCLE, MARKER_POINT, MARKER_STAR, MARKE
 
 class StyleChooser(QWidget):
 
-    def __init__(self, area_supported=False):
+    def __init__(self, line_style_set=STYLESET_DEFAULT):
         QWidget.__init__(self)
         self._style = PlotStyle("StyleChooser Internal Style")
-        self._styles = STYLES if area_supported else STYLES_LINE_ONLY
+
+        self._styles = STYLES['default'] if not line_style_set in STYLES else STYLES[line_style_set]
 
         self.setMinimumWidth(140)
         self.setMaximumHeight(25)
@@ -68,6 +76,8 @@ class StyleChooser(QWidget):
         self.size_spinner.setDecimals(1)
         self.size_spinner.setSingleStep(0.1)
 
+        # the text content of the spinner varies, but shouldn't push the control out of boundaries
+        self.line_chooser.setMinimumWidth(110)
         layout.addWidget(self.line_chooser)
         layout.addWidget(self.thickness_spinner)
         layout.addWidget(self.marker_chooser)

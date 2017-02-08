@@ -367,7 +367,8 @@ bool enkf_tui_util_sscanf_active_list( bool_vector_type * iactive , const char *
     
     if (bool_vector_size( iactive ) < ens_size) 
       bool_vector_iset( iactive , ens_size - 1 , false );
-    
+    else if (bool_vector_size( iactive ) > ens_size)
+      return false;
     return OK;
   }
 }

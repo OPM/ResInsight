@@ -37,6 +37,12 @@ extern "C" {
 
   typedef struct ecl_kw_struct      ecl_kw_type;
 
+  typedef enum {
+    ECL_KW_READ_OK = 0,
+    ECL_KW_READ_FAIL = 1,
+    ECL_KW_READ_SKIP = 2
+  } ecl_read_status_enum;
+
 /*
   The size of an ecl_kw instance is denoted with an integer. The
   choice of int to store the size obviously limits the maximum size to
@@ -58,11 +64,9 @@ extern "C" {
   ecl_type_enum  ecl_kw_get_type(const ecl_kw_type *);
   const char   * ecl_kw_get_header8(const ecl_kw_type *);
   const char   * ecl_kw_get_header(const ecl_kw_type * ecl_kw );
-  ecl_kw_type  * ecl_kw_alloc_empty();
-  bool           ecl_kw_fread_header(ecl_kw_type *, fortio_type *);
+  ecl_kw_type  * ecl_kw_alloc_empty(void);
+  ecl_read_status_enum ecl_kw_fread_header(ecl_kw_type *, fortio_type *);
   void           ecl_kw_set_header_name(ecl_kw_type * , const char * );
-  void           ecl_kw_set_header(ecl_kw_type  * , const char * , int , const char *);
-  void           ecl_kw_set_header_alloc(ecl_kw_type  * , const char * , int , const char *);
   bool           ecl_kw_fseek_kw(const char * , bool , bool , fortio_type *);
   bool           ecl_kw_fseek_last_kw(const char * , bool  , fortio_type *);
   void           ecl_kw_inplace_update_file(const ecl_kw_type * , const char * , int ) ;
@@ -81,6 +85,7 @@ extern "C" {
   ecl_kw_type *  ecl_kw_alloc_sub_copy( const ecl_kw_type * src, const char * new_kw , int offset , int count);
   const void  *  ecl_kw_copyc__(const void *);
   ecl_kw_type *  ecl_kw_alloc_slice_copy( const ecl_kw_type * src, int index1, int index2, int stride);
+  void           ecl_kw_resize( ecl_kw_type * ecl_kw, int new_size);
   //void        * ecl_kw_get_data_ref(const ecl_kw_type *);
   void        *  ecl_kw_alloc_data_copy(const ecl_kw_type * );
   void           ecl_kw_memcpy(ecl_kw_type *, const ecl_kw_type *);
@@ -124,7 +129,6 @@ extern "C" {
   void           ecl_kw_fskip_header( fortio_type * fortio);
 
 
-  bool ecl_kw_is_grdecl_file(FILE * );
   bool ecl_kw_is_kw_file(fortio_type * fortio);
 
   int        ecl_kw_element_sum_int( const ecl_kw_type * ecl_kw );

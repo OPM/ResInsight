@@ -36,7 +36,7 @@ extern "C" {
 typedef struct config_content_struct config_content_type;
 
 
-  config_content_type * config_content_alloc();
+  config_content_type * config_content_alloc(const char * filename);
   void config_content_free( config_content_type * content );
   void config_content_set_valid( config_content_type * content);
   bool config_content_is_valid( const config_content_type * content );
@@ -68,14 +68,13 @@ typedef struct config_content_struct config_content_type;
   void config_content_add_define( config_content_type * content , const char * key , const char * value );
   subst_list_type * config_content_get_define_list( config_content_type * content );
   const char * config_content_get_config_file( const config_content_type * content , bool abs_path );
-  void config_content_set_config_file( config_content_type * content , const char * config_file );
   int config_content_get_size(const config_content_type * content);
   const config_content_node_type * config_content_iget_node( const config_content_type * content , int index);
   bool config_content_add_file( config_content_type * content , const char * config_file);
   config_root_path_type * config_content_get_invoke_path( config_content_type * content );
-  void config_content_set_invoke_path( config_content_type * content);
   config_path_elm_type * config_content_add_path_elm( config_content_type * content , const char * path );
   void config_content_pop_path_stack( config_content_type * content );
+  const stringlist_type * config_content_get_warnings( const config_content_type * content);
 
   UTIL_IS_INSTANCE_HEADER( config_content );
 

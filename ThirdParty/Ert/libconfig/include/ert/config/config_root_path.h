@@ -28,7 +28,7 @@ typedef struct config_root_path_struct config_root_path_type;
 
 void                    config_root_path_free( config_root_path_type * root_path );
 config_root_path_type * config_root_path_alloc( const char * input_path );
-
+void                    config_root_path_printf( const config_root_path_type * root_path );
 const char *            config_root_path_get_input_path( const config_root_path_type * root_path );
 const char *            config_root_path_get_rel_path( const config_root_path_type * root_path );
 const char *            config_root_path_get_abs_path( const config_root_path_type * root_path );

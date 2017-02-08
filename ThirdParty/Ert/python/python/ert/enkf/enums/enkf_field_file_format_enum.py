@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class EnkfFieldFileFormatEnum(BaseCEnum):
+    TYPE_NAME = "enkf_field_file_format_enum"
     UNDEFINED_FORMAT         = None
     RMS_ROFF_FILE            = None
     ECL_KW_FILE              = None
@@ -35,5 +34,3 @@ EnkfFieldFileFormatEnum.addEnum("ECL_KW_FILE_ALL_CELLS", 4)
 EnkfFieldFileFormatEnum.addEnum("ECL_GRDECL_FILE", 5)
 EnkfFieldFileFormatEnum.addEnum("ECL_FILE", 6)
 EnkfFieldFileFormatEnum.addEnum("FILE_FORMAT_NULL", 7)
-
-EnkfFieldFileFormatEnum.registerEnum(ENKF_LIB, "enkf_field_file_format_enum")

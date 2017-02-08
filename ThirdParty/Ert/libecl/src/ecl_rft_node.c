@@ -480,7 +480,7 @@ bool ecl_rft_node_is_RFT( const ecl_rft_node_type * rft_node ) {
 }
 
 static void ecl_rft_node_fill_welletc(ecl_kw_type * welletc, ert_ecl_unit_enum unit_set){
-    if(unit_set==ERT_ECL_METRIC_UNITS) {
+    if(unit_set==ECL_METRIC_UNITS) {
         ecl_kw_iset_string8(welletc, 0, "  DAYS");
         ecl_kw_iset_string8(welletc, 2, "");
         ecl_kw_iset_string8(welletc, 3, " METRES");
@@ -495,7 +495,7 @@ static void ecl_rft_node_fill_welletc(ecl_kw_type * welletc, ert_ecl_unit_enum u
         ecl_kw_iset_string8(welletc, 13, " KG/SM3");
         ecl_kw_iset_string8(welletc, 14, " KG/DAY");
         ecl_kw_iset_string8(welletc, 15, "  KG/KG");
-    }else if(unit_set==ERT_ECL_FIELD_UNITS){
+    }else if(unit_set==ECL_FIELD_UNITS){
         ecl_kw_iset_string8(welletc, 0, "  DAYS");
         ecl_kw_iset_string8(welletc, 2, "");
         ecl_kw_iset_string8(welletc, 3, "  FEET");
@@ -511,7 +511,7 @@ static void ecl_rft_node_fill_welletc(ecl_kw_type * welletc, ert_ecl_unit_enum u
         ecl_kw_iset_string8(welletc, 14, " LB/DAY");
         ecl_kw_iset_string8(welletc, 15, "  LB/LB");
 
-    }else if(unit_set==ERT_ECL_LAB_UNITS){
+    }else if(unit_set==ECL_LAB_UNITS){
         ecl_kw_iset_string8(welletc, 0, "   HR");
         ecl_kw_iset_string8(welletc, 2, "");
         ecl_kw_iset_string8(welletc, 3, "   CM");

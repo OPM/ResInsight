@@ -31,7 +31,7 @@ REGISTERED_TYPES = {}
 """:type: dict[str,TypeDefinition]"""
 
 
-def registerType(type_name, type_class_or_function, is_return_type=True, storage_type=None):
+def _registerType(type_name, type_class_or_function, is_return_type=True, storage_type=None):
     if type_name in REGISTERED_TYPES:
         raise PrototypeError("Type: '%s' already registered!" % type_name)
 
@@ -39,28 +39,28 @@ def registerType(type_name, type_class_or_function, is_return_type=True, storage
 
     # print("Registered: %s for class: %s" % (type_name, repr(type_class_or_function)))
 
-registerType("void", None)
-registerType("void*", ctypes.c_void_p)
-registerType("uint", ctypes.c_uint)
-registerType("uint*", ctypes.POINTER(ctypes.c_uint))
-registerType("int", ctypes.c_int)
-registerType("int*", ctypes.POINTER(ctypes.c_int))
-registerType("int64", ctypes.c_int64)
-registerType("int64*", ctypes.POINTER(ctypes.c_int64))
-registerType("size_t", ctypes.c_size_t)
-registerType("size_t*", ctypes.POINTER(ctypes.c_size_t))
-registerType("bool", ctypes.c_bool)
-registerType("bool*", ctypes.POINTER(ctypes.c_bool))
-registerType("long", ctypes.c_long)
-registerType("long*", ctypes.POINTER(ctypes.c_long))
-registerType("char", ctypes.c_char)
-registerType("char*", ctypes.c_char_p)
-registerType("char**", ctypes.POINTER(ctypes.c_char_p))
-registerType("float", ctypes.c_float)
-registerType("float*", ctypes.POINTER(ctypes.c_float))
-registerType("double", ctypes.c_double)
-registerType("double*", ctypes.POINTER(ctypes.c_double))
-registerType("py_object", ctypes.py_object)
+_registerType("void", None)
+_registerType("void*", ctypes.c_void_p)
+_registerType("uint", ctypes.c_uint)
+_registerType("uint*", ctypes.POINTER(ctypes.c_uint))
+_registerType("int", ctypes.c_int)
+_registerType("int*", ctypes.POINTER(ctypes.c_int))
+_registerType("int64", ctypes.c_int64)
+_registerType("int64*", ctypes.POINTER(ctypes.c_int64))
+_registerType("size_t", ctypes.c_size_t)
+_registerType("size_t*", ctypes.POINTER(ctypes.c_size_t))
+_registerType("bool", ctypes.c_bool)
+_registerType("bool*", ctypes.POINTER(ctypes.c_bool))
+_registerType("long", ctypes.c_long)
+_registerType("long*", ctypes.POINTER(ctypes.c_long))
+_registerType("char", ctypes.c_char)
+_registerType("char*", ctypes.c_char_p)
+_registerType("char**", ctypes.POINTER(ctypes.c_char_p))
+_registerType("float", ctypes.c_float)
+_registerType("float*", ctypes.POINTER(ctypes.c_float))
+_registerType("double", ctypes.c_double)
+_registerType("double*", ctypes.POINTER(ctypes.c_double))
+_registerType("py_object", ctypes.py_object)
 
 PROTOTYPE_PATTERN = "(?P<return>[a-zA-Z][a-zA-Z0-9_*]*) +(?P<function>[a-zA-Z]\w*) *[(](?P<arguments>[a-zA-Z0-9_*, ]*)[)]"
 
@@ -160,4 +160,7 @@ class Prototype(object):
 
     @classmethod
     def registerType(cls, type_name, type_class_or_function, is_return_type=True, storage_type=None):
-        registerType(type_name, type_class_or_function, is_return_type=is_return_type, storage_type=storage_type)
+        _registerType(type_name,
+                      type_class_or_function,
+                      is_return_type = is_return_type,
+                      storage_type   = storage_type)

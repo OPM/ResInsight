@@ -16,7 +16,6 @@
 
 import ctypes
 from .metacwrap import MetaCWrap
-from .cnamespace import CNamespace
 
 class BaseCClass(object):
     __metaclass__ = MetaCWrap
@@ -42,6 +41,11 @@ class BaseCClass(object):
 
         return obj
 
+    def _address(self):
+        return self.__c_pointer
+
+    def _ad_str(self):
+        return 'at 0x%x' % self._address()
 
     @classmethod
     def cNamespace(cls):
@@ -109,7 +113,7 @@ class BaseCClass(object):
         if isinstance(other, BaseCClass):
             return self.__c_pointer == other.__c_pointer
         else:
-            return super(BaseCClass , self).__eq__(other)
+            return super(BaseCClass , self) == other
 
     def __hash__(self):
         # Similar to last resort comparison; this returns the hash of the
@@ -119,6 +123,13 @@ class BaseCClass(object):
     def free(self):
         raise NotImplementedError("A BaseCClass requires a free method implementation!")
 
+    def _create_repr(self, args = ''):
+        """Representation on the form (e.g.) 'EclFile(...) at 0x1729'."""
+        return "{0}({1}) {2}".format(self.__class__.__name__, args, self._ad_str())
+
+    def __repr__(self):
+        """Representation on the form (e.g.) 'EclFile(...) at 0x1729'."""
+        return self._create_repr()
 
     def __del__(self):
         if self.free is not None:

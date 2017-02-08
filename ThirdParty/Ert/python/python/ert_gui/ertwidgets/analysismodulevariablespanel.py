@@ -79,7 +79,7 @@ class AnalysisModuleVariablesPanel(QWidget):
             sorted_list.__delitem__(pos + 1)
 
         for item in sorted_list:
-            if item <> "#":
+            if item != "#":
                 result.append(item)
 
         return result

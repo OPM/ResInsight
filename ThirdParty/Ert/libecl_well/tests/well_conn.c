@@ -28,6 +28,29 @@
 #include <ert/ecl_well/well_conn_collection.h>
 #include <ert/ecl_well/well_conn.h>
 
+void test_conn_rate(){
+  int i = 10;
+  int j = 5;
+  int k = 16;
+  double CF = 0;
+  bool open = true;
+
+  well_conn_dir_enum dir = well_conn_dirX;
+  well_conn_type * conn = well_conn_alloc(i,j,k,CF,dir,open);
+
+  test_assert_double_equal(0.0, well_conn_get_oil_rate(conn));
+  test_assert_double_equal(0.0, well_conn_get_gas_rate(conn));
+  test_assert_double_equal(0.0, well_conn_get_water_rate(conn));
+  test_assert_double_equal(0.0, well_conn_get_volume_rate(conn));
+
+  test_assert_double_equal(0.0, well_conn_get_oil_rate_si(conn));
+  test_assert_double_equal(0.0, well_conn_get_gas_rate_si(conn));
+  test_assert_double_equal(0.0, well_conn_get_water_rate_si(conn));
+  test_assert_double_equal(0.0, well_conn_get_volume_rate_si(conn));
+
+  well_conn_free( conn );
+}
+
 
 int main(int argc , char ** argv) {
   int i = 10;
@@ -118,8 +141,7 @@ int main(int argc , char ** argv) {
     test_assert_false( well_conn_matrix_connection( conn ));
     well_conn_free( conn );
   }
-  
 
-
+  test_conn_rate();
 
 }

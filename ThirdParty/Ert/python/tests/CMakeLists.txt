@@ -32,6 +32,7 @@ endfunction(addPythonTest)
 
 
 add_subdirectory(core)
+add_subdirectory(cwrap)
 add_subdirectory(share)
 
 if(BUILD_ERT)

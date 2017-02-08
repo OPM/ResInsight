@@ -1,38 +1,60 @@
-#  Copyright (C) 2014  Statoil ASA, Norway. 
-#   
-#  The file 'layer.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2014  Statoil ASA, Norway.
+#
+#  The file 'layer.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 
 import ctypes
-from cwrap import BaseCClass, CWrapper
-from ert.ecl import ECL_LIB
+from cwrap import BaseCClass
+from ert.ecl import EclPrototype
 from ert.util import IntVector
 
 
 class Layer(BaseCClass):
-    
+    TYPE_NAME = "layer"
+    _alloc              = EclPrototype("void* layer_alloc(int,  int)", bind = False)
+    _copy               = EclPrototype("void  layer_memcpy(layer , layer)")
+    _free               = EclPrototype("void  layer_free(layer)")
+    _get_nx             = EclPrototype("int   layer_get_nx(layer)")
+    _get_ny             = EclPrototype("int   layer_get_ny(layer)")
+    _set_cell           = EclPrototype("void  layer_iset_cell_value(layer , int , int , int)")
+    _get_cell           = EclPrototype("int   layer_iget_cell_value(layer , int , int )")
+    _get_bottom_barrier = EclPrototype("bool  layer_iget_bottom_barrier(layer , int , int )")
+    _get_left_barrier   = EclPrototype("bool  layer_iget_left_barrier(layer , int , int )")
+    _cell_contact       = EclPrototype("bool  layer_cell_contact(layer , int , int , int , int)")
+    _add_barrier        = EclPrototype("void  layer_add_barrier(layer , int , int)")
+    _add_ijbarrier      = EclPrototype("void  layer_add_ijbarrier(layer , int , int, int , int)")
+    _add_interp_barrier = EclPrototype("void  layer_add_interp_barrier(layer , int , int)")
+    _clear_cells        = EclPrototype("void  layer_clear_cells(layer)")
+    _assign             = EclPrototype("void  layer_assign(layer , int)")
+    _cell_sum           = EclPrototype("int   layer_get_cell_sum(layer)")
+    _update_connected   = EclPrototype("void  layer_update_connected_cells(layer,int,int,int,int)")
+    _cells_equal        = EclPrototype("void  layer_cells_equal( layer, int,int_vector,int_vector)")
+    _count_equal        = EclPrototype("int   layer_count_equal( layer, int)")
+    _active_cell        = EclPrototype("bool  layer_iget_active( layer, int,int)")
+    _update_active      = EclPrototype("bool  layer_update_active( layer, ecl_grid , int)")
+
     def __init__(self , nx , ny):
-        c_pointer = self.cNamespace().alloc( nx , ny )
-        if c_pointer:
-            super( Layer , self).__init__(c_pointer)
+        c_ptr = self._alloc( nx , ny )
+        if c_ptr:
+            super( Layer , self ).__init__(c_ptr)
         else:
             raise ValueError("Invalid input - no Layer object created")
 
     @classmethod
     def copy(cls , src):
         layer = Layer( src.getNX() , src.getNY())
-        Layer.cNamespace().copy( layer , src )
+        self._copy( layer , src )
         return layer
 
 
@@ -42,29 +64,27 @@ class Layer(BaseCClass):
 
         if j < 0 or j >= self.getNY():
             raise ValueError("Invalid layer j:%d" % j)
-        
-            
+
 
     def __unpackIndex(self , index):
         try:
             (i,j) = index
         except TypeError:
             raise ValueError("Index:%s is invalid - must have two integers" % str(index))
-        
-        self.__assertIJ(i,j)
-        
-        return (i,j)
 
+        self.__assertIJ(i,j)
+
+        return (i,j)
 
 
     def __setitem__(self , index , value):
         (i,j) = self.__unpackIndex(index)
-        self.cNamespace().set_cell(self , i , j , value )
-        
+        self._set_cell( i , j , value )
+
     def activeCell(self , i,j):
         self.__assertIJ(i,j)
-        return self.cNamespace().active_cell(self , i , j)
-        
+        return self._active_cell( i , j )
+
 
     def updateActive(self , grid , k):
         if grid.getNX() != self.getNX():
@@ -72,35 +92,33 @@ class Layer(BaseCClass):
 
         if grid.getNY() != self.getNY():
             raise ValueError("NY dimension mismatch. Grid:%d  layer:%d" % (grid.getNY() , self.getNY()))
-        
+
         if k >= grid.getNZ():
             raise ValueError("K value invalid: Grid range [0,%d)" % grid.getNZ())
 
-        self.cNamespace().update_active(self , grid , k)
+        self._update_active( grid , k )
 
 
-
-            
     def __getitem__(self , index):
         (i,j) = self.__unpackIndex(index)
-        return self.cNamespace().get_cell(self , i , j)
-    
+        return self._get_cell( i , j )
+
     def bottomBarrier(self , i,j):
         self.__assertIJ(i,j)
-        return self.cNamespace().get_bottom_barrier(self , i , j)
+        return self._get_bottom_barrier( i , j )
 
     def leftBarrier(self , i,j):
         self.__assertIJ(i,j)
-        return self.cNamespace().get_left_barrier(self , i , j)
+        return self._get_left_barrier( i , j )
 
     def getNX(self):
-        return self.cNamespace().get_nx(self)
+        return self._get_nx( )
 
     def getNY(self):
-        return self.cNamespace().get_ny(self)
+        return self._get_ny( )
 
     def free(self):
-        self.cNamespace().free(self)
+        self._free( )
 
     def cellContact(self , p1 , p2):
         i1,j1 = p1
@@ -118,13 +136,13 @@ class Layer(BaseCClass):
         if not 0 <= j2 < self.getNY():
             raise IndexError("Invalid i2:%d" % j2)
 
-        return self.cNamespace().cell_contact(self , i1,j1,i2,j2)
-        
+        return self._cell_contact( i1, j1, i2, j2 )
+
 
     def addInterpBarrier(self , c1 , c2):
-        self.cNamespace().add_interp_barrier( self , c1 , c2 )
+        self._add_interp_barrier( c1 , c2 )
 
-    
+
     def addPolylineBarrier(self , polyline , grid , k):
         if len(polyline) > 1:
             for i in range(len(polyline) - 1):
@@ -133,18 +151,17 @@ class Layer(BaseCClass):
 
                 c1 = grid.findCellCornerXY( x1 , y1 , k )
                 c2 = grid.findCellCornerXY( x2 , y2 , k )
-                
+
                 self.addInterpBarrier( c1 , c2 )
 
-                
-    
+
     def addFaultBarrier(self , fault , K , link_segments = True ):
         fault_layer = fault[K]
         num_lines = len(fault_layer)
         for index , fault_line in enumerate(fault_layer):
             for segment in fault_line:
                 c1 , c2 = segment.getCorners()
-                self.cNamespace().add_barrier(self , c1 , c2)
+                self._add_barrier( c1 , c2 )
 
             if index < num_lines - 1:
                 next_line = fault_layer[index + 1]
@@ -153,7 +170,7 @@ class Layer(BaseCClass):
 
                 if link_segments:
                     self.addInterpBarrier( c2 , next_c1 )
-                    
+
 
     def addIJBarrier(self , ij_list):
         if len(ij_list) < 2:
@@ -171,8 +188,8 @@ class Layer(BaseCClass):
 
                 if not 0 <= j2 <= ny:
                     raise ValueError("i value:%d invalid. Valid range: [0,%d] " % (j , j2))
-                    
-                Layer.cNamespace().add_ijbarrier( self , i1 , j1 , i2 , j2 )
+
+                self._add_ijbarrier( i1 , j1 , i2 , j2 )
                 p1 = p2
                 i1,j1 = p1
             else:
@@ -180,23 +197,21 @@ class Layer(BaseCClass):
 
 
     def cellSum(self):
-        return Layer.cNamespace().cell_sum( self )
-        
+        return self._cell_sum( )
 
     def clearCells(self):
         """
         Will reset all cell and edge values to zero. Barriers will be left
         unchanged.
         """
-        Layer.cNamespace().clear_cells( self )
+        self._clear_cells( )
 
 
     def assign(self , value):
         """
         Will set the cell value to @value in all cells. Barriers will not be changed
         """
-        Layer.cNamespace().assign( self , value )
-        
+        self._assign( value )
 
     def updateConnected(self , ij , new_value , org_value = None):
         """
@@ -204,11 +219,11 @@ class Layer(BaseCClass):
         value @new_value. If org_value is not supplied, the current
         value in cell ij is used.
         """
-        if org_value is None: 
+        if org_value is None:
             org_value = self[ij]
-            
+
         if self[ij] == org_value:
-            Layer.cNamespace().update_connected( self , ij[0] , ij[1] , org_value , new_value )
+            self._update_connected( ij[0] , ij[1] , org_value , new_value )
         else:
             raise ValueError("Cell %s is not equal to %d \n" % (ij , org_value))
 
@@ -219,38 +234,12 @@ class Layer(BaseCClass):
         """
         i_list = IntVector()
         j_list = IntVector()
-        Layer.cNamespace().cells_equal( self , value , i_list , j_list)
+        self._cells_equal( value , i_list , j_list )
         ij_list= []
         for (i,j) in zip(i_list , j_list):
             ij_list.append( (i,j) )
         return ij_list
-        
+
 
     def countEqual(self , value):
-        return Layer.cNamespace().count_equal( self , value )
-
-    
-
-cwrapper = CWrapper(ECL_LIB)
-CWrapper.registerObjectType("layer", Layer)
-Layer.cNamespace().alloc        = cwrapper.prototype("c_void_p  layer_alloc(int,  int)")
-Layer.cNamespace().copy         = cwrapper.prototype("void      layer_memcpy(layer , layer)")
-Layer.cNamespace().free         = cwrapper.prototype("void      layer_free(layer)")
-Layer.cNamespace().get_nx       = cwrapper.prototype("int       layer_get_nx(layer)")
-Layer.cNamespace().get_ny       = cwrapper.prototype("int       layer_get_ny(layer)")
-Layer.cNamespace().set_cell     = cwrapper.prototype("void      layer_iset_cell_value(layer , int , int , int)")
-Layer.cNamespace().get_cell     = cwrapper.prototype("int       layer_iget_cell_value(layer , int , int )")
-Layer.cNamespace().get_bottom_barrier = cwrapper.prototype("bool layer_iget_bottom_barrier(layer , int , int )")
-Layer.cNamespace().get_left_barrier = cwrapper.prototype("bool layer_iget_left_barrier(layer , int , int )")
-Layer.cNamespace().cell_contact = cwrapper.prototype("bool      layer_cell_contact(layer , int , int , int , int)")
-Layer.cNamespace().add_barrier  = cwrapper.prototype("void      layer_add_barrier(layer , int , int)")
-Layer.cNamespace().add_ijbarrier  = cwrapper.prototype("void      layer_add_ijbarrier(layer , int , int, int , int)")
-Layer.cNamespace().add_interp_barrier = cwrapper.prototype("void  layer_add_interp_barrier(layer , int , int)")
-Layer.cNamespace().clear_cells = cwrapper.prototype("void layer_clear_cells(layer)")
-Layer.cNamespace().assign = cwrapper.prototype("void layer_assign(layer , int)")
-Layer.cNamespace().cell_sum = cwrapper.prototype("int layer_get_cell_sum(layer)")
-Layer.cNamespace().update_connected = cwrapper.prototype("void layer_update_connected_cells(layer,int,int,int,int)")
-Layer.cNamespace().cells_equal = cwrapper.prototype("void layer_cells_equal( layer, int,int_vector,int_vector)")
-Layer.cNamespace().count_equal = cwrapper.prototype("int layer_count_equal( layer, int)")
-Layer.cNamespace().active_cell = cwrapper.prototype("bool layer_iget_active( layer, int,int)")
-Layer.cNamespace().update_active = cwrapper.prototype("bool layer_update_active( layer, ecl_grid , int)")
+        return self._count_equal( value )

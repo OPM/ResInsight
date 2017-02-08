@@ -39,6 +39,7 @@ void                      gen_data_assert_size( gen_data_type * gen_data , int s
 bool                      gen_data_forward_load(gen_data_type * gen_data , const char * ecl_file , const forward_load_context_type * load_context);
 void                      gen_data_free(gen_data_type * );
 double                    gen_data_iget_double(const gen_data_type * , int );
+  void                      gen_data_iset_double(gen_data_type * , int , double);
 gen_data_config_type   *  gen_data_get_config(const gen_data_type * );
 const bool_vector_type *  gen_data_get_forward_mask( const gen_data_type * gen_data );
 int                       gen_data_get_size(const gen_data_type * );

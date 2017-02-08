@@ -1,0 +1,4 @@
+STDOUT snake_oil_npv.stdout
+STDERR snake_oil_npv.stderr
+
+EXECUTABLE snake_oil_npv.py

@@ -367,3 +367,21 @@ class KWTest(ExtendedTestCase):
         for i in range(len(even)):
             self.assertEqual(even[i] , 2*i)
             self.assertEqual(odd[i] , 2*i + 1)
+
+
+    def test_resize(self):
+        N = 4
+        kw = EclKW("KW" , N , EclTypeEnum.ECL_INT_TYPE)
+        for i in range(N):
+            kw[i] = i
+
+        kw.resize( 2*N )
+        self.assertEqual( len(kw) , 2*N )
+        for i in range(N):
+            self.assertEqual( kw[i] , i )
+
+        kw.resize( N/2 )
+        self.assertEqual( len(kw) , N/2 )
+        for i in range(N/2):
+            self.assertEqual( kw[i] , i )
+            

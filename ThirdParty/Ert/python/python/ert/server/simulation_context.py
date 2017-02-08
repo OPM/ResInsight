@@ -2,7 +2,7 @@ from ert.enkf import ENKF_LIB
 from ert.enkf.ert_run_context import ErtRunContext
 from ert.enkf.run_arg import RunArg
 from ert.job_queue import JobQueueManager
-from ert.util import BoolVector, ArgPack, CThreadPool
+from ert.util import ArgPack, CThreadPool
 
 
 class SimulationContext(object):
@@ -67,7 +67,7 @@ class SimulationContext(object):
 
 
     def didRealizationFail(self, iens):
-	# For the purposes of this class, a failure should be anything (killed job, etc) that is not an explicit success.
+        # For the purposes of this class, a failure should be anything (killed job, etc) that is not an explicit success.
         return not self.didRealizationSucceed(iens)
 
 
@@ -84,3 +84,12 @@ class SimulationContext(object):
         else:
             return False
 
+    def __repr__(self):
+        running = 'running' if self.isRunning() else 'not running'
+        numRunn = self.getNumRunning()
+        numSucc = self.getNumSuccess()
+        numFail = self.getNumFailed()
+        numWait = self.getNumWaiting()
+        fmt = '%s, #running = %d, #success = %d, #failed = %d, #waiting = %d'
+        fmt =  fmt % (running, numRunn, numSucc, numFail, numWait)
+        return 'SimulationContext(%s)' % fmt

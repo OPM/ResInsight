@@ -49,7 +49,7 @@ set( source_files
      ranking_table.c
      fs_types.c
      block_fs_driver.c
-     plot_config.c
+     plot_settings.c
      ert_template.c
      member_config.c
      enkf_analysis.c
@@ -149,7 +149,7 @@ set( header_files
      field_common.h
      gen_kw_common.h
      gen_data_common.h
-     plot_config.h
+     plot_settings.h
      ert_template.h
      member_config.h
      enkf_defaults.h

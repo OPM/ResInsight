@@ -53,7 +53,11 @@ config_path_elm_type * config_path_elm_alloc( const config_root_path_type * root
         path_elm->abs_path = util_alloc_string_copy( path );
         path_elm->rel_path = util_alloc_rel_path( config_root_path_get_abs_path(root_path) , path );
       } else {
-        path_elm->abs_path = util_alloc_filename( config_root_path_get_abs_path(root_path) , path , NULL );
+        {
+          char * tmp_abs_path = util_alloc_filename( config_root_path_get_abs_path(root_path) , path , NULL );
+          path_elm->abs_path = util_alloc_abs_path( tmp_abs_path );
+          free( tmp_abs_path );
+        }
         path_elm->rel_path = util_alloc_string_copy( path );
       }
     }

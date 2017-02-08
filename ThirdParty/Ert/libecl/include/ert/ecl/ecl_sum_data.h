@@ -36,6 +36,8 @@ extern "C" {
 #include <ert/ecl/ecl_sum_vector.h>
 
 typedef struct ecl_sum_data_struct ecl_sum_data_type ;
+
+  void                     ecl_sum_data_add_case(ecl_sum_data_type * self, const ecl_sum_data_type * other);
   void                     ecl_sum_data_fwrite_step( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case , bool unified, int report_step);
   void                     ecl_sum_data_fwrite( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case , bool unified);
   bool                     ecl_sum_data_fread( ecl_sum_data_type * data , const stringlist_type * filelist);

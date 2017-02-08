@@ -32,7 +32,7 @@ extern "C" {
   typedef struct vector_struct vector_type;
 
 
-  vector_type * vector_alloc_new();
+  vector_type * vector_alloc_new(void);
   void          vector_grow_NULL( vector_type * vector , int new_size );
   vector_type * vector_alloc_NULL_initialized( int size );
 

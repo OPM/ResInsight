@@ -1,7 +1,7 @@
 from ert.enkf import ESUpdate
 from ert_gui.shell import assertConfigLoaded, ErtShellCollection
 from ert_gui.shell.libshell import splitArguments, createFloatValidator
-
+from ert.enkf.enums import HookRuntime
 
 class Smoother(ErtShellCollection):
     def __init__(self, parent):
@@ -71,14 +71,18 @@ class Smoother(ErtShellCollection):
             case_name = arguments[0]
             ert = self.ert()
             fs_manager = ert.getEnkfFsManager() 
+
+            ert.getEnkfSimulationRunner().runWorkflows(HookRuntime.PRE_UPDATE)
+
             es_update = ESUpdate( ert )
-            
             target_fs = fs_manager.getFileSystem(case_name)
             source_fs = fs_manager.getCurrentFileSystem( )
             success = es_update.smootherUpdate( source_fs , target_fs )
 
             if not success:
                 self.lastCommandFailed("Unable to perform update")
+
+            ert.getEnkfSimulationRunner().runWorkflows(HookRuntime.POST_UPDATE)
 
         else:
             self.lastCommandFailed("Expected one argument: <target_fs> received: '%s'" % line)

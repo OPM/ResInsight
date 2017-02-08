@@ -918,6 +918,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     int cellJ = well_conn_get_j( ert_connection );
     int cellK = well_conn_get_k( ert_connection );
     bool isCellOpen = well_conn_open( ert_connection );
+    double volumeRate = well_conn_get_volume_rate( ert_connection);
 
     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
     // Adjust K so index is always in valid grid region
@@ -969,7 +970,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 
         resultPoint.m_ertBranchId = ertBranchId;
         resultPoint.m_ertSegmentId = ertSegmentId;
-        resultPoint.m_flowRate = 0.5; // Todo : Get from Ert
+        resultPoint.m_flowRate = volumeRate; 
     }
 
     return resultPoint;

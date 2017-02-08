@@ -60,6 +60,8 @@ namespace caf
 
 bool isDeletable(PdmUiItem * uiItem)
 {
+    if (dynamic_cast<RimWellFlowRateCurve*>(uiItem))         return false;
+
     if (dynamic_cast<RimGeoMechView*>(uiItem))               return true;
     if (dynamic_cast<RimEclipseView*>(uiItem))               return true;
     if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))    return true;

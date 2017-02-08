@@ -33,7 +33,7 @@ extern "C" {
 typedef struct ecl_file_kw_struct ecl_file_kw_type;
 typedef struct inv_map_struct inv_map_type;
 
-  inv_map_type     * inv_map_alloc();
+  inv_map_type     * inv_map_alloc(void);
   ecl_file_kw_type * inv_map_get_file_kw( inv_map_type * inv_map , const ecl_kw_type * ecl_kw );
   void               inv_map_free( inv_map_type * map );
 

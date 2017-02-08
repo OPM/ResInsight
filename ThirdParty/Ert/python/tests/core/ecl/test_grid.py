@@ -19,7 +19,7 @@ from unittest import skipIf
 import time
 
 from ert.util import IntVector
-from ert.ecl import EclGrid,EclKW,EclTypeEnum
+from ert.ecl import EclGrid,EclKW,EclTypeEnum, EclUnitTypeEnum, EclFile
 from ert.ecl.faults import Layer , FaultCollection
 from ert.test import ExtendedTestCase , TestAreaContext
 
@@ -216,3 +216,30 @@ class GridTest(ExtendedTestCase):
         grid = EclGrid.createRectangular((nx,ny,nz) , (1,1,1))
         kw = EclKW( "SWAT" , nx*ny*nz , EclTypeEnum.ECL_FLOAT_TYPE )
         numpy_3d = grid.create3D( kw )
+
+
+    def test_output_units(self):
+        n = 10
+        a = 1
+        grid = EclGrid.createRectangular( (n,n,n), (a,a,a))
+
+        with TestAreaContext("python/ecl_grid/units"):
+            grid.save_EGRID( "CASE.EGRID" , output_unit = EclUnitTypeEnum.ECL_FIELD_UNITS )
+            f = EclFile("CASE.EGRID")
+            g = f["GRIDUNIT"][0]
+            self.assertEqual( g[0].strip( ) , "FEET" )
+            g2 = EclGrid("CASE.EGRID")
+            self.assertFloatEqual( g2.cell_volume( global_index = 0 ) , 3.28084*3.28084*3.28084)
+
+            
+            grid.save_EGRID( "CASE.EGRID" )
+            f = EclFile("CASE.EGRID")
+            g = f["GRIDUNIT"][0]
+            self.assertEqual( g[0].strip( ) , "METRES" )
+            
+            grid.save_EGRID( "CASE.EGRID" , output_unit = EclUnitTypeEnum.ECL_LAB_UNITS)
+            f = EclFile("CASE.EGRID")
+            g = f["GRIDUNIT"][0]
+            self.assertEqual( g[0].strip() , "CM" )
+            g2 = EclGrid("CASE.EGRID")
+            self.assertFloatEqual( g2.cell_volume( global_index = 0 ) , 100*100*100 )

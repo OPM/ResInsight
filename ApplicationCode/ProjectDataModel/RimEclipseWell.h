@@ -52,6 +52,7 @@ public:
     const RigSingleWellResultsData*     wellResults() const;
     size_t                              resultWellIndex() const;
 
+    bool                                isWellCellsVisible() const;
     bool                                isWellPipeVisible(size_t frameIndex) const;
     bool                                isWellSpheresVisible(size_t frameIndex) const;
     bool                                isUsingCellCenterForPipe() const;
@@ -93,7 +94,10 @@ protected:
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    bool                                intersectsVisibleCells(size_t frameIndex) const;
+    bool                                intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const;
+    bool                                intersectsStaticWellCellsFilteredCells() const;
+
+    bool                                intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const;
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;

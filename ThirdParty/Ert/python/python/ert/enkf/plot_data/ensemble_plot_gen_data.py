@@ -14,8 +14,8 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enkf_fs import EnkfFs
 from ert.enkf.enums.ert_impl_type_enum import ErtImplType
@@ -23,12 +23,25 @@ from ert.util import BoolVector, DoubleVector
 
 
 class EnsemblePlotGenData(BaseCClass):
+    TYPE_NAME = "ensemble_plot_gen_data"
+
+    _alloc      = EnkfPrototype("void* enkf_plot_gendata_alloc(enkf_config_node)", bind = False)
+    _size       = EnkfPrototype("int   enkf_plot_gendata_get_size(ensemble_plot_gen_data)")
+    _load       = EnkfPrototype("void  enkf_plot_gendata_load(ensemble_plot_gen_data, enkf_fs, int, bool_vector)")
+    _get        = EnkfPrototype("ensemble_plot_gen_data_vector_ref enkf_plot_gendata_iget(ensemble_plot_gen_data, int)")
+    _min_values = EnkfPrototype("double_vector_ref enkf_plot_gendata_get_min_values(ensemble_plot_gen_data)")
+    _max_values = EnkfPrototype("double_vector_ref enkf_plot_gendata_get_max_values(ensemble_plot_gen_data)")
+    _free       = EnkfPrototype("void  enkf_plot_gendata_free(ensemble_plot_gen_data)")
+
     def __init__(self, ensemble_config_node, file_system, report_step, input_mask=None):
         assert isinstance(ensemble_config_node, EnkfConfigNode)
         assert ensemble_config_node.getImplementationType() == ErtImplType.GEN_DATA
 
-        c_pointer = EnsemblePlotGenData.cNamespace().alloc(ensemble_config_node)
-        super(EnsemblePlotGenData, self).__init__(c_pointer)
+        c_ptr = self._alloc(ensemble_config_node)
+        if c_ptr:
+            super(EnsemblePlotGenData, self).__init__(c_ptr)
+        else:
+            raise ValueError('Unable to construct EnsemplePlotGenData from given config node!')
 
         self.__load(file_system, report_step, input_mask)
 
@@ -38,15 +51,15 @@ class EnsemblePlotGenData(BaseCClass):
         if not input_mask is None:
             assert isinstance(input_mask, BoolVector)
 
-        EnsemblePlotGenData.cNamespace().load(self, file_system, report_step, input_mask)
+        self._load(file_system, report_step, input_mask)
 
     def __len__(self):
         """ @rtype: int """
-        return EnsemblePlotGenData.cNamespace().size(self)
+        return self._size()
 
     def __getitem__(self, index):
         """ @rtype: EnsemblePlotGenDataVector """
-        return EnsemblePlotGenData.cNamespace().get(self, index)
+        return self._get(index)
 
     def __iter__(self):
         cur = 0
@@ -57,32 +70,14 @@ class EnsemblePlotGenData(BaseCClass):
 
     def getMaxValues(self):
         """ @rtype: DoubleVector """
-        return EnsemblePlotGenData.cNamespace().max_values(self).setParent(self)
+        return self._max_values().setParent(self)
 
     def getMinValues(self):
         """ @rtype: DoubleVector """
-        return EnsemblePlotGenData.cNamespace().min_values(self).setParent(self)
+        return self._min_values().setParent(self)
 
     def free(self):
-        EnsemblePlotGenData.cNamespace().free(self)
+        self._free()
 
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("ensemble_plot_gen_data", EnsemblePlotGenData)
-cwrapper.registerType("ensemble_plot_gen_data_obj", EnsemblePlotGenData.createPythonObject)
-cwrapper.registerType("ensemble_plot_gen_data_ref", EnsemblePlotGenData.createCReference)
-
-EnsemblePlotGenData.cNamespace().free = cwrapper.prototype("void enkf_plot_gendata_free(ensemble_plot_gen_data)")
-EnsemblePlotGenData.cNamespace().alloc = cwrapper.prototype("c_void_p enkf_plot_gendata_alloc(enkf_config_node)")
-
-EnsemblePlotGenData.cNamespace().size = cwrapper.prototype("int enkf_plot_gendata_get_size(ensemble_plot_gen_data)")
-EnsemblePlotGenData.cNamespace().load = cwrapper.prototype("void enkf_plot_gendata_load(ensemble_plot_gen_data, enkf_fs, int, bool_vector)")
-EnsemblePlotGenData.cNamespace().get = cwrapper.prototype("ensemble_plot_gen_data_vector_ref enkf_plot_gendata_iget(ensemble_plot_gen_data, int)")
-
-EnsemblePlotGenData.cNamespace().min_values = cwrapper.prototype("double_vector_ref enkf_plot_gendata_get_min_values(ensemble_plot_gen_data)")
-EnsemblePlotGenData.cNamespace().max_values = cwrapper.prototype("double_vector_ref enkf_plot_gendata_get_max_values(ensemble_plot_gen_data)")
-
-
-
-
+    def __repr__(self):
+        return 'EnsemblePlotGenData(size = %d) %s' % (len(self), self._ad_str())

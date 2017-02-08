@@ -86,15 +86,16 @@ class EclGrid(BaseCClass):
     _get_depth                    = EclPrototype("double ecl_grid_get_cdepth1( ecl_grid , int )")
     _fwrite_grdecl                = EclPrototype("void   ecl_grid_grdecl_fprintf_kw( ecl_grid , ecl_kw , char* , FILE , double)") 
     _load_column                  = EclPrototype("void   ecl_grid_get_column_property( ecl_grid , ecl_kw , int , int , double_vector)")
-    _get_top                      = EclPrototype("double ecl_grid_get_top2( ecl_grid , int , int )") 
+    _get_top                      = EclPrototype("double ecl_grid_get_top2( ecl_grid , int , int )")
+    _get_top1A                    = EclPrototype("double ecl_grid_get_top1A(ecl_grid , int )")
     _get_bottom                   = EclPrototype("double ecl_grid_get_bottom2( ecl_grid , int , int )") 
     _locate_depth                 = EclPrototype("int    ecl_grid_locate_depth( ecl_grid , double , int , int )") 
     _invalid_cell                 = EclPrototype("bool   ecl_grid_cell_invalid1( ecl_grid , int)")
     _valid_cell                   = EclPrototype("bool   ecl_grid_cell_valid1( ecl_grid , int)")
     _get_distance                 = EclPrototype("void   ecl_grid_get_distance( ecl_grid , int , int , double* , double* , double*)")
-    _fprintf_grdecl               = EclPrototype("void   ecl_grid_fprintf_grdecl( ecl_grid , FILE) ")
-    _fwrite_GRID                  = EclPrototype("void   ecl_grid_fwrite_GRID( ecl_grid , char* )")
-    _fwrite_EGRID2                = EclPrototype("void   ecl_grid_fwrite_EGRID2( ecl_grid , char*, ecl_unit_enum , float*)")
+    _fprintf_grdecl2              = EclPrototype("void   ecl_grid_fprintf_grdecl2( ecl_grid , FILE , ecl_unit_enum) ")
+    _fwrite_GRID2                 = EclPrototype("void   ecl_grid_fwrite_GRID2( ecl_grid , char* , ecl_unit_enum)")
+    _fwrite_EGRID2                = EclPrototype("void   ecl_grid_fwrite_EGRID2( ecl_grid , char*, ecl_unit_enum)")
     _equal                        = EclPrototype("bool   ecl_grid_compare(ecl_grid , ecl_grid , bool, bool)")
     _dual_grid                    = EclPrototype("bool   ecl_grid_dual_grid( ecl_grid )")
     _init_actnum                  = EclPrototype("void   ecl_grid_init_actnum_data( ecl_grid , int* )")
@@ -216,17 +217,38 @@ class EclGrid(BaseCClass):
         return ecl_grid
 
     
-    def __init__(self , filename):
-        apply_mapaxes = True
+    def __init__(self , filename , apply_mapaxes = True):
+        """
+        Will create a grid structure from an EGRID or GRID file.
+        """
         c_ptr = self._fread_alloc( filename , apply_mapaxes)
         if c_ptr:
             super(EclGrid, self).__init__(c_ptr)
         else:
             raise IOError("Loading grid from:%s failed" % filename)
+        self.__str__ = self.__repr__
 
     def free(self):
         self._free( )
-    
+
+    def _nicename(self):
+        """name is often full path to grid, if so, output basename, else name"""
+        name = self.getName()
+        if os.path.isfile(name):
+            name = os.path.basename(name)
+        return name
+
+    def __repr__(self):
+        """Returns, e.g.:
+           EclGrid("NORNE_ATW2013.EGRID", 46x112x22, global_size = 113344, active_size = 44431) at 0x28c4a70
+        """
+        name = self._nicename()
+        if name:
+            name = '"%s", ' % name
+        g_size = self.getGlobalSize()
+        a_size = self.getNumActive()
+        xyz_s  = '%dx%dx%d' % (self.getNX(),self.getNY(),self.getNZ())
+        return self._create_repr('%s%s, global_size = %d, active_size = %d' % (name, xyz_s, g_size, a_size))
 
     def equal(self , other , include_lgr = True , include_nnc = False , verbose = False):
         """
@@ -714,8 +736,20 @@ class EclGrid(BaseCClass):
     def top( self , i , j ):
         """
         Top of the reservoir; in the column (@i , @j).
+        Returns average depth of the four top corners.
         """
-        return self._get_top( i , j ) 
+        return self._get_top( i , j )
+
+    def top_active( self, i, j ):
+        """
+        Top of the active part of the reservoir; in the column (@i , @j).
+        Raises ValueError if (i,j) column is inactive.
+        """
+        for k in range(self.getNZ()):
+            a_idx = self.get_active_index(ijk=(i,j,k))
+            if a_idx >= 0:
+                return self._get_top1A(a_idx)
+        raise ValueError('No active cell in column (%d,%d)' % (i,j))
 
     def bottom( self , i , j ):
         """
@@ -753,20 +787,19 @@ class EclGrid(BaseCClass):
         If the location (@x,@y,@z) can not be found in the grid, the
         method will return None.
         """
-
+        start_index = 0
         if start_ijk:
             start_index = self.__global_index( ijk = start_ijk )
-        else:
-            start_index = 0
+
         global_index = self._get_ijk_xyz( x , y , z , start_index)
         if global_index >= 0:
             i = ctypes.c_int()
             j = ctypes.c_int()
             k = ctypes.c_int()
-            self._get_ijk1( global_index , ctypes.byref(i) , ctypes.byref(j) , ctypes.byref(k))        
-            return (i.value , j.value , k.value)
-        else:
-            return None
+            self._get_ijk1( global_index,
+                            ctypes.byref(i), ctypes.byref(j), ctypes.byref(k) )
+            return (i.value, j.value, k.value)
+        return None
 
     def cell_contains( self , x , y , z , active_index = None , global_index = None , ijk = None):
         """
@@ -1105,26 +1138,26 @@ class EclGrid(BaseCClass):
         else:
             raise ValueError("Keyword: %s has invalid size(%d), must be either nactive:%d  or nx*ny*nz:%d" % (ecl_kw.name , ecl_kw.size , self.nactive ,self.size))
         
-    def save_grdecl(self , pyfile):
+    def save_grdecl(self , pyfile, output_unit = EclUnitTypeEnum.ECL_METRIC_UNITS):
         """
         Will write the the grid content as grdecl formatted keywords.
 
         Will only write the main grid.
         """
         cfile = CFILE( pyfile )
-        self._fprintf_grdecl( cfile )
+        self._fprintf_grdecl( cfile , output_unit)
 
-    def save_EGRID( self , filename , output_unit = EclUnitTypeEnum.ERT_ECL_METRIC_UNITS):
+    def save_EGRID( self , filename , output_unit = EclUnitTypeEnum.ECL_METRIC_UNITS):
         """
         Will save the current grid as a EGRID file.
         """
-        self._fwrite_EGRID2( filename, output_unit , None )
+        self._fwrite_EGRID2( filename, output_unit )
 
-    def save_GRID( self , filename ):
+    def save_GRID( self , filename , output_unit = EclUnitTypeEnum.ECL_METRIC_UNITS):
         """
         Will save the current grid as a EGRID file.
         """
-        self._fwrite_GRID(  filename )
+        self._fwrite_GRID2(  filename, output_unit )
 
         
     def write_grdecl( self , ecl_kw , pyfile , special_header = None , default_value = 0):
@@ -1152,7 +1185,7 @@ class EclGrid(BaseCClass):
         
         if len(ecl_kw) == self.getNumActive() or len(ecl_kw) == self.getGlobalSize():
             cfile = CFILE( pyfile )
-            self._fwrite_grdecl( ecl_kw , special_header , cfile , default_value )
+            self._fwrite_grdecl2( ecl_kw , special_header , cfile , default_value )
         else:
             raise ValueError("Keyword: %s has invalid size(%d), must be either nactive:%d  or nx*ny*nz:%d" % (ecl_kw.getName() , len(ecl_kw) , self.getNumActive() , self.getGlobalSize()))
 

@@ -34,7 +34,7 @@ void test_write_depth(const ecl_grid_type * grid) {
   test_work_area_type * test_area = test_work_area_alloc("write_depth");
   {
     fortio_type * init_file = fortio_open_writer( "INIT" , false , ECL_ENDIAN_FLIP );
-    ecl_grid_fwrite_depth( grid , init_file , ERT_ECL_METRIC_UNITS);
+    ecl_grid_fwrite_depth( grid , init_file , ECL_METRIC_UNITS);
     fortio_fclose( init_file );
   }
   {
@@ -55,7 +55,7 @@ void test_write_dims(const ecl_grid_type * grid) {
   test_work_area_type * test_area = test_work_area_alloc("write_dims");
   {
     fortio_type * init_file = fortio_open_writer( "INIT" , false , ECL_ENDIAN_FLIP );
-    ecl_grid_fwrite_dims( grid , init_file , ERT_ECL_METRIC_UNITS );
+    ecl_grid_fwrite_dims( grid , init_file , ECL_METRIC_UNITS );
     fortio_fclose( init_file );
   }
   {

@@ -133,7 +133,7 @@ static const char * get_den_kw( ecl_phase_enum phase , ecl_version_enum ecl_vers
       util_abort("%s: unrecognized phase id:%d \n",__func__ , phase);
       return NULL;
     }
-  } else if (ecl_version == ECLIPSE300) {
+  } else if ((ecl_version == ECLIPSE300) || (ecl_version == ECLIPSE300_THERMAL)) {
     switch( phase ) {
     case( ECL_OIL_PHASE ):
       return ECLIPSE300_OIL_DEN_KW;
@@ -149,7 +149,7 @@ static const char * get_den_kw( ecl_phase_enum phase , ecl_version_enum ecl_vers
       return NULL;
     }
   } else {
-    util_abort("%s: unrecognized version id:%d \n",__func__ , ecl_version);
+    util_abort("%s: unrecognized simulator id:%d \n",__func__ , ecl_version);
     return NULL;
   }
 }

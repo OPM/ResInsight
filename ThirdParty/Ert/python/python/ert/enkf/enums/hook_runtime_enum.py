@@ -14,15 +14,16 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class HookRuntime(BaseCEnum):
+    TYPE_NAME = "hook_runtime_enum"
     PRE_SIMULATION = None
     POST_SIMULATION = None
+    PRE_UPDATE      = None
+    POST_UPDATE     = None
 
 
 HookRuntime.addEnum("PRE_SIMULATION"  , 0)
 HookRuntime.addEnum("POST_SIMULATION" , 1)
-
-HookRuntime.registerEnum(ENKF_LIB, "hook_runtime_enum")
+HookRuntime.addEnum("PRE_UPDATE"      , 2)
+HookRuntime.addEnum("POST_UPDATE"     , 3)

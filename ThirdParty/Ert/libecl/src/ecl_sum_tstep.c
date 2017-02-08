@@ -69,6 +69,31 @@ struct ecl_sum_tstep_struct {
 };
 
 
+ecl_sum_tstep_type * ecl_sum_tstep_alloc_remap_copy( const ecl_sum_tstep_type * src , const ecl_smspec_type * new_smspec, float default_value , const int * params_map) {
+  int params_size = ecl_smspec_get_params_size( new_smspec );
+  ecl_sum_tstep_type * target = util_alloc_copy(src , sizeof * src );
+
+  target->smspec = new_smspec;
+  target->data = util_malloc( params_size * sizeof * target->data );
+  target->data_size = params_size;
+  for (int i=0; i < params_size; i++) {
+
+    if (params_map[i] >= 0)
+      target->data[i] = src->data[ params_map[i] ];
+    else
+      target->data[i] = default_value;
+
+  }
+  return target;
+}
+
+ecl_sum_tstep_type * ecl_sum_tstep_alloc_copy( const ecl_sum_tstep_type * src ) {
+  ecl_sum_tstep_type * target = util_alloc_copy(src , sizeof * src );
+  target->data = util_alloc_copy( src->data , src->data_size * sizeof * src->data );
+  return target;
+}
+
+
 static ecl_sum_tstep_type * ecl_sum_tstep_alloc( int report_step , int ministep_nr , const ecl_smspec_type * smspec) {
   ecl_sum_tstep_type * tstep = util_malloc( sizeof * tstep );
   UTIL_TYPE_ID_INIT( tstep , ECL_SUM_TSTEP_ID);

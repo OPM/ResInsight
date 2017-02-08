@@ -1,25 +1,30 @@
 from PyQt4.QtCore import Qt, pyqtSignal, QObject
-from PyQt4.QtGui import QDialog, QVBoxLayout, QLayout, QTabWidget, QHBoxLayout, QPushButton, QToolButton, QMenu, QWidgetAction, QListWidget
+from PyQt4.QtGui import QDialog, QVBoxLayout, QLayout, QTabWidget, QHBoxLayout, QPushButton, QToolButton, QMenu, \
+    QWidgetAction, QListWidget
 
+from ert_gui import ERT
+from ert_gui.tools.plot.widgets import CopyStyleToDialog
 from ert_gui.ertwidgets import resourceIcon
 from ert_gui.plottery import PlotConfig, PlotConfigHistory
-from ert_gui.tools.plot.customize import DefaultCustomizationView, StyleCustomizationView, StatisticsCustomizationView, LimitsCustomizationView
+from ert_gui.tools.plot.customize import DefaultCustomizationView, StyleCustomizationView, \
+    StatisticsCustomizationView, LimitsCustomizationView
 
 
 class PlotCustomizer(QObject):
 
     settingsChanged = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, default_plot_settings):
         super(PlotCustomizer, self).__init__()
 
         self._plot_config_key = None
         self._previous_key = None
-        self._plot_configs = {None: PlotConfigHistory("No_Key_Selected", PlotConfig(None))}
+        self.default_plot_settings = default_plot_settings
+        self._plot_configs = {None: PlotConfigHistory("No_Key_Selected", PlotConfig(default_plot_settings, title=None))}
 
         self._plotConfigCreator = self._defaultPlotConfigCreator
 
-        self._customization_dialog = CustomizePlotDialog("Customize", parent)
+        self._customization_dialog = CustomizePlotDialog("Customize", parent, key=self._plot_config_key)
 
         self._customization_dialog.addTab("general", "General", DefaultCustomizationView())
         self._customization_dialog.addTab("style", "Style", StyleCustomizationView())
@@ -33,7 +38,7 @@ class PlotCustomizer(QObject):
         self._customization_dialog.redoSettings.connect(self.redoCustomization)
         self._customization_dialog.resetSettings.connect(self.resetCustomization)
         self._customization_dialog.copySettings.connect(self.copyCustomization)
-
+        self._customization_dialog.copySettingsToOthers.connect(self.copyCustomizationTo)
         self._revertCustomization(self.getPlotConfig())
 
 
@@ -87,6 +92,24 @@ class PlotCustomizer(QObject):
         """ @rtype: bool """
         return len(self._plot_configs) > 2
 
+    def copyCustomizationTo(self, keys):
+        """ copies the plotconfig of the current key, to a set of other keys"""
+        history = self._getPlotConfigHistory()
+
+        for key in keys:
+            if key not in self._plot_configs:
+                self._plot_configs[key] = PlotConfigHistory("No_Key_Selected",
+                                                            PlotConfig(self.default_plot_settings, title=None))
+            source_config = history.getPlotConfig()
+            source_config.setTitle(key)
+
+            self._plot_configs[key].applyChanges(source_config)
+
+            self._customization_dialog.addCopyableKey(key)
+
+        self._emitChangedSignal(emit=True)
+
+
     def copyCustomization(self, key):
         key = str(key)
         if self.isCopyPossible():
@@ -115,6 +138,7 @@ class PlotCustomizer(QObject):
             if not key in self._plot_configs:
                 self._plot_configs[key] = PlotConfigHistory(key, self._selectiveCopyOfCurrentPlotConfig(key))
                 self._customization_dialog.addCopyableKey(key)
+            self._customization_dialog.currentPlotKeyChanged(key)
             self._previous_key = self._plot_config_key
             self._plot_config_key = key
             self._revertCustomization(self.getPlotConfig(), emit=False)
@@ -136,10 +160,21 @@ class CustomizePlotDialog(QDialog):
     redoSettings = pyqtSignal()
     resetSettings = pyqtSignal()
     copySettings = pyqtSignal(str)
+    copySettingsToOthers = pyqtSignal(list)
 
-    def __init__(self, title, parent=None):
+    def __init__(self, title, parent=None, key=''):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
+
+        self._ert = ERT.ert
+
+        """:type: ert.enkf.enkf_main.EnKFMain"""
+
+        self.key_manager = self._ert.getKeyManager()
+        """:type: ert.enkf.key_manager.KeyManager """
+
+        self.current_key = key
+
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowCancelButtonHint)
@@ -171,21 +206,27 @@ class CustomizePlotDialog(QDialog):
         self._redo_button.clicked.connect(self.redoSettings)
         self._redo_button.setEnabled(False)
 
-        self._copy_button = QToolButton()
-        self._copy_button.setIcon(resourceIcon("page_copy.png"))
-        self._copy_button.setToolTip("Copy settings from another key")
-        self._copy_button.setPopupMode(QToolButton.InstantPopup)
-        self._copy_button.setEnabled(False)
+        self._copy_from_button = QToolButton()
+        self._copy_from_button.setIcon(resourceIcon("copy_from.png"))
+        self._copy_from_button.setToolTip("Copy settings from another key")
+        self._copy_from_button.setPopupMode(QToolButton.InstantPopup)
+        self._copy_from_button.setEnabled(False)
 
-        tool_menu = QMenu(self._copy_button)
+        self._copy_to_button = QToolButton()
+        self._copy_to_button.setIcon(resourceIcon("copy_to.png"))
+        self._copy_to_button.setToolTip("Copy current plot settings to other keys")
+        self._copy_to_button.setPopupMode(QToolButton.InstantPopup)
+        self._copy_to_button.clicked.connect(self.initiateCopyStyleToDialog)
+        self._copy_to_button.setEnabled(True)
+
+        tool_menu = QMenu(self._copy_from_button)
         self._popup_list = QListWidget(tool_menu)
         self._popup_list.setSortingEnabled(True)
         self._popup_list.itemClicked.connect(self.keySelected)
         action = QWidgetAction(tool_menu)
         action.setDefaultWidget(self._popup_list)
         tool_menu.addAction(action)
-        self._copy_button.setMenu(tool_menu)
-
+        self._copy_from_button.setMenu(tool_menu)
 
         self._apply_button = QPushButton("Apply")
         self._apply_button.setToolTip("Apply the new settings")
@@ -200,7 +241,8 @@ class CustomizePlotDialog(QDialog):
         self._button_layout.addStretch()
         self._button_layout.addWidget(self._undo_button)
         self._button_layout.addWidget(self._redo_button)
-        self._button_layout.addWidget(self._copy_button)
+        self._button_layout.addWidget(self._copy_from_button)
+        self._button_layout.addWidget(self._copy_to_button)
         self._button_layout.addStretch()
         self._button_layout.addWidget(self._apply_button)
         self._button_layout.addWidget(self._close_button)
@@ -210,11 +252,20 @@ class CustomizePlotDialog(QDialog):
 
         self.setLayout(layout)
 
+    def initiateCopyStyleToDialog(self):
+        all_other_keys = [k for k in self.key_manager.allDataTypeKeys() if k != self.current_key]
+        dialog = CopyStyleToDialog(self, self.current_key, all_other_keys)
+        if dialog.exec_():
+            self.copySettingsToOthers.emit(dialog.getSelectedKeys())
+
     def addCopyableKey(self, key):
         self._popup_list.addItem(key)
 
     def keySelected(self, list_widget_item):
         self.copySettings.emit(str(list_widget_item.text()))
+
+    def currentPlotKeyChanged(self, new_key):
+        self.current_key = new_key
 
     def keyPressEvent(self, q_key_event):
         if q_key_event.key() == Qt.Key_Escape:
@@ -238,4 +289,4 @@ class CustomizePlotDialog(QDialog):
     def setUndoRedoCopyState(self, undo, redo, copy=False):
         self._undo_button.setEnabled(undo)
         self._redo_button.setEnabled(redo)
-        self._copy_button.setEnabled(copy)
+        self._copy_from_button.setEnabled(copy)

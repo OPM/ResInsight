@@ -58,6 +58,8 @@ env:
 before_script:
   - mkdir build
   - cd build
-  - cmake -DPYTHON_INSTALL_PREFIX=python -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DUSE_RUNPATH=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=OFF -DERT_BUILD_CXX=ON ..
+  - cmake -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=OFF -DERT_BUILD_CXX=ON ..
 
-script: make && ctest --output-on-failure
+script:
+  - make
+  - ctest --output-on-failure

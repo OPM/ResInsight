@@ -122,4 +122,8 @@ from ert.util import updateAbortSignals
 
 updateAbortSignals( )
 
-#-----------------------------------------------------------------
+def root():
+    """
+    Will print the filesystem root of the current ert package.
+    """
+    return os.path.abspath( os.path.join( os.path.dirname( __file__ ) , "../"))

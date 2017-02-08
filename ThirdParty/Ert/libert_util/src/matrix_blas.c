@@ -181,7 +181,7 @@ void matrix_dgemm(matrix_type *C , const matrix_type *A , const matrix_type * B 
     util_abort("%s: matrix size mismatch between B and C \n",__func__);
   }
 
-  if (!ldc >= util_int_max(1 , m)) {
+  if (ldc < util_int_max(1 , m)) {
     dgemm_debug(C,A,B,transA , transB);
     fprintf(stderr,"Tried to capture blas message: \"** On entry to DGEMM parameter 13 had an illegal value\"\n");
     fprintf(stderr,"m:%d  ldc:%d  ldc should be >= max(1,%d) \n",m,ldc,m);

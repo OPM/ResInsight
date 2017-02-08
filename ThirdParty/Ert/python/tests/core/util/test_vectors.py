@@ -29,7 +29,38 @@ from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, CTime, Per
 class UtilTest(TestCase):
     def setUp(self):
         pass
-        
+
+    def dotest_slicing(self, vec):
+        self.assertEqual(10, len(vec))
+        self.assertEqual(vec[-1], vec[9])
+        self.assertEqual(8, len(vec[:8]))
+        self.assertEqual(9, len(vec[1:]))
+        self.assertEqual(3, len(vec[1:8:3]))
+        odds = vec[1::2]
+        self.assertEqual(4, len(vec[1:8:2]))
+        for i in range(4):
+            self.assertEqual(vec[2*i + 1], odds[i])
+
+    def test_slicing(self):
+        dv = DoubleVector(initial_size=10)
+        for i in range(10):
+            dv[i] = 1.0 / (1+i)
+        self.dotest_slicing(dv)
+        iv = IntVector(initial_size=10)
+        for i in range(10):
+            iv[i] = i**3
+        self.dotest_slicing(iv)
+        bv = BoolVector(initial_size=10)
+        for i in range(0,10,3):
+            bv[i] = True
+        self.dotest_slicing(bv)
+        tv = TimeVector(initial_size=10)
+        for i in range(10):
+            tv[i] = CTime(datetime.datetime(2016, 12, i+3, 0, 0, 0))
+        self.dotest_slicing(tv)
+
+
+
     def test_double_vector(self):
         v = DoubleVector()
 
@@ -103,6 +134,34 @@ class UtilTest(TestCase):
         # Type mismatch
         with self.assertRaises(TypeError):
             iv1 *= dv1
+
+    def test_setitem_getitem(self):
+        primes = [2,3,5,7,11,13,17,19]
+        primep = [i in primes for i in range(20)]
+        b = BoolVector(initial_size = 20)
+        b[2] = True
+        b[3:8:2] = True
+        b[11::2] = True
+        self.assertTrue(b[15])
+        self.assertTrue(b[-5])
+        self.assertTrue(b[17])
+        self.assertTrue(b[19])
+        b[-5] = False
+        self.assertEqual(list(b), primep)
+
+    def test_repr(self):
+        primes = [2,3,5,7,11,13,17,19]
+        b = BoolVector()
+        for i in primes:
+            b[i] = True
+        pfx = 'BoolVector(size = 20, content = "00110101000101000101")'
+        print(repr(b))
+        self.assertEqual(pfx, repr(b)[:len(pfx)])
+        b[30] = True
+        pfx = 'BoolVector(size = 31, content = "001101010...00000001")'
+        print(repr(b))
+        self.assertEqual(pfx, repr(b)[:len(pfx)])
+
 
     def test_bool_vector(self):
         b = BoolVector()

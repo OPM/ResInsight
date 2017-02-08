@@ -21,6 +21,10 @@
 #include <math.h>
 #include <stdio.h>
 
+#if defined(_OPENMP)
+#include <omp.h>
+#endif
+
 #include <ert/util/type_macros.h>
 #include <ert/util/util.h>
 #include <ert/util/rng.h>
@@ -39,17 +43,20 @@
 #include <ert/analysis/module_obs_block.h>
 #include <ert/analysis/module_obs_block_vector.h>
 
-
 #define FWD_STEP_ENKF_TYPE_ID 765524
 
 #define DEFAULT_NFOLDS              5
 #define DEFAULT_R2_LIMIT            0.99
+#define DEFAULT_NUM_THREADS         -1
+
 #define NFOLDS_KEY                  "CV_NFOLDS"
 #define R2_LIMIT_KEY                "FWD_STEP_R2_LIMIT"
 #define DEFAULT_VERBOSE             false
 #define VERBOSE_KEY                 "VERBOSE"
-#define  LOG_FILE_KEY               "LOG_FILE"
-#define  CLEAR_LOG_KEY              "CLEAR_LOG"
+#define NUM_THREADS_KEY             "NUM_THREADS"
+#define LOG_FILE_KEY                "LOG_FILE"
+#define CLEAR_LOG_KEY               "CLEAR_LOG"
+
 
 struct fwd_step_enkf_data_struct {
   UTIL_TYPE_ID_DECLARATION;
@@ -59,6 +66,7 @@ struct fwd_step_enkf_data_struct {
   long                       option_flags;
   double                     r2_limit;
   bool                       verbose;
+  int                        num_threads;
   fwd_step_log_type        * fwd_step_log;
 };
 
@@ -79,6 +87,11 @@ void fwd_step_enkf_set_verbose( fwd_step_enkf_data_type * data , bool verbose ) 
   data->verbose = verbose;
 }
 
+void fwd_step_enkf_set_num_threads( fwd_step_enkf_data_type * data , int threads ) {
+  data->num_threads = threads;
+}
+
+
 void * fwd_step_enkf_data_alloc( rng_type * rng ) {
   fwd_step_enkf_data_type * data = util_malloc( sizeof * data );
   UTIL_TYPE_ID_INIT( data , FWD_STEP_ENKF_TYPE_ID );
@@ -89,6 +102,7 @@ void * fwd_step_enkf_data_alloc( rng_type * rng ) {
   data->r2_limit     = DEFAULT_R2_LIMIT;
   data->option_flags = ANALYSIS_NEED_ED + ANALYSIS_UPDATE_A + ANALYSIS_SCALE_DATA;
   data->verbose      = DEFAULT_VERBOSE;
+  data->num_threads  = DEFAULT_NUM_THREADS;
   data->fwd_step_log = fwd_step_log_alloc();
   return data;
 }
@@ -120,6 +134,7 @@ static void fwd_step_enkf_write_log_header( fwd_step_enkf_data_type * fwd_step_d
   const char * column3 = "NumAttached";
   const char * column4 = "AttachedObs(ActiveIndex)[Percentage sensitivity]";
   int nfolds      = fwd_step_data->nfolds;
+  int num_threads = fwd_step_data->num_threads;
   double r2_limit = fwd_step_data->r2_limit;
 
   if (fwd_step_log_is_open( fwd_step_data->fwd_step_log )) {
@@ -141,6 +156,7 @@ static void fwd_step_enkf_write_log_header( fwd_step_enkf_data_type * fwd_step_d
   printf("Total number of observations: %d\n",nd);
   printf("Number of ensembles         : %d\n",ens_size);
   printf("CV folds                    : %d\n",nfolds);
+  printf("Number of threads           : %d\n",num_threads);
   printf("Relative R2 tolerance       : %f\n",r2_limit);
   printf("===============================================================================================================================\n");
   printf(format, column1, column2, column3, column4);
@@ -250,6 +266,14 @@ void fwd_step_enkf_updateA(void * module_data ,
     bool verbose    = fwd_step_data->verbose;
     int num_kw     =  module_data_block_vector_get_size(data_block_vector);
 
+#if defined(_OPENMP)
+    #pragma omp parallel
+    #pragma omp master
+    if (fwd_step_data->num_threads == DEFAULT_NUM_THREADS)
+     fwd_step_data->num_threads = omp_get_num_threads();
+#else
+    fwd_step_data->num_threads = 1;
+#endif
 
     if ( ens_size <= nfolds)
       util_abort("%s: The number of ensembles must be larger than the CV fold - aborting\n", __func__);
@@ -257,18 +281,13 @@ void fwd_step_enkf_updateA(void * module_data ,
 
     {
 
-      stepwise_type * stepwise_data = stepwise_alloc1(ens_size, nd , fwd_step_data->rng);
-
-      matrix_type * workS = matrix_alloc( ens_size , nd  );
-      matrix_type * workE = matrix_alloc( ens_size , nd  );
+      matrix_type * St = matrix_alloc( ens_size , nd  );
+      matrix_type * Et = matrix_alloc( ens_size , nd  );
 
       /*workS = S' */
       matrix_subtract_row_mean( S );           /* Shift away the mean */
-      workS   = matrix_alloc_transpose( S );
-      workE   = matrix_alloc_transpose( E );
-
-      stepwise_set_X0( stepwise_data , workS );
-      stepwise_set_E0( stepwise_data , workE );
+      St   = matrix_alloc_transpose( S );
+      Et   = matrix_alloc_transpose( E );
 
       matrix_type * di = matrix_alloc( 1 , nd );
 
@@ -277,53 +296,67 @@ void fwd_step_enkf_updateA(void * module_data ,
         fwd_step_enkf_write_log_header(fwd_step_data, ministep_name, nx, nd, ens_size);
       }
 
-      for (int kw = 0; kw < num_kw; kw++) {
-
+      int kw,i;
+      
+      /* This is to avoid a global-to-block search function since the number of parameters could be very large*/
+      int_vector_type * kw_list = int_vector_alloc(nx, -1);
+      int_vector_type * local_index_list = int_vector_alloc(nx, -1);
+      for (kw = 0; kw < num_kw; kw++) {
         module_data_block_type * data_block = module_data_block_vector_iget_module_data_block(data_block_vector, kw);
-        const char * key = module_data_block_get_key(data_block);
         int row_start = module_data_block_get_row_start(data_block);
         int row_end   = module_data_block_get_row_end(data_block);
+        for (i = row_start; i < row_end; i++) {
+          int_vector_iset(kw_list, i, kw);
+          int_vector_iset(local_index_list, i, i - row_start);
+        }
+      }
+
+
+      // =============================================
+      #pragma omp parallel for schedule(dynamic, 1) num_threads(fwd_step_data->num_threads)
+      for (i = 0; i < nx; i++) {
+        int kw_ind = int_vector_iget(kw_list, i);
+        module_data_block_type * data_block = module_data_block_vector_iget_module_data_block(data_block_vector, kw_ind);
+        const char * key = module_data_block_get_key(data_block);
         const int* active_indices = module_data_block_get_active_indices(data_block);
-        int local_index = 0;
         int active_index = 0;
         bool all_active = active_indices == NULL; /* Inactive are not present in A */
+        stepwise_type * stepwise_data = stepwise_alloc1(ens_size, nd , fwd_step_data->rng, St, Et);
 
-        for (int i = row_start; i < row_end; i++) {
+        /*Update values of y */
+        /*Start of the actual update */
+        matrix_type * y = matrix_alloc( ens_size , 1 );
 
-          /*Update values of y */
-          /*Start of the actual update */
-          matrix_type * y = matrix_alloc( ens_size , 1 );
+        for (int j = 0; j < ens_size; j++) {
+          matrix_iset(y , j , 0 , matrix_iget( A, i , j ) );
+        }
 
-          for (int j = 0; j < ens_size; j++) {
-            matrix_iset(y , j , 0 , matrix_iget( A, i , j ) );
-          }
-
-          stepwise_set_Y0( stepwise_data , y );
+        stepwise_set_Y0( stepwise_data , y );
 
           stepwise_estimate(stepwise_data , r2_limit , nfolds );
 
-          /*manipulate A directly*/
-          for (int j = 0; j < ens_size; j++) {
-            for (int k = 0; k < nd; k++) {
-              matrix_iset(di , 0 , k , matrix_iget( D , k , j ) );
-            }
-            double aij = matrix_iget( A , i , j );
-            double xHat = stepwise_eval(stepwise_data , di );
-            matrix_iset(A , i , j , aij + xHat);
+        /*manipulate A directly*/
+        for (int j = 0; j < ens_size; j++) {
+          for (int k = 0; k < nd; k++) {
+            matrix_iset(di , 0 , k , matrix_iget( D , k , j ) );
           }
-
-          if (verbose){
-            if (all_active)
-             active_index = local_index;
-            else
-             active_index = active_indices[local_index];
-
-            fwd_step_enkf_write_iter_info(fwd_step_data, stepwise_data, key, active_index, i, module_info);
-
-          }
-
-          local_index ++;
+          double aij = matrix_iget( A , i , j );
+          double xHat = stepwise_eval(stepwise_data , di );
+          matrix_iset(A , i , j , aij + xHat);
         }
+
+        if (verbose){
+          int loc_ind = int_vector_iget(local_index_list, i );
+          if (all_active)
+            active_index = loc_ind;
+          else
+            active_index = active_indices[loc_ind];
+
+          fwd_step_enkf_write_iter_info(fwd_step_data, stepwise_data, key, active_index, i, module_info);
+
+        }
+
+          stepwise_free( stepwise_data );
       }
 
       if (verbose)
@@ -331,9 +364,10 @@ void fwd_step_enkf_updateA(void * module_data ,
 
       printf("Done with stepwise regression enkf\n");
 
-      stepwise_free( stepwise_data );
-      matrix_free( di );
 
+      matrix_free( di );
+      int_vector_free(kw_list);
+      int_vector_free(local_index_list);
     }
 
 
@@ -368,9 +402,11 @@ bool fwd_step_enkf_set_int( void * arg , const char * var_name , int value) {
   {
     bool name_recognized = true;
 
-    /*Set number of CV folds */
+
     if (strcmp( var_name , NFOLDS_KEY) == 0)
-      fwd_step_enkf_set_nfolds( module_data , value);
+      fwd_step_enkf_set_nfolds( module_data , value); /*Set number of CV folds */
+    else if (strcmp( var_name , NUM_THREADS_KEY) == 0)
+      fwd_step_enkf_set_num_threads( module_data , value); /*Set number of OMP threads */
     else
       name_recognized = false;
 
@@ -428,6 +464,8 @@ bool fwd_step_enkf_has_var( const void * arg, const char * var_name) {
       return true;
     else if (strcmp(var_name , CLEAR_LOG_KEY) == 0)
       return true;
+    else if (strcmp(var_name , NUM_THREADS_KEY) == 0)
+      return true;
     else
       return false;
   }
@@ -448,6 +486,8 @@ int fwd_step_enkf_get_int( const void * arg, const char * var_name) {
   {
     if (strcmp(var_name , NFOLDS_KEY) == 0)
       return module_data->nfolds;
+    if (strcmp(var_name , NUM_THREADS_KEY) == 0)
+      return module_data->num_threads;
     else
       return -1;
   }

@@ -252,7 +252,9 @@ void RimWellAllocationPlot::updateFromWell()
 
     }
 
-    setDescription("Well Allocation: " + m_wellName +", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
+    QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
+    
+    setDescription("Well Allocation: " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
  
     /// Pie chart
 
@@ -334,6 +336,52 @@ void RimWellAllocationPlot::updateWidgetTitleWindowTitle()
             m_wellAllocationPlotWidget->hideTitle();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellAllocationPlot::wellStatusTextForTimeStep(const QString& wellName, const RimEclipseResultCase* eclipseResultCase, size_t timeStep)
+{
+    QString statusText = "Undefined";
+
+    if (eclipseResultCase)
+    {
+        const RigSingleWellResultsData* wellResults = nullptr;
+        wellResults = eclipseResultCase->reservoirData()->findWellResult(wellName);
+
+        if (wellResults)
+        {
+            if (wellResults->hasWellResult(timeStep))
+            {
+                const RigWellResultFrame& wellResultFrame = wellResults->wellResultFrame(timeStep);
+
+                RigWellResultFrame::WellProductionType prodType = wellResultFrame.m_productionType;
+
+                switch (prodType)
+                {
+                case RigWellResultFrame::PRODUCER:
+                    statusText = "Producer";
+                    break;
+                case RigWellResultFrame::OIL_INJECTOR:
+                    statusText = "Oil Injector";
+                    break;
+                case RigWellResultFrame::GAS_INJECTOR:
+                    statusText = "Gas Injector";
+                    break;
+                case RigWellResultFrame::WATER_INJECTOR:
+                    statusText = "Water Injector";
+                    break;
+                case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+
+    return statusText;
 }
 
 //--------------------------------------------------------------------------------------------------

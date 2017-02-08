@@ -229,7 +229,7 @@ void test_assert_mem_not_equal__( const void * p1 , const void * p2 , size_t byt
 
 bool test_check_double_equal( double d1 , double d2) {
   const double tolerance = 1e-5;
-  return util_double_approx_equal__( d1 , d2 , tolerance );
+  return util_double_approx_equal__( d1 , d2 , tolerance , 0);
 }
 
 
@@ -246,7 +246,7 @@ void test_assert_double_not_equal__( double d1 , double d2, const char * file , 
 
 bool test_check_float_equal( float d1 , float d2) {
   const float tolerance = 1e-4;
-  return util_float_approx_equal__( d1 , d2 , tolerance );
+  return util_float_approx_equal__( d1 , d2 , tolerance , 0);
 }
 
 

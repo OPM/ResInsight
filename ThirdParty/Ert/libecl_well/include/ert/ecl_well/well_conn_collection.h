@@ -33,7 +33,7 @@ extern "C" {
 
   typedef struct well_conn_collection_struct well_conn_collection_type;
 
-  well_conn_collection_type * well_conn_collection_alloc();
+  well_conn_collection_type * well_conn_collection_alloc(void);
   void                        well_conn_collection_free( well_conn_collection_type * wellcc );
   void                        well_conn_collection_free__( void * arg );
   int                         well_conn_collection_get_size( const well_conn_collection_type * wellcc );
@@ -41,7 +41,7 @@ extern "C" {
   well_conn_type       *      well_conn_collection_iget(const well_conn_collection_type * wellcc , int index);
   void                        well_conn_collection_add( well_conn_collection_type * wellcc , well_conn_type * conn);
   void                        well_conn_collection_add_ref( well_conn_collection_type * wellcc , well_conn_type * conn);
-  int                         well_conn_collection_load_from_kw( well_conn_collection_type * wellcc , const ecl_kw_type * iwel_kw , const ecl_kw_type * icon_kw , const ecl_kw_type * scon_kw , int iwell , const ecl_rsthead_type * rst_head);
+  int                         well_conn_collection_load_from_kw( well_conn_collection_type * wellcc , const ecl_kw_type * iwel_kw , const ecl_kw_type * icon_kw , const ecl_kw_type * scon_kw , const ecl_kw_type * xcon_kw , int iwell , const ecl_rsthead_type * rst_head);
 
   UTIL_IS_INSTANCE_HEADER( well_conn_collection );
 

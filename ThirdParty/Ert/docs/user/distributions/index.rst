@@ -114,6 +114,37 @@ variable, i.e. set it to a constant value. Here is an example of use:
 
     CONST 1.0
 
+DUNIF 
+-----
+
+The keyword DUNIF is used to assign a discrete uniform distribution. It takes three arguments, the number bins, a minimum and maximum value. Here is an example which creates a discrete uniform distribution on [0,1] with 25 bins: 
+
+::
+
+    DUNIF 25 0 1
+
+ERRF
+-----
+
+The ERRF keyword is used to define a prior resulting from applying the error function to a normally distributed variable with mean 0 and variance 1. The keyword takes four arguments: 
+
+::
+
+    ERRF MIN MAX SKEWNESS WIDTH
+
+The arguments MIN and MAX sets the minimum and maximum value of the transform. Zero SKEWNESS results in a symmetric distribution, whereas negative SKEWNESS will shift the distribution towards the left and positive SKEWNESS will shift it towards the right. Letting WIDTH be larger than one will cause the distribution to be unimodal, whereas WIDTH less than one will create a bi-modal distribution. 
+
+
+DERRF
+-----
+
+The keyword DERRF is similar to ERRF, but will create a discrete output. DERRF takes 5 arguments: 
+
+::
+
+    DERRF NBINS MIN MAX SKEWNESS WIDTH
+
+NBINS set the number of discrete values, and the other arguments have the same effect as in ERRF. 
 
 
 Priors and transformations

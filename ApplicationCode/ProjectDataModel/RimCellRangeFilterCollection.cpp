@@ -159,6 +159,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
         }
     }
 
+    view->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
     view->scheduleGeometryRegen(RANGE_FILTERED);
     view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 

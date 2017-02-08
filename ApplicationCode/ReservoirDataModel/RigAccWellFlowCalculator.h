@@ -65,7 +65,6 @@ public:
     RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
-
     const std::vector<double>&   accumulatedTotalFlowPrConnection( size_t branchIdx);
     const std::vector<double>&   accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx);
     const std::vector<size_t>&   connectionNumbersFromTop(size_t branchIdx);

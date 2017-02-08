@@ -28,7 +28,6 @@ class ErtNotifier(QObject):
 
     pyqtSlot()
     def emitErtChange(self):
-        print("Emitting ertChanged() - source: %s" % self.sender())
         self._checkErt()
         self.ertChanged.emit()
 

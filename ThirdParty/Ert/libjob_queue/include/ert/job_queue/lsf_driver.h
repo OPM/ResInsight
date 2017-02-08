@@ -33,13 +33,15 @@ extern "C" {
 #define LSF_RESOURCE     "LSF_RESOURCE"
 #define LSF_SERVER       "LSF_SERVER"
 #define LSF_RSH_CMD      "LSF_RSH_CMD"      // This option is set to DEFAULT_RSH_CMD at driver creation.
-#define LSF_LOGIN_SHELL  "LSF_LOGIN_SHELL"  // Not fully implemented yet
-#define LSF_BSUB_CMD     "BSUB_CMD"
-#define LSF_BJOBS_CMD    "BJOBS_CMD"
-#define LSF_BKILL_CMD    "BKILL_CMD"
-#define LSF_DEBUG_OUTPUT "DEBUG_OUTPUT"
-#define LSF_SUBMIT_SLEEP "SUBMIT_SLEEP"
-#define LSF_EXCLUDE_HOST "EXCLUDE_HOST"
+#define LSF_LOGIN_SHELL   "LSF_LOGIN_SHELL"  // Not fully implemented yet
+#define LSF_BSUB_CMD      "BSUB_CMD"
+#define LSF_BJOBS_CMD     "BJOBS_CMD"
+#define LSF_BKILL_CMD     "BKILL_CMD"
+#define LSF_BHIST_CMD     "BHIST_CMD"
+#define LSF_BJOBS_TIMEOUT "BJOBS_TIMEOUT"
+#define LSF_DEBUG_OUTPUT  "DEBUG_OUTPUT"
+#define LSF_SUBMIT_SLEEP  "SUBMIT_SLEEP"
+#define LSF_EXCLUDE_HOST  "EXCLUDE_HOST"
 
 #define LOCAL_LSF_SERVER "LOCAL"
 #define NULL_LSF_SERVER  "NULL"
@@ -95,7 +97,7 @@ typedef struct lsf_job_struct    lsf_job_type;
   bool            lsf_driver_set_option( void * __driver , const char * option_key , const void * value);
   void            lsf_driver_init_option_list(stringlist_type * option_list);
   int             lsf_job_parse_bsub_stdout(const char * bsub_cmd, const char * stdout_file);
-  const char    * lsf_job_write_bjobs_to_file(const char * bjobs_cmd, lsf_driver_type * driver, const long jobid);
+  char          * lsf_job_write_bjobs_to_file(const char * bjobs_cmd, lsf_driver_type * driver, const long jobid);
 
   stringlist_type * lsf_job_alloc_parse_hostnames(const char* fname);
   UTIL_SAFE_CAST_HEADER( lsf_driver );

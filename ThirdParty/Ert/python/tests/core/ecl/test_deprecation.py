@@ -21,6 +21,7 @@ import datetime
 from ert.test import ExtendedTestCase, TestAreaContext
 from ert.ecl import EclFile,EclGrid,EclKW,EclTypeEnum,EclGrid,EclRegion,FortIO, openFortIO,EclRFT
 from ert.ecl.ecl_case import EclCase
+from ert.test.ecl_mock import createEclSum
 from ert.util import BoolVector
 
 # The class Deprecation_1_9_Test contains methods which will be marked
@@ -39,7 +40,18 @@ class Deprecation_2_1_Test(ExtendedTestCase):
         with self.assertRaises(DeprecationWarning):
             n = kw.numpy_array
 
-            
+    def test_smspec_node_properties(self):
+        case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])
+        node = case.smspec_node( "FOPT" )
+
+        with self.assertRaises(DeprecationWarning):
+            node.is_total
+
+        with self.assertRaises(DeprecationWarning):
+            node.is_rate
+
+        with self.assertRaises(DeprecationWarning):
+            node.is_historical
 
             
 

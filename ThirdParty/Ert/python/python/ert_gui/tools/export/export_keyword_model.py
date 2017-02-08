@@ -29,14 +29,8 @@ class ExportKeywordModel(object):
         return sorted(ERT.ert.ensembleConfig().getKeylistFromImplType(ert_impl_type))
 
     def isDynamicPlot(self, key):
-        variable_type = self.getVarType(key)
-        return_value = False
-        if variable_type == EnkfVarType.DYNAMIC_STATE:
-            return_value = True
-        elif variable_type == EnkfVarType.DYNAMIC_RESULT:
-            return_value = True
-
-        return return_value
+        vtype = self.getVarType(key)
+        return vtype in [EnkfVarType.DYNAMIC_STATE, EnkfVarType.DYNAMIC_RESULT]
 
     def isDynamicField(self, key):
         return self.getVarType(key) == EnkfVarType.DYNAMIC_STATE
@@ -82,33 +76,29 @@ class ExportKeywordModel(object):
         return sorted(self.getFieldKeyWords() + self.getGenKwKeyWords() + self.getGenDataKeyWords())
 
     def hasKeywords(self):
-        keys = self.getKeyWords()
-        if keys.count > 0:
-            return True
-        else:
-            return False
+        return self.getKeyWords().count > 0
 
     def isGenKw(self, key):
         if self.__gen_kw is None:
-            return False
+            self.getGenKwKeyWords()
 
         return key in self.__gen_kw
 
     def isFieldKw(self, key):
         if self.__field_kw is None:
-            return False
+            self.getFieldKeyWords()
 
         return key in self.__field_kw
 
     def isGenDataKw(self, key):
         if self.__gen_data is None:
-            return False
+            self.getGenDataKeyWords()
 
         return key in self.__gen_data
 
     def isGenParamKw(self, key):
         if self.__gen_param is None:
-            return False
+            self.getGenDataKeyWords()
 
         return key in self.__gen_param
 
@@ -117,7 +107,7 @@ class ExportKeywordModel(object):
         obs_keys = ERT.ert.ensembleConfig().getNode(key).getObservationKeys()
         for obs_key in obs_keys:
             obs_vector = ERT.ert.getObservations()[obs_key]
-            for report_step in obs_vector:
+            for report_step in obs_vector.getStepList():
                 gen_data_list.append(str(report_step))
 
         return gen_data_list

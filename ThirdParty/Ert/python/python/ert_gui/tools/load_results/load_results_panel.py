@@ -64,7 +64,7 @@ class LoadResultsPanel(QWidget):
 
         self._iterations_model = ValueModel(iterations_count)
         self._iterations_field = StringBox(self._iterations_model, "load_results_manually/iterations")
-        self._iterations_field.setValidator(IntegerArgument(from_value=1))
+        self._iterations_field.setValidator(IntegerArgument())
         layout.addRow("Iteration to load:", self._iterations_field)
 
         self.setLayout(layout)
@@ -81,9 +81,20 @@ class LoadResultsPanel(QWidget):
         all_cases = self._case_model.getAllItems()
         selected_case  = all_cases[self._case_combo.currentIndex()]
         realizations = self._active_realizations_model.getActiveRealizationsMask()
-        iteration = self._iterations_model.getActiveIteration()
-
-        LoadResultsModel.loadResults(selected_case, realizations, iteration)
+        iteration = self._iterations_model.getValue()
+        try:
+            if iteration is None:
+                iteration = ''
+            iteration = int(iteration)
+        except ValueError as e:
+            print('Expected a (whole) number in iteration field, got "%s". Error message: %s.'  % (iteration, e))
+            return False
+        loaded = LoadResultsModel.loadResults(selected_case, realizations, iteration)
+        if loaded > 0:
+            print('Successfully loaded %d realisations.' % loaded)
+        else:
+            print('No realisations loaded.')
+        return loaded
 
     def setCurrectCase(self):
         current_case = getCurrentCaseName()

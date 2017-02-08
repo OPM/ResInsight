@@ -21,7 +21,7 @@ class LoadResultsManuallyTest(ExtendedTestCase):
             realisations[7] = False
             iteration = 0
 
-            ert.loadFromForwardModel(realisations, iteration, load_into)
+            loaded = ert.loadFromForwardModel(realisations, iteration, load_into)
 
             load_into_case_state_map = load_into.getStateMap()
 
@@ -29,16 +29,8 @@ class LoadResultsManuallyTest(ExtendedTestCase):
 
             expected = [RealizationStateEnum.STATE_HAS_DATA] * 25
             expected[7] = RealizationStateEnum.STATE_UNDEFINED
-            
+
             self.assertListEqual(load_into_states, expected)
-
-
-
-
-
-
-
-
-
-
-
+            self.assertEqual(24, loaded)
+            self.assertEqual(25, len(expected))
+            self.assertEqual(25, len(realisations))

@@ -33,6 +33,7 @@ set(TEST_SOURCES
     test_update.py
     test_ensemble_config.py
     test_deprecation.py
+    test_field_config.py
     test_field_export.py
     test_hook_workflow.py
     test_forward_load_context.py
@@ -63,6 +64,7 @@ addPythonTest(ert.enkf.local_config tests.ert.enkf.test_local_config.LocalConfig
 addPythonTest(ert.enkf.ensemble_config tests.ert.enkf.test_ensemble_config.EnsembleConfigTest)
 addPythonTest(ert.enkf.hook_workflow tests.ert.enkf.test_hook_workflow.HookWorkFlowTest)
 addPythonTest(ert.enkf.runpath_list tests.ert.enkf.test_runpath_list.RunpathListTest)
+addPythonTest(ert.enkf.field_config tests.ert.enkf.test_field_config.FieldConfigTest)
 
 if (STATOIL_TESTDATA_ROOT)
   addPythonTest(ert.enkf.enkf tests.ert.enkf.test_enkf.EnKFTest LABELS StatoilData)

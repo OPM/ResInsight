@@ -23,12 +23,11 @@ class ActiveRealizationsModel(ValueModel):
     def getActiveRealizationsMask(self):
         count = getRealizationCount()
 
-        mask = BoolVector.createActiveMask(self.getValue())
+        mask = BoolVector(default_value=False, initial_size = count)
+        if not mask.updateActiveMask(self.getValue()):
+            raise ValueError('Error while parsing range string "%s"!' % self.getValue())
 
-        if mask is None:
-            raise ValueError("Error while parsing range string!")
-
-        if len(mask) > count:
+        if len(mask) != count:
             raise ValueError("Mask size changed %d != %d!" % (count, len(mask)))
 
         return mask

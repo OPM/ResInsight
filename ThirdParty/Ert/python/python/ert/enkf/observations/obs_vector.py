@@ -13,14 +13,33 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.enkf.config import EnkfConfigNode
 from ert.enkf.enums import EnkfObservationImplementationType
 from ert.enkf.observations import BlockObservation, SummaryObservation, GenObservation
 
 
 class ObsVector(BaseCClass):
+    TYPE_NAME = "obs_vector"
+
+    _alloc                = EnkfPrototype("void* obs_vector_alloc(enkf_obs_impl_type, char*, enkf_config_node, int)", bind = False)
+    _free                 = EnkfPrototype("void  obs_vector_free( obs_vector )")
+    _get_state_kw         = EnkfPrototype("char* obs_vector_get_state_kw( obs_vector )")
+    _get_key              = EnkfPrototype("char* obs_vector_get_key( obs_vector )")
+    _iget_node            = EnkfPrototype("void* obs_vector_iget_node( obs_vector, int)")
+    _get_num_active       = EnkfPrototype("int   obs_vector_get_num_active( obs_vector )")
+    _iget_active          = EnkfPrototype("bool  obs_vector_iget_active( obs_vector, int)")
+    _get_impl_type        = EnkfPrototype("enkf_obs_impl_type obs_vector_get_impl_type( obs_vector)")
+    _install_node         = EnkfPrototype("void  obs_vector_install_node(obs_vector, int, void*)")
+    _get_next_active_step = EnkfPrototype("int   obs_vector_get_next_active_step(obs_vector, int)")
+    _has_data             = EnkfPrototype("bool  obs_vector_has_data(obs_vector , bool_vector , enkf_fs)")
+    _get_config_node      = EnkfPrototype("enkf_config_node_ref obs_vector_get_config_node(obs_vector)")
+    _get_total_chi2       = EnkfPrototype("double obs_vector_total_chi2(obs_vector, enkf_fs, int)")
+    _get_obs_key          = EnkfPrototype("char*  obs_vector_get_obs_key(obs_vector)")
+    _get_step_list        = EnkfPrototype("int_vector_ref obs_vector_get_step_list(obs_vector)")
+    _create_local_node    = EnkfPrototype("local_obsdata_node_obj obs_vector_alloc_local_node(obs_vector)")
+
     def __init__(self, observation_type, observation_key, config_node, num_reports):
         """
         @type observation_type: EnkfObservationImplementationType
@@ -32,23 +51,29 @@ class ObsVector(BaseCClass):
         assert isinstance(observation_key, str)
         assert isinstance(config_node, EnkfConfigNode)
         assert isinstance(num_reports, int)
-        pointer = ObsVector.cNamespace().alloc(observation_type, observation_key, config_node, num_reports)
-        super(ObsVector, self).__init__(pointer)
+        c_ptr = self._alloc(observation_type, observation_key, config_node, num_reports)
+        super(ObsVector, self).__init__(c_ptr)
 
 
     def getDataKey(self):
         """ @rtype: str """
-        return ObsVector.cNamespace().get_state_kw(self)
+        return self._get_state_kw()
 
     def getObservationKey(self):
         """ @rtype: str """
-        return ObsVector.cNamespace().get_observation_key(self)
+        return self.getKey()
+
+    def getKey(self):
+        return self._get_key()
+
+    def getObsKey(self):
+        return self._get_obs_key()
 
 
     def getNode(self, index):
         """ @rtype: SummaryObservation or BlockObservation or GenObservation"""
 
-        pointer = ObsVector.cNamespace().iget_node(self, index)
+        pointer = self._iget_node(index)
 
         node_type = self.getImplementationType()
         if node_type == EnkfObservationImplementationType.SUMMARY_OBS:
@@ -74,7 +99,7 @@ class ObsVector(BaseCClass):
         """
         Will return an IntVector with the active report steps.
         """
-        return ObsVector.cNamespace().get_step_list(self)
+        return self._get_step_list()
 
     def activeStep(self):
         """Assuming the observation is only active for one report step, this
@@ -90,65 +115,53 @@ class ObsVector(BaseCClass):
 
     def getActiveCount(self):
         """ @rtype: int """
-        return ObsVector.cNamespace().get_num_active(self)
+        return len(self)
+    def __len__(self):
+        return self._get_num_active()
 
     def isActive(self, index):
         """ @rtype: bool """
-        return ObsVector.cNamespace().iget_active(self, index)
+        return self._iget_active(index)
 
     def getNextActiveStep(self, previous_step=-1):
         """ @rtype: int """
-        return ObsVector.cNamespace().get_next_active_step(self, previous_step)
+        return self._get_next_active_step(previous_step)
 
     def getImplementationType(self):
         """ @rtype: EnkfObservationImplementationType """
-        return ObsVector.cNamespace().get_impl_type(self)
+        return self._get_impl_type()
 
     def installNode(self, index, node):
         assert isinstance(node, SummaryObservation)
         node.convertToCReference(self)
-        ObsVector.cNamespace().install_node(self, index, node.from_param(node))
+        self._install_node(index, node.from_param(node))
 
     def getConfigNode(self):
         """ @rtype: EnkfConfigNode """
-        return ObsVector.cNamespace().get_config_node(self).setParent(self)
+        return self._get_config_node().setParent(self)
 
     
     def createLocalObs(self):
         """
         Will create a LocalObsDataNode instance with all timesteps set.
         """
-        return ObsVector.cNamespace().create_local_node( self )
+        return self._create_local_node()
 
     
     def hasData(self, active_mask, fs):
         """ @rtype: bool """
-        return ObsVector.cNamespace().has_data(self, active_mask, fs)
+        return self._has_data(active_mask, fs)
 
     def free(self):
-        ObsVector.cNamespace().free(self)
+        self._free()
+
+    def __repr__(self):
+        dk = 'data_key = %s'   % self.getDataKey()
+        kk = 'key = %s'        % self.getKey()
+        ok = 'obs_key = %s'    % self.getObsKey()
+        na = 'num_active = %d' % len(self)
+        return 'ObsVector(%s, %s, %s, %s) %s' % (na, kk, ok, dk, self._ad_str())
 
     def getTotalChi2(self, fs, realization_number):
         """ @rtype: float """
-        return ObsVector.cNamespace().get_total_chi2(self, fs, realization_number)
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("obs_vector", ObsVector)
-
-ObsVector.cNamespace().alloc = cwrapper.prototype("c_void_p obs_vector_alloc(enkf_obs_impl_type, char*, enkf_config_node, int)")
-ObsVector.cNamespace().free = cwrapper.prototype("void obs_vector_free( obs_vector )")
-ObsVector.cNamespace().get_state_kw = cwrapper.prototype("char* obs_vector_get_state_kw( obs_vector )")
-ObsVector.cNamespace().get_observation_key = cwrapper.prototype("char* obs_vector_get_key( obs_vector )")
-ObsVector.cNamespace().iget_node = cwrapper.prototype("c_void_p obs_vector_iget_node( obs_vector, int)")
-ObsVector.cNamespace().get_num_active = cwrapper.prototype("int obs_vector_get_num_active( obs_vector )")
-ObsVector.cNamespace().iget_active = cwrapper.prototype("bool obs_vector_iget_active( obs_vector, int)")
-ObsVector.cNamespace().get_impl_type = cwrapper.prototype("enkf_obs_impl_type obs_vector_get_impl_type( obs_vector)")
-ObsVector.cNamespace().install_node = cwrapper.prototype("void obs_vector_install_node(obs_vector, int, c_void_p)")
-ObsVector.cNamespace().get_next_active_step = cwrapper.prototype("int obs_vector_get_next_active_step(obs_vector, int)")
-ObsVector.cNamespace().has_data = cwrapper.prototype("bool obs_vector_has_data(obs_vector , bool_vector , enkf_fs)")
-ObsVector.cNamespace().get_config_node = cwrapper.prototype("enkf_config_node_ref obs_vector_get_config_node(obs_vector)")
-ObsVector.cNamespace().get_total_chi2 = cwrapper.prototype("double obs_vector_total_chi2(obs_vector, enkf_fs, int)")
-ObsVector.cNamespace().get_obs_key = cwrapper.prototype("char* obs_vector_get_obs_key(obs_vector)")
-ObsVector.cNamespace().get_step_list = cwrapper.prototype("int_vector_ref obs_vector_get_step_list(obs_vector)")
-ObsVector.cNamespace().create_local_node = cwrapper.prototype("local_obsdata_node_obj obs_vector_alloc_local_node(obs_vector)")
+        return self._get_total_chi2(fs, realization_number)

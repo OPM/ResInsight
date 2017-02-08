@@ -13,17 +13,16 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB
-
+from cwrap import BaseCClass
 
 class SummaryConfig(BaseCClass):
+    TYPE_NAME = "summary_config"
+
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
+    def __repr__(self):
+        return 'SummaryConfig() %s' % self._ad_str()
 
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerType("summary_config", SummaryConfig)
-cwrapper.registerType("summary_config", SummaryConfig.createPythonObject)
-cwrapper.registerType("summary_config", SummaryConfig.createCReference)
-
+    def free(self):
+        pass

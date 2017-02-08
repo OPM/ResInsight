@@ -1,5 +1,5 @@
 class PlotStyle(object):
-    def __init__(self, name, color="#000000", alpha=1.0, line_style="-", marker="", width=1.0, size=7.5):
+    def __init__(self, name, color="#000000", alpha=1.0, line_style="-", marker="", width=1.0, size=7.5, enabled = True):
         super(PlotStyle, self).__init__()
         self.name = name
         self.color = color
@@ -8,7 +8,7 @@ class PlotStyle(object):
         self.marker = marker
         self.width = width
         self.size = size
-        self._enabled = True
+        self._enabled = enabled
         self._is_copy = False
 
     def copyStyleFrom(self, other, copy_enabled_state=False):

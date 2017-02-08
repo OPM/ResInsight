@@ -20,7 +20,7 @@ import datetime
 
 from unittest import skipIf, skipUnless, skipIf
 
-from ert.ecl import EclSum
+from ert.ecl import EclSum, EclFile
 
 from ert.util import StringList, TimeVector, DoubleVector
 
@@ -423,9 +423,40 @@ class SumTest(ExtendedTestCase):
         self.assertTrue( writer.has_key( "FOPT" ))
         
         writer.addTStep( 1 , 100 )
+
         
     def test_aquifer(self):
         case = EclSum( self.createTestPath( "Statoil/ECLIPSE/Aquifer/06_PRESSURE_R009-0"))
         self.assertTrue( "AAQR:2" in case )
                        
         
+    def test_restart_mapping(self):
+        history = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/iter-1/NOR-2013A_R007-0") )
+        total = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/Prediction/NOR-2013A_R007_PRED-0") , include_restart = True)
+
+        history_dates = history.get_dates( )
+        total_dates = total.get_dates( )
+        for i in range(len(history_dates)):
+            self.assertEqual( history_dates[i] , total_dates[i] )
+
+            
+        keys = history.keys( pattern = "W*")
+        for key in keys:
+            if key in total:
+                self.assertEqual( history.iget( key , 5 ) , total.iget( key , 5 ))
+
+        self.assertFalse( "WGPR:NOT_21_D" in history )
+        self.assertTrue( "WGPR:NOT_21_D" in total )
+
+        self.assertEqual( total.iget( "WGPR:NOT_21_D", 5) , 0) # Default value
+
+
+    def test_ix_case(self):
+        # This should ideally load OK; the current assertRaises() test
+        # is just to ensure that it does not go *completely* up in flames.
+        with self.assertRaises(IOError):
+            EclSum( self.createTestPath( "Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well"))
+
+        f = EclFile( self.createTestPath( "Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well.SMSPEC")) 
+        self.assertTrue( "KEYWORDS" in f )
+        self.assertFalse( "NAMES" in f )

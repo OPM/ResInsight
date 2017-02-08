@@ -11,7 +11,35 @@ class SurfaceTest(ExtendedTestCase):
         self.surface_valid2 = self.createTestPath("local/geometry/surface/valid2_ascii.irap")
         self.surface_small = self.createTestPath("local/geometry/surface/valid_small_ascii.irap")
 
-        
+    def test_create_new(self):
+        with self.assertRaises(ValueError):
+            s = Surface(None, 1, 1, 1)
+        with self.assertRaises(IOError):
+            s = Surface(50, 1, 1, 1)
+
+        # values copied from irap surface_small
+        ny,nx = 20,30
+        xinc,yinc = 50.0, 50.0
+        xstart,ystart = 463325.5625, 7336963.5
+        angle = -65.0
+        s_args = (None, nx, ny, xinc, yinc, xstart, ystart, angle)
+        s = Surface(*s_args)
+        self.assertEqual(ny*nx, len(s))
+        self.assertEqual(nx, s.getNX())
+        self.assertEqual(ny, s.getNY())
+        small = Surface (self.surface_small)
+        self.assertTrue(small.headerEqual(s))
+        valid = Surface (self.surface_valid)
+        self.assertFalse(valid.headerEqual(s))
+
+        self.assertNotEqual(s, small)
+        idx = 0
+        for i in range(nx):
+            for j in range(ny):
+                s[idx] = small[idx]
+                idx += 1
+        self.assertEqual(s, small)
+
     def test_create(self):
         with self.assertRaises(IOError):
             s = Surface("File/does/not/exist")
@@ -39,17 +67,17 @@ class SurfaceTest(ExtendedTestCase):
 
         with self.assertRaises(IndexError):
             s[49*79] = 787
-        
+
         s[0] = 10
         self.assertEqual( s[0]  ,  10 )
 
         s[-1] = 77
         self.assertEqual( s[len(s) - 1]  ,  77 )
 
-        
+
     def test_write(self):
         with TestAreaContext("surface/write"):
-            
+
             s0 = Surface( self.surface_valid )
             s0.write( "new_surface.irap")
 
@@ -71,12 +99,12 @@ class SurfaceTest(ExtendedTestCase):
             self.assertFalse( s1 == s0 )
             del s0
             self.assertEqual( s1[0] , 99)
-            
+
             s2 = s1.copy( copy_data = False )
             self.assertEqual( s2[0] , 0.0 )
             self.assertEqual( s2[10] , 0.0 )
             self.assertEqual( s2[100] , 0.0 )
-            
+
 
     def test_header_equal(self):
         s0 = Surface( self.surface_valid )
@@ -96,15 +124,15 @@ class SurfaceTest(ExtendedTestCase):
 
         s0 += 1
         for v in s0:
-            self.assertEqual(v , 2.0)        
-        
+            self.assertEqual(v , 2.0)
+
         s0 *= 2
         for v in s0:
-            self.assertEqual(v , 4.0)        
+            self.assertEqual(v , 4.0)
 
         s1 = s0 + 4
         for v in s1:
-            self.assertEqual(v , 8.0)        
+            self.assertEqual(v , 8.0)
 
         s2 = Surface( self.surface_valid2 )
         with self.assertRaises(ValueError):
@@ -112,13 +140,13 @@ class SurfaceTest(ExtendedTestCase):
 
         s4 = s1 + s0
         for v in s4:
-            self.assertEqual(v , 12.0)        
+            self.assertEqual(v , 12.0)
 
         s5 = s4 / 12
         for v in s5:
-            self.assertEqual(v , 1.0)        
+            self.assertEqual(v , 1.0)
 
-        
+
     def test_ops2(self):
         s0 = Surface( self.surface_small )
         surface_list = []
@@ -142,10 +170,31 @@ class SurfaceTest(ExtendedTestCase):
     def test_sqrt(self):
         s0 = Surface( self.surface_small )
         s0.assign(4)
+        self.assertEqual(20*30, len(s0))
         s_sqrt = s0.sqrt( )
         for i in range(len(s0)):
             self.assertEqual(s0[i] , 4)
             self.assertEqual(s_sqrt[i] , 2)
-        
         s0.inplaceSqrt( )
         self.assertTrue( s0 == s_sqrt )
+
+
+    def test_xy(self):
+        ny,nx = 20,30
+        xinc,yinc = 50.0, 50.0
+        xstart,ystart = 463325.5625, 7336963.5
+        angle = 0
+        s_args = (None, nx, ny, xinc, yinc, xstart, ystart, angle)
+        s = Surface(*s_args)
+
+        xy = s.getXY(0)
+        self.assertEqual((xstart, ystart), xy)
+
+        xy = s.getXY(1)
+        self.assertEqual((xstart+xinc, ystart), xy)
+
+        xy = s.getXY(nx)
+        self.assertEqual((xstart, ystart+yinc), xy)
+
+        xy = s.getXY(-1)
+        self.assertEqual((xstart+xinc*(nx-1), ystart+yinc*(ny-1)), xy)

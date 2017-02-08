@@ -1,125 +1,159 @@
-from cwrap import BaseCClass, CWrapper
-from ert.well import ECL_WELL_LIB, WellTypeEnum, WellConnection
+from cwrap import BaseCClass
+from ert.well import WellTypeEnum, WellConnection, WellPrototype
 from ert.util import CTime
 
-
 class WellState(BaseCClass):
+    TYPE_NAME = "well_state"
 
+    _global_connections_size = WellPrototype("int well_conn_collection_get_size(void*)", bind = False)
+    _global_connections_iget = WellPrototype("well_connection_ref well_conn_collection_iget(void*, int)", bind = False)
+    _segment_collection_size = WellPrototype("int well_segment_collection_get_size(void*)", bind = False)
+    _segment_collection_iget = WellPrototype("well_segment_ref well_segment_collection_iget(void*, int)", bind = False)
+    _has_global_connections  = WellPrototype("bool  well_state_has_global_connections(well_state)")
+    _get_global_connections  = WellPrototype("void* well_state_get_global_connections(well_state)")
+    _get_segment_collection  = WellPrototype("void* well_state_get_segments(well_state)")
+    _branches                = WellPrototype("void* well_state_get_branches(well_state)")
+    _segments                = WellPrototype("void* well_state_get_segments(well_state)")
+    _get_name                = WellPrototype("char* well_state_get_name(well_state)")
+    _is_open                 = WellPrototype("bool  well_state_is_open(well_state)")
+    _is_msw                  = WellPrototype("bool  well_state_is_MSW(well_state)")
+    _well_number             = WellPrototype("int   well_state_get_well_nr(well_state)")
+    _report_number           = WellPrototype("int   well_state_get_report_nr(well_state)")
+    _has_segment_data        = WellPrototype("bool  well_state_has_segment_data(well_state)")
+    _sim_time                = WellPrototype("time_t well_state_get_sim_time(well_state)")
+    _well_type               = WellPrototype("well_type_enum well_state_get_type(well_state)")
+    _oil_rate                = WellPrototype("double well_state_get_oil_rate(well_state)")
+    _gas_rate                = WellPrototype("double well_state_get_gas_rate(well_state)")
+    _water_rate              = WellPrototype("double well_state_get_water_rate(well_state)")
+    _volume_rate             = WellPrototype("double well_state_get_volume_rate(well_state)")
+    _oil_rate_si             = WellPrototype("double well_state_get_oil_rate_si(well_state)")
+    _gas_rate_si             = WellPrototype("double well_state_get_gas_rate_si(well_state)")
+    _water_rate_si           = WellPrototype("double well_state_get_water_rate_si(well_state)")
+    _volume_rate_si          = WellPrototype("double well_state_get_volume_rate_si(well_state)")
+
+    
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly")
 
-
     def name(self):
         """ @rtype: str """
-        return WellState.cNamespace().get_name(self)
+        return self._get_name( )
 
     def isOpen(self):
         """ @rtype: bool """
-        return WellState.cNamespace().is_open(self)
+        return self._is_open( )
 
     def free(self):
         pass
 
     def wellNumber(self):
         """ @rtype: int """
-        return WellState.cNamespace().well_number(self)
+        return self._well_number( )
 
     def reportNumber(self):
         """ @rtype: int """
-        return WellState.cNamespace().report_number(self)
+        return self._report_number( )
 
     def simulationTime(self):
         """ @rtype: CTime """
-        return WellState.cNamespace().sim_time(self)
+        return self._sim_time( )
 
     def wellType(self):
         """ @rtype: WellTypeEnum """
-        return WellState.cNamespace().well_type(self)
+        return self._well_type( )
 
     def hasGlobalConnections(self):
         """ @rtype: bool """
-        return WellState.cNamespace().has_global_connections(self)
+        return self._has_global_connections( )
 
     def globalConnections(self):
         """ @rtype: list of WellConnection """
-        global_connections = WellState.cNamespace().get_global_connections(self)
-        count = WellState.cNamespace().global_connections_size(global_connections)
+        global_connections = self._get_global_connections( )
+        count = self._global_connections_size( global_connections )
 
         values = []
         for index in range(count):
-            value = WellState.cNamespace().global_connections_iget(global_connections, index).setParent(self)
+            value = self._global_connections_iget(global_connections, index).setParent( self )
             values.append(value)
         return values
 
+    def __len__(self):
+        return self.numSegments()
+
+    def __getitem__(self, idx):
+        return self.igetSegment(idx)
 
     def numSegments(self):
         """ @rtype: int """
-        segment_collection = WellState.cNamespace().get_segment_collection(self)
-        count = WellState.cNamespace().segment_collection_size(segment_collection)
+        segment_collection = self._get_segment_collection( )
+        count = self._segment_collection_size(segment_collection)
         return count
 
 
     def segments(self):
         """ @rtype: list of WellSegment """
-        segment_collection = WellState.cNamespace().get_segment_collection(self)
+        segment_collection = self._get_segment_collection( )
 
         values = []
         for index in range(self.numSegments()):
-            value = WellState.cNamespace().segment_collection_iget(segment_collection, index).setParent(self)
+            value = self._segment_collection_iget(segment_collection, index).setParent(self)
             values.append(value)
 
         return values
 
 
-    def igetSegment(self , segment_index):
+    def igetSegment(self , seg_idx):
         """ @rtype: WellSegment """
-        if segment_index < 0:
-            segment_index += len(self)
-        
-        if not 0 <= segment_index < self.numSegments():
-            raise IndexError("Invalid index:%d - valid range [0,%d)" % (index , len(self)))
-        
-        segment_collection = WellState.cNamespace().get_segment_collection(self)
-        return WellState.cNamespace().segment_collection_iget(segment_collection, segment_index).setParent(self)
+        if seg_idx < 0:
+            seg_idx += len(self)
 
+        if not 0 <= seg_idx < self.numSegments():
+            raise IndexError("Invalid index:%d - valid range [0,%d)" % (seg_idx , len(self)))
 
-
-    # def branches(self):
-    #     """ @rtype: BranchCollection """
+        segment_collection = self._get_segment_collection( )
+        return self._segment_collection_iget(segment_collection, seg_idx).setParent(self)
 
     def isMultiSegmentWell(self):
         """ @rtype: bool """
-        return WellState.cNamespace().is_msw(self)
+        return self._is_msw( )
 
     def hasSegmentData(self):
         """ @rtype: bool """
-        return WellState.cNamespace().has_segment_data(self)
+        return self._has_segment_data( )
 
+    def __repr__(self):
+        name = self.name()
+        if name:
+            name = '%s' % name
+        else:
+            name = '[no name]'
+        msw  = ' (multi segment)' if self.isMultiSegmentWell() else ''
+        wn = str(self.wellNumber())
+        type_ = self.wellType()
+        open_ = 'open' if self.isOpen() else 'shut'
+        cnt = '%s%s, number = %s, type = "%s", state = %s' % (name, msw, wn, type_, open_)
+        return self._create_repr(cnt)
 
-CWrapper.registerObjectType("well_state", WellState)
-cwrapper = CWrapper(ECL_WELL_LIB)
+    def gasRate(self):
+        return self._gas_rate( )
 
+    def waterRate(self):
+        return self._water_rate( )
 
-WellState.cNamespace().get_name = cwrapper.prototype("char* well_state_get_name(well_state)")
-WellState.cNamespace().is_open = cwrapper.prototype("bool well_state_is_open(well_state)")
-WellState.cNamespace().is_msw = cwrapper.prototype("bool well_state_is_MSW(well_state)")
-WellState.cNamespace().well_number = cwrapper.prototype("int well_state_get_well_nr(well_state)")
-WellState.cNamespace().report_number = cwrapper.prototype("int well_state_get_report_nr(well_state)")
-WellState.cNamespace().sim_time = cwrapper.prototype("time_t well_state_get_sim_time(well_state)")
-WellState.cNamespace().well_type = cwrapper.prototype("well_type_enum well_state_get_type(well_state)")
-WellState.cNamespace().has_segment_data = cwrapper.prototype("bool well_state_has_segment_data(well_state)")
+    def oilRate(self):
+        return self._oil_rate( )
 
-WellState.cNamespace().has_global_connections = cwrapper.prototype("bool well_state_has_global_connections(well_state)")
-WellState.cNamespace().get_global_connections = cwrapper.prototype("c_void_p well_state_get_global_connections(well_state)")
-WellState.cNamespace().global_connections_size = cwrapper.prototype("int well_conn_collection_get_size(c_void_p)")
-WellState.cNamespace().global_connections_iget = cwrapper.prototype("well_connection_ref well_conn_collection_iget(c_void_p, int)")
+    def volumeRate(self):
+        return self._volume_rate( )
 
+    def gasRateSI(self):
+        return self._gas_rate_si( )
 
-WellState.cNamespace().get_segment_collection = cwrapper.prototype("c_void_p well_state_get_segments(well_state)")
-WellState.cNamespace().segment_collection_size = cwrapper.prototype("int well_segment_collection_get_size(c_void_p)")
-WellState.cNamespace().segment_collection_iget = cwrapper.prototype("well_segment_ref well_segment_collection_iget(c_void_p, int)")
+    def waterRateSI(self):
+        return self._water_rate_si( )
 
+    def oilRateSI(self):
+        return self._oil_rate_si( )
 
-WellState.cNamespace().branches = cwrapper.prototype("c_void_p well_state_get_branches(well_state)")
-WellState.cNamespace().segments = cwrapper.prototype("c_void_p well_state_get_segments(well_state)")
-
+    def volumeRateSI(self):
+        return self._volume_rate_si( )

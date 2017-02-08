@@ -15,18 +15,33 @@
 #  for more details.
 import sys
 from ert.enkf.enums import ErtImplType
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, EnkfFs, NodeId
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype, EnkfFs, NodeId
 from ert.enkf.data import GenKw, GenData, CustomKW, Field
 
 class EnkfNode(BaseCClass):
-    def __init__(self, config_node, private=False):
-        if private:
-            c_pointer = EnkfNode.cNamespace().alloc_private(config_node)
-        else:
-            c_pointer = EnkfNode.cNamespace().alloc(config_node)
+    TYPE_NAME = "enkf_node"
+    _alloc         = EnkfPrototype("void* enkf_node_alloc(enkf_config_node)", bind = False)
+    _alloc_private = EnkfPrototype("void* enkf_node_alloc_private_container(enkf_config_node)", bind = False)
+    _free          = EnkfPrototype("void  enkf_node_free(enkf_node)")
+    _get_name      = EnkfPrototype("char* enkf_node_get_key(enkf_node)")
+    _value_ptr     = EnkfPrototype("void* enkf_node_value_ptr(enkf_node)")
+    _try_load      = EnkfPrototype("bool  enkf_node_try_load(enkf_node, enkf_fs, node_id)")
+    _store         = EnkfPrototype("bool  enkf_node_store(enkf_node, enkf_fs, bool, node_id)")
+    _get_impl_type = EnkfPrototype("ert_impl_type_enum enkf_node_get_impl_type(enkf_node)")
 
-        super(EnkfNode, self).__init__(c_pointer, config_node, True)
+    def __init__(self, config_node, private=False):
+        self._private = private
+        if private:
+            c_pointer = self._alloc_private(config_node)
+        else:
+            c_pointer = self._alloc(config_node)
+
+        if c_pointer:
+            super(EnkfNode, self).__init__(c_pointer, config_node, True)
+        else:
+            p_err = 'private ' if private else ''
+            raise ValueError('Unable to create %sEnkfNode from given config node.' % p_err)
 
     @classmethod
     def exportMany(cls , config_node , file_format , fs , iens_list  , report_step = 0 , file_type = None , arg = None):
@@ -52,11 +67,12 @@ class EnkfNode(BaseCClass):
 
 
     def valuePointer(self):
-        return EnkfNode.cNamespace().value_ptr(self)
+        return self._value_ptr( )
 
+    
     def getImplType(self):
         """ @rtype: ert.enkf.enums.ert_impl_type_enum.ErtImplType """
-        return EnkfNode.cNamespace().get_impl_type(self)
+        return self._get_impl_type( )
 
     
     def asGenData(self):
@@ -93,14 +109,16 @@ class EnkfNode(BaseCClass):
         @type node_id: NodeId
         @rtype: bool
         """
-        assert isinstance(fs, EnkfFs)
-        assert isinstance(node_id, NodeId)
+        if not isinstance(fs, EnkfFs):
+            raise TypeError('fs must be an EnkfFs, not %s' % type(fs))
+        if not isinstance(node_id, NodeId):
+            raise TypeError('node_id must be a NodeId, not %s' % type(node_id))
 
-        return EnkfNode.cNamespace().try_load(self, fs, node_id)
+        return self._try_load(fs, node_id)
 
     def name(self):
         """ @rtype: str """
-        return EnkfNode.cNamespace().get_name(self)
+        return self._get_name( )
 
     def load(self, fs, node_id):
         if not self.tryLoad(fs, node_id):
@@ -110,22 +128,11 @@ class EnkfNode(BaseCClass):
         assert isinstance(fs, EnkfFs)
         assert isinstance(node_id, NodeId)
         
-        return EnkfNode.cNamespace().store(self, fs, False, node_id)
+        return self._store(fs, False, node_id)
 
     def free(self):
-        EnkfNode.cNamespace().free(self)
+        self._free( )
 
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("enkf_node", EnkfNode)
-
-EnkfNode.cNamespace().free = cwrapper.prototype("void enkf_node_free(enkf_node)")
-EnkfNode.cNamespace().alloc = cwrapper.prototype("void* enkf_node_alloc(enkf_config_node)")
-EnkfNode.cNamespace().alloc_private = cwrapper.prototype("void* enkf_node_alloc_private_container(enkf_config_node)")
-EnkfNode.cNamespace().get_name = cwrapper.prototype("char* enkf_node_get_key(enkf_node)")
-
-EnkfNode.cNamespace().value_ptr = cwrapper.prototype("void* enkf_node_value_ptr(enkf_node)")
-
-EnkfNode.cNamespace().try_load = cwrapper.prototype("bool enkf_node_try_load(enkf_node, enkf_fs, node_id)")
-EnkfNode.cNamespace().get_impl_type = cwrapper.prototype("ert_impl_type_enum enkf_node_get_impl_type(enkf_node)")
-EnkfNode.cNamespace().store = cwrapper.prototype("bool enkf_node_store(enkf_node, enkf_fs, bool, node_id)")
+    def __repr__(self):
+        pp = ', private' if self._private else ''
+        return 'EnkfNode(name = "%s"%s) %s' % (self.name(), pp, self._ad_str())

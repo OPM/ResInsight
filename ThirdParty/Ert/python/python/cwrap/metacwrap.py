@@ -17,7 +17,7 @@
 import re
 from types import MethodType
 
-from .prototype import registerType, Prototype
+from .prototype import Prototype
 
 
 def snakeCase(name):
@@ -43,13 +43,13 @@ class MetaCWrap(type):
         if hasattr(cls, "storageType"):
             storage_type = cls.storageType()
 
-        registerType(type_name, cls, is_return_type=is_return_type, storage_type=storage_type)
+        Prototype.registerType(type_name, cls, is_return_type=is_return_type, storage_type=storage_type)
 
         if hasattr(cls, "createCReference"):
-            registerType("%s_ref" % type_name, cls.createCReference, is_return_type=True, storage_type=storage_type)
+            Prototype.registerType("%s_ref" % type_name, cls.createCReference, is_return_type=True, storage_type=storage_type)
 
         if hasattr(cls, "createPythonObject"):
-            registerType("%s_obj" % type_name, cls.createPythonObject, is_return_type=True, storage_type=storage_type)
+            Prototype.registerType("%s_obj" % type_name, cls.createPythonObject, is_return_type=True, storage_type=storage_type)
 
 
         for key, attr in attrs.items():

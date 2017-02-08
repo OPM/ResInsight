@@ -15,35 +15,44 @@
 #  for more details.
 import os.path
 
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, EnKFMain
+from cwrap import BaseCClass
+from ert.enkf import EnKFMain, EnkfPrototype
 
 class ErtTest(BaseCClass):
+    TYPE_NAME = "ert_test"
+
+    _alloc         = EnkfPrototype("void* ert_test_context_alloc_python( char* , char*)", bind = False)
+    _set_store     = EnkfPrototype("void* ert_test_context_set_store( ert_test , bool)")
+    _free          = EnkfPrototype("void  ert_test_context_free( ert_test )")
+    _get_cwd       = EnkfPrototype("char* ert_test_context_get_cwd( ert_test )")
+    _get_enkf_main = EnkfPrototype("enkf_main_ref ert_test_context_get_main( ert_test )")
+
+
 
     def __init__(self, test_name, model_config, store_area=False):
         if not os.path.exists(model_config):
             raise IOError("The configuration file: %s does not exist" % model_config)
         else:
-            c_ptr = ErtTest.cNamespace().alloc(test_name, model_config)
+            c_ptr = self._alloc(test_name, model_config)
             super(ErtTest, self).__init__(c_ptr)
             self.setStore(store_area)
 
         self.__ert = None
 
     def setStore(self, store):
-        ErtTest.cNamespace().set_store(self, store)
+        self._set_store(store)
 
     def getErt(self):
         """ @rtype: EnKFMain """
         if self.__ert is None:
-            self.__ert = ErtTest.cNamespace().get_enkf_main(self)
+            self.__ert = self._get_enkf_main()
 
         return self.__ert
 
     def free(self):
         ert = self.getErt()
         ert.umount()
-        ErtTest.cNamespace().free(self)
+        self._free()
 
     def installWorkflowJob(self, job_name, job_path):
         """ @rtype: bool """
@@ -74,7 +83,7 @@ class ErtTest(BaseCClass):
         Returns the current working directory of this context.
         @rtype: string
         """
-        return ErtTest.cNamespace().get_cwd( self )
+        return self._get_cwd()
 
 
 
@@ -106,16 +115,3 @@ class ErtTestContext(object):
         @rtype: string
         """
         return self.__test_context.getCwd()
-
-
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("ert_test", ErtTest)
-
-ErtTest.cNamespace().alloc = cwrapper.prototype("c_void_p ert_test_context_alloc_python( char* , char*)")
-ErtTest.cNamespace().set_store = cwrapper.prototype("c_void_p ert_test_context_set_store( ert_test , bool)")
-ErtTest.cNamespace().free = cwrapper.prototype("void ert_test_context_free( ert_test )")
-ErtTest.cNamespace().get_enkf_main = cwrapper.prototype("enkf_main_ref ert_test_context_get_main( ert_test )")
-ErtTest.cNamespace().get_cwd = cwrapper.prototype("char* ert_test_context_get_cwd( ert_test )")
-

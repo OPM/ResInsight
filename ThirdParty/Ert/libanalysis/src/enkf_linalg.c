@@ -139,7 +139,7 @@ static int enkf_linalg_num_significant(int num_singular_values , const double * 
   double total_sigma2  = 0;
   for (int i=0; i < num_singular_values; i++)
     total_sigma2 += sig0[i] * sig0[i];
-  
+
   /*
     Determine the number of singular values by enforcing that
     less than a fraction @truncation of the total variance be
@@ -183,7 +183,7 @@ int enkf_linalg_svdS(const matrix_type * S ,
 
       if (ncomp > 0)
         num_significant = ncomp;
-      else 
+      else
         num_significant = enkf_linalg_num_significant( num_singular_values , sig0 , truncation );
 
       {
@@ -214,12 +214,81 @@ int enkf_linalg_num_PC(const matrix_type * S , double truncation ) {
     matrix_dgesvd(DGESVD_NONE , DGESVD_NONE , workS , sig0 , NULL , NULL);
     matrix_free( workS );
   }
-  
+
   num_significant = enkf_linalg_num_significant( num_singular_values , sig0 , truncation );
   free( sig0 );
   return num_significant;
 }
 
+
+
+/*
+****************************************************************************************************
+ Routine computes X1 and eig corresponding to Eqs 14.54-14.55
+ Geir Evensen
+*/
+void enkf_linalg_lowrankE(const matrix_type * S , /* (nrobs x nrens) */
+                          const matrix_type * E , /* (nrobs x nrens) */
+                          matrix_type * W       , /* (nrobs x nrmin) Corresponding to X1 from Eqs. 14.54-14.55 */
+                          double * eig          , /* (nrmin)         Corresponding to 1 / (1 + Lambda1^2) (14.54) */
+                          double truncation     ,
+                          int    ncomp) {
+
+
+   const int nrobs = matrix_get_rows( S );
+   const int nrens = matrix_get_columns( S );
+   const int nrmin = util_int_min( nrobs , nrens );
+
+   matrix_type * U0   = matrix_alloc( nrobs , nrmin );
+   double * inv_sig0  = util_calloc( nrmin , sizeof * inv_sig0);
+   matrix_type * X0   = matrix_alloc( nrmin , nrens );
+
+
+   matrix_type * U1   = matrix_alloc( nrmin , nrmin );
+   double * sig1      = util_calloc( nrmin , sizeof * sig1);
+
+   int i ,j;
+
+
+/* Compute SVD of S=HA`  ->  U0, invsig0=sig0^(-1) */
+   enkf_linalg_svdS(S , truncation , ncomp , DGESVD_NONE , inv_sig0, U0 , NULL);
+
+/* X0(nrmin x nrens) =  Sigma0^(+) * U0'* E  (14.51)  */
+   matrix_dgemm(X0 , U0 , E  , true  , false , 1.0 , 0.0);  /*  X0 = U0^T * E  (14.51) */
+
+
+/* Multiply X0 with sig0^(-1) from left X0 =  S^(-1) * X0   */
+   for (j=0; j < matrix_get_columns( X0 ) ; j++)
+      for (i=0; i < matrix_get_rows( X0 ); i++)
+         matrix_imul(X0 , i , j , inv_sig0[j]);
+
+
+/* Compute SVD of X0->  U1*eig*V1   14.52 */
+   matrix_dgesvd(DGESVD_MIN_RETURN , DGESVD_NONE, X0 , sig1, U1 , NULL);
+
+    /* Lambda1 = 1/(I + Lambda^2)  in 14.56 */
+   for (i=0; i < nrmin; i++)
+      eig[i] = 1.0 / (1.0 + sig1[i]*sig1[i]);
+
+
+/* Compute sig0^+ U1  (14:55) */
+   for (j=0; j < nrmin; j++)
+      for (i=0; i < nrmin; i++)
+         matrix_imul(U1 , i , j , inv_sig0[i]);
+
+
+/* Compute X1 = W = U0 * (U1=sig0^+ U1) = U0 * Sigma0^(+') * U1  (14:55) */
+   matrix_matmul(W , U0 , U1);
+
+
+   matrix_free( X0 );
+   matrix_free( U0 );
+   util_safe_free( inv_sig0 );
+
+   matrix_free( U1 );
+   util_safe_free( sig1 );
+
+}
 
 
 

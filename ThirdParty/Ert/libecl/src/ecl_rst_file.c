@@ -112,7 +112,7 @@ ecl_rst_file_type * ecl_rst_file_open_write_seek( const char * filename , int re
         break;
       }
 
-      if (!ecl_kw_fread_header( work_kw , rst_file->fortio))
+      if (ecl_kw_fread_header( work_kw , rst_file->fortio) == ECL_KW_READ_FAIL)
         break;
 
       if (ecl_kw_name_equal( work_kw , SEQNUM_KW)) {
@@ -183,7 +183,7 @@ static ecl_kw_type * ecl_rst_file_alloc_INTEHEAD( ecl_rst_file_type * rst_file,
   ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_RESTART_SIZE , ECL_INT_TYPE );
   ecl_kw_scalar_set_int( intehead_kw , 0 );
 
-  ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , INTEHEAD_METRIC_VALUE );
+  ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , rsthead->unit_system );
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NX_INDEX      , rsthead->nx);
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NY_INDEX      , rsthead->ny);
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NZ_INDEX      , rsthead->nz);

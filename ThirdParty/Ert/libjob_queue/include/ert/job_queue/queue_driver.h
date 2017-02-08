@@ -65,10 +65,11 @@ extern "C" {
     JOB_QUEUE_SUCCESS     = 16384,
     JOB_QUEUE_RUNNING_CALLBACK = 32768,
     JOB_QUEUE_FAILED      = 65536,
-    JOB_QUEUE_DO_KILL_NODE_FAILURE = 131072 /* LSF will attempt to blacklist the nodes that failed this job */
+    JOB_QUEUE_DO_KILL_NODE_FAILURE = 131072, /* LSF will attempt to blacklist the nodes that failed this job */
+    JOB_QUEUE_STATUS_FAILURE = 262144        /* The command to get job_status has failed - let the status remain unchanged. */
   } job_status_type;
 
-#define JOB_QUEUE_MAX_STATE 13
+#define JOB_QUEUE_MAX_STATE 14
 
   /*
     All jobs which are in the status set defined by

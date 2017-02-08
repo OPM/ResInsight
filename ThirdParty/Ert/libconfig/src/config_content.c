@@ -39,6 +39,7 @@ struct config_content_struct {
   vector_type        * nodes;
   hash_type          * items;
   config_error_type  * parse_errors;
+  stringlist_type    * warnings;
   subst_list_type    * define_list;
   char               * config_file;
   char               * abs_path;
@@ -52,7 +53,7 @@ struct config_content_struct {
 
 UTIL_IS_INSTANCE_FUNCTION( config_content , CONFIG_CONTENT_TYPE_ID )
 
-config_content_type * config_content_alloc() {
+config_content_type * config_content_alloc(const char * filename) {
   config_content_type * content = util_malloc( sizeof * content );
   UTIL_TYPE_ID_INIT( content , CONFIG_CONTENT_TYPE_ID );
   content->valid = false;
@@ -61,13 +62,20 @@ config_content_type * config_content_alloc() {
   content->parse_errors = config_error_alloc();
   content->define_list = subst_list_alloc( NULL );
   content->parsed_files = set_alloc_empty();
+  content->warnings = stringlist_alloc_new();
 
   content->path_elm_storage  = vector_alloc_new();
   content->path_elm_stack    = vector_alloc_new();
 
-  content->invoke_path = NULL;
-  content->config_file = NULL;
-  content->abs_path = NULL;
+  content->config_file = util_alloc_string_copy( filename );
+  content->abs_path = util_alloc_abs_path( filename );
+  {
+    char * path = util_split_alloc_dirname( filename );
+    content->invoke_path = config_root_path_alloc( NULL );
+    free( path );
+  }
+
+
   return content;
 }
 
@@ -88,6 +96,8 @@ void config_content_add_item( config_content_type * content , const config_schem
   config_content_item_type * content_item = config_content_item_alloc( schema_item , path_elm );
   hash_insert_hash_owned_ref( content->items , kw , content_item , config_content_item_free__ );
 
+  if (config_schema_item_is_deprecated(schema_item))
+    stringlist_append_copy( content->warnings , config_schema_item_get_deprecate_msg(schema_item));
 }
 
 void config_content_add_node( config_content_type * content , config_content_node_type * content_node ) {
@@ -108,7 +118,15 @@ config_error_type * config_content_get_errors( const config_content_type * conte
   return content->parse_errors;
 }
 
+
+const stringlist_type * config_content_get_warnings( const config_content_type * content) {
+  return content->warnings;
+}
+
+
+
 void config_content_free( config_content_type * content ) {
+  stringlist_free( content->warnings );
   vector_free( content->nodes );
   vector_free( content->path_elm_stack );
   vector_free( content->path_elm_storage );
@@ -133,11 +151,6 @@ config_root_path_type * config_content_get_invoke_path( config_content_type * co
 }
 
 
-void config_content_set_invoke_path( config_content_type * content) {
-  if (content->invoke_path != NULL)
-    config_root_path_free( content->invoke_path );
-  content->invoke_path = config_root_path_alloc( NULL );
-}
 
 
 
@@ -366,12 +379,6 @@ subst_list_type * config_content_get_define_list( config_content_type * content 
 
 /*****************************************************************/
 
-void config_content_set_config_file( config_content_type * content , const char * config_file ) {
-  content->config_file = util_realloc_string_copy( content->config_file , config_file );
-
-  util_safe_free(content->abs_path);
-  content->abs_path = util_alloc_abs_path( config_file );
-}
 
 
 

@@ -1,10 +1,11 @@
-from cwrap import CWrapper, CNamespace
-from ert.enkf import ENKF_LIB
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
 from ert.util import Matrix , DoubleVector
 
+class EnkfLinalg(BaseCClass):
+    TYPE_NAME = "EnkfLinalg"
 
-class EnkfLinalg(object):
-    __namespace = CNamespace("EnkfLinalg")
+    _get_PC = EnkfPrototype("void enkf_linalg_get_PC(matrix, matrix, double, int, matrix, matrix, double_vector)", bind = False)
 
     @classmethod
     def calculatePrincipalComponents(cls, S0, D_obs, truncation, ncomp, PC, PC_obs, singular_values):
@@ -16,17 +17,4 @@ class EnkfLinalg(object):
         assert isinstance(PC_obs, Matrix)
         assert isinstance(singular_values , DoubleVector)
 
-        EnkfLinalg.cNamespace().get_PC(S0, D_obs, truncation, ncomp, PC, PC_obs , singular_values)
-
-    @classmethod
-    def cNamespace(cls):
-        return EnkfLinalg.__namespace
-
-
-
-cwrapper = CWrapper(ENKF_LIB)
-
-EnkfLinalg.cNamespace().get_PC = cwrapper.prototype("void enkf_linalg_get_PC(matrix, matrix, double, int, matrix, matrix, double_vector)")
-
-
-
+        cls._get_PC(S0, D_obs, truncation, ncomp, PC, PC_obs , singular_values)

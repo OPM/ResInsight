@@ -68,7 +68,7 @@ int main(int argc , char ** argv) {
 
     total_volume += grid_volume;
     total_diff += fabs( eclipse_volume - grid_volume );
-    if (!util_double_approx_equal__( grid_volume , eclipse_volume , 2.5e-3)) {
+    if (!util_double_approx_equal__( grid_volume , eclipse_volume , 2.5e-3, 0.00)) {
       double diff = 100 * (grid_volume - eclipse_volume) / eclipse_volume;
       printf("Error in cell: %d V1: %g    V2: %g   diff:%g %% \n", iglobal , grid_volume , eclipse_volume , diff);
       error_count++;

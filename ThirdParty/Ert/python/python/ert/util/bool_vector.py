@@ -143,3 +143,23 @@ class BoolVector(VectorTemplate):
     def createActiveList(self):
         """ @rtype: ert.util.IntVector """
         return self._active_list(self)
+
+    def _tostr(self, arr = None):
+        if arr is None:
+            arr = self
+        return "".join(['1' if x else '0' for x in arr])
+
+    def __repr__(self):
+        """Will return BoolVector(size = 4, content = "0010") at 0x1729 and
+        if size > 10, will return content = "0001...100", i.e., |content|<=10.
+        """
+        cnt = ''
+        ls = len(self)
+        if ls <= 20:
+            cnt = self._tostr()
+        else:
+            a,b  = self[:9], self[-8:]
+            cnt  = self._tostr(a)
+            cnt += "..."
+            cnt += self._tostr(b)
+        return 'BoolVector(size = %d, content = "%s") %s' % (ls, cnt, self._ad_str())

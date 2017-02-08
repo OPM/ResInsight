@@ -109,7 +109,7 @@ static void geo_surface_init_regular( geo_surface_type * surface , const double 
         int z_index = ix*zstride_nx + iy*zstride_ny;
         geo_pointset_add_xyz( surface->pointset , x,y, zcoord[ z_index ]);
       } else
-        geo_pointset_add_xy( surface->pointset , x , y );
+        geo_pointset_add_xyz( surface->pointset , x , y, 0 );
     }
   }
 }
@@ -194,6 +194,30 @@ void geo_surface_fprintf_irap( const geo_surface_type * surface, const char * fi
 
 void geo_surface_fprintf_irap_external_zcoord( const geo_surface_type * surface, const char * filename , const double * zcoord) {
   geo_surface_fprintf_irap__( surface , filename , zcoord );
+}
+
+geo_surface_type  * geo_surface_alloc_new( int nx,        int ny,
+                                           double xinc,   double yinc,
+                                           double xstart, double ystart,
+                                           double angle ) {
+    geo_surface_type * surface = geo_surface_alloc_empty( true );
+
+    surface->origo[0]  = xstart;
+    surface->origo[1]  = ystart;
+    surface->rot_angle = angle * __PI / 180.0;
+    surface->nx = nx;
+    surface->ny = ny;
+
+    surface->vec1[0] = xinc * cos( surface->rot_angle ) ;
+    surface->vec1[1] = xinc * sin( surface->rot_angle ) ;
+
+    surface->vec2[0] = -yinc * sin( surface->rot_angle ) ;
+    surface->vec2[1] =  yinc * cos( surface->rot_angle );
+
+    surface->cell_size[0] = xinc;
+    surface->cell_size[1] = yinc;
+    geo_surface_init_regular( surface, NULL );
+    return surface;
 }
 
 
@@ -350,6 +374,12 @@ void geo_surface_free__( void * arg) {
 geo_pointset_type * geo_surface_get_pointset( const geo_surface_type * surface ) {
   return surface->pointset;
 }
+
+void geo_surface_iget_xy( const geo_surface_type* surface, int index, double* x, double* y) {
+  const geo_pointset_type* pointset = geo_surface_get_pointset(surface);
+  geo_pointset_iget_xy(pointset, index, x, y);
+}
+
 
 
 int geo_surface_get_size( const geo_surface_type * surface ) {

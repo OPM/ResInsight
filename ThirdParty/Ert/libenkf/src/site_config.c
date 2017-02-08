@@ -142,7 +142,7 @@ static void site_config_add_queue_driver(site_config_type * site_config, const c
   hash_insert_hash_owned_ref(site_config->queue_drivers, driver_name, driver, queue_driver_free__);
 }
 
-static bool site_config_has_queue_driver(const site_config_type * site_config, const char * driver_name) {
+bool site_config_has_queue_driver(const site_config_type * site_config, const char * driver_name) {
   return hash_has_key(site_config->queue_drivers, driver_name);
 }
 
@@ -868,34 +868,6 @@ void site_config_set_ens_size(site_config_type * site_config, int ens_size) {
 void site_config_add_queue_config_items(config_parser_type * config, bool site_mode) {
   config_schema_item_type * item = config_add_schema_item(config, QUEUE_SYSTEM_KEY, site_mode);
   config_schema_item_set_argc_minmax(item, 1, 1);
-  {
-
-    stringlist_type * lsf_dep = stringlist_alloc_argv_ref((const char *[2]) {
-      "LSF_QUEUE", "MAX_RUNNING_LSF"
-    }, 2);
-
-    stringlist_type * rsh_dep = stringlist_alloc_argv_ref((const char *[3]) {
-      "RSH_HOST", "RSH_COMMAND", "MAX_RUNNING_RSH"
-    }, 2);
-
-    stringlist_type * local_dep = stringlist_alloc_argv_ref((const char *[1]) {
-      "MAX_RUNNING_LOCAL"
-    }, 1);
-
-    if (site_mode) {
-
-      config_schema_item_set_common_selection_set(item, 3, (const char *[3]) {
-        LSF_DRIVER_NAME, LOCAL_DRIVER_NAME, RSH_DRIVER_NAME
-      });
-      config_schema_item_set_required_children_on_value(item, LSF_DRIVER_NAME, lsf_dep);
-      config_schema_item_set_required_children_on_value(item, RSH_DRIVER_NAME, rsh_dep);
-      config_schema_item_set_required_children_on_value(item, LOCAL_DRIVER_NAME, local_dep);
-    }
-
-    stringlist_free(lsf_dep);
-    stringlist_free(rsh_dep);
-    stringlist_free(local_dep);
-  }
 
   item = config_add_schema_item(config, MAX_SUBMIT_KEY, false);
   config_schema_item_set_argc_minmax(item, 1, 1);

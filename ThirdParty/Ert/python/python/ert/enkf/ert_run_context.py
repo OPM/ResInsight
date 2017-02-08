@@ -13,22 +13,31 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from cwrap import BaseCClass, CWrapper
-from ert.enkf import ENKF_LIB, TimeMap, StateMap, RunArg
-from ert.util import PathFormat
+from cwrap import BaseCClass
+from ert.enkf import EnkfPrototype
+from ert.enkf import TimeMap, StateMap, RunArg
+from ert.util import PathFormat, StringList
 
 class ErtRunContext(BaseCClass):
-    
+    TYPE_NAME = "ert_run_context"
+
+    _alloc_runpath_list = EnkfPrototype("stringlist_obj ert_run_context_alloc_runpath_list(bool_vector, path_fmt, subst_list, int)", bind = False)
+    _alloc_runpath      = EnkfPrototype("char* ert_run_context_alloc_runpath(int, path_fmt, subst_list, int)", bind = False)
+    _get_size           = EnkfPrototype("int ert_run_context_get_size( ert_run_context )")
+    _free               = EnkfPrototype("void ert_run_context_free( ert_run_context )")
+    _iget               = EnkfPrototype("run_arg_ref ert_run_context_iget_arg( ert_run_context , int)")
+    _iens_get           = EnkfPrototype("run_arg_ref ert_run_context_iens_get_arg( ert_run_context , int)")
+
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
     def __len__(self):
-        return ErtRunContext.cNamespace().get_size( self )
+        return self._get_size()
 
     def __getitem__(self , index):
         if isinstance(index, int):
             if 0 <= index < len(self):
-                run_arg = ErtRunContext.cNamespace().iget(self , index)
+                run_arg = self._iget(index)
                 run_arg.setParent( self )
                 return run_arg
             else:
@@ -37,7 +46,7 @@ class ErtRunContext(BaseCClass):
             raise TypeError("Invalid type - expetected integer")
 
     def iensGet(self , iens):
-        run_arg = ErtRunContext.cNamespace().iens_get(self , iens)
+        run_arg = self._iens_get(iens)
         if run_arg is not None:
             run_arg.setParent(self)
             return run_arg
@@ -45,28 +54,18 @@ class ErtRunContext(BaseCClass):
             raise ValueError("Run context does not have run argument for iens:%d" % iens)
 
     def free(self):
-        ErtRunContext.cNamespace().free( self )
+        self._free()
+
+    def __repr__(self):
+        return 'ErtRunContext(size = %d) %s' % (len(self), self._ad_str())
 
     @classmethod
     def createRunpathList(cls, mask, runpath_fmt, subst_list, iter=0):
         """ @rtype: ert.util.stringlist.StringList """
-        return ErtRunContext.cNamespace().alloc_runpath_list(mask, runpath_fmt, subst_list, iter)
+        return cls._alloc_runpath_list(mask, runpath_fmt, subst_list, iter)
 
 
     @classmethod
     def createRunpath(cls, iens , runpath_fmt, subst_list, iter=0):
-        """ @rtype: ert.util.stringlist.StringList """
-        return ErtRunContext.cNamespace().alloc_runpath(iens, runpath_fmt, subst_list, iter)
-
-
-cwrapper = CWrapper(ENKF_LIB)
-cwrapper.registerObjectType("ert_run_context", ErtRunContext)
-
-ErtRunContext.cNamespace().get_size = cwrapper.prototype("int ert_run_context_get_size( ert_run_context )")
-ErtRunContext.cNamespace().free     = cwrapper.prototype("void ert_run_context_free( ert_run_context )")
-ErtRunContext.cNamespace().iget     = cwrapper.prototype("run_arg_ref ert_run_context_iget_arg( ert_run_context , int)")
-ErtRunContext.cNamespace().iens_get = cwrapper.prototype("run_arg_ref ert_run_context_iens_get_arg( ert_run_context , int)")
-ErtRunContext.cNamespace().alloc_runpath_list = cwrapper.prototype("stringlist_obj ert_run_context_alloc_runpath_list(bool_vector, path_fmt, subst_list, int)")
-ErtRunContext.cNamespace().alloc_runpath      = cwrapper.prototype("cstring_obj ert_run_context_alloc_runpath(int, path_fmt, subst_list, int)")
-
-        
+        """ @rtype: str """
+        return cls._alloc_runpath(iens, runpath_fmt, subst_list, iter)

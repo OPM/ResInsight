@@ -22,6 +22,7 @@
 #include "cafPdmFieldCvfColor.h"
 
 class RimWellLogCurve;
+class RimWellAllocationPlot;
 
 //==================================================================================================
 /// 
@@ -31,4 +32,5 @@ class RicWellLogPlotCurveFeatureImpl
 public:
     static cvf::Color3f curveColorFromTable();
     static std::vector<RimWellLogCurve*> selectedWellLogCurves();
+    static RimWellAllocationPlot* parentWellAllocationPlot();
 };

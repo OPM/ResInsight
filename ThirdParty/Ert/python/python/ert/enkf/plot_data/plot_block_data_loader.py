@@ -9,6 +9,8 @@ class PlotBlockDataLoader(object):
         """
         @type obs_vector: ObsVector
         """
+        if obs_vector is None:
+            raise ArgumentError('Cannot construct PlotBlockDataLoader without obs_vector.  Was None.')
         super(PlotBlockDataLoader, self).__init__()
         self.__obs_vector = obs_vector
         self.__permutation_vector = None

@@ -34,7 +34,7 @@ class PlotWindow(QMainWindow):
         self.setWindowTitle("Plotting")
         self.activateWindow()
 
-        self._plot_customizer = PlotCustomizer(self)
+        self._plot_customizer = PlotCustomizer(self, self._ert.plotConfig())
 
         def plotConfigCreator(key):
             return PlotConfigFactory.createPlotConfigForKey(self._ert, key)
@@ -148,8 +148,8 @@ class PlotWindow(QMainWindow):
         key = self.getSelectedKey()
         cases = self._case_selection_widget.getPlotCaseNames()
         data_gatherer = self.getDataGathererForKey(key)
-        plot_config = PlotConfig(key)
-        plot_config.copyConfigFrom(self._plot_customizer.getPlotConfig())
+        plot_config = PlotConfig.createCopy(self._plot_customizer.getPlotConfig())
+        plot_config.setTitle(key)
         return PlotContext(self._ert, figure, plot_config, cases, key, data_gatherer)
 
     def getDataGathererForKey(self, key):

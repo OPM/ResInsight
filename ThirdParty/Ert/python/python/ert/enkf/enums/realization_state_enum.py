@@ -14,10 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 from cwrap import BaseCEnum
-from ert.enkf import ENKF_LIB
-
 
 class RealizationStateEnum(BaseCEnum):
+    TYPE_NAME = "realisation_state_enum"
     STATE_UNDEFINED      = None
     STATE_INITIALIZED    = None
     STATE_HAS_DATA       = None
@@ -29,7 +28,3 @@ RealizationStateEnum.addEnum("STATE_INITIALIZED", 2)
 RealizationStateEnum.addEnum("STATE_HAS_DATA", 4)
 RealizationStateEnum.addEnum("STATE_LOAD_FAILURE", 8)
 RealizationStateEnum.addEnum("STATE_PARENT_FAILURE", 16)
-RealizationStateEnum.registerEnum(ENKF_LIB, "realisation_state_enum")
-
-
-

@@ -18,6 +18,7 @@ from ert.job_queue import JOB_QUEUE_LIB
 
 
 class JobStatusType(BaseCEnum):
+    TYPE_NAME = "job_status_type_enum"
     JOB_QUEUE_NOT_ACTIVE = None     # This value is used in external query routines - for jobs which are (currently) not active. */
     JOB_QUEUE_WAITING = None        # A node which is waiting in the internal queue.
     JOB_QUEUE_SUBMITTED = None      # Internal status: It has has been submitted - the next status update will (should) place it as pending or running.
@@ -31,7 +32,8 @@ class JobStatusType(BaseCEnum):
     JOB_QUEUE_RUNNING_CALLBACK = None
     JOB_QUEUE_FAILED = None
     JOB_QUEUE_DO_KILL_NODE_FAILURE = None
-
+    JOB_QUEUE_STATUS_FAILURE = None
+    
 
 JobStatusType.addEnum("JOB_QUEUE_NOT_ACTIVE", 1)
 JobStatusType.addEnum("JOB_QUEUE_WAITING", 4)
@@ -46,4 +48,4 @@ JobStatusType.addEnum("JOB_QUEUE_SUCCESS", 16384)
 JobStatusType.addEnum("JOB_QUEUE_RUNNING_CALLBACK", 32768)
 JobStatusType.addEnum("JOB_QUEUE_FAILED", 65536)
 JobStatusType.addEnum("JOB_QUEUE_DO_KILL_NODE_FAILURE", 131072)
-JobStatusType.registerEnum(JOB_QUEUE_LIB, "job_status_type_enum")
+JobStatusType.addEnum("JOB_QUEUE_STATUS_FAILURE", 262144)

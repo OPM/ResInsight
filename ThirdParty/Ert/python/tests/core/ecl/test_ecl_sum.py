@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 #  Copyright (C) 2014  Statoil ASA, Norway.
 #   
 #  The file 'test_ecl_sum.py' is part of ERT - Ensemble based Reservoir Tool.
@@ -48,7 +48,7 @@ class EclSumTest(ExtendedTestCase):
         with self.assertRaises(KeyError):
             ecl_sum_vector.addKeyword("MISSING")
 
-        dtime = datetime.datetime( 2002 , 01 , 01 , 0 , 0 , 0 )
+        dtime = datetime.datetime( 2002 , 1 , 1 , 0 , 0 , 0 )
         with TestAreaContext("EclSum/csv_dump"):
             test_file_name = self.createTestPath("dump.csv")
             outputH = open(test_file_name , "w")

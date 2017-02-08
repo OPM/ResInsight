@@ -18,7 +18,7 @@ Create a polygon
 """
 import ctypes
 
-from cwrap import BaseCClass, CWrapper
+from cwrap import BaseCClass
 from ert.geo import GeoPrototype, CPolyline
 
 
@@ -35,21 +35,21 @@ class CPolylineCollection(BaseCClass):
     _add_polyline       = GeoPrototype("void             geo_polygon_collection_add_polygon(geo_polygon_collection , geo_polygon , bool)")
 
 
-    
+
     def __init__(self):
         c_ptr = self._alloc_new(  )
         super(CPolylineCollection , self).__init__( c_ptr )
         self.parent_ref = None
-        
+
 
     def __contains__(self , name):
         return self._has_polyline(name)
-    
+
 
     def __len__(self):
         return self._size( )
 
-    
+
     def __iter__(self):
         index = 0
 
@@ -62,7 +62,7 @@ class CPolylineCollection(BaseCClass):
         if isinstance(index , int):
             if index < 0:
                 index += len(self)
-                
+
             if 0 <= index < len(self):
                 return self._iget( index).setParent( self )
             else:
@@ -85,7 +85,7 @@ class CPolylineCollection(BaseCClass):
         # all the polyline objects does not go out of scope.
         copy.parent_ref = self
         return copy
-            
+
 
 
     def addPolyline(self , polyline , name = None):
@@ -94,7 +94,7 @@ class CPolylineCollection(BaseCClass):
         else:
             if not name is None:
                 raise ValueError("The name keyword argument can only be supplied when add not CPOlyline object")
-                
+
         name = polyline.getName()
         if name and name in self:
             raise KeyError("The polyline collection already has an object:%s" % name)
@@ -110,7 +110,7 @@ class CPolylineCollection(BaseCClass):
     def createPolyline(self , name = None):
         if name and name in self:
             raise KeyError("The polyline collection already has an object:%s" % name)
-            
+
         polyline = self._create_polyline(name)
         polyline.setParent( parent = self )
         return polyline
@@ -118,5 +118,3 @@ class CPolylineCollection(BaseCClass):
 
     def free(self):
         self._free( )
-
-
