@@ -46,13 +46,13 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&showWell,                "ShowWell",             true,   "Show well ", "", "", "");
 
     CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Label", "", "", "");
-    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Well head", "", "", "");
+    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Well Head", "", "", "");
     CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Pipe", "", "", "");
     CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Spheres", "", "", "");
 
     CAF_PDM_InitField(&wellHeadScaleFactor,     "WellHeadScaleFactor",  1.0,    "Well Head Scale Factor", "", "", "");
     CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Scale Factor", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe color", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe Color", "", "", "");
 
     CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
