@@ -22,6 +22,7 @@
 #define OPM_ECLGRAPH_HEADER_INCLUDED
 
 #include <opm/utility/ECLResultData.hpp>
+#include <opm/utility/ECLUnitHandling.hpp>
 
 #include <array>
 #include <cstddef>
@@ -45,6 +46,9 @@ namespace Opm {
     {
     public:
         using Path = boost::filesystem::path;
+
+        /// Enum for indicating requested phase from the flux() method.
+        enum class PhaseIndex { Aqua = 0, Liquid = 1, Vapour = 2 };
 
         /// Disabled default constructor.
         ECLGraph() = delete;
@@ -124,6 +128,12 @@ namespace Opm {
         /// Retrieve number of connections in graph.
         std::size_t numConnections() const;
 
+        /// Retrieve the simulation scenario's active phases.
+        ///
+        /// Mostly useful to determine the set of \c PhaseIndex values for
+        /// which flux() will return non-zero values if data available.
+        const std::vector<PhaseIndex>& activePhases() const;
+
         /// Retrieve neighbourship relations between active cells.
         ///
         /// The \c i-th connection is between active cells \code
@@ -135,8 +145,17 @@ namespace Opm {
         ///
         /// Corresponds to the \c PORV vector in the INIT file, possibly
         /// restricted to those active cells for which the pore-volume is
-        /// strictly positive.
+        /// strictly positive.  Numerical values in SI units (rm^3).
         std::vector<double> poreVolume() const;
+
+        /// Retrieve static (background) transmissibility values on all
+        /// connections defined by \code neighbours() \endcode.
+        ///
+        /// Specifically, \code transmissibility()[i] \endcode is the
+        /// transmissibility of the connection between cells \code
+        /// neighbours()[2*i + 0] \endcode and \code neighbours()[2*i + 1]
+        /// \endcode.
+        std::vector<double> transmissibility() const;
 
         /// Restrict dynamic result set data to single report step.
         ///
@@ -156,20 +175,56 @@ namespace Opm {
         /// to method selectReportStep().
         const ::Opm::ECLResultData& rawResultData() const;
 
-        /// Enum for indicating requested phase from the flux() method.
-        enum class PhaseIndex { Aqua = 0, Liquid = 1, Vapour = 2 };
-
-        /// Retrive phase flux on all connections defined by \code
+        /// Retrieve phase flux on all connections defined by \code
         /// neighbours() \endcode.
         ///
-        /// \param[in] phase Canonical phase for which to retrive flux.
+        /// \param[in] phase Canonical phase for which to retrieve flux.
         ///
         /// \return Flux values corresponding to selected phase.  Empty if
         ///    unavailable in the result set (e.g., when querying the gas
         ///    flux in an oil/water system or if no flux values at all were
-        ///    output to the restart file).
+        ///    output to the restart file).  Numerical values in SI units
+        ///    (rm^3/s).
         std::vector<double>
         flux(const PhaseIndex phase) const;
+
+        /// Retrieve result set vector from current view (e.g., particular
+        /// report step) linearised on active cells.
+        ///
+        /// \tparam T Element type of result set vector.
+        ///
+        /// \param[in] vector Name of result set vector.
+        ///
+        /// \return Result set vector linearised on active cells.
+        template <typename T>
+        std::vector<T>
+        rawLinearisedCellData(const std::string& vector) const;
+
+        /// Convenience type alias for \c UnitSystem PMFs (pointer to member
+        /// function).
+        typedef double (ECLUnits::UnitSystem::*UnitConvention)() const;
+
+        /// Retrieve floating-point result set vector from current view
+        /// (e.g., particular report step) linearised on active cells and
+        /// converted to strict SI unit conventions.
+        ///
+        /// Typical call:
+        /// \code
+        ///  const auto press =
+        ///      lCD("PRESSURE", &ECLUnits::UnitSystem::pressure);
+        /// \endcode
+        ///
+        /// \param[in] vector Name of result set vector.
+        ///
+        /// \param[in] unit Call-back hook in \c UnitSystem implementation
+        ///    that enables converting the raw result data to strict SI unit
+        ///    conventions.  Hook is called for each grid in the result set.
+        ///
+        /// \return Result set vector linearised on active cells, converted
+        ///    to strict SI unit conventions.
+        std::vector<double>
+        linearisedCellData(const std::string& vector,
+                           UnitConvention     unit) const;
 
     private:
         /// Implementation class.
