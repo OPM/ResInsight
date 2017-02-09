@@ -145,8 +145,6 @@ void RimWellLogPlot::addTrack(RimWellLogTrack* track)
         track->recreateViewer();
         m_viewer->addTrackPlot(track->viewer());
     }
-
-    updateTrackNames();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -82,6 +82,8 @@ void RicPasteWellLogTrackFeature::onActionTriggered(bool isChecked)
 
             wellLogPlot->addTrack(newObject);
 
+            newObject->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
+
             // Resolve references after object has been inserted into the project data model
             newObject->resolveReferencesRecursively();
             newObject->initAfterReadRecursively();
