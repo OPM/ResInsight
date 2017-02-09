@@ -485,6 +485,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 
             for (RimFlowDiagSolution* flowSol : flowSols)
             {
+                options.push_back(caf::PdmOptionItemInfo("None", nullptr));
                 options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
             }
         }
@@ -524,7 +525,8 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     }
     else if (   changedField == &m_wellName
              || changedField == &m_case
-             || changedField == &m_timeStep)
+             || changedField == &m_timeStep
+             || changedField == &m_flowDiagSolution)
     {
         loadDataAndUpdate();
     }
