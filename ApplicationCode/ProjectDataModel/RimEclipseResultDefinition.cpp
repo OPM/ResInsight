@@ -125,6 +125,7 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
     this->setResultType(other->resultType());
     this->setFlowSolution(other->m_flowSolution());
     this->setSelectedTracers(other->m_selectedTracers());
+    m_flowTracerSelectionMode = other->m_flowTracerSelectionMode();
 }
 
 //--------------------------------------------------------------------------------------------------
