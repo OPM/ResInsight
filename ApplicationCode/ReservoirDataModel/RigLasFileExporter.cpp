@@ -203,6 +203,11 @@ public:
         {
             lasFile->AddLog("DEPTH", "FT", "Depth in feet", firstCurveData->measuredDepths());
         }
+        else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+        {
+            CVF_ASSERT(false);
+            lasFile->AddLog("DEPTH", "", "Depth in Connection number", firstCurveData->measuredDepths());
+        }
 
         if (firstCurveData->tvDepths().size())
         {
@@ -225,6 +230,12 @@ public:
                 {
                     lasFile->AddLog("TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues);
                 }
+                else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+                {
+                    CVF_ASSERT(false);
+                    lasFile->AddLog("TVDRKB", "", "", tvdrkbValues);
+                }
+
             }
         }
 
@@ -242,6 +253,10 @@ public:
         else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
         {
             lasFile->setDepthUnit("FT");
+        }
+        else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+        {
+            CVF_ASSERT(false);
         }
 
         double absentValue = SingleLasFileMetaData::createAbsentValue(m_minimumCurveValue);

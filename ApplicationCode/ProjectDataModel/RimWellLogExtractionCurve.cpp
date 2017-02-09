@@ -304,7 +304,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         {
             m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         }
-        else
+        else if (wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
         {
             m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         }

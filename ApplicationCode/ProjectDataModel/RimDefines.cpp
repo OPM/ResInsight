@@ -50,6 +50,8 @@ namespace caf
     {
         addItem(RimDefines::UNIT_METER,  "UNIT_METER",   "Meter");
         addItem(RimDefines::UNIT_FEET,   "UNIT_FEET",    "Feet");
+        addItem(RimDefines::UNIT_NONE,   "UNIT_NONE",    "None");
+
 
         setDefault(RimDefines::UNIT_METER);
     }

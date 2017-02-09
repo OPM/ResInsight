@@ -45,8 +45,12 @@ public:
     enum DepthTypeEnum
     {
         MEASURED_DEPTH,
-        TRUE_VERTICAL_DEPTH
+        TRUE_VERTICAL_DEPTH,
+        PSEUDO_LENGTH,
+        CONNECTION_NUMBER
     };
+
+
 
 
 public:
@@ -57,9 +61,11 @@ public:
     QString                                         description() const;
 
     DepthTypeEnum                                   depthType() const;
+    void                                            setDepthType(DepthTypeEnum depthType);
 
     RimDefines::DepthUnitType                       depthUnit() const;
     void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
+
 
     QString                                         depthPlotTitle() const;
 
@@ -97,6 +103,7 @@ protected:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
@@ -106,6 +113,8 @@ private:
     void                                            applyDepthZoomFromVisibleDepth();
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
+
+    void                                            updateDisabledDepthTypes();
 
 public: // Needed by RiuWellAllocation Plot
     // RimViewWindow overrides
@@ -118,6 +127,7 @@ private:
     
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;
     caf::PdmField< caf::AppEnum< RimDefines::DepthUnitType > >  m_depthUnit;
+    std::set<DepthTypeEnum>                         m_disabledDepthTypes;
 
     caf::PdmChildArrayField<RimWellLogTrack*>       m_tracks;
 

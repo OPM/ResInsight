@@ -142,7 +142,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
 
     bool isFirstTrack =  (wellLogTrack == wellLogPlot->trackByIndex(0));
 
-    RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+    RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_NONE;
 
     std::vector<double> depthValues = m_curveData->measuredDepthPlotValues(displayUnit);
     if (depthValues.size()) depthValues.insert(depthValues.begin(), depthValues[0]); // Insert the first depth position again, to make room for a real 0 value
@@ -192,10 +192,10 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::setFlowValues(const QString& tracerName, const std::vector<double>& measuredDepths, const std::vector<double>& flowRates)
+void RimWellFlowRateCurve::setFlowValuesPrConnection(const QString& tracerName, const std::vector<double>& connectionNumbers, const std::vector<double>& flowRates)
 {
     m_curveData = new RigWellLogCurveData;
-    m_curveData->setValuesAndMD(flowRates, measuredDepths, RimDefines::UNIT_METER, false);
+    m_curveData->setValuesAndMD(flowRates, connectionNumbers, RimDefines::UNIT_NONE, false);
 
     m_tracerName = tracerName;
 }

@@ -73,6 +73,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
+    m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
+    m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
 
     CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
     m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
@@ -308,7 +310,7 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
                                             RimWellLogTrack* plotTrack)
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-    curve->setFlowValues(tracerName, connNumbers, accFlow);
+    curve->setFlowValuesPrConnection(tracerName, connNumbers, accFlow);
 
     if ( m_flowDiagSolution )
         curve->setColor(m_flowDiagSolution->tracerColor(tracerName));

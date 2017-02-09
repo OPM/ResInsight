@@ -228,6 +228,11 @@ QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelNa
             {
                 return "FT";
             }
+            else if (displayDepthUnit == RimDefines::UNIT_NONE)
+            {
+                CVF_ASSERT(false);
+                return "";
+            }
         }
     }
 
@@ -279,7 +284,11 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
     {
         lasFile.AddLog("DEPTH", "FT", "Depth in feet", curveData->measuredDepths());
-
+    }
+    else if (curveData->depthUnit() == RimDefines::UNIT_NONE)
+    {
+        CVF_ASSERT(false);
+        lasFile.AddLog("DEPTH", "", "Depth in connection number", curveData->measuredDepths());
     }
 
     if(curveData->tvDepths().size())
@@ -304,6 +313,11 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     else if (curveData->depthUnit() == RimDefines::UNIT_FEET)
     {
         lasFile.setDepthUnit("FT");
+    }
+    else if ( curveData->depthUnit() == RimDefines::UNIT_NONE )
+    {
+        CVF_ASSERT(false);
+        lasFile.setDepthUnit("");
     }
 
     lasFile.setVersionInfo("2.0");

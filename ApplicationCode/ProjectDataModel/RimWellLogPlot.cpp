@@ -30,6 +30,7 @@
 #include "cvfAssert.h"
 
 #include <math.h>
+#include "RimWellAllocationPlot.h"
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0
@@ -41,6 +42,8 @@ namespace caf {
     {
         addItem(RimWellLogPlot::MEASURED_DEPTH,       "MEASURED_DEPTH",       "Measured Depth");
         addItem(RimWellLogPlot::TRUE_VERTICAL_DEPTH,  "TRUE_VERTICAL_DEPTH",  "True Vertical Depth");
+        addItem(RimWellLogPlot::PSEUDO_LENGTH,        "PSEUDO_LENGTH",        "Pseudo Length");
+        addItem(RimWellLogPlot::CONNECTION_NUMBER,    "CONNECTION_NUMBER",    "Connection Number");
         setDefault(RimWellLogPlot::MEASURED_DEPTH);
     }
 
@@ -111,11 +114,42 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateMdiWindowTitle();
     }
+
     if (changedField == &m_depthType ||
         changedField == &m_depthUnit)
     {
         updateTracks();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options; 
+
+    if (fieldNeedingOptions == &m_depthType )
+    {
+        using DepthAppEnum = caf::AppEnum< DepthTypeEnum >;
+        for (size_t i = 0; i < DepthAppEnum::size(); ++i)
+        {
+            DepthTypeEnum enumVal = DepthAppEnum::fromIndex(i);
+            if (m_disabledDepthTypes.count( enumVal) == 0) 
+            {
+                options.push_back(caf::PdmOptionItemInfo(DepthAppEnum::uiText(enumVal), enumVal));
+            }
+        }    
+    }
+    else if ( fieldNeedingOptions == &m_depthUnit)
+    {
+        using UnitAppEnum = caf::AppEnum< RimDefines::DepthUnitType >;
+        options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RimDefines::UNIT_METER), RimDefines::UNIT_METER));
+        options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RimDefines::UNIT_FEET), RimDefines::UNIT_FEET));
+    }
+
+    (*useOptionsOnly) = true;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,12 +386,17 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_depthType);
-    uiOrdering.add(&m_depthUnit);
+    if ( m_depthType() != CONNECTION_NUMBER )
+    {
+        uiOrdering.add(&m_depthUnit);
+    }
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
     gridGroup->add(&m_isAutoScaleDepthEnabled);
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
+
+    uiOrdering.setForgetRemainingFields(true);
 }
 
 
@@ -377,6 +416,8 @@ void RimWellLogPlot::updateTracks()
 {
     if (m_showWindow)
     {
+        updateDisabledDepthTypes();
+
         for (size_t tIdx = 0; tIdx < m_tracks.size(); ++tIdx)
         {
             m_tracks[tIdx]->loadDataAndUpdate();
@@ -521,6 +562,14 @@ RimWellLogPlot::DepthTypeEnum RimWellLogPlot::depthType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setDepthType(DepthTypeEnum depthType)
+{
+    m_depthType = depthType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimDefines::DepthUnitType RimWellLogPlot::depthUnit() const
 {
     return m_depthUnit.value();
@@ -536,13 +585,23 @@ QString RimWellLogPlot::depthPlotTitle() const
     switch (m_depthType.value())
     {
         case MEASURED_DEPTH:
-            depthTitle = "MD";
-            break;
+        depthTitle = "MD";
+        break;
 
         case TRUE_VERTICAL_DEPTH:
-            depthTitle = "TVD";
-            break;
+        depthTitle = "TVD";
+        break;
+
+        case PSEUDO_LENGTH:
+        depthTitle = "PL";
+        break;
+
+        case CONNECTION_NUMBER:
+        depthTitle = "Connection";
+        break;
     }
+
+    if (m_depthType() == CONNECTION_NUMBER) return depthTitle;
 
     if (m_depthUnit == RimDefines::UNIT_METER)
     {
@@ -551,6 +610,10 @@ QString RimWellLogPlot::depthPlotTitle() const
     else if (m_depthUnit == RimDefines::UNIT_FEET)
     {
         depthTitle += " [ft]";
+    }
+    else if (m_depthUnit == RimDefines::UNIT_NONE)
+    {
+        depthTitle += "";
     }
 
     return depthTitle;
@@ -572,5 +635,26 @@ void RimWellLogPlot::setDepthUnit(RimDefines::DepthUnitType depthUnit)
     m_depthUnit = depthUnit;
 
     updateTracks();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateDisabledDepthTypes()
+{
+    m_disabledDepthTypes.clear();
+    RimWellAllocationPlot* wap;
+    firstAncestorOrThisOfType(wap);
+    if (wap)
+    {
+        m_disabledDepthTypes.insert(MEASURED_DEPTH);
+        m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
+        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+    }
+    else
+    {
+        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+        m_disabledDepthTypes.insert(CONNECTION_NUMBER);
+    }
 }
 
