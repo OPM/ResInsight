@@ -36,6 +36,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimViewController.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
@@ -56,7 +57,17 @@ namespace caf
 
 bool isDeletable(PdmUiItem * uiItem)
 {
-    if (dynamic_cast<RimWellFlowRateCurve*>(uiItem))         return false;
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
+    if (destinationObject)
+    {
+        RimWellAllocationPlot* wellAllocationPlot = nullptr;
+        destinationObject->firstAncestorOrThisOfType(wellAllocationPlot);
+
+        if (wellAllocationPlot)
+        {
+            return false;
+        }
+    }
 
     if (dynamic_cast<RimGeoMechView*>(uiItem))               return true;
     if (dynamic_cast<RimEclipseView*>(uiItem))               return true;
