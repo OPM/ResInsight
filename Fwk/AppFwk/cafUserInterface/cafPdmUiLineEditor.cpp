@@ -215,8 +215,10 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
 
 
-        bool fromMenuOnly = false;
+        bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
+        assert(fromMenuOnly); // Not supported
+
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
             int enumValue = field()->uiValue().toInt();

@@ -99,7 +99,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiListEditor::PdmUiListEditor(): m_optionsOnly(false)
+PdmUiListEditor::PdmUiListEditor(): m_optionsOnly(true)
 {
 }
 

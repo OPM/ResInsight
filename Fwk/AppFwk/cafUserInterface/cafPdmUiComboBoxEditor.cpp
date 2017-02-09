@@ -77,12 +77,10 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_comboBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
-        // Demo code for attribute retreival when becoming relevant
-        // PdmUiComboBoxEditorAttribute attributes;
-        // field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
-
-        bool fromMenuOnly = false;
+        bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
+        assert(fromMenuOnly); // Not supported
+
         m_comboBox->blockSignals(true);
         m_comboBox->clear();
         if (!options.isEmpty())

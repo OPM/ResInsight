@@ -435,6 +435,7 @@ caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFi
 
             bool useOptionsOnly = true;
             QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
+            assert(fromMenuOnly); // Not supported
 
             if (!options.empty())
             {
