@@ -641,6 +641,17 @@ void RimEclipseView::updateCurrentTimeStep()
             this->descendantsIncludingThisOfType(fractures);
             for (RimFracture* f : fractures)
             {
+                RimEclipseWell* eclWell = nullptr;
+                f->firstAncestorOrThisOfType(eclWell);
+                if (eclWell)
+                {
+                    bool isAnyGeometryPresent = eclWell->isWellPipeVisible(m_currentTimeStep) || eclWell->isWellSpheresVisible(m_currentTimeStep);
+                    if (!isAnyGeometryPresent)
+                    {
+                        continue;
+                    }
+                }
+
                 f->fracturePartManager()->appendGeometryPartsToModel(wellPipeModelBasicList.p(), transForm.p());
             }
 
