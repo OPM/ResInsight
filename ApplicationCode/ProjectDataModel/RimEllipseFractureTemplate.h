@@ -53,8 +53,6 @@ public:
     
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
-    double                          effectiveKh();
-    
     void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
     std::vector<cvf::Vec3f>         fracturePolygon();
 

@@ -44,7 +44,6 @@ public:
     
     caf::PdmField<QString>   name;
     caf::PdmField<float>     azimuthAngle;
-
     caf::PdmField<float>     skinFactor;
 
     enum FracOrientationEnum
@@ -61,5 +60,5 @@ public:
     virtual void                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices) = 0;
     virtual std::vector<cvf::Vec3f> fracturePolygon() = 0;
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 };

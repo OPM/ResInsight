@@ -30,23 +30,21 @@ public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();
 
-//     int formationIndexFromKLayerIdx(size_t Kidx) 
-//     {
-//         if(Kidx >= m_nameIndexPrKLayer.size()) return -1;
-//         return m_nameIndexPrKLayer[Kidx];
-//     }
-// 
-//     QString formationNameFromKLayerIdx(size_t Kidx);
-// 
-//     const std::vector<QString>& formationNames() const { return m_formationNames;}
-// 
-//     void appendFormationRange(const QString& name, int kStartIdx, int kEndIdx);
-//     void appendFormationRangeHeight(const QString& name, int kLayerCount);
-// 
-// private:
-// 
-//     std::vector<int> m_nameIndexPrKLayer;
-//     std::vector<QString> m_formationNames;
+    std::vector<double>     gridXs;
+    std::vector<double>     gridYs;
+    //TODO: Consider removing gridYs or depths, 
+    //In example file these are the same, but can there be examples where not all gridY values are included in depths?
+
+    std::vector<double>     timeSteps;
+    std::vector<double>     depths;
+
+    std::vector<std::vector<std::vector<double>>>  conductivities;
+    std::vector<std::vector<std::vector<double>>>  widths;
+    std::vector<std::vector<std::vector<double>>>  permeabilities;
+    //Vector for each time step, for each depth and for each x-value
+
+private:
+
 };
 
 

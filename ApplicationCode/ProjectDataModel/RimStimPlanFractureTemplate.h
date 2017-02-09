@@ -46,27 +46,26 @@ public:
     RimStimPlanFractureTemplate(void);
     virtual ~RimStimPlanFractureTemplate(void);
     
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    
-    void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
-    std::vector<cvf::Vec3f>         fracturePolygon();
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
+    void                                setFileName(const QString& fileName);
+    const QString&                      fileName();
+    QString                             fileNameWoPath();
+    void                                readStimPlanXMLFile(QString * errorMessage);
 
-    void                        setFileName(const QString& fileName);
-    const QString&              fileName();
-    QString                     fileNameWoPath();
-    void                        readStimPlanXMLFile(QString * errorMessage);
+    double                              getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
+    QString                             getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
+    std::vector<double>                 getGriddingValues(QXmlStreamReader &xmlStream);
+    std::vector<std::vector<double>>    getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream);
 
-
-
-
+    void                                fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
+    std::vector<cvf::Vec3f>             fracturePolygon();
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
-    void                        updateUiTreeName();
+    void                                updateUiTreeName();
 
     caf::PdmField<QString>                      m_StimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_StimPlanFractureDefinitionData;

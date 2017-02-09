@@ -18,18 +18,16 @@
 
 #include "RimStimPlanFractureTemplate.h"
 
-#include "RigTesselatorTools.h"
-
-#include "RimFracture.h"
-#include "RimProject.h"
 #include "RigStimPlanFractureDefinition.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiFilePathEditor.h"
 
 #include "cvfVector3.h"
-#include "cafPdmUiFilePathEditor.h"
-#include <QMessageBox>
+
+#include <QDebug>
 #include <QFileInfo>
+#include <QMessageBox>
 
 
 
@@ -42,8 +40,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_StimPlanFileName, "StimPlanFileName", QString(""), "File Name", "", "", "");
-
+    CAF_PDM_InitField(&m_StimPlanFileName, "StimPlanFileName", QString(""), "StimPlan File Name", "", "", "");
     m_StimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
 
@@ -72,62 +69,6 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
             QMessageBox::warning(nullptr, "StimPlanFile", errorMessage);
         }
     }
-
-
-// 
-//     if (changedField == &halfLength || changedField == &height || changedField == &azimuthAngle || changedField == &perforationLength || changedField == &orientation)
-//     {
-//         //Changes to one of these parameters should change all fractures with this fracture template attached. 
-//         RimProject* proj;
-//         this->firstAncestorOrThisOfType(proj);
-//         if (proj)
-//         {
-//             //Regenerate geometry
-//             std::vector<RimFracture*> fractures;
-//             proj->descendantsIncludingThisOfType(fractures);
-// 
-//             for (RimFracture* fracture : fractures)
-//             {
-//                 if (fracture->attachedFractureDefinition() == this)
-//                 {
-//                     if (changedField == &halfLength || changedField == &height)
-//                     {
-//                         fracture->setRecomputeGeometryFlag();
-//                     }
-// 
-//                     if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
-//                     {
-//                         fracture->azimuth = azimuthAngle;
-//                         fracture->setRecomputeGeometryFlag();
-//                     }
-// 
-//                     if (changedField == &orientation)
-//                     {
-//                         fracture->setAzimuth();
-//                         if (orientation() == FracOrientationEnum::AZIMUTH)
-//                         {
-//                             fracture->azimuth = azimuthAngle;
-//                         }
-// 
-//                         fracture->setRecomputeGeometryFlag();
-//                     }
-// 
-//                     if (changedField == &perforationLength && (abs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
-//                     {
-//                         fracture->perforationLength = perforationLength;
-//                     }
-// 
-//                 }
-//             }
-// 
-//             proj->createDisplayModelAndRedrawAllViews();
-//         }
-//     }
-// 
-// 
-
-
-
 }
 
 
@@ -171,22 +112,161 @@ QString RimStimPlanFractureTemplate::fileNameWoPath()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 {
-//     QFile dataFile(m_formationNamesFileName());
-// 
-//     if (!dataFile.open(QFile::ReadOnly))
-//     {
-//         if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_formationNamesFileName()) + "\n";
-//         return;
-//     }
-// 
-//     m_formationNamesData = new RigFormationNames;
-// 
-//     QTextStream stream(&dataFile);
-//     int lineNumber = 1;
-//     while (!stream.atEnd())
-//     {
-// 
-//     }
+    QFile dataFile(m_StimPlanFileName());
+
+    if (!dataFile.open(QFile::ReadOnly))
+    {
+        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_StimPlanFileName()) + "\n";
+        return;
+    }
+
+    m_StimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
+
+    QXmlStreamReader xmlStream;
+    xmlStream.setDevice(&dataFile);
+    xmlStream.readNext();
+
+    QString parameter;
+
+    while (!xmlStream.atEnd())
+    {
+        xmlStream.readNext();
+
+        if (xmlStream.isStartElement())
+        {
+
+           if (xmlStream.name() == "xs")
+            {   
+                m_StimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
+            }
+
+            else if (xmlStream.name() == "ys")
+            {
+                m_StimPlanFractureDefinitionData->gridYs = getGriddingValues(xmlStream);
+
+            }
+
+            else if (xmlStream.name() == "property")
+            {
+                parameter = getAttributeValueString(xmlStream, "name");
+            }
+
+            else if (xmlStream.name() == "time")
+            {
+                double timeStepValue = getAttributeValueDouble(xmlStream, "value");
+                m_StimPlanFractureDefinitionData->timeSteps.push_back(timeStepValue);
+                
+                std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream);
+                
+                if (parameter == "CONDUCTIVITY")
+                {
+                    m_StimPlanFractureDefinitionData->conductivities.push_back(propertyValuesAtTimestep);
+                }
+
+                if (parameter == "PERMEABILITY")
+                {
+                    m_StimPlanFractureDefinitionData->permeabilities.push_back(propertyValuesAtTimestep);
+                }
+                if (parameter == "WIDTH")
+                {
+                    m_StimPlanFractureDefinitionData->widths.push_back(propertyValuesAtTimestep);
+                }
+            }
+        }
+    }
+
+    dataFile.close();
+
+    if (xmlStream.hasError())
+    {
+        qDebug() << "Error: Failed to parse file " << dataFile.fileName();
+        qDebug() << xmlStream.errorString();
+    }
+    else if (dataFile.error() != QFile::NoError)
+    {
+        qDebug() << "Error: Cannot read file " << dataFile.fileName();
+        qDebug() << dataFile.errorString();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream)
+{
+    std::vector<std::vector<double>> propertyValuesAtTimestep;
+
+    while (!(xmlStream.isEndElement() && xmlStream.name() == "time"))
+    {
+        xmlStream.readNext();
+        if (xmlStream.name() == "depth")
+        {
+            double depth = xmlStream.readElementText().toDouble();
+            m_StimPlanFractureDefinitionData->depths.push_back(depth);
+            std::vector<double> propertyValuesAtDepth;
+
+            xmlStream.readNext(); //read end depth token
+            xmlStream.readNext(); //read cdata section with values
+            if (xmlStream.isCDATA())
+            {
+                QString depthDataStr = xmlStream.text().toString();
+                for (QString value : depthDataStr.split(' '))
+                {
+                    propertyValuesAtDepth.push_back(value.toDouble());
+                }
+            }
+            propertyValuesAtTimestep.push_back(propertyValuesAtDepth);
+        }
+    }
+    return propertyValuesAtTimestep;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimStimPlanFractureTemplate::getGriddingValues(QXmlStreamReader &xmlStream)
+{
+    std::vector<double> gridValues;
+    QString gridValuesString = xmlStream.readElementText().replace('\n', ' ');
+    for (QString value : gridValuesString.split(' '))
+    {
+        gridValues.push_back(value.toDouble());
+    }
+
+    return gridValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName)
+{
+    double value = cvf::UNDEFINED_DOUBLE;
+    for (const QXmlStreamAttribute &attr : xmlStream.attributes())
+    {
+        if (attr.name() == parameterName)
+        {
+            value = attr.value().toString().toDouble();
+        }
+    }
+    return value;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanFractureTemplate::getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName)
+{
+    QString parameterValue;
+    for (const QXmlStreamAttribute &attr : xmlStream.attributes())
+    {
+        if (attr.name() == parameterName)
+        {
+            parameterValue = attr.value().toString();
+        }
+    }
+    return parameterValue;
 }
 
 
@@ -195,12 +275,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices)
 {
-//     RigEllipsisTesselator tesselator(20);
-// 
-//     float a = halfLength;
-//     float b = height / 2.0f;
-// 
-//     tesselator.tesselateEllipsis(a, b, polygonIndices, nodeCoords);
+    //TODO
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,17 +284,47 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
 {
      std::vector<cvf::Vec3f> polygon;
-// 
-//     std::vector<cvf::Vec3f> nodeCoords;
-//     std::vector<cvf::uint>  polygonIndices;
-// 
-//     fractureGeometry(&nodeCoords, &polygonIndices);
-// 
-//     for (size_t i = 1; i < nodeCoords.size(); i++)
-//     {
-//         polygon.push_back(nodeCoords[i]);
-//     }
-// 
+
+     //TODO: Handle multiple time-step and properties
+     std::vector<std::vector<double>> ConductivitiesAtTimeStep = m_StimPlanFractureDefinitionData->conductivities[0];
+
+     for (int k = 0; k < ConductivitiesAtTimeStep.size(); k++)
+     {
+         for (int i = 0; i < ConductivitiesAtTimeStep[k].size(); i++)
+         {
+             if ((ConductivitiesAtTimeStep[k])[i] > 1e-7)
+             {
+                 if ((i < ConductivitiesAtTimeStep[k].size() - 1))
+                 {
+                     if ((ConductivitiesAtTimeStep[k])[(i + 1)] < 1e-7)
+                     {
+                         polygon.push_back(cvf::Vec3f(static_cast<float>(m_StimPlanFractureDefinitionData->gridXs[i]),
+                             static_cast<float>(m_StimPlanFractureDefinitionData->depths[k]), 0.0f));
+                     }
+                 }
+                 else
+                 {
+                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_StimPlanFractureDefinitionData->gridXs[i]),
+                         static_cast<float>(m_StimPlanFractureDefinitionData->depths[k]), 0.0f));
+                 }
+             }
+         }
+     }
+
+     std::vector<cvf::Vec3f> negPolygon;
+
+     for (const auto& node : polygon)
+     {
+         cvf::Vec3f negNode = node;
+         negNode.x() = -negNode.x();
+         negPolygon.insert(negPolygon.begin(), negNode);
+     }
+
+     for (const auto& negNode : negPolygon)
+     {
+         polygon.push_back(negNode);
+     }
+
      return polygon;
 }
 
