@@ -214,7 +214,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     // Set up flow Toolbox with timestep data
     {
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::Hack::convert_flux_to_SI( RigFlowDiagInterfaceTools::extractFluxField(m_opmFldData->eclGraph));
+        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxField(m_opmFldData->eclGraph, false);
 
         m_opmFldData->fldToolbox->assignConnectionFlux(connectionsVals);
 

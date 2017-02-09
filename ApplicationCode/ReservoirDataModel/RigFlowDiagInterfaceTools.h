@@ -6,6 +6,7 @@
 #include <opm/flowdiagnostics/ConnectionValues.hpp>
 #include <opm/flowdiagnostics/Toolbox.hpp>
 
+#include <opm/utility/ECLFluxCalc.hpp>
 #include <opm/utility/ECLGraph.hpp>
 #include <opm/utility/ECLWellSolution.hpp>
 
@@ -17,43 +18,37 @@
 
 namespace RigFlowDiagInterfaceTools {
 
-
     inline Opm::FlowDiagnostics::ConnectionValues
-    extractFluxField(const Opm::ECLGraph& G)
+    extractFluxField(const Opm::ECLGraph& G, const bool compute_fluxes)
     {
         using ConnVals = Opm::FlowDiagnostics::ConnectionValues;
-
-        using NConn = ConnVals::NumConnections;
-        using NPhas = ConnVals::NumPhases;
-
-        const auto nconn = NConn{G.numConnections()};
-        const auto nphas = NPhas{3};
-
-        auto flux = ConnVals(nconn, nphas);
-
-        auto phas = ConnVals::PhaseID{0};
-
-        for (const auto& p : { Opm::ECLGraph::PhaseIndex::Aqua   ,
-                               Opm::ECLGraph::PhaseIndex::Liquid ,
-                               Opm::ECLGraph::PhaseIndex::Vapour })
+        auto flux = ConnVals(ConnVals::NumConnections{ G.numConnections() },
+                             ConnVals::NumPhases{ 3 });
+    
+        auto phas = ConnVals::PhaseID{ 0 };
+    
+        Opm::ECLFluxCalc calc(G);
+    
+        const auto phases = { Opm::ECLGraph::PhaseIndex::Aqua   ,
+                              Opm::ECLGraph::PhaseIndex::Liquid ,
+                              Opm::ECLGraph::PhaseIndex::Vapour };
+    
+        for ( const auto& p : phases )
         {
-            const std::vector<double> pflux = G.flux(p);
-
-            if (! pflux.empty()) {
-                assert (pflux.size() == nconn.total);
-
-                auto conn = ConnVals::ConnID{0};
-
-                for (const auto& v : pflux) {
+            const auto pflux = compute_fluxes ? calc.flux(p) : G.flux(p);
+            if ( ! pflux.empty() )
+            {
+                assert (pflux.size() == flux.numConnections());
+                auto conn = ConnVals::ConnID{ 0 };
+                for ( const auto& v : pflux )
+                {
                     flux(conn, phas) = v;
-
                     conn.id += 1;
                 }
             }
-
             phas.id += 1;
         }
-
+    
         return flux;
     }
 
@@ -77,53 +72,6 @@ namespace RigFlowDiagInterfaceTools {
         return inflow;
     }
 
-    namespace Hack {
-        inline Opm::FlowDiagnostics::ConnectionValues
-        convert_flux_to_SI(Opm::FlowDiagnostics::ConnectionValues&& fl)
-        {
-            using Co = Opm::FlowDiagnostics::ConnectionValues::ConnID;
-            using Ph = Opm::FlowDiagnostics::ConnectionValues::PhaseID;
-
-            const auto nconn = fl.numConnections();
-            const auto nphas = fl.numPhases();
-
-            for (auto phas = Ph{0}; phas.id < nphas; ++phas.id) {
-                for (auto conn = Co{0}; conn.id < nconn; ++conn.id) {
-                    fl(conn, phas) /= 86400;
-                }
-            }
-
-            return fl;
-        }
-    }
-
-    inline Opm::FlowDiagnostics::Toolbox
-    initialiseFlowDiagnostics(const Opm::ECLGraph& G)
-    {
-        const  Opm::FlowDiagnostics::ConnectivityGraph connGraph = 
-           Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(G.numCells()),
-                                                    G.neighbours() };
-
-        // Create the Toolbox.
-
-        Opm::FlowDiagnostics::Toolbox tool = Opm::FlowDiagnostics::Toolbox{ connGraph };
-
-        tool.assignPoreVolume(G.poreVolume());
-
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = Hack::convert_flux_to_SI(extractFluxField(G));
-        tool.assignConnectionFlux(connectionsVals);
-
-        Opm::ECLWellSolution wsol = Opm::ECLWellSolution{};
-
-        const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
-            wsol.solution(G.rawResultData(), G.numGrids());
-
-        tool.assignInflowFlux(extractWellFlows(G, well_fluxes));
-
-        return tool;
-    }
-
-  
 
 }
 
