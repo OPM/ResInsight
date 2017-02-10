@@ -30,6 +30,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimProject.h"
+#include "RimWellAllocationPlot.h"
 
 #include "RiuMainWindow.h"
 
@@ -435,6 +437,8 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 
+        RimEclipseWellCollection::updateWellAllocationPlots();
+
         m_applySingleColorToWells = false;
     }
 
@@ -471,6 +475,24 @@ void RimEclipseWellCollection::assignDefaultWellColors()
             well->wellPipeColor = col;
             well->updateConnectedEditors();
         }
+    }
+
+    RimEclipseWellCollection::updateWellAllocationPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWellCollection::updateWellAllocationPlots()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<RimWellAllocationPlot*> wellAllocationPlots;
+    proj->descendantsIncludingThisOfType(wellAllocationPlots);
+
+    for (auto wap : wellAllocationPlots)
+    {
+        wap->loadDataAndUpdate();
     }
 }
 

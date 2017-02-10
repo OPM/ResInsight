@@ -119,6 +119,11 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
+
+    if (changedField == &wellPipeColor)
+    {
+        RimEclipseWellCollection::updateWellAllocationPlots();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
