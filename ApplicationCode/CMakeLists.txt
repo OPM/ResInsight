@@ -79,6 +79,7 @@ set( APPLICATION_FILES
     Application/RiaImageCompareReporter.cpp
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
+    Application/RiaColorTables.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
