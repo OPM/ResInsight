@@ -42,6 +42,8 @@ namespace caf
         setDefault(RimFractureTemplate::TRANSVERSE_WELL_PATH);
     }
 
+    template<>
+
     void caf::AppEnum< RimFractureTemplate::FracConductivityEnum>::setUp()
     {
         addItem(RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite conductivity in fracture");
