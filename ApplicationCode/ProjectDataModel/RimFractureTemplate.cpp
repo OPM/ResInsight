@@ -41,6 +41,14 @@ namespace caf
 
         setDefault(RimFractureTemplate::TRANSVERSE_WELL_PATH);
     }
+
+    void caf::AppEnum< RimFractureTemplate::FracConductivityEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite conductivity in fracture");
+        addItem(RimFractureTemplate::FINITE_CONDUCTIVITY, "FiniteConductivity", "Finite conductivity in fracture");
+
+        setDefault(RimFractureTemplate::INFINITE_CONDUCTIVITY);
+    }
 }
 
 
@@ -58,6 +66,9 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
     CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&skinFactor, "SkinFactor", 1.0f, "Skin Factor", "", "", "");
+
+    CAF_PDM_InitField(&fractureConductivity, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(INFINITE_CONDUCTIVITY), "Fracture conductivity", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------

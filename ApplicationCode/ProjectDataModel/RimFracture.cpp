@@ -56,6 +56,7 @@
 
 #include "clipper/clipper.hpp"
 #include <math.h>
+#include <QDebug>
 
 
 
@@ -271,6 +272,18 @@ cvf::Mat4f RimFracture::transformMatrix()
 //--------------------------------------------------------------------------------------------------
 void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 { 
+
+    //TODO: Handle case with finite conductivity in fracture
+    if (attachedFractureDefinition())
+    {
+        if (attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
+        {
+            qDebug() << "Transimssibility for finite conductity in fracture not yet implemented.";
+            qDebug() << "Performing calculation for infinite conductivity instead.";
+        }
+    }
+
+
     RigEclipseCaseData* eclipseCaseData = caseToApply->reservoirData();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;

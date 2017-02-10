@@ -165,6 +165,7 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     geometryGroup->add(&azimuthAngle);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
+    propertyGroup->add(&fractureConductivity);
     propertyGroup->add(&permeability);
     propertyGroup->add(&width);
     propertyGroup->add(&skinFactor);

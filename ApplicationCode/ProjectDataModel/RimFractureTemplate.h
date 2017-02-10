@@ -53,6 +53,13 @@ public:
         TRANSVERSE_WELL_PATH
     };
     caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientation;
+
+    enum FracConductivityEnum
+    {
+        INFINITE_CONDUCTIVITY,
+        FINITE_CONDUCTIVITY,
+    };
+    caf::PdmField< caf::AppEnum< FracConductivityEnum > >  fractureConductivity;
     
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
