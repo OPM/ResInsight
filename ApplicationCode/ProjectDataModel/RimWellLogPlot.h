@@ -69,6 +69,7 @@ public:
 
     QString                                         depthPlotTitle() const;
     bool                                            isTrackLegendsVisible() const;
+    void                                            setTrackLegendsVisible(bool doShow);
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
