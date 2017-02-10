@@ -20,6 +20,9 @@
 
 #include "RigStimPlanFractureDefinition.h"
 
+#include "RimFracture.h"
+#include "RimProject.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmUiFilePathEditor.h"
 
@@ -40,8 +43,10 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_StimPlanFileName, "StimPlanFileName", QString(""), "StimPlan File Name", "", "", "");
-    m_StimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_stimPlanFileName, "StimPlanFileName", QString(""), "StimPlan File Name", "", "", "");
+    m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Depth of Well Path at Fracture", "", "", "");
 
 
 }
@@ -59,7 +64,7 @@ RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate()
 void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 
-    if (&m_StimPlanFileName == changedField)
+    if (&m_stimPlanFileName == changedField)
     {
         updateUiTreeName();
         QString errorMessage;
@@ -69,6 +74,30 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
             QMessageBox::warning(nullptr, "StimPlanFile", errorMessage);
         }
     }
+
+    if (&wellPathDepthAtFracture == changedField)
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            //Regenerate geometry
+            std::vector<RimFracture*> fractures;
+            proj->descendantsIncludingThisOfType(fractures);
+
+            for (RimFracture* fracture : fractures)
+            {
+                if (fracture->attachedFractureDefinition() == this)
+                {
+                    fracture->setRecomputeGeometryFlag();
+                }
+            }
+        }
+
+        proj->createDisplayModelAndRedrawAllViews();
+    }
+
+
 }
 
 
@@ -77,7 +106,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::updateUiTreeName()
 {
-    this->uiCapability()->setUiName(fileNameWoPath());
+    this->uiCapability()->setUiName(fileNameWithOutPath());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +114,7 @@ void RimStimPlanFractureTemplate::updateUiTreeName()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::setFileName(const QString& fileName)
 {
-    m_StimPlanFileName = fileName;
+    m_stimPlanFileName = fileName;
 
     updateUiTreeName();
 }
@@ -95,15 +124,15 @@ void RimStimPlanFractureTemplate::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 const QString& RimStimPlanFractureTemplate::fileName()
 {
-    return m_StimPlanFileName();
+    return m_stimPlanFileName();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimStimPlanFractureTemplate::fileNameWoPath()
+QString RimStimPlanFractureTemplate::fileNameWithOutPath()
 {
-    QFileInfo stimplanfileFileInfo(m_StimPlanFileName());
+    QFileInfo stimplanfileFileInfo(m_stimPlanFileName());
     return stimplanfileFileInfo.fileName();
 }
 
@@ -112,15 +141,15 @@ QString RimStimPlanFractureTemplate::fileNameWoPath()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 {
-    QFile dataFile(m_StimPlanFileName());
+    QFile dataFile(m_stimPlanFileName());
 
     if (!dataFile.open(QFile::ReadOnly))
     {
-        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_StimPlanFileName()) + "\n";
+        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_stimPlanFileName()) + "\n";
         return;
     }
 
-    m_StimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
+    m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
 
     QXmlStreamReader xmlStream;
     xmlStream.setDevice(&dataFile);
@@ -137,12 +166,12 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 
            if (xmlStream.name() == "xs")
             {   
-                m_StimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
+                m_stimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
             }
 
             else if (xmlStream.name() == "ys")
             {
-                m_StimPlanFractureDefinitionData->gridYs = getGriddingValues(xmlStream);
+                m_stimPlanFractureDefinitionData->gridYs = getGriddingValues(xmlStream);
 
             }
 
@@ -154,22 +183,22 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
             else if (xmlStream.name() == "time")
             {
                 double timeStepValue = getAttributeValueDouble(xmlStream, "value");
-                m_StimPlanFractureDefinitionData->timeSteps.push_back(timeStepValue);
+                m_stimPlanFractureDefinitionData->timeSteps.push_back(timeStepValue);
                 
                 std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream);
                 
                 if (parameter == "CONDUCTIVITY")
                 {
-                    m_StimPlanFractureDefinitionData->conductivities.push_back(propertyValuesAtTimestep);
+                    m_stimPlanFractureDefinitionData->conductivities.push_back(propertyValuesAtTimestep);
                 }
 
                 if (parameter == "PERMEABILITY")
                 {
-                    m_StimPlanFractureDefinitionData->permeabilities.push_back(propertyValuesAtTimestep);
+                    m_stimPlanFractureDefinitionData->permeabilities.push_back(propertyValuesAtTimestep);
                 }
                 if (parameter == "WIDTH")
                 {
-                    m_StimPlanFractureDefinitionData->widths.push_back(propertyValuesAtTimestep);
+                    m_stimPlanFractureDefinitionData->widths.push_back(propertyValuesAtTimestep);
                 }
             }
         }
@@ -203,7 +232,7 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::getAllDepthDataAtT
         if (xmlStream.name() == "depth")
         {
             double depth = xmlStream.readElementText().toDouble();
-            m_StimPlanFractureDefinitionData->depths.push_back(depth);
+            m_stimPlanFractureDefinitionData->depths.push_back(depth);
             std::vector<double> propertyValuesAtDepth;
 
             xmlStream.readNext(); //read end depth token
@@ -231,7 +260,7 @@ std::vector<double> RimStimPlanFractureTemplate::getGriddingValues(QXmlStreamRea
     QString gridValuesString = xmlStream.readElementText().replace('\n', ' ');
     for (QString value : gridValuesString.split(' '))
     {
-        gridValues.push_back(value.toDouble());
+        if (value.size()>0) gridValues.push_back(value.toDouble());
     }
 
     return gridValues;
@@ -275,7 +304,77 @@ QString RimStimPlanFractureTemplate::getAttributeValueString(QXmlStreamReader &x
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices)
 {
-    //TODO
+    
+    if (m_stimPlanFractureDefinitionData.isNull())
+    {
+        return;
+        //TODO: try to read in data again if missing... 
+    }
+
+    for (const double& depth : adjustedDepthCoordsAroundWellPathPosition())
+    {
+        for (const double& negXcoord : getNegAndPosXcoords())
+        {
+            cvf::Vec3f node = cvf::Vec3f(negXcoord, depth, 0);
+            nodeCoords->push_back(node);
+        }
+    }
+
+
+    cvf::uint lenXcoords = static_cast<cvf::uint>(getNegAndPosXcoords().size());
+
+    for (cvf::uint k = 0; k < adjustedDepthCoordsAroundWellPathPosition().size()-1; k++)
+    {
+        for (cvf::uint i = 0; i < lenXcoords-1; i++)
+        {
+            //Upper triangle
+            triangleIndices->push_back(i + k*lenXcoords);
+            triangleIndices->push_back((i+1) + k*lenXcoords);
+            triangleIndices->push_back((i+1) + (k+1)*lenXcoords);
+            //Lower triangle
+            triangleIndices->push_back(i + k*lenXcoords);
+            triangleIndices->push_back((i + 1) + (k+1)*lenXcoords);
+            triangleIndices->push_back((i) + (k+1)*lenXcoords);
+
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimStimPlanFractureTemplate::getNegAndPosXcoords()
+{
+    std::vector<double> allXcoords;
+    for (const double& xCoord : m_stimPlanFractureDefinitionData->gridXs)
+    {
+        if (xCoord > 1e-5)
+        {
+            double negXcoord = -xCoord;
+            allXcoords.insert(allXcoords.begin(), negXcoord);
+        }
+    }
+    for (const double& xCoord : m_stimPlanFractureDefinitionData->gridXs)
+    {
+        allXcoords.push_back(xCoord);
+    }
+
+    return allXcoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellPathPosition()
+{
+    std::vector<double> depthRelativeToWellPath;
+
+    for (const double& depth : m_stimPlanFractureDefinitionData->depths)
+    {
+        double adjustedDepth = depth - wellPathDepthAtFracture();
+        depthRelativeToWellPath.push_back(adjustedDepth);
+    }
+    return depthRelativeToWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,7 +385,7 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
      std::vector<cvf::Vec3f> polygon;
 
      //TODO: Handle multiple time-step and properties
-     std::vector<std::vector<double>> ConductivitiesAtTimeStep = m_StimPlanFractureDefinitionData->conductivities[0];
+     std::vector<std::vector<double>> ConductivitiesAtTimeStep = m_stimPlanFractureDefinitionData->conductivities[0];
 
      for (int k = 0; k < ConductivitiesAtTimeStep.size(); k++)
      {
@@ -298,14 +397,14 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
                  {
                      if ((ConductivitiesAtTimeStep[k])[(i + 1)] < 1e-7)
                      {
-                         polygon.push_back(cvf::Vec3f(static_cast<float>(m_StimPlanFractureDefinitionData->gridXs[i]),
-                             static_cast<float>(m_StimPlanFractureDefinitionData->depths[k]), 0.0f));
+                         polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
+                             static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
                      }
                  }
                  else
                  {
-                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_StimPlanFractureDefinitionData->gridXs[i]),
-                         static_cast<float>(m_StimPlanFractureDefinitionData->depths[k]), 0.0f));
+                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
+                         static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
                  }
              }
          }
@@ -338,13 +437,14 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("File");
-    fileGroup->add(&m_StimPlanFileName);
+    fileGroup->add(&m_stimPlanFileName);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
+    propertyGroup->add(&fractureConductivity);
     propertyGroup->add(&skinFactor);
 }
 
