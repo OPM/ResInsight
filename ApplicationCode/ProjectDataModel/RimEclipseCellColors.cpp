@@ -281,7 +281,16 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            this->legendConfig()->setNamedCategories(this->flowDiagSolution()->tracerNames());
+            std::vector<cvf::Color3ub> categoryColors;
+
+            std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
+            for (const auto& tracerName : tracerNames)
+            {
+                categoryColors.push_back(cvf::Color3ub(this->flowDiagSolution()->tracerColor(tracerName)));
+            }
+
+            this->legendConfig()->setNamedCategories(tracerNames);
+            this->legendConfig()->setCategoryColors(categoryColors);
         }
     }
     else

@@ -308,7 +308,15 @@ void RimLegendConfig::updateLegend()
        break;
    case CATEGORY_INTEGER:
        m_categoryMapper->setCategoriesWithNames(m_categories, m_categoryNames);
-       m_categoryMapper->setInterpolateColors(legendColors);
+
+       if (m_categoryColors.size() > 0)
+       {
+            m_categoryMapper->setCycleColors(m_categoryColors);
+       }
+       else
+       {
+            m_categoryMapper->setInterpolateColors(legendColors);
+       }
        m_currentScalarMapper = m_categoryMapper.p();
        break;
    default:
@@ -570,6 +578,7 @@ void RimLegendConfig::setIntegerCategories(const std::vector<int>& categories)
 {
     m_categories = categories;
     m_categoryNames.clear();
+    m_categoryColors.clear();
 
     updateLegend();
 }
@@ -589,6 +598,7 @@ void RimLegendConfig::setNamedCategoriesInverse(const std::vector<QString>& cate
     
     m_categories = nameIndices;
     m_categoryNames = names;
+    m_categoryColors.clear();
 
     updateLegend();
 }
@@ -609,8 +619,21 @@ void RimLegendConfig::setNamedCategories(const std::vector<QString>& categoryNam
 
     m_categories = nameIndices;
     m_categoryNames = names;
+    m_categoryColors.clear();
 
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setCategoryColors(const std::vector<cvf::Color3ub>& categoryColors)
+{
+    if (m_categoryNames.size() == categoryColors.size())
+    {
+        m_categoryColors = cvf::Color3ubArray(categoryColors);
+        updateLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

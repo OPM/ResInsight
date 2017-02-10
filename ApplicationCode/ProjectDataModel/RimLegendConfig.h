@@ -108,6 +108,7 @@ public:
     void                                        setIntegerCategories(const std::vector<int>& categories);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
     void                                        setNamedCategories(const std::vector<QString>& categoryNames);
+    void                                        setCategoryColors(const std::vector<cvf::Color3ub>& categoryColors);
 
     void                                        setTitle(const cvf::String& title);
 
@@ -156,6 +157,7 @@ private:
     
     std::vector<int>                            m_categories;
     std::vector<cvf::String>                    m_categoryNames;
+    cvf::Color3ubArray                          m_categoryColors;
 
     // Fields
     caf::PdmField<int>                          m_numLevels;
