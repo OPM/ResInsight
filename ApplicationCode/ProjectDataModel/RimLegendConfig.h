@@ -123,11 +123,12 @@ protected:
 private:
     void                                        updateLegend();
     void                                        updateFieldVisibility();
-    cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
     friend class RimViewLinker;
     void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
+    
+    static cvf::Color3ubArray                   colorArrayFromColorType(ColorRangesType colorType);
 
 private:
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
