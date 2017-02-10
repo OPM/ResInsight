@@ -154,23 +154,15 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon()
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
+
     uiOrdering.add(&name);
 
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry definition");
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
     geometryGroup->add(&halfLength);
     geometryGroup->add(&height);
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
-
-    if (orientation == RimFractureTemplate::ALONG_WELL_PATH
-        || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
-    {
-        azimuthAngle.uiCapability()->setUiReadOnly(true);
-    }
-    else if (orientation == RimFractureTemplate::AZIMUTH)
-    {
-        azimuthAngle.uiCapability()->setUiReadOnly(false);
-    }
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
     propertyGroup->add(&permeability);

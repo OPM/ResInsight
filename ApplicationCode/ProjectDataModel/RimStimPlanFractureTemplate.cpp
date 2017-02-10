@@ -333,6 +333,18 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 
+    uiOrdering.add(&name);
+
+    caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("File");
+    fileGroup->add(&m_StimPlanFileName);
+
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
+    geometryGroup->add(&orientation);
+    geometryGroup->add(&azimuthAngle);
+
+    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
+    propertyGroup->add(&skinFactor);
 }
 

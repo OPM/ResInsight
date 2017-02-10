@@ -90,5 +90,13 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&name);
+    if (orientation == RimFractureTemplate::ALONG_WELL_PATH
+        || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    {
+        azimuthAngle.uiCapability()->setUiHidden(true);
+    }
+    else if (orientation == RimFractureTemplate::AZIMUTH)
+    {
+        azimuthAngle.uiCapability()->setUiHidden(false);
+    }
 }
