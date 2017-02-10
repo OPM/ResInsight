@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaColorTables.h"
 
 #include "RigMainGrid.h"
 
@@ -31,8 +32,6 @@
 #include "RimNoCommonAreaNncCollection.h"
 
 #include "RiuMainWindow.h"
-
-#include "RivColorTableArray.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
@@ -187,7 +186,7 @@ void RimFaultCollection::syncronizeFaults()
 {
     if (!(m_reservoirView && m_reservoirView->mainGrid()) ) return;
 
-    cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
+    const caf::ColorTable& colorTable = RiaColorTables::faultsPaletteColors();
 
     const cvf::Collection<RigFault> constRigFaults = m_reservoirView->mainGrid()->faults();
 
@@ -246,7 +245,7 @@ void RimFaultCollection::syncronizeFaults()
         if (!rimFault)
         {
             rimFault = new RimFault();
-            rimFault->faultColor = partColors->get(fIdx % partColors->size());
+            rimFault->faultColor = colorTable.cycledColor3f(fIdx);
             QString faultName = rigFaults[fIdx]->name();
 
             if (faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
