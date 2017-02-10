@@ -26,7 +26,6 @@ ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuResultTextBuilder.h
 ${CEE_CURRENT_LIST_DIR}RiuRmsNavigation.h
 ${CEE_CURRENT_LIST_DIR}RiuSelectionChangedHandler.h
-${CEE_CURRENT_LIST_DIR}RiuSelectionColors.h
 ${CEE_CURRENT_LIST_DIR}RiuSelectionManager.h
 ${CEE_CURRENT_LIST_DIR}RiuSimpleHistogramWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
@@ -65,7 +64,6 @@ ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultTextBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRmsNavigation.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSelectionChangedHandler.cpp
-${CEE_CURRENT_LIST_DIR}RiuSelectionColors.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSelectionManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSimpleHistogramWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.cpp

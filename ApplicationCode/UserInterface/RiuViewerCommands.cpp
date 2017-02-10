@@ -20,6 +20,7 @@
 #include "RiuViewerCommands.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RicViewerEventInterface.h"
 #include "RicEclipsePropertyFilterNewExec.h"
@@ -55,7 +56,6 @@
 #include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
-#include "RiuSelectionColors.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -579,10 +579,16 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             appendToSelection = true;
         }
 
-        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
-        if (RiuSelectionManager::instance()->isEmpty() || !appendToSelection)
+        std::vector<RiuSelectionItem*> items;
+        RiuSelectionManager::instance()->selectedItems(items);
+
+        const caf::ColorTable& colorTable = RiaColorTables::selectionPaletteColors();
+
+        cvf::Color3f curveColor = colorTable.cycledColor3f(items.size());
+
+        if (!appendToSelection)
         {
-            curveColor = RiuSelectionColors::singleCurveColor();
+            curveColor = colorTable.cycledColor3f(0);
         }
 
         RiuSelectionItem* selItem = NULL;
