@@ -41,7 +41,7 @@ RimSimWellFracture::RimSimWellFracture(void)
 {
     CAF_PDM_InitObject("SimWellFracture", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_location, "MeasuredDepth", 0.0f, "Measured Depth Location", "", "", "");
+    CAF_PDM_InitField(&m_location, "MeasuredDepth", 0.0f, "Pseudo Length Location", "", "", "");
     m_location.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_branchIndex, "Branch", 0, "Branch", "", "", "");
