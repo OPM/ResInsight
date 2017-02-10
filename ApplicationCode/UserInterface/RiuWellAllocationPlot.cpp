@@ -51,6 +51,12 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     font.setBold(true);
     m_titleLabel->setFont(font);
 
+    // White background
+    QPalette pal = this->palette();
+    pal.setColor(QPalette::Background, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(pal);
+
     mainLayout->addWidget(m_titleLabel, 0, Qt::AlignCenter);
 
     QHBoxLayout* plotWidgetsLayout =  new QHBoxLayout();

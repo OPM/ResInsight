@@ -68,6 +68,7 @@ public:
 
 
     QString                                         depthPlotTitle() const;
+    bool                                            isTrackLegendsVisible() const;
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
@@ -134,6 +135,7 @@ private:
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;
     caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
+    caf::PdmField<bool>                             m_showTrackLegends;
 
     double                                          m_minAvailableDepth;
     double                                          m_maxAvailableDepth;

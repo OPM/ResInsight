@@ -73,6 +73,7 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
     CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
+    CAF_PDM_InitField(&m_showTrackLegends, "ShowTrackLegends", true, "Show Legends", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
@@ -115,11 +116,18 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateMdiWindowTitle();
     }
 
-    if (changedField == &m_depthType ||
-        changedField == &m_depthUnit)
+    if (   changedField == &m_depthType 
+        || changedField == &m_depthUnit)
     {
         updateTracks();
     }
+
+    if ( changedField == &m_showTrackLegends)
+    {
+        updateTracks();
+        if (m_viewer) m_viewer->updateChildrenLayout();
+    }
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -396,6 +404,8 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
 
+    uiOrdering.add(&m_showTrackLegends);
+
     uiOrdering.setForgetRemainingFields(true);
 }
 
@@ -617,6 +627,14 @@ QString RimWellLogPlot::depthPlotTitle() const
     }
 
     return depthTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::isTrackLegendsVisible() const
+{
+    return m_showTrackLegends();
 }
 
 //--------------------------------------------------------------------------------------------------

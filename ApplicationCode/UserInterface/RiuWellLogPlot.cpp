@@ -96,6 +96,11 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
 
     this->connect(trackPlot,  SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(scheduleUpdateChildrenLayout()));
  
+    if (!m_plotDefinition->isTrackLegendsVisible())
+    {
+        legend->hide();
+    }
+
     trackPlot->updateLegend();
 
     if (trackPlot->isRimTrackVisible())
@@ -263,18 +268,20 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 
     int maxLegendHeight = 0;
 
-    for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+    if (m_plotDefinition->isTrackLegendsVisible())
     {
-        if (m_trackPlots[tIdx]->isVisible())
+        for ( int tIdx = 0; tIdx < trackCount; ++tIdx )
         {
-            int legendHeight = m_legends[tIdx]->sizeHint().height();
-            if (legendHeight > maxLegendHeight) maxLegendHeight = legendHeight;
+            if ( m_trackPlots[tIdx]->isVisible() )
+            {
+                int legendHeight = m_legends[tIdx]->sizeHint().height();
+                if ( legendHeight > maxLegendHeight ) maxLegendHeight = legendHeight;
+            }
         }
     }
 
     int trackHeight = height - maxLegendHeight;
     int trackX = 0;
-
 
     if (visibleTrackCount)
     {
