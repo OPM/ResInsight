@@ -36,10 +36,10 @@ RigFracture::RigFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFracture::setGeometry(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords)
+void RigFracture::setGeometry(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords)
 {
     m_nodeCoords = nodeCoords;
-    m_triangleIndices = polygonIndices;
+    m_triangleIndices = triangleIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

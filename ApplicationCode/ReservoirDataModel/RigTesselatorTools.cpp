@@ -31,7 +31,7 @@ RigEllipsisTesselator::RigEllipsisTesselator(size_t numSlices)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEllipsisTesselator::tesselateEllipsis(float a, float b, std::vector<cvf::uint>* polygonIndices, std::vector<cvf::Vec3f>* nodeCoords)
+void RigEllipsisTesselator::tesselateEllipsis(float a, float b, std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords)
 {
     // See http://mathworld.wolfram.com/Ellipse.html
 
@@ -43,7 +43,7 @@ void RigEllipsisTesselator::tesselateEllipsis(float a, float b, std::vector<cvf:
         nodeCoords->push_back(v);
     }
 
-    *polygonIndices = m_circleConnectivities;
+    *triangleIndices = m_circleConnectivities;
 }
 
 //--------------------------------------------------------------------------------------------------

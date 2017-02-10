@@ -119,14 +119,14 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices)
+void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices)
 {
     RigEllipsisTesselator tesselator(20);
 
     float a = halfLength;
     float b = height / 2.0f;
 
-    tesselator.tesselateEllipsis(a, b, polygonIndices, nodeCoords);
+    tesselator.tesselateEllipsis(a, b, triangleIndices, nodeCoords);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,9 +137,9 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon()
     std::vector<cvf::Vec3f> polygon;
 
     std::vector<cvf::Vec3f> nodeCoords;
-    std::vector<cvf::uint>  polygonIndices;
+    std::vector<cvf::uint>  triangleIndices;
 
-    fractureGeometry(&nodeCoords, &polygonIndices);
+    fractureGeometry(&nodeCoords, &triangleIndices);
 
     for (size_t i = 1; i < nodeCoords.size(); i++)
     {

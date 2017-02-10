@@ -58,7 +58,7 @@ public:
     std::vector<double>                 getGriddingValues(QXmlStreamReader &xmlStream);
     std::vector<std::vector<double>>    getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream);
 
-    void                                fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
+    void                                fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices);
     std::vector<cvf::Vec3f>             fracturePolygon();
 
 protected:

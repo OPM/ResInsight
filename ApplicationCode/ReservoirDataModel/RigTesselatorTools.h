@@ -32,7 +32,7 @@ class RigEllipsisTesselator
 public:
     RigEllipsisTesselator(size_t numSlices);
 
-    void tesselateEllipsis(float a, float b, std::vector<cvf::uint>* polygonIndices, std::vector<cvf::Vec3f>* nodeCoords);
+    void tesselateEllipsis(float a, float b, std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords);
 
 private:
     void computeCirclePoints(size_t numSlices);

@@ -216,12 +216,12 @@ cvf::Vec3d RimFracture::fracturePosition() const
 void RimFracture::computeGeometry()
 {
     std::vector<cvf::Vec3f> nodeCoords;
-    std::vector<cvf::uint>  polygonIndices;
+    std::vector<cvf::uint>  triangleIndices;
 
     RimFractureTemplate* fractureDef = attachedFractureDefinition();
     if (fractureDef )
     {
-        fractureDef->fractureGeometry(&nodeCoords, &polygonIndices);
+        fractureDef->fractureGeometry(&nodeCoords, &triangleIndices);
     }
 
     cvf::Mat4f m = transformMatrix();
@@ -231,7 +231,7 @@ void RimFracture::computeGeometry()
         v.transformPoint(m);
     }
 
-    m_rigFracture->setGeometry(polygonIndices, nodeCoords); 
+    m_rigFracture->setGeometry(triangleIndices, nodeCoords); 
 
     m_recomputeGeometry = false;
 }

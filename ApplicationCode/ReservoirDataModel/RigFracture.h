@@ -58,7 +58,7 @@ class RigFracture : public cvf::Object
 public:
     RigFracture();
 
-    void setGeometry(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+    void setGeometry(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
     const std::vector<cvf::uint>&  triangleIndices() const;
     const std::vector<cvf::Vec3f>& nodeCoords() const;

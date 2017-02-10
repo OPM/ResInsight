@@ -57,7 +57,7 @@ public:
 private:
     void updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform);
 
-    static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+    static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
 private:
     caf::PdmPointer<RimFracture> m_rimFracture;
