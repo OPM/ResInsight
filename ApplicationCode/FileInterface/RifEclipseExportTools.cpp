@@ -106,7 +106,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     out << "\n";
 
-    out << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
+    out << qSetFieldWidth(7) << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
     for (RimFracture* fracture : fractures)
     {
         fracture->computeTransmissibility(caseToApply);
@@ -125,6 +125,8 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
         progress++;
         pi.setProgress(progress);
     }
+
+    out << "/ \n";
 
     return true;
 }
@@ -158,7 +160,7 @@ void RifEclipseExportTools::printCOMPDATvalues(QTextStream & out, RigFractureDat
 
     out << qSetFieldWidth(12);
     // 8. Transmissibility 
-    if (fracData.transmissibility != cvf::UNDEFINED_DOUBLE) out << QString::number(fracData.transmissibility, 'g', 6);
+    if (fracData.transmissibility != cvf::UNDEFINED_DOUBLE) out << QString::number(fracData.transmissibility, 'e', 4);
     else out << "UNDEF";
 
     out << qSetFieldWidth(4);
@@ -217,9 +219,12 @@ void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
     out << "DY";
     out << "DZ";
 
+    out << qSetFieldWidth(12);
     out << "PermX";
     out << "PermY";
     out << "PermZ";
+
+    out << qSetFieldWidth(8);
     out << "NTG";
 
     out << qSetFieldWidth(12);
@@ -230,6 +235,9 @@ void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
     out << qSetFieldWidth(15);
     out << "Transm";
 
+    out << qSetFieldWidth(20);
+    out << "Status";
+
     out << "\n";
 }
 
@@ -238,24 +246,10 @@ void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFractureData &fracData)
 {
-    if (!fracData.cellIsActive)
-    {
-        out << qSetFieldWidth(20);
-        out << "-- INACTIVE CELL ";
-    }
-    
-    else if (fracData.cellIsActive && fracData.transmissibility > 0)
-    {
-        out << qSetFieldWidth(4);
-        out << "--";
-    }
-    else
-    {
-        out << qSetFieldWidth(20);
-        out << "-- INVALID DATA ";
-    }
-    out << qSetFieldWidth(12);
+    out << qSetFieldWidth(4);
+    out << "-- ";
 
+    out << qSetFieldWidth(12);
     wellPath, simWell = nullptr;
     fracture->firstAncestorOrThisOfType(simWell);
     if (simWell) out << simWell->name + " " ;    // 1. Well name 
@@ -288,9 +282,12 @@ void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* 
     out << QString::number(fracData.cellSizes.y(), 'f', 2);
     out << QString::number(fracData.cellSizes.z(), 'f', 2);
 
-    out << QString::number(fracData.permeabilities.x(), 'f', 4);
-    out << QString::number(fracData.permeabilities.y(), 'f', 4);
-    out << QString::number(fracData.permeabilities.z(), 'f', 4);
+    out << qSetFieldWidth(12);
+    out << QString::number(fracData.permeabilities.x(), 'e', 3);
+    out << QString::number(fracData.permeabilities.y(), 'e', 3);
+    out << QString::number(fracData.permeabilities.z(), 'e', 3);
+
+    out << qSetFieldWidth(8);
     out << QString::number(fracData.NTG, 'f', 2);
 
     out << qSetFieldWidth(12);
@@ -299,7 +296,24 @@ void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* 
     out << QString::number(fracData.transmissibilities.z(), 'e', 3);
 
     out << qSetFieldWidth(15);
-    out << QString::number(fracData.transmissibility, 'f', 3);
+    out << QString::number(fracData.transmissibility, 'e', 3);
+
+    if (!fracData.cellIsActive)
+    {
+        out << qSetFieldWidth(20);
+        out << " INACTIVE CELL ";
+    }
+
+    else if (fracData.cellIsActive && fracData.transmissibility > 0)
+    {
+        out << qSetFieldWidth(20);
+        out << " ACTIVE CELL ";
+    }
+    else
+    {
+        out << qSetFieldWidth(20);
+        out << " INVALID DATA ";
+    }
 
     out << "\n";
 
