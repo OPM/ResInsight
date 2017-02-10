@@ -120,7 +120,6 @@ public:
     void                                updateStateForVisibilityCheckboxes();
 
     
-    static cvf::Color3f                 cycledPaletteColor(size_t colorIndex);
     void                                assignDefaultWellColors();
 
 protected:

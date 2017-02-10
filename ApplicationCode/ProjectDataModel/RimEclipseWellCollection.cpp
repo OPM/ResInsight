@@ -21,6 +21,7 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
 #include "RigEclipseCaseData.h"
@@ -458,12 +459,14 @@ void RimEclipseWellCollection::assignDefaultWellColors()
 
     cvf::Collection<RigSingleWellResultsData> wellResults = rimEclipseCase->reservoirData()->wellResults();
 
+    const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
+
     for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
     {
         RimEclipseWell* well = this->findWell(wellResults[wIdx]->m_wellName);
         if (well)
         {
-            cvf::Color3f col = cycledPaletteColor(wIdx);
+            cvf::Color3f col = colorTable.cycledColor3f(wIdx);
 
             well->wellPipeColor = col;
             well->updateConnectedEditors();
@@ -726,39 +729,6 @@ void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex
 
         m_framesOfResultWellPipeVisibilities[frameIndex][well->resultWellIndex()] = wellPipeVisible || wellSphereVisible;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// TODO: Consider creating a factory for colors, see also RimSummaryCurveAppearanceCalculator
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f RimEclipseWellCollection::cycledPaletteColor(size_t colorIndex)
-{
-    static const size_t colorCount = 15;
-    static const cvf::ubyte colorData[][3] =
-    {
-      {  0,  112, 136 }, // Dark Green-Blue
-      { 202,   0,   0 }, // Red
-      { 78,  204,   0 }, // Clear Green
-      { 236, 118,   0 }, // Orange
-      {  0 ,   0,   0 }, // Black
-      { 56,   56, 255 }, // Vivid Blue
-      { 248,   0, 170 }, // Magenta
-      { 169,   2, 240 }, // Purple
-      { 0,   221, 221 }, // Turquoise
-      { 201, 168, 206 }, // Light Violet
-      { 0,   205,  68 }, // Bluish Green
-      { 236, 188,   0 }, // Mid Yellow
-      { 51,  204, 255 },  // Bluer Turquoise
-      { 164, 193,   0 }, // Mid Yellowish Green
-      { 0,   143, 239 }, // Dark Light Blue
-    };
-
-    size_t paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-
-    return cvfColor;
 }
 
 bool lessEclipseWell(const caf::PdmPointer<RimEclipseWell>& w1,  const caf::PdmPointer<RimEclipseWell>& w2)

@@ -42,7 +42,6 @@ CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "RimWellFlowRateCurve");
 RimWellFlowRateCurve::RimWellFlowRateCurve()
 {
     CAF_PDM_InitObject("Flow Rate Curve", "", "", "");
-    m_curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
 }
 
 //--------------------------------------------------------------------------------------------------

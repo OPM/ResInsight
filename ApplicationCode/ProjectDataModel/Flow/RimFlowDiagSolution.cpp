@@ -18,7 +18,7 @@
 
 #include "RimFlowDiagSolution.h"
 
-#include "RimEclipseResultCase.h"
+#include "RiaColorTables.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -26,6 +26,8 @@
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
+
+#include "RimEclipseResultCase.h"
 #include "RimEclipseWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
@@ -283,12 +285,13 @@ cvf::Color3f RimFlowDiagSolution::tracerColor(QString tracerName)
     {
         const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
 
+        const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
+
         for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
         {
             if ( wellResults[wIdx]->m_wellName == tracerName )
             {
-
-                return RimEclipseWellCollection::cycledPaletteColor(wIdx);
+                return colorTable.cycledColor3f(wIdx);
             }
         }
     }

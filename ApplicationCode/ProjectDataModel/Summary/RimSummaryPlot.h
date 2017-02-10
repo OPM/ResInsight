@@ -61,6 +61,7 @@ public:
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
 
     RimSummaryCurve*                                findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
+    size_t                                          curveCount() const;
     
     void                                            loadDataAndUpdate();
 

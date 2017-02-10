@@ -28,7 +28,6 @@
 #include "RimSummaryYAxisProperties.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuSelectionColors.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cvfBase.h"
@@ -707,4 +706,12 @@ RimSummaryCurve* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qw
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimSummaryPlot::curveCount() const
+{
+    return m_curves.size();
 }

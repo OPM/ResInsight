@@ -134,10 +134,11 @@ RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWell
     CVF_ASSERT(plotTrack);
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
 
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
     curve->setColor(curveColor);
     curve->setWellPath(wellPath);
     curve->setPropertiesFromView(view);
+
     plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();

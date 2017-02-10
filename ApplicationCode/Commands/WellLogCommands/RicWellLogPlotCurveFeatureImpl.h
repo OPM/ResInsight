@@ -30,7 +30,7 @@ class RimWellAllocationPlot;
 class RicWellLogPlotCurveFeatureImpl
 {
 public:
-    static cvf::Color3f curveColorFromTable();
+    static cvf::Color3f curveColorFromTable(size_t index);
     static std::vector<RimWellLogCurve*> selectedWellLogCurves();
     static RimWellAllocationPlot* parentWellAllocationPlot();
 };
