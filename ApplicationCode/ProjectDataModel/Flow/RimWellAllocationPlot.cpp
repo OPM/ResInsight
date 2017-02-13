@@ -269,7 +269,7 @@ void RimWellAllocationPlot::updateFromWell()
     /// Pie chart
 
     m_totalWellAllocationPlot->clearSlices();
-    m_wellAllocationPlotWidget->clearLegend();
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->clearLegend();
 
     if (wfCalculator)
     {
@@ -299,16 +299,16 @@ void RimWellAllocationPlot::updateFromWell()
                     color = cvf::Color3f::DARK_GRAY;
 
                 m_totalWellAllocationPlot->addSlice(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
-                m_wellAllocationPlotWidget->addLegendItem(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
+                if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->addLegendItem(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
             }
         }
     }
 
-    m_wellAllocationPlotWidget->showLegend(m_wellAllocationPlotLegend->isShowingLegend());
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->showLegend(m_wellAllocationPlotLegend->isShowingLegend());
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
-    m_wellAllocationPlotWidget->updateGeometry();
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,7 +554,7 @@ void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::showPlotLegend(bool doShow)
 {
-    m_wellAllocationPlotWidget->showLegend(doShow);
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->showLegend(doShow);
 }
 
 //--------------------------------------------------------------------------------------------------
