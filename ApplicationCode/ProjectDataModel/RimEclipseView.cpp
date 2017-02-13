@@ -1089,6 +1089,8 @@ void RimEclipseView::syncronizeWellsWithResults()
         well->setWellResults(NULL, -1);
     }
 
+    bool isAnyWellCreated = false;
+
     // Find corresponding well from well result, or create a new
 
     for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
@@ -1099,6 +1101,8 @@ void RimEclipseView::syncronizeWellsWithResults()
         {
             well = new RimEclipseWell;
             well->name = wellResults[wIdx]->m_wellName;
+
+            isAnyWellCreated = true;
         }
         newWells.push_back(well);
 
@@ -1121,6 +1125,10 @@ void RimEclipseView::syncronizeWellsWithResults()
     // Set the new wells into the field.
     this->wellCollection()->wells().insert(0, newWells);
 
+    if (isAnyWellCreated)
+    {
+        this->wellCollection()->assignDefaultWellColors();
+    }
 
     // Make sure all the wells have their reservoirView ptr setup correctly
     this->wellCollection()->setReservoirView(this);
