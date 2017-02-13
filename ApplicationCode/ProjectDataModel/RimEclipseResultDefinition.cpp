@@ -253,6 +253,43 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName)
+{
+    setResultType(RimDefines::FLOW_DIAGNOSTICS);
+    setResultVariable("TOF");
+    
+    m_flowTracerSelectionMode = FLOW_TR_BY_SELECTION;
+
+    std::vector<QString> tracers;
+    tracers.push_back(tracerName);
+    setSelectedTracers(tracers);
+
+    if (m_flowSolution() == nullptr)
+    {
+        assignFlowSolutionFromCase();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::assignFlowSolutionFromCase()
+{
+    RimEclipseResultCase* eclCase = nullptr;
+    this->firstAncestorOrThisOfType(eclCase);
+    if (eclCase)
+    {
+        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
+        if (flowSols.size() > 0)
+        {
+            this->setFlowSolution(flowSols[0]);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateResultNameHasChanged()
 {
     RimView* view = nullptr;
@@ -891,13 +928,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 
         if ( m_flowSolution() == nullptr )
         {
-            RimEclipseResultCase* eclCase;
-            this->firstAncestorOrThisOfType(eclCase);
-            if ( eclCase )
-            {
-                std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-                if (flowSols.size()){ this->setFlowSolution(flowSols[0]); } 
-            }
+            assignFlowSolutionFromCase();
         }
     }
     uiOrdering.add(&m_resultVariableUiField);

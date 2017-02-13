@@ -87,6 +87,8 @@ public:
     void                            updateResultNameHasChanged();
     void                            updateAnyFieldHasChanged();
 
+    void                            setTofAndSelectTracer(const QString& tracerName);
+
 protected:
     virtual void                    updateLegendCategorySettings() {};
 
@@ -123,6 +125,7 @@ protected:
 private:
     void                            setFlowSolution(RimFlowDiagSolution* flowSol);
     void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
+    void                            assignFlowSolutionFromCase();
 
     bool                            hasDualPorFractureResult();
 

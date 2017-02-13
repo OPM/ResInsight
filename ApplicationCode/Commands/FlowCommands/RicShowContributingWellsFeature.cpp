@@ -22,10 +22,14 @@
 
 #include "RimDefines.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimWellAllocationPlot.h"
+
+#include "RiuMainWindow.h"
 
 #include <QAction>
 
@@ -75,6 +79,27 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
                 well->showWell = false;
             }
         }
+
+        // Disable all existing property filters, and
+        // create a new property filter based on TOF for current well
+
+        RimEclipsePropertyFilterCollection* propertyFilterCollection = activeView->eclipsePropertyFilterCollection();
+
+        for (RimEclipsePropertyFilter* f : propertyFilterCollection->propertyFilters())
+        {
+            f->isActive = false;
+        }
+
+        RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
+        propertyFilterCollection->propertyFilters().push_back(propertyFilter);
+
+        propertyFilter->resultDefinition()->setEclipseCase(activeView->eclipseCase());
+        propertyFilter->resultDefinition()->setTofAndSelectTracer(wellAllocationPlot->wellName());
+        propertyFilter->resultDefinition()->updateResultNameHasChanged();
+
+        propertyFilterCollection->updateConnectedEditors();
+
+        RiuMainWindow::instance()->setExpanded(propertyFilterCollection, true);
 
         activeView->scheduleCreateDisplayModelAndRedraw();
     }
