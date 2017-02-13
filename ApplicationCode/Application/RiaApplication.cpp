@@ -70,6 +70,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
+#include "RimFlowPlotCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainPlotWindow.h"
@@ -80,6 +81,7 @@
 #include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
+#include "RiuWellAllocationPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
 #include "RicSnapshotViewToClipboardFeature.h"
@@ -114,7 +116,6 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
-#include "RimFlowPlotCollection.h"
 
 namespace caf
 {
@@ -1631,6 +1632,12 @@ RimViewWindow* RiaApplication::activeViewWindow()
             if (wellLogPlot)
             {
                 viewWindow = wellLogPlot->ownerPlotDefinition();
+            }
+
+            RiuWellAllocationPlot* wellAllocationPlot = dynamic_cast<RiuWellAllocationPlot*>(subwindows.back()->widget());
+            if (wellAllocationPlot)
+            {
+                viewWindow = wellAllocationPlot->ownerPlotDefinition();
             }
         }
     }
