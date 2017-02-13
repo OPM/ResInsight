@@ -180,6 +180,7 @@ void RimTotalWellAllocationPlot::loadDataAndUpdate()
 QWidget* RimTotalWellAllocationPlot::createViewWidget(QWidget* mainWindowParent)
 {
     m_wellTotalAllocationPlotWidget = new RiuNightchartsWidget(mainWindowParent);
+    m_wellTotalAllocationPlotWidget->showLegend(false);
     return m_wellTotalAllocationPlotWidget;
 }
 

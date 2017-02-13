@@ -54,13 +54,14 @@ public:
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
 
-public slots:
+    public slots:
     void                            updateChildrenLayout();
 
 protected:
     virtual void                    resizeEvent(QResizeEvent *event);
     virtual void                    showEvent(QShowEvent *);
     virtual void                    changeEvent(QEvent *);
+    virtual QSize                   sizeHint() const override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);

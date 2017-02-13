@@ -31,6 +31,7 @@ class RimEclipseResultCase;
 class RimEclipseWell;
 class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
+class RimWellAllocationPlotLegend;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
 class RimWellLogTrack;
@@ -70,6 +71,7 @@ public:
 
     void                                            removeFromMdiAreaAndDeleteViewWidget();
 
+    void                                            showPlotLegend(bool doShow);
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
@@ -107,4 +109,6 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
     caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
+    caf::PdmChildField<RimWellAllocationPlotLegend*> m_wellAllocationPlotLegend;
+
 };

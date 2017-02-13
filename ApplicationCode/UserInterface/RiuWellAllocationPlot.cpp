@@ -27,6 +27,8 @@
 
 #include <QBoxLayout>
 #include <QLabel>
+#include "RiuNightchartsWidget.h"
+#include "cvfColor3.h"
 
 
 
@@ -59,11 +61,19 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
 
     mainLayout->addWidget(m_titleLabel, 0, Qt::AlignCenter);
 
-    QHBoxLayout* plotWidgetsLayout =  new QHBoxLayout();
-    mainLayout->addLayout(plotWidgetsLayout, 10);
+    auto plotWidgetsLayout = new QHBoxLayout();
+    auto rightColumnLayout = new QVBoxLayout();
+
+    mainLayout->addLayout(plotWidgetsLayout);
+    plotWidgetsLayout->addLayout(rightColumnLayout);
     
+    m_legendWidget = new RiuNightchartsWidget(this);
+    rightColumnLayout->addWidget(m_legendWidget);
+    m_legendWidget->showPie(false);
+
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
-    plotWidgetsLayout->addWidget(totalFlowAllocationWidget);
+    rightColumnLayout->addWidget(totalFlowAllocationWidget);
+    rightColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
     plotWidgetsLayout->addWidget(wellFlowWidget);
@@ -104,6 +114,39 @@ void RiuWellAllocationPlot::showTitle(const QString& title)
 void RiuWellAllocationPlot::hideTitle()
 {
     m_titleLabel->hide();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellAllocationPlot::showLegend(bool doShow)
+{
+    if (doShow)
+        m_legendWidget->show();
+    else
+        m_legendWidget->hide();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellAllocationPlot::addLegendItem(const QString& name, const cvf::Color3f& color, float value)
+{
+    QColor sliceColor(color.rByte(), color.gByte(), color.bByte());
+
+    m_legendWidget->addItem(name, sliceColor, value);
+    m_legendWidget->updateGeometry();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellAllocationPlot::clearLegend()
+{
+    m_legendWidget->clear();
 }
 
 //--------------------------------------------------------------------------------------------------

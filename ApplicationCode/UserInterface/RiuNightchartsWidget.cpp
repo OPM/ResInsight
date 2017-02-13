@@ -25,6 +25,9 @@
 RiuNightchartsWidget::RiuNightchartsWidget(QWidget* parent) :
     QWidget(parent)
 {
+    m_showLegend = true;
+    m_showPie = true;
+    updateSizePolicy();
     clear();
 }
 
@@ -36,6 +39,51 @@ void RiuNightchartsWidget::setType(Nightcharts::type t)
     m_chart.setType(t);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuNightchartsWidget::showLegend(bool doShow)
+{
+    m_showLegend = doShow;
+    updateSizePolicy();
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuNightchartsWidget::showPie(bool doShow)
+{
+    m_showPie = doShow;
+    updateSizePolicy();
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuNightchartsWidget::updateSizePolicy()
+{
+    if (m_showPie && m_showLegend)
+    {
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    }
+    else if (m_showPie && !m_showLegend )
+    {
+        this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    }
+    else if (!m_showPie && m_showLegend )
+    {
+        this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    }
+    else
+    {
+        this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -45,8 +93,49 @@ void RiuNightchartsWidget::clear()
     m_chart.setType(Nightcharts::Pie);
     m_chart.setLegendType(Nightcharts::Vertical);
 
-    m_marginLeft = 16;
-    m_marginTop = 16;
+    m_marginLeft = 10;
+    m_marginTop = 10;
+    m_maxNameWidth = 0;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize RiuNightchartsWidget::sizeHint() const
+{
+    int widthHint = 0;
+    int heightHint = 0;
+    int maxPieSize = 180;
+
+    if ( m_showLegend )
+    {
+        QPainter painter;
+        int lineHeight = painter.fontMetrics().height();
+        int lineCount = m_chart.pieceCount();
+
+        int exactLegendHeight = (lineCount + lineCount-1) * lineHeight;
+
+        widthHint  =  m_maxNameWidth + 5 + lineHeight;
+        heightHint =  exactLegendHeight;
+    }
+
+    if (m_showPie)
+    {
+        widthHint = widthHint + maxPieSize;
+        heightHint = heightHint > maxPieSize ?  heightHint : maxPieSize;
+    }
+
+    if ( m_showPie || m_showLegend )
+    {
+        widthHint  += 2*m_marginLeft;
+        heightHint += 2*m_marginTop;
+        return QSize(widthHint, heightHint);
+    }
+    else
+    {
+        return QSize();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,21 +148,45 @@ void RiuNightchartsWidget::paintEvent(QPaintEvent* e)
     if(!m_chart.pieceCount()) return ;
 
     QPainter painter;
-    QFont font;
     painter.begin(this);
-    int w = (this->width() - m_marginLeft - 150);
-    int h = (this->height() - m_marginTop - 100);
-    int size = (w<h)?w:h;
-    m_chart.setCords(m_marginLeft, m_marginTop,size, size);
+    
+    int legendWidth = 170; 
+    int legendMargin = 20;
 
-    m_chart.draw(&painter);
-    m_chart.drawLegend(&painter);
+    if (!m_showLegend) 
+    {
+        legendWidth = 0;
+        legendMargin = 0;
+    }
+
+    int w = (this->width() - 2* m_marginLeft - legendWidth - legendMargin);
+    int h = (this->height() - 2* m_marginTop );
+
+    int size = ( w < h ) ? w : h;
+
+    if ( m_showPie )
+    {
+        m_chart.setCords(m_marginLeft, m_marginTop, size, size);
+        m_chart.setLegendCords(m_marginLeft + size + legendMargin, m_marginTop);
+    }
+    else
+    {
+        m_chart.setLegendCords(m_marginLeft, m_marginTop);
+    }
+
+    if (m_showPie) m_chart.draw(&painter);
+
+    if ( m_showLegend) m_chart.drawLegend(&painter);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuNightchartsWidget::addItem(QString name, QColor color, float value)
+void RiuNightchartsWidget::addItem(const QString& name, const QColor& color, float value)
 {
-    m_chart.addPiece(name,color,value);
+    m_chart.addPiece(name, color, value);
+    QPainter painter;
+    int textWidth = painter.fontMetrics().width(name + " (00 %)");
+
+    m_maxNameWidth = textWidth > m_maxNameWidth ? textWidth: m_maxNameWidth;
 }

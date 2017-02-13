@@ -42,6 +42,7 @@
 #include "RigAccWellFlowCalculator.h"
 #include "RimProject.h"
 #include "RiuWellLogTrack.h"
+#include "RimWellAllocationPlotLegend.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -79,8 +80,11 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
     m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
-
     m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
+
+    CAF_PDM_InitFieldNoDefault(&m_wellAllocationPlotLegend, "WellAllocLegend", "Legend", "", "", "");
+    m_wellAllocationPlotLegend.uiCapability()->setUiHidden(true);
+    m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
 
     this->setAsPlotMdiWindow();
 }
@@ -264,6 +268,7 @@ void RimWellAllocationPlot::updateFromWell()
     /// Pie chart
 
     m_totalWellAllocationPlot->clearSlices();
+    m_wellAllocationPlotWidget->clearLegend();
 
     if (wfCalculator)
     {
@@ -293,13 +298,16 @@ void RimWellAllocationPlot::updateFromWell()
                     color = cvf::Color3f::DARK_GRAY;
 
                 m_totalWellAllocationPlot->addSlice(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
+                m_wellAllocationPlotWidget->addLegendItem(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
             }
         }
     }
-    
+
+    m_wellAllocationPlotWidget->showLegend(m_wellAllocationPlotLegend->isShowingLegend());
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
+    m_wellAllocationPlotWidget->updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,6 +520,14 @@ void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
 {
     removeMdiWindowFromMdiArea();
     deleteViewWidget();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::showPlotLegend(bool doShow)
+{
+    m_wellAllocationPlotWidget->showLegend(doShow);
 }
 
 //--------------------------------------------------------------------------------------------------

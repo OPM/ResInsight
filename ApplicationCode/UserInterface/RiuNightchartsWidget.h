@@ -33,16 +33,27 @@ class RiuNightchartsWidget : public QWidget
 public:
     explicit RiuNightchartsWidget(QWidget* parent = 0);
 
-    void addItem(QString name, QColor color, float value);
+    void addItem(const QString& name, const QColor& color, float value);
     void setType(Nightcharts::type type);
+    void showLegend(bool doShow);
+    void showPie(bool doShow);
+
     void clear();
+
+
+    virtual QSize sizeHint() const override;
 
 protected:
     virtual void paintEvent(QPaintEvent* e);
 
 private:
+    void updateSizePolicy();
+
     Nightcharts m_chart;
-    int m_marginLeft;
-    int m_marginTop;
+    int         m_marginLeft;
+    int         m_marginTop;
+    bool        m_showLegend;
+    bool        m_showPie;
+    int         m_maxNameWidth;
 };
 
