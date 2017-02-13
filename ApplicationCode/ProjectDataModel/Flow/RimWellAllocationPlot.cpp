@@ -258,7 +258,8 @@ void RimWellAllocationPlot::updateFromWell()
             addStackedCurve("Total", connNumbers, accFlow, plotTrack);
         }
 
-        plotTrack->setXAxisTitle("Flow Rate");
+        updateWellFlowPlotXAxisTitle(plotTrack);
+
     }
 
     QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
@@ -308,6 +309,32 @@ void RimWellAllocationPlot::updateFromWell()
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
     m_wellAllocationPlotWidget->updateGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
+{
+    RigEclipseCaseData::UnitsType unitSet = m_case->reservoirData()->unitsType();
+    QString unitText;
+    switch ( unitSet )
+    {
+        case RigEclipseCaseData::UNITS_METRIC:
+        unitText = "[m^3/day]";
+        break;
+        case RigEclipseCaseData::UNITS_FIELD:
+        unitText = "[Brl/day]";
+        break;
+        case RigEclipseCaseData::UNITS_LAB:
+        unitText = "[cm^3/hr]";
+        break;
+        default:
+        break;
+
+    }
+
+    plotTrack->setXAxisTitle("Flow Rate " + unitText);
 }
 
 //--------------------------------------------------------------------------------------------------

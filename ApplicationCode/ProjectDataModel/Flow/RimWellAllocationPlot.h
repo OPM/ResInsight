@@ -82,6 +82,7 @@ protected:
 
 private:
     void                                            updateFromWell();
+    void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
 
     void                                            addStackedCurve(const QString& tracerName, 
                                                                     const std::vector<double>& connNumbers, 
