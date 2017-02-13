@@ -22,6 +22,7 @@
 
 
 #include "cvfAssert.h"
+#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowPlotCollection, "FlowPlotCollection");
 
@@ -32,12 +33,10 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 {
     CAF_PDM_InitObject("Flow Diagnostics Plots", ":/newIcon16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&defaultPlot, "DefaultFlowPlot", "", "", "", "");
-    defaultPlot = new RimWellAllocationPlot;
-    defaultPlot->setDescription("Default Flow Diagnostics Plot");
-    defaultPlot.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_defaultPlot, "DefaultFlowPlot", "", "", "", "");
+    m_defaultPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&flowPlots, "FlowPlots", "Stored Plots",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowPlots, "FlowPlots", "Stored Plots",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,9 +44,9 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
-    delete defaultPlot();
+    delete m_defaultPlot();
 
-    flowPlots.deleteAllChildObjects();
+    m_flowPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +54,59 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 {
-    defaultPlot->removeFromMdiAreaAndDeleteViewWidget();
+    if ( m_defaultPlot )
+    {
+        m_defaultPlot->removeFromMdiAreaAndDeleteViewWidget();
+        delete m_defaultPlot();
+    }
+    m_flowPlots.deleteAllChildObjects();
+}
 
-    flowPlots.deleteAllChildObjects();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFlowPlotCollection::loadDataAndUpdate()
+{
+    caf::ProgressInfo plotProgress(m_flowPlots.size() + 1, "");
+
+    if (m_defaultPlot) m_defaultPlot->loadDataAndUpdate();
+    plotProgress.incrementProgress();
+
+    for (RimWellAllocationPlot* p : m_flowPlots)
+    {
+        p->loadDataAndUpdate();
+        plotProgress.incrementProgress();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimFlowPlotCollection::plotCount() const
+{
+    return m_flowPlots.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFlowPlotCollection::addPlot(RimWellAllocationPlot* plot)
+{
+    m_flowPlots.push_back(plot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellAllocationPlot* RimFlowPlotCollection::defaultPlot()
+{
+    if ( !m_defaultPlot() ) 
+    {
+        m_defaultPlot = new RimWellAllocationPlot; 
+        m_defaultPlot->setDescription("Default Flow Diagnostics Plot");
+    }
+
+    this->updateConnectedEditors();
+
+    return m_defaultPlot();
 }

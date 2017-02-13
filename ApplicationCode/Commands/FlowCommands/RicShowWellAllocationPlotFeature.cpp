@@ -59,13 +59,13 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
             RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
             if (flowPlotColl)
             {
-                flowPlotColl->defaultPlot->setFromSimulationWell(eclWell);
-                flowPlotColl->defaultPlot->updateConnectedEditors();
+                flowPlotColl->defaultPlot()->setFromSimulationWell(eclWell);
+                flowPlotColl->defaultPlot()->updateConnectedEditors();
 
                 // Make sure the summary plot window is created and visible
                 RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
                 //RiaApplication::instance()->project()->updateConnectedEditors();
-                plotwindow->selectAsCurrentItem(flowPlotColl->defaultPlot);
+                plotwindow->selectAsCurrentItem(flowPlotColl->defaultPlot());
             }
         }
     }

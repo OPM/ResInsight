@@ -36,7 +36,13 @@ public:
     virtual ~RimFlowPlotCollection();
 
     void closeDefaultPlotWindowAndDeletePlots();
+    void loadDataAndUpdate();
+    size_t plotCount() const;
     
-    caf::PdmChildField<RimWellAllocationPlot*>      defaultPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*> flowPlots;
+    void addPlot(RimWellAllocationPlot* plot);
+    RimWellAllocationPlot* defaultPlot();
+
+private:
+    caf::PdmChildField<RimWellAllocationPlot*>      m_defaultPlot;
+    caf::PdmChildArrayField<RimWellAllocationPlot*> m_flowPlots;
 };
