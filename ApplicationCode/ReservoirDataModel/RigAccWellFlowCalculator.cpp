@@ -27,7 +27,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds, const std::map<QString, const std::vector<double>* >& tracerCellFractionValues, const RigEclCellIndexCalculator cellIndexCalculator):
+RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
+                                                   const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds, 
+                                                   const std::map<QString, const std::vector<double>* >& tracerCellFractionValues, 
+                                                   const RigEclCellIndexCalculator cellIndexCalculator):
     m_pipeBranchesCLCoords(pipeBranchesCLCoords),
     m_pipeBranchesCellIds(pipeBranchesCellIds),
     m_tracerCellFractionValues(&tracerCellFractionValues),
@@ -39,6 +42,8 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
     m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
 
     calculateAccumulatedFlowPrConnection(0, 1);
+    sortTracers();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +63,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::accumulatedTotalFlowPrConnection(size_t branchIdx)
+const std::vector<double>& RigAccWellFlowCalculator::accumulatedTotalFlowPrConnection(size_t branchIdx) 
 {
     CVF_ASSERT(m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.find(RIG_FLOW_TOTAL_NAME) != m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.end());
 
@@ -68,7 +73,7 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTotalFlowPrConne
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx)
+const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) 
 {
     CVF_ASSERT(m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.find(tracerName) != m_accConnectionFlowPrBranch[branchIdx].accConnFlowFractionsPrTracer.end());
 
@@ -78,7 +83,7 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigAccWellFlowCalculator::connectionNumbersFromTop(size_t branchIdx)
+const std::vector<size_t>& RigAccWellFlowCalculator::connectionNumbersFromTop(size_t branchIdx) const
 {
     return m_accConnectionFlowPrBranch[branchIdx].connectionNumbersFromTop;
 }
@@ -250,3 +255,20 @@ std::vector<size_t> RigAccWellFlowCalculator::findDownstreamBranchIdxs(const Rig
     return downStreamBranchIdxs;
 }
 
+void RigAccWellFlowCalculator::sortTracers()
+{
+    std::multimap<double, QString> sortedTracers;
+    for (const QString& tracerName:  m_tracerNames)
+    {
+        const std::vector<double>& mainBranchAccFlow =  accumulatedTracerFlowPrConnection(tracerName, 0);
+        double totalFlow = 0.0;
+        if (mainBranchAccFlow.size()) totalFlow = - abs( mainBranchAccFlow.back() ); // Based on size in reverse order (biggest to least)
+        sortedTracers.insert({totalFlow, tracerName});
+    }
+
+    m_tracerNames.clear();
+    for (const auto& tracerPair : sortedTracers)
+    {
+        m_tracerNames.push_back(tracerPair.second);
+    }
+}

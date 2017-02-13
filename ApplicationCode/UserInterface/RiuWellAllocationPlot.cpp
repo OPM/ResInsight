@@ -143,6 +143,7 @@ void RiuWellAllocationPlot::addLegendItem(const QString& name, const cvf::Color3
 
     m_legendWidget->addItem(name, sliceColor, value);
     m_legendWidget->updateGeometry();
+    m_legendWidget->update();
 }
 
 

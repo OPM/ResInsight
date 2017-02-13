@@ -65,17 +65,17 @@ public:
     RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
-    const std::vector<double>&   accumulatedTotalFlowPrConnection( size_t branchIdx);
-    const std::vector<double>&   accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx);
-    const std::vector<size_t>&   connectionNumbersFromTop(size_t branchIdx);
-    const std::vector<QString>&  tracerNames() { return m_tracerNames;}
+    const std::vector<double>&   accumulatedTotalFlowPrConnection( size_t branchIdx);// const;
+    const std::vector<double>&   accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx);// const;
+    const std::vector<size_t>&   connectionNumbersFromTop(size_t branchIdx) const;
+    const std::vector<QString>&  tracerNames() const { return m_tracerNames;}
 private:
 
     void                         calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
     std::vector<size_t>          wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells);
     static size_t                connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx);
     std::vector<size_t>          findDownstreamBranchIdxs( const RigWellResultPoint& connectionPoint);
-
+    void                         sortTracers();
 
     const std::vector< std::vector <cvf::Vec3d> >&         m_pipeBranchesCLCoords;
     const std::vector< std::vector <RigWellResultPoint> >& m_pipeBranchesCellIds;
