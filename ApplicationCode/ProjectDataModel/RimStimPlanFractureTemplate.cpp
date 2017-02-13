@@ -311,33 +311,34 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
         //TODO: try to read in data again if missing... 
     }
 
-    for (const double& depth : adjustedDepthCoordsAroundWellPathPosition())
+
+    std::vector<double> xCoords = getNegAndPosXcoords();
+    cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
+
+    std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
+
+
+    for (cvf::uint k = 0; k < adjustedDepths.size(); k++)
     {
-        for (const double& negXcoord : getNegAndPosXcoords())
+        for (cvf::uint i = 0; i < lenXcoords; i++)
         {
-            cvf::Vec3f node = cvf::Vec3f(negXcoord, depth, 0);
+            cvf::Vec3f node = cvf::Vec3f(xCoords[i], adjustedDepths[k], 0);
             nodeCoords->push_back(node);
+
+            if (i < lenXcoords - 1 && k < adjustedDepths.size() - 1)
+            {
+                //Upper triangle
+                triangleIndices->push_back(i + k*lenXcoords);
+                triangleIndices->push_back((i + 1) + k*lenXcoords);
+                triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                //Lower triangle
+                triangleIndices->push_back(i + k*lenXcoords);
+                triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                triangleIndices->push_back((i)+(k + 1)*lenXcoords);
+            }
         }
     }
 
-
-    cvf::uint lenXcoords = static_cast<cvf::uint>(getNegAndPosXcoords().size());
-
-    for (cvf::uint k = 0; k < adjustedDepthCoordsAroundWellPathPosition().size()-1; k++)
-    {
-        for (cvf::uint i = 0; i < lenXcoords-1; i++)
-        {
-            //Upper triangle
-            triangleIndices->push_back(i + k*lenXcoords);
-            triangleIndices->push_back((i+1) + k*lenXcoords);
-            triangleIndices->push_back((i+1) + (k+1)*lenXcoords);
-            //Lower triangle
-            triangleIndices->push_back(i + k*lenXcoords);
-            triangleIndices->push_back((i + 1) + (k+1)*lenXcoords);
-            triangleIndices->push_back((i) + (k+1)*lenXcoords);
-
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
