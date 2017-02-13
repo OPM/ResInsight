@@ -221,6 +221,12 @@ void RimWellAllocationPlot::updateFromWell()
         }
     }
 
+    m_contributingTracerNames.clear();
+    if (wfCalculator)
+    {
+        m_contributingTracerNames = wfCalculator->tracerNames();
+    }
+
     // Create tracks and curves from the calculated data
 
     size_t branchCount = pipeBranchesCLCoords.size();
@@ -538,6 +544,14 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 QString RimWellAllocationPlot::wellName() const
 {
     return m_wellName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<QString> RimWellAllocationPlot::contributingTracerNames() const
+{
+    return m_contributingTracerNames;
 }
 
 //--------------------------------------------------------------------------------------------------

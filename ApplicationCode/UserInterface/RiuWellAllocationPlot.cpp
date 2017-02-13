@@ -20,15 +20,20 @@
 
 #include "RiaApplication.h"
 
+#include "RimContextCommandBuilder.h"
+#include "RimTotalWellAllocationPlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimTotalWellAllocationPlot.h"
+
+#include "RiuNightchartsWidget.h"
+
+#include "cvfColor3.h"
 
 #include <QBoxLayout>
+#include <QContextMenuEvent>
 #include <QLabel>
-#include "RiuNightchartsWidget.h"
-#include "cvfColor3.h"
+#include <QMenu>
 
 
 
@@ -155,6 +160,24 @@ void RiuWellAllocationPlot::clearLegend()
 QSize RiuWellAllocationPlot::minimumSizeHint() const
 {
     return QSize(0, 100);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellAllocationPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    commandIds << "RicShowContributingWellsFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
