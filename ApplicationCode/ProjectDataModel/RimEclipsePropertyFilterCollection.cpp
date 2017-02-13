@@ -21,6 +21,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimViewController.h"

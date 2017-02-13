@@ -20,11 +20,12 @@
 
 #pragma once
 
-#include "RimEclipsePropertyFilter.h"
-
-#include "cafPdmChildArrayField.h"
 #include "RimPropertyFilterCollection.h"
 
+#include "cafPdmChildArrayField.h"
+
+class RimEclipsePropertyFilter;
+class RimEclipseView;
 
 //==================================================================================================
 ///  
