@@ -20,12 +20,10 @@
 
 #include "RiaApplication.h"
 
+#include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSummaryPlot.h"
 #include "RimViewWindow.h"
-#include "RimWellLogPlot.h"
 #include "RiuMainPlotWindow.h"
-#include "RiuWellLogPlot.h"
 
 #include "cafUtils.h"
 
@@ -35,6 +33,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
+#include <QMessageBox>
 
 
 CAF_CMD_SOURCE_INIT(RicSnapshotViewToClipboardFeature, "RicSnapshotViewToClipboardFeature");
@@ -178,13 +177,16 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath("snapshots");
 
-    createSnapshotOfAllPlotsInFolder(snapshotFolderName);
+    exportSnapshotOfAllPlotsIntoFolder(snapshotFolderName);
+
+    QString text = QString("Exported snapshots to folder : \n%1").arg(snapshotFolderName);
+    QMessageBox::information(nullptr, "Export Snapshots To Folder", text);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString snapshotFolderName)
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName)
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -199,41 +201,20 @@ void RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(QString 
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
-    // Well log plots
+    std::vector<RimViewWindow*> viewWindows;
+    proj->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+
+    for (auto viewWindow : viewWindows)
     {
-        std::vector<RimWellLogPlot*> wellLogPlots;
-        proj->descendantsIncludingThisOfType(wellLogPlots);
-        for (RimWellLogPlot* wellLogPlot : wellLogPlots)
+        if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
         {
-            if (wellLogPlot && wellLogPlot->viewWidget())
-            {
-                QString fileName = wellLogPlot->description();
-                fileName = caf::Utils::makeValidFileBasename(fileName);
+            QString fileName = viewWindow->userDescriptionField()->uiCapability()->uiValue().toString();
+            fileName = caf::Utils::makeValidFileBasename(fileName);
 
-                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-                absoluteFileName.replace(" ", "_");
+            QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+            absoluteFileName.replace(" ", "_");
 
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, wellLogPlot);
-            }
-        }
-    }
-
-    // Summary plots
-    {
-        std::vector<RimSummaryPlot*> summaryPlots;
-        proj->descendantsIncludingThisOfType(summaryPlots);
-        for (RimSummaryPlot* summaryPlot : summaryPlots)
-        {
-            if (summaryPlot && summaryPlot->viewWidget())
-            {
-                QString fileName = summaryPlot->description();
-                fileName = caf::Utils::makeValidFileBasename(fileName);
-
-                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-                absoluteFileName.replace(" ", "_");
-
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, summaryPlot);
-            }
+            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, viewWindow);
         }
     }
 }
