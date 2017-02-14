@@ -639,6 +639,25 @@ void RimLegendConfig::setCategoryColors(const std::vector<cvf::Color3ub>& catego
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimLegendConfig::categoryNameFromCategoryValue(size_t categoryValue) const
+{
+    if (m_categoryNames.size() > 0)
+    {
+        for (size_t categoryIndex = 0; categoryIndex < m_categories.size(); categoryIndex++)
+        {
+            if (categoryValue == m_categories[categoryIndex])
+            {
+                return cvfqt::Utils::toQString(m_categoryNames[categoryIndex]);
+            }
+        }
+    }
+
+    return QString("%1").arg(categoryValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setTitle(const cvf::String& title)
 {
     m_scalarMapperLegend->setTitle(title);

@@ -33,6 +33,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
+#include "RimLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -706,7 +707,19 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 double scalarValue = resultAccessor->cellFaceScalar(m_cellIndex, m_face);
                 QString resultVar = resultColors->resultVariableUiName();
 
-                text = QString("%1 : %2").arg(resultVar).arg(scalarValue);
+                QString resultValueText;
+                if (resultColors->hasCategoryResult())
+                {
+                    RimLegendConfig* legendConfig = resultColors->legendConfig();
+
+                    resultValueText += legendConfig->categoryNameFromCategoryValue(scalarValue);
+                }
+                else
+                {
+                    resultValueText = QString("%1").arg(scalarValue);
+                }
+
+                text = QString("%1 : %2").arg(resultVar).arg(resultValueText);
             }
         }
     }
