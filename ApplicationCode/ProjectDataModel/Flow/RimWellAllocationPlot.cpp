@@ -116,7 +116,13 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
     m_wellName = simWell->wellResults()->m_wellName;
     m_timeStep = eclView->currentTimeStep();
 
+    // Use the active flow diag solutions, or the first one as default
     m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
+    if ( !m_flowDiagSolution )
+    {
+        std::vector<RimFlowDiagSolution*> flowSolutions =  m_case->flowDiagSolutions();
+        if ( flowSolutions.size() ) m_flowDiagSolution = flowSolutions.front();
+    }
 
     loadDataAndUpdate();
 }

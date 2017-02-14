@@ -64,7 +64,6 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 
                 // Make sure the summary plot window is created and visible
                 RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-                //RiaApplication::instance()->project()->updateConnectedEditors();
                 plotwindow->selectAsCurrentItem(flowPlotColl->defaultPlot());
             }
         }
