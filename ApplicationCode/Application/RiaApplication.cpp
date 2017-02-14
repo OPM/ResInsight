@@ -812,16 +812,19 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
         return projectRelativePath;
     }
 
+    QString absolutePath;
     if (m_project && !m_project->fileName().isEmpty())
     {
-        QString absoluteProjectPath = QFileInfo(m_project->fileName()).absolutePath();
-        QDir projectDir(absoluteProjectPath);
-        return projectDir.absoluteFilePath(projectRelativePath);
+        absolutePath = QFileInfo(m_project->fileName()).absolutePath();
     }
     else
     {
-        return projectRelativePath;
+        absolutePath = this->lastUsedDialogDirectory("BINARY_GRID");
     }
+
+    QDir projectDir(absolutePath);
+
+    return projectDir.absoluteFilePath(projectRelativePath);
 }
 
 
