@@ -55,8 +55,14 @@ public:
     
     void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices);
     std::vector<cvf::Vec3f>         fracturePolygon();
-
-
+    void                            changeUnits();
+    
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+private:
+    static float convertMtoFeet(float length);
+    static float convertMtoInch(float length);
+
+    static float convertInchToM(float length);
+    static float convertFeetToM(float length);
 };

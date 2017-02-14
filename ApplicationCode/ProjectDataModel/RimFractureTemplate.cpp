@@ -51,6 +51,17 @@ namespace caf
 
         setDefault(RimFractureTemplate::INFINITE_CONDUCTIVITY);
     }
+
+
+    template<>
+
+    void caf::AppEnum< RimFractureTemplate::FracUnitEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::UNITS_METRIC, "MetricUnits", "Metric");
+        addItem(RimFractureTemplate::UNITS_FIELD, "FieldsUnits", "Field units");
+
+        setDefault(RimFractureTemplate::UNITS_METRIC);
+    }
 }
 
 
@@ -64,6 +75,9 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
+    CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<FracUnitEnum>(UNITS_METRIC), "Units used in frac template", "", "", "");
+    fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
+
 
     CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture orientation", "", "", "");
     CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
@@ -103,6 +117,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+
     if (orientation == RimFractureTemplate::ALONG_WELL_PATH
         || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {

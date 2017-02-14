@@ -40,6 +40,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimFractureTemplate.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -382,9 +383,16 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicSimWellFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem) ||
-                 dynamic_cast<RimEllipseFractureTemplate*>(uiItem) ||
-                 dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
+            dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
         {
+            commandIds << "RicNewEllipseFractureTemplateFeature";
+            commandIds << "RicNewStimPlanFractureTemplateFeature";
+            commandIds << "RicFractureDefinitionsDeleteAllFeature";
+        }
+        else if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
+        {
+            commandIds << "RicConvertFractureTemplateUnitFeature";
+            commandIds << "Separator";
             commandIds << "RicNewEllipseFractureTemplateFeature";
             commandIds << "RicNewStimPlanFractureTemplateFeature";
             commandIds << "RicFractureDefinitionsDeleteAllFeature";

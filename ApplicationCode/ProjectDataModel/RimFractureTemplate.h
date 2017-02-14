@@ -28,6 +28,7 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include "RigEclipseCaseData.h"
 
 
 //==================================================================================================
@@ -60,7 +61,14 @@ public:
         FINITE_CONDUCTIVITY,
     };
     caf::PdmField< caf::AppEnum< FracConductivityEnum > >  fractureConductivity;
-    
+
+    enum FracUnitEnum //TODO: USE enum from RigEclipseCaseData
+    {
+        UNITS_METRIC,
+        UNITS_FIELD,
+    };
+    caf::PdmField< caf::AppEnum< FracUnitEnum > >  fractureTemplateUnit;
+
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     

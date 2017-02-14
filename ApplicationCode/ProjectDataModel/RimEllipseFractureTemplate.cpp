@@ -152,10 +152,49 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::changeUnits()
+{
+    if (fractureTemplateUnit == RimEllipseFractureTemplate::UNITS_METRIC)
+    {
+        halfLength = convertMtoFeet(halfLength);
+        height = convertMtoFeet(height);
+        width = convertMtoInch(width);
+        fractureTemplateUnit = RimFractureTemplate::UNITS_FIELD;
+        //TODO: Darcy unit?
+    }
+    else if (fractureTemplateUnit == RimEllipseFractureTemplate::UNITS_FIELD)
+    {
+        halfLength = convertFeetToM(halfLength);
+        height = convertFeetToM(height);
+        width = convertInchToM(width);
+        fractureTemplateUnit = RimFractureTemplate::UNITS_METRIC;
+        //TODO: Darcy unit?
+    }
+
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
+    
+    if (fractureTemplateUnit == RimFractureTemplate::UNITS_METRIC)
+    {
+        halfLength.uiCapability()->setUiName("Halflenght Xf [m]");
+        height.uiCapability()->setUiName("Height [m]");
+        width.uiCapability()->setUiName("Width [m]");
+    }
+    else if (fractureTemplateUnit == RimFractureTemplate::UNITS_FIELD)
+    {
+        halfLength.uiCapability()->setUiName("Halflenght Xf [Ft]");
+        height.uiCapability()->setUiName("Height [Ft]");
+        width.uiCapability()->setUiName("Width [inches]");
+    }
 
+    
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
@@ -170,4 +209,43 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     propertyGroup->add(&width);
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimEllipseFractureTemplate::convertMtoFeet(float length)
+{
+    length = length*(100/(2.54*12));
+    return length;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimEllipseFractureTemplate::convertMtoInch(float length)
+{
+    length = length*(100 / 2.54);
+    return length;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimEllipseFractureTemplate::convertInchToM(float length)
+{
+    length = length*(2.54 / 100);
+    return length;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RimEllipseFractureTemplate::convertFeetToM(float length)
+{
+    length = (length*12)*(2.54 / 100);
+    return length;
+
 }
