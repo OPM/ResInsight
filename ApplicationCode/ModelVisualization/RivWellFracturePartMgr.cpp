@@ -24,12 +24,13 @@
 
 #include "cafEffectGenerator.h"
 
+#include "cafDisplayCoordTransform.h"
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
-#include "cafDisplayCoordTransform.h"
+#include "cvfScalarMapperContinuousLinear.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -91,11 +92,80 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransform* displayCoordTransform)
+{
+    if (m_part.notNull()) return;
+    if (!displayCoordTransform) return;
+
+    if (m_rimFracture)
+    {
+        if (!m_rimFracture->hasValidGeometry())
+        {
+            m_rimFracture->computeGeometry();
+        }
+
+        if (!m_rimFracture->hasValidGeometry()) return;
+
+        const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
+        const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
+        std::vector<cvf::Vec3f> displayCoords;
+
+        for (size_t i = 0; i < nodeCoords.size(); i++)
+        {
+            cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(nodeCoords[i]);
+            cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
+            displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
+        }
+
+        cvf::ref<cvf::DrawableGeo> geo = createGeo(triangleIndices, displayCoords);
+
+        m_part = new cvf::Part;
+        m_part->setDrawable(geo.p());
+
+
+        cvf::ref<cvf::ScalarMapperContinuousLinear> scalarMapper = new cvf::ScalarMapperContinuousLinear;
+        {
+            cvf::Color3ubArray legendColors;
+            legendColors.resize(4);
+            legendColors[0] = cvf::Color3::GRAY;
+            legendColors[1] = cvf::Color3::GREEN;
+            legendColors[2] = cvf::Color3::BLUE;
+            legendColors[3] = cvf::Color3::RED;
+            scalarMapper->setColors(legendColors);
+            scalarMapper->setRange(0.0, 4.0);
+            scalarMapper->setLevelCount(4, true);
+        }
+
+        cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
+        textureCoords->resize(nodeCoords.size());
+        for (size_t i = 0; i < textureCoords->size(); i++)
+        {
+            //double scalarValue = i % 4;
+            double scalarValue = 0;
+
+            cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(scalarValue);
+
+            textureCoords->set(i, texCoord);
+        }
+
+        geo->setTextureCoordArray(textureCoords.p());
+
+        caf::ScalarMapperEffectGenerator nncEffgen(scalarMapper.p(), caf::PO_NEG_LARGE);
+        cvf::ref<cvf::Effect> eff = nncEffgen.generateUnCachedEffect();
+
+        m_part->setEffect(eff.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
     if (m_part.isNull())
     {
         updatePartGeometry(displayCoordTransform);
+        //updatePartGeometryTexture(displayCoordTransform);
     }
 
     if (m_part.notNull())
@@ -115,11 +185,11 @@ void RivWellFracturePartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createGeo(const std::vector<cvf::uint>& polygonIndices, const std::vector<cvf::Vec3f>& nodeCoords)
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords)
 {
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 
-    cvf::ref<cvf::UIntArray> indices = new cvf::UIntArray(polygonIndices);
+    cvf::ref<cvf::UIntArray> indices = new cvf::UIntArray(triangleIndices);
     cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray(nodeCoords);
 
     geo->setVertexArray(vertices.p());

@@ -56,6 +56,7 @@ public:
 
 private:
     void updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform);
+    void updatePartGeometryTexture(caf::DisplayCoordTransform* displayCoordTransform);
 
     static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
 
