@@ -36,6 +36,7 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
+#include <QDebug>
 
 
 
@@ -61,6 +62,12 @@ RifEclipseExportTools::~RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
 {
+    if (!(unitsMatchCaseAndFractures(caseToApply, fractures)))
+    {
+        qDebug() << "ERROR: The case selected and relevant fractures does not have consistent unit system.";
+        return false;
+    }
+
     RiaApplication* app = RiaApplication::instance();
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
@@ -129,6 +136,36 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "/ \n";
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseExportTools::unitsMatchCaseAndFractures(RimEclipseCase* caseToApply, const std::vector<RimFracture *>& fractures)
+{
+    bool unitsMatch = true;
+    RigEclipseCaseData::UnitsType caseUnit = caseToApply->reservoirData()->unitsType();
+    for (RimFracture* fracture : fractures)
+    {
+        if (fracture->attachedFractureDefinition())
+        {
+            if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimFractureTemplate::UNITS_METRIC)
+            {
+                if (!(caseUnit == RigEclipseCaseData::UNITS_METRIC))
+                {
+                    unitsMatch = false;
+                }
+            }
+            else if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimFractureTemplate::UNITS_FIELD)
+            {
+                if (!(caseUnit == RigEclipseCaseData::UNITS_FIELD))
+                {
+                    unitsMatch = false;
+                }
+            }
+        }
+    }
+    return unitsMatch;
 }
 
 //--------------------------------------------------------------------------------------------------
