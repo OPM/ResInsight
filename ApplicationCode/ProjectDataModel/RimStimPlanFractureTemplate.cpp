@@ -253,6 +253,17 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::loadDataAndUpdate()
+{
+    QString errorMessage;
+    readStimPlanXMLFile(&errorMessage);
+    qDebug() << errorMessage;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream)
 {
 
@@ -399,8 +410,7 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
     
     if (m_stimPlanFractureDefinitionData.isNull())
     {
-        return;
-        //TODO: try to read in data again if missing... 
+        loadDataAndUpdate();
     }
 
 
@@ -475,6 +485,8 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 {
+
+    if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
     return m_stimPlanFractureDefinitionData->timeSteps;
 }
 

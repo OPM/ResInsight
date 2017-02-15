@@ -107,6 +107,34 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
         if (!m_rimFracture->hasValidGeometry()) return;
 
+        RimFractureTemplate * fracTemplate = m_rimFracture->attachedFractureDefinition();
+        RimStimPlanFractureTemplate* stimPlanFracTemplate;
+
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
+        {
+            stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+        }
+        else return;
+
+        int timeStepIndex = m_rimFracture->stimPlanTimeIndexToPlot;
+        std::vector<std::vector<double> > dataToPlot;
+
+        if (m_rimFracture->stimPlanParameterToPlot == RimFracture::CONDUCTIVITY)
+        {
+            dataToPlot = stimPlanFracTemplate->getConductivitiesAtTimeStep(timeStepIndex);
+        }
+        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::PERMEABILITY)
+        {
+            dataToPlot = stimPlanFracTemplate->getPermeabilitiesAtTimeStep(timeStepIndex);
+
+        }
+        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::WIDTH)
+        {
+            dataToPlot = stimPlanFracTemplate->getWidthsAtTimeStep(timeStepIndex);
+        }
+
+        if (dataToPlot.empty()) return;
+
         const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
         const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
         std::vector<cvf::Vec3f> displayCoords;
@@ -138,53 +166,10 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         }
 
         //double scalarValue = i % 4;
-        RimFractureTemplate * fracTemplate = m_rimFracture->attachedFractureDefinition();
-        RimStimPlanFractureTemplate* stimPlanFracTemplate;
-
-        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
-        {
-            stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-        }
-        else
-        {
-            return;
-        }
-
-        int timeStepIndex = m_rimFracture->stimPlanTimeIndexToPlot;
-        std::vector<std::vector<double> > dataToPlot;
-
-        if (m_rimFracture->stimPlanParameterToPlot == RimFracture::CONDUCTIVITY)
-        {
-            dataToPlot = stimPlanFracTemplate->getConductivitiesAtTimeStep(timeStepIndex);
-        }
-        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::PERMEABILITY)
-        {
-            dataToPlot = stimPlanFracTemplate->getPermeabilitiesAtTimeStep(timeStepIndex);
-
-        }
-        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::WIDTH)
-        {
-            dataToPlot = stimPlanFracTemplate->getWidthsAtTimeStep(timeStepIndex);
-        }
-
-        
-        if (dataToPlot.empty())
-        {
-            return;
-        }
-
 
         cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
         textureCoords->resize(nodeCoords.size());
-//         for (size_t i = 0; i < textureCoords->size(); i++)
-//         {
-// 
-//             double scalarValue = 0;
-// 
-//             cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(scalarValue);
-// 
-//             textureCoords->set(i, texCoord);
-//         }
+
 
         int i = 0;
         for (std::vector<double> depthData : dataToPlot)

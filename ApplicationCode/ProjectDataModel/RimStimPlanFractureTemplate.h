@@ -74,6 +74,8 @@ private:
     void                                    updateUiTreeName();
 
     void                                    readStimPlanXMLFile(QString * errorMessage);
+    void                                    loadDataAndUpdate();
+
 
     void                                    readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
 
