@@ -33,3 +33,45 @@ RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition()
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigStimPlanFractureDefinition::timeStepExisist(double timeStepValueToCheck)
+{
+    for (double timeStep : timeSteps)
+    {
+        if (abs(timeStepValueToCheck - timeStep) < 1e-5) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::reorderYgridToDepths()
+{
+    std::vector<double> depthsInIncreasingOrder;
+    for (double gridYvalue : gridYs)
+    {
+        depthsInIncreasingOrder.insert(depthsInIncreasingOrder.begin(), gridYvalue);
+    }
+    depths = depthsInIncreasingOrder;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
+{
+    size_t index = 0;
+    while (index < timeSteps.size())
+    {
+        if (abs(timeSteps[index] - timeStepValue) < 1e-4)
+        {
+            return index;
+        }
+        index++;
+    }
+    return -1; //returns -1 if not found
+}

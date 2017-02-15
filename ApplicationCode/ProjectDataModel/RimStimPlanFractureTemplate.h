@@ -67,6 +67,10 @@ private:
     void                                    updateUiTreeName();
 
     void                                    readStimPlanXMLFile(QString * errorMessage);
+
+    void                                    readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
+
+
     static double                           getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
     static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
     static std::vector<double>              getGriddingValues(QXmlStreamReader &xmlStream);
@@ -76,4 +80,5 @@ private:
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
 
 
+    bool numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
 };

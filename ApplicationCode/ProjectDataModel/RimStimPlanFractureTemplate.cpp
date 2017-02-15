@@ -141,6 +141,45 @@ QString RimStimPlanFractureTemplate::fileNameWithOutPath()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 {
+
+
+    m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
+    {
+        QFile dataFile(m_stimPlanFileName());
+
+        if (!dataFile.open(QFile::ReadOnly))
+        {
+            if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_stimPlanFileName()) + "\n";
+            return;
+        }
+
+        QXmlStreamReader xmlStream;
+        xmlStream.setDevice(&dataFile);
+        xmlStream.readNext();
+        readStimplanGridAndTimesteps(xmlStream);
+        if (xmlStream.hasError())
+        {
+            qDebug() << "Error: Failed to parse file " << dataFile.fileName();
+            qDebug() << xmlStream.errorString();
+        }
+
+        dataFile.close();
+
+    }
+
+    size_t numberOfDepthValues;
+    numberOfDepthValues = m_stimPlanFractureDefinitionData->depths.size();
+    size_t numberOfTimeSteps;
+    numberOfTimeSteps = m_stimPlanFractureDefinitionData->timeSteps.size();
+
+    std::vector<std::vector<std::vector<double>>>  condValues(numberOfTimeSteps);
+    m_stimPlanFractureDefinitionData->conductivities = condValues;
+    std::vector<std::vector<std::vector<double>>>  widthValues(numberOfTimeSteps);
+    m_stimPlanFractureDefinitionData->widths = widthValues;
+    std::vector<std::vector<std::vector<double>>>  permValues(numberOfTimeSteps);
+    m_stimPlanFractureDefinitionData->permeabilities = permValues;
+
+    //Start reading from top:
     QFile dataFile(m_stimPlanFileName());
 
     if (!dataFile.open(QFile::ReadOnly))
@@ -148,68 +187,60 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_stimPlanFileName()) + "\n";
         return;
     }
-
-    m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
-
-    QXmlStreamReader xmlStream;
-    xmlStream.setDevice(&dataFile);
-    xmlStream.readNext();
-
+    
+    QXmlStreamReader xmlStream2;
+    xmlStream2.setDevice(&dataFile);
     QString parameter;
 
-    while (!xmlStream.atEnd())
+    while (!xmlStream2.atEnd())
     {
-        xmlStream.readNext();
+        xmlStream2.readNext();
 
-        if (xmlStream.isStartElement())
+        if (xmlStream2.isStartElement())
         {
-
-           if (xmlStream.name() == "xs")
-            {   
-                m_stimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
-            }
-
-            else if (xmlStream.name() == "ys")
+            if (xmlStream2.name() == "property")
             {
-                m_stimPlanFractureDefinitionData->gridYs = getGriddingValues(xmlStream);
-
+                parameter = getAttributeValueString(xmlStream2, "name");
             }
-
-            else if (xmlStream.name() == "property")
+            else if (xmlStream2.name() == "time")
             {
-                parameter = getAttributeValueString(xmlStream, "name");
-            }
-
-            else if (xmlStream.name() == "time")
-            {
-                double timeStepValue = getAttributeValueDouble(xmlStream, "value");
-                m_stimPlanFractureDefinitionData->timeSteps.push_back(timeStepValue);
+                double timeStepValue = getAttributeValueDouble(xmlStream2, "value");
+                std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream2);
                 
-                std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream);
-                
+                bool valuesOK = numberOfParameterValuesOK(propertyValuesAtTimestep);
+                if (!valuesOK)
+                {
+                    qDebug() << "Inconsistency detected in reading XML file!";
+                    return;
+
+                }
+
+                //TODO: Check that number of values in these vectors match number of cells in grid!
+                size_t timeStepIndex = m_stimPlanFractureDefinitionData->getTimeStepIndex(timeStepValue);
+
                 if (parameter == "CONDUCTIVITY")
                 {
-                    m_stimPlanFractureDefinitionData->conductivities.push_back(propertyValuesAtTimestep);
+                    m_stimPlanFractureDefinitionData->conductivities[timeStepIndex]=propertyValuesAtTimestep;
                 }
-
-                if (parameter == "PERMEABILITY")
+                else if (parameter == "PERMEABILITY")
                 {
-                    m_stimPlanFractureDefinitionData->permeabilities.push_back(propertyValuesAtTimestep);
+                    m_stimPlanFractureDefinitionData->permeabilities[timeStepIndex] = propertyValuesAtTimestep;
                 }
-                if (parameter == "WIDTH")
+                else if (parameter == "WIDTH")
                 {
-                    m_stimPlanFractureDefinitionData->widths.push_back(propertyValuesAtTimestep);
+                    m_stimPlanFractureDefinitionData->widths[timeStepIndex] = propertyValuesAtTimestep;
                 }
+                
             }
         }
     }
 
     dataFile.close();
 
-    if (xmlStream.hasError())
+    if (xmlStream2.hasError())
     {
         qDebug() << "Error: Failed to parse file " << dataFile.fileName();
-        qDebug() << xmlStream.errorString();
+        qDebug() << xmlStream2.errorString();
     }
     else if (dataFile.error() != QFile::NoError)
     {
@@ -222,17 +253,58 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream)
+void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream)
+{
+
+    xmlStream.readNext();
+
+    //First, read time steps and grid to establish data structures for putting data into later. 
+    while (!xmlStream.atEnd())
+    {
+        xmlStream.readNext();
+
+        if (xmlStream.isStartElement())
+        {
+
+            if (xmlStream.name() == "xs")
+            {
+                m_stimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
+            }
+
+            else if (xmlStream.name() == "ys")
+            {
+                m_stimPlanFractureDefinitionData->gridYs = getGriddingValues(xmlStream);
+                m_stimPlanFractureDefinitionData->reorderYgridToDepths();
+            }
+
+            else if (xmlStream.name() == "time")
+            {
+                double timeStepValue = getAttributeValueDouble(xmlStream, "value");
+                if (!m_stimPlanFractureDefinitionData->timeStepExisist(timeStepValue))
+                {
+                    m_stimPlanFractureDefinitionData->timeSteps.push_back(timeStepValue);
+                }
+            }
+        }
+    }
+
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>>  RimStimPlanFractureTemplate::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream)
 {
     std::vector<std::vector<double>> propertyValuesAtTimestep;
 
     while (!(xmlStream.isEndElement() && xmlStream.name() == "time"))
     {
         xmlStream.readNext();
+
         if (xmlStream.name() == "depth")
         {
             double depth = xmlStream.readElementText().toDouble();
-            m_stimPlanFractureDefinitionData->depths.push_back(depth);
             std::vector<double> propertyValuesAtDepth;
 
             xmlStream.readNext(); //read end depth token
@@ -242,13 +314,33 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::getAllDepthDataAtT
                 QString depthDataStr = xmlStream.text().toString();
                 for (QString value : depthDataStr.split(' '))
                 {
-                    propertyValuesAtDepth.push_back(value.toDouble());
+                    if (value != "")
+                    {
+                        propertyValuesAtDepth.push_back(value.toDouble());
+                    }
                 }
             }
             propertyValuesAtTimestep.push_back(propertyValuesAtDepth);
         }
     }
     return propertyValuesAtTimestep;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep)
+{
+    size_t depths = m_stimPlanFractureDefinitionData->depths.size();
+    size_t gridXvalues = m_stimPlanFractureDefinitionData->gridXs.size();
+
+    if (propertyValuesAtTimestep.size() != depths)  return false;
+    for (std::vector<double> valuesAtDepthVector : propertyValuesAtTimestep)
+    {
+        if (valuesAtDepthVector.size() != gridXvalues) return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,7 +408,6 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
     cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
 
     std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
-
 
     for (cvf::uint k = 0; k < adjustedDepths.size(); k++)
     {

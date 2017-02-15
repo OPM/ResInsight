@@ -43,7 +43,11 @@ public:
     std::vector<std::vector<std::vector<double>>>  permeabilities;
     //Vector for each time step, for each depth and for each x-value
 
-private:
+    bool                timeStepExisist(double timeStepValue);
+    void                reorderYgridToDepths();
+    size_t              getTimeStepIndex(double timeStepValue);
+
+
 
 };
 
