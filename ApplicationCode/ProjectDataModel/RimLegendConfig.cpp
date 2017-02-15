@@ -639,7 +639,7 @@ void RimLegendConfig::setCategoryColors(const std::vector<cvf::Color3ub>& catego
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimLegendConfig::categoryNameFromCategoryValue(size_t categoryValue) const
+QString RimLegendConfig::categoryNameFromCategoryValue(int categoryValue) const
 {
     if (m_categoryNames.size() > 0)
     {

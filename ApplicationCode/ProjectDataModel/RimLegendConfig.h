@@ -110,7 +110,7 @@ public:
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
     void                                        setNamedCategories(const std::vector<QString>& categoryNames);
     void                                        setCategoryColors(const std::vector<cvf::Color3ub>& categoryColors);
-    QString                                     categoryNameFromCategoryValue(size_t categoryValue) const;
+    QString                                     categoryNameFromCategoryValue(int categoryValue) const;
 
     void                                        setTitle(const cvf::String& title);
 
