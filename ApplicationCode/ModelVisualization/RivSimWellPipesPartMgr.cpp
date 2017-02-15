@@ -239,6 +239,12 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     }
 
     caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
+
+    if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+    {
+        surfEffGen.disableLighting(true);
+    }
+
     cvf::ref<cvf::Effect> scalarMapperSurfaceEffect = surfEffGen.generateUnCachedEffect();
 
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());

@@ -173,6 +173,11 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             part->setDrawable(pipeSurface.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), caf::PO_1);
+            if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+            {
+                surfaceGen.enableLighting(false);
+            }
+
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             part->setEffect(eff.p());
@@ -292,6 +297,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         }
 
         caf::SurfaceEffectGenerator surfaceGen(headColor, caf::PO_1);
+        if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+        {
+            surfaceGen.enableLighting(false);
+        }
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
         part->setEffect(eff.p());
