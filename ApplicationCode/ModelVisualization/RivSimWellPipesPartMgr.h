@@ -72,6 +72,7 @@ private:
 
         cvf::ref<cvf::Part>                 m_surfacePart;
         cvf::ref<cvf::DrawableGeo>          m_surfaceDrawable;
+        cvf::ref<cvf::DrawableGeo>          m_largeSurfaceDrawable;
         cvf::ref<cvf::Part>                 m_centerLinePart;
         cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
 

@@ -144,6 +144,13 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
             pbd.m_centerLinePart->setEffect(eff.p());
         }
+
+        // Create slightly larger geometry for active (open) wells
+        // This will avoid visual artifacts when two wells are located at the same position
+        {
+            pbd.m_pipeGeomGenerator->setRadius(pipeRadius * 1.1);
+            pbd.m_largeSurfaceDrawable = pbd.m_pipeGeomGenerator->createPipeSurface();
+        }
     }
 
     m_needsTransformUpdate = false;
@@ -181,6 +188,8 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
     if (m_needsTransformUpdate) buildWellPipeParts();
 
+    const RigWellResultFrame& wellResultFrame = m_rimWell->wellResults()->wellResultFrame(frameIndex);
+
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
     {
@@ -188,6 +197,7 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
         {
             model->addPart(it->m_surfacePart.p());
         }
+
         if (it->m_centerLinePart.notNull())
         {
             model->addPart(it->m_centerLinePart.p());
@@ -299,15 +309,27 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
         if (brIt->m_surfaceDrawable.notNull())
         {
             cvf::ref<cvf::Vec2fArray> surfTexCoords = const_cast<cvf::Vec2fArray*>(brIt->m_surfaceDrawable->textureCoordArray());
-
             if (surfTexCoords.isNull())
             {
                 surfTexCoords = new cvf::Vec2fArray;
             }
 
-            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords( surfTexCoords.p(), wellCellStates, scalarMapper.p());
-            brIt->m_surfaceDrawable->setTextureCoordArray( surfTexCoords.p());
+            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords(surfTexCoords.p(), wellCellStates, scalarMapper.p());
+            
+            brIt->m_surfaceDrawable->setTextureCoordArray(surfTexCoords.p());
+            brIt->m_largeSurfaceDrawable->setTextureCoordArray(surfTexCoords.p());
 
+            if (wResFrame.m_isOpen)
+            {
+                // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the same position
+    
+                brIt->m_surfacePart->setDrawable(brIt->m_largeSurfaceDrawable.p());
+            }
+            else
+            {
+                brIt->m_surfacePart->setDrawable(brIt->m_surfaceDrawable.p());
+            }
+            
             brIt->m_surfacePart->setEffect(scalarMapperSurfaceEffect.p());
         }
 
