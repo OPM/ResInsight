@@ -31,7 +31,8 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
                                                    const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds, 
                                                    const std::map<QString, const std::vector<double>* >& tracerCellFractionValues, 
                                                    const RigEclCellIndexCalculator cellIndexCalculator,
-                                                   double smallContribThreshold):
+                                                   double smallContribThreshold,
+                                                   bool isProducer):
     m_pipeBranchesCLCoords(pipeBranchesCLCoords),
     m_pipeBranchesCellIds(pipeBranchesCellIds),
     m_tracerCellFractionValues(&tracerCellFractionValues),
@@ -39,13 +40,26 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
     m_smallContributionsThreshold(smallContribThreshold)
 {
     m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
-    for ( const auto& it: (*m_tracerCellFractionValues) ) m_tracerNames.push_back(it.first);
-    
-    m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
 
-    calculateAccumulatedFlowPrConnection(0, 1);
-    sortTracers();
-    groupSmallContributions();
+    if (isWellFlowConsistent(isProducer))
+    {
+
+        for ( const auto& it: (*m_tracerCellFractionValues) ) m_tracerNames.push_back(it.first);
+
+        m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
+
+        calculateAccumulatedFlowPrConnection(0, 1);
+        sortTracers();
+        groupSmallContributions();
+    }
+    else
+    {
+        m_tracerCellFractionValues = nullptr;
+        m_cellIndexCalculator = RigEclCellIndexCalculator(nullptr, nullptr);
+        m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
+
+        calculateAccumulatedFlowPrConnection(0, 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +75,9 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
     m_smallContributionsThreshold(smallContribThreshold)
 {
     m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
+
     m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
+    
     calculateAccumulatedFlowPrConnection(0, 1);
 }
 
@@ -134,6 +150,24 @@ std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalTracerFr
     return totalFlows;
 }
 
+bool  RigAccWellFlowCalculator::isWellFlowConsistent( bool isProducer)
+{
+    bool isConsistent = true;
+    for (const std::vector <RigWellResultPoint> & branch :  m_pipeBranchesCellIds)
+    {
+        for (const RigWellResultPoint& wrp : branch)
+        {
+            if (isProducer)
+                isConsistent = (wrp.flowRate() >= 0.0) ;
+            else
+                isConsistent = (wrp.flowRate() <= 0.0) ;
+
+            if (!isConsistent) break;
+        }        
+        if (!isConsistent) break;
+    }
+    return isConsistent;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -341,7 +375,7 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
         for ( const auto& tracerPair : totalTracerFractions )
         {
-            if ( tracerPair.second <= m_smallContributionsThreshold ) tracersToGroup.push_back(tracerPair.first);
+            if ( abs(tracerPair.second) <= m_smallContributionsThreshold ) tracersToGroup.push_back(tracerPair.first);
         }
 
         if ( tracersToGroup.size() < 2 ) return; // Must at least group two ...

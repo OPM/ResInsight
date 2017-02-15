@@ -131,23 +131,25 @@ class RigSingleWellResultsData : public cvf::Object
 public:
     RigSingleWellResultsData() { m_isMultiSegmentWell = false; }
 
-    void                              setMultiSegmentWell(bool isMultiSegmentWell);
-    bool                              isMultiSegmentWell() const;
+    void                                   setMultiSegmentWell(bool isMultiSegmentWell);
+    bool                                   isMultiSegmentWell() const;
 
-    bool                              hasWellResult(size_t resultTimeStepIndex) const;
+    bool                                   hasWellResult(size_t resultTimeStepIndex) const;
+    const RigWellResultFrame&              wellResultFrame(size_t resultTimeStepIndex) const;
+    bool                                   isOpen(size_t resultTimeStepIndex) const;
+    RigWellResultFrame::WellProductionType wellProductionType(size_t resultTimeStepIndex) const;
 
-    const RigWellResultFrame&         wellResultFrame(size_t resultTimeStepIndex) const;
+    void                                   computeStaticWellCellPath() const ;
+    void                                   computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
+                                      
+public:  // Todo: Clean up this regarding public members and constness etc.                     
+    QString                                m_wellName;
+                                           
+    std::vector<size_t>                    m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
+    std::vector< RigWellResultFrame >      m_wellCellsTimeSteps;
+    mutable RigWellResultFrame             m_staticWellCells;
 
-    void                              computeStaticWellCellPath() const ;
-                                      
-    void                              computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
-                                      
-public:                               
-    QString                           m_wellName;
-    bool                              m_isMultiSegmentWell;
-                                      
-    std::vector<size_t>               m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
-    std::vector< RigWellResultFrame > m_wellCellsTimeSteps;
-    mutable RigWellResultFrame                m_staticWellCells;
+private:
+    bool                                   m_isMultiSegmentWell;
 };
 

@@ -35,6 +35,7 @@ class RimWellAllocationPlotLegend;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
 class RimWellLogTrack;
+class RigSingleWellResultsData;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -86,6 +87,9 @@ protected:
 
 private:
     void                                            updateFromWell();
+
+    std::map<QString, const std::vector<double> *>  findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults);
+
     void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
 
     void                                            addStackedCurve(const QString& tracerName, 

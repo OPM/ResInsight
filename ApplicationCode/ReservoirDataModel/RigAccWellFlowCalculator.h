@@ -61,7 +61,8 @@ public:
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,
                              const std::map<QString, const std::vector<double>* >&  tracerCellFractionValues,
                              const RigEclCellIndexCalculator                        cellIndexCalculator,
-                             double smallContribThreshold);
+                             double smallContribThreshold,
+                             bool isProducer);
 
     RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >&         pipeBranchesCLCoords,
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,
@@ -75,6 +76,7 @@ public:
     std::vector<std::pair<QString, double> > totalTracerFractions();
 private:
 
+    bool                         isWellFlowConsistent(bool isProducer);
     void                         calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
     std::vector<size_t>          wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells);
     static size_t                connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx);

@@ -181,50 +181,26 @@ void RimWellAllocationPlot::updateFromWell()
                                                                                     true,
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
+
+    std::map<QString, const std::vector<double>* > tracerCellFractionValues = findRelevantTracerCellFractions(wellResults);
+
     std::unique_ptr< RigAccWellFlowCalculator > wfCalculator;
-    std::map<QString, const std::vector<double>* > tracerCellFractionValues;
+
     double smallContributionThreshold = 0.0;
     if (m_groupSmallContributions()) smallContributionThreshold = m_smallContributionsThreshold;
 
-
-    if ( m_flowDiagSolution && wellResults->hasWellResult(m_timeStep))
+    if ( tracerCellFractionValues.size() )
     {
-        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
-
-        const RigWellResultFrame& wellResultFrame = wellResults->wellResultFrame(m_timeStep);
-        if (wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER)
-        {
-            requestedTracerType = RimFlowDiagSolution::INJECTOR;
-        }
-        else
-        {
-            requestedTracerType = RimFlowDiagSolution::PRODUCER;
-        }
-
-
-        std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
-        for ( const QString& tracerName : tracerNames )
-        {
-            if (m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType)
-            {
-                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
-                const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
-                tracerCellFractionValues[tracerName] = tracerCellFractions;
-            }
-        }
-
-        if ( tracerCellFractionValues.size() )
-        {
-            RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
-            wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
-                                                            pipeBranchesCellIds,
-                                                            tracerCellFractionValues,
-                                                            cellIdxCalc, 
-                                                            smallContributionThreshold));
-        }
+        bool isProducer = wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER ;
+        RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
+                                                        pipeBranchesCellIds,
+                                                        tracerCellFractionValues,
+                                                        cellIdxCalc, 
+                                                        smallContributionThreshold, 
+                                                        isProducer));
     }
-
-    if (!wfCalculator)
+    else 
     {
         if (pipeBranchesCLCoords.size() > 0)
         {
@@ -312,6 +288,45 @@ void RimWellAllocationPlot::updateFromWell()
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
     if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->updateGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults)
+{
+    std::map<QString, const std::vector<double> *> tracerCellFractionValues;
+
+    if ( m_flowDiagSolution && wellResults->isOpen(m_timeStep) )
+    {
+        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
+
+        const RigWellResultFrame::WellProductionType prodType = wellResults->wellProductionType(m_timeStep);
+        if ( prodType == RigWellResultFrame::PRODUCER )
+        {
+            requestedTracerType = RimFlowDiagSolution::INJECTOR;
+        }
+        else if (prodType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE)
+        {
+            requestedTracerType = RimFlowDiagSolution::PRODUCER;
+        }
+
+        if ( prodType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+        {
+            std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+            for ( const QString& tracerName : tracerNames )
+            {
+                if ( m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType )
+                {
+                    RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
+                    const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
+                    tracerCellFractionValues[tracerName] = tracerCellFractions;
+                }
+            }
+        }
+    }
+
+    return tracerCellFractionValues;
 }
 
 //--------------------------------------------------------------------------------------------------
