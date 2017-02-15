@@ -61,9 +61,11 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 
     if (activeView)
     {
-        activeView->cellResult->setResultType(RimDefines::FLOW_DIAGNOSTICS);
-        activeView->cellResult->setResultVariable("MaxFractionTracer");
-        activeView->cellResult->updateConnectedEditors();
+        activeView->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
+        activeView->cellResult()->setResultVariable("MaxFractionTracer");
+        activeView->cellResult()->updateResultNameHasChanged();
+
+        activeView->cellResult()->updateConnectedEditors();
 
         const std::vector<QString> contributingTracers = wellAllocationPlot->contributingTracerNames();
 
