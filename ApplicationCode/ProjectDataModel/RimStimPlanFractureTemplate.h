@@ -46,6 +46,8 @@ public:
     RimStimPlanFractureTemplate(void);
     virtual ~RimStimPlanFractureTemplate(void);
     
+    caf::PdmField<double>                   wellPathDepthAtFracture;
+    
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     void                                    setFileName(const QString& fileName);
@@ -59,7 +61,11 @@ public:
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
     std::vector<double>                     getStimPlanTimeValues();
 
-    caf::PdmField<double>                   wellPathDepthAtFracture;
+
+    std::vector<std::vector<double>>        getConductivitiesAtTimeStep(size_t timStep);
+    std::vector<std::vector<double>>        getPermeabilitiesAtTimeStep(size_t timStep);
+    std::vector<std::vector<double>>        getWidthsAtTimeStep(size_t timStep);
+
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

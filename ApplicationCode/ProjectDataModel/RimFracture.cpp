@@ -117,11 +117,11 @@ RimFracture::RimFracture(void)
     m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJK);
     m_displayIJK.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigPerm, "LegendConfigPerm", "LegendConfigPerm", "", "", "");
-    m_legendConfigPerm = new RimLegendConfig;
+    CAF_PDM_InitFieldNoDefault(&m_legendConfigPermeability, "LegendConfigPerm", "LegendConfigPerm", "", "", "");
+    m_legendConfigPermeability = new RimLegendConfig;
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigCond, "LegendConfigCond", "LegendConfigCond", "", "", "");
-    m_legendConfigCond = new RimLegendConfig;
+    CAF_PDM_InitFieldNoDefault(&m_legendConfigConductivity, "LegendConfigCond", "LegendConfigCond", "", "", "");
+    m_legendConfigConductivity = new RimLegendConfig;
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigWidth, "LegendConfigWidth", "LegendConfigWidth", "", "", "");
     m_legendConfigWidth = new RimLegendConfig;
@@ -137,12 +137,12 @@ RimFracture::RimFracture(void)
 //--------------------------------------------------------------------------------------------------
 RimFracture::~RimFracture()
 {
-    delete m_legendConfigCond;
-    delete m_legendConfigPerm;
+    delete m_legendConfigConductivity;
+    delete m_legendConfigPermeability;
     delete m_legendConfigWidth;
 
-    m_legendConfigCond = nullptr;
-    m_legendConfigPerm = nullptr;
+    m_legendConfigConductivity = nullptr;
+    m_legendConfigPermeability = nullptr;
     m_legendConfigWidth = nullptr;
 }
  
@@ -704,9 +704,9 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 void RimFracture::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     // TODO: Based on selected result, show correct legend
-    uiTreeOrdering.add(m_legendConfigCond);
-    uiTreeOrdering.add(m_legendConfigPerm);
-    uiTreeOrdering.add(m_legendConfigWidth);
+    if (RimFracture::CONDUCTIVITY) uiTreeOrdering.add(m_legendConfigConductivity);
+    if (RimFracture::PERMEABILITY) uiTreeOrdering.add(m_legendConfigPermeability);
+    if (RimFracture::WIDTH) uiTreeOrdering.add(m_legendConfigWidth);
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }

@@ -405,6 +405,7 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
 
 
     std::vector<double> xCoords = getNegAndPosXcoords();
+    //std::vector<double> xCoords = m_stimPlanFractureDefinitionData->gridXs;
     cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
 
     std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
@@ -475,6 +476,30 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
 std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 {
     return m_stimPlanFractureDefinitionData->timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getConductivitiesAtTimeStep(size_t timStep)
+{
+    return m_stimPlanFractureDefinitionData->conductivities[timStep];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getPermeabilitiesAtTimeStep(size_t timStep)
+{
+    return m_stimPlanFractureDefinitionData->permeabilities[timStep];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getWidthsAtTimeStep(size_t timStep)
+{
+    return m_stimPlanFractureDefinitionData->widths[timStep];
 }
 
 //--------------------------------------------------------------------------------------------------

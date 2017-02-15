@@ -58,8 +58,9 @@ private:
     void updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform);
     void updatePartGeometryTexture(caf::DisplayCoordTransform* displayCoordTransform);
 
-    static cvf::ref<cvf::DrawableGeo> createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
-
+    std::vector<double>                 mirrorDataAtSingleDepth(std::vector<double> depthData);
+    static cvf::ref<cvf::DrawableGeo>   createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+        
 private:
     caf::PdmPointer<RimFracture> m_rimFracture;
     cvf::ref<cvf::Part>          m_part;

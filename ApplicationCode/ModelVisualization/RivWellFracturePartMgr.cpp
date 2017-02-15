@@ -31,6 +31,7 @@
 #include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapperContinuousLinear.h"
+#include "RimStimPlanFractureTemplate.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -136,18 +137,68 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             scalarMapper->setLevelCount(4, true);
         }
 
-        cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
-        textureCoords->resize(nodeCoords.size());
-        for (size_t i = 0; i < textureCoords->size(); i++)
+        //double scalarValue = i % 4;
+        RimFractureTemplate * fracTemplate = m_rimFracture->attachedFractureDefinition();
+        RimStimPlanFractureTemplate* stimPlanFracTemplate;
+
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {
-            //double scalarValue = i % 4;
-            double scalarValue = 0;
-
-            cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(scalarValue);
-
-            textureCoords->set(i, texCoord);
+            stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+        }
+        else
+        {
+            return;
         }
 
+        int timeStepIndex = m_rimFracture->stimPlanTimeIndexToPlot;
+        std::vector<std::vector<double> > dataToPlot;
+
+        if (m_rimFracture->stimPlanParameterToPlot == RimFracture::CONDUCTIVITY)
+        {
+            dataToPlot = stimPlanFracTemplate->getConductivitiesAtTimeStep(timeStepIndex);
+        }
+        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::PERMEABILITY)
+        {
+            dataToPlot = stimPlanFracTemplate->getPermeabilitiesAtTimeStep(timeStepIndex);
+
+        }
+        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::WIDTH)
+        {
+            dataToPlot = stimPlanFracTemplate->getWidthsAtTimeStep(timeStepIndex);
+        }
+
+        
+        if (dataToPlot.empty())
+        {
+            return;
+        }
+
+
+        cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
+        textureCoords->resize(nodeCoords.size());
+//         for (size_t i = 0; i < textureCoords->size(); i++)
+//         {
+// 
+//             double scalarValue = 0;
+// 
+//             cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(scalarValue);
+// 
+//             textureCoords->set(i, texCoord);
+//         }
+
+        int i = 0;
+        for (std::vector<double> depthData : dataToPlot)
+        {
+            std::vector<double> mirroredValuesAtDepth = mirrorDataAtSingleDepth(depthData);
+            for (double gridXdata : mirroredValuesAtDepth)
+            {
+                cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(gridXdata);
+
+                textureCoords->set(i, texCoord);
+                i++;
+            }
+        }
+     
         geo->setTextureCoordArray(textureCoords.p());
 
         caf::ScalarMapperEffectGenerator nncEffgen(scalarMapper.p(), caf::PO_NEG_LARGE);
@@ -160,12 +211,40 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<double> depthData)
+{
+    std::vector<double> mirroredValuesAtGivenDepth;
+    mirroredValuesAtGivenDepth.push_back(depthData[0]);
+    for (int i = 1; i < (depthData.size()); i++) //starting at 1 since we don't want center value twice
+    {
+        double valueAtGivenX = depthData[i];
+        mirroredValuesAtGivenDepth.insert(mirroredValuesAtGivenDepth.begin(), valueAtGivenX);
+        mirroredValuesAtGivenDepth.push_back(valueAtGivenX);
+    }
+
+    return mirroredValuesAtGivenDepth;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
     if (m_part.isNull())
     {
-        updatePartGeometry(displayCoordTransform);
-        //updatePartGeometryTexture(displayCoordTransform);
+        if (m_rimFracture->attachedFractureDefinition())
+        {
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition()))
+            {
+                updatePartGeometryTexture(displayCoordTransform);
+            }
+            else
+            {
+                updatePartGeometry(displayCoordTransform);
+            }
+        }
     }
 
     if (m_part.notNull())

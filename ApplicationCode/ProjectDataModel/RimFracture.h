@@ -78,7 +78,6 @@ public:
 
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
     RimFractureTemplate*            attachedFractureDefinition() const;
-    //TODO: Skal dette være ellipseTemplate som før?
 
     RivWellFracturePartMgr*         fracturePartManager();
 
@@ -129,7 +128,7 @@ private:
 
     cvf::ref<RivWellFracturePartMgr>                m_rivFracture;
 
-    caf::PdmChildField<RimLegendConfig*>            m_legendConfigPerm;
-    caf::PdmChildField<RimLegendConfig*>            m_legendConfigCond;
+    caf::PdmChildField<RimLegendConfig*>            m_legendConfigPermeability;
+    caf::PdmChildField<RimLegendConfig*>            m_legendConfigConductivity;
     caf::PdmChildField<RimLegendConfig*>            m_legendConfigWidth;
 };
