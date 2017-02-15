@@ -38,6 +38,7 @@
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -45,8 +46,9 @@
 
 #include "RivWellFracturePartMgr.h"
 
-#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+#include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
@@ -56,6 +58,7 @@
 
 #include "clipper/clipper.hpp"
 #include <math.h>
+
 #include <QDebug>
 
 
@@ -99,6 +102,15 @@ RimFracture::RimFracture(void)
     m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJK);
     m_displayIJK.uiCapability()->setUiReadOnly(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_legendConfigPerm, "LegendConfigPerm", "LegendConfigPerm", "", "", "");
+    m_legendConfigPerm = new RimLegendConfig;
+
+    CAF_PDM_InitFieldNoDefault(&m_legendConfigCond, "LegendConfigCond", "LegendConfigCond", "", "", "");
+    m_legendConfigCond = new RimLegendConfig;
+
+    CAF_PDM_InitFieldNoDefault(&m_legendConfigWidth, "LegendConfigWidth", "LegendConfigWidth", "", "", "");
+    m_legendConfigWidth = new RimLegendConfig;
+
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
 
@@ -110,6 +122,13 @@ RimFracture::RimFracture(void)
 //--------------------------------------------------------------------------------------------------
 RimFracture::~RimFracture()
 {
+    delete m_legendConfigCond;
+    delete m_legendConfigPerm;
+    delete m_legendConfigWidth;
+
+    m_legendConfigCond = nullptr;
+    m_legendConfigPerm = nullptr;
+    m_legendConfigWidth = nullptr;
 }
  
 //--------------------------------------------------------------------------------------------------
@@ -618,6 +637,19 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
             myAttr->m_maximum = 360;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    // TODO: Based on selected result, show correct legend
+    uiTreeOrdering.add(m_legendConfigCond);
+    uiTreeOrdering.add(m_legendConfigPerm);
+    uiTreeOrdering.add(m_legendConfigWidth);
+
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimFractureTemplate.h"
+
 #include "cafPdmObject.h"
 
 #include "cafPdmField.h"
@@ -26,20 +28,20 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"
-
-#include "cafPdmProxyValueField.h"
-#include "cafPdmPtrField.h"
-#include "cafPdmFieldCvfVec3d.h"
 #include "cvfPlane.h"
 
-#include "RimFractureTemplate.h"
-//#include "RimEllipseFractureTemplate.h"
+#include "cafPdmChildField.h"
+#include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
+//#include "RimEllipseFractureTemplate.h"
 
 class RigFracture;
 class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
+class RimLegendConfig;
 
 //==================================================================================================
 ///  
@@ -91,7 +93,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
-
+    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     bool                            isRecomputeGeometryFlagSet();
@@ -117,4 +119,8 @@ private:
     caf::PdmField<int>                              m_k;    // Zero based indexing
 
     cvf::ref<RivWellFracturePartMgr>                m_rivFracture;
+
+    caf::PdmChildField<RimLegendConfig*>            m_legendConfigPerm;
+    caf::PdmChildField<RimLegendConfig*>            m_legendConfigCond;
+    caf::PdmChildField<RimLegendConfig*>            m_legendConfigWidth;
 };
