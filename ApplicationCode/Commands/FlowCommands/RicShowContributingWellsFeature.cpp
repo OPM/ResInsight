@@ -63,7 +63,7 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
     {
         activeView->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
         activeView->cellResult()->setResultVariable("MaxFractionTracer");
-        activeView->cellResult()->updateResultNameHasChanged();
+        activeView->cellResult()->loadDataAndUpdate();
 
         activeView->cellResult()->updateConnectedEditors();
 
@@ -97,7 +97,7 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 
         propertyFilter->resultDefinition()->setEclipseCase(activeView->eclipseCase());
         propertyFilter->resultDefinition()->setTofAndSelectTracer(wellAllocationPlot->wellName());
-        propertyFilter->resultDefinition()->updateResultNameHasChanged();
+        propertyFilter->resultDefinition()->loadDataAndUpdate();
 
         propertyFilterCollection->updateConnectedEditors();
 

@@ -121,7 +121,7 @@ void RimEclipseInputProperty::fieldChangedByUi(const caf::PdmFieldHandle* change
                         it->setResultVariable(newName);
                     }
 
-                    it->updateResultNameHasChanged();
+                    it->loadDataAndUpdate();
                     it->updateAnyFieldHasChanged();
                 }
             }

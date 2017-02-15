@@ -27,13 +27,13 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
-#include "RigFlowDiagResultAddress.h"
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
 class RimFlowDiagSolution;
+class RigFlowDiagResultAddress;
 
 
 //==================================================================================================
@@ -84,7 +84,7 @@ public:
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
-    void                            updateResultNameHasChanged();
+    void                            loadDataAndUpdate();
     void                            updateAnyFieldHasChanged();
 
     void                            setTofAndSelectTracer(const QString& tracerName);

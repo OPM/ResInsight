@@ -196,14 +196,14 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             m_flowSolution = m_flowSolutionUiField();
             m_selectedTracers = m_selectedTracersUiField();
         }
-        updateResultNameHasChanged();
+        loadDataAndUpdate();
     }
 
     if ( &m_selectedTracersUiField == changedField )
     {
         m_flowSolution = m_flowSolutionUiField();
         m_selectedTracers = m_selectedTracersUiField();
-        updateResultNameHasChanged();
+        loadDataAndUpdate();
     }
 
     updateAnyFieldHasChanged();
@@ -290,7 +290,7 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::updateResultNameHasChanged()
+void RimEclipseResultDefinition::loadDataAndUpdate()
 {
     RimView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
