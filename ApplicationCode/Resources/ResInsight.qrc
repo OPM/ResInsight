@@ -80,6 +80,12 @@
       <file>RightAxis16x16.png</file>
       <file>BottomAxis16x16.png</file>
       <file>Axes16x16.png</file>
+      <file>WellAllocPlots16x16.png</file>
+      <file>WellAllocPlot16x16.png</file>
+      <file>WellFlowPlot16x16.png</file>
+      <file>WellAllocPie16x16.png</file>
+      <file>WellAllocLegend16x16.png</file>
+      <file>SummaryPlotLight16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

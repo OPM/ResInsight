@@ -49,7 +49,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
 {
-    CAF_PDM_InitObject("Summary Plot", ":/SummaryPlot16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Plot", ":/SummaryPlotLight16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");

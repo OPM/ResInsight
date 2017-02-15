@@ -57,7 +57,7 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::RimWellAllocationPlot()
 {
-    CAF_PDM_InitObject("Well Allocation Plot", ":/newIcon16x16.png", "", "");
+    CAF_PDM_InitObject("Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Flow Diagnostics Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
@@ -79,6 +79,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
     m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
     m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
+    m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));
 
     CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
     m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
