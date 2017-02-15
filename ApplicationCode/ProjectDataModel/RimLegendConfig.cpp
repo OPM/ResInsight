@@ -606,34 +606,21 @@ void RimLegendConfig::setNamedCategoriesInverse(const std::vector<QString>& cate
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setNamedCategories(const std::vector<QString>& categoryNames)
+void RimLegendConfig::setCategoryItems(const std::vector< std::tuple<QString, int, cvf::Color3ub> >& categories)
 {
-    std::vector<int> nameIndices;
-    std::vector<cvf::String> names;
-
-    for ( size_t i = 0; i < categoryNames.size(); ++i )
-    {
-        nameIndices.push_back(static_cast<int>(i));
-        names.push_back(cvfqt::Utils::toString(categoryNames[i]));
-    }
-
-    m_categories = nameIndices;
-    m_categoryNames = names;
+    m_categories.clear();
+    m_categoryNames.clear();
     m_categoryColors.clear();
+    m_categoryColors.reserve(categories.size());
+
+    for (auto item : categories)
+    {
+        m_categoryNames.push_back(cvfqt::Utils::toString(std::get<0>(item)));
+        m_categories.push_back(std::get<1>(item));
+        m_categoryColors.add(std::get<2>(item));
+    }
 
     updateLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimLegendConfig::setCategoryColors(const std::vector<cvf::Color3ub>& categoryColors)
-{
-    if (m_categoryNames.size() == categoryColors.size())
-    {
-        m_categoryColors = cvf::Color3ubArray(categoryColors);
-        updateLegend();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

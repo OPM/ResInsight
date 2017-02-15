@@ -26,6 +26,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+#include <tuple>
+
 namespace cvf
 {
     class ScalarMapperContinuousLog;
@@ -108,8 +110,7 @@ public:
     
     void                                        setIntegerCategories(const std::vector<int>& categories);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
-    void                                        setNamedCategories(const std::vector<QString>& categoryNames);
-    void                                        setCategoryColors(const std::vector<cvf::Color3ub>& categoryColors);
+    void                                        setCategoryItems(const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories);
     QString                                     categoryNameFromCategoryValue(int categoryValue) const;
 
     void                                        setTitle(const cvf::String& title);
