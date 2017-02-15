@@ -221,7 +221,7 @@ public:
 
     void             updateConnectedEditors();
 
-    void             updateUiIconFromState(bool active);
+    void             updateUiIconFromState(bool isActive,  QString uiConfigName = "");
 
 public: // Pdm-Private only
     //==================================================================================================
