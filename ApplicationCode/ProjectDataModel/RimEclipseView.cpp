@@ -1125,14 +1125,16 @@ void RimEclipseView::syncronizeWellsWithResults()
     // Set the new wells into the field.
     this->wellCollection()->wells().insert(0, newWells);
 
+    // Make sure all the wells have their reservoirView ptr setup correctly
+    this->wellCollection()->setReservoirView(this);
+
+    // Sort wells before assigning colors, as the colors are distributed based on sorting
+    this->wellCollection()->sortWellsByName();
+
     if (isAnyWellCreated)
     {
         this->wellCollection()->assignDefaultWellColors();
     }
-
-    // Make sure all the wells have their reservoirView ptr setup correctly
-    this->wellCollection()->setReservoirView(this);
-    this->wellCollection()->sortWellsByName();
 }
 
 //--------------------------------------------------------------------------------------------------

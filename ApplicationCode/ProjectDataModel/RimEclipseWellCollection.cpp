@@ -25,7 +25,6 @@
 #include "RiaPreferences.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -453,24 +452,16 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::assignDefaultWellColors()
 {
-    // The wells are sorted, use ordering of single well results data to assign colors
-
-    RimEclipseCase* rimEclipseCase = nullptr;
-    this->firstAncestorOrThisOfType(rimEclipseCase);
-    if (!rimEclipseCase) return;
-
-    if (!rimEclipseCase->reservoirData()) return;
-
-    cvf::Collection<RigSingleWellResultsData> wellResults = rimEclipseCase->reservoirData()->wellResults();
-
     const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
+    cvf::Color3ubArray catColors = colorTable.color3ubArray();
+    cvf::Color3ubArray interpolatedCatColors = caf::ColorTable::interpolateColorArray(catColors, wells.size());
 
-    for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
+    for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
     {
-        RimEclipseWell* well = this->findWell(wellResults[wIdx]->m_wellName);
+        RimEclipseWell* well = wells[wIdx];
         if (well)
         {
-            cvf::Color3f col = colorTable.cycledColor3f(wIdx);
+            cvf::Color3f col = cvf::Color3f(interpolatedCatColors[wIdx]);
 
             well->wellPipeColor = col;
             well->updateConnectedEditors();
