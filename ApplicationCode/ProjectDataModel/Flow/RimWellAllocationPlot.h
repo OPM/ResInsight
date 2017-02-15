@@ -81,6 +81,9 @@ protected:
 
     virtual QImage                                  snapshotWindowContent() override;
 
+
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     void                                            updateFromWell();
     void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
@@ -106,6 +109,8 @@ private:
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
+    caf::PdmField<bool>                             m_groupSmallContributions;
+    caf::PdmField<double>                           m_smallContributionsThreshold;
 
     QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
 
