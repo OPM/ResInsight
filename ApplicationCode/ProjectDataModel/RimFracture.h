@@ -35,7 +35,6 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-//#include "RimEllipseFractureTemplate.h"
 
 class RigFracture;
 class RimEclipseCase;
@@ -58,6 +57,16 @@ public:
     caf::PdmField<QString>                          name;
     caf::PdmField<double>                           azimuth;
     caf::PdmField<double>                           perforationLength;
+
+    caf::PdmField<int>                              stimPlanTimeIndexToPlot;
+    enum stimPlanPlotParameterEnum
+    {
+        CONDUCTIVITY,
+        PERMEABILITY,
+        WIDTH
+    };
+    caf::PdmField< caf::AppEnum< stimPlanPlotParameterEnum > >  stimPlanParameterToPlot;
+
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);

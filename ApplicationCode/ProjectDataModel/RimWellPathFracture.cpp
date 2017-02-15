@@ -147,26 +147,19 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
+
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_measuredDepth);
     locationGroup->add(&azimuth);
-    if (attachedFractureDefinition())
-    {
-        if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH
-            || attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
-        {
-            azimuth.uiCapability()->setUiReadOnly(true);
-        }
-        else if (attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
-        {
-            azimuth.uiCapability()->setUiReadOnly(false);
-        }
-    }
+
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_fractureTemplate);
+    propertyGroup->add(&stimPlanParameterToPlot);
+    propertyGroup->add(&stimPlanTimeIndexToPlot);
     propertyGroup->add(&perforationLength);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");

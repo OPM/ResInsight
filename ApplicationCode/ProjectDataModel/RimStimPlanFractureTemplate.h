@@ -57,6 +57,7 @@ public:
 
     std::vector<double>                     getNegAndPosXcoords();
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double>                     getStimPlanTimeValues();
 
     caf::PdmField<double>                   wellPathDepthAtFracture;
 

@@ -42,6 +42,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimView.h"
 
 #include "RivWellFracturePartMgr.h"
@@ -60,8 +61,22 @@
 #include <math.h>
 
 #include <QDebug>
+#include <QString>
 
 
+namespace caf
+{
+    template<>
+
+    void caf::AppEnum< RimFracture::stimPlanPlotParameterEnum>::setUp()
+    {
+        addItem(RimFracture::CONDUCTIVITY, "Cond", "Conductivity");
+        addItem(RimFracture::PERMEABILITY, "Perm", "Permeability");
+        addItem(RimFracture::WIDTH, "Width", "Width");
+
+        setDefault(RimFracture::CONDUCTIVITY);
+    }
+}
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
@@ -83,11 +98,11 @@ RimFracture::RimFracture(void)
     m_uiAnchorPosition.registerGetMethod(this, &RimFracture::fracturePositionForUi);
     m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
-
+    azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "PerforationLength", "", "", "");
 
-
-    azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&stimPlanParameterToPlot, "parameterToPlot", caf::AppEnum<stimPlanPlotParameterEnum>(WIDTH), "Parameter from StimPlan file to plot", "", "", "");
+    CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "Timestep from StimPlan file to plot", "", "", "");
 
     CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
     m_i.uiCapability()->setUiHidden(true);
@@ -602,6 +617,25 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
             options.push_back(caf::PdmOptionItemInfo(fracDef->name(), fracDef));
         }
     }
+    else if (fieldNeedingOptions == &stimPlanTimeIndexToPlot)
+    {
+        if (attachedFractureDefinition())
+        {
+            RimFractureTemplate* fracTemplate = attachedFractureDefinition();
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
+            {
+                RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+                std::vector<double> timeValues = fracTemplateStimPlan->getStimPlanTimeValues();
+                int index = 0;
+                for (double value : timeValues)
+                {
+                    options.push_back(caf::PdmOptionItemInfo(QString::number(value), index));
+                    index++;
+                }
+            }
+
+        }
+    }
 
     return options;
 }
@@ -611,16 +645,41 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&name);
 
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Properties");
-    geometryGroup->add(&azimuth);
-    geometryGroup->add(&perforationLength);
-    geometryGroup->add(&m_fractureTemplate);
+    if (attachedFractureDefinition())
+    {
+        if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH
+            || attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        {
+            azimuth.uiCapability()->setUiReadOnly(true);
+        }
+        else if (attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+        {
+            azimuth.uiCapability()->setUiReadOnly(false);
+        }
 
-    caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
-    fractureCenterGroup->add(&m_uiAnchorPosition);
-    fractureCenterGroup->add(&m_displayIJK);
+
+        RimFractureTemplate* fracTemplate= attachedFractureDefinition();
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
+        {
+            stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
+            stimPlanParameterToPlot.uiCapability()->setUiHidden(false);
+        }
+        else
+        {
+            stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
+            stimPlanParameterToPlot.uiCapability()->setUiHidden(true);
+        }
+    }
+    else
+    {
+        stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
+        stimPlanParameterToPlot.uiCapability()->setUiHidden(true);
+    }
+
+
+    
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -472,6 +472,14 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
+{
+    return m_stimPlanFractureDefinitionData->timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
 {
      std::vector<cvf::Vec3f> polygon;
