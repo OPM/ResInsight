@@ -32,6 +32,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapperContinuousLinear.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimLegendConfig.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +134,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             dataToPlot = stimPlanFracTemplate->getWidthsAtTimeStep(timeStepIndex);
         }
 
-        if (dataToPlot.empty()) return;
+        if (dataToPlot.empty()) return; //TODO: Set all values to undefined if no data available...
 
         const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
         const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
@@ -151,19 +152,20 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         m_part = new cvf::Part;
         m_part->setDrawable(geo.p());
 
-
-        cvf::ref<cvf::ScalarMapperContinuousLinear> scalarMapper = new cvf::ScalarMapperContinuousLinear;
-        {
-            cvf::Color3ubArray legendColors;
-            legendColors.resize(4);
-            legendColors[0] = cvf::Color3::GRAY;
-            legendColors[1] = cvf::Color3::GREEN;
-            legendColors[2] = cvf::Color3::BLUE;
-            legendColors[3] = cvf::Color3::RED;
-            scalarMapper->setColors(legendColors);
-            scalarMapper->setRange(0.0, 4.0);
-            scalarMapper->setLevelCount(4, true);
-        }
+        RimLegendConfig* legend = m_rimFracture->activeLegend();
+        cvf::ScalarMapper* scalarMapper =  legend->scalarMapper();
+//         cvf::ref<cvf::ScalarMapperContinuousLinear> scalarMapper = new cvf::ScalarMapperContinuousLinear;
+//         {
+//             cvf::Color3ubArray legendColors;
+//             legendColors.resize(4);
+//             legendColors[0] = cvf::Color3::GRAY;
+//             legendColors[1] = cvf::Color3::GREEN;
+//             legendColors[2] = cvf::Color3::BLUE;
+//             legendColors[3] = cvf::Color3::RED;
+//             scalarMapper->setColors(legendColors);
+//             scalarMapper->setRange(0.0, 4.0);
+//             scalarMapper->setLevelCount(4, true);
+//         }
 
         //double scalarValue = i % 4;
 
@@ -186,8 +188,8 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
      
         geo->setTextureCoordArray(textureCoords.p());
 
-        caf::ScalarMapperEffectGenerator nncEffgen(scalarMapper.p(), caf::PO_NEG_LARGE);
-        cvf::ref<cvf::Effect> eff = nncEffgen.generateUnCachedEffect();
+        caf::ScalarMapperEffectGenerator scalarMapperEffectGenerator(scalarMapper, caf::PO_NEG_LARGE);
+        cvf::ref<cvf::Effect> eff = scalarMapperEffectGenerator.generateUnCachedEffect();
 
         m_part->setEffect(eff.p());
     }
@@ -217,6 +219,8 @@ std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
+    clearGeometryCache();
+
     if (m_part.isNull())
     {
         if (m_rimFracture->attachedFractureDefinition())

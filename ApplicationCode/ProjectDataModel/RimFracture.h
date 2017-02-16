@@ -80,6 +80,7 @@ public:
     RimFractureTemplate*            attachedFractureDefinition() const;
 
     RivWellFracturePartMgr*         fracturePartManager();
+    RimLegendConfig*                activeLegend();
 
     bool                            hasValidGeometry() const;
     void                            computeGeometry();

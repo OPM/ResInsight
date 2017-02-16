@@ -705,10 +705,9 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    // TODO: Based on selected result, show correct legend
-    if (RimFracture::CONDUCTIVITY) uiTreeOrdering.add(m_legendConfigConductivity);
-    if (RimFracture::PERMEABILITY) uiTreeOrdering.add(m_legendConfigPermeability);
-    if (RimFracture::WIDTH) uiTreeOrdering.add(m_legendConfigWidth);
+    if      (stimPlanParameterToPlot == RimFracture::CONDUCTIVITY) uiTreeOrdering.add(m_legendConfigConductivity);
+    else if (stimPlanParameterToPlot == RimFracture::PERMEABILITY) uiTreeOrdering.add(m_legendConfigPermeability);
+    else if (stimPlanParameterToPlot == RimFracture::WIDTH)        uiTreeOrdering.add(m_legendConfigWidth);
 
     uiTreeOrdering.setForgetRemainingFields(true);
 }
@@ -792,6 +791,18 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
     CVF_ASSERT(m_rivFracture.notNull());
 
     return m_rivFracture.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig* RimFracture::activeLegend()
+{
+    if      (stimPlanParameterToPlot == RimFracture::CONDUCTIVITY) return m_legendConfigConductivity;
+    else if (stimPlanParameterToPlot == RimFracture::PERMEABILITY) return m_legendConfigPermeability;
+    else if (stimPlanParameterToPlot == RimFracture::WIDTH)        return m_legendConfigWidth;
+    
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
