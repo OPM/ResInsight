@@ -35,7 +35,9 @@ RimFractureTemplateCollection::RimFractureTemplateCollection(void)
     CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
-    
+    CAF_PDM_InitField(&defaultUnitsForFracTemplates, "defaultUnitForFracTemplates", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Default unit system for fracture templates", "", "", "");
+
+
     CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "FractureDefinitions", "", "", "", "");
     fractureDefinitions.uiCapability()->setUiHidden(true);
 }

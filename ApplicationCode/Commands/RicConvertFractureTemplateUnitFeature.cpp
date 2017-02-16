@@ -24,12 +24,15 @@
 #include "RifEclipseExportTools.h"
 #include "RifEclipseExportTools.h"
 
+#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureExportSettings.h"
 #include "RimView.h"
 #include "RimWellPathCollection.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafPdmObjectHandle.h"
@@ -42,7 +45,6 @@
 #include <QMessageBox>
 #include <QString>
 #include <QFileInfo>
-#include "RimEllipseFractureTemplate.h"
 
 CAF_CMD_SOURCE_INIT(RicConvertFractureTemplateUnitFeature, "RicConvertFractureTemplateUnitFeature");
 
@@ -81,11 +83,11 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
     RimEllipseFractureTemplate* ellipseFractureTemplate = nullptr;
     objHandle->firstAncestorOrThisOfType(ellipseFractureTemplate);
 
-    if (ellipseFractureTemplate->fractureTemplateUnit == RimEllipseFractureTemplate::UNITS_METRIC)
+    if (ellipseFractureTemplate->fractureTemplateUnit == RimDefines::UNITS_METRIC)
     {
         actionToSetup->setText("Change to Field units in fracture template");
     }
-    else if (ellipseFractureTemplate->fractureTemplateUnit == RimEllipseFractureTemplate::UNITS_FIELD)
+    else if (ellipseFractureTemplate->fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
         actionToSetup->setText("Change to metric units in fracture template");
     }

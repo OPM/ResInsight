@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
@@ -28,8 +30,8 @@
 #include "cvfVector3.h"
 
 #include <vector>
-#include "RigEclipseCaseData.h"
 
+class RigEclipseCaseData;
 
 //==================================================================================================
 ///  
@@ -62,12 +64,7 @@ public:
     };
     caf::PdmField< caf::AppEnum< FracConductivityEnum > >  fractureConductivity;
 
-    enum FracUnitEnum //TODO: USE enum from RigEclipseCaseData
-    {
-        UNITS_METRIC,
-        UNITS_FIELD,
-    };
-    caf::PdmField< caf::AppEnum< FracUnitEnum > >  fractureTemplateUnit;
+    caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >  fractureTemplateUnit;
 
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

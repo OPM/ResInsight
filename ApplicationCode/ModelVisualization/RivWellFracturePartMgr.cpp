@@ -154,24 +154,9 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
         RimLegendConfig* legend = m_rimFracture->activeLegend();
         cvf::ScalarMapper* scalarMapper =  legend->scalarMapper();
-//         cvf::ref<cvf::ScalarMapperContinuousLinear> scalarMapper = new cvf::ScalarMapperContinuousLinear;
-//         {
-//             cvf::Color3ubArray legendColors;
-//             legendColors.resize(4);
-//             legendColors[0] = cvf::Color3::GRAY;
-//             legendColors[1] = cvf::Color3::GREEN;
-//             legendColors[2] = cvf::Color3::BLUE;
-//             legendColors[3] = cvf::Color3::RED;
-//             scalarMapper->setColors(legendColors);
-//             scalarMapper->setRange(0.0, 4.0);
-//             scalarMapper->setLevelCount(4, true);
-//         }
-
-        //double scalarValue = i % 4;
 
         cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
         textureCoords->resize(nodeCoords.size());
-
 
         int i = 0;
         for (std::vector<double> depthData : dataToPlot)
@@ -180,7 +165,6 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             for (double gridXdata : mirroredValuesAtDepth)
             {
                 cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(gridXdata);
-
                 textureCoords->set(i, texCoord);
                 i++;
             }

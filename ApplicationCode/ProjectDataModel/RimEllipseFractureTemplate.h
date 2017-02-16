@@ -59,10 +59,5 @@ public:
     
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-private:
-    static float convertMtoFeet(float length);
-    static float convertMtoInch(float length);
 
-    static float convertInchToM(float length);
-    static float convertFeetToM(float length);
 };

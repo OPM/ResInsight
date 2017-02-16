@@ -48,13 +48,14 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
     if (oilfield == nullptr) return;
 
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
-
+    
     if (fracDefColl)
     {
         RimEllipseFractureTemplate* fractureDef = new RimEllipseFractureTemplate();
         fracDefColl->fractureDefinitions.push_back(fractureDef);
         fractureDef->name = "Ellipse Fracture Template";
-        
+        fractureDef->fractureTemplateUnit = fracDefColl->defaultUnitsForFracTemplates();
+
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
     }

@@ -32,7 +32,6 @@
 namespace caf
 {
     template<>
-   
     void caf::AppEnum< RimFractureTemplate::FracOrientationEnum>::setUp()
     {
         addItem(RimFractureTemplate::AZIMUTH, "Az", "Azimuth");
@@ -43,7 +42,6 @@ namespace caf
     }
 
     template<>
-
     void caf::AppEnum< RimFractureTemplate::FracConductivityEnum>::setUp()
     {
         addItem(RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite conductivity in fracture");
@@ -53,15 +51,6 @@ namespace caf
     }
 
 
-    template<>
-
-    void caf::AppEnum< RimFractureTemplate::FracUnitEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::UNITS_METRIC, "MetricUnits", "Metric");
-        addItem(RimFractureTemplate::UNITS_FIELD, "FieldsUnits", "Field units");
-
-        setDefault(RimFractureTemplate::UNITS_METRIC);
-    }
 }
 
 
@@ -75,7 +64,7 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
-    CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<FracUnitEnum>(UNITS_METRIC), "Units used in frac template", "", "", "");
+    CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Units used in frac template", "", "", "");
     fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
 

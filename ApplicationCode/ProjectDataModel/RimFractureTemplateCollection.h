@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
@@ -39,6 +41,9 @@ public:
     caf::PdmChildArrayField<RimFractureTemplate*>   fractureDefinitions;
 
     caf::PdmField<bool>                             isActive;
+
+    caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >   defaultUnitsForFracTemplates;
+
 
     void                                deleteFractureDefinitions();
     void                                loadAndUpdateData();

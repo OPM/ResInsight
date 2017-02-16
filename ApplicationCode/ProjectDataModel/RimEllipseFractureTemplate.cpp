@@ -20,6 +20,7 @@
 
 #include "RigTesselatorTools.h"
 
+#include "RimDefines.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
@@ -44,7 +45,7 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Lenght of well perforation", "", "", ""); //Is this correct description?
 
-    CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability", "", "", "");
+    CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability [mD]", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,21 +155,22 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon()
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::changeUnits()
 {
-    if (fractureTemplateUnit == RimEllipseFractureTemplate::UNITS_METRIC)
+    if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
     {
-        halfLength = convertMtoFeet(halfLength);
-        height = convertMtoFeet(height);
-        width = convertMtoInch(width);
-        fractureTemplateUnit = RimFractureTemplate::UNITS_FIELD;
+        halfLength = RimDefines::meterToFeet(halfLength);
+        height = RimDefines::meterToFeet(height);
+        width = RimDefines::meterToInch(width);
+        perforationLength = RimDefines::meterToFeet(perforationLength);
+        fractureTemplateUnit = RimDefines::UNITS_FIELD;
         //TODO: Darcy unit?
     }
-    else if (fractureTemplateUnit == RimEllipseFractureTemplate::UNITS_FIELD)
+    else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
-        halfLength = convertFeetToM(halfLength);
-        height = convertFeetToM(height);
-        width = convertInchToM(width);
-        fractureTemplateUnit = RimFractureTemplate::UNITS_METRIC;
-        //TODO: Darcy unit?
+        halfLength = RimDefines::feetToMeter(halfLength);
+        height = RimDefines::feetToMeter(height);
+        width = RimDefines::inchToMeter(width);
+        perforationLength = RimDefines::feetToMeter(perforationLength);
+        fractureTemplateUnit = RimDefines::UNITS_METRIC;
     }
 
     this->updateConnectedEditors();
@@ -181,17 +183,19 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
     
-    if (fractureTemplateUnit == RimFractureTemplate::UNITS_METRIC)
+    if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
     {
         halfLength.uiCapability()->setUiName("Halflenght Xf [m]");
         height.uiCapability()->setUiName("Height [m]");
         width.uiCapability()->setUiName("Width [m]");
+        perforationLength.uiCapability()->setUiName("Length of well perforation [m]");
     }
-    else if (fractureTemplateUnit == RimFractureTemplate::UNITS_FIELD)
+    else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
         halfLength.uiCapability()->setUiName("Halflenght Xf [Ft]");
         height.uiCapability()->setUiName("Height [Ft]");
         width.uiCapability()->setUiName("Width [inches]");
+        perforationLength.uiCapability()->setUiName("Length of well perforation [Ft]");
     }
 
     
@@ -211,41 +215,3 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     propertyGroup->add(&perforationLength);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-float RimEllipseFractureTemplate::convertMtoFeet(float length)
-{
-    length = length*(100/(2.54*12));
-    return length;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-float RimEllipseFractureTemplate::convertMtoInch(float length)
-{
-    length = length*(100 / 2.54);
-    return length;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-float RimEllipseFractureTemplate::convertInchToM(float length)
-{
-    length = length*(2.54 / 100);
-    return length;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-float RimEllipseFractureTemplate::convertFeetToM(float length)
-{
-    length = (length*12)*(2.54 / 100);
-    return length;
-
-}

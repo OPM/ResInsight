@@ -19,6 +19,7 @@
 #include "RifEclipseExportTools.h"
 
 #include "RiaApplication.h"
+#include "RigEclipseCaseData.h"
 #include "RigFracture.h"
 #include "RigFracture.h"
 #include "RigMainGrid.h"
@@ -149,14 +150,14 @@ bool RifEclipseExportTools::unitsMatchCaseAndFractures(RimEclipseCase* caseToApp
     {
         if (fracture->attachedFractureDefinition())
         {
-            if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimFractureTemplate::UNITS_METRIC)
+            if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimDefines::UNITS_METRIC)
             {
                 if (!(caseUnit == RigEclipseCaseData::UNITS_METRIC))
                 {
                     unitsMatch = false;
                 }
             }
-            else if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimFractureTemplate::UNITS_FIELD)
+            else if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimDefines::UNITS_FIELD)
             {
                 if (!(caseUnit == RigEclipseCaseData::UNITS_FIELD))
                 {
