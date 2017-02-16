@@ -41,6 +41,8 @@
 #include "RiuWellAllocationPlot.h"
 #include "RigAccWellFlowCalculator.h"
 #include "RimProject.h"
+#include "RiuWellLogTrack.h"
+#include "RimWellAllocationPlotLegend.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 
@@ -55,7 +57,7 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::RimWellAllocationPlot()
 {
-    CAF_PDM_InitObject("Well Allocation Plot", ":/newIcon16x16.png", "", "");
+    CAF_PDM_InitObject("Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Flow Diagnostics Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
@@ -68,15 +70,24 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitField(&m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "");
     CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
+    CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
+    CAF_PDM_InitField(&m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
+    m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
+    m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
+    m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
+    m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));
 
     CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
     m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
-
     m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
+
+    CAF_PDM_InitFieldNoDefault(&m_wellAllocationPlotLegend, "WellAllocLegend", "Legend", "", "", "");
+    m_wellAllocationPlotLegend.uiCapability()->setUiHidden(true);
+    m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
 
     this->setAsPlotMdiWindow();
 }
@@ -108,9 +119,15 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
     m_wellName = simWell->wellResults()->m_wellName;
     m_timeStep = eclView->currentTimeStep();
 
+    // Use the active flow diag solutions, or the first one as default
     m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
+    if ( !m_flowDiagSolution )
+    {
+        std::vector<RimFlowDiagSolution*> flowSolutions =  m_case->flowDiagSolutions();
+        if ( flowSolutions.size() ) m_flowDiagSolution = flowSolutions.front();
+    }
 
-    updateFromWell();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,52 +182,39 @@ void RimWellAllocationPlot::updateFromWell()
                                                                                     true,
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
+
+    std::map<QString, const std::vector<double>* > tracerCellFractionValues = findRelevantTracerCellFractions(wellResults);
+
     std::unique_ptr< RigAccWellFlowCalculator > wfCalculator;
-    std::map<QString, const std::vector<double>* > tracerCellFractionValues;
 
-    if ( m_flowDiagSolution && wellResults->hasWellResult(m_timeStep))
+    double smallContributionThreshold = 0.0;
+    if (m_groupSmallContributions()) smallContributionThreshold = m_smallContributionsThreshold;
+
+    if ( tracerCellFractionValues.size() )
     {
-        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
-
-        const RigWellResultFrame& wellResultFrame = wellResults->wellResultFrame(m_timeStep);
-        if (wellResultFrame.m_productionType == RigWellResultFrame::PRODUCER)
-        {
-            requestedTracerType = RimFlowDiagSolution::INJECTOR;
-        }
-        else
-        {
-            requestedTracerType = RimFlowDiagSolution::PRODUCER;
-        }
-
-
-        std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
-        for ( const QString& tracerName : tracerNames )
-        {
-            if (m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType)
-            {
-                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
-                const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
-                tracerCellFractionValues[tracerName] = tracerCellFractions;
-            }
-        }
-
-        if ( tracerCellFractionValues.size() )
-        {
-            RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
-            wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
-                                                            pipeBranchesCellIds,
-                                                            tracerCellFractionValues,
-                                                            cellIdxCalc));
-        }
+        bool isProducer = wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER ;
+        RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
+                                                        pipeBranchesCellIds,
+                                                        tracerCellFractionValues,
+                                                        cellIdxCalc, 
+                                                        smallContributionThreshold, 
+                                                        isProducer));
     }
-
-    if (!wfCalculator)
+    else 
     {
         if (pipeBranchesCLCoords.size() > 0)
         {
             wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
-                                                  pipeBranchesCellIds));
+                                                            pipeBranchesCellIds,
+                                                            smallContributionThreshold));
         }
+    }
+
+    m_contributingTracerNames.clear();
+    if (wfCalculator)
+    {
+        m_contributingTracerNames = wfCalculator->tracerNames();
     }
 
     // Create tracks and curves from the calculated data
@@ -223,8 +227,6 @@ void RimWellAllocationPlot::updateFromWell()
 
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
 
-        // TODO: Description is overwritten by RimWellLogPlot::updateTrackNames()
-        // Add flag to control if this behavior
         plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
@@ -250,6 +252,8 @@ void RimWellAllocationPlot::updateFromWell()
             addStackedCurve("Total", connNumbers, accFlow, plotTrack);
         }
 
+        updateWellFlowPlotXAxisTitle(plotTrack);
+
     }
 
     QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
@@ -259,42 +263,97 @@ void RimWellAllocationPlot::updateFromWell()
     /// Pie chart
 
     m_totalWellAllocationPlot->clearSlices();
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->clearLegend();
 
     if (wfCalculator)
     {
-        std::vector<QString> tracerNames =  wfCalculator->tracerNames();
-        std::vector<std::pair<QString, double> > tracerWithValues;
+        std::vector<std::pair<QString, double> > totalTracerFractions = wfCalculator->totalTracerFractions() ;
 
-        for (const QString& tracerName: tracerNames)
+        for ( const auto& tracerVal : totalTracerFractions )
         {
-            const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, 0);
-            tracerWithValues.push_back(std::make_pair(tracerName, accFlow.back()));
-        }
+            cvf::Color3f color;
+            if ( m_flowDiagSolution )
+                color = m_flowDiagSolution->tracerColor(tracerVal.first);
+            else
+                color = cvf::Color3f::DARK_GRAY;
 
-        float sumTracerVals = 0.0f;
-        for ( const auto& tracerVal:tracerWithValues)
-        {
-             sumTracerVals += tracerVal.second;
-        }
+            double tracerPercent = 100*tracerVal.second;
 
-        if ( sumTracerVals != 0.0f )
-        {
-            for ( const auto& tracerVal : tracerWithValues )
-            {
-                cvf::Color3f color;
-                if ( m_flowDiagSolution )
-                    color = m_flowDiagSolution->tracerColor(tracerVal.first);
-                else
-                    color = cvf::Color3f::DARK_GRAY;
-
-                m_totalWellAllocationPlot->addSlice(tracerVal.first, color, 100*tracerVal.second/sumTracerVals);
-            }
+            m_totalWellAllocationPlot->addSlice(tracerVal.first, color, tracerPercent);
+            if ( m_wellAllocationPlotWidget ) m_wellAllocationPlotWidget->addLegendItem(tracerVal.first, color, tracerPercent);
         }
     }
-    
+
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->showLegend(m_wellAllocationPlotLegend->isShowingLegend());
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->updateGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults)
+{
+    std::map<QString, const std::vector<double> *> tracerCellFractionValues;
+
+    if ( m_flowDiagSolution && wellResults->isOpen(m_timeStep) )
+    {
+        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
+
+        const RigWellResultFrame::WellProductionType prodType = wellResults->wellProductionType(m_timeStep);
+        if ( prodType == RigWellResultFrame::PRODUCER )
+        {
+            requestedTracerType = RimFlowDiagSolution::INJECTOR;
+        }
+        else if (prodType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE)
+        {
+            requestedTracerType = RimFlowDiagSolution::PRODUCER;
+        }
+
+        if ( prodType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+        {
+            std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+            for ( const QString& tracerName : tracerNames )
+            {
+                if ( m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType )
+                {
+                    RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
+                    const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
+                    tracerCellFractionValues[tracerName] = tracerCellFractions;
+                }
+            }
+        }
+    }
+
+    return tracerCellFractionValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
+{
+    RigEclipseCaseData::UnitsType unitSet = m_case->reservoirData()->unitsType();
+    QString unitText;
+    switch ( unitSet )
+    {
+        case RigEclipseCaseData::UNITS_METRIC:
+        unitText = "[m^3/day]";
+        break;
+        case RigEclipseCaseData::UNITS_FIELD:
+        unitText = "[Brl/day]";
+        break;
+        case RigEclipseCaseData::UNITS_LAB:
+        unitText = "[cm^3/hr]";
+        break;
+        default:
+        break;
+
+    }
+
+    plotTrack->setXAxisTitle("Flow Rate " + unitText);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +365,7 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
                                             RimWellLogTrack* plotTrack)
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-    curve->setFlowValues(tracerName, connNumbers, accFlow);
+    curve->setFlowValuesPrConnection(tracerName, connNumbers, accFlow);
 
     if ( m_flowDiagSolution )
         curve->setColor(m_flowDiagSolution->tracerColor(tracerName));
@@ -483,6 +542,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 
             for (RimFlowDiagSolution* flowSol : flowSols)
             {
+                options.push_back(caf::PdmOptionItemInfo("None", nullptr));
                 options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
             }
         }
@@ -502,10 +562,26 @@ QString RimWellAllocationPlot::wellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<QString> RimWellAllocationPlot::contributingTracerNames() const
+{
+    return m_contributingTracerNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
 {
     removeMdiWindowFromMdiArea();
     deleteViewWidget();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::showPlotLegend(bool doShow)
+{
+    if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->showLegend(doShow);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,9 +598,12 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     }
     else if (   changedField == &m_wellName
              || changedField == &m_case
-             || changedField == &m_timeStep)
+             || changedField == &m_timeStep
+             || changedField == &m_flowDiagSolution
+             || changedField == &m_groupSmallContributions
+             || changedField == &m_smallContributionsThreshold )
     {
-        updateFromWell();
+        loadDataAndUpdate();
     }
 }
 
@@ -535,9 +614,21 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 {
     QImage image;
 
-    // TODO
+    if (m_wellAllocationPlotWidget)
+    {
+        QPixmap pix = QPixmap::grabWidget(m_wellAllocationPlotWidget);
+        image = pix.toImage();
+    }
 
     return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    m_smallContributionsThreshold.uiCapability()->setUiReadOnly(!m_groupSmallContributions());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,6 +656,7 @@ void RimWellAllocationPlot::loadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateFromWell();
+    m_accumulatedWellFlowPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

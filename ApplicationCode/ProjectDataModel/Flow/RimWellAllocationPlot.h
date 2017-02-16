@@ -31,9 +31,11 @@ class RimEclipseResultCase;
 class RimEclipseWell;
 class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
+class RimWellAllocationPlotLegend;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
 class RimWellLogTrack;
+class RigSingleWellResultsData;
 
 namespace caf {
     class PdmOptionItemInfo;
@@ -67,9 +69,11 @@ public:
 
 
     QString                                         wellName() const;
+    const std::vector<QString>                      contributingTracerNames() const;
 
     void                                            removeFromMdiAreaAndDeleteViewWidget();
 
+    void                                            showPlotLegend(bool doShow);
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
@@ -78,8 +82,15 @@ protected:
 
     virtual QImage                                  snapshotWindowContent() override;
 
+
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     void                                            updateFromWell();
+
+    std::map<QString, const std::vector<double> *>  findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults);
+
+    void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
 
     void                                            addStackedCurve(const QString& tracerName, 
                                                                     const std::vector<double>& connNumbers, 
@@ -102,9 +113,14 @@ private:
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
+    caf::PdmField<bool>                             m_groupSmallContributions;
+    caf::PdmField<double>                           m_smallContributionsThreshold;
 
     QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
 
     caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
     caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
+    caf::PdmChildField<RimWellAllocationPlotLegend*> m_wellAllocationPlotLegend;
+
+    std::vector<QString>                            m_contributingTracerNames;
 };

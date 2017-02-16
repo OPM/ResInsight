@@ -29,6 +29,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -281,7 +283,32 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            this->legendConfig()->setNamedCategories(this->flowDiagSolution()->tracerNames());
+            std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+
+            std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
+
+            // Loop through the wells to get same ordering as the wells in tree view
+            for (size_t i = 0; i < m_reservoirView->wellCollection()->wells().size(); i++)
+            {
+                size_t reverseIndex = m_reservoirView->wellCollection()->wells().size() - i - 1;
+
+                RimEclipseWell* well = m_reservoirView->wellCollection()->wells()[reverseIndex];
+                QString wellName = well->name();
+
+                auto tracer = std::find(begin(tracerNames), end(tracerNames), wellName);
+                if (tracer != end(tracerNames))
+                {
+                    // The category value is defined as the index of the tracer name in the tracer name vector
+                    size_t categoryValue = std::distance(begin(tracerNames), tracer);
+
+                    cvf::Color3ub color(cvf::Color3::SEA_GREEN);
+                    color = cvf::Color3ub(well->wellPipeColor());
+
+                    categories.push_back(std::make_tuple(wellName, static_cast<int>(categoryValue), color));
+                }
+            }
+
+            this->legendConfig()->setCategoryItems(categories);
         }
     }
     else

@@ -125,6 +125,7 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
     this->setResultType(other->resultType());
     this->setFlowSolution(other->m_flowSolution());
     this->setSelectedTracers(other->m_selectedTracers());
+    m_flowTracerSelectionMode = other->m_flowTracerSelectionMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,14 +196,14 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             m_flowSolution = m_flowSolutionUiField();
             m_selectedTracers = m_selectedTracersUiField();
         }
-        updateResultNameHasChanged();
+        loadDataAndUpdate();
     }
 
     if ( &m_selectedTracersUiField == changedField )
     {
         m_flowSolution = m_flowSolutionUiField();
         m_selectedTracers = m_selectedTracersUiField();
-        updateResultNameHasChanged();
+        loadDataAndUpdate();
     }
 
     updateAnyFieldHasChanged();
@@ -252,7 +253,44 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::updateResultNameHasChanged()
+void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName)
+{
+    setResultType(RimDefines::FLOW_DIAGNOSTICS);
+    setResultVariable("TOF");
+    
+    m_flowTracerSelectionMode = FLOW_TR_BY_SELECTION;
+
+    std::vector<QString> tracers;
+    tracers.push_back(tracerName);
+    setSelectedTracers(tracers);
+
+    if (m_flowSolution() == nullptr)
+    {
+        assignFlowSolutionFromCase();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::assignFlowSolutionFromCase()
+{
+    RimEclipseResultCase* eclCase = nullptr;
+    this->firstAncestorOrThisOfType(eclCase);
+    if (eclCase)
+    {
+        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
+        if (flowSols.size() > 0)
+        {
+            this->setFlowSolution(flowSols[0]);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::loadDataAndUpdate()
 {
     RimView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
@@ -890,13 +928,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 
         if ( m_flowSolution() == nullptr )
         {
-            RimEclipseResultCase* eclCase;
-            this->firstAncestorOrThisOfType(eclCase);
-            if ( eclCase )
-            {
-                std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-                if (flowSols.size()){ this->setFlowSolution(flowSols[0]); } 
-            }
+            assignFlowSolutionFromCase();
         }
     }
     uiOrdering.add(&m_resultVariableUiField);

@@ -258,7 +258,14 @@ QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& cursorPosition, QStri
     if (timeString)
     {
         const QwtScaleDraw* timeAxisScaleDraw = axisScaleDraw(QwtPlot::xBottom);
-        if (timeAxisScaleDraw)
+        auto dateScaleDraw = dynamic_cast<const QwtDateScaleDraw*>(timeAxisScaleDraw) ;
+
+        if (dateScaleDraw)
+        {
+            QDateTime date = dateScaleDraw->toDateTime(samplePoint.x());
+            *timeString = date.toString("hh:mm dd.MMMM.yyyy");
+        } 
+        else if (timeAxisScaleDraw)
         {
             *timeString = timeAxisScaleDraw->label(samplePoint.x()).text();
         }

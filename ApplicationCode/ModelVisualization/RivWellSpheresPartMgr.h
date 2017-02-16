@@ -56,7 +56,7 @@ public:
     
 private:
     cvf::Color3f wellCellColor(const RigWellResultFrame& wellResultFrame, const RigWellResultPoint& wellResultPoint);
-    cvf::ref<cvf::Part> createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs);
+    cvf::ref<cvf::Part> createPart(std::vector<std::pair<cvf::Vec3f, cvf::Color3f> >& centerColorPairs, bool isWellOpen);
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;

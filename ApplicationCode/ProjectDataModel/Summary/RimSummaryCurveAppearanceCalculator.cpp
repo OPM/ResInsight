@@ -17,7 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimSummaryCurveAppearanceCalculator.h"
+
+#include "RiaColorTables.h"
+
 #include "RimSummaryCurve.h"
+
 #include "cvfVector3.h"
 
 #include <cmath>
@@ -253,31 +257,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor(int colorIn
 {
     if (colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 15;
-    static const cvf::ubyte colorData[][3] =
-    {
-      {  0,  112, 136 }, // Dark Green-Blue
-      { 202,   0,   0 }, // Red
-      { 78,  204,   0 }, // Clear Green
-      { 236, 118,   0 }, // Orange
-      {  0 ,   0,   0 }, // Black
-      { 56,   56, 255 }, // Vivid Blue
-      { 248,   0, 170 }, // Magenta
-      { 169,   2, 240 }, // Purple
-      { 0,   221, 221 }, // Turquoise
-      { 201, 168, 206 }, // Light Violet
-      { 0,   205,  68 }, // Bluish Green
-      { 236, 188,   0 }, // Mid Yellow
-      { 51,  204, 255 },  // Bluer Turquoise
-      { 164, 193,   0 }, // Mid Yellowish Green
-      { 0,   143, 239 }, // Dark Light Blue
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,23 +267,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(int color
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 7;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 236, 118,   0 }, // Orange
-        {  0 ,   0,   0 }, // Black
-        { 248,   0, 170 }, // Magenta
-        { 236, 188,   0 }, // Mid Yellow
-        { 169,   2, 240 }, // Purple
-        { 0,   221, 221 }, // Turquoise
-        { 201, 168, 206 }, // Light Violet
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveNoneRedGreenBlueBrownPaletteColors().cycledColor3f(colorIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,19 +277,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledGreenColor(int colorInde
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 78,  204,   0 }, // Clear Green 
-        { 164, 193,   0 }, // Mid Yellowish Green
-        { 0,   205,  68 }  // Bluish Green
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f(colorIndex);
 }
 
 
@@ -336,19 +288,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBlueColor(int colorIndex
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 56,   56, 255 },  // Vivid Blue
-        { 0,   143, 239 }, // Dark Light Blue
-        { 153, 153, 255 }, // Off Light Blue
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f(colorIndex);
 }
 
 
@@ -359,19 +299,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledRedColor(int colorIndex)
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 202,   0,   0 }, // Off Red
-        { 255,  51,  51},  // Bright Red
-        { 255, 102, 102 }  // Light Red
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f(colorIndex);
 }
 
 
@@ -382,19 +310,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor(int colorInde
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        {186, 101, 44},
-        { 99, 53, 23 }, // Highway Brown
-        { 103, 56, 24}  // Dark Brown
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveBrownPaletteColors().cycledColor3f(colorIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

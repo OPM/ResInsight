@@ -219,6 +219,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                     QList<PdmOptionItemInfo> options;
                     bool useOptionsOnly = true;
                     options = uiFieldHandle->valueOptions(&useOptionsOnly);
+                    assert(useOptionsOnly); // Not supported
 
                     for (QVariant v : valuesSelectedInField)
                     {
@@ -238,8 +239,10 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                 return displayText;
             }
 
-            bool useOptionsOnly = false;
+            bool useOptionsOnly = true;
             QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&useOptionsOnly);
+            assert(useOptionsOnly); // Not supported
+
             if (!valueOptions.isEmpty())
             {
                 int listIndex = uiFieldHandle->uiValue().toInt();

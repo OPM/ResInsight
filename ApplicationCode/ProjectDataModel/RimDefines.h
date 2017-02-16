@@ -77,7 +77,8 @@ public:
     enum DepthUnitType
     {
         UNIT_METER,
-        UNIT_FEET
+        UNIT_FEET,
+        UNIT_NONE
     };
 
     static double feetPerMeter()                    { return 3.2808399; }

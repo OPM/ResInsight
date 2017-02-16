@@ -265,6 +265,38 @@ bool RigSingleWellResultsData::isMultiSegmentWell() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigWellResultFrame::WellProductionType RigSingleWellResultsData::wellProductionType(size_t resultTimeStepIndex) const
+{
+    if (hasWellResult(resultTimeStepIndex))
+    {
+        const RigWellResultFrame& wResFrame = wellResultFrame(resultTimeStepIndex);
+        return wResFrame.m_productionType;
+    }
+    else
+    {
+        return RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigSingleWellResultsData::isOpen(size_t resultTimeStepIndex) const
+{
+    if (hasWellResult(resultTimeStepIndex))
+    {
+        const RigWellResultFrame& wResFrame = wellResultFrame(resultTimeStepIndex);
+        return wResFrame.m_isOpen;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, size_t gridCellIndex) const
 {
     CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);

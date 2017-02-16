@@ -251,12 +251,21 @@ void RimWellLogTrack::loadDataAndUpdate()
     if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
+        m_wellLogTrackPlotWidget->setXTitle(m_xAxisTitle);
     }
 
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setXAxisTitle(const QString& text)
+{
+    m_xAxisTitle = text;
 }
 
 //--------------------------------------------------------------------------------------------------

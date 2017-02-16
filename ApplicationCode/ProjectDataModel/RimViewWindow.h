@@ -51,6 +51,7 @@ public:
                                  
     void                         setAs3DViewMdiWindow()  { setAsMdiWindow(0); }
     void                         setAsPlotMdiWindow()    { setAsMdiWindow(1); }
+    bool                         isMdiWindow() const;
                                  
     void                         setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
     RimMdiWindowGeometry         mdiWindowGeometry();

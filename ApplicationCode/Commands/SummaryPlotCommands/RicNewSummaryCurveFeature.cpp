@@ -67,10 +67,10 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
     if (plot)
     {
         RimSummaryCurve* newCurve = new RimSummaryCurve();
-        plot->addCurve(newCurve);
-
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
         newCurve->setColor(curveColor);
+
+        plot->addCurve(newCurve);
 
         RimSummaryCase* defaultCase = nullptr; 
         if (project->activeOilField()->summaryCaseCollection()->summaryCaseCount() > 0)

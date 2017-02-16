@@ -323,18 +323,14 @@ namespace FlowDiagnostics
 
         // Compute time-of-flight and tracer.
         tracer_[cell] = is_start_[cell] ? 1.0 : upwind_tracer_contrib / total_influx;
-        //tof_[cell] = (pv_[cell]*tracer_[cell] + upwind_tof_contrib) / (total_influx*tracer_[cell]);
 
-        if ( tracer_[cell] > 0.0 )
-        {
+        if (tracer_[cell] > 0.0) {
             tof_[cell] = (pv_[cell]*tracer_[cell] + upwind_tof_contrib)
-                / (total_influx * tracer_[cell]);
+                       / (total_influx * tracer_[cell]);
         }
-        else
-        {
+        else {
             tof_[cell] = max_tof_;
         }
-
     }
 
 

@@ -18,7 +18,8 @@
 
 #include "RimFlowDiagSolution.h"
 
-#include "RimEclipseResultCase.h"
+#include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -26,6 +27,9 @@
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
+
+#include "RimEclipseResultCase.h"
+#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
@@ -281,14 +285,29 @@ cvf::Color3f RimFlowDiagSolution::tracerColor(QString tracerName)
 
     if ( eclCase )
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
 
-        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        if (activeView)
         {
-            if ( wellResults[wIdx]->m_wellName == tracerName )
+            RimEclipseWell* well = activeView->wellCollection->findWell(tracerName);
+            if (well)
             {
+                return well->wellPipeColor();
+            }
+        }
+        else
+        {
+            // If we do not find a well color, use index in well result data to be able to get variation of tracer colors
+            // This can be the case if we do not have any views at all
 
-                return RimEclipseWellCollection::cycledPaletteColor(wIdx);
+            const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+
+            for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+            {
+                if ( wellResults[wIdx]->m_wellName == tracerName )
+                {
+                    return RiaColorTables::wellsPaletteColors().cycledColor3f(wIdx);
+                }
             }
         }
     }

@@ -26,8 +26,13 @@
 #include <QFrame>
 
 class RimWellAllocationPlot;
+class RiuNightchartsWidget;
 
 class QLabel;
+
+namespace cvf {
+    class Color3f;
+}
 
 //==================================================================================================
 //
@@ -45,16 +50,21 @@ public:
 
     void                            showTitle(const QString& title);
     void                            hideTitle();
-
+    void                            showLegend(bool doShow);
+    void                            addLegendItem(const QString& name, const cvf::Color3f& color, float value);
+    void                            clearLegend();
 protected:
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
+
+    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void                            setDefaults();
 
 private:
     caf::PdmPointer<RimWellAllocationPlot> m_plotDefinition;
+    QPointer<RiuNightchartsWidget> m_legendWidget;
     QPointer<QLabel> m_titleLabel;
 };
 

@@ -85,6 +85,9 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         if (wellLogFile)
         {
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
+            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
+            curve->setColor(curveColor);
+
             plotTrack->addCurve(curve);
 
             RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFile();
@@ -96,8 +99,6 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
                 plot->setDepthUnit(wellLogDataFile->depthUnit());
             }
 
-            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
-            curve->setColor(curveColor);
             curve->setWellPath(wellPath);
             curve->setWellLogChannelName(wellLog->name());
 

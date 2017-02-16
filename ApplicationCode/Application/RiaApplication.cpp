@@ -70,6 +70,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
+#include "RimFlowPlotCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainPlotWindow.h"
@@ -80,6 +81,7 @@
 #include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
+#include "RiuWellAllocationPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
 #include "RicSnapshotViewToClipboardFeature.h"
@@ -114,7 +116,6 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
-#include "RimFlowPlotCollection.h"
 
 namespace caf
 {
@@ -574,7 +575,7 @@ void RiaApplication::loadAndUpdatePlotData()
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
     plotCount += spColl ? spColl->summaryPlots().size() : 0;
-    plotCount += flowColl ? flowColl->flowPlots().size() : 0;
+    plotCount += flowColl ? flowColl->plotCount() : 0;
 
     caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
     if (wlpColl)
@@ -594,17 +595,15 @@ void RiaApplication::loadAndUpdatePlotData()
             plotProgress.incrementProgress();
         }
     }
+    
+    plotProgress.setNextProgressIncrement(flowColl->plotCount());
 
     if (flowColl)
     {
-        flowColl->defaultPlot->loadDataAndUpdate();
-
-        for (RimWellAllocationPlot* p : flowColl->flowPlots())
-        {
-            p->loadDataAndUpdate();
-            plotProgress.incrementProgress();
-        }
+        flowColl->loadDataAndUpdate();
     }
+    plotProgress.incrementProgress();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -813,16 +812,19 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
         return projectRelativePath;
     }
 
+    QString absolutePath;
     if (m_project && !m_project->fileName().isEmpty())
     {
-        QString absoluteProjectPath = QFileInfo(m_project->fileName()).absolutePath();
-        QDir projectDir(absoluteProjectPath);
-        return projectDir.absoluteFilePath(projectRelativePath);
+        absolutePath = QFileInfo(m_project->fileName()).absolutePath();
     }
     else
     {
-        return projectRelativePath;
+        absolutePath = this->lastUsedDialogDirectory("BINARY_GRID");
     }
+
+    QDir projectDir(absolutePath);
+
+    return projectDir.absoluteFilePath(projectRelativePath);
 }
 
 
@@ -867,8 +869,6 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
-
-    riv->wellCollection()->assignDefaultWellColors();
 
     // Add a corresponding summary case if it exists
     {
@@ -1634,6 +1634,12 @@ RimViewWindow* RiaApplication::activeViewWindow()
             {
                 viewWindow = wellLogPlot->ownerPlotDefinition();
             }
+
+            RiuWellAllocationPlot* wellAllocationPlot = dynamic_cast<RiuWellAllocationPlot*>(subwindows.back()->widget());
+            if (wellAllocationPlot)
+            {
+                viewWindow = wellAllocationPlot->ownerPlotDefinition();
+            }
         }
     }
 
@@ -2279,7 +2285,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
              saveSnapshotForAllViews(fullPathGeneratedFolder);
 
-             RicSnapshotAllPlotsToFileFeature::createSnapshotOfAllPlotsInFolder(fullPathGeneratedFolder);
+             RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
 
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
              QDir genDir(testCaseFolder.filePath(generatedFolderName));

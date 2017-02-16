@@ -161,6 +161,12 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
 
         double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
+        if (wellResultFrame.m_isOpen)
+        {
+            // Use slightly larger well head arrow when well is open
+            pipeRadius *= 1.1;
+        }
+
         pipeGeomGenerator->setRadius(pipeRadius);
 
         cvf::ref<cvf::DrawableGeo> pipeSurface = pipeGeomGenerator->createPipeSurface();
@@ -173,6 +179,11 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             part->setDrawable(pipeSurface.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), caf::PO_1);
+            if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+            {
+                surfaceGen.enableLighting(false);
+            }
+
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             part->setEffect(eff.p());
@@ -198,6 +209,13 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     }
 
     double arrowLength = characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
+
+    if (wellResultFrame.m_isOpen)
+    {
+        // Use slightly larger well head arrow when well is open
+        arrowLength = 1.1 * arrowLength;
+    }
+
     cvf::Vec3d textPosition = arrowPosition;
     textPosition.z() += 1.2 * arrowLength;
     
@@ -208,6 +226,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     }
 
     double ijScaleFactor = arrowLength / 6;
+    if (wellResultFrame.m_isOpen)
+    {
+        ijScaleFactor *= 1.1;
+    }
     matr(0, 0) *= ijScaleFactor;
     matr(1, 1) *= ijScaleFactor;
     matr(2, 2) *= arrowLength;
@@ -285,6 +307,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         }
 
         caf::SurfaceEffectGenerator surfaceGen(headColor, caf::PO_1);
+        if (m_rimReservoirView && m_rimReservoirView->isLightingDisabled())
+        {
+            surfaceGen.enableLighting(false);
+        }
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
         part->setEffect(eff.p());

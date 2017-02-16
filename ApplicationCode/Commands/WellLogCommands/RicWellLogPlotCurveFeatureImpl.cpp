@@ -19,6 +19,8 @@
 
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
+#include "RiaColorTables.h"
+
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 
@@ -26,36 +28,13 @@
 
 #include <QColor>
 
-static const int RI_LOGPLOT_CURVECOLORSCOUNT = 15;
-static const int RI_LOGPLOT_CURVECOLORS[] =
-{
-    Qt::black,
-    Qt::darkBlue,
-    Qt::darkRed,
-    Qt::darkGreen,
-    Qt::darkYellow,
-    Qt::darkMagenta,
-    Qt::darkCyan,
-    Qt::darkGray,
-    Qt::blue,
-    Qt::red,
-    Qt::green,
-    Qt::yellow,
-    Qt::magenta,
-    Qt::cyan,
-    Qt::gray
-};
 
 //--------------------------------------------------------------------------------------------------
 /// Pick default curve color from an index based palette
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromTable()
+cvf::Color3f RicWellLogPlotCurveFeatureImpl::curveColorFromTable(size_t index)
 {
-    static int colorIndex = 0;
-    QColor color = QColor(Qt::GlobalColor(RI_LOGPLOT_CURVECOLORS[colorIndex % RI_LOGPLOT_CURVECOLORSCOUNT]));
-    ++colorIndex;
-    cvf::Color3f cvfColor(color.redF(), color.greenF(), color.blueF());
-    return cvfColor;
+    return RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(index);
 }
 
 //--------------------------------------------------------------------------------------------------

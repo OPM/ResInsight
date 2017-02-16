@@ -6,7 +6,6 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.h
-${CEE_CURRENT_LIST_DIR}RivColorTableArray.h
 ${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.h
@@ -41,7 +40,6 @@ ${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.cpp
-${CEE_CURRENT_LIST_DIR}RivColorTableArray.cpp
 ${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.cpp

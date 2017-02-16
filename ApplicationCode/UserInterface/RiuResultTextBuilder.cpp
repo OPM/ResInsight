@@ -33,6 +33,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
+#include "RimLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -401,11 +402,12 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
             else scalarValue = 0.0;
             resultInfoText->append(QString("SWAT : %1\n").arg(scalarValue));
         }
+
+        return;
     }
     else if (resultColors->hasResult())
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
-        cvf::ref<RigResultAccessor> resultAccessor;
 
         if (resultColors->hasStaticResult())
         {
@@ -422,6 +424,8 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
                     scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
                     resultInfoText->append(QString("Tran Z : %1\n").arg(scalarValue));
                 }
+
+                return;
             }
             else if (resultColors->resultVariable().compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
             {
@@ -444,6 +448,8 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
                     scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::NEG_K);
                     resultInfoText->append(QString("MULTZ- : %1\n").arg(scalarValue));
                 }
+
+                return;
             }
             else if (resultColors->resultVariable().compare(RimDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
             {
@@ -458,6 +464,8 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
                     scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
                     resultInfoText->append(QString("riTran Z : %1\n").arg(scalarValue));
                 }
+            
+                return;
             }
             else if (resultColors->resultVariable().compare(RimDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
             {
@@ -472,6 +480,8 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
                     scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
                     resultInfoText->append(QString("riMult Z : %1\n").arg(scalarValue));
                 }
+
+                return;
             }
             else if (resultColors->resultVariable().compare(RimDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
             {
@@ -486,25 +496,13 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
                     scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
                     resultInfoText->append(QString("riTransByArea Z : %1\n").arg(scalarValue));
                 }
-            }
-            else
-            {
-                resultAccessor = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, 0, resultColors->scalarResultIndex());
-            }
-        }
-        else
-        {
-            resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, gridIndex, timeStepIndex, resultColors);
-        }
 
-        if (resultAccessor.notNull())
-        {
-            double scalarValue = resultAccessor->cellScalar(cellIndex);
-            resultInfoText->append("Cell result : ");
-            resultInfoText->append(resultColors->resultVariableUiName());
-            resultInfoText->append(QString(" : %1\n").arg(scalarValue));
+                return;
+            }
         }
     }
+
+    resultInfoText->append(cellResultText(resultColors));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,9 +659,6 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->reservoirData();
         RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
-
-
         if (resultColors->isTernarySaturationSelected())
         {
             RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
@@ -672,6 +667,8 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
                 size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
                 size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultColors->porosityModel());
 
                 cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, soilScalarSetIndex);
                 cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, sgasScalarSetIndex);
@@ -706,7 +703,19 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 double scalarValue = resultAccessor->cellFaceScalar(m_cellIndex, m_face);
                 QString resultVar = resultColors->resultVariableUiName();
 
-                text = QString("%1 : %2").arg(resultVar).arg(scalarValue);
+                QString resultValueText;
+                if (resultColors->hasCategoryResult())
+                {
+                    RimLegendConfig* legendConfig = resultColors->legendConfig();
+
+                    resultValueText += legendConfig->categoryNameFromCategoryValue(scalarValue);
+                }
+                else
+                {
+                    resultValueText = QString("%1").arg(scalarValue);
+                }
+
+                text = QString("%1 : %2").arg(resultVar).arg(resultValueText);
             }
         }
     }

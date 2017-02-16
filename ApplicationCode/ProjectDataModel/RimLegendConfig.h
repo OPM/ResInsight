@@ -26,6 +26,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+#include <tuple>
+
 namespace cvf
 {
     class ScalarMapperContinuousLog;
@@ -105,9 +107,11 @@ public:
         
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
+    
     void                                        setIntegerCategories(const std::vector<int>& categories);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
-    void                                        setNamedCategories(const std::vector<QString>& categoryNames);
+    void                                        setCategoryItems(const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories);
+    QString                                     categoryNameFromCategoryValue(int categoryValue) const;
 
     void                                        setTitle(const cvf::String& title);
 
@@ -123,11 +127,12 @@ protected:
 private:
     void                                        updateLegend();
     void                                        updateFieldVisibility();
-    cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
     friend class RimViewLinker;
     void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
+    
+    static cvf::Color3ubArray                   colorArrayFromColorType(ColorRangesType colorType);
 
 private:
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
@@ -155,6 +160,7 @@ private:
     
     std::vector<int>                            m_categories;
     std::vector<cvf::String>                    m_categoryNames;
+    cvf::Color3ubArray                          m_categoryColors;
 
     // Fields
     caf::PdmField<int>                          m_numLevels;

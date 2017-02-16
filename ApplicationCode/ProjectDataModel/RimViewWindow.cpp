@@ -93,6 +93,19 @@ void RimViewWindow::updateMdiWindowVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimViewWindow::isMdiWindow() const
+{
+    if (m_windowController())
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimViewWindow::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
 {
     CVF_ASSERT(m_windowController());
