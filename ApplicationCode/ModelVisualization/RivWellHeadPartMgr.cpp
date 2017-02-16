@@ -220,6 +220,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     }
 
     double ijScaleFactor = arrowLength / 6;
+    if (wellResultFrame.m_isOpen)
+    {
+        ijScaleFactor *= 1.1;
+    }
     matr(0, 0) *= ijScaleFactor;
     matr(1, 1) *= ijScaleFactor;
     matr(2, 2) *= arrowLength;
