@@ -161,6 +161,12 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
 
         double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
+        if (wellResultFrame.m_isOpen)
+        {
+            // Use slightly larger well head arrow when well is open
+            pipeRadius *= 1.1;
+        }
+
         pipeGeomGenerator->setRadius(pipeRadius);
 
         cvf::ref<cvf::DrawableGeo> pipeSurface = pipeGeomGenerator->createPipeSurface();
