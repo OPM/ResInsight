@@ -82,6 +82,8 @@ public:
     static QString mockModelCustomized()               { return "Result Mock Debug Model Customized"; }
     static QString mockModelBasicInputCase()           { return "Input Mock Debug Model Simple"; }
 
+
+    //Units and conversions
     enum DepthUnitType
     {
         UNIT_METER,
@@ -89,11 +91,26 @@ public:
         UNIT_NONE
     };
 
+
+    enum UnitSystem
+    {
+        UNITS_METRIC,
+        UNITS_FIELD
+        //UNITS_LAB
+    };
+
     static double feetPerMeter()                    { return 3.2808399; }
+    static double meterPerFeet()                    { return 0.3048000; }
+
+    static double meterToFeet(double meter)         { return meter*feetPerMeter(); }
+    static double feetToMeter(double feet)          { return feet*meterPerFeet();}
+    static double meterToInch(double meter)         { return meter*feetPerMeter()*12; }
+    static double inchToMeter(double inch)          { return (inch / 12)*meterPerFeet(); }
+
+
 
 
     // Defines relate to plotting
-
     enum PlotAxis
     {
         PLOT_AXIS_LEFT,
