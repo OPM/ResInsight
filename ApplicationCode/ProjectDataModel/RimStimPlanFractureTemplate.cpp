@@ -429,14 +429,30 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
 
             if (i < lenXcoords - 1 && k < adjustedDepths.size() - 1)
             {
-                //Upper triangle
-                triangleIndices->push_back(i + k*lenXcoords);
-                triangleIndices->push_back((i + 1) + k*lenXcoords);
-                triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
-                //Lower triangle
-                triangleIndices->push_back(i + k*lenXcoords);
-                triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
-                triangleIndices->push_back((i)+(k + 1)*lenXcoords);
+                if (xCoords[i] < 1e-5)
+                {
+                    //Upper triangle
+                    triangleIndices->push_back(i + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                    //Lower triangle
+                    triangleIndices->push_back(i + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                    triangleIndices->push_back((i)+(k + 1)*lenXcoords);
+
+                }
+                else
+                {
+                    //Upper triangle
+                    triangleIndices->push_back(i + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + k*lenXcoords);
+                    triangleIndices->push_back((i)+(k + 1)*lenXcoords);
+                    //Lower triangle
+                    triangleIndices->push_back((i + 1) + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                    triangleIndices->push_back((i) + (k + 1)*lenXcoords);
+                }
+
             }
         }
     }
