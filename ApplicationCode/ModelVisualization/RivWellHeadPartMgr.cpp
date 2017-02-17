@@ -142,11 +142,18 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         whEndPos.z() = activeCellsBoundingBoxMax.z();
     }
 
+    double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
+    if (wellResultFrame.m_isOpen)
+    {
+        // Use slightly larger well head arrow when well is open
+        pipeRadius *= 1.1;
+    }
+
     // Upper part of simulation well pipe is defined to use branch index 0
     cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo(m_rimWell, 0);
 
     cvf::Vec3d arrowPosition = whEndPos;
-    arrowPosition.z() += 2.0;
+    arrowPosition.z() += pipeRadius;
 
     // Well head pipe geometry
     {
@@ -160,12 +167,6 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         pipeGeomGenerator->setPipeColor(well->wellPipeColor());
         pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
 
-        double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
-        if (wellResultFrame.m_isOpen)
-        {
-            // Use slightly larger well head arrow when well is open
-            pipeRadius *= 1.1;
-        }
 
         pipeGeomGenerator->setRadius(pipeRadius);
 
