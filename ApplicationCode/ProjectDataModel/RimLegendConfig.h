@@ -121,7 +121,10 @@ public:
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                initAfterRead();
+
+    friend class RimStimPlanLegendConfig;
     virtual void                                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
 
 private:
