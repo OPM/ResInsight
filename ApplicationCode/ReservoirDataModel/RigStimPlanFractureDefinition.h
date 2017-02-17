@@ -24,6 +24,17 @@
 
 #include <vector>
 
+class RigStimPlanData
+{
+public:
+    RigStimPlanData();
+
+    QString resultName;
+    QString unit;
+    std::vector<std::vector<std::vector<double>>> parameterValues;
+
+};
+
 class RigStimPlanFractureDefinition: public cvf::Object
 { 
 public:
@@ -38,6 +49,8 @@ public:
     std::vector<double>     timeSteps;
     std::vector<double>     depths;
 
+    
+    std::vector<RigStimPlanData>                   stimPlanData;
     //Vector for each time step, for each depth and for each x-value
     std::vector<std::vector<std::vector<double>>>  conductivities;
     QString conductivityUnit;
@@ -46,10 +59,12 @@ public:
     std::vector<std::vector<std::vector<double>>>  permeabilities;
     QString permeabilityUnit;
 
-    bool                timeStepExisist(double timeStepValue);
-    void                reorderYgridToDepths();
-    size_t              getTimeStepIndex(double timeStepValue);
+    bool                                timeStepExisist(double timeStepValue);
+    void                                reorderYgridToDepths();
+    size_t                              getTimeStepIndex(double timeStepValue);
 
+    void                                setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue);
+    std::vector<std::vector<double>>    getDataAtTimeIndex(QString resultName, size_t timeStepIndex);
 
     std::vector<QString> resultNames() const;
 

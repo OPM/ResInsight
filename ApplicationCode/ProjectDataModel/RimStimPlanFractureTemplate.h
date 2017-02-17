@@ -63,7 +63,7 @@ public:
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
     std::vector<double>                     getStimPlanTimeValues();
 
-
+    //TODO: Remove!!!
     std::vector<std::vector<double>>        getConductivitiesAtTimeStep(size_t timStep);
     std::vector<std::vector<double>>        getPermeabilitiesAtTimeStep(size_t timStep);
     std::vector<std::vector<double>>        getWidthsAtTimeStep(size_t timStep);

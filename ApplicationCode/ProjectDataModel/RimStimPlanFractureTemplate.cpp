@@ -151,7 +151,6 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
     {
         QFile dataFile(m_stimPlanFileName());
-
         if (!dataFile.open(QFile::ReadOnly))
         {
             if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_stimPlanFileName()) + "\n";
@@ -167,9 +166,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
             qDebug() << "Error: Failed to parse file " << dataFile.fileName();
             qDebug() << xmlStream.errorString();
         }
-
         dataFile.close();
-
     }
 
     size_t numberOfDepthValues;
@@ -177,12 +174,13 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     size_t numberOfTimeSteps;
     numberOfTimeSteps = m_stimPlanFractureDefinitionData->timeSteps.size();
 
-    std::vector<std::vector<std::vector<double>>>  condValues(numberOfTimeSteps);
-    m_stimPlanFractureDefinitionData->conductivities = condValues;
-    std::vector<std::vector<std::vector<double>>>  widthValues(numberOfTimeSteps);
-    m_stimPlanFractureDefinitionData->widths = widthValues;
-    std::vector<std::vector<std::vector<double>>>  permValues(numberOfTimeSteps);
-    m_stimPlanFractureDefinitionData->permeabilities = permValues;
+
+//     std::vector<std::vector<std::vector<double>>>  condValues(numberOfTimeSteps);
+//     m_stimPlanFractureDefinitionData->conductivities = condValues;
+//     std::vector<std::vector<std::vector<double>>>  widthValues(numberOfTimeSteps);
+//     m_stimPlanFractureDefinitionData->widths = widthValues;
+//     std::vector<std::vector<std::vector<double>>>  permValues(numberOfTimeSteps);
+//     m_stimPlanFractureDefinitionData->permeabilities = permValues;
 
     //Start reading from top:
     QFile dataFile(m_stimPlanFileName());
@@ -221,33 +219,10 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
                 {
                     qDebug() << "Inconsistency detected in reading XML file!";
                     return;
-
                 }
 
-                size_t timeStepIndex = m_stimPlanFractureDefinitionData->getTimeStepIndex(timeStepValue);
-                if (parameter == "CONDUCTIVITY")
-                {
-                    m_stimPlanFractureDefinitionData->conductivities[timeStepIndex]=propertyValuesAtTimestep;
-                    if (unit == "md-m" || unit == "md-ft")
-                    {
-                        m_stimPlanFractureDefinitionData->conductivityUnit = unit;
-                    }
-                    else
-                    {
-                        qDebug() << "Unsupported units in StimPlan file. Reading of file not completed";
-                    }
-                }
-                else if (parameter == "PERMEABILITY")
-                {
-                    m_stimPlanFractureDefinitionData->permeabilities[timeStepIndex] = propertyValuesAtTimestep;
-                    m_stimPlanFractureDefinitionData->permeabilityUnit = unit;
-                }
-                else if (parameter == "WIDTH")
-                {
-                    m_stimPlanFractureDefinitionData->widths[timeStepIndex] = propertyValuesAtTimestep;
-                    m_stimPlanFractureDefinitionData->widthUnit = unit;
-                }
-                
+                m_stimPlanFractureDefinitionData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue);
+               
             }
         }
     }
@@ -265,13 +240,6 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         qDebug() << dataFile.errorString();
     }
 
-
-    //Setting unit for fracture template
-    if (m_stimPlanFractureDefinitionData->conductivityUnit.isEmpty())
-    {
-        if (m_stimPlanFractureDefinitionData->conductivityUnit == "md-m") fractureTemplateUnit = RimDefines::UNITS_METRIC;
-        if (m_stimPlanFractureDefinitionData->conductivityUnit == "md-ft") fractureTemplateUnit = RimDefines::UNITS_FIELD;
-    }
 }
 
 
@@ -582,7 +550,7 @@ std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::getConductivitiesAtTimeStep(size_t timStep)
 {
-    return m_stimPlanFractureDefinitionData->conductivities[timStep];
+    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex("CONDUCTIVITY", timStep);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,7 +558,7 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::getConductivitiesA
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::getPermeabilitiesAtTimeStep(size_t timStep)
 {
-    return m_stimPlanFractureDefinitionData->permeabilities[timStep];
+    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex("PERMEABILITY", timStep);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -598,7 +566,7 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::getPermeabilitiesA
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::getWidthsAtTimeStep(size_t timStep)
 {
-    return m_stimPlanFractureDefinitionData->widths[timStep];
+    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex("WIDTH", timStep);
 }
 
 //--------------------------------------------------------------------------------------------------

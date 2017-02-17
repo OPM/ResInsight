@@ -18,6 +18,17 @@
 
 #include "RigStimPlanFractureDefinition.h"
 
+#include <QDebug>
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStimPlanData::RigStimPlanData()
+{
+
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +85,57 @@ size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
         index++;
     }
     return -1; //returns -1 if not found
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue)
+{
+    bool resultNameExists = false;
+    for (RigStimPlanData& resultData : stimPlanData)
+    {
+        if (resultData.resultName == resultName)
+        {
+            resultNameExists = true;
+            resultData.parameterValues[getTimeStepIndex(timeStepValue)] = data;
+            return;
+        }
+    }
+
+    if (!resultNameExists)
+    {
+        RigStimPlanData resultData;
+
+        resultData.resultName = resultName;
+        resultData.unit = unit;
+
+        std::vector<std::vector<std::vector<double>>>  values(timeSteps.size());
+        resultData.parameterValues = values;
+        resultData.parameterValues[getTimeStepIndex(timeStepValue)] = data;
+
+        stimPlanData.push_back(resultData);
+    }
+
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeIndex(QString resultName, size_t timeStepIndex)
+{
+    for (RigStimPlanData& resultData : stimPlanData)
+    {
+        if (resultData.resultName == resultName)
+        {
+            return resultData.parameterValues[timeStepIndex];
+        }
+    }
+
+    qDebug() << "ERROR: Requested parameter does not exists in stimPlan data";
+    std::vector<std::vector<double>> emptyVector;
+    return emptyVector;
 }
 
 //--------------------------------------------------------------------------------------------------
