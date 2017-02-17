@@ -62,6 +62,8 @@ public:
     std::vector<double>                     getNegAndPosXcoords();
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
     std::vector<double>                     getStimPlanTimeValues();
+    std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits();
+
 
     //TODO: Remove!!!
     std::vector<std::vector<double>>        getConductivitiesAtTimeStep(size_t timStep);
@@ -70,6 +72,7 @@ public:
 
     void                                    loadDataAndUpdate();
 
+    std::vector<std::vector<double>>        getDataAtTimeIndex(QString resultName, size_t timeStepIndex);
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 

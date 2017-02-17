@@ -54,18 +54,12 @@ public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
-    caf::PdmField<QString>                          name;
-    caf::PdmField<double>                           azimuth;
-    caf::PdmField<double>                           perforationLength;
+    caf::PdmField<QString>          name;
+    caf::PdmField<double>           azimuth;
+    caf::PdmField<double>           perforationLength;
 
-    caf::PdmField<int>                              stimPlanTimeIndexToPlot;
-    enum stimPlanPlotParameterEnum
-    {
-        CONDUCTIVITY,
-        PERMEABILITY,
-        WIDTH
-    };
-    caf::PdmField< caf::AppEnum< stimPlanPlotParameterEnum > >  stimPlanParameterToPlot;
+    caf::PdmField<int>              stimPlanTimeIndexToPlot;
+    caf::PdmField<QString>          stimPlanParameterToPlot;
 
 
     cvf::Vec3d                      anchorPosition();

@@ -63,21 +63,6 @@
 #include <QDebug>
 #include <QString>
 
-
-namespace caf
-{
-    template<>
-
-    void caf::AppEnum< RimFracture::stimPlanPlotParameterEnum>::setUp()
-    {
-        addItem(RimFracture::CONDUCTIVITY, "Cond", "Conductivity");
-        addItem(RimFracture::PERMEABILITY, "Perm", "Permeability");
-        addItem(RimFracture::WIDTH, "Width", "Width");
-
-        setDefault(RimFracture::CONDUCTIVITY);
-    }
-}
-
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +86,7 @@ RimFracture::RimFracture(void)
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "PerforationLength", "", "", "");
 
-    CAF_PDM_InitField(&stimPlanParameterToPlot, "parameterToPlot", caf::AppEnum<stimPlanPlotParameterEnum>(WIDTH), "Parameter from StimPlan file to plot", "", "", "");
+    CAF_PDM_InitField(&stimPlanParameterToPlot, "parameterToPlot", QString(""), "Parameter from StimPlan file to plot", "", "", "");
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "Timestep from StimPlan file to plot", "", "", "");
 
     CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
@@ -596,7 +581,6 @@ QString RimFracture::createOneBasedIJK() const
     return QString("Cell : [%1, %2, %3]").arg(m_i + 1).arg(m_j + 1).arg(m_k + 1);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -637,6 +621,22 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
                 }
             }
 
+        }
+    }
+    else if (fieldNeedingOptions == &stimPlanParameterToPlot)
+    {
+        RimFractureTemplate* fracTemplate = attachedFractureDefinition();
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
+        {
+            RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+            std::vector<std::pair<QString, QString>> properties = fracTemplateStimPlan->getStimPlanPropertyNamesUnits();
+
+            for (std::pair<QString, QString> propNameUnit : properties)
+            {
+                QString nameAndUnit = propNameUnit.first + " [" + propNameUnit.second + "]";
+                QString name = propNameUnit.first;
+                options.push_back(caf::PdmOptionItemInfo(nameAndUnit, name));
+            }
         }
     }
 
@@ -706,10 +706,11 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if      (stimPlanParameterToPlot == RimFracture::CONDUCTIVITY) uiTreeOrdering.add(m_legendConfigConductivity);
-    else if (stimPlanParameterToPlot == RimFracture::PERMEABILITY) uiTreeOrdering.add(m_legendConfigPermeability);
-    else if (stimPlanParameterToPlot == RimFracture::WIDTH)        uiTreeOrdering.add(m_legendConfigWidth);
-
+    //TODO
+    uiTreeOrdering.add(m_legendConfigConductivity);
+//     uiTreeOrdering.add(m_legendConfigPermeability);
+//     uiTreeOrdering.add(m_legendConfigWidth);
+    
     uiTreeOrdering.setForgetRemainingFields(true);
 }
 
@@ -799,11 +800,12 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
 //--------------------------------------------------------------------------------------------------
 RimLegendConfig* RimFracture::activeLegend()
 {
-    if      (stimPlanParameterToPlot == RimFracture::CONDUCTIVITY) return m_legendConfigConductivity;
-    else if (stimPlanParameterToPlot == RimFracture::PERMEABILITY) return m_legendConfigPermeability;
-    else if (stimPlanParameterToPlot == RimFracture::WIDTH)        return m_legendConfigWidth;
+//     if      (stimPlanParameterToPlot == RimFracture::CONDUCTIVITY) return m_legendConfigConductivity;
+//     else if (stimPlanParameterToPlot == RimFracture::PERMEABILITY) return m_legendConfigPermeability;
+//     else if (stimPlanParameterToPlot == RimFracture::WIDTH)        return m_legendConfigWidth;
+//     return nullptr;
     
-    return nullptr;
+    return m_legendConfigConductivity;
 }
 
 //--------------------------------------------------------------------------------------------------

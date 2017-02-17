@@ -303,6 +303,14 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex(QString resultName, size_t timeStepIndex)
+{
+    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream)
 {
 
@@ -543,6 +551,20 @@ std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
     return m_stimPlanFractureDefinitionData->timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPlanPropertyNamesUnits()
+{
+    std::vector<RigStimPlanData > allStimPlanData = m_stimPlanFractureDefinitionData->stimPlanData;
+    std::vector<std::pair<QString, QString> >  propertyNamesUnits;
+    for (RigStimPlanData stimPlanDataEntry : allStimPlanData)
+    {
+        propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
+    }
+    return propertyNamesUnits;
 }
 
 //--------------------------------------------------------------------------------------------------

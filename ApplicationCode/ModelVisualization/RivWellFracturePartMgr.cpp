@@ -118,21 +118,8 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         else return;
 
         int timeStepIndex = m_rimFracture->stimPlanTimeIndexToPlot;
-        std::vector<std::vector<double> > dataToPlot;
-
-        if (m_rimFracture->stimPlanParameterToPlot == RimFracture::CONDUCTIVITY)
-        {
-            dataToPlot = stimPlanFracTemplate->getConductivitiesAtTimeStep(timeStepIndex);
-        }
-        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::PERMEABILITY)
-        {
-            dataToPlot = stimPlanFracTemplate->getPermeabilitiesAtTimeStep(timeStepIndex);
-
-        }
-        else if (m_rimFracture->stimPlanParameterToPlot == RimFracture::WIDTH)
-        {
-            dataToPlot = stimPlanFracTemplate->getWidthsAtTimeStep(timeStepIndex);
-        }
+        QString resultToPlot = m_rimFracture->stimPlanParameterToPlot;
+        std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->getDataAtTimeIndex(resultToPlot, timeStepIndex);
 
         if (dataToPlot.empty()) return; //TODO: Set all values to undefined if no data available...
 
