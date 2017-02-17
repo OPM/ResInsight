@@ -47,7 +47,9 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -70,7 +72,6 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
-#include "RimFlowPlotCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainPlotWindow.h"
@@ -459,6 +460,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
         oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
         oilField->summaryCaseCollection()->loadAllSummaryCaseData();
+
+        oilField->fractureDefinitionCollection()->loadAndUpdateData();
     }
 
     // If load action is specified to recalculate statistics, do it now.

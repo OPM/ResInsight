@@ -41,5 +41,6 @@ public:
     caf::PdmField<bool>                             isActive;
 
     void                                deleteFractureDefinitions();
+    void                                loadAndUpdateData();
 
 };

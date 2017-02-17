@@ -75,3 +75,17 @@ size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
     }
     return -1; //returns -1 if not found
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RigStimPlanFractureDefinition::resultNames() const
+{
+    std::vector<QString> names;
+
+    names.push_back("Conductivity");
+    names.push_back("Permeability");
+    names.push_back("Width");
+
+    return names;
+}

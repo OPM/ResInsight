@@ -20,11 +20,13 @@
 #include "RimFractureTemplate.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -32,7 +34,7 @@
 #include <vector>
 
 class RigStimPlanFractureDefinition;
-
+class RimStimPlanLegendConfig;
 
 //==================================================================================================
 ///  
@@ -66,6 +68,7 @@ public:
     std::vector<std::vector<double>>        getPermeabilitiesAtTimeStep(size_t timStep);
     std::vector<std::vector<double>>        getWidthsAtTimeStep(size_t timStep);
 
+    void                                    loadDataAndUpdate();
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -74,7 +77,6 @@ private:
     void                                    updateUiTreeName();
 
     void                                    readStimPlanXMLFile(QString * errorMessage);
-    void                                    loadDataAndUpdate();
 
 
     void                                    readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
@@ -88,6 +90,7 @@ private:
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
 
+    caf::PdmChildArrayField<RimStimPlanLegendConfig*>   m_legendConfigurations;
 
     bool numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
 };

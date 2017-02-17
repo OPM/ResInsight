@@ -48,6 +48,7 @@ public:
     size_t              getTimeStepIndex(double timeStepValue);
 
 
+    std::vector<QString> resultNames() const;
 
 };
 

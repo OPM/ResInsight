@@ -19,8 +19,9 @@
 #include "RimFractureTemplateCollection.h"
 
 #include "RimFractureTemplate.h"
-#include "cafPdmObject.h"
+#include "RimStimPlanFractureTemplate.h"
 
+#include "cafPdmObject.h"
 
 
 
@@ -53,5 +54,20 @@ RimFractureTemplateCollection::~RimFractureTemplateCollection()
 void RimFractureTemplateCollection::deleteFractureDefinitions()
 {
     fractureDefinitions.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::loadAndUpdateData()
+{
+    for (RimFractureTemplate* f : fractureDefinitions())
+    {
+        RimStimPlanFractureTemplate* stimPlanFracture = dynamic_cast<RimStimPlanFractureTemplate*>(f);
+        if (stimPlanFracture)
+        {
+            stimPlanFracture->loadDataAndUpdate();
+        }
+    }
 }
 
