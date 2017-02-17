@@ -27,6 +27,7 @@
 #include "RimGeoMechCase.h"
 
 #include "RivFemPartGeometryGenerator.h"
+#include "RivPartPriority.h"
 
 #include "cafEffectGenerator.h"
 #include "cvfPart.h"
@@ -75,7 +76,7 @@ cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart(const cvf::Color3f co
 
     part->setEffect(eff.p());
 
-    part->setPriority(10000);
+    part->setPriority(RivPartPriority::PartType::Highlight);
 
     return part;
 }

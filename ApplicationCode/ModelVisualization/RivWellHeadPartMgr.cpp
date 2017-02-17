@@ -35,6 +35,7 @@
 #include "RimEclipseWellCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
+#include "RivPartPriority.h"
 #include "RivSimWellPipeSourceInfo.h"
 
 #include "cafEffectGenerator.h"
@@ -344,7 +345,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
         part->setEffect(eff.p());
-        part->setPriority(11);
+        part->setPriority(RivPartPriority::PartType::Text);
         part->setSourceInfo(sourceInfo.p());
 
         m_wellHeadLabelPart = part;
