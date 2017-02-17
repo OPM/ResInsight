@@ -92,6 +92,7 @@ void RiuNightchartsWidget::clear()
     m_chart = Nightcharts();
     m_chart.setType(Nightcharts::Pie);
     m_chart.setLegendType(Nightcharts::Vertical);
+    m_chart.setShadows(false);
 
     m_marginLeft = 10;
     m_marginTop = 10;

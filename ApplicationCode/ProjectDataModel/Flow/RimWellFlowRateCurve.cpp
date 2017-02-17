@@ -119,7 +119,18 @@ void RimWellFlowRateCurve::updateCurveAppearance()
     m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
     QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
     m_qwtPlotCurve->setBrush(QBrush( curveQColor));
-    
+
+    QLinearGradient gradient; 
+    gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
+    gradient.setColorAt(0,curveQColor.darker(110));
+    gradient.setColorAt(0.15,curveQColor);
+    gradient.setColorAt(0.25,curveQColor);
+    gradient.setColorAt(0.4,curveQColor.darker(110));
+    gradient.setColorAt(0.6,curveQColor);
+    gradient.setColorAt(0.8,curveQColor.darker(110));
+    gradient.setColorAt(1,curveQColor);
+    m_qwtPlotCurve->setBrush(gradient);
+
     QPen curvePen = m_qwtPlotCurve->pen();
     curvePen.setColor(curveQColor.darker());
     m_qwtPlotCurve->setPen(curvePen);

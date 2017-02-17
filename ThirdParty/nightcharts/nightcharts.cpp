@@ -122,7 +122,8 @@ int Nightcharts::draw(QPainter *painter)
       double pdegree = 0;
 
       //Options
-      QLinearGradient gradient(cX+0.5*cW,cY,cX+0.5*cW,cY+cH*2.5);
+      //QLinearGradient gradient(cX + 0.5*cW, cY, cX + 0.5*cW, cY + cH*2.5);
+      QRadialGradient gradient(cX + 0.5*cW, cY+0.5*cH, 0.5*cW);
       gradient.setColorAt(1,Qt::black);
 
 
@@ -145,6 +146,11 @@ int Nightcharts::draw(QPainter *painter)
       for (int i=0;i<pieces.size();i++)
       {
         gradient.setColorAt(0,pieces[i].rgbColor);
+        // Added for radial gradient
+        gradient.setColorAt(0.85,pieces[i].rgbColor);
+        gradient.setColorAt(0.95,pieces[i].rgbColor.darker(120));
+        gradient.setColorAt(1,pieces[i].rgbColor.darker(140));
+        // <--
         painter->setBrush(gradient);
         pen.setColor(pieces[i].rgbColor);
         painter->setPen(pen);
