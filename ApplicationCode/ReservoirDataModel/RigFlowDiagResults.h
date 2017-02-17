@@ -26,11 +26,11 @@
 #include <map>
 #include <string>
 
-#include "RigFlowDiagResultFrames.h"
-#include "RigStatisticsDataCache.h"
 #include "cafPdmPointer.h"
 #include "RimFlowDiagSolution.h"
 
+class RigFlowDiagResultFrames;
+class RigStatisticsDataCache;
 class RigFlowDiagSolverInterface;
 class RigActiveCellInfo;
 

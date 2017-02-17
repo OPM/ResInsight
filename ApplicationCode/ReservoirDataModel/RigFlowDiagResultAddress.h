@@ -25,6 +25,10 @@
 #define RIG_FLD_MAX_FRACTION_TRACER_RESNAME  "MaxFractionTracer"
 #define RIG_FLD_COMMUNICATION_RESNAME        "Communication"
 
+#define RIG_FLOW_TOTAL_NAME "Total"
+#define RIG_RESERVOIR_TRACER_NAME "Reservoir"
+#define RIG_TINY_TRACER_GROUP_NAME "Other"
+
 class RigFlowDiagResultAddress
 {
 

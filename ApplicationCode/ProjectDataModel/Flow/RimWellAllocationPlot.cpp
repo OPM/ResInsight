@@ -20,7 +20,10 @@
 
 #include "RiaApplication.h"
 
+#include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
+#include "RigFlowDiagResultAddress.h"
+#include "RigFlowDiagResults.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigSingleWellResultsData.h"
@@ -32,21 +35,18 @@
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFlowDiagSolution.h"
+#include "RimProject.h"
 #include "RimTotalWellAllocationPlot.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellAllocationPlotLegend.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
-#include "RigAccWellFlowCalculator.h"
-#include "RimProject.h"
 #include "RiuWellLogTrack.h"
-#include "RimWellAllocationPlotLegend.h"
 
 CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -183,20 +183,20 @@ void RimWellAllocationPlot::updateFromWell()
                                                                                     pipeBranchesCLCoords,
                                                                                     pipeBranchesCellIds);
 
-    std::map<QString, const std::vector<double>* > tracerCellFractionValues = findRelevantTracerCellFractions(wellResults);
+    std::map<QString, const std::vector<double>* > tracerFractionCellValues = findRelevantTracerCellFractions(wellResults);
 
     std::unique_ptr< RigAccWellFlowCalculator > wfCalculator;
 
     double smallContributionThreshold = 0.0;
     if (m_groupSmallContributions()) smallContributionThreshold = m_smallContributionsThreshold;
 
-    if ( tracerCellFractionValues.size() )
+    if ( tracerFractionCellValues.size() )
     {
         bool isProducer = wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER ;
         RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
         wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
                                                         pipeBranchesCellIds,
-                                                        tracerCellFractionValues,
+                                                        tracerFractionCellValues,
                                                         cellIdxCalc, 
                                                         smallContributionThreshold, 
                                                         isProducer));
