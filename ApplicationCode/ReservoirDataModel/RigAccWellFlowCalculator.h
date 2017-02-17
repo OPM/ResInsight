@@ -17,7 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
+#include <vector>
+#include <map>
 //==================================================================================================
 /// 
 /// 
@@ -45,8 +46,6 @@ private:
 /// 
 //==================================================================================================
 
-#include <vector>
-#include <map>
 #include <QString>
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -80,6 +79,7 @@ public:
 private:
 
     void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
+    void                                                    calculateFlowPrPseudoLength(size_t branchIdx, double startPseudoLengthFromTop);
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
 
