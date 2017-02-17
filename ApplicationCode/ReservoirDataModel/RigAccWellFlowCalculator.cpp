@@ -253,40 +253,12 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
         }
 
         // Accumulate the connection-cell's fraction flows 
-        std::vector<double> flowPrTracer(m_tracerNames.size(), 0.0); 
 
-        if ( m_tracerCellFractionValues )
+        std::vector<double> flowPrTracer = calculateFlowPrTracer(branchCells, clSegIdx);
+
+        for (size_t tIdx = 0; tIdx < flowPrTracer.size(); ++tIdx)
         {
-            if ( branchCells[clSegIdx].isCell() && branchCells[clSegIdx].m_isOpen )
-            {
-                size_t resCellIndex = m_cellIndexCalculator.resultCellIndex(branchCells[clSegIdx].m_gridIndex,
-                                                                            branchCells[clSegIdx].m_gridCellIndex);
-                size_t tracerIdx = 0;
-                double totalTracerFractionInCell = 0.0;
-                for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
-                {
-                    double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
-                    if (cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction)
-                    {
-                        double tracerFlow = cellTracerFraction * branchCells[clSegIdx].flowRate();
-                        flowPrTracer[tracerIdx]     = tracerFlow;
-                        accFlowPrTracer[tracerIdx] += tracerFlow;
-
-                        totalTracerFractionInCell += cellTracerFraction;
-                    }
-                    tracerIdx++;
-                }
-
-                double reservoirFraction    = 1.0 - totalTracerFractionInCell;
-                double reservoirTracerFlow  = reservoirFraction * branchCells[clSegIdx].flowRate();
-                flowPrTracer[tracerIdx]     = reservoirTracerFlow;
-                accFlowPrTracer[tracerIdx] += reservoirTracerFlow;
-            }
-        }
-        else
-        {
-            accFlowPrTracer[0] += branchCells[clSegIdx].flowRate();
-            flowPrTracer[0]     = branchCells[clSegIdx].flowRate();
+            accFlowPrTracer[tIdx] += flowPrTracer[tIdx];
         }
 
         // Add the total accumulated (fraction) flows from any branches connected to this cell
@@ -324,13 +296,53 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
                 tracerIdx++;
             }
 
-
             connNumbersFromTop.push_back(connNumFromTop);
         }
 
         --clSegIdx;
 
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigAccWellFlowCalculator::calculateFlowPrTracer(const std::vector<RigWellResultPoint>& branchCells, 
+                                                                    int clSegIdx)
+{
+    std::vector<double> flowPrTracer(m_tracerNames.size(), 0.0);
+    if ( m_tracerCellFractionValues )
+    {
+        if ( branchCells[clSegIdx].isCell() && branchCells[clSegIdx].m_isOpen )
+        {
+            size_t resCellIndex = m_cellIndexCalculator.resultCellIndex(branchCells[clSegIdx].m_gridIndex,
+                                                                        branchCells[clSegIdx].m_gridCellIndex);
+            size_t tracerIdx = 0;
+            double totalTracerFractionInCell = 0.0;
+            for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
+            {
+                double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
+                if ( cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction )
+                {
+                    double tracerFlow = cellTracerFraction * branchCells[clSegIdx].flowRate();
+                    flowPrTracer[tracerIdx]     = tracerFlow;
+
+                    totalTracerFractionInCell += cellTracerFraction;
+                }
+                tracerIdx++;
+            }
+
+            double reservoirFraction    = 1.0 - totalTracerFractionInCell;
+            double reservoirTracerFlow  = reservoirFraction * branchCells[clSegIdx].flowRate();
+            flowPrTracer[tracerIdx]     = reservoirTracerFlow;
+        }
+    }
+    else
+    {
+        flowPrTracer[0] = branchCells[clSegIdx].flowRate();
+    }
+
+    return flowPrTracer;
 }
 
 //--------------------------------------------------------------------------------------------------

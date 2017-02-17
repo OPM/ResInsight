@@ -79,6 +79,9 @@ public:
 private:
 
     void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
+
+    std::vector<double>                                     calculateFlowPrTracer(const std::vector<RigWellResultPoint> &branchCells, int clSegIdx);
+
     void                                                    calculateFlowPrPseudoLength(size_t branchIdx, double startPseudoLengthFromTop);
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
