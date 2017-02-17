@@ -194,6 +194,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     QXmlStreamReader xmlStream2;
     xmlStream2.setDevice(&dataFile);
     QString parameter;
+    QString unit;
 
     while (!xmlStream2.atEnd())
     {
@@ -203,7 +204,10 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         {
             if (xmlStream2.name() == "property")
             {
+                unit      = getAttributeValueString(xmlStream2, "uom");
                 parameter = getAttributeValueString(xmlStream2, "name");
+                //Width - convert to cm from mm?
+
             }
             else if (xmlStream2.name() == "time")
             {
@@ -218,20 +222,28 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 
                 }
 
-                //TODO: Check that number of values in these vectors match number of cells in grid!
                 size_t timeStepIndex = m_stimPlanFractureDefinitionData->getTimeStepIndex(timeStepValue);
-
                 if (parameter == "CONDUCTIVITY")
                 {
                     m_stimPlanFractureDefinitionData->conductivities[timeStepIndex]=propertyValuesAtTimestep;
+                    if (unit == "md-m" || unit == "md-ft")
+                    {
+                        m_stimPlanFractureDefinitionData->conductivityUnit = unit;
+                    }
+                    else
+                    {
+                        qDebug() << "Unsupported units in StimPlan file. Reading of file not completed";
+                    }
                 }
                 else if (parameter == "PERMEABILITY")
                 {
                     m_stimPlanFractureDefinitionData->permeabilities[timeStepIndex] = propertyValuesAtTimestep;
+                    m_stimPlanFractureDefinitionData->permeabilityUnit = unit;
                 }
                 else if (parameter == "WIDTH")
                 {
                     m_stimPlanFractureDefinitionData->widths[timeStepIndex] = propertyValuesAtTimestep;
+                    m_stimPlanFractureDefinitionData->widthUnit = unit;
                 }
                 
             }
@@ -249,6 +261,14 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     {
         qDebug() << "Error: Cannot read file " << dataFile.fileName();
         qDebug() << dataFile.errorString();
+    }
+
+
+    //Setting unit for fracture template
+    if (m_stimPlanFractureDefinitionData->conductivityUnit.isEmpty())
+    {
+        if (m_stimPlanFractureDefinitionData->conductivityUnit == "md-m") fractureTemplateUnit = RimDefines::UNITS_METRIC;
+        if (m_stimPlanFractureDefinitionData->conductivityUnit == "md-ft") fractureTemplateUnit = RimDefines::UNITS_FIELD;
     }
 }
 

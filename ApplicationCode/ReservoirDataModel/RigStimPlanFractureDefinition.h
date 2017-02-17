@@ -38,10 +38,13 @@ public:
     std::vector<double>     timeSteps;
     std::vector<double>     depths;
 
-    std::vector<std::vector<std::vector<double>>>  conductivities;
-    std::vector<std::vector<std::vector<double>>>  widths;
-    std::vector<std::vector<std::vector<double>>>  permeabilities;
     //Vector for each time step, for each depth and for each x-value
+    std::vector<std::vector<std::vector<double>>>  conductivities;
+    QString conductivityUnit;
+    std::vector<std::vector<std::vector<double>>>  widths;
+    QString widthUnit;
+    std::vector<std::vector<std::vector<double>>>  permeabilities;
+    QString permeabilityUnit;
 
     bool                timeStepExisist(double timeStepValue);
     void                reorderYgridToDepths();
