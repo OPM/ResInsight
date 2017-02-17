@@ -60,7 +60,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
                                                    m_cellIndexCalculator(cellIndexCalculator),
                                                    m_smallContributionsThreshold(smallContribThreshold)
 {
-    m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
+    m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
 
     if (isWellFlowConsistent(isProducer))
     {
@@ -95,7 +95,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
                                                    m_cellIndexCalculator(RigEclCellIndexCalculator(nullptr, nullptr)),
                                                    m_smallContributionsThreshold(smallContribThreshold)
 {
-    m_accConnectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
+    m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
 
     m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
     
@@ -105,21 +105,53 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::accumulatedTotalFlowPrConnection(size_t branchIdx) 
+const std::vector<double>& RigAccWellFlowCalculator::accumulatedFlowPrConnection(size_t branchIdx) const
 {
-    CVF_ASSERT(m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer.find(RIG_FLOW_TOTAL_NAME) != m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer.end());
-
-    return m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer[RIG_FLOW_TOTAL_NAME];
+    return accumulatedTracerFlowPrConnection(RIG_FLOW_TOTAL_NAME, branchIdx);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) 
+const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const
 {
-    CVF_ASSERT(m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer.find(tracerName) != m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer.end());
+    auto flowPrTracerIt =  m_connectionFlowPrBranch[branchIdx].accFlowPrTracer.find(tracerName);
+    if ( flowPrTracerIt != m_connectionFlowPrBranch[branchIdx].accFlowPrTracer.end())
+    {
+        return flowPrTracerIt->second;
+    }
+    else 
+    {
+        CVF_ASSERT(false);
+        static std::vector<double> dummy;
+        return dummy;
+    }
+}
 
-    return m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer[tracerName];
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigAccWellFlowCalculator::flowPrConnection(size_t branchIdx) const
+{
+    return tracerFlowPrConnection(RIG_FLOW_TOTAL_NAME, branchIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigAccWellFlowCalculator::tracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const
+{
+    auto flowPrTracerIt =  m_connectionFlowPrBranch[branchIdx].flowPrTracer.find(tracerName);
+    if ( flowPrTracerIt != m_connectionFlowPrBranch[branchIdx].flowPrTracer.end())
+    {
+        return flowPrTracerIt->second;
+    }
+    else 
+    {
+        CVF_ASSERT(false);
+        static std::vector<double> dummy;
+        return dummy;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,13 +159,13 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConn
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigAccWellFlowCalculator::connectionNumbersFromTop(size_t branchIdx) const
 {
-    return m_accConnectionFlowPrBranch[branchIdx].depthValuesFromTop;
+    return m_connectionFlowPrBranch[branchIdx].depthValuesFromTop;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalWellFlowPrTracer() 
+std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalWellFlowPrTracer() const 
 {
     std::vector<QString> tracerNames =  this->tracerNames();
     std::vector<std::pair<QString, double> > tracerWithValues;
@@ -151,7 +183,7 @@ std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalWellFlow
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalTracerFractions() 
+std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalTracerFractions() const
 {
     std::vector<std::pair<QString, double> > totalFlows = totalWellFlowPrTracer();
 
@@ -174,7 +206,7 @@ std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalTracerFr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool  RigAccWellFlowCalculator::isWellFlowConsistent( bool isProducer)
+bool  RigAccWellFlowCalculator::isWellFlowConsistent( bool isProducer) const
 {
     bool isConsistent = true;
     for (const std::vector <RigWellResultPoint> & branch :  m_pipeBranchesCellIds)
@@ -205,11 +237,7 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
     size_t prevConnIndx = -1;
     int clSegIdx = static_cast<int>(branchCells.size()) - 1;
 
-    std::map<QString, std::vector<double> >& accConnFlowFractionsPrTracer = m_accConnectionFlowPrBranch[branchIdx].accFlowPrTracer;
-    std::vector<double>&                     connNumbersFromTop           = m_accConnectionFlowPrBranch[branchIdx].depthValuesFromTop;
-
-    std::vector<double> accFlow;
-    accFlow.resize(m_tracerNames.size(), 0.0);
+    std::vector<double> accFlowPrTracer(m_tracerNames.size(), 0.0); 
 
     while ( clSegIdx >= 0 )
     {
@@ -225,6 +253,7 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
         }
 
         // Accumulate the connection-cell's fraction flows 
+        std::vector<double> flowPrTracer(m_tracerNames.size(), 0.0); 
 
         if ( m_tracerCellFractionValues )
         {
@@ -239,19 +268,25 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
                     double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
                     if (cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction)
                     {
-                        accFlow[tracerIdx] += cellTracerFraction * branchCells[clSegIdx].flowRate();
+                        double tracerFlow = cellTracerFraction * branchCells[clSegIdx].flowRate();
+                        flowPrTracer[tracerIdx]     = tracerFlow;
+                        accFlowPrTracer[tracerIdx] += tracerFlow;
+
                         totalTracerFractionInCell += cellTracerFraction;
                     }
                     tracerIdx++;
                 }
 
-                double reservoirFraction = 1.0 - totalTracerFractionInCell;
-                accFlow[tracerIdx] += reservoirFraction * branchCells[clSegIdx].flowRate();
+                double reservoirFraction    = 1.0 - totalTracerFractionInCell;
+                double reservoirTracerFlow  = reservoirFraction * branchCells[clSegIdx].flowRate();
+                flowPrTracer[tracerIdx]     = reservoirTracerFlow;
+                accFlowPrTracer[tracerIdx] += reservoirTracerFlow;
             }
         }
         else
         {
-            accFlow[0] +=  branchCells[clSegIdx].flowRate();
+            accFlowPrTracer[0] += branchCells[clSegIdx].flowRate();
+            flowPrTracer[0]     = branchCells[clSegIdx].flowRate();
         }
 
         // Add the total accumulated (fraction) flows from any branches connected to this cell
@@ -261,39 +296,47 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
         std::vector<size_t> downstreamBranches = findDownstreamBranchIdxs(branchCells[clSegIdx]);
         for ( size_t dsBidx : downstreamBranches )
         {
-            if ( dsBidx != branchIdx &&  m_accConnectionFlowPrBranch[dsBidx].depthValuesFromTop.size() == 0 ) // Not this branch or already calculated
+            if ( dsBidx != branchIdx &&  m_connectionFlowPrBranch[dsBidx].depthValuesFromTop.size() == 0 ) // Not this branch or already calculated
             {
                 calculateAccumulatedFlowPrConnection(dsBidx, connNumFromTop);
-                BranchFlow& accConnFlowFractionsDsBranch = m_accConnectionFlowPrBranch[dsBidx];
+                BranchFlow& accConnFlowFractionsDsBranch = m_connectionFlowPrBranch[dsBidx];
 
                 size_t tracerIdx = 0;
                 for ( const auto & tracerName: m_tracerNames )
                 {
-                    accFlow[tracerIdx] +=  accConnFlowFractionsDsBranch.accFlowPrTracer[tracerName].back();
+                    accFlowPrTracer[tracerIdx] +=  accConnFlowFractionsDsBranch.accFlowPrTracer[tracerName].back();
                     tracerIdx++;
                 }
             }
         }
 
         // Push back the accumulated result into the storage
-
-        size_t tracerIdx = 0;
-        for ( const auto & tracerName: m_tracerNames )
         {
-            accConnFlowFractionsPrTracer[tracerName].push_back(accFlow[tracerIdx]);
-            tracerIdx++;
+            std::vector<double>&                     connNumbersFromTop    = m_connectionFlowPrBranch[branchIdx].depthValuesFromTop;
+            std::map<QString, std::vector<double> >& branchAccFlowPrTracer = m_connectionFlowPrBranch[branchIdx].accFlowPrTracer;
+            std::map<QString, std::vector<double> >& branchFlowPrTracer    = m_connectionFlowPrBranch[branchIdx].flowPrTracer;
+
+            size_t tracerIdx = 0;
+            for ( const auto & tracerName: m_tracerNames )
+            {
+                branchAccFlowPrTracer[tracerName].push_back(accFlowPrTracer[tracerIdx]);
+                branchFlowPrTracer[tracerName].push_back(flowPrTracer[tracerIdx]);
+                tracerIdx++;
+            }
+
+
+            connNumbersFromTop.push_back(connNumFromTop);
         }
 
-        connNumbersFromTop.push_back(connNumFromTop);
-
         --clSegIdx;
+
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigAccWellFlowCalculator::wrpToConnectionIndexFromBottom(const std::vector<RigWellResultPoint> &branchCells)
+std::vector<size_t> RigAccWellFlowCalculator::wrpToConnectionIndexFromBottom(const std::vector<RigWellResultPoint> &branchCells) const
 {
     std::vector<size_t> resPointToConnectionIndexFromBottom;
     resPointToConnectionIndexFromBottom.resize(branchCells.size(), -1);
@@ -335,7 +378,7 @@ std::vector<size_t> RigAccWellFlowCalculator::wrpToConnectionIndexFromBottom(con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigAccWellFlowCalculator::connectionIndexFromTop(const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx)
+size_t RigAccWellFlowCalculator::connectionIndexFromTop(const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx) 
 {
     return resPointToConnectionIndexFromBottom.front() - resPointToConnectionIndexFromBottom[clSegIdx];
 }
@@ -343,7 +386,7 @@ size_t RigAccWellFlowCalculator::connectionIndexFromTop(const std::vector<size_t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigAccWellFlowCalculator::findDownstreamBranchIdxs(const RigWellResultPoint& connectionPoint)
+std::vector<size_t> RigAccWellFlowCalculator::findDownstreamBranchIdxs(const RigWellResultPoint& connectionPoint) const
 {
     std::vector<size_t> downStreamBranchIdxs;
 
@@ -412,27 +455,10 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
     // Concatenate the values for each branch, erasing the tracers being grouped, replaced with the concatenated values
 
-    for ( BranchFlow& brRes : m_accConnectionFlowPrBranch )
+    for ( BranchFlow& brRes : m_connectionFlowPrBranch )
     {
-        std::vector<double> groupedConnectionValues( brRes.depthValuesFromTop.size(), 0.0);
-
-        for ( const QString& tracername:tracersToGroup )
-        {
-            auto it = brRes.accFlowPrTracer.find(tracername);
-
-            if ( it != brRes.accFlowPrTracer.end() )
-            {
-                const std::vector<double>& tracerVals = it->second;
-                for ( size_t cIdx = 0; cIdx < groupedConnectionValues.size(); ++cIdx )
-                {
-                    groupedConnectionValues[cIdx] += tracerVals[cIdx];
-                }
-            }
-
-            brRes.accFlowPrTracer.erase(it);
-        }
-
-        brRes.accFlowPrTracer[RIG_TINY_TRACER_GROUP_NAME] = groupedConnectionValues;
+        groupSmallTracers( brRes.accFlowPrTracer, tracersToGroup);
+        groupSmallTracers( brRes.flowPrTracer, tracersToGroup);
     }
 
     // Remove the grouped tracer names from the tracerName list, and replace with the "Others" name
@@ -452,5 +478,34 @@ void RigAccWellFlowCalculator::groupSmallContributions()
     m_tracerNames.swap(filteredTracernames);
     m_tracerNames.push_back(RIG_TINY_TRACER_GROUP_NAME);
     
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigAccWellFlowCalculator::groupSmallTracers(std::map<QString, std::vector<double>> &branchFlowSet, std::vector<QString> tracersToGroup)
+{
+    if ( branchFlowSet.empty() ) return;
+
+    size_t depthCount = branchFlowSet.begin()->second.size();
+    std::vector<double> groupedAccFlowValues(depthCount, 0.0);
+
+    for ( const QString& tracername:tracersToGroup )
+    {
+        auto it = branchFlowSet.find(tracername);
+
+        if ( it != branchFlowSet.end() )
+        {
+            const std::vector<double>& tracerVals = it->second;
+            for ( size_t cIdx = 0; cIdx < groupedAccFlowValues.size(); ++cIdx )
+            {
+                groupedAccFlowValues[cIdx] += tracerVals[cIdx];
+            }
+        }
+
+        branchFlowSet.erase(it);
+    }
+
+    branchFlowSet[RIG_TINY_TRACER_GROUP_NAME] = groupedAccFlowValues;
 }
 

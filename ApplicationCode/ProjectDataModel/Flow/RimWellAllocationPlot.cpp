@@ -52,6 +52,19 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlot, "WellAllocationPlot");
 /// 
 //--------------------------------------------------------------------------------------------------
 
+namespace caf
+{
+
+template<>
+void AppEnum<RimWellAllocationPlot::FlowType>::setUp()
+{
+    addItem(RimWellAllocationPlot::ACCUMULATED, "ACCUMULATED", "Well Flow");
+    addItem(RimWellAllocationPlot::INFLOW, "INFLOW", "In Flow");
+    setDefault(RimWellAllocationPlot::ACCUMULATED);
+
+}
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +83,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitField(&m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "");
     CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowType, "FlowType", "Flow Type", "", "", "");
+
     CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
     CAF_PDM_InitField(&m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold", "", "", "");
 
@@ -238,13 +253,19 @@ void RimWellAllocationPlot::updateFromWell()
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for (const QString& tracerName: tracerNames)
             {
-                const std::vector<double>& accFlow = wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx); 
+                const std::vector<double>& accFlow = m_flowType == ACCUMULATED ? 
+                                                     wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx): 
+                                                     wfCalculator->tracerFlowPrConnection(tracerName, brIdx); 
+
                 addStackedCurve(tracerName, connNumbers, accFlow, plotTrack);
             }
         }
         else
         {
-            const std::vector<double>& accFlow = wfCalculator->accumulatedTotalFlowPrConnection(brIdx);
+            const std::vector<double>& accFlow = m_flowType == ACCUMULATED ? 
+                                                 wfCalculator->accumulatedFlowPrConnection(brIdx):  
+                                                 wfCalculator->flowPrConnection(brIdx);
+
             addStackedCurve("Total", connNumbers, accFlow, plotTrack);
         }
 
@@ -597,7 +618,8 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
              || changedField == &m_timeStep
              || changedField == &m_flowDiagSolution
              || changedField == &m_groupSmallContributions
-             || changedField == &m_smallContributionsThreshold )
+             || changedField == &m_smallContributionsThreshold
+             || changedField == &m_flowType )
     {
         loadDataAndUpdate();
     }
