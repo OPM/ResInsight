@@ -312,7 +312,11 @@ cvf::Color3f RimFlowDiagSolution::tracerColor(QString tracerName)
         }
     }
 
-    return cvf::Color3f::DARK_GRAY;
+    if (tracerName == RIG_FLOW_TOTAL_NAME)        return cvf::Color3f::LIGHT_GRAY;
+    if (tracerName == RIG_RESERVOIR_TRACER_NAME)  return cvf::Color3f::LIGHT_GRAY;
+    if (tracerName == RIG_TINY_TRACER_GROUP_NAME) return cvf::Color3f::DARK_GRAY;
+
+    return cvf::Color3f::LIGHT_GRAY;
 }
 
 //--------------------------------------------------------------------------------------------------
