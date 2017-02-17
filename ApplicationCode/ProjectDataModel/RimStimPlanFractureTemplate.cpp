@@ -33,6 +33,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include <algorithm>
+
 
 
 CAF_PDM_SOURCE_INIT(RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate");
