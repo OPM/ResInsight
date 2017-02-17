@@ -70,7 +70,7 @@ public:
 
     const std::vector<double>&                              accumulatedTotalFlowPrConnection( size_t branchIdx);// const;
     const std::vector<double>&                              accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx);// const;
-    const std::vector<size_t>&                              connectionNumbersFromTop(size_t branchIdx) const;
+    const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
     const std::vector<QString>&                             tracerNames() const { return m_tracerNames;}
 
     std::vector<std::pair<QString, double> >                totalTracerFractions();
@@ -95,24 +95,16 @@ private:
     std::vector<QString>                                    m_tracerNames;
     double                                                  m_smallContributionsThreshold;
 
-    struct BranchFlowPrConnection
+    struct BranchFlow
     {
-        std::vector<size_t>                                 connectionNumbersFromTop;
+        std::vector<double>                                 depthValuesFromTop;
         std::map<QString, std::vector<double> >             accFlowPrTracer;
         std::map<QString, std::vector<double> >             flowPrTracer;
     };                                                      
                                                             
-    std::vector< BranchFlowPrConnection >                   m_accConnectionFlowPrBranch;
-
-    struct BranchFlowPrDepth
-    {
-        std::vector<double>                                 depthValueFromTop;
-        std::map<QString, std::vector<double> >             accFlowPrTracer;
-        std::map<QString, std::vector<double> >             flowPrTracer;
-    };                                                      
-
-    std::vector< BranchFlowPrDepth >                        m_accPseudoLengthFlowPrBranch;
-    std::vector< BranchFlowPrDepth >                        m_accTvdFlowPrBranch;
+    std::vector< BranchFlow >                               m_accConnectionFlowPrBranch;
+    std::vector< BranchFlow >                               m_accPseudoLengthFlowPrBranch;
+    std::vector< BranchFlow >                               m_accTvdFlowPrBranch;
 
 };
 

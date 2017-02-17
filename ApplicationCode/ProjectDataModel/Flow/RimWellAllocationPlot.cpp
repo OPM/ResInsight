@@ -231,11 +231,7 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
-        std::vector<double> connNumbers;
-        {
-            const std::vector<size_t>& connNumbersSize_t = wfCalculator->connectionNumbersFromTop(brIdx);
-            for ( size_t conNumb : connNumbersSize_t ) connNumbers.push_back(static_cast<double>(conNumb));
-        }
+        std::vector<double> connNumbers = wfCalculator->connectionNumbersFromTop(brIdx);
 
         if ( m_flowDiagSolution )
         {
