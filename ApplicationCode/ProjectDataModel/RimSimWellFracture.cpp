@@ -95,7 +95,8 @@ void RimSimWellFracture::setAzimuth()
     }
     else //Azimuth value read from template 
     {
-        azimuth = attachedFractureDefinition()->azimuthAngle;
+        if (attachedFractureDefinition()) azimuth = attachedFractureDefinition()->azimuthAngle;
+        else azimuth = 0.0;
     }
 }
 

@@ -200,7 +200,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     {
         //perforationLength = m_fractureTemplate->perforationLength();
         //TODO: Find out if performationLength should be in RimFractureTemplate or in RimEllipseFracTemplate
-        azimuth = m_fractureTemplate->azimuthAngle();
+        if (attachedFractureDefinition()) azimuth = m_fractureTemplate->azimuthAngle();
+        else azimuth = 0.0;
     }
 
     if (changedField == &azimuth || 
