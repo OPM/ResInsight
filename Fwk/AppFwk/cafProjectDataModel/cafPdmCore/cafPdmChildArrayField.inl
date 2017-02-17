@@ -15,14 +15,7 @@ namespace caf
 template<typename DataType>
 PdmChildArrayField<DataType*>::~PdmChildArrayField()
 {
-#ifdef _DEBUG
-    for (size_t index = 0; index < m_pointers.size(); ++index)
-    {
-        assert(m_pointers.at(index).isNull());
-    }
-#endif
-
-    this->removeThisAsParentField();
+    deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

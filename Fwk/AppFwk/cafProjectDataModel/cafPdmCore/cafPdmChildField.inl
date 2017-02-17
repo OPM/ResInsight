@@ -52,11 +52,7 @@ caf::PdmChildField<DataType*>::PdmChildField(const DataTypePtr& fieldValue)
 template<typename DataType >
 caf::PdmChildField<DataType*>::~PdmChildField()
 {
-    bool The_object_owned_by_the_child_field_is_deleted = m_fieldValue.isNull();
-    assert(The_object_owned_by_the_child_field_is_deleted); // Did you forget ?
-
-    if (!m_fieldValue.isNull()) m_fieldValue.rawPtr()->removeAsParentField(this);
-    m_fieldValue.setRawPtr(NULL);
+    delete m_fieldValue.rawPtr();
 }
 
 
