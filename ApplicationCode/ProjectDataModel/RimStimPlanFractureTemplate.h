@@ -64,17 +64,13 @@ public:
     std::vector<double>                     getStimPlanTimeValues();
     std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits();
 
-
-    //TODO: Remove!!!
-    std::vector<std::vector<double>>        getConductivitiesAtTimeStep(size_t timStep);
-    std::vector<std::vector<double>>        getPermeabilitiesAtTimeStep(size_t timStep);
-    std::vector<std::vector<double>>        getWidthsAtTimeStep(size_t timStep);
-
     void                                    loadDataAndUpdate();
 
     std::vector<std::vector<double>>        getDataAtTimeIndex(QString resultName, size_t timeStepIndex);
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+
 
 private:
     void                                    updateUiTreeName();
@@ -96,4 +92,5 @@ private:
     caf::PdmChildArrayField<RimStimPlanLegendConfig*>   m_legendConfigurations;
 
     bool numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
+    void setDepthOfWellPathAtFracture();
 };

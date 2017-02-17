@@ -32,6 +32,7 @@ public:
     QString resultName;
     QString unit;
     std::vector<std::vector<std::vector<double>>> parameterValues;
+    //Vector for each time step, for each depth and for each x-value
 
 };
 
@@ -51,13 +52,6 @@ public:
 
     
     std::vector<RigStimPlanData>                   stimPlanData;
-    //Vector for each time step, for each depth and for each x-value
-    std::vector<std::vector<std::vector<double>>>  conductivities;
-    QString conductivityUnit;
-    std::vector<std::vector<std::vector<double>>>  widths;
-    QString widthUnit;
-    std::vector<std::vector<std::vector<double>>>  permeabilities;
-    QString permeabilityUnit;
 
     bool                                timeStepExisist(double timeStepValue);
     void                                reorderYgridToDepths();

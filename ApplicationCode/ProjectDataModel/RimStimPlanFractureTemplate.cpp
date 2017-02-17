@@ -25,6 +25,7 @@
 #include "RimStimPlanLegendConfig.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
 #include "cvfVector3.h"
@@ -50,6 +51,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Depth of Well Path at Fracture", "", "", "");
+    wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
@@ -240,6 +242,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         qDebug() << dataFile.errorString();
     }
 
+    setDepthOfWellPathAtFracture();
 }
 
 
@@ -399,6 +402,20 @@ bool RimStimPlanFractureTemplate::numberOfParameterValuesOK(std::vector<std::vec
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
+{
+    if (!m_stimPlanFractureDefinitionData.isNull())
+    {
+        double firstDepth = m_stimPlanFractureDefinitionData->depths[0];
+        double lastDepth  = m_stimPlanFractureDefinitionData->depths[m_stimPlanFractureDefinitionData->depths.size()-1];
+        double averageDepth = (firstDepth + lastDepth) / 2;
+        wellPathDepthAtFracture = averageDepth;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -570,75 +587,51 @@ std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getConductivitiesAtTimeStep(size_t timStep)
-{
-    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex("CONDUCTIVITY", timStep);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getPermeabilitiesAtTimeStep(size_t timStep)
-{
-    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex("PERMEABILITY", timStep);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getWidthsAtTimeStep(size_t timStep)
-{
-    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex("WIDTH", timStep);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
 {
-     std::vector<cvf::Vec3f> polygon;
+    std::vector<cvf::Vec3f> polygon;
 
-     //TODO: Handle multiple time-step and properties
-     std::vector<std::vector<double>> ConductivitiesAtTimeStep = m_stimPlanFractureDefinitionData->conductivities[0];
+    //TODO: Handle multiple time-step and properties
+    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(getStimPlanPropertyNamesUnits()[0].first, 0);
 
-     for (int k = 0; k < ConductivitiesAtTimeStep.size(); k++)
-     {
-         for (int i = 0; i < ConductivitiesAtTimeStep[k].size(); i++)
-         {
-             if ((ConductivitiesAtTimeStep[k])[i] > 1e-7)
-             {
-                 if ((i < ConductivitiesAtTimeStep[k].size() - 1))
-                 {
-                     if ((ConductivitiesAtTimeStep[k])[(i + 1)] < 1e-7)
-                     {
-                         polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                             static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
-                     }
-                 }
-                 else
-                 {
-                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                         static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
-                 }
-             }
-         }
-     }
+    for (int k = 0; k < dataAtTimeStep.size(); k++)
+    {
+        for (int i = 0; i < dataAtTimeStep[k].size(); i++)
+        {
+            if ((dataAtTimeStep[k])[i] > 1e-7)
+            {
+                if ((i < dataAtTimeStep[k].size() - 1))
+                {
+                    if ((dataAtTimeStep[k])[(i + 1)] < 1e-7)
+                    {
+                        polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
+                            static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
+                    }
+                }
+                else
+                {
+                    polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
+                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
+                }
+            }
+        }
+    }
 
-     std::vector<cvf::Vec3f> negPolygon;
+    std::vector<cvf::Vec3f> negPolygon;
 
-     for (const auto& node : polygon)
-     {
-         cvf::Vec3f negNode = node;
-         negNode.x() = -negNode.x();
-         negPolygon.insert(negPolygon.begin(), negNode);
-     }
+    for (const auto& node : polygon)
+    {
+        cvf::Vec3f negNode = node;
+        negNode.x() = -negNode.x();
+        negPolygon.insert(negPolygon.begin(), negNode);
+    }
 
-     for (const auto& negNode : negPolygon)
-     {
-         polygon.push_back(negNode);
-     }
+    for (const auto& negNode : negPolygon)
+    {
+        polygon.push_back(negNode);
+    }
 
-     return polygon;
+    return polygon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -652,6 +645,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("File");
     fileGroup->add(&m_stimPlanFileName);
+    fileGroup->add(&wellPathDepthAtFracture);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
     geometryGroup->add(&orientation);
@@ -660,5 +654,25 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
     propertyGroup->add(&fractureConductivity);
     propertyGroup->add(&skinFactor);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (field == &wellPathDepthAtFracture)
+    {
+        if (!m_stimPlanFractureDefinitionData.isNull())
+        {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_minimum = m_stimPlanFractureDefinitionData->depths[0];
+            myAttr->m_maximum = m_stimPlanFractureDefinitionData->depths[m_stimPlanFractureDefinitionData->depths.size()-1];
+        }
+
+        }
+    }
 }
 
