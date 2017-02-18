@@ -67,22 +67,34 @@ public:
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,
                              double smallContribThreshold);
 
+    const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
     const std::vector<double>&                              accumulatedFlowPrConnection( size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
     const std::vector<double>&                              flowPrConnection( size_t branchIdx) const;
     const std::vector<double>&                              tracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
-    const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
+
+    const std::vector<double>&                              pseudoLengthFromTop(size_t branchIdx) const;
+    const std::vector<double>&                              accumulatedFlowPrPseudoLength( size_t branchIdx) const;
+    const std::vector<double>&                              accumulatedTracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
+    const std::vector<double>&                              flowPrPseudoLength( size_t branchIdx) const;
+    const std::vector<double>&                              tracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
+
+
     const std::vector<QString>&                             tracerNames() const { return m_tracerNames;}
 
     std::vector<std::pair<QString, double> >                totalTracerFractions() const;
 
 private:
 
-    void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
+    void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, 
+                                                                                                  size_t startConnectionNumberFromTop);
+    void                                                    calculateFlowPrPseudoLength(size_t branchIdx, 
+                                                                                        double startPseudoLengthFromTop);
 
-    std::vector<double>                                     calculateFlowPrTracer(const std::vector<RigWellResultPoint> &branchCells, int clSegIdx);
 
-    void                                                    calculateFlowPrPseudoLength(size_t branchIdx, double startPseudoLengthFromTop);
+
+    std::vector<double>                                     calculateFlowPrTracer(const std::vector<RigWellResultPoint> &branchCells, int clSegIdx) const;
+
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
 
@@ -92,7 +104,7 @@ private:
     bool                                                    isWellFlowConsistent(bool isProducer) const;
     std::vector<size_t>                                     wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells) const;
     static size_t                                           connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx) ;
-    std::vector<size_t>                                     findDownstreamBranchIdxs( const RigWellResultPoint& connectionPoint) const;
+    std::vector<size_t>                                     findDownStreamBranchIdxs( const RigWellResultPoint& connectionPoint) const;
 
     std::vector<std::pair<QString, double> >                totalWellFlowPrTracer() const;
 
@@ -110,7 +122,9 @@ private:
         std::map<QString, std::vector<double> >             accFlowPrTracer;
         std::map<QString, std::vector<double> >             flowPrTracer;
     };                                                      
-                                                            
+    void storeFlowOnDepth(BranchFlow &branchFlow, double depthValue, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer);
+    void addDownStreamBranchFlow(std::vector<double> &accFlowPrTracer, const BranchFlow &downStreamBranchFlow) const;
+
     std::vector< BranchFlow >                               m_connectionFlowPrBranch;
     std::vector< BranchFlow >                               m_pseudoLengthFlowPrBranch;
     std::vector< BranchFlow >                               m_tvdFlowPrBranch;
