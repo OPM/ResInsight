@@ -70,6 +70,16 @@ struct RigWellResultPoint
         }
     }
 
+    bool isEqual(const RigWellResultPoint& other ) const 
+    {
+        return ( m_gridIndex == other.m_gridIndex 
+                && m_gridCellIndex == other.m_gridCellIndex
+                && m_isOpen == other.m_isOpen
+                && m_ertBranchId == other.m_ertBranchId
+                && m_ertSegmentId == other.m_ertSegmentId
+                && m_flowRate == other.m_flowRate);
+    }
+
     size_t                            m_gridIndex;
     size_t                            m_gridCellIndex;     //< Index to cell which is included in the well
 

@@ -374,9 +374,12 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
     std::vector<double> accFlowPrTracer(m_tracerNames.size(), 0.0); 
 
     BranchFlow& branchFlow =  m_pseudoLengthFlowPrBranch[branchIdx];
+    
+    RigWellResultPoint previousResultPoint;
 
     while ( clSegIdx >= 0 )
     {
+        if (previousResultPoint.isEqual(branchCells[clSegIdx])) { --clSegIdx; continue; } // Todo: Do the skipping within one cell to get the complete length span of the cell into the graph
 
         std::vector<double> flowPrTracer = calculateFlowPrTracer(branchCells, clSegIdx);
 
@@ -410,6 +413,8 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
         // Push back the accumulated result into the storage
 
         storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
+
+        previousResultPoint = branchCells[clSegIdx];
 
         --clSegIdx;
 

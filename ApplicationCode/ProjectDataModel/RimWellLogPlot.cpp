@@ -115,9 +115,15 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateMdiWindowTitle();
     }
-
-    if (   changedField == &m_depthType 
-        || changedField == &m_depthUnit)
+    
+    if (   changedField == &m_depthType )
+    {
+        RimWellAllocationPlot* wellAllocPlot;
+        firstAncestorOrThisOfType(wellAllocPlot);
+        if (wellAllocPlot) wellAllocPlot->loadDataAndUpdate();
+        else updateTracks();
+    }
+    if ( changedField == &m_depthUnit)
     {
         updateTracks();
     }
@@ -675,7 +681,7 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     {
         m_disabledDepthTypes.insert(MEASURED_DEPTH);
         m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
-        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+       // m_disabledDepthTypes.insert(PSEUDO_LENGTH);
     }
     else
     {
