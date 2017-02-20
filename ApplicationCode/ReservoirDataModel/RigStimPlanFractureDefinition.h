@@ -58,9 +58,13 @@ public:
     size_t                              getTimeStepIndex(double timeStepValue);
 
     void                                setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue);
-    std::vector<std::vector<double>>    getDataAtTimeIndex(QString resultName, size_t timeStepIndex);
+    std::vector<std::vector<double>>    getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
+    void                                computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const;
 
     std::vector<QString> resultNames() const;
+
+private:
+    size_t                              resultIndex(const QString& resultName, const QString& unit) const;
 
 };
 

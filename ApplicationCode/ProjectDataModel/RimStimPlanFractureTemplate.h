@@ -62,11 +62,13 @@ public:
     std::vector<double>                     getNegAndPosXcoords();
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
     std::vector<double>                     getStimPlanTimeValues();
-    std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits();
+    std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
+    void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
 
     void                                    loadDataAndUpdate();
 
-    std::vector<std::vector<double>>        getDataAtTimeIndex(QString resultName, size_t timeStepIndex);
+    std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
+
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;

@@ -306,9 +306,9 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex(QString resultName, size_t timeStepIndex)
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
-    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, timeStepIndex);
+    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,8 +348,6 @@ void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader 
             }
         }
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,7 +563,6 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 {
-
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
     return m_stimPlanFractureDefinitionData->timeSteps;
 }
@@ -573,7 +570,7 @@ std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPlanPropertyNamesUnits()
+std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPlanPropertyNamesUnits() const
 {
     std::vector<RigStimPlanData > allStimPlanData = m_stimPlanFractureDefinitionData->stimPlanData;
     std::vector<std::pair<QString, QString> >  propertyNamesUnits;
@@ -587,12 +584,23 @@ std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const
+{
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        m_stimPlanFractureDefinitionData->computeMinMax(resultName, unitName, minValue, maxValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
 {
     std::vector<cvf::Vec3f> polygon;
 
     //TODO: Handle multiple time-step and properties
-    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(getStimPlanPropertyNamesUnits()[0].first, 0);
+    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(getStimPlanPropertyNamesUnits()[0].first, getStimPlanPropertyNamesUnits()[0].second, 0);
 
     for (int k = 0; k < dataAtTimeStep.size(); k++)
     {

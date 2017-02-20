@@ -42,23 +42,24 @@ class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class RigMainGrid;
 class Rim3dOverlayInfoConfig;
-class RimEclipseCase;
-class RimEclipseWell;
 class RimCellEdgeColors;
-class RimEclipsePropertyFilter;
-class RimEclipsePropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
-class RimFaultCollection;
-class RimEclipseFaultColors;
-class RimReservoirCellResultsStorage;
-class RimReservoirCellResultsStorage;
+class RimEclipseCase;
 class RimEclipseCellColors;
+class RimEclipseFaultColors;
+class RimEclipsePropertyFilter;
+class RimEclipsePropertyFilterCollection;
+class RimEclipseWell;
 class RimEclipseWellCollection;
+class RimFaultCollection;
+class RimReservoirCellResultsStorage;
+class RimReservoirCellResultsStorage;
+class RimStimPlanColors;
 class RiuViewer;
+class RivIntersectionPartMgr;
 class RivReservoirPipesPartMgr;
 class RivReservoirWellSpheresPartMgr;
-class RivIntersectionPartMgr;
 
 namespace cvf
 {
@@ -89,9 +90,10 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmChildField<RimEclipseCellColors*>                cellResult;
-    caf::PdmChildField<RimCellEdgeColors*>                   cellEdgeResult;
-    caf::PdmChildField<RimEclipseFaultColors*>               faultResultSettings;
+    caf::PdmChildField<RimEclipseCellColors*>               cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>                  cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>              faultResultSettings;
+    caf::PdmChildField<RimStimPlanColors*>                  stimPlanColors;
 
     caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
     caf::PdmChildField<RimFaultCollection*>                  faultCollection;

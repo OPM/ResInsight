@@ -20,6 +20,8 @@
 
 #include <QDebug>
 
+#include "cvfMath.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -90,20 +92,32 @@ size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue)
+size_t RigStimPlanFractureDefinition::resultIndex(const QString& resultName, const QString& unit) const
 {
-    bool resultNameExists = false;
-    for (RigStimPlanData& resultData : stimPlanData)
+    
+    for (size_t i = 0; i < stimPlanData.size(); i++)
     {
-        if (resultData.resultName == resultName)
+        if (stimPlanData[i].resultName == resultName && stimPlanData[i].unit == unit)
         {
-            resultNameExists = true;
-            resultData.parameterValues[getTimeStepIndex(timeStepValue)] = data;
-            return;
+            return i;
         }
     }
 
-    if (!resultNameExists)
+    return cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue)
+{
+    size_t resIndex = resultIndex(resultName, unit);
+
+    if (resIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        stimPlanData[resIndex].parameterValues[getTimeStepIndex(timeStepValue)] = data;
+    }
+    else
     {
         RigStimPlanData resultData;
 
@@ -116,26 +130,53 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QStri
 
         stimPlanData.push_back(resultData);
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeIndex(QString resultName, size_t timeStepIndex)
+std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const
 {
-    for (RigStimPlanData& resultData : stimPlanData)
+    size_t resIndex = resultIndex(resultName, unit);
+
+    if (resIndex != cvf::UNDEFINED_SIZE_T)
     {
-        if (resultData.resultName == resultName)
-        {
-            return resultData.parameterValues[timeStepIndex];
-        }
+        return stimPlanData[resIndex].parameterValues[timeStepIndex];
     }
 
     qDebug() << "ERROR: Requested parameter does not exists in stimPlan data";
     std::vector<std::vector<double>> emptyVector;
     return emptyVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const
+{
+    CVF_ASSERT(minValue && maxValue);
+
+    size_t resIndex = resultIndex(resultName, unit);
+    if (resIndex == cvf::UNDEFINED_SIZE_T) return;
+
+    for (auto timeValues : stimPlanData[resIndex].parameterValues)
+    {
+        for (auto values : timeValues)
+        {
+            for (auto resultValue : values)
+            {
+                if (resultValue < *minValue)
+                {
+                    *minValue = resultValue;
+                }
+
+                if (resultValue > *maxValue)
+                {
+                    *maxValue = resultValue;
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

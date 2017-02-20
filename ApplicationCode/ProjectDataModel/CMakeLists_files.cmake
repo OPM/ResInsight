@@ -95,6 +95,7 @@ ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.h
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.h
+${CEE_CURRENT_LIST_DIR}RimStimPlanColors.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -188,6 +189,7 @@ ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.cpp
+${CEE_CURRENT_LIST_DIR}RimStimPlanColors.cpp
 
 )
 

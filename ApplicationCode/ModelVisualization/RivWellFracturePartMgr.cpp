@@ -18,21 +18,24 @@
 
 #include "RivWellFracturePartMgr.h"
 
+#include "RiaApplication.h"
+
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFracture.h"
-
-#include "cafEffectGenerator.h"
+#include "RimLegendConfig.h"
+#include "RimStimPlanColors.h"
+#include "RimStimPlanFractureTemplate.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapperContinuousLinear.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RimLegendConfig.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +111,15 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
         if (!m_rimFracture->hasValidGeometry()) return;
 
+        RimLegendConfig* legendConfig = nullptr;
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (activeView)
+        {
+            legendConfig = activeView->stimPlanColors->activeLegend();
+        }
+
+        // Note : If no legend is found, draw geo using a single color
+
         RimFractureTemplate * fracTemplate = m_rimFracture->attachedFractureDefinition();
         RimStimPlanFractureTemplate* stimPlanFracTemplate;
 
@@ -118,10 +130,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         else return;
 
         int timeStepIndex = m_rimFracture->stimPlanTimeIndexToPlot;
-        QString resultToPlot = m_rimFracture->stimPlanParameterToPlot;
-        std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->getDataAtTimeIndex(resultToPlot, timeStepIndex);
-
-        if (dataToPlot.empty()) return; //TODO: Set all values to undefined if no data available...
+        std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->getDataAtTimeIndex(activeView->stimPlanColors->resultName(), activeView->stimPlanColors->unit(), timeStepIndex);
 
         const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
         const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
@@ -139,30 +148,38 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         m_part = new cvf::Part;
         m_part->setDrawable(geo.p());
 
-        RimLegendConfig* legend = m_rimFracture->activeLegend();
-        cvf::ScalarMapper* scalarMapper =  legend->scalarMapper();
-
-        cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
-        textureCoords->resize(nodeCoords.size());
-
-        int i = 0;
-        for (std::vector<double> depthData : dataToPlot)
+        if (legendConfig)
         {
-            std::vector<double> mirroredValuesAtDepth = mirrorDataAtSingleDepth(depthData);
-            for (double gridXdata : mirroredValuesAtDepth)
+            cvf::ScalarMapper* scalarMapper =  legendConfig->scalarMapper();
+
+            cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray;
+            textureCoords->resize(nodeCoords.size());
+
+            int i = 0;
+            for (std::vector<double> depthData : dataToPlot)
             {
-                cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(gridXdata);
-                textureCoords->set(i, texCoord);
-                i++;
+                std::vector<double> mirroredValuesAtDepth = mirrorDataAtSingleDepth(depthData);
+                for (double gridXdata : mirroredValuesAtDepth)
+                {
+                    cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(gridXdata);
+                    textureCoords->set(i, texCoord);
+                    i++;
+                }
             }
-        }
      
-        geo->setTextureCoordArray(textureCoords.p());
+            geo->setTextureCoordArray(textureCoords.p());
 
-        caf::ScalarMapperEffectGenerator scalarMapperEffectGenerator(scalarMapper, caf::PO_NEG_LARGE);
-        cvf::ref<cvf::Effect> eff = scalarMapperEffectGenerator.generateUnCachedEffect();
+            caf::ScalarMapperEffectGenerator scalarMapperEffectGenerator(scalarMapper, caf::PO_NEG_LARGE);
+            cvf::ref<cvf::Effect> eff = scalarMapperEffectGenerator.generateCachedEffect();
 
-        m_part->setEffect(eff.p());
+            m_part->setEffect(eff.p());
+        }
+        else
+        {
+            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN)), caf::PO_1);
+            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+            m_part->setEffect(eff.p());
+        }
     }
 }
 

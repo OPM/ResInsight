@@ -52,6 +52,7 @@
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -113,6 +114,10 @@ RimEclipseView::RimEclipseView()
     faultResultSettings = new RimEclipseFaultColors();
     faultResultSettings.uiCapability()->setUiHidden(true);
   
+    CAF_PDM_InitFieldNoDefault(&stimPlanColors, "StimPlanColors", "Fracture Colors", "", "", "");
+    stimPlanColors = new RimStimPlanColors();
+    stimPlanColors.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimEclipseWellCollection;
     wellCollection.uiCapability()->setUiHidden(true);
@@ -697,6 +702,7 @@ void RimEclipseView::loadDataAndUpdate()
     this->cellEdgeResult()->loadResult();
 
     this->faultResultSettings()->customFaultResult()->loadResult();
+    this->stimPlanColors->loadDataAndUpdate();
 
     updateMdiWindowVisibility();
 
@@ -996,6 +1002,17 @@ void RimEclipseView::updateLegends()
     {
         this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+    }
+
+    RimLegendConfig* stimPlanLegend = stimPlanColors()->activeLegend();
+    if (stimPlanLegend)
+    {
+        stimPlanColors->updateLegendData();
+        
+        if (stimPlanLegend->legend())
+        {
+            m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
+        }
     }
 }
 
@@ -1332,6 +1349,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(cellResult());
     uiTreeOrdering.add(cellEdgeResult());
     uiTreeOrdering.add(faultResultSettings());
+    uiTreeOrdering.add(stimPlanColors());
 
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
