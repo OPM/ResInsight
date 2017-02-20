@@ -81,7 +81,8 @@ public:
         BLUE_WHITE_RED,
         RED_WHITE_BLUE,
         CATEGORY,
-        ANGULAR
+        ANGULAR,
+        STIMPLAN
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;

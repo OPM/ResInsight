@@ -27,6 +27,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
 
 #include "cafCategoryLegend.h"
@@ -75,6 +76,7 @@ namespace caf {
         addItem(RimLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
         addItem(RimLegendConfig::CATEGORY,       "CATEGORY",        "Category colors");
         addItem(RimLegendConfig::ANGULAR,        "ANGULAR",         "Full color cyclic");
+        addItem(RimLegendConfig::STIMPLAN,       "STIMPLAN",        "StimPlan colors");
         setDefault(RimLegendConfig::NORMAL);
     }
 }
@@ -712,6 +714,9 @@ cvf::Color3ubArray RimLegendConfig::colorArrayFromColorType(ColorRangesType colo
     case RimLegendConfig::ANGULAR:
         return RiaColorTables::angularPaletteColors().color3ubArray();
         break;
+    case RimLegendConfig::STIMPLAN:
+        return RiaColorTables::stimPlanPaletteColors().color3ubArray();
+        break;
     default:
         break;
     }
@@ -746,6 +751,10 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
+    bool hasStimPlanParent = false;
+    RimStimPlanColors* stimPlanColors = nullptr;
+    this->firstAncestorOrThisOfType(stimPlanColors);
+    if (stimPlanColors) hasStimPlanParent = true;
 
     bool isCategoryResult = false;
     {
@@ -798,6 +807,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         rangeTypes.push_back(WHITE_BLACK);
         rangeTypes.push_back(BLACK_WHITE);
         rangeTypes.push_back(ANGULAR);
+        if (hasStimPlanParent) rangeTypes.push_back(STIMPLAN);
 
         if (isCategoryResult)
         {
@@ -811,10 +821,14 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_rangeMode)
     {
-        if (!m_isAllTimeStepsRangeDisabled) {
+        if (!m_isAllTimeStepsRangeDisabled)
+        {
             options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
         }
-        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        if (!hasStimPlanParent)
+        {
+            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        }
         options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
     }
  

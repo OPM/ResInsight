@@ -38,6 +38,7 @@ public:
     static const caf::ColorTable& redWhiteBluePaletteColors();
     static const caf::ColorTable& categoryPaletteColors();
     static const caf::ColorTable& angularPaletteColors();
+    static const caf::ColorTable& stimPlanPaletteColors();
     static const caf::ColorTable& faultsPaletteColors();
     static const caf::ColorTable& wellsPaletteColors();
     static const caf::ColorTable& summaryCurveDefaultPaletteColors();
