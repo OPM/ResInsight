@@ -115,9 +115,11 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
         RimLegendConfig* legendConfig = nullptr;
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        RimStimPlanColors* stimPlanColors;
         if (activeView)
         {
-            legendConfig = activeView->stimPlanColors->activeLegend();
+            stimPlanColors = activeView->stimPlanColors;
+            legendConfig = stimPlanColors->activeLegend();
         }
 
         // Note : If no legend is found, draw geo using a single color
@@ -179,7 +181,9 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             geo->setTextureCoordArray(textureCoords.p());
 
             caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_NEG_LARGE);
-            effGen.setOpacityLevel(0.2f);
+
+            float opacityLevel = activeView->stimPlanColors->opacityLevel();
+            effGen.setOpacityLevel(opacityLevel);
 
             if (activeView && activeView->isLightingDisabled())
             {

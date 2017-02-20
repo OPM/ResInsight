@@ -43,6 +43,8 @@ RimStimPlanColors::RimStimPlanColors()
     CAF_PDM_InitObject("StimPlan Colors", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""), "Result Variable", "", "", "");
+    CAF_PDM_InitField(&opacityLevel, "opacityLevel", 0.2f, "StimPlan grid Transparency", "", "", "");
+
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);

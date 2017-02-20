@@ -51,6 +51,9 @@ public:
     void loadDataAndUpdate();
     void updateLegendData();
 
+    caf::PdmField<float>                    opacityLevel;
+
+
 protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
