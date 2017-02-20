@@ -141,7 +141,10 @@ std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeInd
 
     if (resIndex != cvf::UNDEFINED_SIZE_T)
     {
-        return stimPlanData[resIndex].parameterValues[timeStepIndex];
+        if (timeStepIndex < stimPlanData[resIndex].parameterValues.size())
+        {
+            return stimPlanData[resIndex].parameterValues[timeStepIndex];
+        }
     }
 
     qDebug() << "ERROR: Requested parameter does not exists in stimPlan data";
