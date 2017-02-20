@@ -77,7 +77,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
         fracture->setFractureTemplate(fracDef);
 
         fracture->azimuth = fracDef->azimuthAngle();
-        //fracture->perforationLength = fracDef->perforationLength();
+        fracture->setAzimuth();
     }
 
     fracture->updateFracturePositionFromLocation();

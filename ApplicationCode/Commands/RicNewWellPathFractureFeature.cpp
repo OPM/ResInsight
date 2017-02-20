@@ -89,7 +89,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
         fracture->setFractureTemplate(fracDef);
 
         fracture->azimuth = fracDef->azimuthAngle();
-        //fracture->perforationLength = fracDef->perforationLength();
+        fracture->setAzimuth();
     }
 
     fractureCollection->updateConnectedEditors();
