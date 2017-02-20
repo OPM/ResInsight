@@ -38,7 +38,6 @@
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
-#include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -86,8 +85,7 @@ RimFracture::RimFracture(void)
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "PerforationLength", "", "", "");
 
-    CAF_PDM_InitField(&stimPlanParameterToPlot, "parameterToPlot", QString(""), "Parameter from StimPlan file to plot", "", "", "");
-    CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "Timestep from StimPlan file to plot", "", "", "");
+    CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "Timestep from StimPlan file to plot", "", "", ""); 
 
     CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
     m_i.uiCapability()->setUiHidden(true);
@@ -102,15 +100,6 @@ RimFracture::RimFracture(void)
     m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJK);
     m_displayIJK.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigPermeability, "LegendConfigPerm", "LegendConfigPerm", "", "", "");
-    m_legendConfigPermeability = new RimLegendConfig;
-
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigConductivity, "LegendConfigCond", "LegendConfigCond", "", "", "");
-    m_legendConfigConductivity = new RimLegendConfig;
-
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigWidth, "LegendConfigWidth", "LegendConfigWidth", "", "", "");
-    m_legendConfigWidth = new RimLegendConfig;
-
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
 
@@ -122,13 +111,6 @@ RimFracture::RimFracture(void)
 //--------------------------------------------------------------------------------------------------
 RimFracture::~RimFracture()
 {
-    delete m_legendConfigConductivity;
-    delete m_legendConfigPermeability;
-    delete m_legendConfigWidth;
-
-    m_legendConfigConductivity = nullptr;
-    m_legendConfigPermeability = nullptr;
-    m_legendConfigWidth = nullptr;
 }
  
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +173,6 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     if (changedField == &azimuth || 
         changedField == &m_fractureTemplate ||
-        changedField == &stimPlanParameterToPlot ||
         changedField == &stimPlanTimeIndexToPlot)
     {
 
@@ -623,22 +604,6 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 
         }
     }
-    else if (fieldNeedingOptions == &stimPlanParameterToPlot)
-    {
-        RimFractureTemplate* fracTemplate = attachedFractureDefinition();
-        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
-        {
-            RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-            std::vector<std::pair<QString, QString>> properties = fracTemplateStimPlan->getStimPlanPropertyNamesUnits();
-
-            for (std::pair<QString, QString> propNameUnit : properties)
-            {
-                QString nameAndUnit = propNameUnit.first + " [" + propNameUnit.second + "]";
-                QString name = propNameUnit.first;
-                options.push_back(caf::PdmOptionItemInfo(nameAndUnit, name));
-            }
-        }
-    }
 
     return options;
 }
@@ -666,23 +631,16 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
-            stimPlanParameterToPlot.uiCapability()->setUiHidden(false);
         }
         else
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
-            stimPlanParameterToPlot.uiCapability()->setUiHidden(true);
         }
     }
     else
     {
         stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
-        stimPlanParameterToPlot.uiCapability()->setUiHidden(true);
     }
-
-
-    
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -706,12 +664,6 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    //TODO
-    uiTreeOrdering.add(m_legendConfigConductivity);
-//     uiTreeOrdering.add(m_legendConfigPermeability);
-//     uiTreeOrdering.add(m_legendConfigWidth);
-    
-    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -795,18 +747,6 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
     return m_rivFracture.p();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimLegendConfig* RimFracture::activeLegend()
-{
-//     if      (stimPlanParameterToPlot == RimFracture::CONDUCTIVITY) return m_legendConfigConductivity;
-//     else if (stimPlanParameterToPlot == RimFracture::PERMEABILITY) return m_legendConfigPermeability;
-//     else if (stimPlanParameterToPlot == RimFracture::WIDTH)        return m_legendConfigWidth;
-//     return nullptr;
-    
-    return m_legendConfigConductivity;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

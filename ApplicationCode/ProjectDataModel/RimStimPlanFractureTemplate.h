@@ -91,8 +91,6 @@ private:
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
 
-    caf::PdmChildArrayField<RimStimPlanLegendConfig*>   m_legendConfigurations;
-
     bool numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
     void setDepthOfWellPathAtFracture();
 };

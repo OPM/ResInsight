@@ -52,9 +52,6 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 
     CAF_PDM_InitField(&wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Depth of Well Path at Fracture", "", "", "");
     wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-
-    CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
-    m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,50 +251,6 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     QString errorMessage;
     readStimPlanXMLFile(&errorMessage);
     qDebug() << errorMessage;
-
-    std::vector<QString> resultNames = m_stimPlanFractureDefinitionData->resultNames();
-
-    // Delete legends referencing results not present on file
-    {
-        std::vector<RimStimPlanLegendConfig*> toBeDeleted;
-        for (RimStimPlanLegendConfig* legend : m_legendConfigurations)
-        {
-            QString legendName = legend->name();
-            if (std::find(resultNames.begin(), resultNames.end(), legendName) == resultNames.end())
-            {
-                toBeDeleted.push_back(legend);
-            }
-        }
-
-        for (auto legend : toBeDeleted)
-        {
-            m_legendConfigurations.removeChildObject(legend);
-
-            delete legend;
-        }
-    }
-
-    // Create legend for result if not already present
-    for (auto resultName : resultNames)
-    {
-        bool foundResult = false;
-        
-        for (RimStimPlanLegendConfig* legend : m_legendConfigurations)
-        {
-            if (legend->name().compare(resultName) == 0)
-            {
-                foundResult = true;
-            }
-        }
-
-        if (!foundResult)
-        {
-            RimStimPlanLegendConfig* legendConfig = new RimStimPlanLegendConfig();
-            legendConfig->setName(resultName);
-            
-            m_legendConfigurations.push_back(legendConfig);
-        }
-    }
 
     updateConnectedEditors();
 }

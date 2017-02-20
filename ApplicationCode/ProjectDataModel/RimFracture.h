@@ -40,7 +40,6 @@ class RigFracture;
 class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
-class RimLegendConfig;
 
 //==================================================================================================
 ///  
@@ -59,8 +58,6 @@ public:
     caf::PdmField<double>           perforationLength;
 
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
-    caf::PdmField<QString>          stimPlanParameterToPlot;
-
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);
@@ -74,7 +71,6 @@ public:
     RimFractureTemplate*            attachedFractureDefinition() const;
 
     RivWellFracturePartMgr*         fracturePartManager();
-    RimLegendConfig*                activeLegend();
 
     bool                            hasValidGeometry() const;
     void                            computeGeometry();
@@ -122,8 +118,4 @@ private:
     caf::PdmField<int>                              m_k;    // Zero based indexing
 
     cvf::ref<RivWellFracturePartMgr>                m_rivFracture;
-
-    caf::PdmChildField<RimLegendConfig*>            m_legendConfigPermeability;
-    caf::PdmChildField<RimLegendConfig*>            m_legendConfigConductivity;
-    caf::PdmChildField<RimLegendConfig*>            m_legendConfigWidth;
 };
