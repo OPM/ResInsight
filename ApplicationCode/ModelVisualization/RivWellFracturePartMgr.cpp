@@ -27,6 +27,8 @@
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
 
+#include "RivPartPriority.h"
+
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 
@@ -184,7 +186,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
                 effGen.disableLighting(true);
             }
 
-            m_part->setPriority(1500);
+            m_part->setPriority(RivPartPriority::PartType::Transparent);
 
             cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
 
