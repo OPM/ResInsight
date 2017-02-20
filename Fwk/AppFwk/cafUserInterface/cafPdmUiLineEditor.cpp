@@ -45,14 +45,15 @@
 #include "cafPdmUiOrdering.h"
 #include "cafSelectionManager.h"
 
+#include <QApplication>
 #include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
-#include <QString>
 #include <QMainWindow>
-#include <QApplication>
+#include <QMessageBox>
+#include <QPalette>
 #include <QStatusBar>
+#include <QString>
 
 #include <assert.h>
 
@@ -179,7 +180,21 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!m_lineEdit.isNull())
     {
-        m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
+        bool isReadOnly = field()->isUiReadOnly(uiConfigName);
+        if (isReadOnly)
+        {
+            m_lineEdit->setReadOnly(true);
+
+            m_lineEdit->setStyleSheet("QLineEdit {"
+                "color: #808080;"
+                "background-color: #F0F0F0;}");
+        }
+        else
+        {
+            m_lineEdit->setReadOnly(false);
+            m_lineEdit->setStyleSheet("");
+        }
+
         m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
 
         {
@@ -255,7 +270,9 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
 {
     m_lineEdit = new QLineEdit(parent);
+
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+
     return m_lineEdit;
 }
 
