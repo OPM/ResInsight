@@ -49,6 +49,8 @@ namespace caf {
 class RimWellAllocationPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
+public:
+    enum FlowType { ACCUMULATED, INFLOW};
 
 public:
     RimWellAllocationPlot();
@@ -115,6 +117,7 @@ private:
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
     caf::PdmField<bool>                             m_groupSmallContributions;
     caf::PdmField<double>                           m_smallContributionsThreshold;
+    caf::PdmField<caf::AppEnum<FlowType> >          m_flowType;
 
     QPointer<RiuWellAllocationPlot>                 m_wellAllocationPlotWidget;
 

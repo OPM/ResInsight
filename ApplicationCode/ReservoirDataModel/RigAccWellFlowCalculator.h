@@ -17,16 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
+#include <vector>
+#include <map>
 //==================================================================================================
 /// 
 /// 
 //==================================================================================================
-#include "RigActiveCellInfo.h"
-#include "RigMainGrid.h"
-#include "RigFlowDiagResults.h"
 
-struct RigWellResultPoint;
+class RigMainGrid;
+class RigActiveCellInfo;
 
 class RigEclCellIndexCalculator
 {
@@ -35,13 +34,7 @@ public:
         : m_mainGrid(mainGrid), m_activeCellInfo(activeCellInfo) 
     {}
 
-    size_t resultCellIndex(size_t gridIndex, size_t gridCellIndex) const
-    {
-        const RigGridBase* grid = m_mainGrid->gridByIndex(gridIndex);
-        size_t reservoirCellIndex = grid->reservoirCellIndex(gridCellIndex);
-
-        return m_activeCellInfo->cellResultIndex(reservoirCellIndex);
-    }
+    size_t resultCellIndex(size_t gridIndex, size_t gridCellIndex) const;
 
 private:
     const RigMainGrid*       m_mainGrid;
@@ -52,6 +45,12 @@ private:
 /// 
 /// 
 //==================================================================================================
+
+#include <QString>
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
+struct RigWellResultPoint;
 
 class RigAccWellFlowCalculator
 {
@@ -68,39 +67,51 @@ public:
                              const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,
                              double smallContribThreshold);
 
-    const std::vector<double>&   accumulatedTotalFlowPrConnection( size_t branchIdx);// const;
-    const std::vector<double>&   accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx);// const;
-    const std::vector<size_t>&   connectionNumbersFromTop(size_t branchIdx) const;
-    const std::vector<QString>&  tracerNames() const { return m_tracerNames;}
+    const std::vector<double>&                              accumulatedFlowPrConnection( size_t branchIdx) const;
+    const std::vector<double>&                              accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
+    const std::vector<double>&                              flowPrConnection( size_t branchIdx) const;
+    const std::vector<double>&                              tracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
+    const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
+    const std::vector<QString>&                             tracerNames() const { return m_tracerNames;}
 
-    std::vector<std::pair<QString, double> > totalTracerFractions();
+    std::vector<std::pair<QString, double> >                totalTracerFractions() const;
+
 private:
 
-    bool                         isWellFlowConsistent(bool isProducer);
-    void                         calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
-    std::vector<size_t>          wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells);
-    static size_t                connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx);
-    std::vector<size_t>          findDownstreamBranchIdxs( const RigWellResultPoint& connectionPoint);
+    void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop);
+    void                                                    calculateFlowPrPseudoLength(size_t branchIdx, double startPseudoLengthFromTop);
+    void                                                    sortTracers();
+    void                                                    groupSmallContributions();
 
-    std::vector<std::pair<QString, double> > totalWellFlowPrTracer() ;
-    void                         sortTracers();
+    void                                                    groupSmallTracers(std::map<QString, std::vector<double>> &branchFlowSet, 
+                                                                              std::vector<QString> tracersToGroup);
 
-    void groupSmallContributions();
+    bool                                                    isWellFlowConsistent(bool isProducer) const;
+    std::vector<size_t>                                     wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells) const;
+    static size_t                                           connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx) ;
+    std::vector<size_t>                                     findDownstreamBranchIdxs( const RigWellResultPoint& connectionPoint) const;
 
-    const std::vector< std::vector <cvf::Vec3d> >&         m_pipeBranchesCLCoords;
-    const std::vector< std::vector <RigWellResultPoint> >& m_pipeBranchesCellIds;
-    const std::map<QString, const std::vector<double>* >*  m_tracerCellFractionValues;
-    RigEclCellIndexCalculator                              m_cellIndexCalculator;
-    std::vector<QString>                                   m_tracerNames;
-    double                                                 m_smallContributionsThreshold;
+    std::vector<std::pair<QString, double> >                totalWellFlowPrTracer() const;
 
-    struct BranchResult
+
+    const std::vector< std::vector <cvf::Vec3d> >&          m_pipeBranchesCLCoords;
+    const std::vector< std::vector <RigWellResultPoint> >&  m_pipeBranchesCellIds;
+    const std::map<QString, const std::vector<double>* >*   m_tracerCellFractionValues;
+    RigEclCellIndexCalculator                               m_cellIndexCalculator;
+    std::vector<QString>                                    m_tracerNames;
+    double                                                  m_smallContributionsThreshold;
+
+    struct BranchFlow
     {
-        std::vector<size_t>                               connectionNumbersFromTop;
-        std::map<QString, std::vector<double> >           accConnFlowFractionsPrTracer;
-    };
+        std::vector<double>                                 depthValuesFromTop;
+        std::map<QString, std::vector<double> >             accFlowPrTracer;
+        std::map<QString, std::vector<double> >             flowPrTracer;
+    };                                                      
+                                                            
+    std::vector< BranchFlow >                               m_connectionFlowPrBranch;
+    std::vector< BranchFlow >                               m_pseudoLengthFlowPrBranch;
+    std::vector< BranchFlow >                               m_tvdFlowPrBranch;
 
-    std::vector< BranchResult >                           m_accConnectionFlowPrBranch;
 };
 
 

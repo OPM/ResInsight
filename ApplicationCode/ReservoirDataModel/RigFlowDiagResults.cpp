@@ -26,6 +26,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
+#include "RigFlowDiagResultFrames.h"
+#include "RigStatisticsDataCache.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

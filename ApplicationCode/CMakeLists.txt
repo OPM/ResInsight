@@ -458,16 +458,6 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
       set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
       
-        # Find Qt libraries and sym links
-        file (GLOB RESINSIGHT_FILES
-                ${QT_LIBRARY_DIR}/libQtCore.so*
-                ${QT_LIBRARY_DIR}/libQtGui.so*
-                ${QT_LIBRARY_DIR}/libQtOpenGL.so*
-                ${QT_LIBRARY_DIR}/libQtNetwork.so*
-                ${QT_LIBRARY_DIR}/libQtScript.so*
-                ${QT_LIBRARY_DIR}/libQtScriptTools.so*
-            )
-
     endif()
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")

@@ -35,6 +35,7 @@ ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.h
 ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivPartPriority.h
 ${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.h
 )
 

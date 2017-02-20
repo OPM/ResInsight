@@ -30,6 +30,7 @@
 #include "RimWellPathFractureCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
+#include "RivPartPriority.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
@@ -239,7 +240,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
         part->setEffect(eff.p());
-        part->setPriority(1000);
+        part->setPriority(RivPartPriority::Text);
 
         m_wellLabelPart = part;
     }

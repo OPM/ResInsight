@@ -39,6 +39,7 @@
 #include "RivHexGridIntersectionTools.h"
 #include "RivIntersectionGeometryGenerator.h"
 #include "RivIntersectionSourceInfo.h"
+#include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
@@ -382,10 +383,6 @@ void RivIntersectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray*
     }
 }
 
-const int priCrossSectionGeo = 1;
-const int priNncGeo = 2;
-const int priMesh = 3;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -416,7 +413,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
-            part->setPriority(priCrossSectionGeo);
+            part->setPriority(RivPartPriority::PartType::Intersection);
 
             m_crossSectionFaces = part;
         }
@@ -438,7 +435,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(priMesh);
+            part->setPriority(RivPartPriority::PartType::MeshLines);
 
             m_crossSectionGridLines = part;
         }
@@ -478,7 +475,7 @@ void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
                 part->setDrawable(polylineGeo.p());
 
                 part->updateBoundingBox();
-                part->setPriority(10000);
+                part->setPriority(RivPartPriority::PartType::Highlight);
 
                 // Always show this part, also when mesh is turned off
                 //part->setEnableMask(meshFaultBit);
@@ -510,7 +507,7 @@ void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
             part->setDrawable(polylinePointsGeo.p());
 
             part->updateBoundingBox();
-            part->setPriority(10000);
+            part->setPriority(RivPartPriority::PartType::Highlight);
 
             // Always show this part, also when mesh is turned off
             //part->setEnableMask(meshFaultBit);
@@ -558,7 +555,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
                 part->setDrawable(polylineGeo.p());
 
                 part->updateBoundingBox();
-                part->setPriority(10000);
+                part->setPriority(RivPartPriority::PartType::Highlight);
 
                 // Always show this part, also when mesh is turned off
                 //part->setEnableMask(meshFaultBit);
@@ -590,7 +587,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
             part->setDrawable(polylinePointsGeo.p());
 
             part->updateBoundingBox();
-            part->setPriority(10000);
+            part->setPriority(RivPartPriority::PartType::Highlight);
 
             // Always show this part, also when mesh is turned off
             //part->setEnableMask(meshFaultBit);

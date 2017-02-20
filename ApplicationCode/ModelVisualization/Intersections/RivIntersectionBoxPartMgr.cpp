@@ -37,6 +37,7 @@
 
 #include "RivIntersectionBoxSourceInfo.h"
 #include "RivIntersectionPartMgr.h"
+#include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
@@ -213,10 +214,6 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
 }
 
 
-const int priCrossSectionGeo = 1;
-const int priNncGeo = 2;
-const int priMesh = 3;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +243,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
-            part->setPriority(priCrossSectionGeo);
+            part->setPriority(RivPartPriority::PartType::Intersection);
 
             m_intersectionBoxFaces = part;
         }
@@ -268,7 +265,7 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(priMesh);
+            part->setPriority(RivPartPriority::PartType::MeshLines);
 
             m_intersectionBoxGridLines = part;
         }
