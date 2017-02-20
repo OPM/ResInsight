@@ -18,10 +18,14 @@
 
 #include "RimStimPlanFractureTemplate.h"
 
+#include "RiaApplication.h"
+
 #include "RigStimPlanFractureDefinition.h"
 
+#include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimProject.h"
+#include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
 
 #include "cafPdmObject.h"
@@ -173,14 +177,6 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     size_t numberOfTimeSteps;
     numberOfTimeSteps = m_stimPlanFractureDefinitionData->timeSteps.size();
 
-
-//     std::vector<std::vector<std::vector<double>>>  condValues(numberOfTimeSteps);
-//     m_stimPlanFractureDefinitionData->conductivities = condValues;
-//     std::vector<std::vector<std::vector<double>>>  widthValues(numberOfTimeSteps);
-//     m_stimPlanFractureDefinitionData->widths = widthValues;
-//     std::vector<std::vector<std::vector<double>>>  permValues(numberOfTimeSteps);
-//     m_stimPlanFractureDefinitionData->permeabilities = permValues;
-
     //Start reading from top:
     QFile dataFile(m_stimPlanFileName());
 
@@ -240,6 +236,10 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     }
 
     setDepthOfWellPathAtFracture();
+    
+    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    if (!activeView) return;
+    activeView->stimPlanColors->loadDataAndUpdate();
 }
 
 
