@@ -162,15 +162,31 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
                 for (double gridXdata : mirroredValuesAtDepth)
                 {
                     cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(gridXdata);
+                    
+                    if (gridXdata > 1e-7)
+                    {
+                        texCoord[1] = 0; // Set the Y texture coordinate to the opaque line in the texture
+                    }
                     textureCoords->set(i, texCoord);
+
+
                     i++;
                 }
             }
      
             geo->setTextureCoordArray(textureCoords.p());
 
-            caf::ScalarMapperEffectGenerator scalarMapperEffectGenerator(scalarMapper, caf::PO_NEG_LARGE);
-            cvf::ref<cvf::Effect> eff = scalarMapperEffectGenerator.generateCachedEffect();
+            caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_NEG_LARGE);
+            effGen.setOpacityLevel(0.2f);
+
+            if (activeView && activeView->isLightingDisabled())
+            {
+                effGen.disableLighting(true);
+            }
+
+            m_part->setPriority(1500);
+
+            cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
 
             m_part->setEffect(eff.p());
         }
