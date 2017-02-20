@@ -53,6 +53,9 @@ ${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportSelectedWellPathFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.h
+${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.h
+${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.h
+
 
 
 
@@ -109,6 +112,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportSelectedWellPathFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
 
 
 
