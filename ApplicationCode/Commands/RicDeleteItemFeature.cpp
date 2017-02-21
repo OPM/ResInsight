@@ -57,6 +57,10 @@ namespace caf
 
 bool isDeletable(PdmUiItem * uiItem)
 {
+    // Enable delete of well allocation plots
+    if (dynamic_cast<RimWellAllocationPlot*>(uiItem)) return true;
+
+    // Disable delete of all sub objects of a well allocation plot
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
     if (destinationObject)
     {
