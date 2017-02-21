@@ -37,7 +37,13 @@ Nightcharts::Nightcharts()//QPainter *painter)
     lX = cX+cW+20;
     lY = cY;
     shadows = true;
+    
+    // NOTE: This value is accumulated, and might end up with overflow
+    // Was originally uninitialized, and caused overflow issues and invalid drawing when running debug
+    // Suggest rewrite and use locally defined aggregatedAngle (see below for usage)
+    palpha = 0.0;
 }
+
 Nightcharts::~Nightcharts()
 {
     pieces.clear();
@@ -143,6 +149,7 @@ int Nightcharts::draw(QPainter *painter)
       QPen pen;
       pen.setWidth(2);
 
+      double aggregatedAngle = 0.0;
       for (int i=0;i<pieces.size();i++)
       {
         gradient.setColorAt(0,pieces[i].rgbColor);
@@ -155,8 +162,8 @@ int Nightcharts::draw(QPainter *painter)
         pen.setColor(pieces[i].rgbColor);
         painter->setPen(pen);
         pdegree = 3.6*pieces[i].pPerc;
-        painter->drawPie(cX,cY,cW,cH,palpha*16,pdegree*16);
-        palpha += pdegree;
+        painter->drawPie(cX,cY,cW,cH,aggregatedAngle*16,pdegree*16);
+        aggregatedAngle += pdegree;
       }
     }
     else if (this->ctype==Nightcharts::Dpie)
