@@ -20,11 +20,13 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseWell;
+
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicShowContributingWellsFeature : public caf::CmdFeature
+class RicShowWellAllocationPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

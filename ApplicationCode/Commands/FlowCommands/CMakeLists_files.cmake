@@ -7,13 +7,13 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicShowWellAllocationPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicAddStoredWellAllocationPlotFeature.h
-${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeature.h
+${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFromPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicShowWellAllocationPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicAddStoredWellAllocationPlotFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFromPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

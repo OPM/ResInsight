@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicShowContributingWellsFeature.h"
+#include "RicShowContributingWellsFromPlotFeature.h"
 
 #include "RiaApplication.h"
 
@@ -33,12 +33,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFeature");
+CAF_CMD_SOURCE_INIT(RicShowContributingWellsFromPlotFeature, "RicShowContributingWellsFromPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicShowContributingWellsFeature::isCommandEnabled()
+bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
     RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
     if (!wellAllocationPlot) return false;
@@ -52,7 +52,7 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
+void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
 {
     RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
     if (!wellAllocationPlot) return;
@@ -110,7 +110,7 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeature::setupActionLook(QAction* actionToSetup)
+void RicShowContributingWellsFromPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     //actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
     actionToSetup->setText("Show Contributing Wells");
