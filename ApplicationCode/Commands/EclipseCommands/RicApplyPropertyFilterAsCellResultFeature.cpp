@@ -22,6 +22,10 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
 
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -33,12 +37,24 @@ CAF_CMD_SOURCE_INIT(RicApplyPropertyFilterAsCellResultFeature, "RicApplyProperty
 //--------------------------------------------------------------------------------------------------
 bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled()
 {
-    std::vector<RimEclipsePropertyFilter*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    if (objects.size() == 1)
     {
-        return true;
+        std::vector<RimEclipsePropertyFilter*> objects;
+        caf::SelectionManager::instance()->objectsByType(&objects);
+
+        if (objects.size() == 1)
+        {
+            return true;
+        }
+    }
+
+    {
+        std::vector<RimGeoMechPropertyFilter*> objects;
+        caf::SelectionManager::instance()->objectsByType(&objects);
+
+        if (objects.size() == 1)
+        {
+            return true;
+        }
     }
 
     return false;
@@ -49,21 +65,48 @@ bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicApplyPropertyFilterAsCellResultFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipsePropertyFilter*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    if (objects.size() == 1)
     {
-        RimEclipsePropertyFilter* propertyFilter = objects[0];
-        if (!propertyFilter) return;
+        std::vector<RimEclipsePropertyFilter*> objects;
+        caf::SelectionManager::instance()->objectsByType(&objects);
 
-        RimEclipseView* rimEclipseView = nullptr;
-        propertyFilter->firstAncestorOrThisOfType(rimEclipseView);
-        if (!rimEclipseView) return;
+        if (objects.size() == 1)
+        {
+            RimEclipsePropertyFilter* propertyFilter = objects[0];
+            if (!propertyFilter) return;
 
-        rimEclipseView->cellResult()->simpleCopy(propertyFilter->resultDefinition());
+            RimEclipseView* rimEclipseView = nullptr;
+            propertyFilter->firstAncestorOrThisOfType(rimEclipseView);
+            if (!rimEclipseView) return;
 
-        rimEclipseView->scheduleCreateDisplayModelAndRedraw();
+            rimEclipseView->cellResult()->simpleCopy(propertyFilter->resultDefinition());
+            rimEclipseView->cellResult()->updateConnectedEditors();
+
+            rimEclipseView->scheduleCreateDisplayModelAndRedraw();
+
+            return;
+        }
+    }
+
+    {
+        std::vector<RimGeoMechPropertyFilter*> objects;
+        caf::SelectionManager::instance()->objectsByType(&objects);
+
+        if (objects.size() == 1)
+        {
+            RimGeoMechPropertyFilter* propertyFilter = objects[0];
+            if (!propertyFilter) return;
+
+            RimGeoMechView* geoMechView = nullptr;
+            propertyFilter->firstAncestorOrThisOfType(geoMechView);
+            if (!geoMechView) return;
+
+            geoMechView->cellResultResultDefinition()->setResultAddress(propertyFilter->resultDefinition()->resultAddress());
+            geoMechView->cellResultResultDefinition()->updateConnectedEditors();
+
+            geoMechView->scheduleCreateDisplayModelAndRedraw();
+
+            return;
+        }
     }
 }
 
