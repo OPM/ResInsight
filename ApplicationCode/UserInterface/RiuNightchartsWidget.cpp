@@ -111,8 +111,7 @@ QSize RiuNightchartsWidget::sizeHint() const
 
     if ( m_showLegend )
     {
-        QPainter painter;
-        int lineHeight = painter.fontMetrics().height();
+        int lineHeight = this->fontMetrics().height();
         int lineCount = m_chart.pieceCount();
 
         int exactLegendHeight = (lineCount + lineCount-1) * lineHeight;
@@ -186,8 +185,7 @@ void RiuNightchartsWidget::paintEvent(QPaintEvent* e)
 void RiuNightchartsWidget::addItem(const QString& name, const QColor& color, float value)
 {
     m_chart.addPiece(name, color, value);
-    QPainter painter;
-    int textWidth = painter.fontMetrics().width(name + " (00 %)");
+    int textWidth = this->fontMetrics().width(name + " (00 %)");
 
     m_maxNameWidth = textWidth > m_maxNameWidth ? textWidth: m_maxNameWidth;
 }
