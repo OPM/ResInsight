@@ -16,28 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicShowWellAllocationPlotFeature.h"
+#include "RicShowContributingWellsFeature.h"
 
-#include "RiaApplication.h"
-
-#include "RimEclipseWell.h"
-#include "RimFlowPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-#include "RimWellAllocationPlot.h"
-
-#include "RiuMainPlotWindow.h"
-
-#include "cafSelectionManager.h"
+#include "cafCmdFeatureManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlotFeature");
+CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicShowWellAllocationPlotFeature::isCommandEnabled()
+bool RicShowContributingWellsFeature::isCommandEnabled()
 {
     return true;
 }
@@ -45,27 +35,21 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
+void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
+    // First, shot the well allocation plot
+    // Then, use the feature to show contributing wells as this is based on the previous feature
 
-    if (collection.size() > 0)
+    std::vector<std::string> commandIds;
+    commandIds.push_back("RicShowWellAllocationPlotFeature");
+    commandIds.push_back("RicShowContributingWellsFromPlotFeature");
+
+    for (auto commandId : commandIds)
     {
-        RimEclipseWell* eclWell = collection[0];
-
-        if (RiaApplication::instance()->project())
+        auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature(commandId);
+        if (feature)
         {
-            RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
-            if (flowPlotColl)
-            {
-                flowPlotColl->defaultPlot()->setFromSimulationWell(eclWell);
-                flowPlotColl->defaultPlot()->updateConnectedEditors();
-
-                // Make sure the summary plot window is created and visible
-                RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-                plotwindow->selectAsCurrentItem(flowPlotColl->defaultPlot());
-            }
+            feature->actionTriggered(false);
         }
     }
 }
@@ -73,8 +57,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicShowContributingWellsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
-    actionToSetup->setText("Show Well Allocation Plot");
+    actionToSetup->setText("Show Contributing Wells");
 }
