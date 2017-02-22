@@ -1009,7 +1009,7 @@ void RimEclipseView::updateLegends()
     {
         stimPlanColors->updateLegendData();
         
-        if (stimPlanLegend->legend())
+        if (stimPlanColors()->isChecked() && stimPlanLegend->legend())
         {
             m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
         }

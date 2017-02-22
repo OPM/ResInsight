@@ -42,12 +42,13 @@ RimStimPlanColors::RimStimPlanColors()
 {
     CAF_PDM_InitObject("StimPlan Colors", ":/draw_style_faults_24x24.png", "", "");
 
-    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""), "Result Variable", "", "", "");
-    CAF_PDM_InitField(&opacityLevel, "opacityLevel", 0.2f, "Transparency", "", "", "");
-
+    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
+    CAF_PDM_InitField(&m_opacityLevel,      "opacityLevel", 0.2f,       "Transparency", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
+
+    m_name = "StimPlan Colors";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,6 +198,14 @@ QString RimStimPlanColors::unit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+float RimStimPlanColors::opacityLevel() const
+{
+    return m_opacityLevel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateLegendData()
 {
     RimLegendConfig* legendConfig = activeLegend();
@@ -279,5 +288,15 @@ void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
     }
 
     uiTreeOrdering.setForgetRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_resultNameAndUnit);
+    uiOrdering.add(&m_opacityLevel);
+    uiOrdering.setForgetRemainingFields(true);
 }
 

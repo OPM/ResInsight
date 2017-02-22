@@ -119,7 +119,11 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         if (activeView)
         {
             stimPlanColors = activeView->stimPlanColors;
-            legendConfig = stimPlanColors->activeLegend();
+
+            if (stimPlanColors->isChecked())
+            {
+                legendConfig = stimPlanColors->activeLegend();
+            }
         }
 
         // Note : If no legend is found, draw geo using a single color
@@ -152,6 +156,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         m_part = new cvf::Part;
         m_part->setDrawable(geo.p());
 
+        float opacityLevel = activeView->stimPlanColors->opacityLevel();
         if (legendConfig)
         {
             cvf::ScalarMapper* scalarMapper =  legendConfig->scalarMapper();
@@ -182,7 +187,6 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
             caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_NEG_LARGE);
 
-            float opacityLevel = activeView->stimPlanColors->opacityLevel();
             effGen.setOpacityLevel(opacityLevel);
 
             if (activeView && activeView->isLightingDisabled())
@@ -190,7 +194,6 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
                 effGen.disableLighting(true);
             }
 
-            m_part->setPriority(RivPartPriority::PartType::Transparent);
 
             cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
 
@@ -198,10 +201,15 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         }
         else
         {
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN)), caf::PO_1);
+            cvf::Color4f fractureColor = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN));
+            fractureColor.a() = opacityLevel;
+
+            caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
             m_part->setEffect(eff.p());
         }
+
+        m_part->setPriority(RivPartPriority::PartType::Transparent);
     }
 }
 

@@ -18,10 +18,11 @@
 
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
 namespace caf {
@@ -35,7 +36,7 @@ class RimFractureTemplateCollection;
 ///  
 ///  
 //==================================================================================================
-class RimStimPlanColors : public caf::PdmObject
+class RimStimPlanColors : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -43,21 +44,20 @@ public:
     RimStimPlanColors();
     virtual ~RimStimPlanColors();
 
-    RimLegendConfig* activeLegend() const;
-
-    QString resultName() const;
-    QString unit() const;
+    RimLegendConfig*    activeLegend() const;
+    QString             resultName() const;
+    QString             unit() const;
+    float               opacityLevel() const;
     
-    void loadDataAndUpdate();
-    void updateLegendData();
-
-    caf::PdmField<float>                    opacityLevel;
-
+    void                loadDataAndUpdate();
+    void                updateLegendData();
 
 protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     RimFractureTemplateCollection*          fractureTemplateCollection() const;
@@ -67,6 +67,7 @@ private:
     static QString                          toUnit(const QString& resultNameAndUnit);
 
 private:
+    caf::PdmField<float>                        m_opacityLevel;
     caf::PdmField<QString>                      m_resultNameAndUnit;
     caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigurations;
 };
