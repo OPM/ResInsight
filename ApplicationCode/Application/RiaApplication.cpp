@@ -29,6 +29,7 @@
 #include "RiaVersionInfo.h"
 
 #include "RigGridManager.h"
+#include "RigEclipseCaseData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
@@ -872,6 +873,27 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
+
+    if (analysisModels->cases.size() > 0)
+    {
+        if (rimResultReservoir->reservoirData())
+        {
+            if (rimResultReservoir->reservoirData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
+            {
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_METRIC;
+            }
+            else if (rimResultReservoir->reservoirData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
+            {
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_FIELD;
+            }
+            else if (rimResultReservoir->reservoirData()->unitsType() == RigEclipseCaseData::UNITS_LAB)
+            {
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_METRIC;
+            }
+        }
+    }
+
+
 
     // Add a corresponding summary case if it exists
     {
