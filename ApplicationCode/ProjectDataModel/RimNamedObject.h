@@ -40,7 +40,7 @@ public:
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
 
-private:
+protected:
     caf::PdmField<QString> m_name;
 };
 
