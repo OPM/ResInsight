@@ -47,13 +47,14 @@ public:
 
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
-    virtual PdmFieldHandle* userDescriptionField() { return NULL; }
+    virtual caf::PdmFieldHandle* userDescriptionField() { return NULL; }
 
     /// Field used to toggle object on/off in UI-related uses of the object (ie checkbox in treeview)
-    virtual PdmFieldHandle* objectToggleField() { return NULL; }
+    virtual caf::PdmFieldHandle* objectToggleField() { return NULL; }
 
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
+
     /// Method to re-implement to supply option values for a specific field
     virtual QList<PdmOptionItemInfo>
         calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
