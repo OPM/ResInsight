@@ -71,8 +71,6 @@ RimFracture::RimFracture(void)
 {
     CAF_PDM_InitObject("Fracture", "", "", "");
 
-    CAF_PDM_InitField(&name, "Name", QString("Fracture Name"), "Name", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "FractureDef", "Fracture Template", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_anchorPosition, "anchorPosition", "Anchor Position", "", "", "");
@@ -197,14 +195,6 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     }
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFracture::userDescriptionField()
-{
-    return &name;
 }
 
 //--------------------------------------------------------------------------------------------------

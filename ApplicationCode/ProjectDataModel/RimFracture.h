@@ -18,11 +18,7 @@
 
 #pragma once
 
-#include "RimFractureTemplate.h"
-
-#include "cafPdmObject.h"
-
-#include "cafPdmField.h"
+#include "RimCheckableNamedObject.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -40,12 +36,13 @@ class RigFracture;
 class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
+class RimFractureTemplate;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimFracture : public caf::PdmObject
+class RimFracture : public RimCheckableNamedObject
 {
      CAF_PDM_HEADER_INIT;
 
@@ -53,7 +50,6 @@ public:
     RimFracture(void);
     virtual ~RimFracture(void);
 
-    caf::PdmField<QString>          name;
     caf::PdmField<double>           azimuth;
     caf::PdmField<double>           perforationLength;
 
@@ -84,9 +80,7 @@ public:
     void                            computeTransmissibility(RimEclipseCase* caseToApply);
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
     cvf::Vec3d                      fracturePosition() const;
-
 
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

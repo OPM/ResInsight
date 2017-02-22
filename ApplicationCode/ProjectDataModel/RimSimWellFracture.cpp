@@ -156,7 +156,7 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 {
     RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
-    uiOrdering.add(&name);
+    uiOrdering.add(&m_name);
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_location);

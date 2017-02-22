@@ -69,7 +69,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     oilfield->descendantsIncludingThisOfType(oldFractures);
     QString fracNum = QString("%1").arg(oldFractures.size(), 2, 10, QChar('0'));
 
-    fracture->name = QString("Fracture_") + fracNum;
+    fracture->setName(QString("Fracture_") + fracNum);
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
