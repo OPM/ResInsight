@@ -172,7 +172,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     if (changedField == &azimuth || 
         changedField == &m_fractureTemplate ||
-        changedField == &stimPlanTimeIndexToPlot)
+        changedField == &stimPlanTimeIndexToPlot ||
+        changedField == this->objectToggleField())
     {
 
         setRecomputeGeometryFlag();

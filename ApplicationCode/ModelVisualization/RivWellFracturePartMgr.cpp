@@ -231,6 +231,8 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 {
     clearGeometryCache();
 
+    if (!m_rimFracture->isChecked()) return;
+
     if (m_part.isNull())
     {
         if (m_rimFracture->attachedFractureDefinition())
