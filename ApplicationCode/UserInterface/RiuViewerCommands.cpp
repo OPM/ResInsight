@@ -321,6 +321,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 commandIds << "RicNewSimWellIntersectionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
+                commandIds << "RicShowContributingWellsFeature";
 
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);

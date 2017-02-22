@@ -23,6 +23,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
+${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -44,6 +45,7 @@ ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

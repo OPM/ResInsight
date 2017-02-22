@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,35 +18,32 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafAppEnum.h"
+#include "RimCellFilter.h"
 
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimCellFilter : public caf::PdmObject
+class RimPropertyFilter : public RimCellFilter
 {
     CAF_PDM_HEADER_INIT;
 public:
-    enum FilterModeType
-    {
-        INCLUDE,
-        EXCLUDE
-    };
+    RimPropertyFilter();
+    virtual ~RimPropertyFilter();
 
-    RimCellFilter();
-    virtual ~RimCellFilter();
-
-    caf::PdmField<QString>  name;
-    caf::PdmField<bool>     isActive;
-    caf::PdmField< caf::AppEnum< FilterModeType > > filterMode;
-
-    void updateIconState();
+    std::vector<int>                        selectedCategoryValues() const;
 
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField();
-    virtual caf::PdmFieldHandle*            objectToggleField();
+    void                                    setCategoryValues(const std::vector<int>& categoryValues);
+    void                                    setCategoryNames(const std::vector<QString>& categoryNames);
+    void                                    clearCategories();
+    
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+
+protected:
+    caf::PdmField< std::vector<int> >   m_selectedCategoryValues;
+    
+    std::vector<int>                    m_categoryValues;
+    std::vector<QString>                m_categoryNames;
 };

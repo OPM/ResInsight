@@ -197,6 +197,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
             commandIds << "RicEclipsePropertyFilterInsertFeature";
+            commandIds << "RicApplyPropertyFilterAsCellResultFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
         {
@@ -205,6 +206,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
             commandIds << "RicGeoMechPropertyFilterInsertFeature";
+            commandIds << "RicApplyPropertyFilterAsCellResultFeature";
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {

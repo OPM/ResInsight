@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimCellFilter.h"
+#include "RimPropertyFilter.h"
 
 #include "cafPdmChildField.h"
 
@@ -36,7 +36,7 @@ class RigCaseCellResultsData;
 ///  
 ///  
 //==================================================================================================
-class RimEclipsePropertyFilter : public RimCellFilter
+class RimEclipsePropertyFilter : public RimPropertyFilter
 {
     CAF_PDM_HEADER_INIT;
  

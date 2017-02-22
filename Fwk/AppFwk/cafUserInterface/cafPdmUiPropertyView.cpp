@@ -41,6 +41,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 
 #include <QHBoxLayout>
+#include <QScrollArea>
 
 
 namespace caf
@@ -53,12 +54,20 @@ namespace caf
 PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     : QWidget (parent, f)
 {
-    m_layout = new QVBoxLayout(this);
-    m_layout->insertStretch(1, 1);
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    m_layout->setSpacing(0);
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setFrameStyle(QFrame::NoFrame);
+    scrollArea->setWidgetResizable(true);
 
-    setLayout(m_layout);
+    m_placeholder = new QWidget();
+    scrollArea->setWidget(m_placeholder);
+
+    m_placeHolderLayout = new QVBoxLayout();
+    m_placeHolderLayout->setContentsMargins(5,0,0,0);
+    m_placeholder->setLayout(m_placeHolderLayout);
+
+    QVBoxLayout* dummy = new QVBoxLayout(this);
+    dummy->setContentsMargins(0,0,0,0);
+    dummy->addWidget(scrollArea);
 
     m_currentObjectView = NULL;
 }
@@ -123,12 +132,11 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         // Remove Widget from layout
         if (m_currentObjectView)
         {
-            layout()->removeWidget(m_currentObjectView->widget());
+            this->m_placeHolderLayout->removeWidget(m_currentObjectView->widget());
             delete m_currentObjectView;
             m_currentObjectView = NULL;
         }
 
-        //m_currentObjectView = PdmObjViewFactory::instance()->create(object->editorType(m_uiConfigName));
         if (!m_currentObjectView)
         {
             PdmUiDefaultObjectEditor* defaultEditor = new PdmUiDefaultObjectEditor();
@@ -136,12 +144,15 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         }
 
         // Create widget to handle this
-        QWidget * page = NULL;
-        page = m_currentObjectView->getOrCreateWidget(this);
+        QWidget* propertyWidget = NULL;
+        propertyWidget = m_currentObjectView->getOrCreateWidget(m_placeholder);
+        
+        assert(propertyWidget);
 
-        assert(page);
+        this->m_placeHolderLayout->insertWidget(0, propertyWidget);
 
-        this->m_layout->insertWidget(0, page);
+        // Add stretch to make sure the property widget is not stretched
+        this->m_placeHolderLayout->insertStretch(-1, 1);
     }
 
     m_currentObjectView->setPdmObject(object);

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimCellFilter.h"
+#include "RimPropertyFilter.h"
 
 #include "cafPdmChildField.h"
 
@@ -31,7 +31,7 @@ class RimGeoMechPropertyFilterCollection;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechPropertyFilter : public RimCellFilter
+class RimGeoMechPropertyFilter : public RimPropertyFilter
 {
     CAF_PDM_HEADER_INIT;
 

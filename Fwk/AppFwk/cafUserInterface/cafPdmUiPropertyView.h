@@ -36,6 +36,7 @@
 
 
 #pragma once
+
 #include <QString>
 #include <QWidget>
 
@@ -69,7 +70,8 @@ public:
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 
     QString                     m_uiConfigName;
-    QVBoxLayout*                m_layout;
+    QVBoxLayout*                m_placeHolderLayout;
+    QWidget*                    m_placeholder;
 };
 
 

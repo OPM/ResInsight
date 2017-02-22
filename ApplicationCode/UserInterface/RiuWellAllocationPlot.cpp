@@ -171,7 +171,7 @@ void RiuWellAllocationPlot::contextMenuEvent(QContextMenuEvent* event)
     QMenu menu;
     QStringList commandIds;
 
-    commandIds << "RicShowContributingWellsFeature";
+    commandIds << "RicShowContributingWellsFromPlotFeature";
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 

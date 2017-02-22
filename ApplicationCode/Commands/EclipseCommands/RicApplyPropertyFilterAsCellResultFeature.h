@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2017     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,35 +18,19 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafAppEnum.h"
+#include "cafCmdFeature.h"
 
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimCellFilter : public caf::PdmObject
+class RicApplyPropertyFilterAsCellResultFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    enum FilterModeType
-    {
-        INCLUDE,
-        EXCLUDE
-    };
-
-    RimCellFilter();
-    virtual ~RimCellFilter();
-
-    caf::PdmField<QString>  name;
-    caf::PdmField<bool>     isActive;
-    caf::PdmField< caf::AppEnum< FilterModeType > > filterMode;
-
-    void updateIconState();
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField();
-    virtual caf::PdmFieldHandle*            objectToggleField();
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 };
+
