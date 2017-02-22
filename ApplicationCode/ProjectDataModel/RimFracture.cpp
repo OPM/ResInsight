@@ -83,9 +83,9 @@ RimFracture::RimFracture(void)
     m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "PerforationLength", "", "", "");
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
 
-    CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "Timestep from StimPlan file to plot", "", "", ""); 
+    CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
     CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
     m_i.uiCapability()->setUiHidden(true);

@@ -51,10 +51,10 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_stimPlanFileName, "StimPlanFileName", QString(""), "StimPlan File Name", "", "", "");
+    CAF_PDM_InitField(&m_stimPlanFileName, "StimPlanFileName", QString(""), "File Name", "", "", "");
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Depth of Well Path at Fracture", "", "", "");
+    CAF_PDM_InitField(&wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
     wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
@@ -282,6 +282,10 @@ void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader 
 
             if (xmlStream.name() == "xs")
             {
+//                 if (getGriddingValues(xmlStream)[0] < 0.0)
+//                 {
+//                     qDebug() << getGriddingValues(xmlStream)[0];
+//                 }
                 m_stimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
             }
 
@@ -608,11 +612,11 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     fileGroup->add(&m_stimPlanFileName);
     fileGroup->add(&wellPathDepthAtFracture);
 
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
 
-    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
+    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureConductivity);
     propertyGroup->add(&skinFactor);
 }
@@ -624,13 +628,13 @@ void RimStimPlanFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandl
 {
     if (field == &wellPathDepthAtFracture)
     {
-        if (!m_stimPlanFractureDefinitionData.isNull())
+        if (!m_stimPlanFractureDefinitionData.isNull() && (m_stimPlanFractureDefinitionData->depths.size()>0))
         {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_minimum = m_stimPlanFractureDefinitionData->depths[0];
-            myAttr->m_maximum = m_stimPlanFractureDefinitionData->depths[m_stimPlanFractureDefinitionData->depths.size()-1];
+            myAttr->m_maximum = m_stimPlanFractureDefinitionData->depths[m_stimPlanFractureDefinitionData->depths.size() - 1];
         }
 
         }

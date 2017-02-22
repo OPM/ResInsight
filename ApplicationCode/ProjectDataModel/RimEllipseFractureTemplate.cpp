@@ -40,10 +40,10 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
 {
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&halfLength,  "HalfLength",       650.0f,  "Halflength X_f", "", "", "");
+    CAF_PDM_InitField(&halfLength,  "HalfLength",       650.0f,  "Halflength X<sub>f</sub>", "", "", "");
     CAF_PDM_InitField(&height,      "Height",           75.0f,   "Height", "", "", "");
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
-    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Lenght of well perforation", "", "", ""); //Is this correct description?
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Perforation Length", "", "", ""); //Is this correct description?
 
     CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability [mD]", "", "", "");
 }
@@ -185,33 +185,39 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     
     if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
     {
-        halfLength.uiCapability()->setUiName("Halflenght Xf [m]");
+        halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         height.uiCapability()->setUiName("Height [m]");
         width.uiCapability()->setUiName("Width [m]");
-        perforationLength.uiCapability()->setUiName("Length of well perforation [m]");
+        perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
     else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
-        halfLength.uiCapability()->setUiName("Halflenght Xf [Ft]");
+        halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         height.uiCapability()->setUiName("Height [Ft]");
         width.uiCapability()->setUiName("Width [inches]");
-        perforationLength.uiCapability()->setUiName("Length of well perforation [Ft]");
+        perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
     }
 
     
     uiOrdering.add(&name);
 
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Fracture geometry");
+    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
     geometryGroup->add(&halfLength);
     geometryGroup->add(&height);
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
 
-    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Fracture properties");
+    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureConductivity);
-    propertyGroup->add(&permeability);
-    propertyGroup->add(&width);
+    if (fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
+    {
+        propertyGroup->add(&permeability);
+        propertyGroup->add(&width);
+    }
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
+
+    uiOrdering.add(&fractureTemplateUnit);
+    uiOrdering.setForgetRemainingFields(true);
 }
 
