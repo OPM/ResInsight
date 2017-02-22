@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,29 @@
 
 #pragma once
 
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
 
-#include <QDialog>
 
-namespace caf {
-    class PdmObject;
-    class PdmUiPropertyView;
-}
-
-class QWidget;
-class QString;
-class QStringList;
-
-class RiuPropertyViewTabWidget : public QDialog
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimNamedObject : public caf::PdmObject
 {
-public:
-    RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs);
-    ~RiuPropertyViewTabWidget();
+    CAF_PDM_HEADER_INIT;
 
-    virtual QSize sizeHint() const override;
+public:
+    RimNamedObject(void);
+    virtual ~RimNamedObject(void);
+
+    QString name() const;
+    void    setName(const QString& name);
+
+protected:
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    std::vector<caf::PdmUiPropertyView*> m_pageWidgets;
+    caf::PdmField<QString> m_name;
 };
+

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,26 @@
 
 #pragma once
 
+#include "RimNamedObject.h"
 
-#include <QDialog>
-
-namespace caf {
-    class PdmObject;
-    class PdmUiPropertyView;
-}
-
-class QWidget;
-class QString;
-class QStringList;
-
-class RiuPropertyViewTabWidget : public QDialog
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimCheckableNamedObject : public RimNamedObject
 {
+    CAF_PDM_HEADER_INIT;
 public:
-    RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs);
-    ~RiuPropertyViewTabWidget();
+    RimCheckableNamedObject(void);
+    virtual ~RimCheckableNamedObject(void);
 
-    virtual QSize sizeHint() const override;
+    bool isChecked() const;
+    void setCheckState(bool checkState);
+
+protected:
+    virtual caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    std::vector<caf::PdmUiPropertyView*> m_pageWidgets;
+    caf::PdmField<bool> m_isChecked;
 };
+

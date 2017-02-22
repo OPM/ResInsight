@@ -174,7 +174,12 @@ PdmObjectHandle* PdmUiPropertyView::currentObject()
 //--------------------------------------------------------------------------------------------------
 QSize PdmUiPropertyView::sizeHint() const
 {
-    return QSize(200, 200);
+    if (m_placeholder)
+    {
+        return m_placeholder->sizeHint();
+    }
+
+    return QWidget::sizeHint();
 }
 
 } //End of namespace caf
