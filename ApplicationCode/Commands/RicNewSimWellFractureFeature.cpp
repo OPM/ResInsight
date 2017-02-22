@@ -54,12 +54,8 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     RimEclipseWell* eclipseWell = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
-    RimSimWellFractureCollection* fractureCollection = nullptr;
-    objHandle->firstAncestorOrThisOfType(fractureCollection);
-    CVF_ASSERT(fractureCollection);
-
     RimSimWellFracture* fracture = new RimSimWellFracture();
-    fractureCollection->simwellFractures.push_back(fracture);
+    eclipseWell->simwellFractureCollection()->simwellFractures.push_back(fracture);
 
     RimOilField* oilfield = nullptr;
     objHandle->firstAncestorOrThisOfType(oilfield);
@@ -82,7 +78,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 
     fracture->updateFracturePositionFromLocation();
 
-    fractureCollection->updateConnectedEditors();
+    eclipseWell->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
     RimEclipseView* mainView = nullptr;

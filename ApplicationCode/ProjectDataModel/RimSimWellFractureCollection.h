@@ -37,7 +37,6 @@ public:
     virtual ~RimSimWellFractureCollection(void);
     
     caf::PdmChildArrayField<RimSimWellFracture*>    simwellFractures;
-    caf::PdmField<bool>                             isActive;
 
     void                                            deleteFractures();
 

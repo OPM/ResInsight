@@ -33,8 +33,6 @@ RimSimWellFractureCollection::RimSimWellFractureCollection(void)
 {
     CAF_PDM_InitObject("Fractures", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
-    
     CAF_PDM_InitFieldNoDefault(&simwellFractures, "Fractures", "", "", "", "");
     simwellFractures.uiCapability()->setUiHidden(true);
 }

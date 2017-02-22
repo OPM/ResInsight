@@ -21,16 +21,20 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "cafNotificationCenter.h"
@@ -39,9 +43,6 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
-#include "RimFormationNamesCollection.h"
-#include "RimCase.h"
-#include "RimSimWellFractureCollection.h"
 
 
 namespace caf
@@ -123,9 +124,9 @@ void RicDeleteItemExec::redo()
         }
 
         // SimWell Fractures
-        RimSimWellFractureCollection* simWellFractureColl;
-        parentObj->firstAncestorOrThisOfType(simWellFractureColl);
-        if (view && simWellFractureColl)
+        RimEclipseWell* eclipseWell;
+        parentObj->firstAncestorOrThisOfType(eclipseWell);
+        if (view && eclipseWell)
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
@@ -133,6 +134,14 @@ void RicDeleteItemExec::redo()
 
 
         // Well paths
+
+        RimWellPath* wellPath;
+        parentObj->firstAncestorOrThisOfType(wellPath);
+
+        if (wellPath)
+        {
+            wellPath->updateConnectedEditors();
+        }
 
         RimWellPathCollection* wellPathColl;
         parentObj->firstAncestorOrThisOfType(wellPathColl);

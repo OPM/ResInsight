@@ -28,8 +28,11 @@
 #include "RimEclipseWellCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimSimWellFractureCollection.h"
+#include "RimSimWellFracture.h"
 
 #include "RiuMainWindow.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfMath.h"
 
@@ -61,7 +64,6 @@ RimEclipseWell::RimEclipseWell()
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
-    simwellFractureCollection.uiCapability()->setUiHidden(true);
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -288,6 +290,12 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
+    for (RimSimWellFracture* fracture : simwellFractureCollection()->simwellFractures())
+    {
+        uiTreeOrdering.add(fracture);
+    }
+    uiTreeOrdering.setForgetRemainingFields(true);
+
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
     if (!reservoirView) return;

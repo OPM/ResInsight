@@ -79,7 +79,8 @@ public:
     bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
-
+protected:
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
 
@@ -107,4 +108,5 @@ private:
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
+
 };

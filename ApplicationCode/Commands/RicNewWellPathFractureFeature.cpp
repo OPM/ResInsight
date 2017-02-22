@@ -52,22 +52,15 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
 
-    RimWellPathCollection* wellPathColl = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPathColl);
-
-    RimWellPathFractureCollection* fractureCollection = nullptr;
-    objHandle->firstAncestorOrThisOfType(fractureCollection);
-    CVF_ASSERT(fractureCollection);
-
-    RimWellPathFracture* fracture = new RimWellPathFracture();
-    fractureCollection->fractures.push_back(fracture);
-        
-    float md_default = 0.0f;
-    fracture->setMeasuredDepth(md_default);
-
     RimWellPath* wellPath = nullptr;
     objHandle->firstAncestorOrThisOfType(wellPath);
     CVF_ASSERT(wellPath);
+
+    RimWellPathFracture* fracture = new RimWellPathFracture();
+    wellPath->fractureCollection()->fractures.push_back(fracture);
+        
+    float md_default = 0.0f;
+    fracture->setMeasuredDepth(md_default);
     
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
     cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(md_default);
@@ -92,10 +85,15 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
         fracture->setAzimuth();
     }
 
-    fractureCollection->updateConnectedEditors();
+    wellPath->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
-    wellPathColl->scheduleGeometryRegenAndRedrawViews();
+    RimWellPathCollection* wellPathColl = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPathColl);
+    if (wellPathColl)
+    {
+        wellPathColl->scheduleGeometryRegenAndRedrawViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

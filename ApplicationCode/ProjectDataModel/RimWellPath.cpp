@@ -21,20 +21,26 @@
 #include "RimWellPath.h"
 
 #include "RifJsonEncodeDecode.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
-#include "RimProject.h"
-#include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
-#include "RivWellPathPartMgr.h"
+#include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+
 #include "RiuMainWindow.h"
 
+#include "RivWellPathPartMgr.h"
+
+#include "cafPdmUiTreeOrdering.h"
+
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QDateTime>
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -97,9 +103,7 @@ RimWellPath::RimWellPath()
     m_wellLogFile.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
-    fractureCollection.uiCapability()->setUiHidden(true);
     fractureCollection = new RimWellPathFractureCollection();
-
 
     m_wellPath = NULL;
 }
@@ -377,6 +381,18 @@ void RimWellPath::setupBeforeSave()
 
         filepath = newCacheFileName;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    for (RimWellPathFracture* fracture : fractureCollection()->fractures())
+    {
+        uiTreeOrdering.add(fracture);
+    }
+    uiTreeOrdering.setForgetRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

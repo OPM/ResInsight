@@ -223,6 +223,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
+            commandIds << "RicNewWellPathFractureFeature";
             commandIds << "Separator";
             commandIds << "RicWellPathDeleteFeature";
         }
@@ -372,17 +373,15 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
         }
-        else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) || 
-                 dynamic_cast<RimWellPathFracture*>(uiItem) )
+        else if (dynamic_cast<RimWellPathFracture*>(uiItem))
         {
             commandIds << "RicNewWellPathFractureFeature";
-            commandIds << "RicWellPathFracturesDeleteAllFeature";
+            //commandIds << "RicWellPathFracturesDeleteAllFeature";
         }
-        else if (dynamic_cast<RimSimWellFractureCollection*>(uiItem) ||
-            dynamic_cast<RimSimWellFracture*>(uiItem))
+        else if (dynamic_cast<RimSimWellFracture*>(uiItem))
         {
             commandIds << "RicNewSimWellFractureFeature";
-            commandIds << "RicSimWellFracturesDeleteAllFeature";
+            //commandIds << "RicSimWellFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem) ||
             dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
@@ -471,6 +470,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEclipseWellShowSpheresFeature";
             commandIds << "RicEclipseWellShowWellCellsFeature";
             commandIds << "RicEclipseWellShowWellCellFenceFeature";
+            commandIds << "Separator";
+            commandIds << "RicNewSimWellFractureFeature";
             commandIds << "RicExportSelectedSimWellFractureWellCompletionFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
