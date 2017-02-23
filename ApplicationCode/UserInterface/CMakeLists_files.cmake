@@ -40,6 +40,7 @@ ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
+${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -78,6 +79,7 @@ ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
+${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -106,6 +108,7 @@ ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
+${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 )
 
 list(APPEND QT_UI_FILES

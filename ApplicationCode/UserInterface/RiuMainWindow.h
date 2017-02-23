@@ -37,17 +37,20 @@ class QSpinBox;
 class QUndoView;
 
 class RimCase;
+
+class RiuMessagePanel;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
-class RiuViewer;
 class RiuResultQwtPlot;
+class RiuViewer;
+
 struct RimMdiWindowGeometry;
 
 namespace caf
 {
     class PdmUiTreeView;
     class AnimationToolBar;
-     class PdmObject;
+    class PdmObject;
     class PdmUiPropertyView;
     class PdmUiItem;
 }
@@ -109,7 +112,8 @@ public:
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
-    RiuResultQwtPlot* resultPlot();
+    RiuResultQwtPlot*   resultPlot();
+    RiuMessagePanel*    messagePanel();
 
 protected:
     virtual void    closeEvent(QCloseEvent* event);
@@ -158,6 +162,7 @@ private:
     RiuViewer*          m_mainViewer;
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
+    QPointer<RiuMessagePanel>               m_messagePanel;
     
     RiuResultQwtPlot*   m_resultQwtPlot;
     

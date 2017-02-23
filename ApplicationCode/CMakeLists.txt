@@ -80,6 +80,8 @@ set( APPLICATION_FILES
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
     Application/RiaColorTables.cpp
+    Application/RiaLogging.h
+    Application/RiaLogging.cpp
 )
 
 set( SOCKET_INTERFACE_FILES

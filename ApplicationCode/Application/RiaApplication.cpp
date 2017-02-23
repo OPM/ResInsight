@@ -23,6 +23,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
@@ -116,6 +117,7 @@
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+
 
 namespace caf
 {
@@ -335,10 +337,16 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     closeProject();
 
+    RI_LOG_INFO_QSTR(QString("Starting to open project file : '%1'").arg(projectFileName));
+
     // Open the project file and read the serialized data. 
     // Will initialize itself.
 
-    if (!QFile::exists(projectFileName)) return false;
+    if (!QFile::exists(projectFileName))
+    {
+        RI_LOG_ERROR_QSTR(QString("File does not exist : '%1'").arg(projectFileName));
+        return false;
+    }
 
     m_project->fileName = projectFileName;
     m_project->readFile();
@@ -538,6 +546,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
+
+    RI_LOG_INFO_QSTR(QString("Completed open of project file : '%1'").arg(projectFileName));
 
     return true;
 }
