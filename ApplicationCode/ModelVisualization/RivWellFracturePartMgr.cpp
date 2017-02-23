@@ -94,14 +94,12 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
         if (activeView)
         {
-            fractureColor = cvf::Color4f(activeView->stimPlanColors->defaultColor(), activeView->stimPlanColors->opacityLevel());
+            fractureColor = cvf::Color4f(activeView->stimPlanColors->defaultColor());
         }
 
         caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
         m_part->setEffect(eff.p());
-
-        m_part->setPriority(RivPartPriority::PartType::Transparent);
     }
 }
 
