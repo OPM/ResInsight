@@ -26,6 +26,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseWell.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
@@ -132,6 +133,17 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        RimFractureTemplateCollection* fracTemplateColl;
+        parentObj->firstAncestorOrThisOfType(fracTemplateColl);
+        if (fracTemplateColl)
+        {
+            RimProject* proj = nullptr;
+            parentObj->firstAncestorOrThisOfType(proj);
+            if (proj)
+            {
+                proj->createDisplayModelAndRedrawAllViews();
+            }
+        }
 
 
         // Well paths

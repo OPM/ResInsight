@@ -81,7 +81,7 @@ void RicConvertAllFractureTemplatesToMetricFeature::onActionTriggered(bool isChe
 //--------------------------------------------------------------------------------------------------
 void RicConvertAllFractureTemplatesToMetricFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Change unit system for all ellipse fracture templates to Metric");
+    actionToSetup->setText("Convert All Ellipse Fracture Templates to Metric");
 }
 
 //--------------------------------------------------------------------------------------------------

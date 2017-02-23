@@ -376,30 +376,26 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellPathFracture*>(uiItem))
         {
             commandIds << "RicNewWellPathFractureFeature";
-            //commandIds << "RicWellPathFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimSimWellFracture*>(uiItem))
         {
             commandIds << "RicNewSimWellFractureFeature";
-            //commandIds << "RicSimWellFracturesDeleteAllFeature";
         }
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem) ||
             dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
         {
-            commandIds << "RicConvertAllFractureTemplatesToMetricFeature";
-            commandIds << "RicConvertAllFractureTemplatesToFieldFeature";
-            commandIds << "Separator";
             commandIds << "RicNewEllipseFractureTemplateFeature";
             commandIds << "RicNewStimPlanFractureTemplateFeature";
-            commandIds << "RicFractureDefinitionsDeleteAllFeature";
+            commandIds << "Separator";
+            commandIds << "RicConvertAllFractureTemplatesToMetricFeature";
+            commandIds << "RicConvertAllFractureTemplatesToFieldFeature";
         }
         else if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
         {
-            commandIds << "RicConvertFractureTemplateUnitFeature";
-            commandIds << "Separator";
             commandIds << "RicNewEllipseFractureTemplateFeature";
             commandIds << "RicNewStimPlanFractureTemplateFeature";
-            commandIds << "RicFractureDefinitionsDeleteAllFeature";
+            commandIds << "Separator";
+            commandIds << "RicConvertFractureTemplateUnitFeature";
         }
 
 

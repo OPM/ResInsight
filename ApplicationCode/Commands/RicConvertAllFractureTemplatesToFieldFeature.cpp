@@ -79,7 +79,7 @@ void RicConvertAllFractureTemplatesToFieldFeature::onActionTriggered(bool isChec
 //--------------------------------------------------------------------------------------------------
 void RicConvertAllFractureTemplatesToFieldFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Change unit system for all ellipse fracture templates to Field");
+    actionToSetup->setText("Convert All Ellipse Fracture Templates to Field");
 }
 
 //--------------------------------------------------------------------------------------------------

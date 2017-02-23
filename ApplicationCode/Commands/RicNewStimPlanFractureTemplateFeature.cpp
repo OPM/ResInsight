@@ -32,6 +32,7 @@
 #include "cvfAssert.h"
 
 #include <QAction>
+#include <QFileDialog>
 
 
 CAF_CMD_SOURCE_INIT(RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractureTemplateFeature");
@@ -41,6 +42,12 @@ CAF_CMD_SOURCE_INIT(RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractu
 //--------------------------------------------------------------------------------------------------
 void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
+    RiaApplication* app = RiaApplication::instance();
+    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
+    QString fileName = QFileDialog::getOpenFileName(NULL, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
+
+    if (fileName.isEmpty()) return;
+
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
@@ -54,6 +61,7 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         RimStimPlanFractureTemplate* fractureDef = new RimStimPlanFractureTemplate();
         fracDefColl->fractureDefinitions.push_back(fractureDef);
         fractureDef->name = "StimPlan Fracture Template";
+        fractureDef->setFileName(fileName);
         
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);

@@ -111,7 +111,7 @@ void RicExportSelectedSimWellFractureWellCompletionFeature::onActionTriggered(bo
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedSimWellFractureWellCompletionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
+    actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
     actionToSetup->setText("Export Fracture Well Completion Data for Selected wells");
 }
 
