@@ -213,8 +213,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
-            commandIds << "Separator";
-            commandIds << "RicWellPathDeleteFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
@@ -443,6 +441,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     {
         commandIds << "Separator";
         commandIds << "RicDeleteItemFeature";
+    }
+
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellPathDeleteFeature")->canFeatureBeExecuted())
+    {
+        // Special delete command for Well paths
+        // Placed here to fit context menu location of general delete feature
+        commandIds << "Separator";
+        commandIds << "RicWellPathDeleteFeature";
     }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicCloseCaseFeature")->canFeatureBeExecuted() )
