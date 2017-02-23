@@ -42,13 +42,15 @@ RimStimPlanColors::RimStimPlanColors()
 {
     CAF_PDM_InitObject("StimPlan Colors", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
+    CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "StimPlan Result Variable", "", "", "");
     CAF_PDM_InitField(&m_opacityLevel,      "opacityLevel", 0.2f,       "Transparency", "", "", "");
+    CAF_PDM_InitField(&m_defaultColor,      "DefaultColor", cvf::Color3f(cvf::Color3::BROWN), "Default Color", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
 
-    m_name = "StimPlan Colors";
+    m_name = "Fracture Colors";
+    m_name.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,6 +208,14 @@ float RimStimPlanColors::opacityLevel() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RimStimPlanColors::defaultColor() const
+{
+    return m_defaultColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::updateLegendData()
 {
     RimLegendConfig* legendConfig = activeLegend();
@@ -297,6 +307,8 @@ void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add(&m_resultNameAndUnit);
     uiOrdering.add(&m_opacityLevel);
+    uiOrdering.add(&m_defaultColor);
+
     uiOrdering.setForgetRemainingFields(true);
 }
 

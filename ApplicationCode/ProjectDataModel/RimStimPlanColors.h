@@ -25,9 +25,13 @@
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"
+
 namespace caf {
     class PdmOptionItemInfo;
 }
+
 
 class RimLegendConfig;
 class RimFractureTemplateCollection;
@@ -48,7 +52,8 @@ public:
     QString             resultName() const;
     QString             unit() const;
     float               opacityLevel() const;
-    
+    cvf::Color3f        defaultColor() const;
+
     void                loadDataAndUpdate();
     void                updateLegendData();
 
@@ -68,6 +73,7 @@ private:
 
 private:
     caf::PdmField<float>                        m_opacityLevel;
+    caf::PdmField<cvf::Color3f>                 m_defaultColor;
     caf::PdmField<QString>                      m_resultNameAndUnit;
     caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigurations;
 };

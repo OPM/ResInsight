@@ -89,10 +89,19 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
         m_part = new cvf::Part;
         m_part->setDrawable(geo.p());
 
-        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN)), caf::PO_1);
-        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+        cvf::Color4f fractureColor = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN));
 
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (activeView)
+        {
+            fractureColor = cvf::Color4f(activeView->stimPlanColors->defaultColor(), activeView->stimPlanColors->opacityLevel());
+        }
+
+        caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
         m_part->setEffect(eff.p());
+
+        m_part->setPriority(RivPartPriority::PartType::Transparent);
     }
 }
 
@@ -201,8 +210,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         }
         else
         {
-            cvf::Color4f fractureColor = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN));
-            fractureColor.a() = opacityLevel;
+            cvf::Color4f fractureColor = cvf::Color4f(activeView->stimPlanColors->defaultColor(), opacityLevel);
 
             caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
