@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT(RimStimPlanColors, "RimStimPlanColors");
 //--------------------------------------------------------------------------------------------------
 RimStimPlanColors::RimStimPlanColors()
 {
-    CAF_PDM_InitObject("StimPlan Colors", ":/draw_style_faults_24x24.png", "", "");
+    CAF_PDM_InitObject("StimPlan Colors", ":/FractureSymbol16x16.png", "", "");
 
     CAF_PDM_InitField(&m_resultNameAndUnit, "ResultName", QString(""),  "Result Variable", "", "", "");
     CAF_PDM_InitField(&m_opacityLevel,      "opacityLevel", 0.2f,       "Transparency", "", "", "");
