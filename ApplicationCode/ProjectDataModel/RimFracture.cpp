@@ -168,6 +168,12 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         if (attachedFractureDefinition()) azimuth = m_fractureTemplate->azimuthAngle();
         else azimuth = 0.0;
         setAzimuth();
+
+        RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+        if (stimPlanFracTemplate)
+        {
+            stimPlanTimeIndexToPlot = static_cast<int>(stimPlanFracTemplate->getStimPlanTimeValues().size() - 1);
+        }
     }
 
     if (changedField == &azimuth || 
@@ -719,6 +725,14 @@ const RigFracture* RimFracture::attachedRigFracture() const
 void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
     m_fractureTemplate = fractureTemplate;
+
+    RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+    if (stimPlanFracTemplate)
+    {
+        stimPlanTimeIndexToPlot = static_cast<int>(stimPlanFracTemplate->getStimPlanTimeValues().size() - 1);
+    }
+
+    this->setAzimuth();
 }
 
 //--------------------------------------------------------------------------------------------------

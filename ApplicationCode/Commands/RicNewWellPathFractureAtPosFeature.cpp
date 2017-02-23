@@ -97,13 +97,10 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     {
         RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
         fracture->setFractureTemplate(fracDef);
-
-        fracture->azimuth = fracDef->azimuthAngle();
-        fracture->setAzimuth();
     }
 
 
-    fractureCollection->updateConnectedEditors();
+    wellPathObj->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
     activeView->scheduleCreateDisplayModelAndRedraw();

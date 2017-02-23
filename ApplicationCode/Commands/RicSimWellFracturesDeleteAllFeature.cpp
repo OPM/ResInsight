@@ -19,8 +19,9 @@
 
 #include "RicSimWellFracturesDeleteAllFeature.h"
 
-#include "RimSimWellFractureCollection.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimSimWellFractureCollection.h"
 
 #include "cafSelectionManager.h"
 
@@ -61,7 +62,10 @@ void RicSimWellFracturesDeleteAllFeature::onActionTriggered(bool isChecked)
     {
         fractureCollection = objects[0];
         fractureCollection->deleteFractures();
-        fractureCollection->uiCapability()->updateConnectedEditors();
+
+        RimEclipseWell* eclipseWell = nullptr;
+        fractureCollection->firstAncestorOrThisOfType(eclipseWell);
+        if (eclipseWell) eclipseWell->updateConnectedEditors();
         
         RimEclipseView* mainView = nullptr;
         fractureCollection->firstAncestorOrThisOfType(mainView);

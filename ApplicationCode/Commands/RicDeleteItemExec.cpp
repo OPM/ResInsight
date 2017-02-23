@@ -30,7 +30,6 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
-#include "RimSimWellFractureCollection.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"

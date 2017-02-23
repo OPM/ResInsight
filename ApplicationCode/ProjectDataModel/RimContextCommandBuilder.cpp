@@ -51,7 +51,6 @@
 #include "RimIntersectionCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSimWellFracture.h"
-#include "RimSimWellFractureCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"

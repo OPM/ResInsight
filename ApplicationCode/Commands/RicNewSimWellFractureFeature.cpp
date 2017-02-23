@@ -71,9 +71,6 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     {
         RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->fractureDefinitions[0];
         fracture->setFractureTemplate(fracDef);
-
-        fracture->azimuth = fracDef->azimuthAngle();
-        fracture->setAzimuth();
     }
 
     fracture->updateFracturePositionFromLocation();
