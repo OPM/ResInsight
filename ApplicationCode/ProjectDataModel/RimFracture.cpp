@@ -167,7 +167,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         //TODO: Find out if performationLength should be in RimFractureTemplate or in RimEllipseFracTemplate
         if (attachedFractureDefinition()) azimuth = m_fractureTemplate->azimuthAngle();
         else azimuth = 0.0;
-        setAzimuth();
+        updateAzimuthFromFractureDefinition();
 
         RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
         if (stimPlanFracTemplate)
@@ -732,7 +732,7 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
         stimPlanTimeIndexToPlot = static_cast<int>(stimPlanFracTemplate->getStimPlanTimeValues().size() - 1);
     }
 
-    this->setAzimuth();
+    this->updateAzimuthFromFractureDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------

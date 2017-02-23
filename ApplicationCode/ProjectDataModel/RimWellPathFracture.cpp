@@ -76,7 +76,7 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     if (changedField == &m_measuredDepth)
     {
         updatePositionFromMeasuredDepth();
-        setAzimuth();
+        updateAzimuthFromFractureDefinition();
 
         RimProject* proj = nullptr;
         this->firstAncestorOrThisOfType(proj);
@@ -87,7 +87,7 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::setAzimuth()
+void RimWellPathFracture::updateAzimuthFromFractureDefinition()
 {
     RimFractureTemplate::FracOrientationEnum orientation;
     if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();

@@ -97,7 +97,39 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &azimuthAngle || changedField == &orientation)
+    {
+        //Changes to one of these parameters should change all fractures with this fracture template attached. 
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            //Regenerate geometry
+            std::vector<RimFracture*> fractures;
+            proj->descendantsIncludingThisOfType(fractures);
 
+            for (RimFracture* fracture : fractures)
+            {
+                if (fracture->attachedFractureDefinition() == this)
+                {
+                    if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
+                    {
+                        fracture->updateAzimuthFromFractureDefinition();
+                        fracture->setRecomputeGeometryFlag();
+                    }
+
+                    if (changedField == &orientation)
+                    {
+                        fracture->updateAzimuthFromFractureDefinition();
+
+                        fracture->setRecomputeGeometryFlag();
+                    }
+                }
+            }
+
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
 }
 
 

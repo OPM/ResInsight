@@ -42,7 +42,7 @@ public:
 
     void                                            recomputeWellCenterlineCoordinates();
     void                                            updateFracturePositionFromLocation();
-    void                                            setAzimuth() override;
+    void                                            updateAzimuthFromFractureDefinition() override;
 
 
 protected:

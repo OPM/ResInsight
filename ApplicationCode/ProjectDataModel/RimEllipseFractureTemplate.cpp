@@ -61,8 +61,9 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimFractureTemplate::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &halfLength || changedField == &height || changedField == &azimuthAngle || changedField == &perforationLength || changedField == &orientation)
+    if (changedField == &halfLength || changedField == &height || changedField == &perforationLength)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -82,23 +83,6 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
                         fracture->setRecomputeGeometryFlag();
                     }
 
-                    if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
-                    {
-                        fracture->azimuth = azimuthAngle;
-                        fracture->setRecomputeGeometryFlag();
-                    }
-
-                    if (changedField == &orientation)
-                    {
-                        fracture->setAzimuth();
-                        if (orientation() == FracOrientationEnum::AZIMUTH)
-                        {
-                            fracture->azimuth = azimuthAngle;
-                        }
-
-                        fracture->setRecomputeGeometryFlag();
-                    }
-
                     if (changedField == &perforationLength && (abs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
                     {
                         fracture->perforationLength = perforationLength;
@@ -110,11 +94,6 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
             proj->createDisplayModelAndRedrawAllViews();
         }
     }
-
-
-
-
-
 }
 
 //--------------------------------------------------------------------------------------------------

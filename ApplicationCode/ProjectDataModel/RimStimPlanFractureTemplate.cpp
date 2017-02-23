@@ -70,6 +70,7 @@ RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimFractureTemplate::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (&m_stimPlanFileName == changedField)
     {

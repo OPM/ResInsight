@@ -57,7 +57,6 @@ public:
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);
-    virtual void                    setAzimuth() =0;
 
     cvf::Mat4f                      transformMatrix(); 
 
@@ -82,11 +81,14 @@ public:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
 
+    virtual void                    updateAzimuthFromFractureDefinition() = 0;
+
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
     virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
 
 private:
     bool                            isRecomputeGeometryFlagSet();
