@@ -530,11 +530,14 @@ std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPlanPropertyNamesUnits() const
 {
-    std::vector<RigStimPlanData > allStimPlanData = m_stimPlanFractureDefinitionData->stimPlanData;
     std::vector<std::pair<QString, QString> >  propertyNamesUnits;
-    for (RigStimPlanData stimPlanDataEntry : allStimPlanData)
+    if (m_stimPlanFractureDefinitionData.notNull())
     {
-        propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
+        std::vector<RigStimPlanData > allStimPlanData = m_stimPlanFractureDefinitionData->stimPlanData;
+        for (RigStimPlanData stimPlanDataEntry : allStimPlanData)
+        {
+            propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
+        }
     }
     return propertyNamesUnits;
 }
