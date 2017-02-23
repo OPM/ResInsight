@@ -28,6 +28,7 @@
 #include "RimStimPlanFractureTemplate.h"
 
 #include "RivPartPriority.h"
+#include "RivObjectSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -100,6 +101,8 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
         caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
         cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
         m_part->setEffect(eff.p());
+
+        m_part->setSourceInfo(new RivObjectSourceInfo(m_rimFracture));
     }
 }
 
@@ -216,6 +219,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         }
 
         m_part->setPriority(RivPartPriority::PartType::Transparent);
+        m_part->setSourceInfo(new RivObjectSourceInfo(m_rimFracture));
     }
 }
 
