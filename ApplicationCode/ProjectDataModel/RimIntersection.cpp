@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimEclipseView.h"

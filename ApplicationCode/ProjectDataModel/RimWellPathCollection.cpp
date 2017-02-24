@@ -22,12 +22,16 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
+#include "RigWellPath.h"
+
 #include "RimProject.h"
-#include "RimWellPath.h"
 #include "RimWellLogFile.h"
-#include "RivWellPathCollectionPartMgr.h"
+#include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
+
+#include "RivWellPathCollectionPartMgr.h"
 
 #include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"

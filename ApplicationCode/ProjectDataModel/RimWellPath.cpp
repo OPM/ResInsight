@@ -21,20 +21,25 @@
 #include "RimWellPath.h"
 
 #include "RifJsonEncodeDecode.h"
+
+#include "RigWellPath.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
-#include "RimProject.h"
-#include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
-#include "RivWellPathPartMgr.h"
+#include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
 
+#include "RivWellPathPartMgr.h"
+
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QDateTime>
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -150,6 +155,14 @@ void RimWellPath::setSurveyType(QString surveyType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigWellPath* RimWellPath::wellPathGeometry()
+{
+    return m_wellPath.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr* RimWellPath::partMgr()
 {
     if (m_wellPathPartMgr.isNull()) 
@@ -208,6 +221,14 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileRe
 
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setWellPathGeometry(RigWellPath* wellPathModel)
+{
+    m_wellPath = wellPathModel;
 }
 
 //--------------------------------------------------------------------------------------------------
