@@ -25,12 +25,16 @@
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 
-#include "cvfObject.h"
-
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"   
 
-#include "RigSingleWellResultsData.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
+class RigSingleWellResultsData;
+class RigWellResultFrame;
+struct RigWellResultPoint;
+
 
 //==================================================================================================
 ///  
