@@ -26,6 +26,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
+#include "RimCellRangeFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"

@@ -28,6 +28,7 @@
 #include "RigMainGrid.h"
 
 #include "RimCase.h"
+#include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
