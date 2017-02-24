@@ -49,6 +49,7 @@ void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews() const
     RimView* view = NULL;
     this->firstAncestorOrThisOfType(view);
     CVF_ASSERT(view);
+    if (!view) return;
 
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
     view->scheduleCreateDisplayModelAndRedraw();

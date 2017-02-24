@@ -351,6 +351,8 @@ void RimIntersectionBox::updateBoxManipulatorGeometry()
 
     RimView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
+    if (!rimView) return;
+
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
 
     m_boxManipulator->setOrigin(transForm->transformToDisplayCoord(boxOrigin().translation()));
@@ -468,10 +470,12 @@ void RimIntersectionBox::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::slotScheduleRedraw()
 {
-    RimView* rimView = nullptr;
+    RimView* rimView = NULL;
     this->firstAncestorOrThisOfType(rimView);
-        
-    rimView->scheduleCreateDisplayModelAndRedraw();
+    if (rimView)
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,12 +520,7 @@ void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_intersectionBoxPartMgr = nullptr;
 
-    RimView* rimView = NULL;
-    this->firstAncestorOrThisOfType(rimView);
-    if (rimView)
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    slotScheduleRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
