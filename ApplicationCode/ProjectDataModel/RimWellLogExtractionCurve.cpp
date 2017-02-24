@@ -28,6 +28,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigWellLogCurveData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

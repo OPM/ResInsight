@@ -22,6 +22,10 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
+#include "RiaApplication.h"
+
+#include "RigWellLogCurveData.h"
+
 #include "RimProject.h"
 #include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
@@ -29,9 +33,8 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RiuMainPlotWindow.h"
 
-#include "RiaApplication.h"
+#include "RiuMainPlotWindow.h"
 
 #include "cafSelectionManager.h"
 

@@ -19,12 +19,15 @@
 
 #include "RicExportToLasFileFeature.h"
 
-#include "RiaApplication.h"
 #include "RicExportToLasFileResampleUi.h"
-#include "RigLasFileExporter.h"
-#include "RimWellLogCurve.h"
-
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "RiaApplication.h"
+
+#include "RigLasFileExporter.h"
+#include "RigWellLogCurveData.h"
+
+#include "RimWellLogCurve.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"

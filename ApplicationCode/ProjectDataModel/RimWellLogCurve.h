@@ -20,7 +20,8 @@
 #pragma once
 
 #include "RimPlotCurve.h"
-#include "RigWellLogCurveData.h"
+
+#include "cvfObject.h"
 
 class RigWellLogCurveData;
 

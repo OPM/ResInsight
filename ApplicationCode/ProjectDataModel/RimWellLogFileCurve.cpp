@@ -19,14 +19,16 @@
 
 #include "RimWellLogFileCurve.h"
 
-#include "RimProject.h"
+#include "RigWellLogCurveData.h"
+
 #include "RimOilField.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPath.h"
-#include "RimWellLogFileChannel.h"
+#include "RimProject.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogTrack.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RiuWellLogTrack.h"
 #include "RiuLineSegmentQwtPlotCurve.h"
