@@ -29,10 +29,13 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimFault.h"
 #include "RimFaultCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "RivFaultGeometryGenerator.h"
+#include "RivNNCGeometryGenerator.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"

@@ -25,6 +25,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
+#include "RimFault.h"
 #include "RimFaultCollection.h"
 
 #include "RivFaultPartMgr.h"

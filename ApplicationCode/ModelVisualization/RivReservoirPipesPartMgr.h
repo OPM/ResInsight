@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include "RimEclipseWellCollection.h"
 
 #include "cvfCollection.h"
 #include "cvfVector3.h"
+
+#include "cafPdmPointer.h"
 
 namespace cvf
 {
