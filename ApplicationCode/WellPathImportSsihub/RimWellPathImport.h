@@ -21,9 +21,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
-#include "RimOilRegionEntry.h"
+#include "cafPdmChildArrayField.h"
 
-
+class RimOilRegionEntry;
 
 
 class RimWellPathImport : public caf::PdmObject

@@ -19,6 +19,9 @@
 #include "RiuWellImportWizard.h"
 
 #include "RifJsonEncodeDecode.h"
+
+#include "RimOilFieldEntry.h"
+#include "RimOilRegionEntry.h"
 #include "RimWellPathImport.h"
 
 #include "cafPdmDocument.h"
