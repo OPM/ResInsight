@@ -29,6 +29,7 @@
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 

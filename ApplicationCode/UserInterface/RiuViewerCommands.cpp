@@ -77,6 +77,7 @@
 #include "cvfOverlayAxisCross.h"
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
+#include "cvfTransform.h"
 
 #include <QMenu>
 #include <QMouseEvent>

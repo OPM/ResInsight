@@ -52,7 +52,7 @@ public:
 
     void                        clearGeometryCache();
     void                        scheduleGeometryRegen(RivCellSetEnum geometryType);
-    cvf::cref<cvf::UByteArray>  cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t frameIndex) const;
+    const cvf::UByteArray*      cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t frameIndex) const;
    
     void                        appendStaticGeometryPartsToModel (cvf::ModelBasicList* model, RivCellSetEnum geometryType, const std::vector<size_t>& gridIndices);
     void                        appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex, const std::vector<size_t>& gridIndices);

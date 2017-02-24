@@ -61,6 +61,7 @@
 #include "RiuViewer.h"
 
 #include "RivReservoirPipesPartMgr.h"
+#include "RivReservoirViewPartMgr.h"
 #include "RivReservoirWellSpheresPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
@@ -1140,6 +1141,14 @@ void RimEclipseView::syncronizeWellsWithResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager() const
+{
+    return m_reservoirGridPartManager.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid)
 {
     CVF_ASSERT(visibleCells != NULL);
@@ -1267,6 +1276,14 @@ void RimEclipseView::updateDisplayModelForWellResults()
    
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
+{
+    return m_visibleGridParts;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1501,7 +1518,7 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 
         for (size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx)
         {
-            cvf::cref<cvf::UByteArray> visibility =  m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, m_currentTimeStep);
+            const cvf::UByteArray* visibility =  m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, m_currentTimeStep);
 
             for (int lcIdx = 0; lcIdx < gridCellCount; ++ lcIdx)
             {

@@ -20,19 +20,17 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "RifReaderInterface.h"
 
 #include "RimCase.h"
-#include "RimEclipseView.h"
-
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RifReaderInterface.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 class QString;
 
@@ -41,6 +39,7 @@ class RigGridBase;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RimEclipseView;
 
 
 //==================================================================================================

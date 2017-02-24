@@ -32,11 +32,11 @@
 #include "RigResultModifierFactory.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RiuMainWindow.h"

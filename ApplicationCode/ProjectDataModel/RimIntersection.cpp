@@ -42,6 +42,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfPlane.h"
 
 
 namespace caf {
