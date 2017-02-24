@@ -51,6 +51,7 @@
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
