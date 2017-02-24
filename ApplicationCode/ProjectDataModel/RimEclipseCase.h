@@ -67,8 +67,8 @@ public:
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
-    RigEclipseCaseData*                                reservoirData();
-    const RigEclipseCaseData*                          reservoirData() const;
+    RigEclipseCaseData*                         reservoirData();
+    const RigEclipseCaseData*                   reservoirData() const;
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -106,7 +106,7 @@ protected:
     void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigEclipseCaseData>                       m_rigEclipseCase;
+    cvf::ref<RigEclipseCaseData>            m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
