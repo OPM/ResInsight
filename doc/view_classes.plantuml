@@ -1,35 +1,28 @@
 @startuml
 
+class RimViewWindow {
+  RimMdiWindowController mdiWindowGeometry()
+}
+
+note top of RimViewWindow : Updated 2017-02-24
+
 class RimView {
-  RimViewGeometry* viewGeometry()
 }
 
-class Rim3dView {
+RimViewWindow <|-- RimView
+
+package plots {
+RimViewWindow <|-- RimSummaryPlot
+RimViewWindow <|-- RimTotalWellAllocationPlot
+RimViewWindow <|-- RimWellAllocationPlot
+RimViewWindow <|-- RimWellLogPlot
 }
 
-class RimPlotView {
-}
+RimViewWindow *-- RimMdiWindowController
+
+RimView <|-- RimEclipseView
+RimView <|-- RimGeoMechView
 
 
-RimView <|-- RimPlotView
-RimView <|-- Rim3dView
-
-
-RimView *-- RimViewGeometry
-
-RimPlotView <|-- RimWellLogPlot
-RimPlotView <|-- RimSummaryPlot
-
-Rim3dView <|-- RimEclipseView
-Rim3dView <|-- RimGeoMechView
-
-class RimWindow {
-}
-
-RimViewGeometry --> RimWindow
-
-class RimViewGeometry {
-  PtrField<RimWindow> window
-}
 
 @enduml
