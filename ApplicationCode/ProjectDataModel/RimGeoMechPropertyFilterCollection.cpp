@@ -144,11 +144,14 @@ void RimGeoMechPropertyFilterCollection::updateIconState()
 
     RimGeoMechView* view = NULL;
     this->firstAncestorOrThisOfType(view);
-    RimViewController* viewController = view->viewController();
-    if (viewController && ( viewController->isPropertyFilterOveridden() 
-                            || viewController->isVisibleCellsOveridden()))
+    if (view)
     {
-        activeIcon = false;
+        RimViewController* viewController = view->viewController();
+        if (viewController && ( viewController->isPropertyFilterOveridden() 
+                                || viewController->isVisibleCellsOveridden()))
+        {
+            activeIcon = false;
+        }
     }
 
     if (!isActive)

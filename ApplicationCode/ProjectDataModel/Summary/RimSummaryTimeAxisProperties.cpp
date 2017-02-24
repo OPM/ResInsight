@@ -311,6 +311,7 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
 {
     RimSummaryPlot* rimSummaryPlot = nullptr;
     this->firstAncestorOrThisOfType(rimSummaryPlot);
+    if (!rimSummaryPlot) return;
 
     if (changedField == &m_visibleDateRangeMax)
     {

@@ -82,7 +82,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
         firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
-        if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
         {
             if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
             {

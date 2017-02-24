@@ -435,7 +435,10 @@ void RimSummaryCurveFilter::updatePlotAxisForCurves()
 
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
-    plot->updateAxes();
+    if (plot)
+    {
+        plot->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

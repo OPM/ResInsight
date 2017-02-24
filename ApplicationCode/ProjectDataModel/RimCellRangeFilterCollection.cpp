@@ -148,6 +148,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
 {
     RimView* view = NULL;
     firstAncestorOrThisOfType(view);
+    if (!view) return;
 
     if (view->isMasterView())
     {
