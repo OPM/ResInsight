@@ -235,6 +235,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         RimWellLogPlotCollection* wellLogCollection = NULL;
         this->firstAncestorOrThisOfType(wellLogCollection);
         CVF_ASSERT(wellLogCollection);
+        if (!wellLogCollection) return;
 
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
         cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
@@ -299,6 +300,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
+        if (!wellLogPlot) return;
 
         displayUnit = wellLogPlot->depthUnit();
 

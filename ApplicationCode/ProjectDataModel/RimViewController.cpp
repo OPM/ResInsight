@@ -362,12 +362,19 @@ void RimViewController::removeOverrides(RimView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
-    RimViewLinker* linkedViews = NULL;
-    firstAncestorOrThisOfType(linkedViews);
-    CVF_ASSERT(linkedViews);
+    RimView* mainView = nullptr;
+    
+    {
+        RimViewLinker* linkedViews = nullptr;
+        firstAncestorOrThisOfType(linkedViews);
+        CVF_ASSERT(linkedViews);
 
-    RimView* mainView = linkedViews->masterView();
-    CVF_ASSERT(mainView);
+        if (linkedViews)
+        {
+            mainView = linkedViews->masterView();
+        }
+        CVF_ASSERT(mainView);
+    }
 
     RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(mainView);
     RimGeoMechView* geoMasterView = dynamic_cast<RimGeoMechView*>(mainView);
