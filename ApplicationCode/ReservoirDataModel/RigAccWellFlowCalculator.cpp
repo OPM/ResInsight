@@ -185,7 +185,7 @@ const std::vector<double>& RigAccWellFlowCalculator::pseudoLengthFromTop(size_t 
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigAccWellFlowCalculator::accumulatedFlowPrPseudoLength(size_t branchIdx) const
 {
-    return accumulatedTracerFlowPrConnection(RIG_FLOW_TOTAL_NAME, branchIdx);
+    return accumulatedTracerFlowPrPseudoLength(RIG_FLOW_TOTAL_NAME, branchIdx);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrPseu
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigAccWellFlowCalculator::flowPrPseudoLength(size_t branchIdx) const
 {
-    return tracerFlowPrConnection(RIG_FLOW_TOTAL_NAME, branchIdx);
+    return tracerFlowPrPseudoLength(RIG_FLOW_TOTAL_NAME, branchIdx);
 }
 
 //--------------------------------------------------------------------------------------------------
