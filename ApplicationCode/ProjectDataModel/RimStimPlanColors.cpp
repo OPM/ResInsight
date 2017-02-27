@@ -309,7 +309,6 @@ void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
 void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_resultNameAndUnit);
-    uiOrdering.add(&m_opacityLevel);
     uiOrdering.add(&m_defaultColor);
 
     uiOrdering.setForgetRemainingFields(true);

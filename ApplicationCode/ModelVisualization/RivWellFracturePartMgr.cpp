@@ -197,13 +197,13 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
             caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_NEG_LARGE);
 
-            effGen.setOpacityLevel(opacityLevel);
+            effGen.setOpacityLevel(0.5);
+            effGen.discardTransparentFragments(true);
 
             if (activeView && activeView->isLightingDisabled())
             {
                 effGen.disableLighting(true);
             }
-
 
             cvf::ref<cvf::Effect> eff = effGen.generateCachedEffect();
 
@@ -211,7 +211,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         }
         else
         {
-            cvf::Color4f fractureColor = cvf::Color4f(activeView->stimPlanColors->defaultColor(), opacityLevel);
+            cvf::Color4f fractureColor = cvf::Color4f(activeView->stimPlanColors->defaultColor(), 1.0);
 
             caf::SurfaceEffectGenerator surfaceGen(fractureColor, caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
