@@ -19,6 +19,8 @@
 
 #include "RigWellLogFile.h"
 
+#include "RigWellLogCurveData.h"
+
 #include "RimWellLogCurve.h"
 
 #include "well.hpp"

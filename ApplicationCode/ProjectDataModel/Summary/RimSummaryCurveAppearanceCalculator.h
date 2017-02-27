@@ -16,14 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+#include "RimPlotCurve.h"
+
 #include "cvfBase.h"
 #include "cvfColor3.h"
+
 #include <set>
-#include "RifEclipseSummaryAddress.h"
-#include "RimPlotCurve.h"
 
 class RimSummaryCurve;
 class RimSummaryCase;
+class RifEclipseSummaryAddress;
 
 class RimSummaryCurveAppearanceCalculator
 {

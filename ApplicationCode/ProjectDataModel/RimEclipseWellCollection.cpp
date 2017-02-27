@@ -25,6 +25,7 @@
 #include "RiaPreferences.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

@@ -18,14 +18,17 @@
 
 #include "RimWellFlowRateCurve.h"
 
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "RigWellLogCurveData.h"
+
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "qwt_plot.h"
-#include "RimWellLogPlot.h"
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
-#include "RimWellLogTrack.h"
 
 
 

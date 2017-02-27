@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "RimReservoirCellResultsStorage.h"
-
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"

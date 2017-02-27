@@ -19,14 +19,16 @@
 
 #include "RimWellLogFileCurve.h"
 
-#include "RimProject.h"
+#include "RigWellLogCurveData.h"
+
 #include "RimOilField.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPath.h"
-#include "RimWellLogFileChannel.h"
+#include "RimProject.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogTrack.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RiuWellLogTrack.h"
 #include "RiuLineSegmentQwtPlotCurve.h"
@@ -80,7 +82,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
         firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
-        if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
         {
             if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
             {

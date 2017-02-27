@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RigWellPath.h"
+
 #include "RimCase.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"

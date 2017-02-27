@@ -32,6 +32,8 @@
 
 #include "RiuMainWindow.h"
 
+#include "RivReservoirViewPartMgr.h"
+
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfMath.h"
@@ -188,7 +190,7 @@ bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &
     if (!reservoirView) return false;
 
     const std::vector<RivCellSetEnum>& visGridParts = reservoirView->visibleGridParts();
-    cvf::cref<RivReservoirViewPartMgr> rvMan = reservoirView->reservoirGridPartManager();
+    const RivReservoirViewPartMgr* rvMan = reservoirView->reservoirGridPartManager();
 
 
     for (const RivCellSetEnum& visGridPart : visGridParts)
@@ -211,7 +213,7 @@ bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &
 
         if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
         {
-            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
+            const cvf::UByteArray* cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
             if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
             {
                 return true;
@@ -231,7 +233,7 @@ bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &
                     gridIndex = wellResultPoint.m_gridIndex;
                     gridCellIndex = wellResultPoint.m_gridCellIndex;
 
-                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
+                    const cvf::UByteArray* cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
                     if (gridCellIndex < cellVisibility->size() && (*cellVisibility)[gridCellIndex])
                     {
                         return true;

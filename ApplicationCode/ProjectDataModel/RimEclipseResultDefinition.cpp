@@ -593,10 +593,14 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 {
     CVF_ASSERT(m_resultType() == RimDefines::FLOW_DIAGNOSTICS);
 
+    size_t timeStep = 0;
+
     RimView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
-
-    size_t timeStep = rimView->currentTimeStep();
+    if (rimView)
+    {
+        timeStep = rimView->currentTimeStep();
+    }
 
     std::set<std::string> selTracerNames;
     if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)

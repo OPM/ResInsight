@@ -45,7 +45,7 @@ bool RicDeleteWellLogPlotTrackFeature::isCommandEnabled()
     {
         RimWellLogPlot* wellLogPlot = NULL;
         selection[0]->firstAncestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot->trackCount() > 1)
+        if (wellLogPlot && wellLogPlot->trackCount() > 1)
         {
             return true;
         }

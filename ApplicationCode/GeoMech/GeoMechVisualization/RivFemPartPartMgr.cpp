@@ -56,7 +56,9 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
+#include "cvfTransform.h"
 #include "cvfUniform.h"
+
 
 
 //--------------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
@@ -42,6 +43,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfPlane.h"
 
 
 namespace caf {

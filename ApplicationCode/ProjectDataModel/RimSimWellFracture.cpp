@@ -20,6 +20,7 @@
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"

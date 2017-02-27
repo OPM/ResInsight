@@ -155,33 +155,37 @@ bool RimSummaryYAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryYAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType(rimSummaryPlot);
 
     if (changedField == &isAutoTitle)
     {
         updateOptionSensitivity();
     }
-    else if (changedField == &visibleRangeMax)
-    {
-        if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
-        
-        rimSummaryPlot->disableAutoZoom();
-    }
-    else if (changedField == &visibleRangeMin)
-    {
-        if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
-        
-        rimSummaryPlot->disableAutoZoom();
-    }
 
-    if (changedField == &isLogarithmicScaleEnabled)
+    RimSummaryPlot* rimSummaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(rimSummaryPlot);
+    if (rimSummaryPlot)
     {
-        rimSummaryPlot->loadDataAndUpdate();
-    }
-    else
-    {
-        rimSummaryPlot->updateAxes();
+        if (changedField == &visibleRangeMax)
+        {
+            if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
+        
+            rimSummaryPlot->disableAutoZoom();
+        }
+        else if (changedField == &visibleRangeMin)
+        {
+            if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
+        
+            rimSummaryPlot->disableAutoZoom();
+        }
+
+        if (changedField == &isLogarithmicScaleEnabled)
+        {
+            rimSummaryPlot->loadDataAndUpdate();
+        }
+        else
+        {
+            rimSummaryPlot->updateAxes();
+        }
     }
 }
 

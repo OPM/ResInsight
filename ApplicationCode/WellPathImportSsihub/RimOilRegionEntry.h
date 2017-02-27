@@ -20,10 +20,9 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
 
-#include "RimOilFieldEntry.h"
-
-
+class RimOilFieldEntry;
 
 
 class RimOilRegionEntry : public caf::PdmObject

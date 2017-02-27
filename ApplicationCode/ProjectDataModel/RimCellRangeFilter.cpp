@@ -295,7 +295,7 @@ bool RimCellRangeFilter::isRangeFilterControlled()
     CVF_ASSERT(rimView);
 
     bool isRangeFilterControlled = false;
-    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
+    if (rimView && rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
     {
         isRangeFilterControlled = true;
     }

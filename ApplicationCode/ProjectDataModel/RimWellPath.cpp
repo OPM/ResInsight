@@ -22,12 +22,15 @@
 
 #include "RifJsonEncodeDecode.h"
 
+#include "RigWellPath.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -162,6 +165,14 @@ void RimWellPath::setSurveyType(QString surveyType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigWellPath* RimWellPath::wellPathGeometry()
+{
+    return m_wellPath.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr* RimWellPath::partMgr()
 {
     if (m_wellPathPartMgr.isNull()) 
@@ -220,6 +231,14 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileRe
 
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setWellPathGeometry(RigWellPath* wellPathModel)
+{
+    m_wellPath = wellPathModel;
 }
 
 //--------------------------------------------------------------------------------------------------

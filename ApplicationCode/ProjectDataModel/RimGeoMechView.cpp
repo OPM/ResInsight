@@ -58,6 +58,7 @@
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
+#include "cvfTransform.h"
 #include "cvfViewport.h"
 #include "cvfqtUtils.h"
 

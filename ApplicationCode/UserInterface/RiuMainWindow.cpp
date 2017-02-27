@@ -38,6 +38,7 @@
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuMessagePanel.h"
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -587,6 +588,15 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
  
+    {
+        QDockWidget* dockWidget = new QDockWidget("Messages", this);
+        dockWidget->setObjectName("dockMessages");
+        m_messagePanel = new RiuMessagePanel(dockWidget);
+        dockWidget->setWidget(m_messagePanel);
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        dockWidget->hide();
+    }
+
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
@@ -799,6 +809,14 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMessagePanel* RiuMainWindow::messagePanel()
+{
+    return m_messagePanel;
 }
 
 //--------------------------------------------------------------------------------------------------

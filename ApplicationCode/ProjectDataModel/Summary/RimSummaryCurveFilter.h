@@ -28,6 +28,8 @@
 #include "cafAppEnum.h"
 #include "cafPdmPtrArrayField.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 

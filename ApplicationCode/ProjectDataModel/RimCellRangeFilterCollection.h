@@ -18,14 +18,22 @@
 
 #pragma once
 
-#include "RimCellRangeFilter.h"
-
+#include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
 
 class RigActiveCellInfo;
 class RigFemPartCollection;
 class RigGridBase;
 class RimView;
+class RimCellRangeFilter;
+class RimEclipseView;
+class RigMainGrid;
+
+namespace cvf {
+    class CellRangeFilter;
+    class StructGridInterface;
+};
 
 //==================================================================================================
 ///  

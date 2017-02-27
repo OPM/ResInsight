@@ -20,19 +20,17 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "RifReaderInterface.h"
 
 #include "RimCase.h"
-#include "RimEclipseView.h"
-
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RifReaderInterface.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 class QString;
 
@@ -41,6 +39,7 @@ class RigGridBase;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RimEclipseView;
 
 
 //==================================================================================================
@@ -68,8 +67,8 @@ public:
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
-    RigEclipseCaseData*                                reservoirData();
-    const RigEclipseCaseData*                          reservoirData() const;
+    RigEclipseCaseData*                         reservoirData();
+    const RigEclipseCaseData*                   reservoirData() const;
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -107,7 +106,7 @@ protected:
     void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigEclipseCaseData>                       m_rigEclipseCase;
+    cvf::ref<RigEclipseCaseData>            m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;

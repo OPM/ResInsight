@@ -33,7 +33,6 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
 
-#include "RivReservoirViewPartMgr.h"
 #include "RimView.h"
 
 class RigActiveCellInfo;
@@ -60,6 +59,8 @@ class RiuViewer;
 class RivIntersectionPartMgr;
 class RivReservoirPipesPartMgr;
 class RivReservoirWellSpheresPartMgr;
+class RivIntersectionPartMgr;
+class RivReservoirViewPartMgr;
 
 namespace cvf
 {
@@ -133,8 +134,8 @@ public:
     void                                            schedulePipeGeometryRegen();
     void                                            updateDisplayModelForWellResults();
 
-    const std::vector<RivCellSetEnum>&              visibleGridParts() const { return m_visibleGridParts;}
-    cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
+    const std::vector<RivCellSetEnum>&              visibleGridParts() const;
+    const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;
 
     // Does this belong here, really ?
     void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);

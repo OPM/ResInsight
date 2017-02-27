@@ -28,6 +28,7 @@
 #include "RimCaseCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimOilField.h"

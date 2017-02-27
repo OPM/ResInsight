@@ -26,6 +26,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
+#include "RimCellRangeFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -147,6 +148,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
 {
     RimView* view = NULL;
     firstAncestorOrThisOfType(view);
+    if (!view) return;
 
     if (view->isMasterView())
     {

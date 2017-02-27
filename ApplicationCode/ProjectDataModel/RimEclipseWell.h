@@ -27,11 +27,15 @@
 #include "cafPdmChildField.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfColor.h"   
 
 #include "cvfObject.h"
+#include "cvfVector3.h"
 
-#include "RigSingleWellResultsData.h"
+class RigSingleWellResultsData;
+class RigWellResultFrame;
+struct RigWellResultPoint;
+
 
 class RimSimWellFractureCollection;
 

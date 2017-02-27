@@ -20,13 +20,15 @@
 #include "RimWellLogTrack.h"
 
 #include "RigStatisticsCalculator.h"
+#include "RigWellLogCurveData.h"
 
-#include "RimWellLogPlot.h"
+#include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogPlot.h"
 
-#include "RiuWellLogTrack.h"
-#include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
+#include "RiuWellLogPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
@@ -34,7 +36,6 @@
 #include "qwt_scale_engine.h"
 
 #include <math.h>
-#include "RimWellFlowRateCurve.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0

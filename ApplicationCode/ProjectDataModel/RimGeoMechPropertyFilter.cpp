@@ -190,15 +190,18 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
+    bool isPropertyFilterControlled = false;
+
     RimView* rimView = NULL;
     firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
-
-    bool isPropertyFilterControlled = false;
-    RimViewController* vc = rimView->viewController();
-    if (vc && vc->isPropertyFilterOveridden())
+    if (rimView)
     {
-        isPropertyFilterControlled = true;
+        RimViewController* vc = rimView->viewController();
+        if (vc && vc->isPropertyFilterOveridden())
+        {
+            isPropertyFilterControlled = true;
+        }
     }
    
     return isPropertyFilterControlled;

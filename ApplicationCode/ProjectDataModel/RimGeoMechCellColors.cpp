@@ -55,14 +55,17 @@ void RimGeoMechCellColors::updateIconState()
     this->firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
 
-    RimViewController* viewController = rimView->viewController();
-    if (viewController && viewController->isResultColorControlled())
+    if (rimView)
     {
-        updateUiIconFromState(false);
-    }
-    else
-    {
-        updateUiIconFromState(true);
+        RimViewController* viewController = rimView->viewController();
+        if (viewController && viewController->isResultColorControlled())
+        {
+            updateUiIconFromState(false);
+        }
+        else
+        {
+            updateUiIconFromState(true);
+        }
     }
 
     uiCapability()->updateConnectedEditors();

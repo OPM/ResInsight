@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "RigWellPath.h"
-#include "RimWellPathCollection.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -32,10 +29,14 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
+#include "cvfObject.h"    
 
+class RifWellPathAsciiFileReader;
+class RigWellPath;
 class RimProject;
-class RivWellPathPartMgr;
 class RimWellLogFile;
+class RivWellPathPartMgr;
+
 class RimWellPathFractureCollection;
 
 //==================================================================================================
@@ -70,10 +71,11 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
+    RigWellPath*                        wellPathGeometry();
     caf::PdmChildField<RimWellPathFractureCollection*>  fractureCollection;
 
 
-    RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
+    
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
@@ -84,7 +86,7 @@ protected:
 
 private:
 
-    void                                setWellPathGeometry(RigWellPath* wellPathModel) { m_wellPath = wellPathModel; }
+    void                                setWellPathGeometry(RigWellPath* wellPathModel);
     void                                readJsonWellPathFile();
     void                                readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader);
     QString                             surveyType() { return m_surveyType; }

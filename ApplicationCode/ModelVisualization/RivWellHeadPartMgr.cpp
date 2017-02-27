@@ -31,6 +31,7 @@
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 
@@ -46,6 +47,7 @@
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
 
