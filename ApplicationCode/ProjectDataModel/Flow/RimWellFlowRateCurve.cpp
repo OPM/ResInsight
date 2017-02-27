@@ -118,8 +118,17 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate()
 void RimWellFlowRateCurve::updateCurveAppearance()
 {
     RimWellLogCurve::updateCurveAppearance();
-   
-    m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
+
+    // Use step-type curves if using connection numbers
+    {
+        RimWellLogPlot* wellLogPlot;
+        firstAncestorOrThisOfType(wellLogPlot);
+        if ( wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::CONNECTION_NUMBER )
+        {
+            m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
+        }
+    }
+
     QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
     m_qwtPlotCurve->setBrush(QBrush( curveQColor));
 

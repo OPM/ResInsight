@@ -379,17 +379,32 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
 
     while ( clSegIdx >= 0 )
     {
-        if (previousResultPoint.isEqual(branchCells[clSegIdx])) { --clSegIdx; continue; } // Todo: Do the skipping within one cell to get the complete length span of the cell into the graph
+        int cellBottomPointIndex = -1;
+        int cellUpperPointIndex = -1;
+        int currentSegmentIndex = -1;
 
-        std::vector<double> flowPrTracer = calculateFlowPrTracer(branchCells, clSegIdx);
+        // Find the complete cell span
+        {
+            cellBottomPointIndex = clSegIdx + 1;
 
-        double pseudoLengthFromTop_lower = mdCalculator.measuredDepths()[clSegIdx + 1] + startPseudoLengthFromTop;
+            previousResultPoint = branchCells[clSegIdx];
+            --clSegIdx;
+            while ( clSegIdx >= 0  && previousResultPoint.isEqual(branchCells[clSegIdx]) ) { --clSegIdx; }
+
+            cellUpperPointIndex = clSegIdx + 1;
+            currentSegmentIndex = cellUpperPointIndex;
+        }
+
+        std::vector<double> flowPrTracer = calculateFlowPrTracer(branchCells, currentSegmentIndex);
+
+        double pseudoLengthFromTop_lower = mdCalculator.measuredDepths()[cellBottomPointIndex] + startPseudoLengthFromTop;
 
         // Push back the new start-of-cell flow, with the previously accumulated result into the storage
 
         storeFlowOnDepth(branchFlow, pseudoLengthFromTop_lower, accFlowPrTracer, flowPrTracer);
 
         // Accumulate the connection-cell's fraction flows 
+
         for (size_t tIdx = 0; tIdx < flowPrTracer.size(); ++tIdx)
         {
             accFlowPrTracer[tIdx] += flowPrTracer[tIdx];
@@ -397,9 +412,9 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
 
         // Add the total accumulated (fraction) flows from any branches connected to this cell
 
-        double pseudoLengthFromTop_upper = mdCalculator.measuredDepths()[clSegIdx] + startPseudoLengthFromTop;
+        double pseudoLengthFromTop_upper = mdCalculator.measuredDepths()[cellUpperPointIndex] + startPseudoLengthFromTop;
 
-        std::vector<size_t> downStreamBranchIndices = findDownStreamBranchIdxs(branchCells[clSegIdx]);
+        std::vector<size_t> downStreamBranchIndices = findDownStreamBranchIdxs(branchCells[cellUpperPointIndex]);
         for ( size_t dsBidx : downStreamBranchIndices )
         {
             BranchFlow &downStreamBranchFlow = m_pseudoLengthFlowPrBranch[dsBidx];
@@ -413,10 +428,6 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
         // Push back the accumulated result into the storage
 
         storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
-
-        previousResultPoint = branchCells[clSegIdx];
-
-        --clSegIdx;
 
     }
 }
