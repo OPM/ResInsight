@@ -39,7 +39,7 @@ class RiuMessagePanel : public QWidget
 public:
     RiuMessagePanel(QDockWidget* parent);
 
-    void            addMessage(RILogLevel messageLevel, const QString& msg, const QString& srcInfo);
+    void            addMessage(RILogLevel messageLevel, const QString& msg);
     virtual QSize	sizeHint () const;
 
 private slots:
@@ -65,13 +65,13 @@ public:
     virtual int     level() const override;
     virtual void    setLevel(int logLevel) override;
 
-    virtual void    error(  const char* message, const char* fileName, int lineNumber) override;
-    virtual void    warning(const char* message, const char* fileName, int lineNumber) override;
-    virtual void    info(   const char* message, const char* fileName, int lineNumber) override;
-    virtual void    debug(  const char* message, const char* fileName, int lineNumber) override;
+    virtual void    error(  const char* message) override;
+    virtual void    warning(const char* message) override;
+    virtual void    info(   const char* message) override;
+    virtual void    debug(  const char* message) override;
 
 private:
-    void            writeToMessagePanel(RILogLevel messageLevel, const char* message, const char* fileName, int lineNumber);
+    void            writeToMessagePanel(RILogLevel messageLevel, const char* message);
 
 private:
     QPointer<RiuMessagePanel>   m_messagePanel;

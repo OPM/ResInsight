@@ -50,11 +50,22 @@ RigCell& cellFromWellResultCell()
 RigEclipseCaseData *-- RigCaseCellResultsData
 
 
-RimReservoirCellResultsStorage o-- RigCaseCellResultsData
+RimReservoirCellResultsStorage *-- RigCaseCellResultsData
 
 class RimReservoirCellResultsStorage {
 RigCaseCellResultsData*         cellResults()
 }
 
+
+RimSummaryCase <|-- RimFileSummaryCase
+RimSummaryCase <|-- RimGridSummaryCase
+
+class RimGridSummaryCase {
+RimEclipseCase* associatedEclipseCase(
+}
+
+
+
+RimGridSummaryCase *-- RimEclipseCase
 
 @enduml
