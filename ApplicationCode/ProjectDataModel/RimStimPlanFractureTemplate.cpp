@@ -153,6 +153,7 @@ QString RimStimPlanFractureTemplate::fileNameWithOutPath()
 void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 {
     m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
+    size_t startingNegXsValues = 0;
     {
         QFile dataFile(m_stimPlanFileName());
         if (!dataFile.open(QFile::ReadOnly))
@@ -164,7 +165,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         QXmlStreamReader xmlStream;
         xmlStream.setDevice(&dataFile);
         xmlStream.readNext();
-        readStimplanGridAndTimesteps(xmlStream);
+        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream);
         if (xmlStream.hasError())
         {
             qDebug() << "Error: Failed to parse file " << dataFile.fileName();
@@ -208,7 +209,8 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
             else if (xmlStream2.name() == "time")
             {
                 double timeStepValue = getAttributeValueDouble(xmlStream2, "value");
-                std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream2);
+                
+                std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream2, startingNegXsValues);
                 
                 bool valuesOK = numberOfParameterValuesOK(propertyValuesAtTimestep);
                 if (!valuesOK)
@@ -268,8 +270,11 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream)
+size_t RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream)
 {
+
+    size_t startNegValuesXs = 0;
+    size_t startNegValuesYs = 0;
 
     xmlStream.readNext();
 
@@ -283,16 +288,17 @@ void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader 
 
             if (xmlStream.name() == "xs")
             {
-//                 if (getGriddingValues(xmlStream)[0] < 0.0)
-//                 {
-//                     qDebug() << getGriddingValues(xmlStream)[0];
-//                 }
-                m_stimPlanFractureDefinitionData->gridXs = getGriddingValues(xmlStream);
+                std::vector<double> gridValues;
+                getGriddingValues(xmlStream, gridValues, startNegValuesXs);
+                m_stimPlanFractureDefinitionData->gridXs = gridValues;
             }
 
             else if (xmlStream.name() == "ys")
             {
-                m_stimPlanFractureDefinitionData->gridYs = getGriddingValues(xmlStream);
+                std::vector<double> gridValues;
+                getGriddingValues(xmlStream, gridValues, startNegValuesYs);
+                m_stimPlanFractureDefinitionData->gridYs = gridValues;
+
                 m_stimPlanFractureDefinitionData->reorderYgridToDepths();
             }
 
@@ -306,12 +312,19 @@ void RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader 
             }
         }
     }
+
+    if (startNegValuesYs > 0)
+    {
+        qDebug() << "Error in reading XML file. Negative depth values detected";
+    }
+    return startNegValuesXs;
+        
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>  RimStimPlanFractureTemplate::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream)
+std::vector<std::vector<double>>  RimStimPlanFractureTemplate::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs)
 {
     std::vector<std::vector<double>> propertyValuesAtTimestep;
 
@@ -329,11 +342,16 @@ std::vector<std::vector<double>>  RimStimPlanFractureTemplate::getAllDepthDataAt
             if (xmlStream.isCDATA())
             {
                 QString depthDataStr = xmlStream.text().toString();
-                for (QString value : depthDataStr.split(' '))
+                for (int i = 0; i < depthDataStr.split(' ').size(); i++)
                 {
-                    if (value != "")
+                    if (i < startingNegValuesXs) continue;
+                    else 
                     {
-                        propertyValuesAtDepth.push_back(value.toDouble());
+                        QString value = depthDataStr.split(' ')[i];
+                        if ( value != "")
+                        {
+                            propertyValuesAtDepth.push_back(value.toDouble());
+                        }
                     }
                 }
             }
@@ -377,16 +395,21 @@ void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::getGriddingValues(QXmlStreamReader &xmlStream)
+void RimStimPlanFractureTemplate::getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues)
 {
-    std::vector<double> gridValues;
     QString gridValuesString = xmlStream.readElementText().replace('\n', ' ');
     for (QString value : gridValuesString.split(' '))
     {
-        if (value.size()>0) gridValues.push_back(value.toDouble());
+        if (value.size() > 0)
+        {
+            double gridValue = value.toDouble();
+            if (gridValue > -1e-5) //tolerance of 1e-5 
+            {
+                gridValues.push_back(gridValue);
+            }
+            else startNegValues++;
+        }
     }
-
-    return gridValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,7 +458,6 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
 
 
     std::vector<double> xCoords = getNegAndPosXcoords();
-    //std::vector<double> xCoords = m_stimPlanFractureDefinitionData->gridXs;
     cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
 
     std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();

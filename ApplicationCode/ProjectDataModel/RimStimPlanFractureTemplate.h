@@ -80,13 +80,13 @@ private:
     void                                    readStimPlanXMLFile(QString * errorMessage);
 
 
-    void                                    readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
+    size_t                                  readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
 
 
     static double                           getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
     static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
-    static std::vector<double>              getGriddingValues(QXmlStreamReader &xmlStream);
-    std::vector<std::vector<double>>        getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream);
+    void                                    getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
+    std::vector<std::vector<double>>        getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
 
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
