@@ -49,6 +49,9 @@ public:
     virtual ~RimStimPlanFractureTemplate(void);
     
     caf::PdmField<double>                   wellPathDepthAtFracture;
+
+    caf::PdmField<QString>                  parameterForPolygon;
+    caf::PdmField<int>                      timestepForPolygon;
     
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
@@ -68,6 +71,9 @@ public:
     void                                    loadDataAndUpdate();
 
     std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
+
+
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);

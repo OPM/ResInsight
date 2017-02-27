@@ -61,8 +61,6 @@ public:
     std::vector<std::vector<double>>    getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
     void                                computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const;
 
-    std::vector<QString> resultNames() const;
-
 private:
     size_t                              resultIndex(const QString& resultName, const QString& unit) const;
 

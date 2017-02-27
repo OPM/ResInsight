@@ -182,16 +182,3 @@ void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, con
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RigStimPlanFractureDefinition::resultNames() const
-{
-    std::vector<QString> names;
-
-    names.push_back("Conductivity");
-    names.push_back("Permeability");
-    names.push_back("Width");
-
-    return names;
-}

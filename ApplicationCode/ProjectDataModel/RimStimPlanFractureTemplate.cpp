@@ -56,6 +56,10 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 
     CAF_PDM_InitField(&wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
     wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&parameterForPolygon, "parameterForPolyton", QString(""), "Parameter", "", "", "");
+    CAF_PDM_InitField(&timestepForPolygon, "timestepForPolygon", 0, "TimeStep", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,6 +110,11 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         }
 
         proj->createDisplayModelAndRedrawAllViews();
+    }
+
+    if (&parameterForPolygon == changedField || &timestepForPolygon == changedField)
+    {
+        fracturePolygon();
     }
 
 
@@ -265,6 +274,37 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
     return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &parameterForPolygon)
+    {
+        for (std::pair<QString, QString> nameUnit : getStimPlanPropertyNamesUnits())
+        {
+            options.push_back(caf::PdmOptionItemInfo(nameUnit.first + " [" + nameUnit.second +"]", nameUnit.first + " " + nameUnit.second));
+        }
+    }
+
+    else if (fieldNeedingOptions == &timestepForPolygon)
+    {
+        std::vector<double> timeValues = getStimPlanTimeValues();
+        int index = 0;
+        for (double value : timeValues)
+        {
+            options.push_back(caf::PdmOptionItemInfo(QString::number(value), index));
+            index++;
+        }
+
+    }
+
+    return options;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,9 +621,17 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
 {
     std::vector<cvf::Vec3f> polygon;
+    QString parameterName;
+    QString parameterUnit;
 
-    //TODO: Handle multiple time-step and properties
-    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(getStimPlanPropertyNamesUnits()[0].first, getStimPlanPropertyNamesUnits()[0].second, 0);
+    if (parameterForPolygon().split(" ").size() > 1)
+    {
+        parameterName = parameterForPolygon().split(" ")[0];
+        parameterUnit = parameterForPolygon().split(" ")[1];
+    }
+    else return polygon;
+
+    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(parameterName, parameterUnit, timestepForPolygon);
 
     for (int k = 0; k < dataAtTimeStep.size(); k++)
     {
@@ -596,20 +644,19 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
                     if ((dataAtTimeStep[k])[(i + 1)] < 1e-7)
                     {
                         polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                            static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
+                            static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
                     }
                 }
                 else
                 {
                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]), 0.0f));
+                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
                 }
             }
         }
     }
 
     std::vector<cvf::Vec3f> negPolygon;
-
     for (const auto& node : polygon)
     {
         cvf::Vec3f negNode = node;
@@ -645,6 +692,10 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureConductivity);
     propertyGroup->add(&skinFactor);
+
+    caf::PdmUiGroup* polygonGroup = uiOrdering.addNewGroup("Fracture Polygon Basis");
+    polygonGroup->add(&parameterForPolygon);
+    polygonGroup->add(&timestepForPolygon);
 }
 
 //--------------------------------------------------------------------------------------------------
