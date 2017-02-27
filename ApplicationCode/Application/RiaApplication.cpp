@@ -337,14 +337,14 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     closeProject();
 
-    RI_LOG_INFO_QSTR(QString("Starting to open project file : '%1'").arg(projectFileName));
+    RiaLogging::info(QString("Starting to open project file : '%1'").arg(projectFileName));
 
     // Open the project file and read the serialized data. 
     // Will initialize itself.
 
     if (!QFile::exists(projectFileName))
     {
-        RI_LOG_ERROR_QSTR(QString("File does not exist : '%1'").arg(projectFileName));
+        RiaLogging::info(QString("File does not exist : '%1'").arg(projectFileName));
         return false;
     }
 
@@ -547,7 +547,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
 
-    RI_LOG_INFO_QSTR(QString("Completed open of project file : '%1'").arg(projectFileName));
+    RiaLogging::info(QString("Completed open of project file : '%1'").arg(projectFileName));
 
     return true;
 }

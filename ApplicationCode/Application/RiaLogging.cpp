@@ -30,6 +30,8 @@
 #include <cstdio>
 #endif
 
+#include "QString"
+
 
 
 
@@ -43,15 +45,15 @@ class RiaDefaultConsoleLogger : public RiaLogger
 public:
     RiaDefaultConsoleLogger();
 
-    virtual int     level() const;
-    virtual void    setLevel(int logLevel);
-    virtual void    error(  const char* message, const char* fileName, int lineNumber);
-    virtual void    warning(const char* message, const char* fileName, int lineNumber);
-    virtual void    info(   const char* message, const char* fileName, int lineNumber);
-    virtual void    debug(  const char* message, const char* fileName, int lineNumber);
+    virtual int     level() const override;
+    virtual void    setLevel(int logLevel) override;
+    virtual void    error(  const char* message) override;
+    virtual void    warning(const char* message) override;
+    virtual void    info(   const char* message) override;
+    virtual void    debug(  const char* message) override;
 
 private:
-    static void         writeMessageToConsole(const char* prefix, const char* message, const char* fileName, int lineNumber);
+    static void         writeMessageToConsole(const char* prefix, const char* message);
     static void         writeToConsole(const std::string& str);
 
 private:
@@ -87,42 +89,42 @@ void RiaDefaultConsoleLogger::setLevel(int logLevel)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaDefaultConsoleLogger::error(const char* message, const char* fileName, int lineNumber)
+void RiaDefaultConsoleLogger::error(const char* message)
 {
-    writeMessageToConsole("ERROR: ", message, fileName, lineNumber);
+    writeMessageToConsole("ERROR: ", message);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaDefaultConsoleLogger::warning(const char* message, const char*, int)
+void RiaDefaultConsoleLogger::warning(const char* message)
 {
-    writeMessageToConsole("warn:  ", message, NULL, 0);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaDefaultConsoleLogger::info(const char* message, const char*, int)
-{
-    writeMessageToConsole("info:  ", message, NULL, 0);
+    writeMessageToConsole("warn:  ", message);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaDefaultConsoleLogger::debug(const char* message, const char*, int)
+void RiaDefaultConsoleLogger::info(const char* message)
 {
-    writeMessageToConsole("debug: ", message, NULL, 0);
+    writeMessageToConsole("info:  ", message);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaDefaultConsoleLogger::writeMessageToConsole(const char* prefix, const char* message, const char* fileName, int lineNumber)
+void RiaDefaultConsoleLogger::debug(const char* message)
+{
+    writeMessageToConsole("debug: ", message);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaDefaultConsoleLogger::writeMessageToConsole(const char* prefix, const char* message)
 {
     std::ostringstream oss;
 
@@ -136,11 +138,6 @@ void RiaDefaultConsoleLogger::writeMessageToConsole(const char* prefix, const ch
     else
     {
         oss << "<no message>" << std::endl;
-    }
-
-    if (fileName)
-    {
-        oss << "        -file " << RiaLogger::shortFileName(fileName) << ", line " << lineNumber << std::endl;
     }
 
     writeToConsole(oss.str());
@@ -166,44 +163,6 @@ void RiaDefaultConsoleLogger::writeToConsole(const std::string& str)
     fputs(str.c_str(), stderr);
 #endif
 }
-
-
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const char* RiaLogger::shortFileName(const char* fileName)
-{
-//    VF_ASSERT(fileName);
-
-    const char* ptrToLastSlash = strrchr(fileName, '/');
-
-#ifdef WIN32
-    const char* ptrToLastBwdSlash = strrchr(fileName, '\\');
-    if (ptrToLastBwdSlash > ptrToLastSlash)
-    {
-        ptrToLastSlash = ptrToLastBwdSlash;
-    }
-#endif
-
-    if (ptrToLastSlash)
-    {
-        return ptrToLastSlash + 1;
-    }
-    else
-    {
-        return fileName;
-    }
-}
-
-
-
-
 
 //==================================================================================================
 //
@@ -245,5 +204,49 @@ void RiaLogging::deleteLoggerInstance()
 {
     delete sm_logger;
     sm_logger = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::error(const QString& message)
+{
+    if (sm_logger && sm_logger->level() >= RI_LL_ERROR)
+    {
+        sm_logger->error(message.toLatin1().constData());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::warning(const QString& message)
+{
+    if (sm_logger && sm_logger->level() >= RI_LL_WARNING)
+    {
+        sm_logger->warning(message.toLatin1().constData());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::info(const QString& message)
+{
+    if (sm_logger && sm_logger->level() >= RI_LL_INFO)
+    {
+        sm_logger->info(message.toLatin1().constData());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::debug(const QString& message)
+{
+    if (sm_logger && sm_logger->level() >= RI_LL_DEBUG)
+    {
+        sm_logger->debug(message.toLatin1().constData());
+    }
 }
 

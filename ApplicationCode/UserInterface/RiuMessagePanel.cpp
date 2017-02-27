@@ -54,7 +54,7 @@ RiuMessagePanel::RiuMessagePanel(QDockWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg, const QString& srcInfo)
+void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg)
 {
     QColor clr(Qt::black);
     if      (messageLevel == RI_LL_ERROR)    clr = Qt::red;
@@ -67,15 +67,6 @@ void RiuMessagePanel::addMessage(RILogLevel messageLevel, const QString& msg, co
     form.setFontItalic(messageLevel == RI_LL_DEBUG ? true : false);
     m_textEdit->setCurrentCharFormat(form);
     m_textEdit->appendPlainText(msg);
-
-    if (!srcInfo.isEmpty())
-    {
-        form.setForeground(clr);
-        form.setFontWeight(QFont::Normal);
-        form.setFontItalic(true);
-        m_textEdit->setCurrentCharFormat(form);
-        m_textEdit->appendPlainText("       " + srcInfo);
-    }
 
     m_textEdit->moveCursor(QTextCursor::End);
     m_textEdit->ensureCursorVisible();
@@ -113,7 +104,8 @@ void RiuMessagePanel::slotShowContextMenu(const QPoint& pos)
 void RiuMessagePanel::slotClearMessages()
 {
     m_textEdit->clear();
-    RI_LOG_INFO("Message window cleared.");
+
+    RiaLogging::info("Message window cleared.");
 }
 
 
@@ -155,43 +147,43 @@ void RiuMessagePanelLogger::setLevel(int logLevel)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMessagePanelLogger::error(const char* message, const char* fileName, int lineNumber)
+void RiuMessagePanelLogger::error(const char* message)
 {
-    writeToMessagePanel(RI_LL_ERROR, message, fileName, lineNumber);
+    writeToMessagePanel(RI_LL_ERROR, message);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMessagePanelLogger::warning(const char* message, const char* fileName, int lineNumber)
+void RiuMessagePanelLogger::warning(const char* message)
 {
-    writeToMessagePanel(RI_LL_WARNING, message, fileName, lineNumber);
+    writeToMessagePanel(RI_LL_WARNING, message);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMessagePanelLogger::info(const char* message, const char* fileName, int lineNumber)
+void RiuMessagePanelLogger::info(const char* message)
 {
-    writeToMessagePanel(RI_LL_INFO, message, fileName, lineNumber);
+    writeToMessagePanel(RI_LL_INFO, message);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMessagePanelLogger::debug(const char* message, const char* fileName, int lineNumber)
+void RiuMessagePanelLogger::debug(const char* message)
 {
-    writeToMessagePanel(RI_LL_DEBUG, message, fileName, lineNumber);
+    writeToMessagePanel(RI_LL_DEBUG, message);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMessagePanelLogger::writeToMessagePanel(RILogLevel messageLevel, const char* message, const char* fileName, int lineNumber)
+void RiuMessagePanelLogger::writeToMessagePanel(RILogLevel messageLevel, const char* message)
 {
     if (messageLevel > m_logLevel)
     {
@@ -200,13 +192,7 @@ void RiuMessagePanelLogger::writeToMessagePanel(RILogLevel messageLevel, const c
 
     if (m_messagePanel)
     {
-        QString codeLocation;
-        if (messageLevel == RI_LL_ERROR)
-        {
-            codeLocation = QString("(file %1, line %2)").arg(RiaLogger::shortFileName(fileName)).arg(lineNumber);
-        }
-
-        m_messagePanel->addMessage(messageLevel, message, codeLocation);
+        m_messagePanel->addMessage(messageLevel, message);
     }
 }
 
