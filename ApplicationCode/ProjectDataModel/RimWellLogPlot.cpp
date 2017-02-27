@@ -400,7 +400,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_depthType);
-    if ( m_depthType() != CONNECTION_NUMBER )
+    if ( m_depthType() != CONNECTION_NUMBER &&  m_depthType() != PSEUDO_LENGTH)
     {
         uiOrdering.add(&m_depthUnit);
     }
