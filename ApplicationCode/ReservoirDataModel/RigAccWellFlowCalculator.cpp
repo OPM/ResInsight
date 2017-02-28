@@ -410,9 +410,13 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
             accFlowPrTracer[tIdx] += flowPrTracer[tIdx];
         }
 
-        // Add the total accumulated (fraction) flows from any branches connected to this cell
-
         double pseudoLengthFromTop_upper = mdCalculator.measuredDepths()[cellUpperPointIndex] + startPseudoLengthFromTop;
+
+        // Push back the accumulated result into the storage
+
+        storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
+
+        // Add the total accumulated (fraction) flows from any branches connected to this cell
 
         std::vector<size_t> downStreamBranchIndices = findDownStreamBranchIdxs(branchCells[cellUpperPointIndex]);
         for ( size_t dsBidx : downStreamBranchIndices )
@@ -425,9 +429,9 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
             }
         }
 
-        // Push back the accumulated result into the storage
+        // Push back the accumulated result after adding the branch result into the storage
 
-        storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
+        if (downStreamBranchIndices.size()) storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
 
     }
 }
