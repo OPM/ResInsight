@@ -36,27 +36,29 @@
 
 
 #include "cafEffectGenerator.h"
+
+#include "cafEffectCache.h"
 #include "cafUtils.h"
 
-#include "cvfRenderState_FF.h"
-#include "cvfTextureImage.h"
-#include "cvfTexture2D_FF.h"
-#include "cvfShaderProgramGenerator.h"
-#include "cvfShaderSourceProvider.h"
-#include "cvfUniform.h"
-#include "cvfShaderProgram.h"
 #include "cvfMatrixState.h"
-#include "cvfTexture.h"
-#include "cvfSampler.h"
-#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderState_FF.h"
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStateCullFace.h"
-#include "cvfRenderStateTextureBindings.h"
-#include "cvfRenderStatePolygonMode.h"
 #include "cvfRenderStateDepth.h"
+#include "cvfRenderStateLine.h"
+#include "cvfRenderStatePolygonMode.h"
+#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderStateTextureBindings.h"
+#include "cvfSampler.h"
+#include "cvfShaderProgram.h"
+#include "cvfShaderProgramGenerator.h"
+#include "cvfShaderSourceProvider.h"
+#include "cvfTexture.h"
+#include "cvfTexture2D_FF.h"
+#include "cvfTextureImage.h"
+#include "cvfUniform.h"
 
 #include <QtOpenGL/QGLFormat>
-#include "cafEffectCache.h"
 
 namespace caf {
 
@@ -807,6 +809,15 @@ MeshEffectGenerator::MeshEffectGenerator(const cvf::Color3f& color)
 {
     m_color = color;
     m_lineStipple = false;
+    m_lineWidth = cvf::UNDEFINED_FLOAT;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void MeshEffectGenerator::setLineWidth(float lineWidth)
+{
+    m_lineWidth = lineWidth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,6 +840,11 @@ void MeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) con
     {
         // TODO: Use when VizFwk is updated
         //eff->setRenderState(new cvf::RenderStateLineStipple_FF);
+    }
+
+    if (m_lineWidth < cvf::UNDEFINED_FLOAT)
+    {
+        eff->setRenderState(new cvf::RenderStateLine(m_lineWidth));
     }
 }
 
@@ -870,6 +886,11 @@ bool MeshEffectGenerator::isEqual(const EffectGenerator* other) const
             return false;
         }
 
+        if (m_lineWidth != otherMesh->m_lineWidth)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -883,6 +904,7 @@ EffectGenerator* MeshEffectGenerator::copy() const
 {
     MeshEffectGenerator* effGen = new MeshEffectGenerator(m_color);
     effGen->setLineStipple(m_lineStipple);
+    effGen->setLineWidth(m_lineWidth);
 
     return effGen;
 }

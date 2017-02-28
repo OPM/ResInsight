@@ -239,6 +239,7 @@ class MeshEffectGenerator : public EffectGenerator
 public:
     MeshEffectGenerator(const cvf::Color3f& color);
     void setLineStipple(bool enable) { m_lineStipple = enable; }
+    void setLineWidth(float lineWidth);
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -250,6 +251,7 @@ protected:
 private:
     cvf::Color3f m_color;
     bool         m_lineStipple;
+    float        m_lineWidth;
 };
 
 
