@@ -681,7 +681,10 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     {
         m_disabledDepthTypes.insert(MEASURED_DEPTH);
         m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
-       // m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+        if (m_disabledDepthTypes.count(m_depthType() ))
+        {
+            m_depthType = CONNECTION_NUMBER;
+        }
     }
     else
     {
