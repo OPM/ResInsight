@@ -19,6 +19,7 @@
 #include "RimStimPlanFractureTemplate.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RigStimPlanFractureDefinition.h"
 
@@ -34,7 +35,6 @@
 
 #include "cvfVector3.h"
 
-#include <QDebug>
 #include <QFileInfo>
 #include <QMessageBox>
 
@@ -80,14 +80,6 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     {
         updateUiTreeName();
         loadDataAndUpdate();
-/*
-        QString errorMessage;
-        readStimPlanXMLFile(&errorMessage);
-        if (!errorMessage.isEmpty())
-        {
-            QMessageBox::warning(nullptr, "StimPlanFile", errorMessage);
-        }
-*/
     }
 
     if (&wellPathDepthAtFracture == changedField)
@@ -161,6 +153,8 @@ QString RimStimPlanFractureTemplate::fileNameWithOutPath()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 {
+    RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(fileName()));
+
     m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
     size_t startingNegXsValues = 0;
     {
@@ -175,18 +169,22 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         xmlStream.setDevice(&dataFile);
         xmlStream.readNext();
         startingNegXsValues = readStimplanGridAndTimesteps(xmlStream);
+
         if (xmlStream.hasError())
         {
-            qDebug() << "Error: Failed to parse file " << dataFile.fileName();
-            qDebug() << xmlStream.errorString();
+            RiaLogging::error(QString("Failed to parse file '%1'").arg(dataFile.fileName()));
+            RiaLogging::error(xmlStream.errorString());
         }
         dataFile.close();
     }
 
-    size_t numberOfDepthValues;
-    numberOfDepthValues = m_stimPlanFractureDefinitionData->depths.size();
-    size_t numberOfTimeSteps;
-    numberOfTimeSteps = m_stimPlanFractureDefinitionData->timeSteps.size();
+
+    size_t numberOfDepthValues = m_stimPlanFractureDefinitionData->depths.size();
+    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(m_stimPlanFractureDefinitionData->gridXs.size()),
+        QString::number(numberOfDepthValues)));
+
+    size_t numberOfTimeSteps = m_stimPlanFractureDefinitionData->timeSteps.size();
+    RiaLogging::debug(QString("Number of time-steps: %1").arg(numberOfTimeSteps));
 
     //Start reading from top:
     QFile dataFile(m_stimPlanFileName());
@@ -202,6 +200,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     QString parameter;
     QString unit;
 
+    RiaLogging::info(QString("Properties available in file:"));
     while (!xmlStream2.atEnd())
     {
         xmlStream2.readNext();
@@ -212,7 +211,8 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
             {
                 unit      = getAttributeValueString(xmlStream2, "uom");
                 parameter = getAttributeValueString(xmlStream2, "name");
-                //Width - convert to cm from mm?
+
+                RiaLogging::info(QString("%1 [%2]").arg(parameter, unit));
 
             }
             else if (xmlStream2.name() == "time")
@@ -224,7 +224,7 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
                 bool valuesOK = numberOfParameterValuesOK(propertyValuesAtTimestep);
                 if (!valuesOK)
                 {
-                    qDebug() << "Inconsistency detected in reading XML file!";
+                    RiaLogging::error(QString("Inconsistency detected in reading XML file: '%1'").arg(dataFile.fileName()));
                     return;
                 }
 
@@ -235,20 +235,24 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     }
 
     dataFile.close();
+    setDepthOfWellPathAtFracture();
+    RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(wellPathDepthAtFracture));
 
     if (xmlStream2.hasError())
     {
-        qDebug() << "Error: Failed to parse file " << dataFile.fileName();
-        qDebug() << xmlStream2.errorString();
+        RiaLogging::error(QString("Failed to parse file: '%1'").arg(dataFile.fileName()));
+        RiaLogging::error(xmlStream2.errorString());
     }
     else if (dataFile.error() != QFile::NoError)
     {
-        qDebug() << "Error: Cannot read file " << dataFile.fileName();
-        qDebug() << dataFile.errorString();
+        RiaLogging::error(QString("Cannot read file: '%1'").arg(dataFile.fileName()));
+        RiaLogging::error(dataFile.errorString());
+    }
+    else
+    {
+        RiaLogging::info(QString("Successfully read XML file: '%1'").arg(fileName()));
     }
 
-    setDepthOfWellPathAtFracture();
-    
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeView) return;
     activeView->stimPlanColors->loadDataAndUpdate();
@@ -262,7 +266,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 {
     QString errorMessage;
     readStimPlanXMLFile(&errorMessage);
-    qDebug() << errorMessage;
+    if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
     updateConnectedEditors();
 }
@@ -355,7 +359,7 @@ size_t RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReade
 
     if (startNegValuesYs > 0)
     {
-        qDebug() << "Error in reading XML file. Negative depth values detected";
+        RiaLogging::error(QString("Negative depth values detected in XML file"));
     }
     return startNegValuesXs;
         

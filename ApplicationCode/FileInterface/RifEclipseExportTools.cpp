@@ -19,6 +19,8 @@
 #include "RifEclipseExportTools.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigFracture.h"
 #include "RigFracture.h"
@@ -37,7 +39,6 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
-#include <QDebug>
 
 
 
@@ -63,9 +64,11 @@ RifEclipseExportTools::~RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
 {
+    RiaLogging::info(QString("Computing and writing COMPDAT values to file %1").arg(fileName));
+
     if (!(unitsMatchCaseAndFractures(caseToApply, fractures)))
     {
-        qDebug() << "ERROR: The case selected and relevant fractures does not have consistent unit system.";
+        RiaLogging::error(QString("ERROR: The case selected and relevant fractures does not have consistent unit system"));
         return false;
     }
 
@@ -100,6 +103,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     printBackgroundDataHeaderLine(out);
 
 
+    RiaLogging::debug(QString("Writing intermediate results from COMPDAT calculation"));
 
     for (RimFracture* fracture : fractures)
     {
@@ -117,6 +121,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << qSetFieldWidth(7) << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
     for (RimFracture* fracture : fractures)
     {
+        RiaLogging::debug(QString("Writing COMPDAT values for fracture %1").arg(fracture->name()));
         fracture->computeTransmissibility(caseToApply);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
@@ -136,6 +141,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     out << "/ \n";
 
+    RiaLogging::info(QString("Competed writing COMPDAT data to file %1").arg(fileName));
     return true;
 }
 
