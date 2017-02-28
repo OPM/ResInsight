@@ -50,6 +50,7 @@ protected:
     virtual void updateCurveAppearance() override;
 
 private:
+    bool isUsingConnectionNumberDepthType() const;
     RimWellAllocationPlot* wellAllocationPlot() const;
 
     QString m_tracerName;

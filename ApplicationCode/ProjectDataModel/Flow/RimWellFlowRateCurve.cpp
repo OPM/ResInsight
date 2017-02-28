@@ -119,14 +119,9 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 {
     RimWellLogCurve::updateCurveAppearance();
 
-    // Use step-type curves if using connection numbers
+    if ( isUsingConnectionNumberDepthType() )
     {
-        RimWellLogPlot* wellLogPlot;
-        firstAncestorOrThisOfType(wellLogPlot);
-        if ( wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::CONNECTION_NUMBER )
-        {
-            m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
-        }
+        m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
     }
 
     QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
@@ -167,7 +162,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_NONE;
 
     std::vector<double> depthValues = m_curveData->measuredDepthPlotValues(displayUnit);
-    if (depthValues.size()) depthValues.insert(depthValues.begin(), depthValues[0]); // Insert the first depth position again, to make room for a real 0 value
+    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
     std::vector<double> stackedValues(depthValues.size(), 0.0);
      
     std::vector<RimWellFlowRateCurve*> stackedCurves =  wellLogTrack->visibleStackedCurves();
@@ -177,27 +172,51 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         std::vector<double> values = stCurve->curveData()->xPlotValues();
         for ( size_t i = 0; i < values.size(); ++i )
         {
-            stackedValues[i+1] += values[i];
+            stackedValues[i] += values[i]; 
         }
 
         if ( stCurve == this ) break;
         zPos -= 1.0;
     }
-    
+
+    // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
+
+    if ( depthValues.size() ) // Should we really do this for all curve variants ?
+    {
+        depthValues.insert(depthValues.begin(), depthValues[0]);
+        stackedValues.insert(stackedValues.begin(), 0.0);
+        polyLineStartStopIndices.front().second += 1;
+    }
+
     // Add a dummy point for the zeroth connection to make the "end" distribution show better.
 
-    stackedValues.push_back(stackedValues.back());
-    depthValues.push_back(0.0);
-    std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
+    if ( isFirstTrack  && isUsingConnectionNumberDepthType() )
+    {
+        stackedValues.push_back(stackedValues.back());
+        depthValues.push_back(0.0);
 
-    if ( isFirstTrack ) polyLineStartStopIndices.front().second += 2;
-    else                polyLineStartStopIndices.front().second += 1;
-
+        polyLineStartStopIndices.front().second += 1;
+    }
 
     m_qwtPlotCurve->setSamples(stackedValues.data(), depthValues.data(), static_cast<int>(depthValues.size()));
     m_qwtPlotCurve->setLineSegmentStartStopIndices(polyLineStartStopIndices);
-    
+
     m_qwtPlotCurve->setZ(zPos);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellFlowRateCurve::isUsingConnectionNumberDepthType() const
+{
+    RimWellLogPlot* wellLogPlot;
+    firstAncestorOrThisOfType(wellLogPlot);
+    if ( wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::CONNECTION_NUMBER )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
