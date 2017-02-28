@@ -199,7 +199,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
      
             geo->setTextureCoordArray(textureCoords.p());
 
-            caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_NEG_LARGE);
+            caf::ScalarMapperEffectGenerator effGen(scalarMapper, caf::PO_1);
 
             effGen.setOpacityLevel(0.5);
             effGen.discardTransparentFragments(true);
@@ -238,15 +238,11 @@ void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(caf::DisplayCoor
     m_polygonPart->setDrawable(polygonGeo.p());
 
     m_polygonPart->updateBoundingBox();
-    m_polygonPart->setPriority(RivPartPriority::PartType::Highlight);
+    m_polygonPart->setPriority(RivPartPriority::PartType::TransparentMeshLines);
 
-    cvf::ref<cvf::Effect> eff;
     caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
-    eff = lineEffGen.generateUnCachedEffect();
-
-    cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
-    depth->enableDepthTest(false);
-    eff->setRenderState(depth.p());
+    lineEffGen.setLineWidth(3.0f);
+    cvf::ref<cvf::Effect> eff = lineEffGen.generateCachedEffect();
 
     m_polygonPart->setEffect(eff.p());
 }
