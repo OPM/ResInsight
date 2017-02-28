@@ -127,14 +127,11 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
         RimLegendConfig* legendConfig = nullptr;
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        RimStimPlanColors* stimPlanColors;
-        if (activeView)
+        if (activeView && activeView->stimPlanColors())
         {
-            stimPlanColors = activeView->stimPlanColors;
-
-            if (stimPlanColors->isChecked())
+            if (activeView->stimPlanColors()->isChecked())
             {
-                legendConfig = stimPlanColors->activeLegend();
+                legendConfig = activeView->stimPlanColors()->activeLegend();
             }
         }
 
