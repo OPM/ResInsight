@@ -673,6 +673,9 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon()
         polygon.push_back(negNode);
     }
 
+    //Adding first point last - to close the polygon
+    if (polygon.size()>0) polygon.push_back(polygon[0]);
+
     return polygon;
 }
 
