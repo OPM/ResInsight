@@ -82,7 +82,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         loadDataAndUpdate();
     }
 
-    if (&wellPathDepthAtFracture == changedField)
+    if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &timestepForPolygon == changedField)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -104,10 +104,10 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         proj->createDisplayModelAndRedrawAllViews();
     }
 
-    if (&parameterForPolygon == changedField || &timestepForPolygon == changedField)
-    {
-        fracturePolygon();
-    }
+//     if (&parameterForPolygon == changedField || &timestepForPolygon == changedField)
+//     {
+//         fracturePolygon();
+//     }
 
 
 }

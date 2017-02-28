@@ -23,6 +23,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFracture.h"
+#include "RimFractureTemplate.h"
 #include "RimLegendConfig.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -39,6 +40,7 @@
 #include "cvfPrimitiveSet.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapperContinuousLinear.h"
+#include "cvfRenderStateDepth.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +168,8 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         m_part = new cvf::Part;
         m_part->setDrawable(geo.p());
 
+        generateFractureOutlinePolygonPart(displayCoordTransform);
+
         float opacityLevel = activeView->stimPlanColors->opacityLevel();
         if (legendConfig)
         {
@@ -226,6 +230,80 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(caf::DisplayCoordTransform* displayCoordTransform)
+{
+    cvf::ref<cvf::DrawableGeo> polygonGeo = createPolygonDrawable(displayCoordTransform);
+
+    m_polygonPart = new cvf::Part;
+    m_polygonPart->setDrawable(polygonGeo.p());
+
+    m_polygonPart->updateBoundingBox();
+    m_polygonPart->setPriority(RivPartPriority::PartType::Highlight);
+
+    cvf::ref<cvf::Effect> eff;
+    caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
+    eff = lineEffGen.generateUnCachedEffect();
+
+    cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+    depth->enableDepthTest(false);
+    eff->setRenderState(depth.p());
+
+    m_polygonPart->setEffect(eff.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::DisplayCoordTransform* displayCoordTransform)
+{
+
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon();
+
+    //Transform to model coordinates and then display coords
+    std::vector<cvf::Vec3f> polygonInDisplayCoords;
+    cvf::Mat4f m = m_rimFracture->transformMatrix();
+    for (cvf::Vec3f v : polygon)
+    {
+        v.transformPoint(m);
+        cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(v);
+        cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
+        polygonInDisplayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
+
+    }
+
+    std::vector<cvf::uint> lineIndices;
+    std::vector<cvf::Vec3f> vertices;
+
+    for (size_t i = 0; i < polygonInDisplayCoords.size(); ++i)
+    {
+        vertices.push_back(cvf::Vec3f(polygonInDisplayCoords[i])); 
+        if (i < polygonInDisplayCoords.size() - 1)
+        {
+            lineIndices.push_back(static_cast<cvf::uint>(i));
+            lineIndices.push_back(static_cast<cvf::uint>(i + 1));
+        }
+    }
+
+    if (vertices.size() == 0) return NULL;
+
+    cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray;
+    vx->assign(vertices);
+    cvf::ref<cvf::UIntArray> idxes = new cvf::UIntArray;
+    idxes->assign(lineIndices);
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);
+    prim->setIndices(idxes.p());
+
+    cvf::ref<cvf::DrawableGeo> polygonGeo = new cvf::DrawableGeo;
+    polygonGeo->setVertexArray(vx.p());
+    polygonGeo->addPrimitiveSet(prim.p());
+
+    return polygonGeo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<double> depthData)
 {
     std::vector<double> mirroredValuesAtGivenDepth;
@@ -269,6 +347,10 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
     if (m_part.notNull())
     {
         model->addPart(m_part.p());
+    }
+    if (m_rimFracture->showPolygonFractureOutline() && m_polygonPart.notNull())
+    {
+        model->addPart(m_polygonPart.p());
     }
 }
 

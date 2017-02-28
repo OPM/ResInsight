@@ -54,6 +54,8 @@ public:
     caf::PdmField<double>           perforationLength;
 
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
+    caf::PdmField<bool>             showPolygonFractureOutline;
+
 
     cvf::Vec3d                      anchorPosition();
     void                            setAnchorPosition(const cvf::Vec3d& pos);

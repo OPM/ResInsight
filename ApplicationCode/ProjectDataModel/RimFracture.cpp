@@ -82,6 +82,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
+    CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
@@ -179,7 +180,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     if (changedField == &azimuth || 
         changedField == &m_fractureTemplate ||
         changedField == &stimPlanTimeIndexToPlot ||
-        changedField == this->objectToggleField())
+        changedField == this->objectToggleField() ||
+        changedField == &showPolygonFractureOutline)
     {
 
         setRecomputeGeometryFlag();
