@@ -868,7 +868,7 @@ void MeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) con
 
     if (m_lineWidth < cvf::UNDEFINED_FLOAT)
     {
-        eff->setRenderState(new cvf::RenderStateLine(3.0f));
+        eff->setRenderState(new cvf::RenderStateLine(m_lineWidth));
     }
 }
 
