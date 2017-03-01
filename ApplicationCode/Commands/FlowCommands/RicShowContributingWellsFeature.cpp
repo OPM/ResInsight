@@ -18,6 +18,10 @@
 
 #include "RicShowContributingWellsFeature.h"
 
+#include "RiaApplication.h"
+#include "RimEclipseResultCase.h"
+#include "RimView.h"
+
 #include "cafCmdFeatureManager.h"
 
 #include <QAction>
@@ -29,7 +33,21 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFe
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled()
 {
-    return true;
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return false;
+
+    RimEclipseResultCase* eclCase = nullptr;
+    activeView->firstAncestorOrThisOfType(eclCase);
+    if (eclCase)
+    {
+        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
+        if (flowSols.size() > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
