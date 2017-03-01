@@ -149,7 +149,8 @@ public:
     bool                                   isOpen(size_t resultTimeStepIndex) const;
     RigWellResultFrame::WellProductionType wellProductionType(size_t resultTimeStepIndex) const;
 
-    void                                   computeStaticWellCellPath() const ;
+    const RigWellResultFrame&              staticWellCells() const;
+    
     void                                   computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
                                       
 public:  // Todo: Clean up this regarding public members and constness etc.                     
@@ -158,6 +159,9 @@ public:  // Todo: Clean up this regarding public members and constness etc.
     std::vector<size_t>                    m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
     std::vector< RigWellResultFrame >      m_wellCellsTimeSteps;
     mutable RigWellResultFrame             m_staticWellCells;
+
+private:
+    void                                   computeStaticWellCellPath() const;
 
 private:
     bool                                   m_isMultiSegmentWell;

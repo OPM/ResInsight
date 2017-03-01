@@ -84,11 +84,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     RigSingleWellResultsData* wellResults = well->wellResults();
 
-    if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
-    {
-        wellResults->computeStaticWellCellPath();
-    }
-    if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0) return;
+    if (wellResults->staticWellCells().m_wellResultBranches.size() == 0) return;
 
     if (!wellResults->hasWellResult(frameIndex)) return;
 

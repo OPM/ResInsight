@@ -243,7 +243,7 @@ bool RimEclipseWell::intersectsStaticWellCellsFilteredCells() const
     if (this->wellResults() == nullptr) return false;
 
     // NOTE: Read out static well cells, union of well cells across all time steps
-    const RigWellResultFrame& wrsf = this->wellResults()->m_staticWellCells;
+    const RigWellResultFrame& wrsf = this->wellResults()->staticWellCells();
 
     // NOTE: Use first time step for visibility evaluation
     size_t frameIndex = 0;

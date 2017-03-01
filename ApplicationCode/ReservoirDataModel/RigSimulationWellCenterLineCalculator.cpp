@@ -93,13 +93,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
     
     if (timeStepIndex < 0) 
     {
-        // Make sure we have computed the static representation of the well
-        if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
-        {
-            wellResults->computeStaticWellCellPath();
-        }
-
-        wellFramePtr =  &wellResults->m_staticWellCells;
+        wellFramePtr =  &wellResults->staticWellCells();
     }
     else
     {
