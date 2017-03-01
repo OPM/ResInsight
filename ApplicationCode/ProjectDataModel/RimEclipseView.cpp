@@ -350,6 +350,10 @@ void RimEclipseView::createDisplayModel()
             }
         }
 
+        // NOTE: This assignment must be done here, as m_visibleGridParts is used in code triggered by 
+        // m_reservoirGridPartManager->appendStaticGeometryPartsToModel()
+        m_visibleGridParts = geometryTypesToAdd;
+
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -361,8 +365,6 @@ void RimEclipseView::createDisplayModel()
 
         // Set static colors 
         this->updateStaticCellColors();
-
-        m_visibleGridParts = geometryTypesToAdd;
     }
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
