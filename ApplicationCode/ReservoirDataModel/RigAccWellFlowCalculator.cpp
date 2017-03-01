@@ -63,7 +63,6 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 {
     m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesCellIds.size());
-    m_tvdFlowPrBranch.resize(m_pipeBranchesCellIds.size());
 
     if (isWellFlowConsistent(isProducer))
     {
@@ -103,7 +102,6 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 {
     m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesCellIds.size());
-    m_tvdFlowPrBranch.resize(m_pipeBranchesCellIds.size());
 
     m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
     
@@ -178,6 +176,14 @@ const std::vector<double>& RigAccWellFlowCalculator::tracerFlowPrConnection(cons
 const std::vector<double>& RigAccWellFlowCalculator::pseudoLengthFromTop(size_t branchIdx) const
 {
     return m_pseudoLengthFlowPrBranch[branchIdx].depthValuesFromTop;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigAccWellFlowCalculator::trueVerticalDepth(size_t branchIdx) const
+{
+    return m_pseudoLengthFlowPrBranch[branchIdx].trueVerticalDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,7 +349,7 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
             if ( dsBidx != branchIdx &&  downStreamBranchFlow.depthValuesFromTop.size() == 0 ) // Not this branch or already calculated
             {
                 calculateAccumulatedFlowPrConnection(dsBidx, connNumFromTop);
-                addDownStreamBranchFlow(accFlowPrTracer, downStreamBranchFlow);
+                addDownStreamBranchFlow(&accFlowPrTracer, downStreamBranchFlow);
             }
         }
 
@@ -351,7 +357,7 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
 
         BranchFlow& branchFlow =  m_connectionFlowPrBranch[branchIdx];
 
-        storeFlowOnDepth(branchFlow, connNumFromTop, accFlowPrTracer, flowPrTracer);
+        storeFlowOnDepth(&branchFlow, connNumFromTop, accFlowPrTracer, flowPrTracer);
 
         --clSegIdx;
 
@@ -398,10 +404,11 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
         std::vector<double> flowPrTracer = calculateFlowPrTracer(branchCells, currentSegmentIndex);
 
         double pseudoLengthFromTop_lower = mdCalculator.measuredDepths()[cellBottomPointIndex] + startPseudoLengthFromTop;
+        double tvd_lower = -mdCalculator.wellPathPoints()[cellBottomPointIndex][2];
 
         // Push back the new start-of-cell flow, with the previously accumulated result into the storage
 
-        storeFlowOnDepth(branchFlow, pseudoLengthFromTop_lower, accFlowPrTracer, flowPrTracer);
+        storeFlowOnDepthWTvd(&branchFlow, pseudoLengthFromTop_lower, tvd_lower, accFlowPrTracer, flowPrTracer);
 
         // Accumulate the connection-cell's fraction flows 
 
@@ -411,10 +418,11 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
         }
 
         double pseudoLengthFromTop_upper = mdCalculator.measuredDepths()[cellUpperPointIndex] + startPseudoLengthFromTop;
+        double tvd_upper = -mdCalculator.wellPathPoints()[cellUpperPointIndex][2];
 
         // Push back the accumulated result into the storage
 
-        storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
+        storeFlowOnDepthWTvd(&branchFlow, pseudoLengthFromTop_upper, tvd_upper, accFlowPrTracer, flowPrTracer);
 
         // Add the total accumulated (fraction) flows from any branches connected to this cell
 
@@ -425,13 +433,13 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
             if ( dsBidx != branchIdx &&  downStreamBranchFlow.depthValuesFromTop.size() == 0 ) // Not this branch or already calculated
             {
                 calculateFlowPrPseudoLength(dsBidx, pseudoLengthFromTop_upper);
-                addDownStreamBranchFlow(accFlowPrTracer, downStreamBranchFlow);
+                addDownStreamBranchFlow(&accFlowPrTracer, downStreamBranchFlow);
             }
         }
 
         // Push back the accumulated result after adding the branch result into the storage
 
-        if (downStreamBranchIndices.size()) storeFlowOnDepth(branchFlow, pseudoLengthFromTop_upper, accFlowPrTracer, flowPrTracer);
+        if (downStreamBranchIndices.size()) storeFlowOnDepthWTvd(&branchFlow, pseudoLengthFromTop_upper, tvd_upper, accFlowPrTracer, flowPrTracer);
 
     }
 }
@@ -439,7 +447,7 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigAccWellFlowCalculator::addDownStreamBranchFlow(std::vector<double> &accFlowPrTracer, const BranchFlow &downStreamBranchFlow) const
+void RigAccWellFlowCalculator::addDownStreamBranchFlow(std::vector<double> *accFlowPrTracer, const BranchFlow &downStreamBranchFlow) const
 {
     size_t tracerIdx = 0;
     for ( const auto & tracerName: m_tracerNames )
@@ -447,7 +455,7 @@ void RigAccWellFlowCalculator::addDownStreamBranchFlow(std::vector<double> &accF
         auto tracerFlowPair = downStreamBranchFlow.accFlowPrTracer.find(tracerName);
         if ( tracerFlowPair != downStreamBranchFlow.accFlowPrTracer.end() )
         {
-            accFlowPrTracer[tracerIdx] +=  tracerFlowPair->second.back(); // The topmost accumulated value in the branch
+            (*accFlowPrTracer)[tracerIdx] +=  tracerFlowPair->second.back(); // The topmost accumulated value in the branch
         }
         tracerIdx++;
     }
@@ -456,17 +464,34 @@ void RigAccWellFlowCalculator::addDownStreamBranchFlow(std::vector<double> &accF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigAccWellFlowCalculator::storeFlowOnDepth(BranchFlow &branchFlow, double depthValue, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer)
+void RigAccWellFlowCalculator::storeFlowOnDepth(BranchFlow* branchFlow, double depthValue, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer)
 {
     size_t tracerIdx = 0;
     for ( const auto & tracerName: m_tracerNames )
     {
-        branchFlow.accFlowPrTracer[tracerName].push_back(accFlowPrTracer[tracerIdx]);
-        branchFlow.flowPrTracer[tracerName].push_back(flowPrTracer[tracerIdx]);
+        branchFlow->accFlowPrTracer[tracerName].push_back(accFlowPrTracer[tracerIdx]);
+        branchFlow->flowPrTracer[tracerName].push_back(flowPrTracer[tracerIdx]);
         tracerIdx++;
     }
 
-    branchFlow.depthValuesFromTop.push_back(depthValue);
+    branchFlow->depthValuesFromTop.push_back(depthValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigAccWellFlowCalculator::storeFlowOnDepthWTvd(BranchFlow *branchFlow, double depthValue, double trueVerticalDepth, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer)
+{
+    size_t tracerIdx = 0;
+    for ( const auto & tracerName: m_tracerNames )
+    {
+        branchFlow->accFlowPrTracer[tracerName].push_back(accFlowPrTracer[tracerIdx]);
+        branchFlow->flowPrTracer[tracerName].push_back(flowPrTracer[tracerIdx]);
+        tracerIdx++;
+    }
+
+    branchFlow->depthValuesFromTop.push_back(depthValue);
+    branchFlow->trueVerticalDepth.push_back(trueVerticalDepth);
 }
 
 //--------------------------------------------------------------------------------------------------

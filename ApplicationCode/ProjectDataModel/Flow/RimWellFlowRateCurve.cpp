@@ -233,7 +233,7 @@ RimWellAllocationPlot* RimWellFlowRateCurve::wellAllocationPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::setFlowValuesPrConnection(const QString& tracerName, const std::vector<double>& connectionNumbers, const std::vector<double>& flowRates)
+void RimWellFlowRateCurve::setFlowValuesPrDepthValue(const QString& tracerName, const std::vector<double>& connectionNumbers, const std::vector<double>& flowRates)
 {
     m_curveData = new RigWellLogCurveData;
     m_curveData->setValuesAndMD(flowRates, connectionNumbers, RimDefines::UNIT_NONE, false);

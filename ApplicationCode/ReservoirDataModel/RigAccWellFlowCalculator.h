@@ -74,6 +74,7 @@ public:
     const std::vector<double>&                              tracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
 
     const std::vector<double>&                              pseudoLengthFromTop(size_t branchIdx) const;
+    const std::vector<double>&                              trueVerticalDepth(size_t branchIdx) const;
     const std::vector<double>&                              accumulatedFlowPrPseudoLength( size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
     const std::vector<double>&                              flowPrPseudoLength( size_t branchIdx) const;
@@ -119,15 +120,26 @@ private:
     struct BranchFlow
     {
         std::vector<double>                                 depthValuesFromTop;
+        std::vector<double>                                 trueVerticalDepth;
         std::map<QString, std::vector<double> >             accFlowPrTracer;
         std::map<QString, std::vector<double> >             flowPrTracer;
     };                                                      
-    void storeFlowOnDepth(BranchFlow &branchFlow, double depthValue, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer);
-    void addDownStreamBranchFlow(std::vector<double> &accFlowPrTracer, const BranchFlow &downStreamBranchFlow) const;
+
+    void                                                    storeFlowOnDepth(BranchFlow *branchFlow, 
+                                                                             double depthValue, 
+                                                                             const std::vector<double>& accFlowPrTracer, 
+                                                                             const std::vector<double>& flowPrTracer);
+    void                                                    storeFlowOnDepthWTvd(BranchFlow *branchFlow,
+                                                                                 double depthValue,
+                                                                                 double trueVerticalDepth,
+                                                                                 const std::vector<double>& accFlowPrTracer,
+                                                                                 const std::vector<double>& flowPrTracer);
+
+    void                                                    addDownStreamBranchFlow(std::vector<double> *accFlowPrTracer, 
+                                                                                    const BranchFlow &downStreamBranchFlow) const;
 
     std::vector< BranchFlow >                               m_connectionFlowPrBranch;
     std::vector< BranchFlow >                               m_pseudoLengthFlowPrBranch;
-    std::vector< BranchFlow >                               m_tvdFlowPrBranch;
 
 };
 

@@ -234,8 +234,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     auto depthType = accumulatedWellFlowPlot()->depthType();
 
-    if (   depthType == RimWellLogPlot::MEASURED_DEPTH 
-        || depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH) return;
+    if (   depthType == RimWellLogPlot::MEASURED_DEPTH ) return;
 
     // Create tracks and curves from the calculated data
 
@@ -251,10 +250,11 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addTrack(plotTrack);
 
-        const std::vector<double>& connNumbers = depthType == RimWellLogPlot::CONNECTION_NUMBER ? wfCalculator->connectionNumbersFromTop(brIdx) :
+        const std::vector<double>& depthValues = depthType == RimWellLogPlot::CONNECTION_NUMBER ? wfCalculator->connectionNumbersFromTop(brIdx) :
                                                  depthType == RimWellLogPlot::PSEUDO_LENGTH ? wfCalculator->pseudoLengthFromTop(brIdx) :
+                                                 depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth(brIdx) :
                                                  std::vector<double>();
-
+        
         if ( m_flowDiagSolution )
         {
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
@@ -267,14 +267,14 @@ void RimWellAllocationPlot::updateFromWell()
                                 wfCalculator->accumulatedTracerFlowPrConnection(tracerName, brIdx):
                                 wfCalculator->tracerFlowPrConnection(tracerName, brIdx));
                 }
-                else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH)
+                else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH || depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
                 {
                     accFlow = &(m_flowType == ACCUMULATED ?
                                 wfCalculator->accumulatedTracerFlowPrPseudoLength(tracerName, brIdx):
                                 wfCalculator->tracerFlowPrPseudoLength(tracerName, brIdx));
                 }
 
-                addStackedCurve(tracerName, connNumbers, *accFlow, plotTrack);
+                addStackedCurve(tracerName, depthValues, *accFlow, plotTrack);
             }
         }
         else
@@ -286,14 +286,14 @@ void RimWellAllocationPlot::updateFromWell()
                             wfCalculator->accumulatedFlowPrConnection(brIdx):
                             wfCalculator->flowPrConnection( brIdx));
             }
-            else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH)
+            else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH || depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
             {
                 accFlow = &(m_flowType == ACCUMULATED ?
                             wfCalculator->accumulatedFlowPrPseudoLength(brIdx):
                             wfCalculator->flowPrPseudoLength( brIdx));
             }
 
-            addStackedCurve("Total", connNumbers, *accFlow, plotTrack);
+            addStackedCurve("Total", depthValues, *accFlow, plotTrack);
         }
 
         updateWellFlowPlotXAxisTitle(plotTrack);
@@ -404,12 +404,12 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::addStackedCurve(const QString& tracerName, 
-                                            const std::vector<double>& connNumbers, 
+                                            const std::vector<double>& depthValues, 
                                             const std::vector<double>& accFlow, 
                                             RimWellLogTrack* plotTrack)
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
-    curve->setFlowValuesPrConnection(tracerName, connNumbers, accFlow);
+    curve->setFlowValuesPrDepthValue(tracerName, depthValues, accFlow);
 
     if ( m_flowDiagSolution )
         curve->setColor(m_flowDiagSolution->tracerColor(tracerName));
