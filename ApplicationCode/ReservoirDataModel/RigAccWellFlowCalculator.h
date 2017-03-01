@@ -98,8 +98,8 @@ private:
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
 
-    void                                                    groupSmallTracers(std::map<QString, std::vector<double>> &branchFlowSet, 
-                                                                              std::vector<QString> tracersToGroup);
+    void                                                    groupSmallTracers(std::map<QString, std::vector<double> >* branchFlowSet, 
+                                                                              const std::vector<QString>& tracersToGroup);
 
     bool                                                    isWellFlowConsistent(bool isProducer) const;
     std::vector<size_t>                                     wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells) const;

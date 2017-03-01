@@ -634,8 +634,14 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
     for ( BranchFlow& brRes : m_connectionFlowPrBranch )
     {
-        groupSmallTracers( brRes.accFlowPrTracer, tracersToGroup);
-        groupSmallTracers( brRes.flowPrTracer, tracersToGroup);
+        groupSmallTracers( &brRes.accFlowPrTracer, tracersToGroup);
+        groupSmallTracers( &brRes.flowPrTracer, tracersToGroup);
+    }
+
+    for ( BranchFlow& brRes : m_pseudoLengthFlowPrBranch )
+    {
+        groupSmallTracers( &brRes.accFlowPrTracer, tracersToGroup);
+        groupSmallTracers( &brRes.flowPrTracer, tracersToGroup);
     }
 
     // Remove the grouped tracer names from the tracerName list, and replace with the "Others" name
@@ -660,18 +666,18 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigAccWellFlowCalculator::groupSmallTracers(std::map<QString, std::vector<double>> &branchFlowSet, std::vector<QString> tracersToGroup)
+void RigAccWellFlowCalculator::groupSmallTracers(std::map<QString, std::vector<double> >* branchFlowSet, const std::vector<QString>& tracersToGroup)
 {
-    if ( branchFlowSet.empty() ) return;
+    if ( branchFlowSet->empty() ) return;
 
-    size_t depthCount = branchFlowSet.begin()->second.size();
+    size_t depthCount = branchFlowSet->begin()->second.size();
     std::vector<double> groupedAccFlowValues(depthCount, 0.0);
 
     for ( const QString& tracername:tracersToGroup )
     {
-        auto it = branchFlowSet.find(tracername);
+        auto it = branchFlowSet->find(tracername);
 
-        if ( it != branchFlowSet.end() )
+        if ( it != branchFlowSet->end() )
         {
             const std::vector<double>& tracerVals = it->second;
             for ( size_t cIdx = 0; cIdx < groupedAccFlowValues.size(); ++cIdx )
@@ -680,9 +686,9 @@ void RigAccWellFlowCalculator::groupSmallTracers(std::map<QString, std::vector<d
             }
         }
 
-        branchFlowSet.erase(it);
+        branchFlowSet->erase(it);
     }
 
-    branchFlowSet[RIG_TINY_TRACER_GROUP_NAME] = groupedAccFlowValues;
+    (*branchFlowSet)[RIG_TINY_TRACER_GROUP_NAME] = groupedAccFlowValues;
 }
 
