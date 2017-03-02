@@ -634,7 +634,7 @@ void RiuViewer::setCurrentFrame(int frameIndex)
     cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
-    if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
+    if (m_rimView) m_rimView->setCurrentTimeStepAndUpdate(frameIndex);
     
     animationControl()->setCurrentFrameOnly(frameIndex);
 

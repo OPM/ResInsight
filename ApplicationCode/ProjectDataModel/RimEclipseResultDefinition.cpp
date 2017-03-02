@@ -257,8 +257,7 @@ void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName
 {
     setResultType(RimDefines::FLOW_DIAGNOSTICS);
     setResultVariable("TOF");
-    
-    m_flowTracerSelectionMode = FLOW_TR_BY_SELECTION;
+    setFlowDiagTracerSelectionType(FLOW_TR_BY_SELECTION);
 
     std::vector<QString> tracers;
     tracers.push_back(tracerName);
@@ -644,6 +643,14 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     }
 
     return RigFlowDiagResultAddress(m_resultVariable().toStdString(), selTracerNames);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setFlowDiagTracerSelectionType(FlowTracerSelectionType selectionType)
+{   
+    m_flowTracerSelectionMode = selectionType;
 }
 
 //--------------------------------------------------------------------------------------------------

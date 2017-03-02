@@ -68,7 +68,8 @@ public:
 
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
-
+    RimFlowDiagSolution*                            flowDiagSolution();
+    int                                             timeStep();
 
     QString                                         wellName() const;
     const std::vector<QString>                      contributingTracerNames() const;

@@ -71,6 +71,8 @@ public:
     RimFlowDiagSolution*            flowDiagSolution();
     RigFlowDiagResultAddress        flowDiagResAddress() const;
 
+    void                            setFlowDiagTracerSelectionType(FlowTracerSelectionType selectionType);
+
     QString                         resultVariableUiName() const;
     QString                         resultVariableUiShortName() const;
 

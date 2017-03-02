@@ -137,6 +137,8 @@ public:
 
     // Animation
     int                                     currentTimeStep() const { return m_currentTimeStep;}
+    void                                    setCurrentTimeStep(int frameIdx);
+
     void                                    updateCurrentTimeStepAndRedraw();
 
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
@@ -231,7 +233,7 @@ private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
 
     friend class RiuViewer;
-    void                                    setCurrentTimeStep(int frameIdx);
+    void                                    setCurrentTimeStepAndUpdate(int frameIdx);
     void                                    endAnimation();
 
 private:

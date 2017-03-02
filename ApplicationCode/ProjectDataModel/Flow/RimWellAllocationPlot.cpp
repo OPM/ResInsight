@@ -521,6 +521,22 @@ RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RimWellAllocationPlot::flowDiagSolution()
+{
+    return m_flowDiagSolution();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationPlot::timeStep()
+{
+    return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
