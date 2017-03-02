@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -26,6 +27,7 @@
 #include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmProxyValueField.h"
@@ -55,6 +57,8 @@ public:
 
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
     caf::PdmField<bool>             showPolygonFractureOutline;
+
+    caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >  fractureUnit;
 
 
     cvf::Vec3d                      anchorPosition();

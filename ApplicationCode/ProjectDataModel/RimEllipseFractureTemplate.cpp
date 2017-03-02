@@ -18,6 +18,8 @@
 
 #include "RimEllipseFractureTemplate.h"
 
+#include "RiaLogging.h"
+
 #include "RigTesselatorTools.h"
 
 #include "RimDefines.h"
@@ -99,12 +101,38 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices)
+void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, caf::AppEnum< RimDefines::UnitSystem > fractureUnit)
 {
     RigEllipsisTesselator tesselator(20);
 
-    float a = halfLength;
-    float b = height / 2.0f;
+    float a = cvf::UNDEFINED_FLOAT;
+    float b = cvf::UNDEFINED_FLOAT;
+
+    if (fractureUnit == fractureTemplateUnit())
+    {
+        a = halfLength;
+        b = height / 2.0f;
+
+    }
+    else if (fractureTemplateUnit() == RimDefines::UNITS_METRIC && fractureUnit == RimDefines::UNITS_FIELD)
+    {
+        RiaLogging::info(QString("Converting fracture template geometry from metric to field"));
+        a = RimDefines::meterToFeet(halfLength);
+        b = RimDefines::meterToFeet(height / 2.0f);
+    }
+    else if (fractureTemplateUnit() == RimDefines::UNITS_FIELD && fractureUnit == RimDefines::UNITS_METRIC)
+    {
+        RiaLogging::info(QString("Converting fracture template geometry from field to metric"));
+        a = RimDefines::feetToMeter(halfLength);
+        b = RimDefines::feetToMeter(height / 2.0f);
+    }
+    else
+    {
+        //Should never get here...
+        RiaLogging::error(QString("Error: Could not convert units for fracture / fracture template"));
+        return;
+    }
+
 
     tesselator.tesselateEllipsis(a, b, triangleIndices, nodeCoords);
 }
@@ -112,14 +140,14 @@ void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon()
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    fractureGeometry(&nodeCoords, &triangleIndices);
+    fractureGeometry(&nodeCoords, &triangleIndices, fractureUnit);
 
     for (size_t i = 1; i < nodeCoords.size(); i++)
     {

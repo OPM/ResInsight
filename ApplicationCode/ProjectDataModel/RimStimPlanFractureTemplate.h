@@ -59,8 +59,8 @@ public:
     const QString&                          fileName();
     QString                                 fileNameWithOutPath();
 
-    void                                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices);
-    std::vector<cvf::Vec3f>                 fracturePolygon();
+    void                                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, caf::AppEnum< RimDefines::UnitSystem > fractureUnit) override;
+    std::vector<cvf::Vec3f>                 fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureUnit);
 
     std::vector<double>                     getNegAndPosXcoords();
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
@@ -69,6 +69,7 @@ public:
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
 
     void                                    loadDataAndUpdate();
+    void                                    setDefaultsBasedOnXMLfile();
 
     std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
 
@@ -88,7 +89,6 @@ private:
 
     size_t                                  readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
 
-
     static double                           getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
     static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
     void                                    getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
@@ -97,6 +97,7 @@ private:
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
 
-    bool numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
-    void setDepthOfWellPathAtFracture();
+    bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
+    bool                                    setPropertyForPolygonDefault();
+    void                                    setDepthOfWellPathAtFracture();
 };

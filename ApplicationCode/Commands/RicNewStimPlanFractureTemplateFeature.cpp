@@ -63,6 +63,7 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         fractureDef->name = "StimPlan Fracture Template";
         fractureDef->setFileName(fileName);
         fractureDef->loadDataAndUpdate();
+        fractureDef->setDefaultsBasedOnXMLfile();
         
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);

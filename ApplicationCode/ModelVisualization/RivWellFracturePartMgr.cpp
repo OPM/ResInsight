@@ -250,7 +250,7 @@ void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(caf::DisplayCoor
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::DisplayCoordTransform* displayCoordTransform)
 {
 
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon();
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
 
     //Transform to model coordinates and then display coords
     std::vector<cvf::Vec3f> polygonInDisplayCoords;
