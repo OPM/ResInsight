@@ -4,8 +4,9 @@
 
 class QString;
 
-#include <vector>
+#include <assert.h>
 #include <set>
+#include <vector>
 
 
 namespace caf
@@ -36,6 +37,10 @@ public:
     /// Traverses parents recursively and returns first parent of the requested type.
     template <typename T>
     void                    firstAncestorOrThisOfType(T*& ancestor) const;
+
+    /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found 
+    template <typename T>
+    void                    firstAncestorOrThisOfTypeAsserted(T*& ancestor) const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is also 
     /// included if it is of the requested type.
@@ -154,6 +159,17 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
             parent = NULL;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::firstAncestorOrThisOfTypeAsserted(T*& ancestor) const
+{
+    firstAncestorOrThisOfType(ancestor);
+
+    assert(ancestor);
 }
 
 //--------------------------------------------------------------------------------------------------
