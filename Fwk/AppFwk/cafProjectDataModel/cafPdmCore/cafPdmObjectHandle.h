@@ -23,7 +23,7 @@ class PdmXmlObjectHandle;
 class PdmObjectHandle
 {
 public:
-    PdmObjectHandle()           { m_parentField = NULL;  }
+    PdmObjectHandle()           { m_parentField = nullptr;  }
     virtual ~PdmObjectHandle();
 
     /// The registered fields contained in this PdmObject. 
@@ -65,7 +65,7 @@ public:
             CapabilityType* capability = dynamic_cast<CapabilityType*>(m_capabilities[i].first);
             if (capability) return capability;
         }
-        return NULL;
+        return nullptr;
     }
 
     PdmUiObjectHandle*  uiCapability() const;     // Implementation is in cafPdmUiObjectHandle.cpp
@@ -120,7 +120,7 @@ namespace caf
 template <typename T>
 void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 {
-    ancestor = NULL;
+    ancestor = nullptr;
 
     // Check if this matches the type
 
@@ -133,11 +133,11 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 
     // Search parents for first type match
 
-    PdmObjectHandle* parent = NULL;
+    PdmObjectHandle* parent = nullptr;
     PdmFieldHandle* parentField = this->parentField();
     if (parentField) parent = parentField->ownerObject();
 
-    while (parent != NULL)
+    while (parent != nullptr)
     {
         T* objectOfType = dynamic_cast<T*>(parent);
         if (objectOfType)
@@ -156,7 +156,7 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
         }
         else
         {
-            parent = NULL;
+            parent = nullptr;
         }
     }
 }
