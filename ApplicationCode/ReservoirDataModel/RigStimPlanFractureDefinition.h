@@ -51,11 +51,12 @@ public:
     std::vector<double>     depths;
 
     
-    std::vector<RigStimPlanData>                   stimPlanData;
+    std::vector<RigStimPlanData>        stimPlanData;
 
     bool                                timeStepExisist(double timeStepValue);
     void                                reorderYgridToDepths();
     size_t                              getTimeStepIndex(double timeStepValue);
+    size_t                              totalNumberTimeSteps();
 
     void                                setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue);
     std::vector<std::vector<double>>    getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;

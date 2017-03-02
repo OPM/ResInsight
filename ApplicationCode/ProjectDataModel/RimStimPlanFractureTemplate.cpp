@@ -80,6 +80,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     {
         updateUiTreeName();
         loadDataAndUpdate();
+        setDefaultsBasedOnXMLfile();
     }
 
     if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &timestepForPolygon == changedField)
@@ -235,8 +236,6 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     }
 
     dataFile.close();
-    setDepthOfWellPathAtFracture();
-    RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(wellPathDepthAtFracture));
 
     if (xmlStream2.hasError())
     {
@@ -253,11 +252,51 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
         RiaLogging::info(QString("Successfully read XML file: '%1'").arg(fileName()));
     }
 
-    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeView) return;
     activeView->stimPlanColors->loadDataAndUpdate();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
+{
+    setDepthOfWellPathAtFracture();
+    RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(wellPathDepthAtFracture));
+    timestepForPolygon = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
+    bool polygonPropertySet = setPropertyForPolygonDefault();
+
+    if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(parameterForPolygon).arg(m_stimPlanFractureDefinitionData->timeSteps[timestepForPolygon]));
+    else                    RiaLogging::info(QString("Property for polygon calculation not set."));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::setPropertyForPolygonDefault()
+{
+    //first option: Width
+    for (std::pair<QString, QString> property : getStimPlanPropertyNamesUnits())
+    {
+        if (property.first == "WIDTH")
+        {
+            parameterForPolygon = property.first + " " + property.second;
+            return true;
+        }
+    }
+    //if width not found, use conductivity
+    for (std::pair<QString, QString> property : getStimPlanPropertyNamesUnits())
+    {
+        if (property.first == "CONDUCTIVITY")
+        {
+            parameterForPolygon = property.first + " " + property.second;
+            return true;
+        }
+    }
+    return false;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

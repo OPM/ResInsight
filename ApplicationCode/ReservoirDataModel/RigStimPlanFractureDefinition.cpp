@@ -92,6 +92,14 @@ size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RigStimPlanFractureDefinition::totalNumberTimeSteps()
+{
+    return timeSteps.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigStimPlanFractureDefinition::resultIndex(const QString& resultName, const QString& unit) const
 {
     
