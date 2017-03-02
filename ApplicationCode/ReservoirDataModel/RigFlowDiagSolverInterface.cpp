@@ -220,7 +220,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         progressInfo.incrementProgress();
 
-        Opm::ECLWellSolution wsol = Opm::ECLWellSolution{};
+        Opm::ECLWellSolution wsol = Opm::ECLWellSolution{-1.0 , false};
 
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
             wsol.solution(m_opmFldData->eclGraph.rawResultData(), m_opmFldData->eclGraph.numGrids());

@@ -20,10 +20,12 @@
 
 #include "RiaApplication.h"
 
+#include "RimEclipseResultCase.h"
 #include "RimEclipseWell.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimView.h"
 #include "RimWellAllocationPlot.h"
 
 #include "RiuMainPlotWindow.h"
@@ -39,7 +41,21 @@ CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlot
 //--------------------------------------------------------------------------------------------------
 bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return false;
+
+    RimEclipseResultCase* eclCase = nullptr;
+    activeView->firstAncestorOrThisOfType(eclCase);
+    if (eclCase)
+    {
+        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
+        if (flowSols.size() > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

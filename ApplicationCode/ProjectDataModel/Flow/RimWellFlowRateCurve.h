@@ -38,7 +38,7 @@ public:
     RimWellFlowRateCurve();
     virtual ~RimWellFlowRateCurve();
     
-    void setFlowValuesPrConnection(const QString& tracerName , const std::vector<double>& connectionNumbers, const std::vector<double>& flowRates);
+    void setFlowValuesPrDepthValue(const QString& tracerName , const std::vector<double>& connectionNumbers, const std::vector<double>& flowRates);
     void updateStackedPlotData();
 
     virtual QString wellName() const override;
@@ -50,6 +50,7 @@ protected:
     virtual void updateCurveAppearance() override;
 
 private:
+    bool isUsingConnectionNumberDepthType() const;
     RimWellAllocationPlot* wellAllocationPlot() const;
 
     QString m_tracerName;

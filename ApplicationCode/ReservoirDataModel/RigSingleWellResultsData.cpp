@@ -281,6 +281,20 @@ RigWellResultFrame::WellProductionType RigSingleWellResultsData::wellProductionT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RigWellResultFrame& RigSingleWellResultsData::staticWellCells() const
+{
+    // Make sure we have computed the static representation of the well
+    if (m_staticWellCells.m_wellResultBranches.size() == 0)
+    {
+        computeStaticWellCellPath();
+    }
+
+    return m_staticWellCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigSingleWellResultsData::isOpen(size_t resultTimeStepIndex) const
 {
     if (hasWellResult(resultTimeStepIndex))

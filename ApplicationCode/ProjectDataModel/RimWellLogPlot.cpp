@@ -115,9 +115,15 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateMdiWindowTitle();
     }
-
-    if (   changedField == &m_depthType 
-        || changedField == &m_depthUnit)
+    
+    if (   changedField == &m_depthType )
+    {
+        RimWellAllocationPlot* wellAllocPlot;
+        firstAncestorOrThisOfType(wellAllocPlot);
+        if (wellAllocPlot) wellAllocPlot->loadDataAndUpdate();
+        else updateTracks();
+    }
+    if ( changedField == &m_depthUnit)
     {
         updateTracks();
     }
@@ -394,7 +400,10 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_depthType);
-    if ( m_depthType() != CONNECTION_NUMBER )
+
+    RimWellAllocationPlot* wap;
+    firstAncestorOrThisOfType(wap);
+    if (!wap)
     {
         uiOrdering.add(&m_depthUnit);
     }
@@ -674,8 +683,10 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     if (wap)
     {
         m_disabledDepthTypes.insert(MEASURED_DEPTH);
-        m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
-        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+        if (m_disabledDepthTypes.count(m_depthType() ))
+        {
+            m_depthType = CONNECTION_NUMBER;
+        }
     }
     else
     {

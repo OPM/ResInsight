@@ -95,7 +95,7 @@ private:
     void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
 
     void                                            addStackedCurve(const QString& tracerName, 
-                                                                    const std::vector<double>& connNumbers, 
+                                                                    const std::vector<double>& depthValues, 
                                                                     const std::vector<double>& accFlow, 
                                                                     RimWellLogTrack* plotTrack);
     
