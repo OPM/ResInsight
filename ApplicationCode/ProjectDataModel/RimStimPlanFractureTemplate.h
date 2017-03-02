@@ -59,8 +59,8 @@ public:
     const QString&                          fileName();
     QString                                 fileNameWithOutPath();
 
-    void                                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices);
-    std::vector<cvf::Vec3f>                 fracturePolygon();
+    void                                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, caf::AppEnum< RimDefines::UnitSystem > fractureUnit) override;
+    std::vector<cvf::Vec3f>                 fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureUnit);
 
     std::vector<double>                     getNegAndPosXcoords();
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();

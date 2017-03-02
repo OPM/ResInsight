@@ -33,6 +33,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigTesselatorTools.h"
 
+#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -83,6 +84,7 @@ RimFracture::RimFracture(void)
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
     CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
+    CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Fracture Unit System", "", "", "");
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
@@ -181,7 +183,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &m_fractureTemplate ||
         changedField == &stimPlanTimeIndexToPlot ||
         changedField == this->objectToggleField() ||
-        changedField == &showPolygonFractureOutline)
+        changedField == &showPolygonFractureOutline ||
+        changedField == &fractureUnit)
     {
 
         setRecomputeGeometryFlag();
@@ -225,7 +228,7 @@ void RimFracture::computeGeometry()
     RimFractureTemplate* fractureDef = attachedFractureDefinition();
     if (fractureDef )
     {
-        fractureDef->fractureGeometry(&nodeCoords, &triangleIndices);
+        fractureDef->fractureGeometry(&nodeCoords, &triangleIndices, fractureUnit);
     }
 
     cvf::Mat4f m = transformMatrix();
@@ -371,7 +374,7 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 
         if (attachedFractureDefinition())
         {
-            std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon();
+            std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon(fractureUnit);
 
             std::vector<cvf::Vec3d> fracPolygonDouble; 
             for (auto v : fracPolygon) fracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
