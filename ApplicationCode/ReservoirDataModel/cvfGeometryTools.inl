@@ -577,7 +577,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     ArrayWrapperConst<PolygonArrayType, IndexType>   completeFacePolygon, 
     const cvf::Vec3d&            faceNormal, 
     const std::vector< std::vector<IndexType>* >& faceOverlapPolygons, 
-    const std::vector<bool>      faceOverlapPolygonWindingSameAsCubeFaceFlags,
+    const std::vector<bool>&      faceOverlapPolygonWindingSameAsCubeFaceFlags,
     std::vector<IndexType>*         partialFacePolygon, 
     bool*                        m_partiallyFreeCubeFaceHasHoles)
 {

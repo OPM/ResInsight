@@ -59,7 +59,6 @@ private:
 
     size_t                  m_gridIndex;
     int                     m_elementIndex;
-    size_t                  m_scalarResultIndex;
     int                     m_face;
     int                     m_closestNodeId;
 

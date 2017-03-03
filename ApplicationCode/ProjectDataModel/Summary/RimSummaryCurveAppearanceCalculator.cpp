@@ -95,6 +95,7 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
     unusedAppearTypes.insert(LINE_STYLE);
     unusedAppearTypes.insert(SYMBOL);
     unusedAppearTypes.insert(LINE_THICKNESS);
+    m_currentCurveGradient = 0.0f;
 
     m_dimensionCount = 0;
     if(m_variableCount > 1) { m_varAppearanceType    = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }

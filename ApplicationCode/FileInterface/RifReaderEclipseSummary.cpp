@@ -30,7 +30,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary::RifReaderEclipseSummary()
-    : m_ecl_sum(NULL)
+    : m_ecl_sum(NULL), 
+      m_ecl_SmSpec(nullptr)
 {
 
 }
