@@ -52,7 +52,7 @@ size_t RigEclCellIndexCalculator::resultCellIndex(size_t gridIndex, size_t gridC
 RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                    const std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds,
                                                    const std::map<QString, const std::vector<double>* >& tracerCellFractionValues,
-                                                   const RigEclCellIndexCalculator cellIndexCalculator,
+                                                   const RigEclCellIndexCalculator& cellIndexCalculator,
                                                    double smallContribThreshold,
                                                    bool isProducer)
                                                  : m_pipeBranchesCLCoords(pipeBranchesCLCoords),

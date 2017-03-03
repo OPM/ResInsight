@@ -367,7 +367,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string fieldNameToConvert)
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string& fieldNameToConvert)
 {
     caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName));

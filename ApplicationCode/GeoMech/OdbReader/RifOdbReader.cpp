@@ -696,7 +696,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::fieldAndComponent
     std::map<std::string, std::vector<std::string> > fieldsAndComponents;
 
     std::map< RifOdbResultKey, std::vector<std::string> >::const_iterator resMapIt;
-    for (resMapIt = m_resultsMetaData.begin(); resMapIt != m_resultsMetaData.end(); resMapIt++)
+    for (resMapIt = m_resultsMetaData.begin(); resMapIt != m_resultsMetaData.end(); ++resMapIt)
     {
         if (resMapIt->first.resultPostion == position)
         {
