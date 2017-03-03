@@ -153,7 +153,7 @@ public:
                                      cvf::Color3f color,
                                      int elementFace,
                                      const cvf::Vec3d& localIntersectionPoint,
-                                     const std::array<cvf::Vec3f, 3>& m_intersectionTriangle );
+                                     const std::array<cvf::Vec3f, 3>& intersectionTriangle );
     virtual ~RiuGeoMechSelectionItem() {};
 
     virtual RiuSelectionType type() const

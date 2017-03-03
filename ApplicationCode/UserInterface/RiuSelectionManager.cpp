@@ -177,7 +177,7 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
     m_elementFace(elementFace),
     m_localIntersectionPoint(localIntersectionPoint), 
     m_hasIntersectionTriangle(true),
-    m_intersectionTriangle(m_intersectionTriangle)
+    m_intersectionTriangle(intersectionTriangle)
 {
 
 }
