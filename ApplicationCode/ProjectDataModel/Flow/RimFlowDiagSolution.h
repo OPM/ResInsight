@@ -56,9 +56,9 @@ public:
         UNDEFINED
     };
 
-    TracerStatusType tracerStatusOverall(QString tracerName);
-    TracerStatusType tracerStatusInTimeStep(QString tracerName, size_t timeStepIndex);
-    cvf::Color3f     tracerColor(QString tracerName);
+    TracerStatusType tracerStatusOverall(const QString& tracerName);
+    TracerStatusType tracerStatusInTimeStep(const QString& tracerName, size_t timeStepIndex);
+    cvf::Color3f     tracerColor(const QString& tracerName);
 
 
 protected:

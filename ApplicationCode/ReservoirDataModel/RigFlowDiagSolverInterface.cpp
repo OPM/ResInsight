@@ -239,14 +239,22 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             injectorCellSet.push_back(CellSet(CellSetID(tIt.first), tIt.second));
         }
 
-        Solution injSol = m_opmFldData->fldToolbox->computeInjectionDiagnostics(injectorCellSet).fd;
-
-        for ( const CellSetID& tracerId: injSol.startPoints() )
+        try 
         {
-            CellSetValues tofVals = injSol.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), tofVals);
-            CellSetValues fracVals = injSol.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), fracVals);
+            Solution injSol = m_opmFldData->fldToolbox->computeInjectionDiagnostics(injectorCellSet).fd;
+
+
+            for ( const CellSetID& tracerId: injSol.startPoints() )
+            {
+                CellSetValues tofVals = injSol.timeOfFlight(tracerId);
+                result.setTracerTOF(tracerId.to_string(), tofVals);
+                CellSetValues fracVals = injSol.concentration(tracerId);
+                result.setTracerFraction(tracerId.to_string(), fracVals);
+            }
+        }
+        catch (...)
+        {
+            CVF_ASSERT(false);
         }
     }
 
@@ -261,14 +269,21 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             prodjCellSet.push_back(CellSet(CellSetID(tIt.first), tIt.second));
         }
 
-        Solution prodSol = m_opmFldData->fldToolbox->computeProductionDiagnostics(prodjCellSet).fd;
-        
-        for ( const CellSetID& tracerId: prodSol.startPoints() )
+        try 
         {
-            CellSetValues tofVals = prodSol.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), tofVals);
-            CellSetValues fracVals = prodSol.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), fracVals);
+            Solution prodSol = m_opmFldData->fldToolbox->computeProductionDiagnostics(prodjCellSet).fd;
+
+            for ( const CellSetID& tracerId: prodSol.startPoints() )
+            {
+                CellSetValues tofVals = prodSol.timeOfFlight(tracerId);
+                result.setTracerTOF(tracerId.to_string(), tofVals);
+                CellSetValues fracVals = prodSol.concentration(tracerId);
+                result.setTracerFraction(tracerId.to_string(), fracVals);
+            }
+        }
+        catch (...)
+        {
+            CVF_ASSERT(false);
         }
     }
 
