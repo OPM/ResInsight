@@ -38,17 +38,14 @@ public:
     RimFractureTemplateCollection(void);
     virtual ~RimFractureTemplateCollection(void);
     
-    caf::PdmChildArrayField<RimFractureTemplate*>   fractureDefinitions;
-
-    caf::PdmField<bool>                             isActive;
-
-    caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >   defaultUnitsForFracTemplates;
+    caf::PdmChildArrayField<RimFractureTemplate*>               fractureDefinitions;
+    caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >     defaultUnitsForFracTemplates;
 
     std::vector<std::pair<QString, QString> >   stimPlanResultNamesAndUnits() const;
     std::vector<QString>                        stimPlanResultNames() const;
     void                                        computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const;
 
-    void                                deleteFractureDefinitions();
-    void                                loadAndUpdateData();
+    void                                        deleteFractureDefinitions();
+    void                                        loadAndUpdateData();
 
 };
