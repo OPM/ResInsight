@@ -27,7 +27,7 @@ class RifReaderEclipseSummary;
 class RigSummaryCaseData: public cvf::Object
 {
 public:
-    RigSummaryCaseData(const QString& summaryHeaderFileName );
+    explicit RigSummaryCaseData(const QString& summaryHeaderFileName );
     ~RigSummaryCaseData();
 
 

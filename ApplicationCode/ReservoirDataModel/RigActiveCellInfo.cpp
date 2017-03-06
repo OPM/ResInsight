@@ -206,6 +206,14 @@ bool RigActiveCellInfo::isCoarseningActive() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigActiveCellInfo::GridActiveCellCounts::GridActiveCellCounts()
+: m_activeCellCount(0)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::GridActiveCellCounts::activeCellCount() const
 {
     return m_activeCellCount;

@@ -437,15 +437,14 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
 
                             RigWellResultPoint deadEndData1 = data;
                             deadEndData1.m_gridCellIndex = data.m_gridCellIndex + 2;
-                            deadEndData.m_isOpen = false;
+                            deadEndData1.m_isOpen = false;
 
                             wellSegment.m_branchResultPoints.push_back(deadEndData);
-                             wellSegment.m_branchResultPoints.push_back(deadEndData1);
+                            wellSegment.m_branchResultPoints.push_back(deadEndData1);
 
-                             deadEndData.m_isOpen = true;
-                             wellSegment.m_branchResultPoints.push_back(deadEndData);
+                            wellSegment.m_branchResultPoints.push_back(deadEndData);
 
-                             data.m_isOpen = true;
+                            data.m_isOpen = true;
                             wellSegment.m_branchResultPoints.push_back(data);
                         }
                     }

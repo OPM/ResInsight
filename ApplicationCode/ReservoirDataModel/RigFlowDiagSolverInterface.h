@@ -33,7 +33,7 @@ class RimFlowDiagSolution;
 class RigFlowDiagTimeStepResult
 {
 public:
-    RigFlowDiagTimeStepResult(size_t activeCellCount);
+    explicit RigFlowDiagTimeStepResult(size_t activeCellCount);
 
     void setTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
     void setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
@@ -55,7 +55,7 @@ class RigOpmFldStaticData;
 class RigFlowDiagSolverInterface : public cvf::Object
 {
 public:
-    RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase);
+    explicit RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase);
     virtual ~RigFlowDiagSolverInterface();
 
     RigFlowDiagTimeStepResult calculate(size_t timestep,  

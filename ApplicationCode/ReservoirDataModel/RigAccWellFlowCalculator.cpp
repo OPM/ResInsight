@@ -374,7 +374,6 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
 
     RigSimulationWellCoordsAndMD mdCalculator(branchClPoints);
 
-    size_t prevConnIndx = -1;
     int clSegIdx = static_cast<int>(branchCells.size()) - 1;
 
     std::vector<double> accFlowPrTracer(m_tracerNames.size(), 0.0); 

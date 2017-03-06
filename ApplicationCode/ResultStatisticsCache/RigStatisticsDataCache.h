@@ -33,7 +33,7 @@
 class RigStatisticsDataCache : public cvf::Object
 {
 public:
-    RigStatisticsDataCache(RigStatisticsCalculator* statisticsCalculator);
+    explicit RigStatisticsDataCache(RigStatisticsCalculator* statisticsCalculator);
 
     void                                    clearAllStatistics();
 

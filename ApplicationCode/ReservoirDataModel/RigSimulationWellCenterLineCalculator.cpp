@@ -211,9 +211,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
                     cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
-                    int intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
-                    //CVF_ASSERT(intersectionOk);
-                    //CVF_ASSERT(intersectionOk);
+                    prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                     if ((currentPoint - outOfPrevCell).lengthSquared() > 1e-3)
                     {
                         branchCLCoords.push_back(outOfPrevCell);
@@ -309,9 +307,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                             cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
                             const RigCell& prevCell = eclipseCaseData->cellFromWellResultCell(*prevWellResPoint);
-                            bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
-                            //CVF_ASSERT(intersectionOk);
-                            //CVF_ASSERT(intersectionOk);
+                            prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                             if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)
                             {
                                 branchCLCoords.push_back(outOfPrevCell);

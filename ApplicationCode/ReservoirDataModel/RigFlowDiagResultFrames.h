@@ -25,7 +25,7 @@
 class RigFlowDiagResultFrames: public cvf::Object
 {
 public:
-    RigFlowDiagResultFrames(size_t frameCount);
+    explicit RigFlowDiagResultFrames(size_t frameCount);
     virtual ~RigFlowDiagResultFrames();
 
     const

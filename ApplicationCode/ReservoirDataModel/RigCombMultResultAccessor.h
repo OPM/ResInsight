@@ -32,7 +32,7 @@ class RigGridBase;
 class RigCombMultResultAccessor : public RigResultAccessor
 {
 public:
-    RigCombMultResultAccessor(const RigGridBase* grid);
+    explicit RigCombMultResultAccessor(const RigGridBase* grid);
 
     void setMultResultAccessors(
         RigResultAccessor* multXPosAccessor,
