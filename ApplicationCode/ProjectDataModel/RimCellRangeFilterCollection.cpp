@@ -224,9 +224,7 @@ const cvf::StructGridInterface* RimCellRangeFilterCollection::gridByIndex(int gr
 
     if (mnGrid)
     {
-        RigGridBase* grid = NULL;
-
-        grid = mnGrid->gridByIndex(gridIndex);
+        RigGridBase* grid = mnGrid->gridByIndex(gridIndex);
 
         CVF_ASSERT(grid);
 

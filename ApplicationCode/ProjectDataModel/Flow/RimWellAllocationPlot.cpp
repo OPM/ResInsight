@@ -180,8 +180,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     if (!m_case) return;
 
-    const RigSingleWellResultsData* wellResults = nullptr;
-    wellResults = m_case->reservoirData()->findWellResult(m_wellName);
+    const RigSingleWellResultsData* wellResults = m_case->reservoirData()->findWellResult(m_wellName);
 
     if (!wellResults) return;
    
@@ -450,8 +449,7 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep(const QString& wellName
 
     if (eclipseResultCase)
     {
-        const RigSingleWellResultsData* wellResults = nullptr;
-        wellResults = eclipseResultCase->reservoirData()->findWellResult(wellName);
+        const RigSingleWellResultsData* wellResults = eclipseResultCase->reservoirData()->findWellResult(wellName);
 
         if (wellResults)
         {

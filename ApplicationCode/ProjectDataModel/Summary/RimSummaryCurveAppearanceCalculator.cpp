@@ -343,7 +343,7 @@ int RimSummaryCurveAppearanceCalculator::cycledLineThickness(int index)
     static const int thicknesses[] ={ 1, 3, 5 };
 
     if (index < 0) return 1;
-    return (thicknesses[(index) % 3]);
+    return (thicknesses[(index) % thicknessCount]);
 }
 
 //--------------------------------------------------------------------------------------------------

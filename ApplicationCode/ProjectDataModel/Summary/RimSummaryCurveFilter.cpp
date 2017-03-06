@@ -513,9 +513,6 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
 {
-    int colorIndex = 2;
-    int lineStyleIdx = -1;
-
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
     RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefinitions);

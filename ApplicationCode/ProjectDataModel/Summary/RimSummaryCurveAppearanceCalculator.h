@@ -31,7 +31,7 @@ class RifEclipseSummaryAddress;
 class RimSummaryCurveAppearanceCalculator
 {
 public:
-    RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
+    explicit RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
     enum CurveAppearanceType
     {
         NONE,

@@ -248,11 +248,10 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
     size_t inputPropCount = this->m_inputPropertyCollection()->inputProperties.size();
 
     caf::ProgressInfo progInfo(static_cast<int>(filenames.size() * inputPropCount), "Reading Input properties" );
-    int progress = 0;
 
     for_all(filenames, i)
     {
-        progress = static_cast<int>(i*inputPropCount);
+        int progress = static_cast<int>(i*inputPropCount);
         // Find all the keywords present on the file
 
         progInfo.setProgressDescription(filenames[i]);

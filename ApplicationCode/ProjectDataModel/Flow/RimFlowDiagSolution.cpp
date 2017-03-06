@@ -70,7 +70,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
             RimEclipseResultCase* eclCase;
             this->firstAncestorOrThisOfType(eclCase);
             
-            CVF_ASSERT(eclCase && eclCase->reservoirData() && eclCase->reservoirData() );
+            CVF_ASSERT(eclCase && eclCase->reservoirData() );
 
             timeStepCount = eclCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
 
