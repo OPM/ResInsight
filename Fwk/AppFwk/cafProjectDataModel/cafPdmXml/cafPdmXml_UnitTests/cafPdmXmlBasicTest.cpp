@@ -192,7 +192,8 @@ class SimpleObj : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
 {
     CAF_PDM_XML_HEADER_INIT;
 public:
-    SimpleObj() : PdmObjectHandle(), PdmXmlObjectHandle(this, false) 
+    SimpleObj() : PdmObjectHandle(), PdmXmlObjectHandle(this, false),
+        m_doubleMember(0.0)
     {
         CAF_PDM_XML_InitField(&m_position,  "Position");
         CAF_PDM_XML_InitField(&m_dir,       "Dir");

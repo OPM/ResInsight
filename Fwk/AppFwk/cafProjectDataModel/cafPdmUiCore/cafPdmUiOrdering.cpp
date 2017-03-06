@@ -75,7 +75,7 @@ PdmUiGroup* PdmUiOrdering::addNewGroup(QString displayName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiOrdering::contains(const PdmUiItem* item)
+bool PdmUiOrdering::contains(const PdmUiItem* item) const
 {
     for (size_t i = 0; i < m_ordering.size(); ++i)
     {

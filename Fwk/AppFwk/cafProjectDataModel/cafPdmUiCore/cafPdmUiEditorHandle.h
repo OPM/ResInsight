@@ -97,7 +97,7 @@ private:
 class PdmUiProxyEditorHandle: public PdmUiEditorHandle
 {
 public:
-    PdmUiProxyEditorHandle(PdmUiEditorHandle* mainEditorHandle) : PdmUiEditorHandle() { m_mainEditorHandle = mainEditorHandle; }
+    explicit PdmUiProxyEditorHandle(PdmUiEditorHandle* mainEditorHandle) : PdmUiEditorHandle() { m_mainEditorHandle = mainEditorHandle; }
     virtual ~PdmUiProxyEditorHandle() {};
 
 protected: // Interface to override:

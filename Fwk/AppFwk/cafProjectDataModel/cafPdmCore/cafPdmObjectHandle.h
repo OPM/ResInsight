@@ -28,7 +28,7 @@ public:
 
     /// The registered fields contained in this PdmObject. 
     void                    fields(std::vector<PdmFieldHandle*>& fields) const;
-    PdmFieldHandle*         findField(const QString& keyword);
+    PdmFieldHandle*         findField(const QString& keyword) const;
 
     /// The field referencing this object as a child
     PdmFieldHandle*         parentField() const;

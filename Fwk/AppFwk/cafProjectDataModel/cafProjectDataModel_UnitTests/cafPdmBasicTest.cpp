@@ -61,7 +61,8 @@ class SimpleObj: public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    SimpleObj() : PdmObject()
+    SimpleObj() : PdmObject(),
+        m_doubleMember(0.0)
     {
         CAF_PDM_InitObject("SimpleObj", "", "Tooltip SimpleObj", "WhatsThis SimpleObj");
 
@@ -93,6 +94,7 @@ public:
         m_dir = other.m_dir;
         m_up = other.m_up;
         m_numbers = other.m_numbers;
+        m_doubleMember = other.m_doubleMember;
     }
 
     ~SimpleObj() {}
@@ -751,31 +753,26 @@ TEST(BaseTest, PdmPointer)
 TEST(BaseTest, PdmObjectFactory)
 {
     {
-        SimpleObj* s = NULL;
-        s = dynamic_cast<SimpleObj*> (caf::PdmDefaultObjectFactory::instance()->create("SimpleObj"));
+        SimpleObj* s = dynamic_cast<SimpleObj*> (caf::PdmDefaultObjectFactory::instance()->create("SimpleObj"));
         EXPECT_TRUE(s != NULL);
     }
     {
-        DemoPdmObject* s = NULL;
-        s = dynamic_cast<DemoPdmObject*> (caf::PdmDefaultObjectFactory::instance()->create("DemoPdmObject"));
+        DemoPdmObject* s = dynamic_cast<DemoPdmObject*> (caf::PdmDefaultObjectFactory::instance()->create("DemoPdmObject"));
         EXPECT_TRUE(s != NULL);
         delete s;
     }
     {
-        InheritedDemoObj* s = NULL;
-        s = dynamic_cast<InheritedDemoObj*> (caf::PdmDefaultObjectFactory::instance()->create("InheritedDemoObj"));
+        InheritedDemoObj* s = dynamic_cast<InheritedDemoObj*> (caf::PdmDefaultObjectFactory::instance()->create("InheritedDemoObj"));
         EXPECT_TRUE(s != NULL);
     }
 
     {
-        caf::PdmDocument* s = NULL;
-        s = dynamic_cast<caf::PdmDocument*> (caf::PdmDefaultObjectFactory::instance()->create("PdmDocument"));
+        caf::PdmDocument* s = dynamic_cast<caf::PdmDocument*> (caf::PdmDefaultObjectFactory::instance()->create("PdmDocument"));
         EXPECT_TRUE(s != NULL);
     }
 
     {
-        caf::PdmObjectGroup* s = NULL;
-        s = dynamic_cast<caf::PdmObjectGroup*> (caf::PdmDefaultObjectFactory::instance()->create("PdmObjectGroup"));
+        caf::PdmObjectGroup* s = dynamic_cast<caf::PdmObjectGroup*> (caf::PdmDefaultObjectFactory::instance()->create("PdmObjectGroup"));
         EXPECT_TRUE(s != NULL);
     }
 
@@ -959,7 +956,6 @@ TEST(BaseTest, PdmReferenceHelper)
     s3->m_position = 3000;
 
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
-    caf::PdmChildArrayFieldHandle* listField = &(ihd1->m_simpleObjectsField);
     ihd1->m_simpleObjectsField.push_back(new SimpleObj);
 
     ihd1->m_simpleObjectsField.push_back(s1);

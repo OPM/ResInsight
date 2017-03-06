@@ -63,8 +63,8 @@ class PdmUiTreeOrdering;
 class PdmUiTreeOrdering 
 {
 public:
-    PdmUiTreeOrdering(PdmObjectHandle* pdmItem );
-    PdmUiTreeOrdering(PdmFieldHandle* pdmField );
+    explicit PdmUiTreeOrdering(PdmObjectHandle* pdmItem );
+    explicit PdmUiTreeOrdering(PdmFieldHandle* pdmField );
     PdmUiTreeOrdering(const QString & title, const QString& iconResourceName );
     
     ~PdmUiTreeOrdering();

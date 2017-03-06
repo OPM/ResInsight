@@ -121,7 +121,7 @@ void PdmObjectHandle::addField(PdmFieldHandle* field, const QString& keyword)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword)
+PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword) const
 {
     std::vector<PdmFieldHandle*> fields;
     this->fields(fields);

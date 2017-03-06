@@ -70,7 +70,7 @@ public:
     void                            setForgetRemainingFields(bool val) { m_forgetRemainingFields = val; }
 
     const std::vector<PdmUiItem*>&  uiItems() const                    { return m_ordering; }
-    bool                            contains(const PdmUiItem* item);
+    bool                            contains(const PdmUiItem* item) const;
 
 private:
     // Private copy constructor and assignment to prevent this. (The vectors below will make trouble)

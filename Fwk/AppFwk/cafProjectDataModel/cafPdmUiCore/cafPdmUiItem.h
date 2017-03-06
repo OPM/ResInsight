@@ -137,7 +137,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
             for (int i = 0; i < valuesSelectedInField.size(); ++i)
             {
                 std::list<std::pair<QVariant, unsigned int> >::iterator it;
-                for (it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); it++)
+                for (it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it)
                 {
                     if (PdmUiFieldSpecialization<T>::isDataElementEqual(valuesSelectedInField[i], it->first))
                     {

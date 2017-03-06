@@ -71,7 +71,7 @@ void PdmUiTreeOrdering::add(PdmFieldHandle* field, QString uiConfigName)
     }
     else
     {
-        PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, field);
+        new PdmUiTreeOrdering(this, field);
     }
 }
 
@@ -82,7 +82,7 @@ void PdmUiTreeOrdering::add(PdmObjectHandle* object)
 {
     assert(object);
 
-    PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, object);
+    new PdmUiTreeOrdering(this, object);
 }
 
 //--------------------------------------------------------------------------------------------------
