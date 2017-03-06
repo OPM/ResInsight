@@ -704,17 +704,19 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
     {
         for (int i = 0; i < dataAtTimeStep[k].size(); i++)
         {
-            if ((dataAtTimeStep[k])[i] > 1e-7)
+            if ((dataAtTimeStep[k])[i] < 1e-7)  //polygon should consist of nodes with value 0
             {
-                if ((i < dataAtTimeStep[k].size() - 1))
+                if ((i > 0) && ((dataAtTimeStep[k])[(i - 1)] > 1e-7)) //side neighbour cell different from 0
                 {
-                    if ((dataAtTimeStep[k])[(i + 1)] < 1e-7)
-                    {
-                        polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                            static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
-                    }
+                    polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
+                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
                 }
-                else
+                else if ((k < dataAtTimeStep.size() - 1) && ((dataAtTimeStep[k + 1])[(i)] > 1e-7))//cell below different from 0
+                {
+                    polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
+                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
+                }
+                else if ((k > 0) && ((dataAtTimeStep[k - 1 ])[(i)] > 1e-7))//cell above different from 0
                 {
                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
                         static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
@@ -722,6 +724,8 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
             }
         }
     }
+
+    sortPolygon(polygon);
 
     std::vector<cvf::Vec3f> negPolygon;
     for (const cvf::Vec3f& node : polygon)
@@ -778,6 +782,33 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
 
 
     return polygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::sortPolygon(std::vector<cvf::Vec3f> &polygon)
+{
+    for (int i = 1; i < polygon.size() - 1; i++)
+    {
+        cvf::Vec3f lastNode = polygon[i - 1];
+        cvf::Vec3f node = polygon[i];
+        cvf::Vec3f nextNode = polygon[i + 1];
+
+        if (node.y() == nextNode.y())
+        {
+            if (lastNode.x() < node.x() && node.x() > nextNode.x())
+            {
+                polygon[i] = nextNode;
+                polygon[i + 1] = node;
+            }
+            else if (lastNode.x() > node.x() && node.x() < nextNode.x())
+            {
+                polygon[i] = nextNode;
+                polygon[i + 1] = node;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
