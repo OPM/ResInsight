@@ -55,7 +55,7 @@ class MessagePanel : public QWidget
     Q_OBJECT
 
 public:
-    MessagePanel(QDockWidget* parent);
+    explicit MessagePanel(QDockWidget* parent);
     
     static MessagePanel* instance();
 
