@@ -32,7 +32,7 @@ class RimIntersectionCollection;
 class RicAppendIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
+    explicit RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
     virtual ~RicAppendIntersectionFeatureCmd();
 
     virtual QString name();

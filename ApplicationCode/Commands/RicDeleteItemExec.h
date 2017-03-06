@@ -33,7 +33,7 @@ class RicDeleteItemExecData;
 class RicDeleteItemExec : public CmdExecuteCommand
 {
 public:
-    RicDeleteItemExec(NotificationCenter* notificationCenter);
+    explicit RicDeleteItemExec(NotificationCenter* notificationCenter);
 
     RicDeleteItemExecData* commandData();
 

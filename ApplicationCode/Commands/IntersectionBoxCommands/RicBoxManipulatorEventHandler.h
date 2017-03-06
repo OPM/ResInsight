@@ -33,7 +33,7 @@ class RicBoxManipulatorEventHandler : public QObject
     Q_OBJECT
 
 public:
-    RicBoxManipulatorEventHandler(caf::Viewer* viewer);
+    explicit RicBoxManipulatorEventHandler(caf::Viewer* viewer);
     ~RicBoxManipulatorEventHandler();
 
     void setOrigin(const cvf::Vec3d& origin);
