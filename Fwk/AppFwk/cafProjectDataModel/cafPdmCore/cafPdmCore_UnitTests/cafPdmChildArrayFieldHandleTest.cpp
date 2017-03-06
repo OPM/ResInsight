@@ -58,7 +58,8 @@ class ContainerObj : public caf::PdmObjectHandle
 public:
     ContainerObj() : PdmObjectHandle()
     { 
-        this->addField(&derivedObjs, "derivedObjs");
+        this->addField(&derivedObjs,      "derivedObjs");
+        this->addField(&derivedOtherObjs, "derivedOtherObjs");
     }
 
     ~ContainerObj()

@@ -279,6 +279,22 @@ TEST(BaseTest, Start)
 //--------------------------------------------------------------------------------------------------
 TEST(BaseTest, NormalPdmField)
 {
+    class ObjectWithVectors : public caf::PdmObjectHandle
+    {
+    public:
+        ObjectWithVectors()
+        {
+            this->addField(&field1, "field1");
+            this->addField(&field2, "field2");
+            this->addField(&field3, "field3");
+        }
+
+        caf::PdmField<std::vector<double> > field1;
+        caf::PdmField<std::vector<double> > field2;
+        caf::PdmField<std::vector<double> > field3;
+    };
+
+
     std::vector<double> testValue;
     testValue.push_back(1.1);
     testValue.push_back(1.2);
@@ -289,22 +305,24 @@ TEST(BaseTest, NormalPdmField)
     testValue2.push_back(2.2);
     testValue2.push_back(2.3);
 
+    ObjectWithVectors myObj;
+
     // Constructors
-    caf::PdmField<std::vector<double> > field2(testValue);
-    EXPECT_EQ(1.3, field2.v()[2]);
-    caf::PdmField<std::vector<double> > field3(field2);
-    EXPECT_EQ(1.3, field3.v()[2]);
-    caf::PdmField<std::vector<double> > field1;
-    EXPECT_EQ(size_t(0), field1().size());
+    myObj.field2 = testValue;
+    EXPECT_EQ(1.3, myObj.field2.v()[2]);
+
+    myObj.field3 = myObj.field2;
+    EXPECT_EQ(1.3, myObj.field3.v()[2]);
+    EXPECT_EQ(size_t(0), myObj.field1().size());
 
     // Operators
-    EXPECT_FALSE(field1 == field3);
-    field1 = field2;
-    EXPECT_EQ(1.3, field1()[2]);
-    field1 = testValue2;
-    EXPECT_EQ(2.3, field1()[2]);
-    field3 = field1;
-    EXPECT_TRUE(field1 == field3);
+    EXPECT_FALSE(myObj.field1 == myObj.field3);
+    myObj.field1 = myObj.field2;
+    EXPECT_EQ(1.3, myObj.field1()[2]);
+    myObj.field1 = testValue2;
+    EXPECT_EQ(2.3, myObj.field1()[2]);
+    myObj.field3 = myObj.field1;
+    EXPECT_TRUE(myObj.field1 == myObj.field3);
 }
 
 #if 0

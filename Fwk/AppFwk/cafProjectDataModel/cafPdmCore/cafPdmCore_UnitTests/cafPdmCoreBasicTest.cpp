@@ -209,10 +209,15 @@ TEST(BaseTest, TestPdmValueFieldInterface)
 //--------------------------------------------------------------------------------------------------
 TEST(BaseTest, NormalPdmField)
 {
-    class A
+    class A : public caf::PdmObjectHandle
     {
     public:
-        A(const std::vector<double>& testValue) : field2(testValue), field3(field2) {}
+        A(const std::vector<double>& testValue) : field2(testValue), field3(field2)
+        {
+            this->addField(&field1, "field1");
+            this->addField(&field2, "field2");
+            this->addField(&field3, "field3");
+        }
 
         caf::PdmDataValueField<std::vector<double> > field1;
         caf::PdmDataValueField<std::vector<double> > field2;
@@ -432,9 +437,13 @@ TEST(BaseTest, PdmChildArrayFieldHandle)
 
 TEST(BaseTest, PdmChildField)
 {
-    class A {
+    class A : public caf::PdmObjectHandle
+    {
     public:
-        A(Child* a) :field2(a) {}
+        A(Child* a) :field2(a)
+        {
+            this->addField(&field2, "field2");
+        }
 
         ~A()
         {
