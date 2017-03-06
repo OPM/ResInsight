@@ -51,7 +51,7 @@ class CmdAddItemExecData;
 class CmdAddItemExec : public CmdExecuteCommand
 {
 public:
-    CmdAddItemExec(NotificationCenter* notificationCenter);
+    explicit CmdAddItemExec(NotificationCenter* notificationCenter);
     virtual ~CmdAddItemExec();;
 
     CmdAddItemExecData* commandData();

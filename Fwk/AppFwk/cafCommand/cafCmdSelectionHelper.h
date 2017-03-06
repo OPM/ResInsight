@@ -49,7 +49,7 @@ class CmdSelectionChangeExec;
 class CmdSelectionHelper
 {
 public:
-    static void executeSelectionCommand(std::vector<PdmObjectHandle*> selection, SelectionManager::SelectionRole role);
+    static void executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role);
     static CmdSelectionChangeExec* createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role);
 };
 
