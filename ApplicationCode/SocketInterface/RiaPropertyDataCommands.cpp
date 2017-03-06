@@ -585,7 +585,6 @@ public:
 
         while ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
         {
-            qint64 bytesRead = 0;
             if ( !isCoarseningActive)
             {
                 internalMatrixData = m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead]).data();
@@ -631,8 +630,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = NULL;
-                    inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
@@ -995,8 +993,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = NULL;
-                    inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;

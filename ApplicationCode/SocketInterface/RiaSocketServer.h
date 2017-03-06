@@ -47,7 +47,7 @@ public:
     enum ReadState {ReadingCommand, ReadingPropertyData};
 
 public:
-    RiaSocketServer(QObject *parent = 0);
+    explicit RiaSocketServer(QObject *parent = 0);
     ~RiaSocketServer();
 
     unsigned short      serverPort();
