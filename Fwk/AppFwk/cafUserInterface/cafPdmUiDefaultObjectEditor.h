@@ -85,7 +85,7 @@ private:
     std::map<QString, QPointer<QGroupBox> >     m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
 
     QPointer<QWidget>                           m_mainWidget;
-    QGridLayout*                                m_layout;
+    QPointer<QGridLayout>                       m_layout;
 };
 
 

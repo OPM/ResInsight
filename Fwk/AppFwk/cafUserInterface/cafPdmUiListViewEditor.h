@@ -78,7 +78,7 @@ class UiListViewModelPdm : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    UiListViewModelPdm(QObject* parent);
+    explicit UiListViewModelPdm(QObject* parent);
     
     void                setPdmData(PdmObjectCollection* objectGroup, const QString& configName);
 

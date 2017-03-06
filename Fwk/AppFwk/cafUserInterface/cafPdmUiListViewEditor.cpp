@@ -208,6 +208,9 @@ void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmUiListViewEditor::PdmUiListViewEditor()
+    : m_layout(nullptr),
+    m_tableView(nullptr),
+    m_tableModelPdm(nullptr)
 {
 }
 

@@ -50,7 +50,7 @@ namespace caf
 class PdmUiTreeItemEditor: public PdmUiEditorHandle
 {
 public:
-    PdmUiTreeItemEditor(PdmUiItem* uiItem);
+    explicit PdmUiTreeItemEditor(PdmUiItem* uiItem);
     virtual ~PdmUiTreeItemEditor() {};
 
     void setTreeViewEditor(PdmUiTreeEditorHandle* treeViewEditor) { m_treeViewEditor = treeViewEditor; } 

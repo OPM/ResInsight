@@ -64,7 +64,7 @@ class PdmUiTableViewModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    PdmUiTableViewModel(QWidget* parent);
+    explicit PdmUiTableViewModel(QWidget* parent);
 
     QItemSelection          modelIndexFromPdmObject(PdmObjectHandle* pdmObject);
     PdmFieldHandle*         getField(const QModelIndex &index) const;

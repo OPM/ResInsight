@@ -63,13 +63,12 @@ class PdmUniqueIdValidator : public QValidator
 {
 public:
     PdmUniqueIdValidator(const std::set<int>& usedIds, bool multipleSelectionOfSameFieldsSelected, const QString& errorMessage, QObject* parent)
-        : QValidator(parent)
+        : QValidator(parent),
+        m_usedIds(usedIds),
+        m_nextValidValue(0),
+        m_multipleSelectionOfSameFieldsSelected(multipleSelectionOfSameFieldsSelected),
+        m_errorMessage(errorMessage)
     {
-        m_usedIds = usedIds;
-        m_nextValidValue = 0;
-        m_multipleSelectionOfSameFieldsSelected = multipleSelectionOfSameFieldsSelected;
-        m_errorMessage = errorMessage;
-
         computeNextValidId();
     }
 

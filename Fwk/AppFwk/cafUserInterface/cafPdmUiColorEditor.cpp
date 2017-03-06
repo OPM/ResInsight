@@ -143,8 +143,6 @@ QWidget* PdmUiColorEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiColorEditor::colorSelectionClicked()
 {
-    bool ok = false;
-
     QColorDialog::ColorDialogOptions flags;
     if (m_attributes.showAlpha)
     {

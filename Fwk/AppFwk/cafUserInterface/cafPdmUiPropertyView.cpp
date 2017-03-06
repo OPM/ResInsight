@@ -144,8 +144,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         }
 
         // Create widget to handle this
-        QWidget* propertyWidget = NULL;
-        propertyWidget = m_currentObjectView->getOrCreateWidget(m_placeholder);
+        QWidget* propertyWidget = m_currentObjectView->getOrCreateWidget(m_placeholder);
         
         assert(propertyWidget);
 

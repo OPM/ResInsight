@@ -242,7 +242,7 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
     }
 
     // Delete items with largest index first from existing
-    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); it++)
+    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); ++it)
     {
         this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
         existingSubTreeRoot->removeChildren(*it, 1);
@@ -320,7 +320,7 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
             }
 
             // Delete new items from source because they have been moved into newMergedOrdering
-            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
+            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); ++it)
             {
                 // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
                 sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
@@ -533,9 +533,6 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     }
 
     bool isObjRep = uitreeOrdering->isRepresentingObject();
-    bool isFieldRep = uitreeOrdering->isRepresentingField();
-    bool isDisplayOnly = uitreeOrdering->isDisplayItemOnly();
-
 
     if (role == Qt::DisplayRole && !uitreeOrdering->isValid())
     {

@@ -66,7 +66,7 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
+    explicit MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
 
     virtual Qt::ItemFlags flags (const QModelIndex& index) const
     {
