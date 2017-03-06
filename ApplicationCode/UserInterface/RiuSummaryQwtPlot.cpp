@@ -52,7 +52,7 @@
 class RiuQwtPlotPicker : public QwtPlotPicker
 {
 public:
-    RiuQwtPlotPicker(QWidget *canvas)
+    explicit RiuQwtPlotPicker(QWidget *canvas)
         : QwtPlotPicker(canvas)
     {
     }

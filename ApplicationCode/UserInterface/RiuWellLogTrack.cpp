@@ -54,7 +54,7 @@
 class RiuWellLogTrackQwtPicker : public QwtPlotPicker
 {
 public:
-    RiuWellLogTrackQwtPicker(QWidget *canvas)
+    explicit RiuWellLogTrackQwtPicker(QWidget *canvas)
         : QwtPlotPicker(canvas)
     {
     }

@@ -49,9 +49,6 @@ public:
     };
 
 public:
-    RiuSelectionManager();
-    ~RiuSelectionManager();
-
     static RiuSelectionManager* instance();
 
     // Returns selected items
@@ -72,6 +69,10 @@ public:
     bool isEmpty(int role = RUI_APPLICATION_GLOBAL) const;
 
 private:
+    RiuSelectionManager();
+    ~RiuSelectionManager();
+    RiuSelectionManager(const RiuSelectionManager&) = delete;
+
     void deleteAllItemsFromSelection(int role);
 
 private:

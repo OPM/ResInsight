@@ -398,16 +398,15 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     {
         m_histogramWidget->resize(columnWidth, 40);
         m_histogramWidget->render(painter,QPoint(columnPos, yPos));
-        yPos +=  m_histogramWidget->height() + margin;
+        //yPos +=  m_histogramWidget->height() + margin;
     }
 
-    if (m_showInfoText)
+    if (m_showInfoText) // Version Label
     {
         QSize size(m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height());
         QPoint pos(this->width() - size.width() - margin, this->height() - size.height() - margin);
         m_versionInfoLabel->resize(size.width(), size.height());
         m_versionInfoLabel->render(painter, pos);
-        yPos +=  size.height() + margin;
     }
 
     if (!m_cursorPositionDomainCoords.isUndefined())

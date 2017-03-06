@@ -51,12 +51,12 @@ template <typename T>
 class RiuTypedPdmObjects
 {
 public:
-    RiuTypedPdmObjects(const caf::PdmObjectGroup& objectGroup)
+    explicit RiuTypedPdmObjects(const caf::PdmObjectGroup& objectGroup)
     {
         objectGroup.objectsByType(&m_typedObjects);
     }
 
-    RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
+    explicit RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
     {
         for (size_t i = 0; i < objectHandles.size(); i++)
         {
