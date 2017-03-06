@@ -83,6 +83,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
+    CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
     CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Fracture Unit System", "", "", "");
 
@@ -184,7 +185,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &stimPlanTimeIndexToPlot ||
         changedField == this->objectToggleField() ||
         changedField == &showPolygonFractureOutline ||
-        changedField == &fractureUnit)
+        changedField == &fractureUnit ||
+        changedField == &dip)
     {
 
         setRecomputeGeometryFlag();
@@ -258,14 +260,16 @@ cvf::Mat4f RimFracture::transformMatrix()
 {
     cvf::Vec3d center = anchorPosition();
 
+    // Dip (in XY plane)
+    cvf::Mat4f dipRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(dip()));
+
     // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
     cvf::Mat4f rotationFromTesselator = cvf::Mat4f::fromRotation(cvf::Vec3f::X_AXIS, cvf::Math::toRadians(90.0f));
-
-
+    
     // Azimuth rotation
     cvf::Mat4f azimuthRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(-azimuth()-90));
 
-    cvf::Mat4f m = azimuthRotation * rotationFromTesselator;
+    cvf::Mat4f m = azimuthRotation * rotationFromTesselator * dipRotation;
     m.setTranslation(cvf::Vec3f(center));
 
     return m;
