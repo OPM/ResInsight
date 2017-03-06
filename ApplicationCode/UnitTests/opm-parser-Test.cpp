@@ -20,7 +20,7 @@ TEST(opm_parser_test, basicConstruction)
     std::string filename = "d:/Models/Statoil/Brillig/BRILLIG.DATA";
 */
 
-    std::string filename = "d:/gitroot-magnesj/opm-parser/testdata/cases_with_issues/testcase_juli_2011/TEST10K_FLT_LGR_NNC.DATA";
+ //   std::string filename = "d:/gitroot-magnesj/opm-parser/testdata/cases_with_issues/testcase_juli_2011/TEST10K_FLT_LGR_NNC.DATA";
 /*
     std::string filename = "d:/Models/Statoil/1.2.0_Osesyd_segfault/BASEPRED6.DATA";    
     std::string filename = "d:/Models/Statoil/1.3.0_fault_assert_binary/BV-R2-11-0.DATA";

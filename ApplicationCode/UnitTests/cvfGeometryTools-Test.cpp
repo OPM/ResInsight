@@ -167,14 +167,13 @@ TEST(CellFaceIntersectionTst, Intersection1)
     edgeIntersectionStorage.setVertexCount(nodes.size());
     {
         std::vector<cvf::uint> polygon;
-        bool isOk = false;
-        isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
-            &polygon, 
-            &additionalVertices, 
-            &edgeIntersectionStorage, 
-            wrapArrayConst(&nodes), 
-            faces[0].data(), 
-            faces[1].data(), 
+        bool isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
+            &polygon,
+            &additionalVertices,
+            &edgeIntersectionStorage,
+            wrapArrayConst(&nodes),
+            faces[0].data(),
+            faces[1].data(),
             1e-6);
 
         EXPECT_EQ( (size_t)5, polygon.size());
@@ -187,8 +186,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
   
     {
         std::vector<cvf::uint> polygon;
-        bool isOk = false;
-        isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
+        bool isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
             &polygon, 
             &additionalVertices, 
             &edgeIntersectionStorage, 
@@ -207,8 +205,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
 
     {
         std::vector<cvf::uint> polygon;
-        bool isOk = false;
-        isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
+        bool isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
             &polygon, 
             &additionalVertices, 
             &edgeIntersectionStorage, 
@@ -230,7 +227,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
 
    for (cvf::uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
    {
-       bool inserted = GeometryTools::insertVertexInPolygon(
+      GeometryTools::insertVertexInPolygon(
            &basePolygon,
            wrapArrayConst(&nodes),
            vxIdx, 
@@ -245,7 +242,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
    {
        for (cvf::uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
        {
-           bool inserted = GeometryTools::insertVertexInPolygon(
+           GeometryTools::insertVertexInPolygon(
                &overlapPolygons[pIdx],
                wrapArrayConst(&nodes),
                vxIdx, 

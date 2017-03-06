@@ -130,7 +130,7 @@ TEST(RigStatisticsMath, HistogramPercentiles)
     std::vector<size_t> histogram;
     RigHistogramCalculator histCalc(min, max, 100, &histogram);
     histCalc.addData(values);
-    std::vector<double> pVals;
+
     double p10, p50, p90;
     p10 = histCalc.calculatePercentil(0.1);
     p50 = histCalc.calculatePercentil(0.5);
