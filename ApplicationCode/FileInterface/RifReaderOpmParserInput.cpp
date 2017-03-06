@@ -446,41 +446,6 @@ size_t RifReaderOpmParserPropertyReader::findOrCreateResult(const QString& newRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmParserPropertyReader::readAllProperties(std::shared_ptr< Opm::Deck > deck, RigEclipseCaseData* caseData, std::map<QString, QString>* newResults)
-{
-    std::set<std::string> uniqueKeywords;
-    for (auto it = deck->begin(); it != deck->end(); it++)
-    {
-        uniqueKeywords.insert(it->name());
-    }
-
-    for (auto keyword : uniqueKeywords)
-    {
-        bool isItemCountEqual = RifReaderOpmParserPropertyReader::isDataItemCountIdenticalToMainGridCellCount(deck, keyword, caseData);
-
-        if (isItemCountEqual)
-        {
-            std::vector<double> allValues;
-
-            RifReaderOpmParserPropertyReader::getAllValuesForKeyword(deck, keyword, allValues);
-
-            QString keywordName = QString::fromStdString(keyword);
-            QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(keywordName);
-            size_t resultIndex = findOrCreateResult(newResultName, caseData);
-            if (resultIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                std::vector< std::vector<double> >& newPropertyData = caseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
-                newPropertyData.push_back(allValues);
-            }
-
-            newResults->insert(std::make_pair(newResultName, keywordName));
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RifReaderOpmParserPropertyReader::RifReaderOpmParserPropertyReader(std::shared_ptr< Opm::Deck > deck)
     : m_deck(deck)
 {
