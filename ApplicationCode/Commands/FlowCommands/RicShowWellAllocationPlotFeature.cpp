@@ -92,5 +92,5 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 void RicShowWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/WellAllocPlot16x16.png"));
-    actionToSetup->setText("Show Well Allocation Plot");
+    actionToSetup->setText("Plot Well Allocation");
 }
