@@ -19,6 +19,7 @@
 #include "RimFracture.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RifReaderInterface.h"
 
@@ -282,6 +283,26 @@ cvf::Mat4f RimFracture::transformMatrix()
 //--------------------------------------------------------------------------------------------------
 void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 { 
+    //Get correct unit system: 
+    RigEclipseCaseData::UnitsType caseUnit = caseToApply->reservoirData()->unitsType();
+    RimDefines::UnitSystem unitForExport;
+
+    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities for %1 in metric units").arg(name()));
+        unitForExport = RimDefines::UNITS_METRIC;
+    }
+    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities for %1 in field units").arg(name()));
+        unitForExport = RimDefines::UNITS_FIELD;
+    }
+    else
+    {
+        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
+        return;
+    }
+
 
     //TODO: Handle case with finite conductivity in fracture
     if (attachedFractureDefinition())
@@ -378,7 +399,7 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 
         if (attachedFractureDefinition())
         {
-            std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon(fractureUnit);
+            std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon(unitForExport);
 
             std::vector<cvf::Vec3d> fracPolygonDouble; 
             for (auto v : fracPolygon) fracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
@@ -428,7 +449,10 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
             for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
             fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-            double c = 0.008527; // TODO: Get value with units, is defined in RimReservoirCellResultsStorage       
+            double c = cvf::UNDEFINED_DOUBLE;
+            if (unitForExport == RimDefines::UNITS_METRIC) c = 0.00852702;
+            if (unitForExport == RimDefines::UNITS_FIELD)  c = 0.00112712;
+             // TODO: Use value from RimReservoirCellResultsStorage?       
 
             skinfactor = attachedFractureDefinition()->skinFactor;
             

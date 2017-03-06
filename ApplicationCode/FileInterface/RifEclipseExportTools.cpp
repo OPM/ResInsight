@@ -66,12 +66,6 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 {
     RiaLogging::info(QString("Computing and writing COMPDAT values to file %1").arg(fileName));
 
-    if (!(unitsMatchCaseAndFractures(caseToApply, fractures)))
-    {
-        RiaLogging::error(QString("ERROR: The case selected and relevant fractures does not have consistent unit system"));
-        return false;
-    }
-
     RiaApplication* app = RiaApplication::instance();
     RimView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
@@ -98,7 +92,12 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     QTextStream out(&file);
     out << "\n";
-    out << "-- Exported from ResInsight" << "\n\n";
+    out << "-- Exported from ResInsight" << "\n";
+
+    RigEclipseCaseData::UnitsType caseUnit = caseToApply->reservoirData()->unitsType();
+    if (caseUnit == RigEclipseCaseData::UNITS_METRIC) out << "-- Using metric unit system" << "\n";
+    if (caseUnit == RigEclipseCaseData::UNITS_FIELD) out << "-- Using field unit system" << "\n";
+    out << "\n";
 
     printBackgroundDataHeaderLine(out);
 
@@ -143,36 +142,6 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     RiaLogging::info(QString("Competed writing COMPDAT data to file %1").arg(fileName));
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseExportTools::unitsMatchCaseAndFractures(RimEclipseCase* caseToApply, const std::vector<RimFracture *>& fractures)
-{
-    bool unitsMatch = true;
-    RigEclipseCaseData::UnitsType caseUnit = caseToApply->reservoirData()->unitsType();
-    for (RimFracture* fracture : fractures)
-    {
-        if (fracture->attachedFractureDefinition())
-        {
-            if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimDefines::UNITS_METRIC)
-            {
-                if (!(caseUnit == RigEclipseCaseData::UNITS_METRIC))
-                {
-                    unitsMatch = false;
-                }
-            }
-            else if ((fracture->attachedFractureDefinition()->fractureTemplateUnit) == RimDefines::UNITS_FIELD)
-            {
-                if (!(caseUnit == RigEclipseCaseData::UNITS_FIELD))
-                {
-                    unitsMatch = false;
-                }
-            }
-        }
-    }
-    return unitsMatch;
 }
 
 //--------------------------------------------------------------------------------------------------
