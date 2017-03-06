@@ -27,7 +27,7 @@
 class RivSourceInfo : public cvf::Object
 {
 public:
-    RivSourceInfo(size_t gridIndex) : m_gridIndex(gridIndex) {}
+    explicit RivSourceInfo(size_t gridIndex) : m_gridIndex(gridIndex) {}
 
     size_t gridIndex() const { return m_gridIndex; }
     bool hasCellFaceMapping() const;

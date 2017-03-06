@@ -40,7 +40,7 @@ class RimWellPath;
 class RivWellPathPartMgr : public cvf::Object
 {
 public:
-    RivWellPathPartMgr(RimWellPath* wellPath);
+    explicit RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
     void                                    setScaleTransform(cvf::Transform * scaleTransform);

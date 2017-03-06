@@ -55,7 +55,7 @@ class RivIntersectionVertexWeights;
 class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
+    explicit RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);

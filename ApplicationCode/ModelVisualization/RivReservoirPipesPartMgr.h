@@ -38,7 +38,7 @@ class RivWellHeadPartMgr;
 class RivReservoirPipesPartMgr : public cvf::Object
 {
 public:
-    RivReservoirPipesPartMgr(RimEclipseView* reservoirView);
+    explicit RivReservoirPipesPartMgr(RimEclipseView* reservoirView);
     ~RivReservoirPipesPartMgr();
 
     void clearGeometryCache();

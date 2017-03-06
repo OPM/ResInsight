@@ -737,8 +737,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
     m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
     if (eclipseView)
     {
-        RigMainGrid* grid = NULL;
-        grid = eclipseView->mainGrid();
+        RigMainGrid* grid = eclipseView->mainGrid();
         return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
     }
 

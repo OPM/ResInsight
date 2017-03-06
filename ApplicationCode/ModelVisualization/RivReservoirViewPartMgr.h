@@ -46,7 +46,7 @@ namespace cvf
 class RivReservoirViewPartMgr: public cvf::Object
 {
 public:
-    RivReservoirViewPartMgr(RimEclipseView * resv);
+    explicit RivReservoirViewPartMgr(RimEclipseView * resv);
 
     cvf::Transform*             scaleTransform() { return m_scaleTransform.p();}
 

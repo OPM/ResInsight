@@ -188,8 +188,6 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
 
     if (m_needsTransformUpdate) buildWellPipeParts();
 
-    const RigWellResultFrame& wellResultFrame = m_rimWell->wellResults()->wellResultFrame(frameIndex);
-
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)
     {
