@@ -172,17 +172,10 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
         for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
         {
             if (!wellResults[wIdx]->hasWellResult(timeStepIndex) ) continue;
-            
-            size_t wellTimeStep = wellResults[wIdx]->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex];
-            
-            if (wellTimeStep == cvf::UNDEFINED_SIZE_T) continue;
-
-            const RigWellResultFrame& wellResFrame =  wellResults[wIdx]->m_wellCellsTimeSteps[wellTimeStep];
-
-            if ( !wellResFrame.m_isOpen ) continue;
-            if (wellResFrame.m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE) continue;
-            
-            bool isInjectorWell =  (wellResFrame.m_productionType != RigWellResultFrame::PRODUCER);
+            const RigWellResultFrame& wellResFrame = wellResults[wIdx]->wellResultFrame(timeStepIndex);
+           
+            bool isInjectorWell =  (   wellResFrame.m_productionType != RigWellResultFrame::PRODUCER
+                                    && wellResFrame.m_productionType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE);
 
             std::string wellname   = wellResults[wIdx]->m_wellName.toStdString();
             std::string wellNameXf = addCrossFlowEnding(wellResults[wIdx]->m_wellName).toStdString();
@@ -242,20 +235,17 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(c
         tracerStatus = CLOSED;
         for ( const RigWellResultFrame& wellResFrame : wellResults[wIdx]->m_wellCellsTimeSteps )
         {
-            if (wellResFrame.m_isOpen)
+            if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
+                || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
+                ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
             {
-                if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
-                    || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
-                    ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
-                {
-                    if ( tracerStatus == PRODUCER ) tracerStatus = VARYING;
-                    else tracerStatus = INJECTOR;
-                }
-                else if ( wellResFrame.m_productionType == RigWellResultFrame::PRODUCER )
-                {
-                    if ( tracerStatus == INJECTOR ) tracerStatus = VARYING;
-                    else tracerStatus = PRODUCER;
-                }
+                if ( tracerStatus == PRODUCER ) tracerStatus = VARYING;
+                else tracerStatus = INJECTOR;
+            }
+            else if ( wellResFrame.m_productionType == RigWellResultFrame::PRODUCER )
+            {
+                if ( tracerStatus == INJECTOR ) tracerStatus = VARYING;
+                else tracerStatus = PRODUCER;
             }
             if ( tracerStatus == VARYING ) break;
         }
@@ -287,33 +277,28 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
         QString wellName = removeCrossFlowEnding(tracerName);
 
         if ( wellResults[wIdx]->m_wellName != wellName ) continue;
+        if (!wellResults[wIdx]->hasWellResult(timeStepIndex))  return CLOSED;
 
-        size_t wellTimeStep = wellResults[wIdx]->m_resultTimeStepIndexToWellTimeStepIndex[timeStepIndex];
+        const RigWellResultFrame& wellResFrame = wellResults[wIdx]->wellResultFrame(timeStepIndex);
 
-        if (wellTimeStep == cvf::UNDEFINED_SIZE_T) return CLOSED;
-
-        const RigWellResultFrame& wellResFrame = wellResults[wIdx]->m_wellCellsTimeSteps[wellTimeStep];
+        if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
+            || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
+            ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
         {
-            if (!wellResFrame.m_isOpen)  return CLOSED;
+            if ( hasCrossFlowEnding(tracerName) )  return PRODUCER;
 
-            if ( wellResFrame.m_productionType == RigWellResultFrame::GAS_INJECTOR
-                || wellResFrame.m_productionType == RigWellResultFrame::OIL_INJECTOR
-                ||  wellResFrame.m_productionType == RigWellResultFrame::WATER_INJECTOR )
-            {
-                if (hasCrossFlowEnding(tracerName))  return PRODUCER;
+            return INJECTOR;
+        }
+        else if ( wellResFrame.m_productionType == RigWellResultFrame::PRODUCER
+                 || wellResFrame.m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+        {
+            if ( hasCrossFlowEnding(tracerName) )  return INJECTOR;
 
-                return INJECTOR;
-            }
-            else if ( wellResFrame.m_productionType == RigWellResultFrame::PRODUCER )
-            {
-                if (hasCrossFlowEnding(tracerName))  return INJECTOR;
-
-                return PRODUCER;
-            }
-            else
-            {
-                return UNDEFINED;
-            }
+            return PRODUCER;
+        }
+        else
+        {
+            CVF_ASSERT(false);
         }
     }
 

@@ -49,11 +49,11 @@ public:
 
     enum TracerStatusType
     {
-        CLOSED,
-        PRODUCER, 
-        INJECTOR, 
-        VARYING, 
-        UNDEFINED
+        CLOSED,    ///< Tracer has no active cells, and does not contribute
+        PRODUCER,  ///< Tracer with producing cells
+        INJECTOR,  ///< Tracer with injecting cells
+        VARYING,   ///< Tracer is producing and injecting at different time steps. Only used as a timestep-overall type
+        UNDEFINED  ///< Used as "Any" or "not set"
     };
 
     TracerStatusType tracerStatusOverall(const QString& tracerName);

@@ -425,11 +425,12 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 {
                     RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
                     QString prefix; 
-                    switch (status)
+                    switch ( status )
                     {
-                    case RimFlowDiagSolution::INJECTOR: prefix = "I   : "; break;
-                    case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
-                    case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
+                        case RimFlowDiagSolution::INJECTOR: prefix = "I   : "; break;
+                        case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
+                        case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
+                        case RimFlowDiagSolution::UNDEFINED:prefix = "U  : "; break;
                     }
 
                     if (status != RimFlowDiagSolution::CLOSED) prefixedTracerNamesMap[prefix + tracerName] = tracerName;
