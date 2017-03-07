@@ -114,11 +114,8 @@ protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
 
 private:
-    QPointer<QWidget>   m_mainWidget;
-    QLayout*            m_layout;
-
-    QTableView*         m_tableView;
-    UiListViewModelPdm* m_tableModelPdm;
+    QPointer<QTableView>    m_tableView;
+    UiListViewModelPdm*     m_tableModelPdm;
 };
 
 

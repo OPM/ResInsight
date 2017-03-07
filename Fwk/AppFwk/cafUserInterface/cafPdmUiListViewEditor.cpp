@@ -46,6 +46,8 @@
 #include <QTableView>
 #include <QWidget>
 
+#include <assert.h>
+
 
 
 namespace caf
@@ -208,7 +210,7 @@ void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmUiListViewEditor::PdmUiListViewEditor()
-    : m_layout(nullptr),
+    : 
     m_tableView(nullptr),
     m_tableModelPdm(nullptr)
 {
@@ -227,19 +229,21 @@ PdmUiListViewEditor::~PdmUiListViewEditor()
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiListViewEditor::createWidget(QWidget* parent)
 {
-    m_mainWidget = new QWidget(parent);
-    m_layout     = new QVBoxLayout();
-    m_mainWidget->setLayout(m_layout);
+    assert(parent);
 
-    m_tableModelPdm = new UiListViewModelPdm(m_mainWidget);
+    QWidget* mainWidget = new QWidget(parent);
+    QVBoxLayout* layout = new QVBoxLayout();
+    mainWidget->setLayout(layout);
 
-    m_tableView = new QTableView(m_mainWidget);
+    m_tableModelPdm = new UiListViewModelPdm(mainWidget);
+
+    m_tableView = new QTableView(mainWidget);
     m_tableView->setShowGrid(false);
     m_tableView->setModel(m_tableModelPdm);
 
-    m_layout->addWidget(m_tableView);
+    layout->addWidget(m_tableView);
 
-    return m_mainWidget;
+    return mainWidget;
 }
 
 //--------------------------------------------------------------------------------------------------

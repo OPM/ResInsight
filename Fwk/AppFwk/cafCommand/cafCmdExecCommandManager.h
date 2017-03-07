@@ -36,6 +36,9 @@
 
 
 #pragma once
+
+#include <QPointer>
+
 #include <vector>
 
 class QUndoStack;
@@ -85,7 +88,7 @@ private:
     friend class CmdExecCommandSystemDeactivator;
 
 private:
-    QUndoStack* m_undoStack;
+    QPointer<QUndoStack> m_undoStack;
 
     CmdUiCommandSystemImpl* m_commandFeatureInterface;
 };
