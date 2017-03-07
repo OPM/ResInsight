@@ -19,8 +19,10 @@
 #include "RicNewSimWellFractureFeature.h"
 
 #include "RiaApplication.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimEllipseFractureTemplate.h"
@@ -66,6 +68,12 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     QString fracNum = QString("%1").arg(oldFractures.size(), 2, 10, QChar('0'));
 
     fracture->setName(QString("Fracture_") + fracNum);
+
+    RimEclipseResultCase* eclipseCase = nullptr;
+    objHandle->firstAncestorOrThisOfType(eclipseCase);
+    RigEclipseCaseData::UnitsType caseUnit = eclipseCase->reservoirData()->unitsType();
+    if (caseUnit == RigEclipseCaseData::UNITS_METRIC) fracture->fractureUnit = RimDefines::UNITS_METRIC;
+    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)  fracture->fractureUnit = RimDefines::UNITS_FIELD;
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
