@@ -69,6 +69,9 @@ public:
     
     ~PdmUiTreeOrdering();
 
+    PdmUiTreeOrdering(const PdmUiTreeOrdering&) = delete;
+    PdmUiTreeOrdering& operator=(const PdmUiTreeOrdering&) = delete;
+
     void                        add(PdmFieldHandle * field, QString uiConfigName = "");
     void                        add(PdmObjectHandle* object);
     PdmUiTreeOrdering*          add(const QString & title, const QString& iconResourceName );

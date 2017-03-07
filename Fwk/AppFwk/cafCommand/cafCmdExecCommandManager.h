@@ -55,6 +55,9 @@ class CmdExecCommandManager
 public:
     static CmdExecCommandManager* instance();
 
+    CmdExecCommandManager(const CmdExecCommandManager&) = delete;
+    CmdExecCommandManager& operator=(const CmdExecCommandManager&) = delete;
+
     // When the undoFeature is enabled, execute commands are inserted in the undo stack
     // The application can use the QUndoStack to display/modify execute commands wrapped in QUndoCommand objects
     void        enableUndoCommandSystem(bool enable);

@@ -182,10 +182,9 @@ public:
     PdmUiItem() : m_staticItemInfo(NULL)                                                   { }
     virtual ~PdmUiItem();
 
-    // Copy and assignment to avoid hampering our internal pointer.
-    PdmUiItem(const PdmUiItem& ) : m_staticItemInfo(NULL)                                  { }
-    PdmUiItem&       operator=(const PdmUiItem& )                                          { return *this; }
-    
+    PdmUiItem(const PdmUiItem&) = delete;
+    PdmUiItem&       operator=(const PdmUiItem&) = delete;
+
     const QString    uiName(QString uiConfigName = "")      const;
     void             setUiName(const QString& uiName, QString uiConfigName = "")           { m_configItemInfos[uiConfigName].m_uiName = uiName; } 
 
