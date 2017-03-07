@@ -11,6 +11,7 @@ include_directories (
 
 set( PROJECT_FILES
 
+    cafAssert.h
     cafAppEnum.h
     cafClassTypeName.h
     cafPdmBase.h
