@@ -19,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.h
+${CEE_CURRENT_LIST_DIR}RimSummaryPlotExportSettings.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -36,6 +37,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryPlotExportSettings.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
