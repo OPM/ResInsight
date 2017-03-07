@@ -606,16 +606,12 @@ void RiaApplication::loadAndUpdatePlotData()
         }
     }
     
-
     if (flowColl)
     {
-        flowColl->loadDataAndUpdate();
-
         plotProgress.setNextProgressIncrement(flowColl->plotCount());
+        flowColl->loadDataAndUpdate();
+        plotProgress.incrementProgress();
     }
-
-    plotProgress.incrementProgress();
-
 }
 
 //--------------------------------------------------------------------------------------------------
