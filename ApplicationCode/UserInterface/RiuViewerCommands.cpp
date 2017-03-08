@@ -311,6 +311,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 commandIds << "RicNewSimWellIntersectionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
                 commandIds << "RicShowContributingWellsFeature";
+                commandIds << "RicPlotProductionRateFeature";
             }
         }
 
