@@ -402,6 +402,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         }
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem))
+        {
+            commandIds << "RicAsciiExportSummaryPlotFeature";
+        }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
                  dynamic_cast<RimWellLogPlot*>(uiItem))

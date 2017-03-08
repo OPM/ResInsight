@@ -106,11 +106,11 @@ bool RicAsciiExportSummaryPlotFeature::writeAsciiExportForSummaryPlots(const QSt
     {
         out << summaryPlot->description();
         out << summaryPlot->asciiDataForPlotExport();
+        out << "\n\n";
 
         progress++;
         pi.setProgress(progress);
     }
-    out << "\n";
     RiaLogging::info(QString("Competed writing ascii values for summary plot(s) to file %1").arg(fileName));
     return true;
 }
