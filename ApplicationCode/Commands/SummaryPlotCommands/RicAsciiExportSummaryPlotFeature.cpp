@@ -22,7 +22,6 @@
 #include "RiaLogging.h"
 
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotExportSettings.h"
 
 #include "RiuMainWindow.h"
 
@@ -33,6 +32,7 @@
 
 #include <QAction>
 #include <QDebug>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <vector>
@@ -54,35 +54,27 @@ bool RicAsciiExportSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
+    RiaApplication* app = RiaApplication::instance();
+    QString projectFolder = app->currentProjectPath();
+
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
     std::vector<RimSummaryPlot*> selectedSummaryPlots;
     caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
 
-    RimSummaryPlotExportSettings exportSettings;
-
-    RiaApplication* app = RiaApplication::instance();
-    QString projectFolder = app->currentProjectPath();
-
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("SUMMARYPLOT_ASCIIEXPORT_DIR", projectFolder);
-    QString defaultFilename = QString("SummaryPlotExport"); 
+    QString defaultFileName = defaultDir + "/" + QString("SummaryPlotExport");
+    QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Summary Plot Export", defaultFileName, "All files(*.*)");
 
-    QString outputFileName = defaultDir + "/" + defaultFilename;
-    exportSettings.fileName = outputFileName;
+    if (fileName.isEmpty()) return;
+    bool isOk = writeAsciiExportForSummaryPlots(fileName, selectedSummaryPlots);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Summary Plots to Ascii", "");
-    if (propertyDialog.exec() == QDialog::Accepted)
+    if (!isOk)
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("SUMMARYPLOT_ASCIIEXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
-
-        bool isOk = writeAsciiExportForSummaryPlots(exportSettings.fileName(), selectedSummaryPlots);
-
-        if (!isOk)
-        {
-            QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
-        }
+        QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + fileName);
     }
+    
 }
 
 //--------------------------------------------------------------------------------------------------
