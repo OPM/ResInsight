@@ -18,11 +18,14 @@
 
 #include "RicDeleteSubItemsFeature.h"
 
-#include <QAction>
 #include "RimSummaryPlotCollection.h"
+#include "RimWellPathCollection.h"
+
+#include "cafAssert.h"
 #include "cafPdmUiItem.h"
 #include "cafSelectionManager.h"
-#include "cafAssert.h"
+
+#include <QAction>
 
 
 CAF_CMD_SOURCE_INIT(RicDeleteSubItemsFeature, "RicDeleteSubItemsFeature");
@@ -68,6 +71,15 @@ void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
 
             summaryPlotColl->updateConnectedEditors();
         }
+
+        RimWellPathCollection* wellPathColl = dynamic_cast<RimWellPathCollection*>(item);
+        if (wellPathColl)
+        {
+            wellPathColl->deleteAllWellPaths();
+
+            wellPathColl->updateConnectedEditors();
+            wellPathColl->scheduleGeometryRegenAndRedrawViews();
+        }
     }
 }
 
@@ -91,6 +103,11 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems(caf::PdmUiItem* uiItem)
         return true;
     }
 
+    RimWellPathCollection* wellPathColl = dynamic_cast<RimWellPathCollection*>(uiItem);
+    if (wellPathColl && wellPathColl->wellPaths().size() > 0)
+    {
+        return true;
+    }
 
     return false;
 }
