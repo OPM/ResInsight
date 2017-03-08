@@ -446,6 +446,12 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicDeleteItemFeature";
     }
 
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteSubItemsFeature")->canFeatureBeExecuted())
+    {
+        commandIds << "Separator";
+        commandIds << "RicDeleteSubItemsFeature";
+    }
+
     if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellPathDeleteFeature")->canFeatureBeExecuted())
     {
         // Special delete command for Well paths
