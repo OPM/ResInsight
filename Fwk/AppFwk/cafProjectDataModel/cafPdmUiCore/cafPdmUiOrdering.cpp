@@ -41,7 +41,6 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
-#include <assert.h>
 
 namespace caf
 {
@@ -94,8 +93,8 @@ bool PdmUiOrdering::contains(const PdmUiItem* item) const
 void PdmUiOrdering::add(const PdmFieldHandle* field)
 {
     PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
-    assert(uiItem);
-    assert(!this->contains(uiItem));
+    CAF_ASSERT(uiItem);
+    CAF_ASSERT(!this->contains(uiItem));
 
     m_ordering.push_back(uiItem);
 }
@@ -106,8 +105,8 @@ void PdmUiOrdering::add(const PdmFieldHandle* field)
 void PdmUiOrdering::add(const PdmObjectHandle* obj)
 {
     PdmUiObjectHandle* uiItem = uiObj(const_cast<PdmObjectHandle*>(obj));
-    assert(uiItem);
-    assert(!this->contains(uiItem));
+    CAF_ASSERT(uiItem);
+    CAF_ASSERT(!this->contains(uiItem));
 
     m_ordering.push_back(uiItem);
 }

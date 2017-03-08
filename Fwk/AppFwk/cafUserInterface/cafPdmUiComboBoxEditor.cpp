@@ -46,8 +46,6 @@
 #include <QComboBox>
 #include <QLabel>
 
-#include <assert.h>
-
 
 namespace caf
 {
@@ -79,7 +77,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
-        assert(fromMenuOnly); // Not supported
+        CAF_ASSERT(fromMenuOnly); // Not supported
 
         m_comboBox->blockSignals(true);
         m_comboBox->clear();

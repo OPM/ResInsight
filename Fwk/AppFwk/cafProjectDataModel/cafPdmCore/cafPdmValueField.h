@@ -57,7 +57,7 @@ public:
 
 // class PdmProxyValueField : public PdmValueField
 // {
-//     DataType        value() const                      { assert(m_valueGetter);  return m_valueGetter->getValue(); }
+//     DataType        value() const                      { CAF_ASSERT(m_valueGetter);  return m_valueGetter->getValue(); }
 //     void            setValue(const DataType& fieldValue)  { if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
 // }
 

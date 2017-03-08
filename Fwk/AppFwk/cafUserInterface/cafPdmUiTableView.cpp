@@ -78,7 +78,7 @@ PdmUiTableView::~PdmUiTableView()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableView::setListField(PdmChildArrayFieldHandle* listField)
 {
-    assert(m_listViewEditor);
+    CAF_ASSERT(m_listViewEditor);
 
     m_listViewEditor->setListField(listField);
 
@@ -106,7 +106,7 @@ void PdmUiTableView::setUiConfigurationName(QString uiConfigName)
 //--------------------------------------------------------------------------------------------------
 QTableView* PdmUiTableView::tableView()
 {
-    assert(m_listViewEditor);
+    CAF_ASSERT(m_listViewEditor);
 
     return m_listViewEditor->tableView();
 }

@@ -49,7 +49,6 @@
 #include <QHBoxLayout>
 #include <QIntValidator>
 
-#include <assert.h>
 
 
 namespace caf
@@ -62,7 +61,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiSliderEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_spinBox.isNull());
+    CAF_ASSERT(!m_spinBox.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())

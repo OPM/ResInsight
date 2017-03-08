@@ -37,7 +37,8 @@
 
 #pragma once
 
-#include <assert.h>
+#include "cafAssert.h"
+
 #include <map>
 #include <vector>
 #include <cstddef>
@@ -112,8 +113,8 @@ namespace caf
             }
             else
             {
-                assert(key != entryIt->first); // classNameKeyword has already been used
-                assert(false); // To be sure ..
+                CAF_ASSERT(key != entryIt->first); // classNameKeyword has already been used
+                CAF_ASSERT(false); // To be sure ..
                 return false;
             }
         }

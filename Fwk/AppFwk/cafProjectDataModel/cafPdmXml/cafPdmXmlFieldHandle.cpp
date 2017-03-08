@@ -1,5 +1,6 @@
 #include "cafPdmXmlFieldHandle.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmXmlObjectHandle.h"
 
@@ -55,7 +56,7 @@ QString PdmXmlFieldHandle::childClassKeyword()
 PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
 {
     PdmXmlFieldHandle* xmlField = capability<PdmXmlFieldHandle>();
-    assert(xmlField);
+    CAF_ASSERT(xmlField);
 
     return xmlField;
 }

@@ -219,7 +219,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                     QList<PdmOptionItemInfo> options;
                     bool useOptionsOnly = true;
                     options = uiFieldHandle->valueOptions(&useOptionsOnly);
-                    assert(useOptionsOnly); // Not supported
+                    CAF_ASSERT(useOptionsOnly); // Not supported
 
                     for (QVariant v : valuesSelectedInField)
                     {
@@ -241,7 +241,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
 
             bool useOptionsOnly = true;
             QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&useOptionsOnly);
-            assert(useOptionsOnly); // Not supported
+            CAF_ASSERT(useOptionsOnly); // Not supported
 
             if (!valueOptions.isEmpty())
             {
@@ -286,7 +286,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
         }
         else
         {
-            assert(false);
+            CAF_ASSERT(false);
         }
     }
     else if (role == Qt::CheckStateRole)
@@ -451,7 +451,7 @@ PdmFieldHandle* PdmUiTableViewModel::getField(const QModelIndex &index) const
             }
             else
             {
-                assert(false);
+                CAF_ASSERT(false);
             }
         }
     }

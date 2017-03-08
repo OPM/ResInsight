@@ -38,7 +38,6 @@
 #pragma once
 
 #include <QString>
-#include <assert.h>
 
 namespace caf 
 {

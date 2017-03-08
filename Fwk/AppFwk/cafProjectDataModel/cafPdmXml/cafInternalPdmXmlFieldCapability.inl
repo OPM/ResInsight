@@ -1,3 +1,5 @@
+
+#include "cafAssert.h"
 #include "cafInternalPdmFieldIoHelper.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmXmlObjectHandle.h"
@@ -201,7 +203,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
     // Create an object if needed 
     if (m_field->value() == NULL)
     {
-        assert(objectFactory);
+        CAF_ASSERT(objectFactory);
         obj = objectFactory->create(className);
 
         if (obj == NULL)
@@ -217,7 +219,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
             PdmXmlObjectHandle* xmlObject = xmlObj(obj);
             if (!xmlObject || xmlObject->classKeyword() != className)
             {
-                assert(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
+                CAF_ASSERT(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
 
                 xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
                 xmlStream.skipCurrentElement(); // Skip to the endelement of this field
@@ -319,7 +321,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
     {
         QString className = xmlStream.name().toString();
 
-        assert(objectFactory);
+        CAF_ASSERT(objectFactory);
         PdmObjectHandle * obj = objectFactory->create(className);
 
         if (obj == NULL)
@@ -343,7 +345,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         PdmXmlObjectHandle* xmlObject = xmlObj(obj);
         if (!xmlObject || xmlObject->classKeyword() != className)
         {
-            assert(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
+            CAF_ASSERT(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
 
             // Skip to EndElement of the object
             xmlStream.skipCurrentElement();

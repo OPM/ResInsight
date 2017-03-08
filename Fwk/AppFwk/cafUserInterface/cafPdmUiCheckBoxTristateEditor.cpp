@@ -12,7 +12,6 @@
 #include "cafFactory.h"
 #include "cafTristate.h"
 
-#include <assert.h>
 
 
 namespace caf
@@ -26,8 +25,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiCheckBoxTristateEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxTristateEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_checkBox.isNull());
-    assert(!m_label.isNull());
+    CAF_ASSERT(!m_checkBox.isNull());
+    CAF_ASSERT(!m_label.isNull());
 
     {
         QIcon ic = field()->uiIcon(uiConfigName);

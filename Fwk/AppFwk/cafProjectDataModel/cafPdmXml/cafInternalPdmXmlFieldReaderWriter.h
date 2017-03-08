@@ -8,7 +8,6 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafInternalPdmFieldIoHelper.h"
 
-#include <assert.h>
 
 
 namespace caf
@@ -79,7 +78,7 @@ struct PdmFieldWriter< PdmPointer<DataType> >
     {
         QString dataString; 
 
-        assert(referenceHelper);
+        CAF_ASSERT(referenceHelper);
 
         if (fieldValue.isNull())
         {
@@ -111,7 +110,7 @@ struct PdmFieldReader< PdmPointer<DataType> >
 
         if (dataString != "NULL")
         {
-            assert(referenceHelper);
+            CAF_ASSERT(referenceHelper);
             
             PdmObjectHandle* objHandle = referenceHelper->objectFromReference(dataString);
             fieldValue.setRawPtr(objHandle);

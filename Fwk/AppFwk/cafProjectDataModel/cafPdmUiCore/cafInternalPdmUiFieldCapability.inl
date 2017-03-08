@@ -27,7 +27,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
         if (uiValue.type() == QVariant::UInt)
         {
             uint optionIndex = uiValue.toUInt();
-            assert(optionIndex < static_cast<unsigned int>(m_optionEntryCache.size()));
+            CAF_ASSERT(optionIndex < static_cast<unsigned int>(m_optionEntryCache.size()));
 
             QVariant optionVariantValue = m_optionEntryCache[optionIndex].value;
             
@@ -66,7 +66,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
                 {
                     // We are not getting indexes as expected from the UI. For now assert, to catch this condition
                     // but it should possibly be handled as setting the values explicitly. The code for that is below the assert
-                    assert(false);
+                    CAF_ASSERT(false);
                     typename FieldType::FieldDataType value;
                     PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(uiValue, value);
                     m_field->setValue(value);
@@ -79,7 +79,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
         {
             // We are not getting indexes as expected from the UI. For now assert, to catch this condition
             // but it should possibly be handled as setting the values explicitly. The code for that is below the assert
-            assert(false);
+            CAF_ASSERT(false);
             typename FieldType::FieldDataType value;
             PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(uiValue, value);
             m_field->setValue(value);
@@ -128,7 +128,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
         {
             if (isAutoAddingOptionFromValue() && indexesToFoundOptions.size() != static_cast<size_t>(uiBasedQVariant.toList().size())) 
             {
-                assert(false); // Did not find all the field values among the options available, even though we should. 
+                CAF_ASSERT(false); // Did not find all the field values among the options available, even though we should. 
                                // Reasons might be:
                                //    The "core" data type in the field is probably not supported by QVariant::toString() 
                                //    You forgot to call valueOptions() before the call to uiValue().
@@ -149,7 +149,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
             else return QVariant(-1); // Return -1 if not found instead of assert. Should result in clearing the selection
         }
 
-        assert(false);
+        CAF_ASSERT(false);
         return uiBasedQVariant;
     }
     else

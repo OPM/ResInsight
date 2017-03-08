@@ -2,7 +2,6 @@
 
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPointer.h"
-#include <assert.h>
 
 #include "cafPdmPtrArrayFieldHandle.h"
 namespace caf
@@ -23,7 +22,7 @@ class PdmPtrArrayField : public PdmFieldHandle
 public:
     PdmPtrArrayField()
     {
-        bool doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject = false; assert(doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject);
+        bool doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject = false; CAF_ASSERT(doNotUsePdmPtrArrayFieldForAnythingButPointersToPdmObject);
     }
 };
 

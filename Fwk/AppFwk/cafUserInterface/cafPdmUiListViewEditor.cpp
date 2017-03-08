@@ -46,7 +46,6 @@
 #include <QTableView>
 #include <QWidget>
 
-#include <assert.h>
 
 
 
@@ -229,7 +228,7 @@ PdmUiListViewEditor::~PdmUiListViewEditor()
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiListViewEditor::createWidget(QWidget* parent)
 {
-    assert(parent);
+    CAF_ASSERT(parent);
 
     QWidget* mainWidget = new QWidget(parent);
     QVBoxLayout* layout = new QVBoxLayout();

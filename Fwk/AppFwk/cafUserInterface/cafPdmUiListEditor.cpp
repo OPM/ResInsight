@@ -57,7 +57,6 @@
 #include <QStringListModel>
 
 
-#include <assert.h>
 
 
 //==================================================================================================
@@ -117,13 +116,13 @@ PdmUiListEditor::~PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    // TODO: Fix assert here when undoing in testapp
+    // TODO: Fix CAF_ASSERT( here when undoing in testapp
     // See PdmUiComboBoxEditor for pattern
     // This might also apply to other editors
 
-    assert(!m_listView.isNull());
-    assert(!m_label.isNull());
-    assert(m_listView->selectionModel());
+    CAF_ASSERT(!m_listView.isNull());
+    CAF_ASSERT(!m_label.isNull());
+    CAF_ASSERT(m_listView->selectionModel());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())
@@ -156,12 +155,12 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
 
-    assert(strListModel);
+    CAF_ASSERT(strListModel);
 
     m_options = field()->valueOptions(&m_optionsOnly);
     if (!m_options.isEmpty())
     {
-        assert(m_optionsOnly); // Handling Additions on the fly not implemented
+        CAF_ASSERT(m_optionsOnly); // Handling Additions on the fly not implemented
 
         strListModel->setItemsEditable(false);
         QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
@@ -326,7 +325,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
 {
     if (m_optionsOnly) return;
-    assert(m_options.isEmpty()); // Not supported yet
+    CAF_ASSERT(m_options.isEmpty()); // Not supported yet
 
     QStringList uiList = m_model->stringList();
 
@@ -376,7 +375,7 @@ bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
     if (listView == m_listView && event->type() == QEvent::KeyPress)
     {
         if (m_optionsOnly) return false;
-        assert(m_options.isEmpty()); // Not supported yet
+        CAF_ASSERT(m_options.isEmpty()); // Not supported yet
 
         QKeyEvent* keyEv = static_cast<QKeyEvent*>(event);
         if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )

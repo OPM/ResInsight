@@ -1,10 +1,10 @@
 #pragma once
 
+#include "cafAssert.h"
 #include "cafPdmBase.h"
 
 class QString;
 
-#include <assert.h>
 #include <set>
 #include <vector>
 
@@ -169,7 +169,7 @@ void PdmObjectHandle::firstAncestorOrThisOfTypeAsserted(T*& ancestor) const
 {
     firstAncestorOrThisOfType(ancestor);
 
-    assert(ancestor);
+    CAF_ASSERT(ancestor);
 }
 
 //--------------------------------------------------------------------------------------------------

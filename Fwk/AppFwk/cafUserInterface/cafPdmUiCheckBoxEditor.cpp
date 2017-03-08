@@ -46,7 +46,6 @@
 
 #include "cafFactory.h"
 
-#include <assert.h>
 
 
 namespace caf
@@ -60,8 +59,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiCheckBoxEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_checkBox.isNull());
-    assert(!m_label.isNull());
+    CAF_ASSERT(!m_checkBox.isNull());
+    CAF_ASSERT(!m_label.isNull());
 
     PdmUiCheckBoxEditorAttribute attributes;
     caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());

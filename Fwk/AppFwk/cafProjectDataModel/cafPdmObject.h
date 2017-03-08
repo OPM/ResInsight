@@ -44,7 +44,6 @@
 #include "cafPdmPointer.h"
 
 #include <set>
-#include <assert.h>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;

@@ -37,6 +37,7 @@
 
 #include "cafCmdAddItemFeature.h"
 
+#include "cafAssert.h"
 #include "cafCmdAddItemExec.h"
 #include "cafCmdAddItemExecData.h"
 #include "cafCmdFeatureManager.h"
@@ -107,7 +108,7 @@ void CmdAddItemFeature::onActionTriggered(bool isChecked)
         }
         else
         {
-            assert(0);
+            CAF_ASSERT(0);
         }
     }
 }

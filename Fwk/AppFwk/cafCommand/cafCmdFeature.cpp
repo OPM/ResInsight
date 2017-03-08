@@ -39,8 +39,6 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
 
-#include <assert.h>
-
 #include <QAction>
 
 

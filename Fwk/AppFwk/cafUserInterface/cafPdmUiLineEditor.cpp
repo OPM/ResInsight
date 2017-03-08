@@ -55,7 +55,6 @@
 #include <QStatusBar>
 #include <QString>
 
-#include <assert.h>
 
 
 
@@ -231,7 +230,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
-        assert(fromMenuOnly); // Not supported
+        CAF_ASSERT(fromMenuOnly); // Not supported
 
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
