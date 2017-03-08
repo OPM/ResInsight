@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryCurvesCalculator.h"
@@ -36,6 +37,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDateTime>
+#include <QString>
 #include <QRectF>
 
 #include "qwt_plot_curve.h"
@@ -198,6 +200,98 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
 QWidget* RimSummaryPlot::viewWidget()
 {
     return m_qwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlot::asciiDataForPlotExport()
+{
+    QString out;
+
+    std::vector<RimSummaryCurve*> curves;
+    this->descendantsIncludingThisOfType(curves);
+
+    std::vector<QString> caseNames;
+    std::vector<std::vector<time_t> > timeSteps;
+
+    std::vector<std::vector<std::vector<double> > > allCurveData;
+    std::vector<std::vector<QString > > allCurveNames;
+    //Vectors containing cases - curves - data points/curve name
+
+    for (RimSummaryCurve* curve : curves)
+    {
+        if (!curve->isCurveVisible()) continue;
+
+        QString curveCaseName = curve->summaryCase()->caseName();
+        int casePosInList = casePositionInList(curveCaseName, caseNames);
+        if (casePosInList < 0) //case is not yet considered
+        {
+            caseNames.push_back(curveCaseName);
+            
+            std::vector<time_t> curveTimeSteps = curve->timeSteps();
+            timeSteps.push_back(curveTimeSteps);
+
+            std::vector<std::vector<double> > curveDataForCase;
+            std::vector<double> curveYData = curve->yValues();
+            curveDataForCase.push_back(curveYData);
+            allCurveData.push_back(curveDataForCase);
+
+            std::vector<QString> curveNamesForCase;
+            curveNamesForCase.push_back(curve->curveName());
+            allCurveNames.push_back(curveNamesForCase);
+        }
+        else
+        {
+            std::vector<double> curveYData = curve->yValues();
+            allCurveData[casePosInList].push_back(curveYData);
+
+            QString curveName = curve->curveName();
+            allCurveNames[casePosInList].push_back(curveName);
+        }
+    }
+
+    for (int i = 0; i < timeSteps.size(); i++) //cases
+    {
+        out += "\n\n";
+        out += "Case: " + caseNames[i];
+        out += "\n";
+
+        for (int j = 0; j < timeSteps[i].size(); j++) //time steps & data points
+        {
+            if (j == 0)
+            {
+                out += "Date and time";
+                for (int k = 0; k < allCurveNames[i].size(); k++) // curves
+                {
+                    out += "\t" + (allCurveNames[i][k]);
+                }
+            }
+            out += "\n";
+            out += QDateTime::fromTime_t(timeSteps[i][j]).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
+
+            for (int k = 0; k < allCurveData[i].size(); k++) // curves
+            {
+                out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
+            }
+        }
+    }
+    return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimSummaryPlot::casePositionInList(QString curveCase, std::vector<QString> caseNames)
+{
+    if (caseNames.size() < 1) return -1;
+
+    for (int i = 0; i < caseNames.size(); i++)
+    {
+        if (curveCase == caseNames[i]) return i; 
+    }
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------

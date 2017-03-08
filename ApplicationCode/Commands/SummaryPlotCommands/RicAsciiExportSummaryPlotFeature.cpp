@@ -19,31 +19,24 @@
 #include "RicAsciiExportSummaryPlotFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
+#include "RiaLogging.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotExportSettings.h"
-#include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuMainWindow.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
+#include "cvfAssert.h"
 
 #include <QAction>
-
-#include "cvfAssert.h"
+#include <QDebug>
+#include <QFileInfo>
+#include <QMessageBox>
 #include <vector>
-#include "cafPdmUiPropertyViewDialog.h"
-#include "RiuMainWindow.h"
-#include "QMessageBox"
-#include "QFileInfo"
-#include "QDebug"
-#include "RiaLogging.h"
-#include "cafProgressInfo.h"
+
 
 
 CAF_CMD_SOURCE_INIT(RicAsciiExportSummaryPlotFeature, "RicAsciiExportSummaryPlotFeature");
@@ -67,15 +60,13 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
     std::vector<RimSummaryPlot*> selectedSummaryPlots;
     caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
 
-
-
     RimSummaryPlotExportSettings exportSettings;
 
     RiaApplication* app = RiaApplication::instance();
     QString projectFolder = app->currentProjectPath();
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("SUMMARYPLOT_ASCIIEXPORT_DIR", projectFolder);
-    QString defaultFilename = QString("SummaryPlotExport"); //TODO - take from summery plot user name
+    QString defaultFilename = QString("SummaryPlotExport"); 
 
     QString outputFileName = defaultDir + "/" + defaultFilename;
     exportSettings.fileName = outputFileName;
@@ -100,7 +91,6 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Summary Plot Data");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,18 +110,16 @@ bool RicAsciiExportSummaryPlotFeature::writeAsciiExportForSummaryPlots(const QSt
     size_t progress = 0;
 
     QTextStream out(&file);
-    out << "\n";
-    out << "-- Exported from ResInsight" << "\n";
-
-    for (auto* summaryPlot : selectedSummaryPlots)
+    for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
     {
+        out << summaryPlot->description();
+        out << summaryPlot->asciiDataForPlotExport();
+
         progress++;
         pi.setProgress(progress);
     }
-
     out << "\n";
-
-    RiaLogging::info(QString("Competed writing COMPDAT data to file %1").arg(fileName));
+    RiaLogging::info(QString("Competed writing ascii values for summary plot(s) to file %1").arg(fileName));
     return true;
 }
 

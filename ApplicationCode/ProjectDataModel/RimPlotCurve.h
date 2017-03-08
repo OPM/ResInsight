@@ -79,8 +79,6 @@ public:
 
     void                            updateCurveVisibility();
 
-    //TODO: virtual function for getting plot data for export(?)
-
 protected:
 
     virtual QString                 createCurveAutoName() = 0;

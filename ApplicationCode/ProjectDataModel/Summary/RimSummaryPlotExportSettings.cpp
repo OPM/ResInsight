@@ -20,9 +20,6 @@
 
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmPtrField.h"
-// #include "RimEclipseCase.h"
-// #include "RimTools.h"
-
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlotExportSettings, "RimSummaryPlotExportSettings");
 
@@ -35,8 +32,6 @@ RimSummaryPlotExportSettings::RimSummaryPlotExportSettings()
 
     CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
     fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-
-//    CAF_PDM_InitFieldNoDefault(&caseToApply, "CaseToApply", "Case to apply", "", "", "");
 
 }
 

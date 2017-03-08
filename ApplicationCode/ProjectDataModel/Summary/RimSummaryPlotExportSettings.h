@@ -19,12 +19,9 @@
 #pragma once
 
 #include "cafPdmField.h"
+#include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-#include "cafPdmUiItem.h"
-
-
-class RimEclipseCase;
+#include "cafPdmUiFieldEditorHandle.h"
 
 //==================================================================================================
 ///  
