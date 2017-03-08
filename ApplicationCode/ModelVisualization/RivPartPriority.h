@@ -40,6 +40,7 @@ public:
         Intersection,
         CrossSectionNnc,
         MeshLines, 
+        FaultMeshLines,
         Transparent,
         TransparentFault,
         TransparentNnc,
@@ -47,5 +48,4 @@ public:
         Highlight,
         Text
     };
-
 };

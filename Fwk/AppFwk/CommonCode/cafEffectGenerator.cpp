@@ -846,6 +846,8 @@ void MeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) con
     {
         eff->setRenderState(new cvf::RenderStateLine(m_lineWidth));
     }
+
+    eff->setRenderState(new cvf::RenderStateDepth(true, cvf::RenderStateDepth::LEQUAL));
 }
 
 //--------------------------------------------------------------------------------------------------
