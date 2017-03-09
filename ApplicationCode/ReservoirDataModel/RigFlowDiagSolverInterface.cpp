@@ -225,7 +225,40 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
             wsol.solution(m_opmFldData->eclGraph.rawResultData(), m_opmFldData->eclGraph.numGrids());
 
-        m_opmFldData->fldToolbox->assignInflowFlux(RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->eclGraph, well_fluxes));
+        Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->eclGraph, well_fluxes);
+
+        m_opmFldData->fldToolbox->assignInflowFlux(sumWellFluxPrCell);
+
+        for ( auto& tracerCellIdxsPair: injectorTracers )
+        {
+            std::vector<int> filteredCellIndices;
+                        
+            for (int activeCellIdx : tracerCellIdxsPair.second)
+            {
+                auto activeCellIdxFluxPair = sumWellFluxPrCell.find(activeCellIdx);
+                if (activeCellIdxFluxPair->second > 0 )
+                {
+                    filteredCellIndices.push_back(activeCellIdx);
+                }
+            }
+
+            if (tracerCellIdxsPair.second.size() != filteredCellIndices.size()) tracerCellIdxsPair.second = filteredCellIndices;
+        }
+
+        for ( auto& tracerCellIdxsPair: producerTracers )
+        {
+            std::vector<int> filteredCellIndices;
+
+            for (int activeCellIdx : tracerCellIdxsPair.second)
+            {
+                auto activeCellIdxFluxPair = sumWellFluxPrCell.find(activeCellIdx);
+                if (activeCellIdxFluxPair->second < 0 )
+                {
+                    filteredCellIndices.push_back(activeCellIdx);
+                }
+            }
+            if (tracerCellIdxsPair.second.size() != filteredCellIndices.size()) tracerCellIdxsPair.second = filteredCellIndices;
+        }
     }
 
     progressInfo.incrementProgress();
@@ -252,7 +285,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 result.setTracerFraction(tracerId.to_string(), fracVals);
             }
         }
-        catch (...)
+        catch (const std::exception& e)
         {
             CVF_ASSERT(false);
         }
@@ -281,7 +314,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 result.setTracerFraction(tracerId.to_string(), fracVals);
             }
         }
-        catch (...)
+        catch (const std::exception& e)
         {
             CVF_ASSERT(false);
         }

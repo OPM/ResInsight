@@ -64,7 +64,10 @@ namespace RigFlowDiagInterfaceTools {
                 const auto& ijk = completion.ijk;
                 const int cell_index = G.activeCell(ijk, grid_index);
                 if (cell_index >= 0) {
-                    inflow.emplace(cell_index, completion.reservoir_inflow_rate);
+                    auto iterIsInsertedPair = inflow.emplace(cell_index, completion.reservoir_inflow_rate);
+                    if (!iterIsInsertedPair.second){ // Not inserted, We had something there already
+                        iterIsInsertedPair.first->second += completion.reservoir_inflow_rate; // Accumulate the flow at this connection
+                    }
                 }
             }
         }
