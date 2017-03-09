@@ -355,6 +355,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
+            commandIds << "RicAsciiExportWellAllocationPlotFeature";
         }
 
 

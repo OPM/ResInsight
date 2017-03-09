@@ -274,6 +274,7 @@ void RimWellAllocationPlot::updateFromWell()
                 }
 
                 addStackedCurve(tracerName, depthValues, *accFlow, plotTrack);
+                //TODO: THIs is the data to be plotted...
             }
         }
         else
