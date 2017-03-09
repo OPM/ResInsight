@@ -21,12 +21,12 @@
 #include "cafCmdFeature.h"
 #include "cafPdmField.h"
 
-class RimWellAllocationPlot;
+class RimWellLogPlot;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicAsciiExportWellAllocationPlotFeature : public caf::CmdFeature
+class RicAsciiExportWellLogPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -38,5 +38,5 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    bool writeAsciiExportForWellAllocPlots(const QString& fileName, const std::vector<RimWellAllocationPlot*>& selectedSummaryPlots);
+    bool writeAsciiExportForWellLogPlots(const QString& fileName, const std::vector<RimWellLogPlot*>& selectedSummaryPlots);
 };

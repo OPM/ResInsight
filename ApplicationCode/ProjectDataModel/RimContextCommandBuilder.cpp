@@ -257,6 +257,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteWellLogTrackFeature";
             commandIds << "Separator";
             commandIds << "RicNewWellLogPlotTrackFeature";
+            commandIds << "RicAsciiExportWellLogPlotFeature";
         }
         else if (dynamic_cast<RimWellLogTrack*>(uiItem))
         {
@@ -355,7 +356,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
-            commandIds << "RicAsciiExportWellAllocationPlotFeature";
         }
 
 

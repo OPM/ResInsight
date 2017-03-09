@@ -26,7 +26,6 @@ ${CEE_CURRENT_LIST_DIR}RicAsciiExportWellAllocationPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSelectViewUI.cpp
 )
 
-
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
 )

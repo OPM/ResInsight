@@ -31,6 +31,8 @@
 
 #include <math.h>
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogCurve.h"
+#include "RigWellLogCurveData.h"
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0
@@ -381,6 +383,42 @@ void RimWellLogPlot::zoomAll()
 QWidget* RimWellLogPlot::viewWidget()
 {
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot::asciiDataForPlotExport()
+{
+    QString out;
+
+    for (RimWellLogTrack* track : m_tracks)
+    {
+        out += "\n" + track->description() + "\n";
+
+        std::vector<RimWellLogCurve* > curves = track->curvesVector();
+        for (RimWellLogCurve* curve : curves)
+        {
+            out += curve->curveName() + "\n";
+            const RigWellLogCurveData* curveData = curve->curveData();
+            std::vector<double> xPlotValues = curveData->xPlotValues();
+
+            std::vector<double> depths; 
+            depths = curveData->measuredDepthPlotValues(RimDefines::UNIT_NONE);
+
+            if (!(depths.size() == xPlotValues.size())) return out;
+
+            for (int i = xPlotValues.size()-1; i >= 0; i--)
+            {
+                out += QString::number(depths[i]) + " " + QString::number(xPlotValues[i]) + " \n";
+            }
+
+
+        }
+
+    }
+
+    return out;
 }
 
 //--------------------------------------------------------------------------------------------------

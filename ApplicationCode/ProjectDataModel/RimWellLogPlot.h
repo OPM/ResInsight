@@ -99,6 +99,8 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                viewWidget() override;
 
+    QString                                         asciiDataForPlotExport();
+
 protected:
 
     // Overridden PDM methods

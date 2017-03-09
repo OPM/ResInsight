@@ -69,6 +69,11 @@ public:
     void setLogarithmicScale(bool enable);
 
     std::vector<RimWellFlowRateCurve*> visibleStackedCurves();
+
+    QString description();
+    std::vector<RimWellLogCurve* > curvesVector();
+
+
 protected:
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

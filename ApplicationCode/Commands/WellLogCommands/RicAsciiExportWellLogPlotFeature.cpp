@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicAsciiExportWellAllocationPlotFeature.h"
+#include "RicAsciiExportWellLogPlotFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RimWellAllocationPlot.h"
+#include "RimWellLogPlot.h"
 
 #include "RiuMainWindow.h"
 
@@ -39,12 +39,12 @@
 
 
 
-CAF_CMD_SOURCE_INIT(RicAsciiExportWellAllocationPlotFeature, "RicAsciiExportWellAllocationPlotFeature");
+CAF_CMD_SOURCE_INIT(RicAsciiExportWellLogPlotFeature, "RicAsciiExportWellLogPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportWellAllocationPlotFeature::isCommandEnabled()
+bool RicAsciiExportWellLogPlotFeature::isCommandEnabled()
 {
     return true;
 }
@@ -52,7 +52,7 @@ bool RicAsciiExportWellAllocationPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAsciiExportWellAllocationPlotFeature::onActionTriggered(bool isChecked)
+void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString projectFolder = app->currentProjectPath();
@@ -60,15 +60,15 @@ void RicAsciiExportWellAllocationPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    std::vector<RimWellAllocationPlot*> selectedWellAllocPlots;
-    caf::SelectionManager::instance()->objectsByType(&selectedWellAllocPlots);
+    std::vector<RimWellLogPlot*> selectedWellLogPlots;
+    caf::SelectionManager::instance()->objectsByType(&selectedWellLogPlots);
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
     QString defaultFileName = defaultDir + "/" + QString("WellAllocationPlotExport");
-    QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Well Allocation Plot Export", defaultFileName, "All files(*.*)");
+    QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Well Log Plot Export", defaultFileName, "All files(*.*)");
 
     if (fileName.isEmpty()) return;
-    bool isOk = writeAsciiExportForWellAllocPlots(fileName, selectedWellAllocPlots);
+    bool isOk = writeAsciiExportForWellLogPlots(fileName, selectedWellLogPlots);
 
     if (!isOk)
     {
@@ -80,7 +80,7 @@ void RicAsciiExportWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAsciiExportWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicAsciiExportWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Well Allocation Plot Data");
 }
@@ -88,7 +88,7 @@ void RicAsciiExportWellAllocationPlotFeature::setupActionLook(QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportWellAllocationPlotFeature::writeAsciiExportForWellAllocPlots(const QString& fileName, const std::vector<RimWellAllocationPlot*>& selectedWellAllocPlots)
+bool RicAsciiExportWellLogPlotFeature::writeAsciiExportForWellLogPlots(const QString& fileName, const std::vector<RimWellLogPlot*>& selectedWellLogPlots)
 {
     RiaLogging::info(QString("Writing ascii values for well allocation plot(s) to file: %1").arg(fileName));
 
@@ -98,14 +98,15 @@ bool RicAsciiExportWellAllocationPlotFeature::writeAsciiExportForWellAllocPlots(
         return false;
     }
 
-    caf::ProgressInfo pi(selectedWellAllocPlots.size(), QString("Writing data to file %1").arg(fileName));
+    caf::ProgressInfo pi(selectedWellLogPlots.size(), QString("Writing data to file %1").arg(fileName));
     size_t progress = 0;
 
     QTextStream out(&file);
-    for (RimWellAllocationPlot* wellAllocPlot : selectedWellAllocPlots)
+    for (RimWellLogPlot* wellLogPlot : selectedWellLogPlots)
     {
-        out << wellAllocPlot->description();
-/*        out << summaryPlot->asciiDataForPlotExport();*/
+        out << wellLogPlot->description();
+        out << "\n";
+        out << wellLogPlot->asciiDataForPlotExport();
         out << "\n\n";
 
         progress++;
