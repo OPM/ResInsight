@@ -94,7 +94,7 @@ private:
 
 
 
-    std::vector<double>                                     calculateFlowPrTracer(const std::vector<RigWellResultPoint> &branchCells, int clSegIdx) const;
+    std::vector<double>                                     calculateFlowPrTracer(const RigWellResultPoint& wellCell) const;
 
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
@@ -116,6 +116,7 @@ private:
     RigEclCellIndexCalculator                               m_cellIndexCalculator;
     std::vector<QString>                                    m_tracerNames;
     double                                                  m_smallContributionsThreshold;
+    bool                                                    m_isProducer;
 
     struct BranchFlow
     {
