@@ -424,6 +424,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
             commandIds << "RicPlotProductionRateFeature";
+            commandIds << "RicShowContributingWellsFeature";
             commandIds << "Separator";
             commandIds << "RicEclipseWellShowLabelFeature";
             commandIds << "RicEclipseWellShowHeadFeature";

@@ -18,11 +18,11 @@
 
 #include "RicShowContributingWellsFeature.h"
 
-#include "RiaApplication.h"
-#include "RimEclipseResultCase.h"
-#include "RimView.h"
+#include "RicShowContributingWellsFeatureImpl.h"
 
-#include "cafCmdFeatureManager.h"
+#include "RimEclipseWell.h"
+
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -33,19 +33,10 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFe
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
+    std::vector<RimEclipseWell*> collection;
+    caf::SelectionManager::instance()->objectsByType(&collection);
 
-    RimEclipseResultCase* eclCase = nullptr;
-    activeView->firstAncestorOrThisOfType(eclCase);
-    if (eclCase)
-    {
-        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-        if (flowSols.size() > 0)
-        {
-            return true;
-        }
-    }
+    if (collection.size() == 1) return true;
 
     return false;
 }
@@ -55,21 +46,16 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 {
-    // First, shot the well allocation plot
-    // Then, use the feature to show contributing wells as this is based on the previous feature
+    std::vector<RimEclipseWell*> collection;
+    caf::SelectionManager::instance()->objectsByType(&collection);
 
-    std::vector<std::string> commandIds;
-    commandIds.push_back("RicShowWellAllocationPlotFeature");
-    commandIds.push_back("RicShowContributingWellsFromPlotFeature");
+    CAF_ASSERT(collection.size() == 1);
 
-    for (auto commandId : commandIds)
-    {
-        auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature(commandId);
-        if (feature)
-        {
-            feature->actionTriggered(false);
-        }
-    }
+    RimEclipseWell* well = collection[0];
+    RimEclipseView* eclipseView = nullptr;
+    well->firstAncestorOrThisOfTypeAsserted(eclipseView);
+
+    RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(eclipseView, well->name());
 }
 
 //--------------------------------------------------------------------------------------------------
