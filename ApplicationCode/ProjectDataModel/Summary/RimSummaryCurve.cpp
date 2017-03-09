@@ -210,14 +210,6 @@ RimSummaryCase* RimSummaryCurve::summaryCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setVariable(QString varName)
-{
-    setSummaryAddress(RifEclipseSummaryAddress::fieldVarAddress(varName.toStdString()));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
 {
     return m_curveVariable->address();

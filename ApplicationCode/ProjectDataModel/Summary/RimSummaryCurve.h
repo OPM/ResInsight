@@ -79,7 +79,6 @@ public:
 
     void                                    setSummaryCase(RimSummaryCase* sumCase);
     RimSummaryCase*                         summaryCase(); 
-    void                                    setVariable(QString varName);
 
     RifEclipseSummaryAddress                summaryAddress();
     void                                    setSummaryAddress(const RifEclipseSummaryAddress& address);
