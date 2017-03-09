@@ -278,10 +278,10 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
     this->firstAncestorOrThisOfType(eclCase);
     if (eclCase)
     {
-        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-        if (flowSols.size() > 0)
+        RimFlowDiagSolution* defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
+        if (defaultFlowDiagSolution)
         {
-            this->setFlowSolution(flowSols[0]);
+            this->setFlowSolution(defaultFlowDiagSolution);
         }
     }
 }

@@ -357,6 +357,19 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RimEclipseResultCase::defaultFlowDiagSolution()
+{
+    if (m_flowDiagSolutions.size() > 0)
+    {
+        return m_flowDiagSolutions[0];
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimFlowDiagSolution*> RimEclipseResultCase::flowDiagSolutions()
 {
     std::vector<RimFlowDiagSolution*> flowSols; 

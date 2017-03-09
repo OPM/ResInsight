@@ -68,6 +68,8 @@ public:
     void                            setPorosityModel(RimDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
+    
+    void                            setFlowSolution(RimFlowDiagSolution* flowSol);
     RimFlowDiagSolution*            flowDiagSolution();
     RigFlowDiagResultAddress        flowDiagResAddress() const;
 
@@ -125,7 +127,6 @@ protected:
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
 private:
-    void                            setFlowSolution(RimFlowDiagSolution* flowSol);
     void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
     void                            assignFlowSolutionFromCase();
 

@@ -52,6 +52,7 @@ public:
     virtual QString             gridFileName() const { return caseFileName();}
     virtual void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
+    RimFlowDiagSolution*              defaultFlowDiagSolution();
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 

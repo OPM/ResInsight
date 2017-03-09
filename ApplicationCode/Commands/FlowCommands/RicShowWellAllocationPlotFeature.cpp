@@ -48,8 +48,8 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
     activeView->firstAncestorOrThisOfType(eclCase);
     if (eclCase)
     {
-        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-        if (flowSols.size() > 0)
+        RimFlowDiagSolution* defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
+        if (defaultFlowDiagSolution)
         {
             return true;
         }

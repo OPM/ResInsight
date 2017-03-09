@@ -138,8 +138,7 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
     m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
     if ( !m_flowDiagSolution )
     {
-        std::vector<RimFlowDiagSolution*> flowSolutions =  m_case->flowDiagSolutions();
-        if ( flowSolutions.size() ) m_flowDiagSolution = flowSolutions.front();
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
 
     loadDataAndUpdate();
