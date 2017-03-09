@@ -31,7 +31,6 @@
 
 #include "cafAppEnum.h"
 
-#include <memory>
 
 class RifReaderEclipseSummary;
 class RimSummaryCase;
@@ -125,9 +124,4 @@ private:
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
     caf::PdmField<int>                      m_uiFilterResultSelection;
-
-    // Internal objects managed by unique_ptr
-    std::unique_ptr<RimSummaryAddress>       m_curveVariableObject;
-    std::unique_ptr<RimSummaryFilter>        m_summaryFilterObject;
-    std::unique_ptr<RimSummaryCurveAutoName> m_curveNameConfigObject;
 };

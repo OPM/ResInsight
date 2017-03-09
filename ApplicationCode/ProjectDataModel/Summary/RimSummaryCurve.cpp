@@ -32,6 +32,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
@@ -41,7 +42,6 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
-#include "RimSummaryTimeAxisProperties.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
@@ -156,8 +156,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
-    m_summaryFilter = m_summaryFilterObject.get();
+    m_summaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
     m_uiFilterResultSelection.xmlCapability()->setIOWritable(false);
@@ -170,8 +169,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveVariable.uiCapability()->setUiHidden(true);
     m_curveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveVariableObject = std::unique_ptr<RimSummaryAddress>(new RimSummaryAddress);
-    m_curveVariable = m_curveVariableObject.get();
+    m_curveVariable = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
@@ -179,8 +177,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveNameConfig.uiCapability()->setUiHidden(true);
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
-    m_curveNameConfig = m_curveNameConfigObject.get();
+    m_curveNameConfig = new RimSummaryCurveAutoName;
 
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
