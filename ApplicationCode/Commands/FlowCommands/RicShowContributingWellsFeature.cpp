@@ -20,9 +20,13 @@
 
 #include "RicShowContributingWellsFeatureImpl.h"
 
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafSelectionManager.h"
+#include "cafCmdFeatureManager.h"
 
 #include <QAction>
 
@@ -55,7 +59,10 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
     RimEclipseView* eclipseView = nullptr;
     well->firstAncestorOrThisOfTypeAsserted(eclipseView);
 
-    RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(eclipseView, well->name());
+    RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(eclipseView, well->name(), eclipseView->currentTimeStep());
+
+    RiuMainWindow::instance()->setExpanded(eclipseView, true);
+    RiuMainWindow::instance()->selectAsCurrentItem(eclipseView);
 }
 
 //--------------------------------------------------------------------------------------------------

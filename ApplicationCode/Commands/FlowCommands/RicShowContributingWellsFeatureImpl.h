@@ -33,10 +33,9 @@ class RigSingleWellResultsData;
 class RicShowContributingWellsFeatureImpl
 {
 public:
-    static void modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName);
+    static void modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName, int timeStep);
 
 private:
-    static std::vector<QString> contributingTracers(RimEclipseWell* well);
     static std::vector<QString> findContributingTracerNames(
                                 const RimFlowDiagSolution* flowDiagSolution,
                                 const RigSingleWellResultsData* wellResults,

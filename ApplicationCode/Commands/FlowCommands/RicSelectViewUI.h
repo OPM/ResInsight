@@ -18,20 +18,41 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+
+class RimEclipseView;
+class RimEclipseResultCase;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicShowContributingWellsFeature : public caf::CmdFeature
+class RicSelectViewUI : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicSelectViewUI();
+
+    void            setView(RimEclipseView* currentView);
+    void            setCase(RimEclipseResultCase* currentCase);
+
+    RimEclipseView* selectedView() const;
+    bool            createNewView() const;
+    QString         newViewName() const;
+    
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
-};
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+private:
+    caf::PdmPtrField<RimEclipseView*>   m_selectedView;
+    caf::PdmField<bool>                 m_createNewView;
+    caf::PdmField<QString>              m_newViewName;
+
+    RimEclipseView*         m_currentView;
+    RimEclipseResultCase*   m_currentCase;
+};
 

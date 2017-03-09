@@ -40,15 +40,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName)
+void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName, int timeStep)
 {
-    CAF_ASSERT(selectedWell);
-
-    RimEclipseView* eclipseView = viewToModify;
+    CAF_ASSERT(viewToModify);
 
     RimEclipseWell* selectedWell = nullptr;
 
-    for (RimEclipseWell* w : eclipseView->wellCollection()->wells())
+    for (RimEclipseWell* w : viewToModify->wellCollection()->wells())
     {
         if (w->name() == wellName)
         {
@@ -62,34 +60,32 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     selectedWell->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
 
     // Use the active flow diag solutions, or the first one as default
-    RimFlowDiagSolution* flowDiagSolution = eclipseView->cellResult()->flowDiagSolution();
+    RimFlowDiagSolution* flowDiagSolution = viewToModify->cellResult()->flowDiagSolution();
     if (!flowDiagSolution)
     {
-        std::vector<RimFlowDiagSolution*> flowSolutions = eclipseResultCase->flowDiagSolutions();
-        if (flowSolutions.size()) flowDiagSolution = flowSolutions.front();
+        flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
     }
 
     CAF_ASSERT(flowDiagSolution);
 
-    int timeStep = eclipseView->currentTimeStep();
-
     RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep(selectedWell->name(), timeStep);
-
     if (!(tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::PRODUCER))
     {
         return;
     }
-
-    eclipseView->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
-    eclipseView->cellResult()->setResultVariable("MaxFractionTracer");
+    
+    viewToModify->setCurrentTimeStep(timeStep);
+    viewToModify->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
+    viewToModify->cellResult()->setResultVariable("MaxFractionTracer");
+    viewToModify->cellResult()->setFlowSolution(flowDiagSolution);
 
     switch (tracerStatus)
     {
     case RimFlowDiagSolution::PRODUCER:
-        eclipseView->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_INJECTORS);
+        viewToModify->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_INJECTORS);
         break;
     case RimFlowDiagSolution::INJECTOR:
-        eclipseView->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_PRODUCERS);
+        viewToModify->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_PRODUCERS);
         break;
 
     default:
@@ -97,12 +93,12 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
         break;
     }
 
-    eclipseView->cellResult()->loadDataAndUpdate();
-    eclipseView->cellResult()->updateConnectedEditors();
+    viewToModify->cellResult()->loadDataAndUpdate();
+    viewToModify->cellResult()->updateConnectedEditors();
     
     std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->wellResults(), timeStep);
 
-    for (RimEclipseWell* w : eclipseView->wellCollection()->wells())
+    for (RimEclipseWell* w : viewToModify->wellCollection()->wells())
     {
         if (std::find(tracerNames.begin(), tracerNames.end(), w->name()) != tracerNames.end()
             || selectedWell->name() == w->name())
@@ -118,7 +114,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     // Disable all existing property filters, and
     // create a new property filter based on TOF for current well
 
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = eclipseView->eclipsePropertyFilterCollection();
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = viewToModify->eclipsePropertyFilterCollection();
 
     for (RimEclipsePropertyFilter* f : propertyFilterCollection->propertyFilters())
     {
@@ -128,7 +124,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFilters().push_back(propertyFilter);
 
-    propertyFilter->resultDefinition()->setEclipseCase(eclipseView->eclipseCase());
+    propertyFilter->resultDefinition()->setEclipseCase(viewToModify->eclipseCase());
     propertyFilter->resultDefinition()->setTofAndSelectTracer(selectedWell->name());
     propertyFilter->resultDefinition()->loadDataAndUpdate();
 
@@ -136,41 +132,11 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 
     RiuMainWindow::instance()->setExpanded(propertyFilterCollection, true);
 
-    eclipseView->faultCollection()->showFaultCollection = false;
-    eclipseView->faultCollection()->updateConnectedEditors();
+    viewToModify->faultCollection()->showFaultCollection = false;
+    viewToModify->faultCollection()->updateConnectedEditors();
 
-    eclipseView->scheduleCreateDisplayModelAndRedraw();
-
-    auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicShowMainWindowFeature");
-    feature->actionTriggered(false);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RicShowContributingWellsFeatureImpl::contributingTracers(RimEclipseWell* well)
-{
-    CAF_ASSERT(well);
-
-    RimEclipseView* eclipseView = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted(eclipseView);
-
-    RimEclipseResultCase* eclipseResultCase = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
-
-    // Use the active flow diag solutions, or the first one as default
-    RimFlowDiagSolution* flowDiagSolution = eclipseView->cellResult()->flowDiagSolution();
-    if (!flowDiagSolution)
-    {
-        std::vector<RimFlowDiagSolution*> flowSolutions = eclipseResultCase->flowDiagSolutions();
-        if (flowSolutions.size()) flowDiagSolution = flowSolutions.front();
-    }
-
-    CAF_ASSERT(flowDiagSolution);
-
-    int timeStep = eclipseView->currentTimeStep();
-
-    return findContributingTracerNames(flowDiagSolution, well->wellResults(), timeStep);
+    viewToModify->updateCurrentTimeStepAndRedraw();
+    viewToModify->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

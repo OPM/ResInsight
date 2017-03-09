@@ -11,6 +11,7 @@ ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFromPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicPlotProductionRateFeature.h
+${CEE_CURRENT_LIST_DIR}RicSelectViewUI.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -20,7 +21,9 @@ ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFromPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowContributingWellsFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicPlotProductionRateFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSelectViewUI.cpp
 )
+
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
