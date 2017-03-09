@@ -72,13 +72,7 @@ QString addCrossFlowEnding(const QString& wellName)
 RimFlowDiagSolution::RimFlowDiagSolution(void)
 {
     CAF_PDM_InitObject("Flow Diagnostics Solution", "", "", "");
-
-    //CAF_PDM_InitFieldNoDefault(&m_selectedWells, "SelectedWells", "Selected Wells","","");
-
     CAF_PDM_InitField(&m_userDescription, "UserDescription", QString("All Wells") ,"Description", "", "","");
-
-   
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +81,14 @@ RimFlowDiagSolution::RimFlowDiagSolution(void)
 RimFlowDiagSolution::~RimFlowDiagSolution(void)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFlowDiagSolution::userDescription() const
+{
+    return m_userDescription();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +118,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFlowDiagSolution::tracerNames()
+std::vector<QString> RimFlowDiagSolution::tracerNames() const
 {
     RimEclipseResultCase* eclCase; 
     this->firstAncestorOrThisOfType(eclCase);
@@ -140,7 +142,7 @@ std::vector<QString> RimFlowDiagSolution::tracerNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<int> > RimFlowDiagSolution::allInjectorTracerActiveCellIndices(size_t timeStepIndex)
+std::map<std::string, std::vector<int> > RimFlowDiagSolution::allInjectorTracerActiveCellIndices(size_t timeStepIndex) const
 {
     return allTracerActiveCellIndices(timeStepIndex, true);
 }
@@ -148,7 +150,7 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allInjectorTracerA
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<int> > RimFlowDiagSolution::allProducerTracerActiveCellIndices(size_t timeStepIndex)
+std::map<std::string, std::vector<int> > RimFlowDiagSolution::allProducerTracerActiveCellIndices(size_t timeStepIndex) const
 {
     return allTracerActiveCellIndices(timeStepIndex, false);
 }
@@ -156,7 +158,7 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allProducerTracerA
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors)
+std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors) const
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfType(eclCase);
@@ -212,12 +214,10 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
     return tracersWithCells;
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(const QString& tracerName)
+RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(const QString& tracerName) const
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfTypeAsserted(eclCase);
@@ -265,7 +265,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep(const QString& tracerName, size_t timeStepIndex)
+RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep(const QString& tracerName, size_t timeStepIndex) const
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfTypeAsserted(eclCase);
@@ -310,7 +310,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimFlowDiagSolution::tracerColor(const QString& tracerName)
+cvf::Color3f RimFlowDiagSolution::tracerColor(const QString& tracerName) const
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfType(eclCase);

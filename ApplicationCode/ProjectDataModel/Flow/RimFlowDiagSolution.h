@@ -20,8 +20,6 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "cafAppEnum.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -29,6 +27,7 @@
 
 class RimEclipseWell;
 class RigFlowDiagResults;
+
 //==================================================================================================
 ///  
 ///  
@@ -40,12 +39,12 @@ public:
     RimFlowDiagSolution();
     virtual ~RimFlowDiagSolution();
 
-    QString             userDescription() { return m_userDescription();} 
-    RigFlowDiagResults* flowDiagResults();
-    std::vector<QString>   tracerNames();
+    QString                 userDescription() const; 
+    RigFlowDiagResults*     flowDiagResults();
+    std::vector<QString>    tracerNames() const;
 
-    std::map<std::string, std::vector<int> > allInjectorTracerActiveCellIndices(size_t timeStepIndex);
-    std::map<std::string, std::vector<int> > allProducerTracerActiveCellIndices(size_t timeStepIndex);
+    std::map<std::string, std::vector<int> > allInjectorTracerActiveCellIndices(size_t timeStepIndex) const;
+    std::map<std::string, std::vector<int> > allProducerTracerActiveCellIndices(size_t timeStepIndex) const;
 
     enum TracerStatusType
     {
@@ -56,21 +55,15 @@ public:
         UNDEFINED  ///< Used as "Any" or "not set"
     };
 
-    TracerStatusType tracerStatusOverall(const QString& tracerName);
-    TracerStatusType tracerStatusInTimeStep(const QString& tracerName, size_t timeStepIndex);
-    cvf::Color3f     tracerColor(const QString& tracerName);
-
-
-protected:
-    //virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    TracerStatusType tracerStatusOverall(const QString& tracerName) const;
+    TracerStatusType tracerStatusInTimeStep(const QString& tracerName, size_t timeStepIndex) const;
+    cvf::Color3f     tracerColor(const QString& tracerName) const;
 
 private:
-    std::map<std::string, std::vector<int> > allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors);
+    std::map<std::string, std::vector<int> > allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors) const;
 
     virtual caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmField<QString> m_userDescription;
 
     cvf::ref<RigFlowDiagResults> m_flowDiagResults;
-
-    //caf::PdmPtrArrayField<RimEclipseWell*> m_selectedWells;
 };
