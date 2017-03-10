@@ -93,7 +93,6 @@ private:
     void                                                    calculateFlowPrPseudoLength(size_t branchIdx,
                                                                                         double startPseudoLengthFromTop);
 
-    std::vector<double>                                     calculateFlowPrTracer(const RigWellResultPoint& wellCell) const;
     std::vector<double>                                     calculateFlowPrTracer(const RigWellResultPoint& wellCell, 
                                                                                   const std::vector<double>& currentAccumulatedFlowPrTracer ) const;
     void                                                    sortTracers();
@@ -103,7 +102,7 @@ private:
                                                                               const std::vector<QString>& tracersToGroup);
 
     bool                                                    isWellFlowConsistent(bool isProducer) const;
-    std::vector<size_t>                                     wrpToConnectionIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells) const;
+    std::vector<size_t>                                     wrpToUniqueWrpIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells) const;
     static size_t                                           connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx) ;
     std::vector<size_t>                                     findDownStreamBranchIdxs( const RigWellResultPoint& connectionPoint) const;
 
