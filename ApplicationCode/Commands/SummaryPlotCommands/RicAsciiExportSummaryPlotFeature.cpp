@@ -36,6 +36,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <vector>
+#include "cafUtils.h"
 
 
 
@@ -62,19 +63,52 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 
     std::vector<RimSummaryPlot*> selectedSummaryPlots;
     caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
-
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
-    QString defaultFileName = defaultDir + "/" + QString("SummaryPlotExport");
-    QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Summary Plot Export", defaultFileName, "All files(*.*)");
 
-    if (fileName.isEmpty()) return;
-    bool isOk = writeAsciiExportForSummaryPlots(fileName, selectedSummaryPlots);
+
+    caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting to csv"));
+    size_t progress = 0;
+
+
+    bool isOk = false;
+    if (selectedSummaryPlots.size() == 1)
+    {
+        RimSummaryPlot* summaryPlot = selectedSummaryPlots.at(0);
+        QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((summaryPlot->description())) + ".csv";
+        QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Summary Plot Export", defaultFileName, "All files(*.*)");
+        if (fileName.isEmpty()) return;
+        isOk = writeAsciiExportForSummaryPlots(fileName, summaryPlot); 
+
+        progress++;
+        pi.setProgress(progress);
+    }
+    else if (selectedSummaryPlots.size() > 1)
+    {
+        std::vector<QString> fileNames;
+        for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
+        {
+            QString fileName = caf::Utils::makeValidFileBasename(summaryPlot->description()) + ".csv";
+            fileNames.push_back(fileName);
+        }
+
+        QString saveDir;
+        bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
+        if (!writeFiles) return;
+
+        RiaLogging::debug(QString("Writing to directory %!").arg(saveDir));
+        for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
+        {
+            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(summaryPlot->description()) + ".csv";
+            isOk = writeAsciiExportForSummaryPlots(fileName, summaryPlot); 
+            progress++;
+            pi.setProgress(progress);
+        }
+    }
 
     if (!isOk)
     {
-        QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + fileName);
+        QMessageBox::critical(NULL, "File export", "Failed to export summary plots to csv");
     }
-    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +122,7 @@ void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportSummaryPlotFeature::writeAsciiExportForSummaryPlots(const QString& fileName, const std::vector<RimSummaryPlot*>& selectedSummaryPlots)
+bool RicAsciiExportSummaryPlotFeature::writeAsciiExportForSummaryPlots(const QString& fileName, const RimSummaryPlot* summaryPlot)
 {
     RiaLogging::info(QString("Writing ascii values for summary plot(s) to file: %1").arg(fileName));
 
@@ -98,19 +132,12 @@ bool RicAsciiExportSummaryPlotFeature::writeAsciiExportForSummaryPlots(const QSt
         return false;
     }
 
-    caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Writing data to file %1").arg(fileName));
-    size_t progress = 0;
 
     QTextStream out(&file);
-    for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
-    {
-        out << summaryPlot->description();
-        out << summaryPlot->asciiDataForPlotExport();
-        out << "\n\n";
+    out << summaryPlot->description();
+    out << summaryPlot->asciiDataForPlotExport();
+    out << "\n\n";
 
-        progress++;
-        pi.setProgress(progress);
-    }
     RiaLogging::info(QString("Competed writing ascii values for summary plot(s) to file %1").arg(fileName));
     return true;
 }

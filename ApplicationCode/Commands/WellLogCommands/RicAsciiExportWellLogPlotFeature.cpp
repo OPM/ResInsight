@@ -63,7 +63,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
 
     std::vector<RimWellLogPlot*> selectedWellLogPlots;
     caf::SelectionManager::instance()->objectsByType(&selectedWellLogPlots);
-    QString saveDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
 
     caf::ProgressInfo pi(selectedWellLogPlots.size(), QString("Exporting to csv"));
     size_t progress = 0;
@@ -72,7 +72,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
     if (selectedWellLogPlots.size() == 1)
     {
         RimWellLogPlot* wellLogPlot = selectedWellLogPlots.at(0);
-        QString defaultFileName = saveDir + "/" + caf::Utils::makeValidFileBasename((wellLogPlot->description()));
+        QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((wellLogPlot->description())) + ".csv";
         QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Well Log Plot Export", defaultFileName, "All files(*.*)");
         if (fileName.isEmpty()) return;
         isOk = writeAsciiExportForWellLogPlots(fileName, wellLogPlot);
@@ -85,18 +85,18 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
         std::vector<QString> fileNames;
         for (RimWellLogPlot* wellLogPlot : selectedWellLogPlots)
         {
-            QString fileName = caf::Utils::makeValidFileBasename(wellLogPlot->description());
+            QString fileName = caf::Utils::makeValidFileBasename(wellLogPlot->description()) + ".csv";
             fileNames.push_back(fileName);
         }
 
-        bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(saveDir, fileNames);
+        QString saveDir;
+        bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
         if (!writeFiles) return;
 
         RiaLogging::debug(QString("Writing to directory %!").arg(saveDir));
         for (RimWellLogPlot* wellLogPlot : selectedWellLogPlots)
         {
-            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(wellLogPlot->description());
-
+            QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(wellLogPlot->description()) + ".csv";
             isOk = writeAsciiExportForWellLogPlots(fileName, wellLogPlot);
 
             progress++;
@@ -106,7 +106,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
 
     if (!isOk)
     {
-        QMessageBox::critical(NULL, "File export", "Failed to exported current result ");
+        QMessageBox::critical(NULL, "File export", "Failed to export well log plot to csv");
     }
     
 }
@@ -122,7 +122,7 @@ void RicAsciiExportWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportWellLogPlotFeature::writeAsciiExportForWellLogPlots(const QString& fileName, RimWellLogPlot* wellLogPlot)
+bool RicAsciiExportWellLogPlotFeature::writeAsciiExportForWellLogPlots(const QString& fileName, const RimWellLogPlot* wellLogPlot)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))

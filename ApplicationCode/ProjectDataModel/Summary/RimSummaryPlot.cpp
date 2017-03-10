@@ -205,7 +205,7 @@ QWidget* RimSummaryPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::asciiDataForPlotExport()
+QString RimSummaryPlot::asciiDataForPlotExport() const
 {
     QString out;
 
@@ -222,10 +222,15 @@ QString RimSummaryPlot::asciiDataForPlotExport()
     for (RimSummaryCurve* curve : curves)
     {
         if (!curve->isCurveVisible()) continue;
-
         QString curveCaseName = curve->summaryCase()->caseName();
-        int casePosInList = casePositionInList(curveCaseName, caseNames);
-        if (casePosInList < 0) //case is not yet considered
+
+        int casePosInList = -1;
+        for (int i = 0; i < caseNames.size(); i++)
+        {
+            if (curveCaseName == caseNames[i]) casePosInList = i;
+        }
+
+        if (casePosInList < 0)
         {
             caseNames.push_back(curveCaseName);
             
@@ -279,20 +284,7 @@ QString RimSummaryPlot::asciiDataForPlotExport()
     return out;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int RimSummaryPlot::casePositionInList(QString curveCase, std::vector<QString> caseNames)
-{
-    if (caseNames.size() < 1) return -1;
 
-    for (int i = 0; i < caseNames.size(); i++)
-    {
-        if (curveCase == caseNames[i]) return i; 
-    }
-
-    return -1;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

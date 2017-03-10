@@ -99,7 +99,7 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                viewWidget() override;
 
-    QString                                         asciiDataForPlotExport();
+    QString                                         asciiDataForPlotExport() const;
 
 protected:
 

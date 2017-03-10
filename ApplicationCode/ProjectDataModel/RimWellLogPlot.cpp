@@ -388,7 +388,7 @@ QWidget* RimWellLogPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogPlot::asciiDataForPlotExport()
+QString RimWellLogPlot::asciiDataForPlotExport() const
 {
     QString out;
 

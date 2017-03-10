@@ -38,5 +38,5 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    bool writeAsciiExportForSummaryPlots(const QString& fileName, const std::vector<RimSummaryPlot*>& selectedSummaryPlots);
+    bool writeAsciiExportForSummaryPlots(const QString& fileName, const RimSummaryPlot* selectedSummaryPlots);
 };

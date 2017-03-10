@@ -87,7 +87,7 @@ public:
 
     virtual QWidget*                                viewWidget() override;
 
-    QString                                         asciiDataForPlotExport();
+    QString                                         asciiDataForPlotExport() const;
 
 protected:
     // Overridden PDM methods
@@ -111,8 +111,6 @@ private:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     void                                            updateMdiWindowTitle() override;
     virtual void                                    deleteViewWidget() override; 
-
-    int                                            casePositionInList(QString curveCase, std::vector<QString> caseNames);
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;

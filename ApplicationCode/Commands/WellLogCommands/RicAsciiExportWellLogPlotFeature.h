@@ -40,5 +40,5 @@ protected:
 
 
 private:
-    bool writeAsciiExportForWellLogPlots(const QString& fileName, RimWellLogPlot* wellLogPlot);
+    bool writeAsciiExportForWellLogPlots(const QString& fileName, const RimWellLogPlot* wellLogPlot);
 };
