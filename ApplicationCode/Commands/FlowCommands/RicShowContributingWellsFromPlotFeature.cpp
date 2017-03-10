@@ -26,6 +26,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 
 #include "RiuMainWindow.h"
@@ -50,66 +51,83 @@ bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
 {
+    const QString lastUsedViewKey("lastUsedViewKey");
+
     RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
     if (!wellAllocationPlot) return;
 
-    RimEclipseResultCase* parentEclipseCase = nullptr;
-    wellAllocationPlot->flowDiagSolution()->firstAncestorOrThisOfTypeAsserted(parentEclipseCase);
+    RimEclipseResultCase* wellAllocationResultCase = nullptr;
+    wellAllocationPlot->flowDiagSolution()->firstAncestorOrThisOfTypeAsserted(wellAllocationResultCase);
 
-    RimEclipseView* viewToManipulate = nullptr;
+    RimEclipseView* defaultSelectedView = nullptr;
 
     {
-        RimEclipseView* viewForSameResultCase = nullptr;
-
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        if (activeView)
+        QString lastUsedViewRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
+        RimEclipseView* lastUsedView = dynamic_cast<RimEclipseView*>(caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedViewRef));
+        if (lastUsedView)
         {
-            RimEclipseResultCase* activeViewParent = nullptr;
-            activeView->firstAncestorOrThisOfTypeAsserted(activeViewParent);
+            RimEclipseResultCase* lastUsedViewResultCase = nullptr;
+            lastUsedView->firstAncestorOrThisOfTypeAsserted(lastUsedViewResultCase);
 
-            if (activeViewParent == parentEclipseCase)
+            if (lastUsedViewResultCase == wellAllocationResultCase)
             {
-                viewForSameResultCase = activeView;
+                defaultSelectedView = lastUsedView;
             }
-            else
+        }
+
+        if (!defaultSelectedView)
+        {
+            RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+            if (activeView)
             {
-                if (parentEclipseCase->views().size() > 0)
+                RimEclipseResultCase* activeViewResultCase = nullptr;
+                activeView->firstAncestorOrThisOfTypeAsserted(activeViewResultCase);
+
+                if (activeViewResultCase == wellAllocationResultCase)
                 {
-                    viewForSameResultCase = dynamic_cast<RimEclipseView*>(parentEclipseCase->views()[0]);
+                    defaultSelectedView = activeView;
+                }
+                else
+                {
+                    if (wellAllocationResultCase->views().size() > 0)
+                    {
+                        defaultSelectedView = dynamic_cast<RimEclipseView*>(wellAllocationResultCase->views()[0]);
+                    }
                 }
             }
         }
+    }
         
-        RicSelectViewUI featureUi;
-        if (viewForSameResultCase)
-        {
-            featureUi.setView(viewForSameResultCase);
-        }
-        else
-        {
-            featureUi.setCase(parentEclipseCase);
-        }
+    RicSelectViewUI featureUi;
+    if (defaultSelectedView)
+    {
+        featureUi.setView(defaultSelectedView);
+    }
+    else
+    {
+        featureUi.setCase(wellAllocationResultCase);
+    }
 
-        caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Show Contributing Wells in View", "");
-        propertyDialog.resize(QSize(400, 200));
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Show Contributing Wells in View", "");
+    propertyDialog.resize(QSize(400, 200));
         
-        if (propertyDialog.exec() != QDialog::Accepted) return;
+    if (propertyDialog.exec() != QDialog::Accepted) return;
 
-        if (featureUi.createNewView())
-        {
-            RimEclipseView* createdView = parentEclipseCase->createAndAddReservoirView();
-            createdView->name = featureUi.newViewName();
+    RimEclipseView* viewToManipulate = nullptr;
+    if (featureUi.createNewView())
+    {
+        RimEclipseView* createdView = wellAllocationResultCase->createAndAddReservoirView();
+        createdView->name = featureUi.newViewName();
 
-            // Must be run before buildViewItems, as wells are created in this function
-            createdView->loadDataAndUpdate();
-            parentEclipseCase->updateConnectedEditors();
+        // Must be run before buildViewItems, as wells are created in this function
+        createdView->loadDataAndUpdate();
+        wellAllocationResultCase->updateConnectedEditors();
 
-            viewToManipulate = createdView;
-        }
-        else
-        {
-            viewToManipulate = featureUi.selectedView();
-        }
+        viewToManipulate = createdView;
+    }
+    else
+    {
+        viewToManipulate = featureUi.selectedView();
     }
 
     CAF_ASSERT(viewToManipulate);
@@ -124,6 +142,9 @@ void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
 
     RiuMainWindow::instance()->setExpanded(viewToManipulate, true);
     RiuMainWindow::instance()->selectAsCurrentItem(viewToManipulate);
+
+    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), viewToManipulate);
+    RiaApplication::instance()->setCacheDataObject(lastUsedViewKey, refFromProjectToView);
 }
 
 //--------------------------------------------------------------------------------------------------
