@@ -394,6 +394,8 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 
     for (RimWellLogTrack* track : m_tracks)
     {
+        if (!track->isVisible()) continue;
+
         out += "\n" + track->description() + "\n";
 
         std::vector<RimWellLogCurve* > curves = track->curvesVector();
