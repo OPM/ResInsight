@@ -86,16 +86,16 @@ public:
     std::vector<std::pair<QString, double> >                totalTracerFractions() const;
 
 private:
+    bool                                                    hasConsistentFlow(const RigWellResultPoint &wellCell) const;
 
     void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, 
                                                                                                   size_t startConnectionNumberFromTop);
-    void                                                    calculateFlowPrPseudoLength(size_t branchIdx, 
+    void                                                    calculateFlowPrPseudoLength(size_t branchIdx,
                                                                                         double startPseudoLengthFromTop);
 
-
-
     std::vector<double>                                     calculateFlowPrTracer(const RigWellResultPoint& wellCell) const;
-
+    std::vector<double>                                     calculateFlowPrTracer(const RigWellResultPoint& wellCell, 
+                                                                                  const std::vector<double>& currentAccumulatedFlowPrTracer ) const;
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
 

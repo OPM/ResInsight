@@ -65,28 +65,16 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
     m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesCellIds.size());
 
-    if (isWellFlowConsistent(isProducer))
-    {
 
-        for ( const auto& it: (*m_tracerCellFractionValues) ) m_tracerNames.push_back(it.first);
+    for ( const auto& it: (*m_tracerCellFractionValues) ) m_tracerNames.push_back(it.first);
 
-        m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
+    m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
 
-        calculateAccumulatedFlowPrConnection(0, 1);
-        calculateFlowPrPseudoLength(0, 0.0);
-        sortTracers();
-        groupSmallContributions();
-    }
-    else
-    {
-        m_tracerCellFractionValues = nullptr;
-        m_cellIndexCalculator = RigEclCellIndexCalculator(nullptr, nullptr);
-        m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
+    calculateAccumulatedFlowPrConnection(0, 1);
+    calculateFlowPrPseudoLength(0, 0.0);
+    sortTracers();
+    groupSmallContributions();
 
-        calculateAccumulatedFlowPrConnection(0, 1);
-        calculateFlowPrPseudoLength(0, 0.0);
-
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +291,45 @@ bool  RigAccWellFlowCalculator::isWellFlowConsistent( bool isProducer) const
     }
     return isConsistent;
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+std::vector<double> calculateAccumulatedFractions(const std::vector<double>& accumulatedFlowPrTracer )
+{
+    double totalFlow = 0.0;
+    for ( double tracerFlow: accumulatedFlowPrTracer)
+    {
+        totalFlow += tracerFlow;
+    } 
+
+    std::vector<double> flowFractionsPrTracer(accumulatedFlowPrTracer.size(), 0.0);
+    
+    if (totalFlow == 0.0) // If we have no accumulated flow, we set all the flow assosciated to the last tracer, which is the reservoir 
+    {
+        flowFractionsPrTracer.back() = 1.0;
+        return flowFractionsPrTracer;
+    }
+
+    for ( size_t tIdx = 0; tIdx < accumulatedFlowPrTracer.size(); ++tIdx) 
+    {
+        double tracerFlow = accumulatedFlowPrTracer[tIdx];
+        flowFractionsPrTracer[tIdx] = tracerFlow / totalFlow;
+    }
+
+    return flowFractionsPrTracer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigAccWellFlowCalculator::hasConsistentFlow(const RigWellResultPoint &wellCell) const
+{
+    if (!m_tracerCellFractionValues) return true; // No flow diagnostics. 
+
+    return  (wellCell.flowRate() > 0.0 && m_isProducer) ||  (wellCell.flowRate() < 0.0 && !m_isProducer);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -335,11 +362,18 @@ void RigAccWellFlowCalculator::calculateAccumulatedFlowPrConnection(size_t branc
 
         const RigWellResultPoint& wellCell = branchCells[clSegIdx];
 
-        std::vector<double> flowPrTracer = calculateFlowPrTracer(wellCell);
+        std::vector<double> flowPrTracer = calculateFlowPrTracer(wellCell, accFlowPrTracer);
 
-        for (size_t tIdx = 0; tIdx < flowPrTracer.size(); ++tIdx)
+        for ( size_t tIdx = 0; tIdx < flowPrTracer.size(); ++tIdx )
         {
             accFlowPrTracer[tIdx] += flowPrTracer[tIdx];
+        }
+
+        if (!hasConsistentFlow(wellCell))
+        { 
+            // Associate all the flow with the reservoir tracer for inconsistent flow direction
+            flowPrTracer = std::vector<double> (flowPrTracer.size(), 0.0 );
+            flowPrTracer.back() = wellCell.flowRate();
         }
 
         // Add the total accumulated (fraction) flows from any branches connected to this cell
@@ -403,21 +437,33 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
             cellUpperPointIndex = clSegIdx + 1;
             currentSegmentIndex = cellUpperPointIndex;
         }
-
-        std::vector<double> flowPrTracer = calculateFlowPrTracer(branchCells[currentSegmentIndex]);
+        const RigWellResultPoint& wellCell =  branchCells[currentSegmentIndex];
+        std::vector<double> flowPrTracerToAccumulate = calculateFlowPrTracer( wellCell, accFlowPrTracer);
 
         double pseudoLengthFromTop_lower = mdCalculator.measuredDepths()[cellBottomPointIndex] + startPseudoLengthFromTop;
         double tvd_lower = -mdCalculator.wellPathPoints()[cellBottomPointIndex][2];
 
         // Push back the new start-of-cell flow, with the previously accumulated result into the storage
 
+        std::vector<double> flowPrTracer;
+        if (!hasConsistentFlow(wellCell))
+        { 
+            // Associate all the flow with the reservoir tracer for inconsistent flow direction
+            flowPrTracer = std::vector<double> (flowPrTracerToAccumulate.size(), 0.0 );
+            flowPrTracer.back() = wellCell.flowRate();
+        }
+        else
+        {
+            flowPrTracer = flowPrTracerToAccumulate;
+        }
+
         storeFlowOnDepthWTvd(&branchFlow, pseudoLengthFromTop_lower, tvd_lower, accFlowPrTracer, flowPrTracer);
 
         // Accumulate the connection-cell's fraction flows 
 
-        for (size_t tIdx = 0; tIdx < flowPrTracer.size(); ++tIdx)
+        for (size_t tIdx = 0; tIdx < flowPrTracerToAccumulate.size(); ++tIdx)
         {
-            accFlowPrTracer[tIdx] += flowPrTracer[tIdx];
+            accFlowPrTracer[tIdx] += flowPrTracerToAccumulate[tIdx];
         }
 
         double pseudoLengthFromTop_upper = mdCalculator.measuredDepths()[cellUpperPointIndex] + startPseudoLengthFromTop;
@@ -495,6 +541,59 @@ void RigAccWellFlowCalculator::storeFlowOnDepthWTvd(BranchFlow *branchFlow, doub
 
     branchFlow->depthValuesFromTop.push_back(depthValue);
     branchFlow->trueVerticalDepth.push_back(trueVerticalDepth);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Calculate the flow pr tracer. If inconsistent flow, keep the existing fractions constant
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigAccWellFlowCalculator::calculateFlowPrTracer(const RigWellResultPoint& wellCell, const std::vector<double>& currentAccumulatedFlowPrTracer ) const
+{
+    std::vector<double> flowPrTracer(m_tracerNames.size(), 0.0);
+
+    if ( !hasConsistentFlow(wellCell) )
+    {
+        double flowRate = wellCell.flowRate();
+        flowPrTracer = calculateAccumulatedFractions(currentAccumulatedFlowPrTracer);
+        for (double & accFraction: flowPrTracer)
+        {
+            accFraction *= flowRate;
+        }
+
+        return flowPrTracer;
+    }
+  
+    if ( m_tracerCellFractionValues )
+    {
+        if ( wellCell.isCell() && wellCell.m_isOpen )
+        {
+            size_t resCellIndex = m_cellIndexCalculator.resultCellIndex(wellCell.m_gridIndex,
+                                                                        wellCell.m_gridCellIndex);
+            size_t tracerIdx = 0;
+            double totalTracerFractionInCell = 0.0;
+            for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
+            {
+                double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
+                if ( cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction )
+                {
+                    double tracerFlow = cellTracerFraction * wellCell.flowRate();
+                    flowPrTracer[tracerIdx]     = tracerFlow;
+
+                    totalTracerFractionInCell += cellTracerFraction;
+                }
+                tracerIdx++;
+            }
+
+            double reservoirFraction    = 1.0 - totalTracerFractionInCell;
+            double reservoirTracerFlow  = reservoirFraction * wellCell.flowRate();
+            flowPrTracer[tracerIdx]     = reservoirTracerFlow;
+        }
+    }
+    else
+    {
+        flowPrTracer[0] = wellCell.flowRate();
+    }
+ 
+    return flowPrTracer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -645,6 +744,8 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
     std::vector<QString> tracersToGroup;
     {
+        bool hasConsistentWellFlow = isWellFlowConsistent(m_isProducer);
+
         std::vector<std::pair<QString, double> > totalTracerFractions = this->totalTracerFractions();
 
         if ( totalTracerFractions.size() < 5 ) return; // No grouping for few legend items
@@ -652,7 +753,11 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
         for ( const auto& tracerPair : totalTracerFractions )
         {
-            if ( abs(tracerPair.second) <= m_smallContributionsThreshold ) tracersToGroup.push_back(tracerPair.first);
+            if ( abs(tracerPair.second) <= m_smallContributionsThreshold  
+                 && (hasConsistentWellFlow || tracerPair.first != RIG_RESERVOIR_TRACER_NAME) ) // Do not group the Reservoir tracer if the well flow is inconsistent, because cross flow is shown as the reservoir fraction
+            { 
+                tracersToGroup.push_back(tracerPair.first);
+            }
         }
     }
 
