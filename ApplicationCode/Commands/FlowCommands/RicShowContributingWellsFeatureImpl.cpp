@@ -39,7 +39,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafAssert.h"
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -47,7 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclipseResultCase* wellAllocationResultCase, QString wellName, int timeStep)
+RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
 {
     const QString lastUsedViewKey("lastUsedViewKey");
 
@@ -60,7 +59,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclips
             RimEclipseResultCase* lastUsedViewResultCase = nullptr;
             lastUsedView->firstAncestorOrThisOfTypeAsserted(lastUsedViewResultCase);
 
-            if (lastUsedViewResultCase == wellAllocationResultCase)
+            if (lastUsedViewResultCase == eclipseResultCase)
             {
                 defaultSelectedView = lastUsedView;
             }
@@ -74,15 +73,15 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclips
                 RimEclipseResultCase* activeViewResultCase = nullptr;
                 activeView->firstAncestorOrThisOfTypeAsserted(activeViewResultCase);
 
-                if (activeViewResultCase == wellAllocationResultCase)
+                if (activeViewResultCase == eclipseResultCase)
                 {
                     defaultSelectedView = activeView;
                 }
                 else
                 {
-                    if (wellAllocationResultCase->views().size() > 0)
+                    if (eclipseResultCase->views().size() > 0)
                     {
-                        defaultSelectedView = dynamic_cast<RimEclipseView*>(wellAllocationResultCase->views()[0]);
+                        defaultSelectedView = dynamic_cast<RimEclipseView*>(eclipseResultCase->views()[0]);
                     }
                 }
             }
@@ -96,7 +95,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclips
     }
     else
     {
-        featureUi.setCase(wellAllocationResultCase);
+        featureUi.setCase(eclipseResultCase);
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Show Contributing Wells in View", "");
@@ -107,12 +106,12 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclips
     RimEclipseView* viewToManipulate = nullptr;
     if (featureUi.createNewView())
     {
-        RimEclipseView* createdView = wellAllocationResultCase->createAndAddReservoirView();
+        RimEclipseView* createdView = eclipseResultCase->createAndAddReservoirView();
         createdView->name = featureUi.newViewName();
 
         // Must be run before buildViewItems, as wells are created in this function
         createdView->loadDataAndUpdate();
-        wellAllocationResultCase->updateConnectedEditors();
+        eclipseResultCase->updateConnectedEditors();
 
         viewToManipulate = createdView;
     }
@@ -121,7 +120,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclips
         viewToManipulate = featureUi.selectedView();
     }
 
-    CAF_ASSERT(viewToManipulate);
+    CVF_ASSERT(viewToManipulate);
 
 
     RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(viewToManipulate, wellName, timeStep);
@@ -143,7 +142,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclips
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName, int timeStep)
 {
-    CAF_ASSERT(viewToModify);
+    CVF_ASSERT(viewToModify);
 
     RimEclipseWell* selectedWell = nullptr;
 
@@ -155,7 +154,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
         }
     }
 
-    CAF_ASSERT(selectedWell);
+    CVF_ASSERT(selectedWell);
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
     selectedWell->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
@@ -167,7 +166,8 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
         flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
     }
 
-    CAF_ASSERT(flowDiagSolution);
+    //assert(flowDiagSolution);
+    CVF_ASSERT(flowDiagSolution);
 
     RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep(selectedWell->name(), timeStep);
     if (!(tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::PRODUCER))

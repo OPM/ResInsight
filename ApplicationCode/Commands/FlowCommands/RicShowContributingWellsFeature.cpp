@@ -20,6 +20,7 @@
 
 #include "RicShowContributingWellsFeatureImpl.h"
 
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
@@ -41,8 +42,32 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 {
     std::vector<RimEclipseWell*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
+    if (collection.size() == 1)
+    {
+        RimEclipseWell* well = collection[0];
+        RimEclipseView* eclipseView = nullptr;
+        well->firstAncestorOrThisOfType(eclipseView);
 
-    if (collection.size() == 1) return true;
+        if (eclipseView)
+        {
+            RimFlowDiagSolution* flowDiagSolution = eclipseView->cellResult()->flowDiagSolution();
+            if (!flowDiagSolution)
+            {
+                RimEclipseResultCase* eclipseResultCase = nullptr;
+                well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
+
+                if (eclipseResultCase)
+                {
+                    flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
+                }
+            }
+
+            if (flowDiagSolution)
+            {
+                return true;
+            }
+        }
+    }
 
     return false;
 }
