@@ -39,6 +39,7 @@
 #include "RimView.h"
 #include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
+#include "RimViewManipulator.h"
 
 #include "RiuViewer.h"
 
@@ -537,110 +538,7 @@ void RimViewLinker::updateCamera(RimView* sourceView)
     std::vector<RimView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
-    cvf::Vec3d sourceCamUp;
-    cvf::Vec3d sourceCamEye;
-    cvf::Vec3d sourceCamViewRefPoint;
-    sourceView->viewer()->mainCamera()->toLookAt(&sourceCamEye, &sourceCamViewRefPoint, &sourceCamUp);
-
-    cvf::Vec3d sourceCamGlobalEye = sourceCamEye;
-    cvf::Vec3d sourceCamGlobalViewRefPoint = sourceCamViewRefPoint;
-
-    // Source bounding box in global coordinates including scaleZ
-    cvf::BoundingBox sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
-
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(sourceView);
-    if (eclipseView && eclipseView->mainGrid())
-    {
-        cvf::Vec3d offset = eclipseView->mainGrid()->displayModelOffset();
-        offset.z() *= eclipseView->scaleZ();
-
-        sourceCamGlobalEye += offset;
-        sourceCamGlobalViewRefPoint += offset;
-
-        cvf::Mat4d trans;
-        trans.setTranslation(offset);
-        sourceSceneBB.transform(trans);
-    }
-
-    for (RimView* destinationView : viewsToUpdate)
-    {
-        if (!destinationView) continue;
-
-        destinationView->isPerspectiveView = sourceView->isPerspectiveView;
-
-        RiuViewer* destinationViewer = destinationView->viewer();
-        if (destinationViewer)
-        {
-            destinationViewer->enableParallelProjection(!sourceView->isPerspectiveView);
-
-            // Destination bounding box in global coordinates including scaleZ
-            cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
-
-            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(destinationView);
-            if (destEclipseView && destEclipseView->mainGrid())
-            {
-                cvf::Vec3d destOffset = destEclipseView->mainGrid()->displayModelOffset();
-                destOffset.z() *= destEclipseView->scaleZ();
-
-                cvf::Vec3d destinationCamEye = sourceCamGlobalEye - destOffset;
-                cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint - destOffset;
-
-                cvf::Mat4d trans;
-                trans.setTranslation(destOffset);
-                destSceneBB.transform(trans);
-
-                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
-                {
-                    destinationViewer->mainCamera()->setFromLookAt(destinationCamEye, destinationCamViewRefPoint, sourceCamUp);
-                }
-                else
-                {
-                    // Fallback using values from source camera
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
-                }
-            }
-            else
-            {
-                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
-                {
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamGlobalEye, sourceCamGlobalViewRefPoint, sourceCamUp);
-                }
-                else
-                {
-                    // Fallback using values from source camera
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
-                }
-            }
-
-            destinationViewer->updateParallelProjectionSettings(sourceView->viewer());
-
-            destinationViewer->update();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB)
-{
-    if (!sourceBB.isValid() || !destBB.isValid()) return false;
-
-    if (sourceBB.intersects(destBB)) return true;
-
-    double largestExtent = sourceBB.extent().length();
-    if (destBB.extent().length() > largestExtent)
-    {
-        largestExtent = destBB.extent().length();
-    }
-
-    double centerDist = (sourceBB.center() - destBB.center()).length();
-    if (centerDist < largestExtent * 5)
-    {
-        return true;
-    }
-
-    return false;
+    RimViewManipulator::applySourceViewCameraOnDestinationViews(sourceView, viewsToUpdate);
 }
 
 //--------------------------------------------------------------------------------------------------

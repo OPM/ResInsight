@@ -99,8 +99,6 @@ private:
     
     void                                    removeOverrides();
 
-    static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
-
 private:
     caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
     caf::PdmPtrField<RimView*>                    m_masterView;
