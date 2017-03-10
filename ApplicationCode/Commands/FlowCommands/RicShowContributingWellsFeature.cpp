@@ -20,13 +20,15 @@
 
 #include "RicShowContributingWellsFeatureImpl.h"
 
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimViewManipulator.h"
 
 #include "RiuMainWindow.h"
 
-#include "cafSelectionManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -59,10 +61,19 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
     RimEclipseView* eclipseView = nullptr;
     well->firstAncestorOrThisOfTypeAsserted(eclipseView);
 
-    RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(eclipseView, well->name(), eclipseView->currentTimeStep());
+    RimEclipseResultCase* eclipseResultCase = nullptr;
+    well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
 
-    RiuMainWindow::instance()->setExpanded(eclipseView, true);
-    RiuMainWindow::instance()->selectAsCurrentItem(eclipseView);
+    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::showViewSelection(eclipseResultCase, well->name(), eclipseView->currentTimeStep());
+    if (modifiedView)
+    {
+        modifiedView->createDisplayModelAndRedraw();
+
+        std::vector<RimView*> viewsToUpdate;
+        viewsToUpdate.push_back(modifiedView);
+
+        RimViewManipulator::applySourceViewCameraOnDestinationViews(eclipseView, viewsToUpdate);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

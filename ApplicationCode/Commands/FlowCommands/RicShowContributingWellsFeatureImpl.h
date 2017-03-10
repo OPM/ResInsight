@@ -22,10 +22,11 @@
 
 #include <QString>
 
-class RimEclipseWell;
-class RimEclipseView;
-class RimFlowDiagSolution;
 class RigSingleWellResultsData;
+class RimEclipseResultCase;
+class RimEclipseView;
+class RimEclipseWell;
+class RimFlowDiagSolution;
 
 //==================================================================================================
 /// 
@@ -33,9 +34,11 @@ class RigSingleWellResultsData;
 class RicShowContributingWellsFeatureImpl
 {
 public:
-    static void modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName, int timeStep);
+    static RimEclipseView* showViewSelection(RimEclipseResultCase* wellAllocationResultCase, QString wellName, int timeStep);
 
 private:
+    static void modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName, int timeStep);
+
     static std::vector<QString> findContributingTracerNames(
                                 const RimFlowDiagSolution* flowDiagSolution,
                                 const RigSingleWellResultsData* wellResults,
