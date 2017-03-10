@@ -287,7 +287,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         }
         catch (const std::exception& e)
         {
-            CVF_ASSERT(false);
+            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
+            return result;
         }
     }
 
@@ -316,7 +317,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         }
         catch (const std::exception& e)
         {
-            CVF_ASSERT(false);
+            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
+            return result;
         }
     }
 
