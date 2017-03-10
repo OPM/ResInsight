@@ -64,7 +64,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&selectedWellLogPlots);
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
-    QString defaultFileName = defaultDir + "/" + QString("WellAllocationPlotExport");
+    QString defaultFileName = defaultDir + "/" + QString("WellLogPlotExport");
     QString fileName = QFileDialog::getSaveFileName(NULL, "Select file for Well Log Plot Export", defaultFileName, "All files(*.*)");
 
     if (fileName.isEmpty()) return;

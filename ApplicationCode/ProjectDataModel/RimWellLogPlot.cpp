@@ -397,23 +397,51 @@ QString RimWellLogPlot::asciiDataForPlotExport()
         out += "\n" + track->description() + "\n";
 
         std::vector<RimWellLogCurve* > curves = track->curvesVector();
+
+        std::vector<QString> curveNames;
+        std::vector<double> curveDepths;
+        std::vector<std::vector<double> > curvesPlotXValues;
+
+
         for (RimWellLogCurve* curve : curves)
         {
-            out += curve->curveName() + "\n";
+            curveNames.push_back(curve->curveName());
             const RigWellLogCurveData* curveData = curve->curveData();
-            std::vector<double> xPlotValues = curveData->xPlotValues();
+            if (!curveData) return out;
 
-            std::vector<double> depths; 
-            depths = curveData->measuredDepthPlotValues(RimDefines::UNIT_NONE);
-
-            if (!(depths.size() == xPlotValues.size())) return out;
-
-            for (int i = xPlotValues.size()-1; i >= 0; i--)
+            if (curveNames.size() == 1)
             {
-                out += QString::number(depths[i]) + " " + QString::number(xPlotValues[i]) + " \n";
+                curveDepths = curveData->measuredDepthPlotValues(RimDefines::UNIT_NONE);
             }
 
+            std::vector<double> xPlotValues = curveData->xPlotValues();
+            if (!(curveDepths.size() == xPlotValues.size())) return out;
+            curvesPlotXValues.push_back(xPlotValues);
+        }
 
+        
+        for (int i = curveDepths.size() -1; i >= 0; i--)
+        {
+            if (i == curveDepths.size() - 1)
+            {
+                if      (depthType() == CONNECTION_NUMBER)   out += "Connection";
+                else if (depthType() == MEASURED_DEPTH)      out += "MD   ";
+                else if (depthType() == PSEUDO_LENGTH)       out += "PL   ";
+                else if (depthType() == TRUE_VERTICAL_DEPTH) out += "TVD  ";
+                for (QString name : curveNames) out += "  \t" + name;
+                out += "\n";
+            }
+            else if (curveDepths[i] == curveDepths[i+1])
+            {
+                continue;
+            }
+
+            out += QString::number(curveDepths[i], 'f', 3);
+            for (std::vector<double> plotVector : curvesPlotXValues)
+            {
+                out += " \t" + QString::number(plotVector[i], 'g');
+            }
+            out += "\n";
         }
 
     }
