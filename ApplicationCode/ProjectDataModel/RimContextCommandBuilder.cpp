@@ -407,6 +407,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAsciiExportSummaryPlotFeature";
         }
+        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicAsciiExportWellLogPlotFeature";
+        }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
                  dynamic_cast<RimWellLogPlot*>(uiItem))

@@ -37,6 +37,8 @@ protected:
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
+
+
 private:
-    bool writeAsciiExportForWellLogPlots(const QString& fileName, const std::vector<RimWellLogPlot*>& selectedSummaryPlots);
+    bool writeAsciiExportForWellLogPlots(const QString& fileName, RimWellLogPlot* wellLogPlot);
 };
