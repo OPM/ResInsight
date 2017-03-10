@@ -1,15 +1,15 @@
 
-
 #pragma once
 
-#ifdef NDEBUG
-#undef NDEBUG
-#include <assert.h>
-#define NDEBUG
-#else
-#include <assert.h>
-#endif
+#include <iostream>
 
-#define CAF_ASSERT(expr) assert(expr)
-
-
+#define CAF_ASSERT(expr)                                             \
+  do                                                                 \
+  {                                                                  \
+    if(!(expr))                                                      \
+    {                                                                \
+      std::cout << __FILE__ << ":" << __LINE__ << ": CAF_ASSERT("    \
+                << #expr << ") failed" << std::endl;                 \
+      std::abort();                                                  \
+    }                                                                \
+  } while(false)
