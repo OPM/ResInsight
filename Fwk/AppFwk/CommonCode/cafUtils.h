@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include <vector>
+
 class QLineEdit;
 class QString;
 class QStringList;
@@ -60,6 +62,8 @@ public:
 
     static QString      indentString(int numSpacesToIndent, const QString& str);
     
+    static bool         getSaveDirectoryAndCheckOverwriteFiles(QString& defaultDir, std::vector<QString> fileNames);
+
 };
 
 }
