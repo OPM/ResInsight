@@ -21,7 +21,6 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimWellPathCollection.h"
 
-#include "cafAssert.h"
 #include "cafPdmUiItem.h"
 #include "cafSelectionManager.h"
 
@@ -58,7 +57,7 @@ void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
     std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems(items);
 
-    CAF_ASSERT(items.size() > 0);
+    CVF_ASSERT(items.size() > 0);
 
     for (auto item : items)
     {

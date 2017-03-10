@@ -37,7 +37,6 @@
 
 #include "cafCmdAddItemFeature.h"
 
-#include "cafAssert.h"
 #include "cafCmdAddItemExec.h"
 #include "cafCmdAddItemExecData.h"
 #include "cafCmdFeatureManager.h"
@@ -48,6 +47,8 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+
+#include "cvfAssert.h"
 
 #include <QAction>
 
@@ -108,7 +109,7 @@ void CmdAddItemFeature::onActionTriggered(bool isChecked)
         }
         else
         {
-            CAF_ASSERT(0);
+            CVF_ASSERT(0);
         }
     }
 }
