@@ -92,13 +92,12 @@ QList<caf::PdmOptionItemInfo> RicSelectViewUI::calculateValueOptions(const caf::
 
     if (fieldNeedingOptions == &m_selectedView)
     {
-        QIcon icon;
         if (m_currentCase)
         {
-            icon = m_currentCase->uiCapability()->uiIcon();
             for (RimView* v : m_currentCase->views())
             {
-                QString displayName = m_currentCase->caseUserDescription() + ": " + v->name;
+                QIcon icon = v->uiCapability()->uiIcon();
+                QString displayName = v->name;
 
                 options.push_back(caf::PdmOptionItemInfo(displayName, v, false, icon));
             }
