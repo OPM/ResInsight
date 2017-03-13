@@ -63,7 +63,6 @@
 
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
-#include "RivReservoirWellSpheresPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathCollectionPartMgr.h"
@@ -137,8 +136,7 @@ RimEclipseView::RimEclipseView()
     this->faultResultSettings()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
-    m_pipesPartManager = new RivReservoirSimWellsPartMgr(this);
-	m_wellSpheresPartManager = new RivReservoirWellSpheresPartMgr(this);
+    m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
 	
 	m_reservoir = NULL;
 }
@@ -228,7 +226,7 @@ void RimEclipseView::updateScaleTransform()
     scale(2, 2) = scaleZ();
 
     this->scaleTransform()->setLocalTransform(scale);
-    m_pipesPartManager->setScaleTransform(this->scaleTransform());
+    m_simWellsPartManager->setScaleTransform(this->scaleTransform());
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -613,26 +611,23 @@ void RimEclipseView::updateCurrentTimeStep()
         crossSectionCollection->applySingleColorEffect();
     }
 
-    // Simulation Well pipes
+    // Simulation Wells
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            // Simulation Well pipes
+            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+            simWellModelBasicList->setName("SimWellPipeMod");
 
-            cvf::ref<cvf::ModelBasicList> wellPipeModelBasicList = new cvf::ModelBasicList;
-            wellPipeModelBasicList->setName("SimWellPipeMod");
+            m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
 
-            m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
-			m_wellSpheresPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
+            simWellModelBasicList->updateBoundingBoxesRecursive();
 
-            wellPipeModelBasicList->updateBoundingBoxesRecursive();
+            this->removeModelByName(frameScene, simWellModelBasicList->name());
+            frameScene->addModel(simWellModelBasicList.p());
 
-            this->removeModelByName(frameScene, wellPipeModelBasicList->name());
-            frameScene->addModel(wellPipeModelBasicList.p());
-
-            m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
+            m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
         }
     }
 
@@ -678,8 +673,7 @@ void RimEclipseView::loadDataAndUpdate()
     this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
-    m_pipesPartManager->clearGeometryCache();
-    m_wellSpheresPartManager->clearGeometryCache();
+    m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 
@@ -873,8 +867,7 @@ void RimEclipseView::scheduleReservoirGridGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::scheduleSimWellGeometryRegen()
 {
-    m_pipesPartManager->scheduleGeometryRegen();
-    m_wellSpheresPartManager->clearGeometryCache();
+    m_simWellsPartManager->scheduleGeometryRegen();
 }
 
 
@@ -1262,8 +1255,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
 void RimEclipseView::updateDisplayModelForWellResults()
 {
     m_reservoirGridPartManager->clearGeometryCache();
-    m_pipesPartManager->clearGeometryCache();
-    m_wellSpheresPartManager->clearGeometryCache();
+    m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 

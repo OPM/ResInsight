@@ -55,7 +55,6 @@ class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
-class RivReservoirWellSpheresPartMgr;
 class RivIntersectionPartMgr;
 class RivReservoirViewPartMgr;
 
@@ -88,12 +87,12 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmChildField<RimEclipseCellColors*>                cellResult;
-    caf::PdmChildField<RimCellEdgeColors*>                   cellEdgeResult;
-    caf::PdmChildField<RimEclipseFaultColors*>               faultResultSettings;
-
-    caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
-    caf::PdmChildField<RimFaultCollection*>                  faultCollection;
+    caf::PdmChildField<RimEclipseCellColors*>       cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>          cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>      faultResultSettings;
+                                                    
+    caf::PdmChildField<RimEclipseWellCollection*>   wellCollection;
+    caf::PdmChildField<RimFaultCollection*>         faultCollection;
 
     // Fields
 
@@ -180,8 +179,7 @@ private:
     caf::PdmPointer<RimEclipseCase>                 m_reservoir;
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
-    cvf::ref<RivReservoirSimWellsPartMgr>              m_pipesPartManager;
-	cvf::ref<RivReservoirWellSpheresPartMgr>        m_wellSpheresPartManager;
+    cvf::ref<RivReservoirSimWellsPartMgr>           m_simWellsPartManager;
 	
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };

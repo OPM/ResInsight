@@ -21,7 +21,6 @@ ${CEE_CURRENT_LIST_DIR}RivWellPathSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipesPartMgr.h
-${CEE_CURRENT_LIST_DIR}RivReservoirWellSpheresPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivResultToTextureMapper.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryResultToTextureMapper.h
@@ -55,7 +54,6 @@ ${CEE_CURRENT_LIST_DIR}RivWellPathSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipesPartMgr.cpp
-${CEE_CURRENT_LIST_DIR}RivReservoirWellSpheresPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.cpp
