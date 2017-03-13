@@ -24,7 +24,9 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+
 #include "RigFlowDiagInterfaceTools.h"
+#include "opm/flowdiagnostics/DerivedQuantities.hpp"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
@@ -72,6 +74,16 @@ void RigFlowDiagTimeStepResult::setTracerFraction(const std::string& tracerName,
     tracers.insert(tracerName);
 
     this->addResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracers), cellValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagTimeStepResult::setInjProdWellPairFlux(const std::string& injectorTracerName, 
+                                                       const std::string& producerTracerName, 
+                                                       const std::pair<double, double>& injProdFluxes)
+{
+    m_injProdWellPairFluxes[std::make_pair(injectorTracerName, producerTracerName)] = injProdFluxes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +142,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     RigFlowDiagTimeStepResult result(m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
 
-    caf::ProgressInfo progressInfo(7, "Calculating Flow Diagnostics");
+    caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
    
 
     if ( m_opmFldData.isNull() )
@@ -213,6 +225,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
 
     // Set up flow Toolbox with timestep data
+    Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
+
     {
         Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxField(m_opmFldData->eclGraph, false);
 
@@ -225,9 +239,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
             wsol.solution(m_opmFldData->eclGraph.rawResultData(), m_opmFldData->eclGraph.numGrids());
 
-        Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->eclGraph, well_fluxes);
+        sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->eclGraph, well_fluxes);
 
         m_opmFldData->fldToolbox->assignInflowFlux(sumWellFluxPrCell);
+
+        // Filter connection cells with inconsistent well in flow direction (Hack, we should do something better)
 
         for ( auto& tracerCellIdxsPair: injectorTracers )
         {
@@ -264,61 +280,88 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     progressInfo.incrementProgress();
     progressInfo.setProgressDescription("Injector Solution");
 
-    // Injection Solution
     {
-        std::vector<CellSet> injectorCellSet;
+        // Injection Solution
+
+        std::vector<CellSet> injectorCellSets;
         for ( const auto& tIt: injectorTracers )
         {
-            injectorCellSet.push_back(CellSet(CellSetID(tIt.first), tIt.second));
+            injectorCellSets.push_back(CellSet(CellSetID(tIt.first), tIt.second));
         }
 
+        std::unique_ptr<Toolbox::Forward> injectorSolution;
         try 
         {
-            Solution injSol = m_opmFldData->fldToolbox->computeInjectionDiagnostics(injectorCellSet).fd;
-
-
-            for ( const CellSetID& tracerId: injSol.startPoints() )
-            {
-                CellSetValues tofVals = injSol.timeOfFlight(tracerId);
-                result.setTracerTOF(tracerId.to_string(), tofVals);
-                CellSetValues fracVals = injSol.concentration(tracerId);
-                result.setTracerFraction(tracerId.to_string(), fracVals);
-            }
+            injectorSolution.reset(new Toolbox::Forward( m_opmFldData->fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
         }
         catch (const std::exception& e)
         {
             QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
             return result;
         }
-    }
 
-    progressInfo.incrementProgress();
-    progressInfo.setProgressDescription("Producer Solution");
+        for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
+        {
+            CellSetValues tofVals = injectorSolution->fd.timeOfFlight(tracerId);
+            result.setTracerTOF(tracerId.to_string(), tofVals);
+            CellSetValues fracVals = injectorSolution->fd.concentration(tracerId);
+            result.setTracerFraction(tracerId.to_string(), fracVals);
+        }
 
-    // Producer Solution
-    {
-        std::vector<CellSet> prodjCellSet;
+        progressInfo.incrementProgress();
+        progressInfo.setProgressDescription("Producer Solution");
+
+        // Producer Solution
+
+        std::vector<CellSet> prodjCellSets;
         for ( const auto& tIt: producerTracers )
         {
-            prodjCellSet.push_back(CellSet(CellSetID(tIt.first), tIt.second));
+            prodjCellSets.push_back(CellSet(CellSetID(tIt.first), tIt.second));
         }
 
-        try 
+        std::unique_ptr<Toolbox::Reverse> producerSolution;
+        try
         {
-            Solution prodSol = m_opmFldData->fldToolbox->computeProductionDiagnostics(prodjCellSet).fd;
-
-            for ( const CellSetID& tracerId: prodSol.startPoints() )
-            {
-                CellSetValues tofVals = prodSol.timeOfFlight(tracerId);
-                result.setTracerTOF(tracerId.to_string(), tofVals);
-                CellSetValues fracVals = prodSol.concentration(tracerId);
-                result.setTracerFraction(tracerId.to_string(), fracVals);
-            }
+            producerSolution.reset(new Toolbox::Reverse(m_opmFldData->fldToolbox->computeProductionDiagnostics(prodjCellSets)));
         }
-        catch (const std::exception& e)
+        catch ( const std::exception& e )
         {
             QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
             return result;
+        }
+
+        for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
+        {
+            CellSetValues tofVals = producerSolution->fd.timeOfFlight(tracerId);
+            result.setTracerTOF(tracerId.to_string(), tofVals);
+            CellSetValues fracVals = producerSolution->fd.concentration(tracerId);
+            result.setTracerFraction(tracerId.to_string(), fracVals);
+        }
+
+        progressInfo.incrementProgress();
+        progressInfo.setProgressDescription("Well pair fluxes");
+        
+        int producerTracerCount = static_cast<int>( prodjCellSets.size());
+
+        #pragma omp parallel for
+        for ( int pIdx = 0; pIdx < producerTracerCount; ++pIdx )
+        {
+            const auto& prodCellSet = prodjCellSets[pIdx];
+
+            for ( const auto& injCellSet : injectorCellSets )
+            {
+                std::pair<double, double> fluxPair = injectorProducerPairFlux(*(injectorSolution.get()), 
+                                                                              *(producerSolution.get()),
+                                                                              injCellSet, 
+                                                                              prodCellSet,
+                                                                              sumWellFluxPrCell);
+                #pragma omp critical
+                {
+                    result.setInjProdWellPairFlux(injCellSet.id().to_string(),
+                                                  prodCellSet.id().to_string(),
+                                                  fluxPair);
+                }
+            }
         }
     }
 
