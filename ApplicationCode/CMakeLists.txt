@@ -188,15 +188,14 @@ if(RESINSIGHT_ENABLE_HDF5)
     if (HDF5_FOUND)
 		add_definitions(${HDF5_DEFINITIONS})
 		include_directories(${HDF5_INCLUDE_DIRS})
-		add_definitions(-DUSE_HDF5)
 
 		list(APPEND THIRD_PARTY_LIBRARIES
 		    ${HDF5_LIBRARIES}
 		)
 
-        if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-            message( STATUS "Using HD5 from : ${HDF5_C_LIBRARY}" )
-        endif()
+		add_definitions(-DUSE_HDF5)
+        # TODO add_subdirectory(HDF/Hdf5Reader)
+        message( STATUS "Linking HD5 libraries : ${HDF5_LIBRARIES}" )
     endif()
 endif()
 
