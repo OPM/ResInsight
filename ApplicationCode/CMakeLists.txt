@@ -178,6 +178,21 @@ endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
 
+# 
+# HDF5  
+# 
+option(RESINSIGHT_ENABLE_HDF5 "Use HDF5" OFF)
+if(RESINSIGHT_ENABLE_HDF5)
+    find_package(HDF5 REQUIRED)
+    if (HDF5_FOUND)
+        add_definitions(-DUSE_HDF5)
+        set(RESINSIGHT_USE_HDF5 1)
+        if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+            message( STATUS "Using HD5 from : ${HDF5_C_LIBRARY}" )
+        endif()
+    endif()
+endif()
+
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
