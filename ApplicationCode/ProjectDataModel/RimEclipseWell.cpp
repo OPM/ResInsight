@@ -107,7 +107,7 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             if (reservoirView)
             {
-                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->scheduleSimWellGeometryRegen();
                 reservoirView->scheduleCreateDisplayModelAndRedraw();
             }
         }

@@ -306,7 +306,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 RimEclipseView* reservoirView = reservoirViews()[i];
 
                 reservoirView->scheduleReservoirGridGeometryRegen();
-                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->scheduleSimWellGeometryRegen();
                 reservoirView->createDisplayModelAndRedraw();
             }
         }

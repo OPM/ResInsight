@@ -61,7 +61,7 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
-#include "RivReservoirPipesPartMgr.h"
+#include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivReservoirWellSpheresPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
@@ -137,7 +137,7 @@ RimEclipseView::RimEclipseView()
     this->faultResultSettings()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
-    m_pipesPartManager = new RivReservoirPipesPartMgr(this);
+    m_pipesPartManager = new RivReservoirSimWellsPartMgr(this);
 	m_wellSpheresPartManager = new RivReservoirWellSpheresPartMgr(this);
 	
 	m_reservoir = NULL;
@@ -871,7 +871,7 @@ void RimEclipseView::scheduleReservoirGridGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::schedulePipeGeometryRegen()
+void RimEclipseView::scheduleSimWellGeometryRegen()
 {
     m_pipesPartManager->scheduleGeometryRegen();
     m_wellSpheresPartManager->clearGeometryCache();

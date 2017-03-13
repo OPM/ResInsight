@@ -39,6 +39,7 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
+#include "RimEclipseResultCase.h"
 
 
 namespace caf
@@ -197,6 +198,8 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&obsoleteField_showWellHead,              "ShowWellHead",     true, "Show Well Head", "", "", "");
     CAF_PDM_InitField(&obsoleteField_showWellLabel,             "ShowWellLabel",    true, "Show Well Label", "", "", "");
     CAF_PDM_InitField(&obsoleteField_showWellCellFence,         "ShowWellFences",   false,  "Show Well Cell Fence", "", "", "");
+
+    CAF_PDM_InitField(&m_showWellCommunicationLines,         "ShowWellCommunicationLines",   false,  "Show Communication Lines", "", "", "");
 
     obsoleteField_showWellHead.uiCapability()->setUiHidden(true);
     obsoleteField_showWellLabel.uiCapability()->setUiHidden(true);
@@ -392,7 +395,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
                 || &m_showWellSpheres == changedField
                 || &showConnectionStatusColors == changedField)
         {
-            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if (  &pipeCrossSectionVertexCount == changedField 
@@ -405,13 +408,13 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
                 || &wellPipeCoordType == changedField
                 || &m_showWellPipe == changedField)
         {
-            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if (&showWellsIntersectingVisibleCells == changedField)
         {
             m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
@@ -445,6 +448,11 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     if (&m_showWellCells == changedField)
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+
+    if (&m_showWellCommunicationLines == changedField)
+    {
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
 }
 
@@ -538,6 +546,10 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     filterGroup->add(&m_showWellCells);
     filterGroup->add(&m_showWellCellFence);
     filterGroup->add(&wellCellFenceType);
+
+    RimEclipseResultCase* ownerCase; 
+    firstAncestorOrThisOfTypeAsserted(ownerCase);
+    m_showWellCommunicationLines.uiCapability()->setUiHidden(!ownerCase->flowDiagSolverInterface());
 
     m_showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
     wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());

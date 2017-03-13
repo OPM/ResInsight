@@ -54,7 +54,7 @@ class RimReservoirCellResultsStorage;
 class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
-class RivReservoirPipesPartMgr;
+class RivReservoirSimWellsPartMgr;
 class RivReservoirWellSpheresPartMgr;
 class RivIntersectionPartMgr;
 class RivReservoirViewPartMgr;
@@ -125,7 +125,7 @@ public:
 
     virtual void                                    scheduleGeometryRegen(RivCellSetEnum geometryType);
     void                                            scheduleReservoirGridGeometryRegen();
-    void                                            schedulePipeGeometryRegen();
+    void                                            scheduleSimWellGeometryRegen();
     void                                            updateDisplayModelForWellResults();
 
     const std::vector<RivCellSetEnum>&              visibleGridParts() const;
@@ -180,7 +180,7 @@ private:
     caf::PdmPointer<RimEclipseCase>                 m_reservoir;
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
-    cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
+    cvf::ref<RivReservoirSimWellsPartMgr>              m_pipesPartManager;
 	cvf::ref<RivReservoirWellSpheresPartMgr>        m_wellSpheresPartManager;
 	
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
