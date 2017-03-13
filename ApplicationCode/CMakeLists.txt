@@ -183,10 +183,17 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 # 
 option(RESINSIGHT_ENABLE_HDF5 "Use HDF5" OFF)
 if(RESINSIGHT_ENABLE_HDF5)
-    find_package(HDF5 REQUIRED)
+	add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+    find_package(HDF5 REQUIRED COMPONENTS CXX)
     if (HDF5_FOUND)
-        add_definitions(-DUSE_HDF5)
-        set(RESINSIGHT_USE_HDF5 1)
+		add_definitions(${HDF5_DEFINITIONS})
+		include_directories(${HDF5_INCLUDE_DIRS})
+		add_definitions(-DUSE_HDF5)
+
+		list(APPEND THIRD_PARTY_LIBRARIES
+		    ${HDF5_LIBRARIES}
+		)
+
         if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             message( STATUS "Using HD5 from : ${HDF5_C_LIBRARY}" )
         endif()
