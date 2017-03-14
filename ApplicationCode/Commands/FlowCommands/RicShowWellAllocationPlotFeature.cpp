@@ -41,18 +41,12 @@ CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlot
 //--------------------------------------------------------------------------------------------------
 bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
+    std::vector<RimEclipseWell*> collection;
+    caf::SelectionManager::instance()->objectsByType(&collection);
 
-    RimEclipseResultCase* eclCase = nullptr;
-    activeView->firstAncestorOrThisOfType(eclCase);
-    if (eclCase)
+    if (collection.size() > 0)
     {
-        RimFlowDiagSolution* defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
-        if (defaultFlowDiagSolution)
-        {
-            return true;
-        }
+        return true;
     }
 
     return false;
