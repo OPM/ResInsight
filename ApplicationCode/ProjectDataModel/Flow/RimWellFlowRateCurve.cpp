@@ -30,6 +30,9 @@
 
 #include "qwt_plot.h"
 
+#include "cvfMath.h"
+
+#include <cmath>
 
 
 //==================================================================================================
@@ -152,10 +155,10 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 void RimWellFlowRateCurve::updateStackedPlotData()
 {
     RimWellLogPlot* wellLogPlot;
-    firstAncestorOrThisOfType(wellLogPlot);
+    firstAncestorOrThisOfTypeAsserted(wellLogPlot);
 
     RimWellLogTrack* wellLogTrack;
-    firstAncestorOrThisOfType(wellLogTrack);
+    firstAncestorOrThisOfTypeAsserted(wellLogTrack);
 
     bool isFirstTrack =  (wellLogTrack == wellLogPlot->trackByIndex(0));
 
@@ -186,6 +189,29 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         depthValues.insert(depthValues.begin(), depthValues[0]);
         stackedValues.insert(stackedValues.begin(), 0.0);
         polyLineStartStopIndices.front().second += 1;
+
+        if (wellLogPlot->trackCount() > 1 && isFirstTrack)
+        {
+            // Add a dummy negative depth value to make the contribution
+            // from other branches connected to well head visible
+
+            double availableMinDepth;
+            double availableMaxDepth;
+            wellLogPlot->availableDepthRange(&availableMinDepth, &availableMaxDepth);
+
+            double depthSpan = 0.1 * cvf::Math::abs(availableMinDepth - availableMaxDepth);
+
+            // Round off value to floored decade
+            double logDecValue = log10(depthSpan);
+            logDecValue = cvf::Math::floor(logDecValue);
+            depthSpan = pow(10.0, logDecValue);
+
+            double dummyNegativeDepthValue = -depthSpan;
+
+            depthValues.push_back(dummyNegativeDepthValue);
+            stackedValues.push_back(stackedValues.back());
+            polyLineStartStopIndices.front().second += 1;
+        }
     }
 
     // Add a dummy point for the zeroth connection to make the "end" distribution show better.
