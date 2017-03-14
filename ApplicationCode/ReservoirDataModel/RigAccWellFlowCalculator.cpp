@@ -689,7 +689,7 @@ void RigAccWellFlowCalculator::sortTracers()
         
         double totalFlow = 0.0;
         
-        if (mainBranchAccFlow.size()) totalFlow = - abs( mainBranchAccFlow.back() ); // Based on size in reverse order (biggest to least)
+        if (mainBranchAccFlow.size()) totalFlow = - fabs( mainBranchAccFlow.back() ); // Based on size in reverse order (biggest to least)
 
         sortedTracers.insert({totalFlow, tracerName});
     }
@@ -722,7 +722,7 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
         for ( const auto& tracerPair : totalTracerFractions )
         {
-            if ( abs(tracerPair.second) <= m_smallContributionsThreshold  
+            if ( fabs(tracerPair.second) <= m_smallContributionsThreshold  
                  && (hasConsistentWellFlow || tracerPair.first != RIG_RESERVOIR_TRACER_NAME) ) // Do not group the Reservoir tracer if the well flow is inconsistent, because cross flow is shown as the reservoir fraction
             { 
                 tracersToGroup.push_back(tracerPair.first);
