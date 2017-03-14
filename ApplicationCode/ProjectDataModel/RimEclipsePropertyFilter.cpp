@@ -334,7 +334,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
         if ( resultDefinition->flowDiagSolution() )
         {
             RigFlowDiagResults* results = resultDefinition->flowDiagSolution()->flowDiagResults();
-            results->minMaxScalarValues(resAddr, timeStep, &max, &max);
+            results->minMaxScalarValues(resAddr, timeStep, &min, &max);
 
             if ( resultDefinition->hasCategoryResult() )
             {
