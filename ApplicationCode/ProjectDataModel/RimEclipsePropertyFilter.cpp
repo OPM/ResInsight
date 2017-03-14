@@ -22,12 +22,14 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimFlowDiagSolution.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimViewController.h"
 
@@ -37,8 +39,6 @@
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
-#include "RigFlowDiagResults.h"
-#include "RimFlowDiagSolution.h"
 
 
 namespace caf
@@ -73,6 +73,11 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     // Fields in this object are displayed using defineUiOrdering()
     resultDefinition.uiCapability()->setUiHidden(true);
     resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitField(&m_rangeLabelText, "Dummy_keyword", QString("Range Type"), "Range Type", "", "", "");
+    m_rangeLabelText.xmlCapability()->setIOReadable(false);
+    m_rangeLabelText.xmlCapability()->setIOWritable(false);
+    m_rangeLabelText.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_lowerBound, "LowerBound", 0.0, "Min", "", "", "");
     m_lowerBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
@@ -180,6 +185,8 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     
     // Fields declared in RimCellFilter
     uiOrdering.add(&filterMode);
+    
+    uiOrdering.add(&m_rangeLabelText);
 
     if (resultDefinition->hasCategoryResult())
     {
@@ -199,6 +206,7 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.setForgetRemainingFields(true);
 
     updateReadOnlyStateOfAllFields();
+    updateRangeLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,9 +234,26 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
     objFields.push_back(&(resultDefinition->m_porosityModelUiField));
     objFields.push_back(&(resultDefinition->m_resultVariableUiField));
 
-    for (size_t i = 0; i < objFields.size(); i++)
+    for (auto f : objFields)
     {
-        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
+        if (f == &m_rangeLabelText) continue;
+
+        f->uiCapability()->setUiReadOnly(readOnlyState);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::updateRangeLabel()
+{
+    if (resultDefinition->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        m_rangeLabelText = "Current Timestep";
+    }
+    else
+    {
+        m_rangeLabelText = "All Timesteps";
     }
 }
 
@@ -237,7 +262,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
-    RimView* rimView = NULL;
+    RimView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
 
