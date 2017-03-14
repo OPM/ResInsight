@@ -59,8 +59,13 @@ public:
     const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr);
     const std::vector<int>&                  uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex);
 
+    std::pair<double, double>                injectorProducerPairFluxes(const std::string& injTracername, const std::string& prodTracerName, int frameIndex);
+    double                                   maxAbsPairFlux(int frameIndex);
+
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+    void                                     calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex);
+
     std::vector<double>*                     calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
 
 
@@ -103,6 +108,9 @@ private:
 
     std::map< RigFlowDiagResultAddress, cvf::ref<RigFlowDiagResultFrames> >  m_resultSets;
     std::map< RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>  >  m_resultStatistics;
+
+    using InjectorProducerCommunicationMap = std::map<std::pair<std::string, std::string>, std::pair<double, double> >;
+    std::vector<InjectorProducerCommunicationMap> m_injProdPairFluxCommunicationTimesteps;
 
 };
 

@@ -37,6 +37,7 @@
 
 #include "cvfTransform.h"
 #include "RivWellSpheresPartMgr.h"
+#include "RivWellConnectionsPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -150,6 +151,16 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
         if (m_reservoirView->wellCollection()->wells[wIdx]->isWellSpheresVisible(frameIndex))
         {
             m_wellSpheresPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+        }
+    }
+
+    // Well Connection Arrows
+    if ( m_reservoirView->wellCollection()->showWellCommunicationLines() )
+    {
+        for ( RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells() )
+        {
+            cvf::ref<RivWellConnectionsPartMgr> wppmgr = new RivWellConnectionsPartMgr(m_reservoirView, rimWell);
+            wppmgr->appendDynamicGeometryPartsToModel(model, frameIndex);
         }
     }
 }

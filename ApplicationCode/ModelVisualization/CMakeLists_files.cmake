@@ -35,6 +35,8 @@ ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivPartPriority.h
+${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.h
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -65,6 +67,7 @@ ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.cpp
 ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
