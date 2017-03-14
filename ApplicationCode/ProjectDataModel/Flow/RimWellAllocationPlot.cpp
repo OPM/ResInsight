@@ -58,8 +58,8 @@ namespace caf
 template<>
 void AppEnum<RimWellAllocationPlot::FlowType>::setUp()
 {
-    addItem(RimWellAllocationPlot::ACCUMULATED, "ACCUMULATED", "Well Flow");
-    addItem(RimWellAllocationPlot::INFLOW, "INFLOW", "In Flow");
+    addItem(RimWellAllocationPlot::ACCUMULATED, "ACCUMULATED", "Accumulated");
+    addItem(RimWellAllocationPlot::INFLOW, "INFLOW", "Inflow Rates");
     setDefault(RimWellAllocationPlot::ACCUMULATED);
 
 }
