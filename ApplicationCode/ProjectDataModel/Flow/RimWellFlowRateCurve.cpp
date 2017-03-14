@@ -206,7 +206,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
             logDecValue = cvf::Math::floor(logDecValue);
             depthSpan = pow(10.0, logDecValue);
 
-            double dummyNegativeDepthValue = -depthSpan;
+            double dummyNegativeDepthValue = depthValues.back() - depthSpan;
 
             depthValues.push_back(dummyNegativeDepthValue);
             stackedValues.push_back(stackedValues.back());
