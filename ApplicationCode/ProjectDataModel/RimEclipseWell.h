@@ -69,6 +69,8 @@ public:
                                                                     std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                                     std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
+    void                                wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
+    double                              pipeRadius();
     caf::PdmField<bool>                 showWell;
 
     caf::PdmField<QString>              name;

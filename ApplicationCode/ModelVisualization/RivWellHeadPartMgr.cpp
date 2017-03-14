@@ -49,6 +49,7 @@
 #include "cvfPart.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
+#include "cafDisplayCoordTransform.h"
 
 
 
@@ -77,71 +78,32 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     clearAllGeometry();
 
     if (m_rimReservoirView.isNull()) return;
-
+    
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
 
     RimEclipseWell* well = m_rimWell;
-
-    RigSingleWellResultsData* wellResults = well->wellResults();
-
-    if (wellResults->staticWellCells().m_wellResultBranches.size() == 0) return;
-
-    if (!wellResults->hasWellResult(frameIndex)) return;
-
-    const RigWellResultFrame& wellResultFrame = wellResults->wellResultFrame(frameIndex);
-
-    const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
-
+    
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
-    // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
-    cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
-    whStartPos -= rigReservoir->mainGrid()->displayModelOffset();
-    whStartPos.transformPoint(m_scaleTransform->worldTransform());
-
-    // Compute well head based on the z position of the top of the K column the well head is part of
-    cvf::Vec3d whEndPos = whStartPos;
-
-    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN)
+    cvf::Vec3d whEndPos;
+    cvf::Vec3d whStartPos;
     {
-        // Position well head at top active cell of IJ-column
+        well->wellHeadTopBottomPosition(frameIndex, &whEndPos, &whStartPos);
 
-        size_t i, j, k;
-        rigReservoir->mainGrid()->ijkFromCellIndex(whCell.mainGridCellIndex(), &i, &j, &k);
-
-        size_t kIndexWellHeadCell = k;
-        k = 0;
-        
-        size_t topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
-        while(k < kIndexWellHeadCell && !m_rimReservoirView->currentActiveCellInfo()->isActive(topActiveCellIndex))
-        {
-            k++;
-            topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
-        }
-        
-        const RigCell& topActiveCell = rigReservoir->mainGrid()->cell(topActiveCellIndex);
-        cvf::Vec3d topCellPos = topActiveCell.faceCenter(cvf::StructGridInterface::NEG_K);
-        topCellPos -= rigReservoir->mainGrid()->displayModelOffset();
-        topCellPos.transformPoint(m_scaleTransform->worldTransform());
-
-        // Modify position if top active cell is closer to sea than well head
-        if (kIndexWellHeadCell > k)
-        {
-            whEndPos.z() = topCellPos.z() + characteristicCellSize;
-        }
-    }
-    else
-    {
-        // Position well head at top of active cells bounding box
-
-        cvf::Vec3d activeCellsBoundingBoxMax = m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max();
-        activeCellsBoundingBoxMax -= rigReservoir->mainGrid()->displayModelOffset();
-        activeCellsBoundingBoxMax.transformPoint(m_scaleTransform->worldTransform());
-
-        whEndPos.z() = activeCellsBoundingBoxMax.z();
+        cvf::ref<caf::DisplayCoordTransform> transForm = m_rimReservoirView->displayCoordTransform();
+        whEndPos   = transForm->transformToDisplayCoord(whEndPos);
+        whStartPos = transForm->transformToDisplayCoord(whStartPos);
+        whEndPos.z() += characteristicCellSize;
     }
 
-    double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
+    
+
+    if (!well->wellResults()->hasWellResult(frameIndex)) return;
+
+    const RigWellResultFrame& wellResultFrame = well->wellResults()->wellResultFrame(frameIndex);
+
+    double pipeRadius = m_rimWell->pipeRadius();
+
     if (wellResultFrame.m_isOpen)
     {
         // Use slightly larger well head arrow when well is open
@@ -331,7 +293,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
         drawableText->setTextColor(m_rimReservoirView->wellCollection()->wellLabelColor());
 
-        cvf::String cvfString = cvfqt::Utils::toString(well->name());
+        cvf::String cvfString = cvfqt::Utils::toString(m_rimWell->name());
 
         cvf::Vec3f textCoord(textPosition);
         drawableText->addText(cvfString, textCoord);

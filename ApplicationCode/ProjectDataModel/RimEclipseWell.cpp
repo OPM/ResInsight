@@ -33,6 +33,11 @@
 #include "RivReservoirViewPartMgr.h"
 
 #include "cvfMath.h"
+#include "RigCell.h"
+#include "RimEclipseCase.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigActiveCellInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
 
@@ -153,6 +158,82 @@ void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx,
                                                  std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
 {
     RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(this, timeStepIdx, pipeBranchesCLCoords, pipeBranchesCellIds);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseWell::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
+{
+
+    RimEclipseView* m_rimReservoirView;
+    firstAncestorOrThisOfTypeAsserted(m_rimReservoirView);
+    
+    RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+
+    if (!this->wellResults()->hasWellResult(frameIndex)) return;
+
+    const RigWellResultFrame& wellResultFrame = this->wellResults()->wellResultFrame(frameIndex);
+    const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
+    double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
+
+    // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
+
+    (*bottom) = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
+
+    // Compute well head based on the z position of the top of the K column the well head is part of
+    (*top) = (*bottom);
+    if ( m_rimReservoirView->wellCollection()->wellHeadPosition() == RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN )
+    {
+        // Position well head at top active cell of IJ-column
+
+        size_t i, j, k;
+        rigReservoir->mainGrid()->ijkFromCellIndex(whCell.mainGridCellIndex(), &i, &j, &k);
+
+        size_t kIndexWellHeadCell = k;
+        k = 0;
+
+        size_t topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
+        while ( k < kIndexWellHeadCell && !m_rimReservoirView->currentActiveCellInfo()->isActive(topActiveCellIndex) )
+        {
+            k++;
+            topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
+        }
+
+        const RigCell& topActiveCell = rigReservoir->mainGrid()->cell(topActiveCellIndex);
+        cvf::Vec3d topCellPos = topActiveCell.faceCenter(cvf::StructGridInterface::NEG_K);
+
+        // Modify position if top active cell is closer to sea than well head
+        if ( kIndexWellHeadCell > k )
+        {
+            top->z() = topCellPos.z();
+        }
+    }
+    else
+    {
+        // Position well head at top of active cells bounding box
+
+        cvf::Vec3d activeCellsBoundingBoxMax = m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max();
+
+        top->z() = activeCellsBoundingBoxMax.z();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimEclipseWell::pipeRadius()
+{
+    RimEclipseView* reservoirView;
+    firstAncestorOrThisOfTypeAsserted(reservoirView);
+
+    RigEclipseCaseData* rigReservoir = reservoirView->eclipseCase()->reservoirData();
+    
+    double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
+
+    double pipeRadius = reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
+
+    return pipeRadius;
 }
 
 //--------------------------------------------------------------------------------------------------
