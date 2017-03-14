@@ -318,8 +318,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 {
     CVF_ASSERT(parentContainer());
 
-    double min = 0.0;
-    double max = 0.0;
+    double min = HUGE_VAL;
+    double max = -HUGE_VAL;
 
     clearCategories();
 
