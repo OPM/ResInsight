@@ -53,6 +53,7 @@ public:
     void                                    setToDefaultValues();
     void                                    updateFilterName();
     void                                    computeResultValueRange();
+    void                                    updateFromCurrentTimeStep();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();

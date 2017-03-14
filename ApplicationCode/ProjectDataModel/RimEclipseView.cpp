@@ -473,6 +473,8 @@ void RimEclipseView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateCurrentTimeStep()
 {
+    m_propertyFilterCollection()->updateFromCurrentTimeStep();
+
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
     std::vector<RivCellSetEnum> geometriesToRecolor;
