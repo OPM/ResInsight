@@ -79,6 +79,8 @@ public:
     QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
+    void                addToTemporaryWidgets(QWidget* widget);
+
 protected:
     virtual void        closeEvent(QCloseEvent* event);
 
@@ -124,4 +126,6 @@ private:
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 
     bool                        m_blockSlotSubWindowActivated;
+
+    std::vector<QWidget*>       m_temporaryWidgets;
 };

@@ -381,6 +381,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         // without using dyncamic_cast.
 
         commandIds << "RicCopyReferencesToClipboardFeature";
+        commandIds << "RicShowPlotDataFeature";
 
         // Work in progress -- End
 
