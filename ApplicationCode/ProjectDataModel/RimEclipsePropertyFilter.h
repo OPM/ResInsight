@@ -49,7 +49,6 @@ public:
     void                                    rangeValues(double* lower, double* upper) const;
     bool                                    isCategorySelectionActive() const;
 
-    RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
     void                                    updateFilterName();
     void                                    computeResultValueRange();
@@ -72,6 +71,8 @@ private:
     void                                    updateReadOnlyStateOfAllFields();
     void                                    updateRangeLabel();
     bool                                    isPropertyFilterControlled();
+
+    RimEclipsePropertyFilterCollection*     parentContainer();
 
 private:
     caf::PdmField<QString>                  m_rangeLabelText;

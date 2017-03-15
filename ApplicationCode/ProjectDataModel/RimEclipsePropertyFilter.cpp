@@ -131,7 +131,6 @@ bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
     if (   &m_lowerBound == changedField 
         || &m_upperBound == changedField
         || &obsoleteField_evaluationRegion == changedField
@@ -153,7 +152,10 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
-    return dynamic_cast<RimEclipsePropertyFilterCollection*>(this->parentField()->ownerObject());
+    RimEclipsePropertyFilterCollection* propFilterColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(propFilterColl);
+
+    return propFilterColl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,7 +172,6 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 
     m_selectedCategoryValues = m_categoryValues;
     m_useCategorySelection = true;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,18 +266,14 @@ void RimEclipsePropertyFilter::updateRangeLabel()
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
     RimView* rimView = nullptr;
-    firstAncestorOrThisOfType(rimView);
-    CVF_ASSERT(rimView);
+    firstAncestorOrThisOfTypeAsserted(rimView);
 
     bool isPropertyFilterControlled = false;
 
-    if (rimView)
+    RimViewController* vc = rimView->viewController();
+    if (vc && vc->isPropertyFilterOveridden())
     {
-        RimViewController* vc = rimView->viewController();
-        if (vc && vc->isPropertyFilterOveridden())
-        {
-            isPropertyFilterControlled = true;
-        }
+        isPropertyFilterControlled = true;
     }
 
     return isPropertyFilterControlled;
@@ -384,6 +381,13 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 {
+    // Update range for flow diagnostics values when time step changes
+    // Range for flow is always current time step, not computed across all time steps
+    // If upper/lower slider is set to available extrema, the filter values will be
+    // updated with the min/max values for the current time step
+    //
+    // If the user manually has set a filter value, this value is left untouched
+
     if (resultDefinition->resultType() != RimDefines::FLOW_DIAGNOSTICS)
     {
         return;
@@ -509,4 +513,3 @@ void RimEclipsePropertyFilter::initAfterRead()
     resultDefinition->setEclipseCase(parentContainer()->reservoirView()->eclipseCase());
     updateIconState();
 }
-
