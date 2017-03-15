@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "cafPdmField.h"
 
 class RimSummaryPlot;
 
@@ -30,13 +29,11 @@ class RicAsciiExportSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-
 protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    bool writeAsciiExportForSummaryPlots(const QString& fileName, const RimSummaryPlot* selectedSummaryPlots);
+    static bool exportAsciiForSummaryPlot(const QString& fileName, const RimSummaryPlot* selectedSummaryPlots);
 };
