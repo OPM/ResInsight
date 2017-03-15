@@ -86,9 +86,10 @@ public:
     std::vector<std::pair<QString, double> >                totalTracerFractions() const;
 
 private:
-    bool                                                    hasConsistentFlow(const RigWellResultPoint &wellCell) const;
+    bool                                                    isConnectionFlowConsistent(const RigWellResultPoint &wellCell) const;
+    bool                                                    isFlowRateConsistent(double flowRate) const;
 
-    void                                                    calculateAccumulatedFlowPrConnection( size_t branchIdx, 
+    void                                                    calculateAccumulatedFlowPrConnection(size_t branchIdx,
                                                                                                   size_t startConnectionNumberFromTop);
     void                                                    calculateFlowPrPseudoLength(size_t branchIdx,
                                                                                         double startPseudoLengthFromTop);
@@ -102,7 +103,8 @@ private:
                                                                               const std::vector<QString>& tracersToGroup);
 
     bool                                                    isWellFlowConsistent(bool isProducer) const;
-    std::vector<size_t>                                     wrpToUniqueWrpIndexFromBottom( const std::vector<RigWellResultPoint> &branchCells) const;
+    std::vector<double>                                     calculateAccumulatedFractions(const std::vector<double>& accumulatedFlowPrTracer) const;
+    std::vector<size_t>                                     wrpToUniqueWrpIndexFromBottom(const std::vector<RigWellResultPoint> &branchCells) const;
     static size_t                                           connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx) ;
     std::vector<size_t>                                     findDownStreamBranchIdxs( const RigWellResultPoint& connectionPoint) const;
 
@@ -135,7 +137,8 @@ private:
                                                                                  const std::vector<double>& accFlowPrTracer,
                                                                                  const std::vector<double>& flowPrTracer);
 
-    void                                                    addDownStreamBranchFlow(std::vector<double> *accFlowPrTracer, 
+    std::vector<double>                                     accumulatedDsBranchFlowPrTracer(const BranchFlow &downStreamBranchFlow) const;
+    void                                                    addDownStreamBranchFlow(std::vector<double> *accFlowPrTracer,
                                                                                     const BranchFlow &downStreamBranchFlow) const;
 
     std::vector< BranchFlow >                               m_connectionFlowPrBranch;
