@@ -405,7 +405,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
-            commandIds << "RicAsciiExportSummaryPlotFeature";
+            // Do not add twice to make sure the first position in the menu is used for the action
+            if (!commandIds.contains("RicAsciiExportSummaryPlotFeature"))
+            {
+                commandIds << "RicAsciiExportSummaryPlotFeature";
+            }
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
