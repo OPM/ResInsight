@@ -87,7 +87,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 
         flowResults                    = eclResCase->defaultFlowDiagSolution()->flowDiagResults();
         displayCordXf = m_rimReservoirView->displayCoordTransform();
-        RigEclipseCaseData* rigReservoir                   = m_rimReservoirView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* rigReservoir                   = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
         characteristicCellSize                      = rigReservoir->mainGrid()->characteristicIJCellSize();
 

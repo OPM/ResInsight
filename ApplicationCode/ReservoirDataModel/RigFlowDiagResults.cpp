@@ -68,7 +68,7 @@ const RigActiveCellInfo * RigFlowDiagResults::activeCellInfo(const RigFlowDiagRe
     RimEclipseResultCase* eclCase;
     m_flowDiagSolution->firstAncestorOrThisOfType(eclCase);
     
-    return eclCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); // Todo: base on resVarAddr member
+    return eclCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); // Todo: base on resVarAddr member
 }
 
 //--------------------------------------------------------------------------------------------------

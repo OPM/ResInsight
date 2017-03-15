@@ -99,7 +99,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Eclipse Property to Text File", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->reservoirData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
+        bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->eclipseCaseData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
         if (isOk)
         {
             inputProperty->fileName = exportSettings.fileName;

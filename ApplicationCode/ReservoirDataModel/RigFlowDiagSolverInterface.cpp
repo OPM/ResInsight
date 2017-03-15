@@ -140,7 +140,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 {
     using namespace Opm::FlowDiagnostics;
 
-    RigFlowDiagTimeStepResult result(m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
+    RigFlowDiagTimeStepResult result(m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
    
@@ -190,7 +190,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             m_opmFldData->restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
 
             size_t restartFileCount = static_cast<size_t>(m_opmFldData->restartFileNames.size());
-            size_t maxTimeStepCount = m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+            size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
 
             if (restartFileCount <= timeStepIndex &&  restartFileCount !=  maxTimeStepCount )
             {
@@ -213,9 +213,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     }
 
     size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
-    m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
+    m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
 
-    int reportStepNumber =  m_eclipseCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
+    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
 
     if ( !  m_opmFldData->eclGraph.selectReportStep(reportStepNumber) )
     {

@@ -57,14 +57,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
 
-        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        if (!rimCase || !rimCase->eclipseCaseData() || (argGridIndex >= rimCase->eclipseCaseData()->gridCount()) )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
             return true;
         }
 
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+        RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(argGridIndex);
 
         quint64 cellCount  = (quint64)rigGrid->cellCount();
         quint64 cellCountI = (quint64)rigGrid->cellCountI();
@@ -146,15 +146,15 @@ public:
             porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        if (!rimCase || !rimCase->reservoirData())
+        if (!rimCase || !rimCase->eclipseCaseData())
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
             return true;
         }
 
-        RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-        RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
+        RigActiveCellInfo* actCellInfo = rimCase->eclipseCaseData()->activeCellInfo(porosityModelEnum);
+        RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
 
         size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3;
@@ -218,14 +218,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
 
-        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        if (!rimCase || !rimCase->eclipseCaseData() || (argGridIndex >= rimCase->eclipseCaseData()->gridCount()) )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
             return true;
         }
 
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+        RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(argGridIndex);
 
         quint64 cellCount  = (quint64)rigGrid->cellCount();
         quint64 cellCountI = (quint64)rigGrid->cellCountI();
@@ -315,15 +315,15 @@ public:
             porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        if (!rimCase || !rimCase->reservoirData() )
+        if (!rimCase || !rimCase->eclipseCaseData() )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
             return true;
         }
 
-        RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-        RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
+        RigActiveCellInfo* actCellInfo = rimCase->eclipseCaseData()->activeCellInfo(porosityModelEnum);
+        RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
 
         size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3 * 8;

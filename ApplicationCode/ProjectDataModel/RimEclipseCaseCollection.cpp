@@ -76,7 +76,7 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
 {
     CVF_ASSERT(mainCase);
 
-    RigEclipseCaseData* rigEclipseCase = mainCase->reservoirData();
+    RigEclipseCaseData* rigEclipseCase = mainCase->eclipseCaseData();
     RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
     CVF_ASSERT(equalGrid);
 
@@ -101,7 +101,7 @@ void RimEclipseCaseCollection::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimR
 {
     CVF_ASSERT(rimReservoir);
 
-    RigEclipseCaseData* rigEclipseCase = rimReservoir->reservoirData();
+    RigEclipseCaseData* rigEclipseCase = rimReservoir->eclipseCaseData();
     RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
     CVF_ASSERT(equalGrid);
 
@@ -139,7 +139,7 @@ void RimEclipseCaseCollection::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimR
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::removeCaseFromAllGroups(RimEclipseCase* reservoir)
 {
-    m_gridCollection->removeCase(reservoir->reservoirData());
+    m_gridCollection->removeCase(reservoir->eclipseCaseData());
 
     for (size_t i = 0; i < caseGroups.size(); i++)
     {
@@ -188,7 +188,7 @@ void RimEclipseCaseCollection::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* 
 {
     CVF_ASSERT(rimReservoir);
 
-    RigEclipseCaseData* rigEclipseCase = rimReservoir->reservoirData();
+    RigEclipseCaseData* rigEclipseCase = rimReservoir->eclipseCaseData();
     registerCaseInGridCollection(rigEclipseCase);
 
     caseGroup->addCase(rimReservoir);

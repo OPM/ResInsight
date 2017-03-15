@@ -163,7 +163,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                     // Trigger loading of dataset
                     sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
+                    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(sourceCase->eclipseCaseData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())
                     {
                         sourceDataAccessList.push_back(resultAccessor.p());
@@ -329,7 +329,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::
 {
     if (sourceCases.size() > 0)
     {
-        m_reservoirCellCount = sourceCases[0]->reservoirData()->mainGrid()->globalCellArray().size();
+        m_reservoirCellCount = sourceCases[0]->eclipseCaseData()->mainGrid()->globalCellArray().size();
     }
 
     CVF_ASSERT(m_destinationCase);

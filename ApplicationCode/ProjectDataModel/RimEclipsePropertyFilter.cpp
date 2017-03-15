@@ -359,10 +359,10 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else
                     {
-                        CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData());
-                        CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames());
+                        CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData());
+                        CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames());
 
-                        const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->reservoirData()->activeFormationNames()->formationNames();
+                        const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames()->formationNames();
                         setCategoryNames(fnVector);
                     }
                 }

@@ -105,22 +105,22 @@ RimEclipseCase::~RimEclipseCase()
             RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
             if (plotCollection)
             {
-                plotCollection->removeExtractors(this->reservoirData());
+                plotCollection->removeExtractors(this->eclipseCaseData());
             }
         }
     }
 
-    if (this->reservoirData())
+    if (this->eclipseCaseData())
     {
         // At this point, we assume that memory should be released
-        CVF_ASSERT(this->reservoirData()->refCount() == 1);
+        CVF_ASSERT(this->eclipseCaseData()->refCount() == 1);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseCaseData* RimEclipseCase::reservoirData()
+RigEclipseCaseData* RimEclipseCase::eclipseCaseData()
 {
     return m_rigEclipseCase.p();
 }
@@ -128,7 +128,7 @@ RigEclipseCaseData* RimEclipseCase::reservoirData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigEclipseCaseData* RimEclipseCase::reservoirData() const
+const RigEclipseCaseData* RimEclipseCase::eclipseCaseData() const
 {
     return m_rigEclipseCase.p();
 }
@@ -255,7 +255,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &releaseResultMemory)
     {
-        if (this->reservoirData())
+        if (this->eclipseCaseData())
         {
             for (size_t i = 0; i < reservoirViews().size(); i++)
             {
@@ -277,13 +277,13 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 reservoirView->createDisplayModelAndRedraw();
             }
 
-            RigCaseCellResultsData* matrixModelResults = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
+            RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
             if (matrixModelResults)
             {
                 matrixModelResults->clearAllResults();
             }
 
-            RigCaseCellResultsData* fractureModelResults = reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
             if (fractureModelResults)
             {
                 fractureModelResults->clearAllResults();
@@ -294,7 +294,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &flipXAxis || changedField == &flipYAxis)
     {
-        RigEclipseCaseData* rigEclipseCase = reservoirData();
+        RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
         if (rigEclipseCase)
         {
             rigEclipseCase->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
@@ -323,7 +323,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::updateFormationNamesData()
 {
-    RigEclipseCaseData* rigEclipseCase = reservoirData();
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if(rigEclipseCase)
     {
         if(activeFormationNames())
@@ -381,7 +381,7 @@ void RimEclipseCase::updateFormationNamesData()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::computeCachedData()
 {
-    RigEclipseCaseData* rigEclipseCase = reservoirData();
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if (rigEclipseCase)
     {
         caf::ProgressInfo pInf(30, "");
@@ -428,12 +428,12 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;
-    if (this->reservoirData())
+    if (this->eclipseCaseData())
     {
-        m_fractureModelResults()->setCellResults(reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS));
-        m_matrixModelResults()->setCellResults(reservoirData()->results(RifReaderInterface::MATRIX_RESULTS));
-        m_fractureModelResults()->setMainGrid(this->reservoirData()->mainGrid());
-        m_matrixModelResults()->setMainGrid(this->reservoirData()->mainGrid());
+        m_fractureModelResults()->setCellResults(eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS));
+        m_matrixModelResults()->setCellResults(eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS));
+        m_fractureModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
+        m_matrixModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
     }
     else
     {
@@ -511,7 +511,7 @@ bool RimEclipseCase::openReserviorCase()
 {
     // If read already, return
 
-    if (this->reservoirData() != NULL) return true;
+    if (this->eclipseCaseData() != NULL) return true;
     
     if (!openEclipseGridFile())
     {
@@ -528,7 +528,7 @@ bool RimEclipseCase::openReserviorCase()
             size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                reservoirData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
             }
         }
 

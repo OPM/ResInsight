@@ -82,8 +82,8 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-        reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
-        reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
+        eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
+        eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
         
         QFileInfo gridFileName(fileNames[0]);
         QString caseName = gridFileName.completeBaseName();
@@ -94,19 +94,19 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         return;
     }
 
-    if (this->reservoirData() == NULL) 
+    if (this->eclipseCaseData() == NULL) 
     {
         this->setReservoirData(new RigEclipseCaseData);
     }
 
     // First find and read the grid data 
-    if (this->reservoirData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
+    if (this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
          for (int i = 0; i < fileNames.size(); i++)
          {
-             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->reservoirData(), prefs->readerSettings->importFaults()))
+             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), prefs->readerSettings->importFaults()))
              {
                  m_gridFileName = fileNames[i];
 
@@ -115,7 +115,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
                  this->caseUserDescription = caseName;
 
-                 this->reservoirData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+                 this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
 
                  computeCachedData();
 
@@ -124,7 +124,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
          }
     }
 
-    if (this->reservoirData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
+    if (this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
         return ; // No grid present
     }
@@ -152,7 +152,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
     for (int i = 0; i < filesToRead.size(); i++)
     {
         QString propertyFileName = filesToRead[i];
-        std::map<QString, QString> readProperties = RifEclipseInputFileTools::readProperties(propertyFileName, this->reservoirData());
+        std::map<QString, QString> readProperties = RifEclipseInputFileTools::readProperties(propertyFileName, this->eclipseCaseData());
 
         std::map<QString, QString>::iterator it;
         for (it = readProperties.begin(); it != readProperties.end(); ++it)
@@ -179,7 +179,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 bool RimEclipseInputCase::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
-    if (this->reservoirData() == NULL)
+    if (this->eclipseCaseData() == NULL)
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
@@ -202,13 +202,13 @@ bool RimEclipseInputCase::openEclipseGridFile()
             this->setReservoirData( eclipseCase.p() );
         }
 
-        CVF_ASSERT(this->reservoirData());
+        CVF_ASSERT(this->eclipseCaseData());
         CVF_ASSERT(readerInterface.notNull());
 
         results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-        this->reservoirData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+        this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
         
         computeCachedData();
         loadAndSyncronizeInputProperties();
@@ -237,8 +237,8 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 {
     // Make sure we actually have reservoir data
 
-    CVF_ASSERT(this->reservoirData());
-    CVF_ASSERT(this->reservoirData()->mainGrid()->gridPointDimensions() != cvf::Vec3st(0,0,0));
+    CVF_ASSERT(this->eclipseCaseData());
+    CVF_ASSERT(this->eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st(0,0,0));
 
     // Then read the properties from all the files referenced by the InputReservoir
 
@@ -287,7 +287,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
                 ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
                 if (fileKeywordSet.count(kw))
                 {
-                    if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), kw, ipsUsingThisFile[ipIdx]->resultName ))
+                    if (RifEclipseInputFileTools::readProperty(filenames[i], this->eclipseCaseData(), kw, ipsUsingThisFile[ipIdx]->resultName ))
                     {
                         ipsUsingThisFile[ipIdx]->resolvedState = RimEclipseInputProperty::RESOLVED;
                     }
@@ -304,8 +304,8 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         for (const QString fileKeyword : fileKeywordSet)
         {
             {
-                QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeyword);
-                if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), fileKeyword, resultName))
+                QString resultName = this->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeyword);
+                if (RifEclipseInputFileTools::readProperty(filenames[i], this->eclipseCaseData(), fileKeyword, resultName))
                 {
                     RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
                     inputProperty->resultName = resultName;

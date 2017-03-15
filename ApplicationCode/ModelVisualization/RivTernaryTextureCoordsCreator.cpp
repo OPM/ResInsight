@@ -49,7 +49,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     CVF_ASSERT(quadMapper);
     m_quadMapper = quadMapper;
 
-    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
 
     size_t resTimeStepIdx = timeStepIndex;
 
@@ -83,7 +83,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     size_t timeStepIndex)
     : m_quadMapper(NULL)
 {
-    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
 
     size_t resTimeStepIdx = timeStepIndex;
 

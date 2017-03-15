@@ -317,7 +317,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
         CVF_ASSERT(rimEclipseCase);
         if (!rimEclipseCase) return;
 
-        RigEclipseCaseData* eclipseCase = rimEclipseCase->reservoirData();
+        RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
         CVF_ASSERT(eclipseCase);
         if (!eclipseCase) return;
 

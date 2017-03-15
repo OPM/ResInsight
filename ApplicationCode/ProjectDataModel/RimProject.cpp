@@ -640,11 +640,11 @@ void RimProject::computeUtmAreaOfInterest()
     {
         RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>(cases[i]);
 
-        if (rimCase && rimCase->reservoirData())
+        if (rimCase && rimCase->eclipseCaseData())
         {
-            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++ )
+            for (size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++ )
             {
-                RigGridBase* rigGrid = rimCase->reservoirData()->grid(gridIdx);
+                RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(gridIdx);
 
                 projectBB.add(rigGrid->boundingBox());
             }

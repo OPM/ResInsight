@@ -72,7 +72,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
 
     if (!m_cellColors->reservoirView()) return;
     if (!m_cellColors->reservoirView()->eclipseCase()) return;
-    if (!m_cellColors->reservoirView()->eclipseCase()->reservoirData()) return;
+    if (!m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData()) return;
 
     RimBinaryExportSettings exportSettings;
     exportSettings.eclipseKeyword = m_cellColors->resultVariable();
@@ -96,7 +96,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_cellColors->porosityModel());
 
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, m_cellColors->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), porosityModel, timeStep, m_cellColors->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);

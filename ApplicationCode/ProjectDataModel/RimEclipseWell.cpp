@@ -169,7 +169,7 @@ void RimEclipseWell::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* to
     RimEclipseView* m_rimReservoirView;
     firstAncestorOrThisOfTypeAsserted(m_rimReservoirView);
     
-    RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
     if (!this->wellResults()->hasWellResult(frameIndex)) return;
 
@@ -227,7 +227,7 @@ double RimEclipseWell::pipeRadius()
     RimEclipseView* reservoirView;
     firstAncestorOrThisOfTypeAsserted(reservoirView);
 
-    RigEclipseCaseData* rigReservoir = reservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* rigReservoir = reservoirView->eclipseCase()->eclipseCaseData();
     
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 

@@ -102,11 +102,11 @@ void RimIdenticalGridCaseGroup::addCase(RimEclipseCase* reservoir)
 
     if (!m_mainGrid)
     {
-        m_mainGrid = reservoir->reservoirData()->mainGrid();
+        m_mainGrid = reservoir->eclipseCaseData()->mainGrid();
     }
     else
     {
-        reservoir->reservoirData()->setMainGrid(m_mainGrid);
+        reservoir->eclipseCaseData()->setMainGrid(m_mainGrid);
     }
 
     caseCollection()->reservoirs().push_back(reservoir);
@@ -181,7 +181,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         return;
     }
 
-    RigEclipseCaseData* rigCaseData = mainCase->reservoirData();
+    RigEclipseCaseData* rigCaseData = mainCase->eclipseCaseData();
     CVF_ASSERT(rigCaseData);
 
     RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
@@ -285,7 +285,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if (i == 0)
         {
-            rimReservoir->reservoirData()->computeActiveCellBoundingBoxes();
+            rimReservoir->eclipseCaseData()->computeActiveCellBoundingBoxes();
         }
     }
 }
@@ -331,7 +331,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeM[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
                     {
                         activeM[gridLocalCellIndex] = 1;
                     }
@@ -339,7 +339,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeF[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
                     {
                         activeF[gridLocalCellIndex] = 1;
                     }
@@ -400,13 +400,13 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
     {
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
 
-        if (rimStaticsCase->reservoirData())
+        if (rimStaticsCase->eclipseCaseData())
         {
-            rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
+            rimStaticsCase->eclipseCaseData()->setMainGrid(this->mainGrid());
 
             if (i == 0)
             {
-                rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
+                rimStaticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
             }
         }
     }
@@ -521,7 +521,7 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
 //--------------------------------------------------------------------------------------------------
 bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
 {
-    CVF_ASSERT(reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid());
+    CVF_ASSERT(reservoir && reservoir->eclipseCaseData() && reservoir->eclipseCaseData()->mainGrid());
 
     if (!m_mainGrid)
     {
@@ -529,7 +529,7 @@ bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
         return true;
     }
 
-    RigMainGrid* incomingMainGrid = reservoir->reservoirData()->mainGrid();
+    RigMainGrid* incomingMainGrid = reservoir->eclipseCaseData()->mainGrid();
     
     if (RigGridManager::isEqual(m_mainGrid, incomingMainGrid))
     {

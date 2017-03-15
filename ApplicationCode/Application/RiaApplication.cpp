@@ -2412,7 +2412,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
         if (identicalGrid)
         {
-            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->eclipseCaseData()))
             {
                 RimOilField* oilField = m_project->activeOilField();
                 if (oilField && oilField->analysisModels())

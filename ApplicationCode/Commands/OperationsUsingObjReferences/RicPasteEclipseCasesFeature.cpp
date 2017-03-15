@@ -179,7 +179,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
                 continue;
             }
 
-            if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->eclipseCaseData()))
             {
                 CVF_ASSERT(false);
             }

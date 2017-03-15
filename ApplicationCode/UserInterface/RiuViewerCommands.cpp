@@ -825,7 +825,7 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 
     if (eclipseView && eclipseView->eclipseCase())
     {
-        eclipseView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
+        eclipseView->eclipseCase()->eclipseCaseData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
     }
     
     if (geomView && geomView->geoMechCase())

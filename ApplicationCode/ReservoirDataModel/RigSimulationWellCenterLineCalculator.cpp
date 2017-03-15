@@ -59,7 +59,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(R
 
     CVF_ASSERT(eclipseView);
 
-    RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->eclipseCaseData();
     bool isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
 
     bool useAllCellCenters  = rimWell->isUsingCellCenterForPipe();

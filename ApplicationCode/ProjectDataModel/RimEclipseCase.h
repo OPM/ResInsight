@@ -67,8 +67,8 @@ public:
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
-    RigEclipseCaseData*                         reservoirData();
-    const RigEclipseCaseData*                   reservoirData() const;
+    RigEclipseCaseData*                         eclipseCaseData();
+    const RigEclipseCaseData*                   eclipseCaseData() const;
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
