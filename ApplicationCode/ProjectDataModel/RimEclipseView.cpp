@@ -138,7 +138,7 @@ RimEclipseView::RimEclipseView()
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
 	
-	m_reservoir = NULL;
+	m_eclipseCase = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ RimEclipseView::~RimEclipseView()
 
     m_reservoirGridPartManager->clearGeometryCache();
 
-    m_reservoir = NULL;
+    m_eclipseCase = NULL;
 }
 
 
@@ -248,7 +248,7 @@ void RimEclipseView::createDisplayModel()
     RiuMainWindow::instance()->setResultInfo(QString("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
 #endif
 
-    if (!(m_reservoir && m_reservoir->reservoirData())) return;
+    if (!(m_eclipseCase && m_eclipseCase->reservoirData())) return;
 
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
@@ -647,13 +647,13 @@ void RimEclipseView::loadDataAndUpdate()
 {
     updateScaleTransform();
 
-    if (m_reservoir)
+    if (m_eclipseCase)
     {
-        if (!m_reservoir->openReserviorCase())
+        if (!m_eclipseCase->openReserviorCase())
         {
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
-                                "Could not open the Eclipse Grid file: \n"+ m_reservoir->gridFileName());
+                                "Could not open the Eclipse Grid file: \n"+ m_eclipseCase->gridFileName());
             this->setEclipseCase( NULL);
             return;
         }
@@ -809,11 +809,11 @@ void RimEclipseView::updateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 {
-    if (m_reservoir)
+    if (m_eclipseCase)
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->results(porosityModel);
+        return m_eclipseCase->results(porosityModel);
     }
 
     return NULL;
@@ -824,13 +824,13 @@ RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 {
-    if (m_reservoir &&
-        m_reservoir->reservoirData()
+    if (m_eclipseCase &&
+        m_eclipseCase->reservoirData()
         )
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->reservoirData()->activeCellInfo(porosityModel);
+        return m_eclipseCase->reservoirData()->activeCellInfo(porosityModel);
     }
 
     return NULL;
@@ -882,9 +882,9 @@ void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 
     // Create vector of grid indices to render
     std::vector<RigGridBase*> grids;
-    if (this->m_reservoir && this->m_reservoir->reservoirData() )
+    if (this->m_eclipseCase && this->m_eclipseCase->reservoirData() )
     {
-        this->m_reservoir->reservoirData()->allGrids(&grids);
+        this->m_eclipseCase->reservoirData()->allGrids(&grids);
     }
 
     size_t i;
@@ -907,12 +907,12 @@ void RimEclipseView::updateLegends()
         m_viewer->removeAllColorLegends();
     }
 
-    if (!m_reservoir || !m_viewer || !m_reservoir->reservoirData() )
+    if (!m_eclipseCase || !m_viewer || !m_eclipseCase->reservoirData() )
     {
         return;
     }
 
-    RigEclipseCaseData* eclipseCase = m_reservoir->reservoirData();
+    RigEclipseCaseData* eclipseCase = m_eclipseCase->reservoirData();
     CVF_ASSERT(eclipseCase);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
@@ -1044,7 +1044,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 {
-    m_reservoir = reservoir;
+    m_eclipseCase = reservoir;
     cellResult()->setEclipseCase(reservoir);
     faultResultSettings()->customFaultResult()->setEclipseCase(reservoir);
     
@@ -1056,7 +1056,7 @@ void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseView::eclipseCase() const
 {
-    return m_reservoir;
+    return m_eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1074,9 +1074,9 @@ RimEclipseCase* RimEclipseView::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::syncronizeWellsWithResults()
 {
-    if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
+    if (!(m_eclipseCase && m_eclipseCase->reservoirData()) ) return;
 
-    cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
+    cvf::Collection<RigSingleWellResultsData> wellResults = m_eclipseCase->reservoirData()->wellResults();
 
  
     std::vector<caf::PdmPointer<RimEclipseWell> > newWells;
