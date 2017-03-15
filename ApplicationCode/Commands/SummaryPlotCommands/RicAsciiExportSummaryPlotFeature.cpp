@@ -69,14 +69,13 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
     caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting plot data to ASCII"));
     size_t progress = 0;
 
-    bool isOk = false;
     if (selectedSummaryPlots.size() == 1)
     {
         RimSummaryPlot* summaryPlot = selectedSummaryPlots.at(0);
         QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((summaryPlot->description())) + ".ascii";
-        QString fileName = QFileDialog::getSaveFileName(NULL, "Select File for Summary Plot Export", defaultFileName, "Text File(*.ascii);;All files(*.*)");
+        QString fileName = QFileDialog::getSaveFileName(nullptr, "Select File for Summary Plot Export", defaultFileName, "Text File(*.ascii);;All files(*.*)");
         if (fileName.isEmpty()) return;
-        isOk = RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot); 
+        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot); 
 
         progress++;
         pi.setProgress(progress);
@@ -98,15 +97,10 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
         for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(summaryPlot->description()) + ".ascii";
-            isOk = RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot); 
+            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot); 
             progress++;
             pi.setProgress(progress);
         }
-    }
-
-    if (!isOk)
-    {
-        QMessageBox::critical(NULL, "File export", "Failed to export summary plots to ASCII");
     }
 }
 
@@ -123,13 +117,13 @@ void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString& fileName, const RimSummaryPlot* summaryPlot)
 {
-    RiaLogging::info(QString("Writing values for summary plot(s) to file: %1").arg(fileName));
-
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         return false;
     }
+
+    RiaLogging::info(QString("Writing values for summary plot(s) to file: %1").arg(fileName));
 
     QTextStream out(&file);
     
