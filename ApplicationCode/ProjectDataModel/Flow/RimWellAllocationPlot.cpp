@@ -225,12 +225,6 @@ void RimWellAllocationPlot::updateFromWell()
         }
     }
 
-    m_contributingTracerNames.clear();
-    if (wfCalculator)
-    {
-        m_contributingTracerNames = wfCalculator->tracerNames();
-    }
-
     auto depthType = accumulatedWellFlowPlot()->depthType();
 
     if (   depthType == RimWellLogPlot::MEASURED_DEPTH ) return;
@@ -614,14 +608,6 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 QString RimWellAllocationPlot::wellName() const
 {
     return m_wellName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<QString> RimWellAllocationPlot::contributingTracerNames() const
-{
-    return m_contributingTracerNames;
 }
 
 //--------------------------------------------------------------------------------------------------

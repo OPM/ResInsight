@@ -72,7 +72,6 @@ public:
     int                                             timeStep();
 
     QString                                         wellName() const;
-    const std::vector<QString>                      contributingTracerNames() const;
 
     void                                            removeFromMdiAreaAndDeleteViewWidget();
 
@@ -125,6 +124,4 @@ private:
     caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
     caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
     caf::PdmChildField<RimWellAllocationPlotLegend*> m_wellAllocationPlotLegend;
-
-    std::vector<QString>                            m_contributingTracerNames;
 };
