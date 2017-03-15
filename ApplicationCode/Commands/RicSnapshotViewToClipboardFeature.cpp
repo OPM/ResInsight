@@ -93,11 +93,11 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, RimVi
         {
             if (image.save(fileName))
             {
-                qDebug() << "Saved snapshot image to " << fileName;
+                qDebug() << "Exported snapshot image to " << fileName;
             }
             else
             {
-                qDebug() << "Error when trying to save snapshot image to " << fileName;
+                qDebug() << "Error when trying to export snapshot image to " << fileName;
             }
         }
     }
@@ -132,7 +132,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 
     startPath += "/image.png";
 
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
     if (fileName.isEmpty())
     {
         return;

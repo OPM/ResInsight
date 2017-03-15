@@ -60,7 +60,7 @@ RicSaveEclipseResultAsInputPropertyExec::~RicSaveEclipseResultAsInputPropertyExe
 //--------------------------------------------------------------------------------------------------
 QString RicSaveEclipseResultAsInputPropertyExec::name()
 {
-    return "Save Property To File";
+    return "Export Property To File";
 }
 
 //--------------------------------------------------------------------------------------------------
