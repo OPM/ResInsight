@@ -462,15 +462,19 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 void RimEclipseWellCollection::assignDefaultWellColors()
 {
     const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
-    cvf::Color3ubArray catColors = colorTable.color3ubArray();
-    cvf::Color3ubArray interpolatedCatColors = caf::ColorTable::interpolateColorArray(catColors, wells.size());
+    cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+    cvf::Color3ubArray interpolatedWellColors = wellColors;
+    if (wells.size() > 1)
+    {
+        interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wells.size());
+    }
 
     for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
     {
         RimEclipseWell* well = wells[wIdx];
         if (well)
         {
-            cvf::Color3f col = cvf::Color3f(interpolatedCatColors[wIdx]);
+            cvf::Color3f col = cvf::Color3f(interpolatedWellColors[wIdx]);
 
             well->wellPipeColor = col;
             well->updateConnectedEditors();
