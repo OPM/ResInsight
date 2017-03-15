@@ -109,6 +109,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
 void RicAsciiExportWellLogPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Plot Data to Text File");
+    actionToSetup->setIcon(QIcon(":/Save.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

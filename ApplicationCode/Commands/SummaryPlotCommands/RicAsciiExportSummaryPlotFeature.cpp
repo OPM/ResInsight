@@ -110,6 +110,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Plot Data to Text File");
+    actionToSetup->setIcon(QIcon(":/Save.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
