@@ -104,9 +104,11 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 
         double maxAbsFlux = flowResults->maxAbsPairFlux(static_cast<int>(frameIndex));
         if (maxAbsFlux != 0.0) fluxWidthScale = characteristicCellSize / maxAbsFlux;
+
     }
 
-    RimEclipseWellCollection* wellColl                 = m_rimReservoirView->wellCollection();
+    bool enableLighting                = !m_rimReservoirView->isLightingDisabled();
+    RimEclipseWellCollection* wellColl = m_rimReservoirView->wellCollection();
 
     for ( RimEclipseWell * otherWell: wellColl->wells )
     {
@@ -148,6 +150,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 
             part->setDrawable(geo.p());
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(otherWell->wellPipeColor()), caf::PO_1);
+            surfaceGen.enableLighting(enableLighting);
+
             cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
 
             part->setEffect(eff.p());
