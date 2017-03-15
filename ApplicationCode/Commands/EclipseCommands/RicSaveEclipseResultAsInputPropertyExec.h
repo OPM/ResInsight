@@ -30,7 +30,7 @@ class RimEclipseCellColors;
 class RicSaveEclipseResultAsInputPropertyExec : public caf::CmdExecuteCommand
 {
 public:
-    RicSaveEclipseResultAsInputPropertyExec(RimEclipseCellColors* cellColors);
+    explicit RicSaveEclipseResultAsInputPropertyExec(RimEclipseCellColors* cellColors);
     virtual ~RicSaveEclipseResultAsInputPropertyExec();
 
     virtual QString name();

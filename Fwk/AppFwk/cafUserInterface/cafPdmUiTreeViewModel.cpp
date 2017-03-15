@@ -92,7 +92,7 @@ void PdmUiTreeViewModel::setPdmItemRoot(PdmUiItem* rootItem)
         }
     }
 
-    assert( newRoot || rootItem == NULL ); // Only fields, objects or NULL is allowed.
+    CAF_ASSERT( newRoot || rootItem == NULL ); // Only fields, objects or NULL is allowed.
 
     //if (newRoot) newRoot->debugDump(0);
 
@@ -242,7 +242,7 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
     }
 
     // Delete items with largest index first from existing
-    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); it++)
+    for (std::vector<int>::reverse_iterator it = indicesToRemoveFromExisting.rbegin(); it != indicesToRemoveFromExisting.rend(); ++it)
     {
         this->beginRemoveRows(existingSubTreeRootModIdx, *it, *it);
         existingSubTreeRoot->removeChildren(*it, 1);
@@ -320,7 +320,7 @@ void PdmUiTreeViewModel::updateSubTreeRecursive(const QModelIndex& existingSubTr
             }
 
             // Delete new items from source because they have been moved into newMergedOrdering
-            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); it++)
+            for (std::vector<int>::reverse_iterator it = indicesToRemoveFromSource.rbegin(); it != indicesToRemoveFromSource.rend(); ++it)
             {
                 // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
                 sourceSubTreeRoot->removeChildrenNoDelete(*it, 1);
@@ -371,7 +371,7 @@ void PdmUiTreeViewModel::updateEditorsForSubTree(PdmUiTreeOrdering* root)
     {
         PdmUiTreeItemEditor* treeItemEditor = new PdmUiTreeItemEditor(root->activeItem());
         root->setEditor(treeItemEditor);
-        assert(root->editor());
+        CAF_ASSERT(root->editor());
     }
 
     PdmUiTreeItemEditor* treeItemEditor = dynamic_cast<PdmUiTreeItemEditor*>(root->editor());
@@ -396,7 +396,7 @@ PdmUiTreeOrdering* caf::PdmUiTreeViewModel::treeItemFromIndex(const QModelIndex&
         return m_treeOrderingRoot;
     }
     
-    assert(index.internalPointer());
+    CAF_ASSERT(index.internalPointer());
 
     PdmUiTreeOrdering* treeItem = static_cast<PdmUiTreeOrdering*>(index.internalPointer());
 
@@ -457,7 +457,7 @@ QModelIndex PdmUiTreeViewModel::index(int row, int column, const QModelIndex &pa
     else
         parentItem = static_cast<PdmUiTreeOrdering*>(parentIndex.internalPointer());
 
-    assert(parentItem);
+    CAF_ASSERT(parentItem);
 
     if (parentItem->childCount() <= row)
     {
@@ -533,9 +533,6 @@ QVariant PdmUiTreeViewModel::data(const QModelIndex &index, int role ) const
     }
 
     bool isObjRep = uitreeOrdering->isRepresentingObject();
-    bool isFieldRep = uitreeOrdering->isRepresentingField();
-    bool isDisplayOnly = uitreeOrdering->isDisplayItemOnly();
-
 
     if (role == Qt::DisplayRole && !uitreeOrdering->isValid())
     {
@@ -673,7 +670,7 @@ bool PdmUiTreeViewModel::setData(const QModelIndex &index, const QVariant &value
     }
 
     PdmUiTreeOrdering* treeItem = PdmUiTreeViewModel::treeItemFromIndex(index);
-    assert(treeItem);
+    CAF_ASSERT(treeItem);
 
     if (!treeItem->isRepresentingObject()) return false;
 
@@ -723,7 +720,7 @@ Qt::ItemFlags PdmUiTreeViewModel::flags(const QModelIndex &index) const
     Qt::ItemFlags flagMask = QAbstractItemModel::flags(index);
 
     PdmUiTreeOrdering* treeItem = treeItemFromIndex(index);
-    assert(treeItem);
+    CAF_ASSERT(treeItem);
 
     if (treeItem->isRepresentingObject())
     {

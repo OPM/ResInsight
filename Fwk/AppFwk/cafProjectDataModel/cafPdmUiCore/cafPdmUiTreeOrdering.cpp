@@ -37,13 +37,13 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cafAssert.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
-#include <assert.h>
 #include <iostream>
 
 namespace caf
@@ -54,7 +54,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::add(PdmFieldHandle* field, QString uiConfigName)
 {
-    assert(field);
+    CAF_ASSERT(field);
 
     if (field->uiCapability()->isUiTreeHidden(uiConfigName))
     {
@@ -71,7 +71,7 @@ void PdmUiTreeOrdering::add(PdmFieldHandle* field, QString uiConfigName)
     }
     else
     {
-        PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, field);
+        new PdmUiTreeOrdering(this, field);
     }
 }
 
@@ -80,9 +80,9 @@ void PdmUiTreeOrdering::add(PdmFieldHandle* field, QString uiConfigName)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeOrdering::add(PdmObjectHandle* object)
 {
-    assert(object);
+    CAF_ASSERT(object);
 
-    PdmUiTreeOrdering* child = new PdmUiTreeOrdering(this, object);
+    new PdmUiTreeOrdering(this, object);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ void PdmUiTreeOrdering::add(PdmObjectHandle* object)
 PdmUiTreeOrdering* PdmUiTreeOrdering::add(const QString & title, const QString& iconResourceName)
 {
     PdmUiTreeOrdering* child = new PdmUiTreeOrdering(title, iconResourceName);
-    assert(child->isValid());
+    CAF_ASSERT(child->isValid());
 
     this->appendChild(child);
     return child;
@@ -102,7 +102,7 @@ PdmUiTreeOrdering* PdmUiTreeOrdering::add(const QString & title, const QString& 
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTreeOrdering::containsField(const PdmFieldHandle* field)
 {
-    assert (field);
+    CAF_ASSERT(field);
     for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
     {
         PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(this->child(cIdx)); // What ???
@@ -121,7 +121,7 @@ bool PdmUiTreeOrdering::containsField(const PdmFieldHandle* field)
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTreeOrdering::containsObject(const PdmObjectHandle* object)
 {
-    assert (object);
+    CAF_ASSERT(object);
     for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
     {
         PdmUiTreeOrdering* child = this->child(cIdx);
@@ -247,7 +247,7 @@ PdmUiTreeOrdering::~PdmUiTreeOrdering()
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTreeOrdering::object() const
 {
-    assert(isRepresentingObject()); return m_object;
+    CAF_ASSERT(isRepresentingObject()); return m_object;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,7 +255,7 @@ PdmObjectHandle* PdmUiTreeOrdering::object() const
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmUiTreeOrdering::field() const
 {
-    assert(isRepresentingField()); return m_field;
+    CAF_ASSERT(isRepresentingField()); return m_field;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ PdmFieldHandle* PdmUiTreeOrdering::field() const
 //--------------------------------------------------------------------------------------------------
 PdmUiItem* PdmUiTreeOrdering::uiItem() const
 {
-    assert(isDisplayItemOnly()); return m_uiItem;
+    CAF_ASSERT(isDisplayItemOnly()); return m_uiItem;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ void PdmUiTreeOrdering::debugDump(int level) const
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering* PdmUiTreeOrdering::child(int index) const
 {
-    assert(index < m_childItems.size());
+    CAF_ASSERT(index < m_childItems.size());
     return m_childItems.value(index);
 }
 

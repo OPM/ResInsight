@@ -50,7 +50,7 @@
 class UndoRedoWrapper : public QUndoCommand
 {
 public:
-    UndoRedoWrapper(caf::CmdExecuteCommand* executeCommand)
+    explicit UndoRedoWrapper(caf::CmdExecuteCommand* executeCommand)
     {
         m_executeCommand = executeCommand;
 

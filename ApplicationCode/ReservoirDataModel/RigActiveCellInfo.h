@@ -61,6 +61,8 @@ private:
     class GridActiveCellCounts
     {
     public:
+        GridActiveCellCounts();
+
         size_t          activeCellCount() const;
         void            setActiveCellCount(size_t activeCellCount);
 

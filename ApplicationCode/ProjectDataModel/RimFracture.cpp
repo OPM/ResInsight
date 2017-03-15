@@ -284,7 +284,7 @@ cvf::Mat4f RimFracture::transformMatrix()
 void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 { 
     //Get correct unit system: 
-    RigEclipseCaseData::UnitsType caseUnit = caseToApply->reservoirData()->unitsType();
+    RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
     RimDefines::UnitSystem unitForExport;
 
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
@@ -315,7 +315,7 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
     }
 
 
-    RigEclipseCaseData* eclipseCaseData = caseToApply->reservoirData();
+    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);

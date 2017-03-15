@@ -77,7 +77,9 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
         {
             defaultCase = project->activeOilField()->summaryCaseCollection()->summaryCase(0);
             newCurve->setSummaryCase(defaultCase);
-            newCurve->setVariable("FOPT");
+
+            newCurve->setSummaryAddress(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));
+
             newCurve->loadDataAndUpdate();
         }
         

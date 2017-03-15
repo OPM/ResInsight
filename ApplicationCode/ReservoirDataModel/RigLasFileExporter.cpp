@@ -296,7 +296,7 @@ private:
     QString m_date;
     
     double m_rkbDiff;
-    double m_exportTvdrkb;
+    bool   m_exportTvdrkb;
 
     RimDefines::DepthUnitType m_depthUnit;
     std::vector<double> m_depthValues;

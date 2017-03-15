@@ -47,7 +47,7 @@ namespace caf
 class RivWellPathCollectionPartMgr : public cvf::Object
 {
 public:
-    RivWellPathCollectionPartMgr(RimWellPathCollection* wellPathCollection);
+    explicit RivWellPathCollectionPartMgr(RimWellPathCollection* wellPathCollection);
     ~RivWellPathCollectionPartMgr();
 
     void scheduleGeometryRegen();

@@ -25,9 +25,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigSimulationWellCoordsAndMD::RigSimulationWellCoordsAndMD(const std::vector<cvf::Vec3d>& wellPathPoints)
+: m_wellPathPoints(wellPathPoints)
 {
-    m_wellPathPoints = wellPathPoints;
-
     computeMeasuredDepths();
 }
 

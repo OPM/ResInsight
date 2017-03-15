@@ -37,7 +37,7 @@ class RimIntersectionCollection;
 class RicNewPolylineIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
+    explicit RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
     virtual ~RicNewPolylineIntersectionFeatureCmd();
 
     virtual QString name();

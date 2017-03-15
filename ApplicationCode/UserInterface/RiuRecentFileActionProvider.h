@@ -35,7 +35,7 @@ class RiuRecentFileActionProvider : public QObject
     Q_OBJECT
 
 public:
-    RiuRecentFileActionProvider(int maxActionCount = 9);
+    explicit RiuRecentFileActionProvider(int maxActionCount = 9);
     ~RiuRecentFileActionProvider();
 
     void addFileName(const QString& fileName);

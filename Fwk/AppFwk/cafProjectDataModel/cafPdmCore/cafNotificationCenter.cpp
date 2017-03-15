@@ -18,9 +18,10 @@
 
 #include "cafNotificationCenter.h"
 
+#include "cafAssert.h"
+
 #include <QtGlobal>
 
-#include <assert.h>
 #include <algorithm>
 
 
@@ -42,7 +43,7 @@ NotificationCenter::NotificationCenter()
 //--------------------------------------------------------------------------------------------------
 NotificationCenter::~NotificationCenter()
 {
-    assert(m_observers.size() == 0);
+    CAF_ASSERT(m_observers.size() == 0);
 }
 
 
@@ -78,7 +79,7 @@ void NotificationCenter::removeObserver(DataModelObserver* observer)
 //--------------------------------------------------------------------------------------------------
 void NotificationCenter::notifyObserversOfDataChange(caf::PdmObjectHandle* itemThatChanged)
 {
-    assert(itemThatChanged);
+    CAF_ASSERT(itemThatChanged);
 
     foreach(DataModelObserver* o, m_observers)
     {

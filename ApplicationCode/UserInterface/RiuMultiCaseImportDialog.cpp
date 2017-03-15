@@ -27,7 +27,7 @@
 class FileListModel: public QStringListModel
 {
 public:
-    FileListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) 
+    explicit FileListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) 
     {
     }
 

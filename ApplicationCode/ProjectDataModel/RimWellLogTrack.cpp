@@ -491,3 +491,27 @@ std::vector<RimWellFlowRateCurve*> RimWellLogTrack::visibleStackedCurves()
 
     return stackedCurves;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::description()
+{
+    return m_userName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
+{
+    std::vector<RimWellLogCurve* > curvesVector;
+
+    for (RimWellLogCurve* curve : curves)
+    {
+        curvesVector.push_back(curve);
+    }
+
+    return curvesVector;
+}
+

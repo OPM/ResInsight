@@ -1,12 +1,11 @@
 #include "cafPdmUiObjectHandle.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
-
-#include <assert.h>
 
 
 namespace caf
@@ -28,7 +27,7 @@ PdmUiObjectHandle* uiObj(PdmObjectHandle* obj)
 {
     if (!obj) return NULL;
     PdmUiObjectHandle* uiObject = obj->capability<PdmUiObjectHandle>();
-    assert(uiObject);
+    CAF_ASSERT(uiObject);
     return uiObject;
 }
 
@@ -84,7 +83,7 @@ void PdmUiObjectHandle::objectEditorAttribute(QString uiConfigName, PdmUiEditorA
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""*/)
 {
-    assert(this); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert instead.
+    CAF_ASSERT(this); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert instead.
 
     PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering(NULL, m_owner);
 
@@ -231,7 +230,7 @@ void PdmUiObjectHandle::updateUiIconFromToggleField()
 PdmUiObjectHandle* PdmObjectHandle::uiCapability() const
 {
     PdmUiObjectHandle* uiField = capability<PdmUiObjectHandle>();
-    assert(uiField);
+    CAF_ASSERT(uiField);
 
     return uiField;
 }

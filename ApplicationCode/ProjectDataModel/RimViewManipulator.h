@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,25 +18,19 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <vector>
 
-namespace caf 
+namespace cvf {
+    class BoundingBox;
+}
+
+class RimView;
+
+class RimViewManipulator
 {
+public:
+    static void applySourceViewCameraOnDestinationViews(RimView* sourceView, std::vector<RimView*>& destinationViews);
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicWellPathsDeleteAllFeature : public CmdFeature
-{
-    CAF_CMD_HEADER_INIT;
-protected:
-
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+private:
+    static bool isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 };
-
-
-
-} // end namespace caf

@@ -253,7 +253,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
             m_eclipseResultDefinition->loadResult();
 
-            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->reservoirData(),
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(),
                                                                                                       0,
                                                                                                       m_timeStep,
                                                                                                       m_eclipseResultDefinition);
@@ -263,7 +263,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
+            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
             if (eclipseUnitsType == RigEclipseCaseData::UNITS_FIELD)
             {
                 // See https://github.com/OPM/ResInsight/issues/538
@@ -507,9 +507,9 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         if (eclipseCase)
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-            if (eclipseCase->reservoirData())
+            if (eclipseCase->eclipseCaseData())
             {
-                maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+                maxTimeStep = eclipseCase->eclipseCaseData()->results(porosityModel)->maxTimeStepCount();
             }
         }
         else if (geomCase)
@@ -605,7 +605,7 @@ QString RimWellLogExtractionCurve::wellDate() const
     if (eclipseCase)
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-        if (eclipseCase->reservoirData())
+        if (eclipseCase->eclipseCaseData())
         {
             timeStepNames = eclipseCase->timeStepStrings();
         }

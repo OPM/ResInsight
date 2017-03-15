@@ -209,10 +209,15 @@ TEST(BaseTest, TestPdmValueFieldInterface)
 //--------------------------------------------------------------------------------------------------
 TEST(BaseTest, NormalPdmField)
 {
-    class A
+    class A : public caf::PdmObjectHandle
     {
     public:
-        A(const std::vector<double>& testValue) : field2(testValue), field3(field2) {}
+        explicit A(const std::vector<double>& testValue) : field2(testValue), field3(field2)
+        {
+            this->addField(&field1, "field1");
+            this->addField(&field2, "field2");
+            this->addField(&field3, "field3");
+        }
 
         caf::PdmDataValueField<std::vector<double> > field1;
         caf::PdmDataValueField<std::vector<double> > field2;
@@ -432,9 +437,15 @@ TEST(BaseTest, PdmChildArrayFieldHandle)
 
 TEST(BaseTest, PdmChildField)
 {
-    class A {
+    class A : public caf::PdmObjectHandle
+    {
     public:
-        A(Child* a) :field2(a) {}
+        explicit A(Child* a)
+        :   field2(a),
+            b(0)
+        {
+            this->addField(&field2, "field2");
+        }
 
         ~A()
         {
@@ -446,7 +457,6 @@ TEST(BaseTest, PdmChildField)
     };
 
     {
-        Parent* parent = new Parent;
         Child* testValue = new Child;
 
         // Constructor assignment
@@ -455,7 +465,7 @@ TEST(BaseTest, PdmChildField)
 
         // Guarded
         delete testValue;
-        EXPECT_EQ((Child*)0, a.field2);
+        EXPECT_EQ(static_cast<Child*>(nullptr), a.field2);
     }
     {
         A a(NULL);
@@ -483,13 +493,11 @@ TEST(BaseTest, PdmPtrField)
     InheritedDemoObj* ihd2 = new InheritedDemoObj;
 
     // Direct access
-    EXPECT_EQ((InheritedDemoObj*)NULL, ihd1->m_ptrField);
-
-    InheritedDemoObj* accessedIhd = NULL;
+    EXPECT_EQ(static_cast<InheritedDemoObj*>(nullptr), ihd1->m_ptrField);
 
     // Assignment
     ihd1->m_ptrField = ihd1;
-    accessedIhd = ihd1->m_ptrField;
+    InheritedDemoObj* accessedIhd = ihd1->m_ptrField;
     EXPECT_EQ(ihd1, accessedIhd);
 
     ihd1->m_ptrField = caf::PdmPointer<InheritedDemoObj>(ihd2);

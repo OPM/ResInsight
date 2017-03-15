@@ -85,8 +85,6 @@ private:
     float                       m_opacityLevel;
     cvf::Color3f                m_defaultColor;
 
-    bool                        m_showLabel;
-
     cvf::ref<cvf::UByteArray>   m_cellVisibility;
 
     cvf::ref<RivFaultGeometryGenerator>   m_nativeFaultGenerator;

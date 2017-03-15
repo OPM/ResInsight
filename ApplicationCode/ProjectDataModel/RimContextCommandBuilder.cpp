@@ -269,6 +269,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteWellLogTrackFeature";
             commandIds << "Separator";
             commandIds << "RicNewWellLogPlotTrackFeature";
+            commandIds << "RicAsciiExportWellLogPlotFeature";
         }
         else if (dynamic_cast<RimWellLogTrack*>(uiItem))
         {
@@ -293,6 +294,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicAsciiExportSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "Separator";
@@ -441,6 +443,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         }
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem))
+        {
+            commandIds << "RicAsciiExportSummaryPlotFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicAsciiExportWellLogPlotFeature";
+        }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
                  dynamic_cast<RimWellLogPlot*>(uiItem))
@@ -458,6 +468,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
+            commandIds << "RicPlotProductionRateFeature";
+            commandIds << "RicShowContributingWellsFeature";
             commandIds << "Separator";
             commandIds << "RicEclipseWellShowLabelFeature";
             commandIds << "RicEclipseWellShowHeadFeature";
@@ -489,6 +501,12 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     {
         commandIds << "Separator";
         commandIds << "RicDeleteItemFeature";
+    }
+
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteSubItemsFeature")->canFeatureBeExecuted())
+    {
+        commandIds << "Separator";
+        commandIds << "RicDeleteSubItemsFeature";
     }
 
     if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellPathDeleteFeature")->canFeatureBeExecuted())

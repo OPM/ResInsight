@@ -103,7 +103,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         CVF_ASSERT(cellResultColors);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
         // CrossSections
         if (m_crossSectionFaces.notNull())
@@ -135,7 +135,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData(),
                                                                                           0,
                                                                                           timeStepIndex,
                                                                                           cellResultColors);
@@ -737,8 +737,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
     m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
     if (eclipseView)
     {
-        RigMainGrid* grid = NULL;
-        grid = eclipseView->mainGrid();
+        RigMainGrid* grid = eclipseView->mainGrid();
         return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
     }
 

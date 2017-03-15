@@ -20,16 +20,11 @@
 
 #include "RiaApplication.h"
 
-#include "RimDefines.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
-#include "RimWellAllocationPlot.h"
+#include "RicShowContributingWellsFeatureImpl.h"
 
-#include "RiuMainWindow.h"
+#include "RimEclipseResultCase.h"
+#include "RimFlowDiagSolution.h"
+#include "RimWellAllocationPlot.h"
 
 #include <QAction>
 
@@ -40,12 +35,6 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFromPlotFeature, "RicShowContributin
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
-    RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
-    if (!wellAllocationPlot) return false;
-
-    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-    if (!activeView) return false;
-
     return true;
 }
 
@@ -57,54 +46,13 @@ void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
     RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
     if (!wellAllocationPlot) return;
 
-    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    int timeStep = wellAllocationPlot->timeStep();
+    QString wellName = wellAllocationPlot->wellName();
 
-    if (activeView)
-    {
-        activeView->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
-        activeView->cellResult()->setResultVariable("MaxFractionTracer");
-        activeView->cellResult()->loadDataAndUpdate();
+    RimEclipseResultCase* wellAllocationResultCase = nullptr;
+    wellAllocationPlot->flowDiagSolution()->firstAncestorOrThisOfTypeAsserted(wellAllocationResultCase);
 
-        activeView->cellResult()->updateConnectedEditors();
-
-        const std::vector<QString> contributingTracers = wellAllocationPlot->contributingTracerNames();
-
-        for (RimEclipseWell* well : activeView->wellCollection()->wells())
-        {
-            if (std::find(contributingTracers.begin(), contributingTracers.end(), well->name()) != contributingTracers.end()
-                || wellAllocationPlot->wellName() == well->name())
-            {
-                well->showWell = true;
-            }
-            else
-            {
-                well->showWell = false;
-            }
-        }
-
-        // Disable all existing property filters, and
-        // create a new property filter based on TOF for current well
-
-        RimEclipsePropertyFilterCollection* propertyFilterCollection = activeView->eclipsePropertyFilterCollection();
-
-        for (RimEclipsePropertyFilter* f : propertyFilterCollection->propertyFilters())
-        {
-            f->isActive = false;
-        }
-
-        RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-        propertyFilterCollection->propertyFilters().push_back(propertyFilter);
-
-        propertyFilter->resultDefinition()->setEclipseCase(activeView->eclipseCase());
-        propertyFilter->resultDefinition()->setTofAndSelectTracer(wellAllocationPlot->wellName());
-        propertyFilter->resultDefinition()->loadDataAndUpdate();
-
-        propertyFilterCollection->updateConnectedEditors();
-
-        RiuMainWindow::instance()->setExpanded(propertyFilterCollection, true);
-
-        activeView->scheduleCreateDisplayModelAndRedraw();
-    }
+    RicShowContributingWellsFeatureImpl::showViewSelection(wellAllocationResultCase, wellName, timeStep);
 }
 
 //--------------------------------------------------------------------------------------------------

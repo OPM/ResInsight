@@ -18,11 +18,18 @@
 
 #include "RicShowContributingWellsFeature.h"
 
-#include "RiaApplication.h"
+#include "RicShowContributingWellsFeatureImpl.h"
+
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
-#include "RimView.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimViewManipulator.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -33,17 +40,32 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFe
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
-
-    RimEclipseResultCase* eclCase = nullptr;
-    activeView->firstAncestorOrThisOfType(eclCase);
-    if (eclCase)
+    std::vector<RimEclipseWell*> collection;
+    caf::SelectionManager::instance()->objectsByType(&collection);
+    if (collection.size() == 1)
     {
-        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-        if (flowSols.size() > 0)
+        RimEclipseWell* well = collection[0];
+        RimEclipseView* eclipseView = nullptr;
+        well->firstAncestorOrThisOfType(eclipseView);
+
+        if (eclipseView)
         {
-            return true;
+            RimFlowDiagSolution* flowDiagSolution = eclipseView->cellResult()->flowDiagSolution();
+            if (!flowDiagSolution)
+            {
+                RimEclipseResultCase* eclipseResultCase = nullptr;
+                well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
+
+                if (eclipseResultCase)
+                {
+                    flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
+                }
+            }
+
+            if (flowDiagSolution)
+            {
+                return true;
+            }
         }
     }
 
@@ -55,20 +77,27 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 {
-    // First, shot the well allocation plot
-    // Then, use the feature to show contributing wells as this is based on the previous feature
+    std::vector<RimEclipseWell*> collection;
+    caf::SelectionManager::instance()->objectsByType(&collection);
 
-    std::vector<std::string> commandIds;
-    commandIds.push_back("RicShowWellAllocationPlotFeature");
-    commandIds.push_back("RicShowContributingWellsFromPlotFeature");
+    CAF_ASSERT(collection.size() == 1);
 
-    for (auto commandId : commandIds)
+    RimEclipseWell* well = collection[0];
+    RimEclipseView* eclipseView = nullptr;
+    well->firstAncestorOrThisOfTypeAsserted(eclipseView);
+
+    RimEclipseResultCase* eclipseResultCase = nullptr;
+    well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
+
+    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::showViewSelection(eclipseResultCase, well->name(), eclipseView->currentTimeStep());
+    if (modifiedView)
     {
-        auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature(commandId);
-        if (feature)
-        {
-            feature->actionTriggered(false);
-        }
+        modifiedView->createDisplayModelAndRedraw();
+
+        std::vector<RimView*> viewsToUpdate;
+        viewsToUpdate.push_back(modifiedView);
+
+        RimViewManipulator::applySourceViewCameraOnDestinationViews(eclipseView, viewsToUpdate);
     }
 }
 

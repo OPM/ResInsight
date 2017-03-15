@@ -610,16 +610,12 @@ void RiaApplication::loadAndUpdatePlotData()
         }
     }
     
-
     if (flowColl)
     {
-        flowColl->loadDataAndUpdate();
-
         plotProgress.setNextProgressIncrement(flowColl->plotCount());
+        flowColl->loadDataAndUpdate();
+        plotProgress.incrementProgress();
     }
-
-    plotProgress.incrementProgress();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -888,17 +884,17 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     if (analysisModels->cases.size() > 0)
     {
-        if (rimResultReservoir->reservoirData())
+        if (rimResultReservoir->eclipseCaseData())
         {
-            if (rimResultReservoir->reservoirData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
+            if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
             {
                 project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_METRIC;
             }
-            else if (rimResultReservoir->reservoirData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
+            else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
             {
                 project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_FIELD;
             }
-            else if (rimResultReservoir->reservoirData()->unitsType() == RigEclipseCaseData::UNITS_LAB)
+            else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_LAB)
             {
                 project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_METRIC;
             }
@@ -2441,7 +2437,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
         if (identicalGrid)
         {
-            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->eclipseCaseData()))
             {
                 RimOilField* oilField = m_project->activeOilField();
                 if (oilField && oilField->analysisModels())

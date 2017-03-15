@@ -58,7 +58,8 @@ class ContainerObj : public caf::PdmObjectHandle
 public:
     ContainerObj() : PdmObjectHandle()
     { 
-        this->addField(&derivedObjs, "derivedObjs");
+        this->addField(&derivedObjs,      "derivedObjs");
+        this->addField(&derivedOtherObjs, "derivedOtherObjs");
     }
 
     ~ContainerObj()
@@ -96,8 +97,7 @@ TEST(ChildArrayFieldHandle, DerivedObjects)
     containerObj->derivedObjs.push_back(s1);
     containerObj->derivedObjs.push_back(s2);
 
-    SimpleObjDerived* myObj = NULL;
-    myObj = findObjectById<SimpleObjDerived*>(containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), 2);
+    SimpleObjDerived* myObj = findObjectById<SimpleObjDerived*>(containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), 2);
     EXPECT_EQ(s2, myObj);
 
     myObj = findObjectById<SimpleObjDerived*>(containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), -1);
@@ -120,8 +120,7 @@ TEST(ChildArrayFieldHandle, DerivedOtherObjects)
     containerObj->derivedOtherObjs.push_back(s1);
     containerObj->derivedOtherObjs.push_back(s2);
 
-    SimpleObjDerivedOther* myObj = NULL;
-    myObj = findObjectById<SimpleObjDerivedOther*>(containerObj->derivedOtherObjs.begin(), containerObj->derivedOtherObjs.end(), s2Id);
+    SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>(containerObj->derivedOtherObjs.begin(), containerObj->derivedOtherObjs.end(), s2Id);
     EXPECT_EQ(s2, myObj);
 
     myObj = findObjectById<SimpleObjDerivedOther*>(containerObj->derivedOtherObjs.begin(), containerObj->derivedOtherObjs.end(), -1);

@@ -101,7 +101,7 @@ class RivTernaryScalarMapper;
 class CellEdgeEffectGenerator : public caf::EffectGenerator
 {
 public:
-    CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper);
+    explicit CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper);
 
     void                            setScalarMapper(const cvf::ScalarMapper* cellScalarMapper);
     void                            setTernaryScalarMapper(const RivTernaryScalarMapper* ternaryScalarMapper);

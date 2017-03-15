@@ -28,7 +28,7 @@ class RimMdiWindowController;
 
 struct RimMdiWindowGeometry 
 {
-    RimMdiWindowGeometry() : mainWindowID(-1), x(0), y(0), width(-1), height(-1)  {}
+    RimMdiWindowGeometry() : mainWindowID(-1), x(0), y(0), width(-1), height(-1), isMaximized(false) {}
     bool isValid() const { return (mainWindowID >= 0 && width >= 0 && height >= 0);}
 
     int mainWindowID;

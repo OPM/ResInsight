@@ -123,7 +123,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
 
     progInfo.incrementProgress();
 
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
     progInfo.setProgressDescription("Computing Case Cache");
@@ -132,7 +132,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
 
-    if (reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+    if (eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
     {
         m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
         
@@ -195,10 +195,10 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
     results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
     results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
-    reservoirData()->computeActiveCellBoundingBoxes();
+    eclipseCaseData()->computeActiveCellBoundingBoxes();
 
     m_activeCellInfoIsReadFromFile = true;
 
@@ -353,6 +353,19 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
     
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RimEclipseResultCase::defaultFlowDiagSolution()
+{
+    if (m_flowDiagSolutions.size() > 0)
+    {
+        return m_flowDiagSolutions[0];
+    }
+
+    return nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

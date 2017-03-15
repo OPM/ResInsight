@@ -58,7 +58,7 @@
 class PdmDoubleValidator : public QDoubleValidator
 {
 public:
-    PdmDoubleValidator(QObject * parent = 0) : QDoubleValidator(parent)
+    explicit PdmDoubleValidator(QObject * parent = 0) : QDoubleValidator(parent)
     {
     }
 
@@ -93,7 +93,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiDoubleSliderEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_lineEdit.isNull());
+    CAF_ASSERT(!m_lineEdit.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())

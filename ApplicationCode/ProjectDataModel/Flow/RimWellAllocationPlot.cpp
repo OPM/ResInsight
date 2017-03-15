@@ -58,8 +58,8 @@ namespace caf
 template<>
 void AppEnum<RimWellAllocationPlot::FlowType>::setUp()
 {
-    addItem(RimWellAllocationPlot::ACCUMULATED, "ACCUMULATED", "Well Flow");
-    addItem(RimWellAllocationPlot::INFLOW, "INFLOW", "In Flow");
+    addItem(RimWellAllocationPlot::ACCUMULATED, "ACCUMULATED", "Accumulated");
+    addItem(RimWellAllocationPlot::INFLOW, "INFLOW", "Inflow Rates");
     setDefault(RimWellAllocationPlot::ACCUMULATED);
 
 }
@@ -138,8 +138,7 @@ void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
     m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
     if ( !m_flowDiagSolution )
     {
-        std::vector<RimFlowDiagSolution*> flowSolutions =  m_case->flowDiagSolutions();
-        if ( flowSolutions.size() ) m_flowDiagSolution = flowSolutions.front();
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
 
     loadDataAndUpdate();
@@ -180,8 +179,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     if (!m_case) return;
 
-    const RigSingleWellResultsData* wellResults = nullptr;
-    wellResults = m_case->reservoirData()->findWellResult(m_wellName);
+    const RigSingleWellResultsData* wellResults = m_case->eclipseCaseData()->findWellResult(m_wellName);
 
     if (!wellResults) return;
    
@@ -190,7 +188,7 @@ void RimWellAllocationPlot::updateFromWell()
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->reservoirData(),
+    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(m_case->eclipseCaseData(),
                                                                                     wellResults,
                                                                                     m_timeStep,
                                                                                     true,
@@ -207,8 +205,9 @@ void RimWellAllocationPlot::updateFromWell()
 
     if ( tracerFractionCellValues.size() )
     {
-        bool isProducer = wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER ;
-        RigEclCellIndexCalculator cellIdxCalc(m_case->reservoirData()->mainGrid(), m_case->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        bool isProducer = (    wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER 
+                            || wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
+        RigEclCellIndexCalculator cellIdxCalc(m_case->eclipseCaseData()->mainGrid(), m_case->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
         wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
                                                         pipeBranchesCellIds,
                                                         tracerFractionCellValues,
@@ -275,6 +274,7 @@ void RimWellAllocationPlot::updateFromWell()
                 }
 
                 addStackedCurve(tracerName, depthValues, *accFlow, plotTrack);
+                //TODO: THIs is the data to be plotted...
             }
         }
         else
@@ -342,31 +342,29 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 {
     std::map<QString, const std::vector<double> *> tracerCellFractionValues;
 
-    if ( m_flowDiagSolution && wellResults->isOpen(m_timeStep) )
+    if ( m_flowDiagSolution && wellResults->hasWellResult(m_timeStep) )
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
 
         const RigWellResultFrame::WellProductionType prodType = wellResults->wellProductionType(m_timeStep);
-        if ( prodType == RigWellResultFrame::PRODUCER )
+        if (    prodType == RigWellResultFrame::PRODUCER 
+             || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
         {
             requestedTracerType = RimFlowDiagSolution::INJECTOR;
         }
-        else if (prodType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE)
+        else 
         {
             requestedTracerType = RimFlowDiagSolution::PRODUCER;
         }
 
-        if ( prodType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+        std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+        for ( const QString& tracerName : tracerNames )
         {
-            std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
-            for ( const QString& tracerName : tracerNames )
+            if ( m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType )
             {
-                if ( m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType )
-                {
-                    RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
-                    const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
-                    tracerCellFractionValues[tracerName] = tracerCellFractions;
-                }
+                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
+                const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
+                tracerCellFractionValues[tracerName] = tracerCellFractions;
             }
         }
     }
@@ -379,7 +377,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
-    RigEclipseCaseData::UnitsType unitSet = m_case->reservoirData()->unitsType();
+    RigEclipseCaseData::UnitsType unitSet = m_case->eclipseCaseData()->unitsType();
     QString unitText;
     switch ( unitSet )
     {
@@ -450,8 +448,7 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep(const QString& wellName
 
     if (eclipseResultCase)
     {
-        const RigSingleWellResultsData* wellResults = nullptr;
-        wellResults = eclipseResultCase->reservoirData()->findWellResult(wellName);
+        const RigSingleWellResultsData* wellResults = eclipseResultCase->eclipseCaseData()->findWellResult(wellName);
 
         if (wellResults)
         {
@@ -521,6 +518,22 @@ RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RimWellAllocationPlot::flowDiagSolution()
+{
+    return m_flowDiagSolution();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationPlot::timeStep()
+{
+    return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -528,9 +541,9 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     if (fieldNeedingOptions == &m_wellName)
     {
         std::set<QString> sortedWellNames;
-        if ( m_case && m_case->reservoirData() )
+        if ( m_case && m_case->eclipseCaseData() )
         {
-            const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->reservoirData()->wellResults();
+            const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->eclipseCaseData()->wellResults();
 
             for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
             {
@@ -553,7 +566,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     {
         QStringList timeStepNames;
 
-        if (m_case && m_case->reservoirData())
+        if (m_case && m_case->eclipseCaseData())
         {
             timeStepNames = m_case->timeStepStrings();
         }

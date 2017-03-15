@@ -362,13 +362,12 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword(const QString &fileN
     data.open(QFile::ReadOnly);
 
     QString line;
-    qint64 lineLength = -1;
 
     bool foundPathsKeyword = false;
 
     do
     {
-        lineLength = data.readLine(buf, sizeof(buf));
+        qint64 lineLength = data.readLine(buf, sizeof(buf));
         if (lineLength > 0)
         {
             line = QString::fromAscii(buf);

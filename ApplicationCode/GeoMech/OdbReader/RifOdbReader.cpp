@@ -52,7 +52,7 @@
 class RifOdbBulkDataGetter
 {
 public:
-    RifOdbBulkDataGetter(const odb_FieldBulkData& bulkData) : m_bulkData(bulkData) {};
+    explicit RifOdbBulkDataGetter(const odb_FieldBulkData& bulkData) : m_bulkData(bulkData) {};
     virtual ~RifOdbBulkDataGetter() {};
 
     float* data()
@@ -329,8 +329,6 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
     CVF_ASSERT(femParts);
     CVF_ASSERT(m_odb != NULL);
 
-
-    odb_Assembly&  rootAssembly = m_odb->rootAssembly();
     odb_InstanceRepository instanceRepository = m_odb->rootAssembly().instances();
     odb_InstanceRepositoryIT iter(instanceRepository);
 
@@ -378,7 +376,7 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
 
         int elmCount = elements.size();
         femPart->preAllocateElementStorage(elmCount);
-        std::map<std::string, RigElementType>::const_iterator it;
+
         std::vector<int> indexBasedConnectivities;
 
         m_elementIdToIdxMaps.push_back(std::map<int, int>());
@@ -589,7 +587,6 @@ odb_Instance* RifOdbReader::instance(int instanceIndex)
 {
     CVF_ASSERT(m_odb != NULL);
 
-    odb_Assembly& rootAssembly = m_odb->rootAssembly();
     odb_InstanceRepository& instanceRepository = m_odb->rootAssembly().instances();
     odb_InstanceRepositoryIT iter(instanceRepository);
 
@@ -696,7 +693,7 @@ std::map<std::string, std::vector<std::string> > RifOdbReader::fieldAndComponent
     std::map<std::string, std::vector<std::string> > fieldsAndComponents;
 
     std::map< RifOdbResultKey, std::vector<std::string> >::const_iterator resMapIt;
-    for (resMapIt = m_resultsMetaData.begin(); resMapIt != m_resultsMetaData.end(); resMapIt++)
+    for (resMapIt = m_resultsMetaData.begin(); resMapIt != m_resultsMetaData.end(); ++resMapIt)
     {
         if (resMapIt->first.resultPostion == position)
         {
@@ -784,7 +781,6 @@ void RifOdbReader::readNodeField(const std::string& fieldName, int partIndex, in
     const odb_FieldOutput& fieldOutput = instanceFieldOutput.getSubset(odb_Enum::NODAL);
     const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
 
-    size_t dataIndex = 0;
     int numBlocks = seqFieldBulkData.size();
     for (int block = 0; block < numBlocks; block++)
     {
@@ -842,7 +838,6 @@ void RifOdbReader::readElementNodeField(const std::string& fieldName,
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
         
-    size_t dataIndex = 0;
     int numBlocks = seqFieldBulkData.size();
     for (int block = 0; block < numBlocks; block++)
     {
@@ -909,7 +904,6 @@ void RifOdbReader::readIntegrationPointField(const std::string& fieldName, int p
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT(elementIdToIdxMap.size() > 0);
         
-    size_t dataIndex = 0;
     int numBlocks = seqFieldBulkData.size();
     for (int block = 0; block < numBlocks; block++)
     {

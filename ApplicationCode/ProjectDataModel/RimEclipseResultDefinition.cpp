@@ -257,8 +257,7 @@ void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName
 {
     setResultType(RimDefines::FLOW_DIAGNOSTICS);
     setResultVariable("TOF");
-    
-    m_flowTracerSelectionMode = FLOW_TR_BY_SELECTION;
+    setFlowDiagTracerSelectionType(FLOW_TR_BY_SELECTION);
 
     std::vector<QString> tracers;
     tracers.push_back(tracerName);
@@ -279,10 +278,10 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
     this->firstAncestorOrThisOfType(eclCase);
     if (eclCase)
     {
-        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-        if (flowSols.size() > 0)
+        RimFlowDiagSolution* defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
+        if (defaultFlowDiagSolution)
         {
-            this->setFlowSolution(flowSols[0]);
+            this->setFlowSolution(defaultFlowDiagSolution);
         }
     }
 }
@@ -360,9 +359,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
         bool hasFlowDiagFluxes = false;
         RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
-        if ( eclResCase && eclResCase->reservoirData() )
+        if ( eclResCase && eclResCase->eclipseCaseData() )
         {
-            hasFlowDiagFluxes = eclResCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
+            hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
         }
 
         // Do not include flow diag results if not available
@@ -426,11 +425,12 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 {
                     RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
                     QString prefix; 
-                    switch (status)
+                    switch ( status )
                     {
-                    case RimFlowDiagSolution::INJECTOR: prefix = "I   : "; break;
-                    case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
-                    case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
+                        case RimFlowDiagSolution::INJECTOR: prefix = "I   : "; break;
+                        case RimFlowDiagSolution::PRODUCER: prefix = "P  : "; break;
+                        case RimFlowDiagSolution::VARYING:  prefix = "I/P: "; break;
+                        case RimFlowDiagSolution::UNDEFINED:prefix = "U  : "; break;
                     }
 
                     if (status != RimFlowDiagSolution::CLOSED) prefixedTracerNamesMap[prefix + tracerName] = tracerName;
@@ -644,6 +644,14 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     }
 
     return RigFlowDiagResultAddress(m_resultVariable().toStdString(), selTracerNames);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setFlowDiagTracerSelectionType(FlowTracerSelectionType selectionType)
+{   
+    m_flowTracerSelectionMode = selectionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -878,8 +886,8 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 {
     if (this->m_resultType() == RimDefines::FORMATION_NAMES
         && m_eclipseCase 
-        && m_eclipseCase->reservoirData() 
-        && m_eclipseCase->reservoirData()->activeFormationNames() ) return true;
+        && m_eclipseCase->eclipseCaseData() 
+        && m_eclipseCase->eclipseCaseData()->activeFormationNames() ) return true;
 
     if (this->m_resultType() == RimDefines::FLOW_DIAGNOSTICS
         && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME) return true;
@@ -896,9 +904,9 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
     if ( m_eclipseCase
-        && m_eclipseCase->reservoirData()
-        && m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
-        && m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
+        && m_eclipseCase->eclipseCaseData()
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
         {
             return true;
         } 

@@ -57,12 +57,12 @@ RimWellLogPlotCollection::~RimWellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase)
 {
-    if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->reservoirData()))
+    if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData()))
     {
         return NULL;
     }
 
-    RigEclipseCaseData* eclCaseData = eclCase->reservoirData();
+    RigEclipseCaseData* eclCaseData = eclCase->eclipseCaseData();
     RigWellPath* wellPathGeom = wellPath->wellPathGeometry();
     for (size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx)
     {

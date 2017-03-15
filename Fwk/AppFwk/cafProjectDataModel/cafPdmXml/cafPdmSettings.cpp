@@ -40,7 +40,6 @@
 #include "cafPdmField.h"
 #include "cafPdmXmlObjectHandle.h"
 
-#include <assert.h>
 
 
 namespace caf
@@ -85,7 +84,7 @@ void PdmSettings::readFieldsFromApplicationStore(caf::PdmObjectHandle* object, c
                 QVariant val = settings.value(key);
 
                 caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
-                assert(valueField);
+                CAF_ASSERT(valueField);
                 valueField->setFromQVariant(val);
             }
         }
@@ -97,7 +96,7 @@ void PdmSettings::readFieldsFromApplicationStore(caf::PdmObjectHandle* object, c
 //--------------------------------------------------------------------------------------------------
 void PdmSettings::writeFieldsToApplicationStore(caf::PdmObjectHandle* object, const QString context)
 {
-    assert(object);
+    CAF_ASSERT(object);
 
     // Qt doc :
     //
@@ -133,7 +132,7 @@ void PdmSettings::writeFieldsToApplicationStore(caf::PdmObjectHandle* object, co
         if (children.size() == 0)
         {
             caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
-            assert(valueField);
+            CAF_ASSERT(valueField);
             settings.setValue(context + fieldHandle->keyword(), valueField->toQVariant());
         }
     }

@@ -36,7 +36,7 @@ public:
     };
 
 public:
-    RiaImageFileCompare(QString compareExecutable);
+    explicit RiaImageFileCompare(QString compareExecutable);
     ~RiaImageFileCompare();
 
     bool        runComparison(QString imgFileName, QString refFileName, QString diffFileName);

@@ -50,8 +50,6 @@
 #include <QGridLayout>
 #include <QWidget>
 
-#include <assert.h>
-
 
 
 namespace caf
@@ -86,7 +84,7 @@ PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setPdmObject(NULL) before closing the dialog
-    assert(m_fieldViews.size() == 0);
+    CAF_ASSERT(m_fieldViews.size() == 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,10 +233,10 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             else
             {
                 groupBox = it->second;
-                assert(groupBox);
+                CAF_ASSERT(groupBox);
                 
                 groupBoxLayout = dynamic_cast<QGridLayout*>(groupBox->layout());
-                assert(groupBoxLayout);
+                CAF_ASSERT(groupBoxLayout);
                 
                 m_newGroupBoxes[groupBoxKey] = groupBox;
             }
@@ -278,7 +276,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                     // This assert will trigger for PdmChildArrayField and PdmChildField
                     // Consider to exclude assert or add editors for these types if the assert is reintroduced
-                    //assert(false);
+                    //CAF_ASSERT(false);
                 }
             }
             else
@@ -377,7 +375,7 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
             if (groupNames->find(groupBoxKey) != groupNames->end())
             {
                 // It is not supported to have two groups with identical names
-                assert(false);
+                CAF_ASSERT(false);
             }
             else
             {
@@ -394,7 +392,7 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
             if (fieldKeywordNames->find(fieldKeyword) != fieldKeywordNames->end())
             {
                 // It is not supported to have two fields with identical names
-                assert(false);
+                CAF_ASSERT(false);
             }
             else
             {
@@ -435,7 +433,7 @@ caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFi
 
             bool useOptionsOnly = true;
             QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
-            assert(useOptionsOnly); // Not supported
+            CAF_ASSERT(useOptionsOnly); // Not supported
 
             if (!options.empty())
             {

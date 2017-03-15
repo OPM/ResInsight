@@ -52,7 +52,7 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 
 struct KeywordItemCounter
 {
-    KeywordItemCounter(std::string keyword, size_t aggregatedItemCount)
+    KeywordItemCounter(const std::string& keyword, size_t aggregatedItemCount)
         : m_keyword(keyword),
         m_aggregatedItemCount(aggregatedItemCount),
         m_reportStepCount(1)

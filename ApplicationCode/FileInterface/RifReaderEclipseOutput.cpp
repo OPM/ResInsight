@@ -958,8 +958,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     // Introduced based on discussion with Håkon Høgstøl 08.09.2016
     if (cellK >= static_cast<int>(grid->cellCountK()))
     {
-        int maxCellKIndex = static_cast<int>(grid->cellCountK() - 1);
-        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName));
+        int maxCellK = static_cast<int>(grid->cellCountK());
+        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ", max K = " + cvf::String(maxCellK) + ") for well : " + cvf::String(wellName));
     }
     else
     {
@@ -1022,14 +1022,13 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution>&
 
     double denominator = 0.0;
     cvf::Vec3d interpolatedValue = cvf::Vec3d::ZERO;
-    double distance;
 
     for (size_t i = 0; i < filteredPositions.size(); i++)
     {
 #if 0 // Pure average test
         nominators[i] = 1.0;
 #else
-        distance = filteredPositions[i].m_lengthFromConnection;
+        double distance = filteredPositions[i].m_lengthFromConnection;
 
         if (distance < 1e-6)
         {

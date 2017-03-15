@@ -38,7 +38,6 @@
 #pragma once
 
 #include <QString>
-#include <assert.h>
 
 namespace caf 
 {
@@ -52,7 +51,7 @@ class PdmObjectHandle;
 class CmdExecuteCommand
 {
 public:
-    CmdExecuteCommand(NotificationCenter* notificationCenter)
+    explicit CmdExecuteCommand(NotificationCenter* notificationCenter)
     {
         m_notificationCenter = notificationCenter;
     }

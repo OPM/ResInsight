@@ -76,7 +76,7 @@ public:
 class CmdFieldChangeExec : public CmdExecuteCommand
 {
 public:
-    CmdFieldChangeExec(NotificationCenter* notificationCenter);
+    explicit CmdFieldChangeExec(NotificationCenter* notificationCenter);
     virtual ~CmdFieldChangeExec();
 
 

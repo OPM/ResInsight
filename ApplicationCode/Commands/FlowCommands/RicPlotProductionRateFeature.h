@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,28 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfCollection.h"
-#include "cvfVector3.h"
-#include "cafPdmPointer.h"
+#include "cafCmdFeature.h"
 
+#include "RimFlowDiagSolution.h"
 
-namespace cvf
+class RimGridSummaryCase;
+class RimEclipseWell;
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicPlotProductionRateFeature : public caf::CmdFeature
 {
-    class ModelBasicList;
-}
+    CAF_CMD_HEADER_INIT;
 
-class RimEclipseView;
-class RivWellSpheresPartMgr;
+protected:
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
-class RivReservoirWellSpheresPartMgr : public cvf::Object
-{
-public:
-    RivReservoirWellSpheresPartMgr(RimEclipseView* reservoirView);
-    ~RivReservoirWellSpheresPartMgr();
-
-    void clearGeometryCache();
-   
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-   
 private:
-    caf::PdmPointer<RimEclipseView>   m_reservoirView;
-	cvf::Collection< RivWellSpheresPartMgr >  m_wellSpheresPartMgrs;
+    static RimGridSummaryCase* gridSummaryCaseForWell(RimEclipseWell* well);
 };
+
+

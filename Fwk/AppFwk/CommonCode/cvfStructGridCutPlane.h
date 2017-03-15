@@ -58,7 +58,7 @@ class StructGridScalarDataAccess;
 class StructGridCutPlane : public Object
 {
 public:
-    StructGridCutPlane(const StructGridInterface* grid);
+    explicit StructGridCutPlane(const StructGridInterface* grid);
     ~StructGridCutPlane();
 
     void                setPlane(const Plane& plane);

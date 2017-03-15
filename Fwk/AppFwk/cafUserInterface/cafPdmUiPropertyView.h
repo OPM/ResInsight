@@ -39,6 +39,7 @@
 
 #include <QString>
 #include <QWidget>
+#include <QPointer>
 
 class QVBoxLayout;
 
@@ -64,14 +65,15 @@ public:
 
     virtual QSize               sizeHint() const override;
 
-    public slots:
+public slots:
     void                        showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 
     QString                     m_uiConfigName;
-    QVBoxLayout*                m_placeHolderLayout;
-    QWidget*                    m_placeholder;
+    
+    QPointer<QVBoxLayout>       m_placeHolderLayout;
+    QPointer<QWidget>           m_placeholder;
 };
 
 

@@ -56,7 +56,7 @@ namespace caf {
 class ColorTable
 {
 public:
-    ColorTable(const std::vector<cvf::Color3ub>& colors);
+    explicit ColorTable(const std::vector<cvf::Color3ub>& colors);
 
     cvf::Color3f        cycledColor3f(size_t itemIndex) const;
     cvf::Color3ub       cycledColor3ub(size_t itemIndex) const;

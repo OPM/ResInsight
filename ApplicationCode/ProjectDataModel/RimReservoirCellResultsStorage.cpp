@@ -1516,9 +1516,9 @@ double RimReservoirCellResultsStorage::darchysValue()
     RimEclipseCase* rimCase = NULL;
     this->firstAncestorOrThisOfType(rimCase);
 
-    if (rimCase && rimCase->reservoirData())
+    if (rimCase && rimCase->eclipseCaseData())
     {
-        RigEclipseCaseData::UnitsType unitsType = rimCase->reservoirData()->unitsType();
+        RigEclipseCaseData::UnitsType unitsType = rimCase->eclipseCaseData()->unitsType();
 
         if (unitsType == RigEclipseCaseData::UNITS_FIELD)
         {

@@ -87,6 +87,8 @@ public:
 
     virtual QWidget*                                viewWidget() override;
 
+    QString                                         asciiDataForPlotExport() const;
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }

@@ -322,6 +322,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 commandIds << "RicNewSimWellIntersectionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
                 commandIds << "RicShowContributingWellsFeature";
+                commandIds << "RicPlotProductionRateFeature";
 
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
@@ -848,7 +849,7 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 
     if (eclipseView && eclipseView->eclipseCase())
     {
-        eclipseView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
+        eclipseView->eclipseCase()->eclipseCaseData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
     }
     
     if (geomView && geomView->geoMechCase())

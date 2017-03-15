@@ -1,11 +1,12 @@
 #pragma once
 
+#include "cafAssert.h"
 #include "cafPdmBase.h"
 
 class QString;
 
-#include <vector>
 #include <set>
+#include <vector>
 
 
 namespace caf
@@ -22,12 +23,12 @@ class PdmXmlObjectHandle;
 class PdmObjectHandle
 {
 public:
-    PdmObjectHandle()           { m_parentField = NULL;  }
+    PdmObjectHandle()           { m_parentField = nullptr;  }
     virtual ~PdmObjectHandle();
 
     /// The registered fields contained in this PdmObject. 
     void                    fields(std::vector<PdmFieldHandle*>& fields) const;
-    PdmFieldHandle*         findField(const QString& keyword);
+    PdmFieldHandle*         findField(const QString& keyword) const;
 
     /// The field referencing this object as a child
     PdmFieldHandle*         parentField() const;
@@ -36,6 +37,10 @@ public:
     /// Traverses parents recursively and returns first parent of the requested type.
     template <typename T>
     void                    firstAncestorOrThisOfType(T*& ancestor) const;
+
+    /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found 
+    template <typename T>
+    void                    firstAncestorOrThisOfTypeAsserted(T*& ancestor) const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is also 
     /// included if it is of the requested type.
@@ -60,7 +65,7 @@ public:
             CapabilityType* capability = dynamic_cast<CapabilityType*>(m_capabilities[i].first);
             if (capability) return capability;
         }
-        return NULL;
+        return nullptr;
     }
 
     PdmUiObjectHandle*  uiCapability() const;     // Implementation is in cafPdmUiObjectHandle.cpp
@@ -115,7 +120,7 @@ namespace caf
 template <typename T>
 void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 {
-    ancestor = NULL;
+    ancestor = nullptr;
 
     // Check if this matches the type
 
@@ -128,11 +133,11 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 
     // Search parents for first type match
 
-    PdmObjectHandle* parent = NULL;
+    PdmObjectHandle* parent = nullptr;
     PdmFieldHandle* parentField = this->parentField();
     if (parentField) parent = parentField->ownerObject();
 
-    while (parent != NULL)
+    while (parent != nullptr)
     {
         T* objectOfType = dynamic_cast<T*>(parent);
         if (objectOfType)
@@ -151,9 +156,20 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
         }
         else
         {
-            parent = NULL;
+            parent = nullptr;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::firstAncestorOrThisOfTypeAsserted(T*& ancestor) const
+{
+    firstAncestorOrThisOfType(ancestor);
+
+    CAF_ASSERT(ancestor);
 }
 
 //--------------------------------------------------------------------------------------------------

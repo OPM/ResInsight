@@ -120,7 +120,7 @@ void RigCaseToCaseCellMapper::addMapping(int depCaseCellIdx, int masterCaseMatch
         m_masterCellIndexSeries.back().push_back(masterCaseMatchingCell);
         m_masterCellOrIntervalIndex[depCaseCellIdx] = -newSeriesIdx;
     }
-    else if (mcOrSeriesIdx < 0)
+    else
     {
         m_masterCellIndexSeries[-mcOrSeriesIdx].push_back(masterCaseMatchingCell);
     }

@@ -35,7 +35,7 @@ namespace cvf
 class RivTernaryScalarMapper : public cvf::Object
 {
 public:
-    RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor);
+    explicit RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor);
 
     void setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper);
 

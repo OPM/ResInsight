@@ -41,18 +41,12 @@ CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlot
 //--------------------------------------------------------------------------------------------------
 bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
+    std::vector<RimEclipseWell*> collection;
+    caf::SelectionManager::instance()->objectsByType(&collection);
 
-    RimEclipseResultCase* eclCase = nullptr;
-    activeView->firstAncestorOrThisOfType(eclCase);
-    if (eclCase)
+    if (collection.size() > 0)
     {
-        std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
-        if (flowSols.size() > 0)
-        {
-            return true;
-        }
+        return true;
     }
 
     return false;
@@ -92,5 +86,5 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 void RicShowWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/WellAllocPlot16x16.png"));
-    actionToSetup->setText("Show Well Allocation Plot");
+    actionToSetup->setText("Plot Well Allocation");
 }

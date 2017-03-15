@@ -70,8 +70,8 @@ private:
 class RifReaderOpmParserPropertyReader
 {
 public:
-    RifReaderOpmParserPropertyReader(std::shared_ptr< Opm::Deck > deck);
-    RifReaderOpmParserPropertyReader(const QString& fileName);
+    explicit RifReaderOpmParserPropertyReader(std::shared_ptr< Opm::Deck > deck);
+    explicit RifReaderOpmParserPropertyReader(const QString& fileName);
 
     std::set<std::string> keywords() const;
 
@@ -80,7 +80,6 @@ public:
     static size_t findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir);
 
 private:
-    static void readAllProperties(std::shared_ptr< Opm::Deck > deck, RigEclipseCaseData* caseData, std::map<QString, QString>* newResults);
     static void getAllValuesForKeyword(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, std::vector<double>& allValues);
     static bool isDataItemCountIdenticalToMainGridCellCount(std::shared_ptr< Opm::Deck > deck, const std::string& keyword, RigEclipseCaseData* caseData);
     bool open(const QString& fileName);

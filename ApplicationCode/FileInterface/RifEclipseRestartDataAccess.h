@@ -36,7 +36,7 @@
 class RifKeywordLocation
 {
 public:
-    RifKeywordLocation(std::string keyword, size_t itemCount, int indexWithinReportStep)
+    RifKeywordLocation(const std::string& keyword, size_t itemCount, int indexWithinReportStep)
         : m_keyword(keyword),
         m_itemCount(itemCount),
         m_indexWithinReportStep(indexWithinReportStep)

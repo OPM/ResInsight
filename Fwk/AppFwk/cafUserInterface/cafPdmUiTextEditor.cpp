@@ -48,7 +48,6 @@
 #include <QIntValidator>
 #include <QVBoxLayout>
 
-#include <assert.h>
 
 
 
@@ -82,8 +81,8 @@ void TextEdit::focusOutEvent(QFocusEvent *e)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_textEdit.isNull());
-    assert(!m_label.isNull());
+    CAF_ASSERT(!m_textEdit.isNull());
+    CAF_ASSERT(!m_label.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())

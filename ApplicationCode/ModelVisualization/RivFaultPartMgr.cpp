@@ -107,7 +107,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
-    RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
     // Faults
     if (m_nativeFaultFaces.notNull())
@@ -262,7 +262,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(RivPartPriority::PartType::MeshLines);
+            part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
             m_nativeFaultGridLines = part;
         }
@@ -314,7 +314,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(RivPartPriority::PartType::MeshLines);
+            part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
             m_oppositeFaultGridLines = part;
         }
@@ -403,12 +403,12 @@ void RivFaultPartMgr::updatePartEffect()
 
         if (m_nativeFaultGridLines.notNull())
         {
-            m_nativeFaultGridLines->setPriority(RivPartPriority::PartType::TransparentMeshLines);
+            m_nativeFaultGridLines->setPriority(RivPartPriority::PartType::FaultMeshLines);
         }
 
         if (m_oppositeFaultGridLines.notNull())
         {
-            m_oppositeFaultGridLines->setPriority(RivPartPriority::PartType::TransparentMeshLines);
+            m_oppositeFaultGridLines->setPriority(RivPartPriority::PartType::FaultMeshLines);
         }
     }
 }

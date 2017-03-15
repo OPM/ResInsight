@@ -45,11 +45,12 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 
         // Try to find the shared face
 
-        char hasNeighbourInAnyDirection = 0;
         bool isPossibleNeighborInDirection[6]= {true, true, true, true, true, true};
 
         if (c1.hostGrid() == c2.hostGrid())
         {
+            char hasNeighbourInAnyDirection = 0;
+
             size_t i1, j1, k1;
             c1.hostGrid()->ijkFromCellIndex(c1.gridLocalCellIndex(), &i1, &j1, &k1);
             size_t i2, j2, k2;

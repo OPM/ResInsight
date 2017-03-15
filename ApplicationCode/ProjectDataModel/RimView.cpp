@@ -296,6 +296,16 @@ void RimView::scheduleCreateDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimView::setCurrentTimeStepAndUpdate(int frameIndex)
+{
+    setCurrentTimeStep(frameIndex);
+
+    this->updateCurrentTimeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::setCurrentTimeStep(int frameIndex)
 {
     m_currentTimeStep = frameIndex;
@@ -306,8 +316,8 @@ void RimView::setCurrentTimeStep(int frameIndex)
     {  
         m_currentReservoirCellVisibility = NULL; 
     }
-    this->updateCurrentTimeStep();
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

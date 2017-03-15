@@ -38,6 +38,7 @@ RigFlowDiagResults::RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t
 
     m_timeStepCount = timeStepCount;
     m_hasAtemptedNativeResults.resize(timeStepCount, false);
+    m_injProdPairFluxCommunicationTimesteps.resize(timeStepCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +68,7 @@ const RigActiveCellInfo * RigFlowDiagResults::activeCellInfo(const RigFlowDiagRe
     RimEclipseResultCase* eclCase;
     m_flowDiagSolution->firstAncestorOrThisOfType(eclCase);
     
-    return eclCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); // Todo: base on resVarAddr member
+    return eclCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); // Todo: base on resVarAddr member
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,10 +89,20 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 
     if (!solverInterface()) return nullptr;
 
-    if (!m_hasAtemptedNativeResults[frameIndex])
+    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex);
+
+    return findScalarResultFrame(resVarAddr, frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex)
+{
+    if ( !m_hasAtemptedNativeResults[frameIndex] )
     {
-        
-        RigFlowDiagTimeStepResult nativeTimestepResults =  solverInterface()->calculate(frameIndex, 
+
+        RigFlowDiagTimeStepResult nativeTimestepResults =  solverInterface()->calculate(frameIndex,
                                                                                         m_flowDiagSolution->allInjectorTracerActiveCellIndices(frameIndex),
                                                                                         m_flowDiagSolution->allProducerTracerActiveCellIndices(frameIndex));
 
@@ -105,10 +116,10 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
             nativeResFrames->frameData(frameIndex).swap(resIt.second);
         }
 
+        m_injProdPairFluxCommunicationTimesteps[frameIndex].swap(nativeTimestepResults.injProdWellPairFluxes());
+
         m_hasAtemptedNativeResults[frameIndex] = true;
     }
-
-    return findScalarResultFrame(resVarAddr, frameIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,7 +392,8 @@ std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelec
     {
         RimFlowDiagSolution::TracerStatusType tracerType = m_flowDiagSolution->tracerStatusInTimeStep(QString::fromStdString(tracerName), frameIndex);
 
-        if (tracerType != RimFlowDiagSolution::CLOSED && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
+        if (tracerType != RimFlowDiagSolution::CLOSED 
+            && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
         {
             selectedTracersResults.push_back(findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, tracerName), frameIndex));
         }
@@ -581,4 +593,41 @@ const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues(const RigFlow
 const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues(const RigFlowDiagResultAddress& resVarAddr, int frameIndex)
 {
     return this->statistics(resVarAddr)->uniqueCellScalarValues(frameIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigFlowDiagResults::injectorProducerPairFluxes(const std::string& injTracername, 
+                                                                         const std::string& prodTracerName, 
+                                                                         int frameIndex)
+{
+    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex);
+
+    auto commPair =  m_injProdPairFluxCommunicationTimesteps[frameIndex].find(std::make_pair(injTracername, prodTracerName));
+    if (commPair != m_injProdPairFluxCommunicationTimesteps[frameIndex].end())
+    {
+        return commPair->second;
+    }
+    else
+    {
+        return std::make_pair(0.0, 0.0);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFlowDiagResults::maxAbsPairFlux(int frameIndex)
+{
+    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex);
+    double maxFlux = 0.0;
+
+    for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[frameIndex])
+    {
+        if (fabs(commPair.second.first) > maxFlux ) maxFlux = commPair.second.first;
+        if (fabs(commPair.second.second) > maxFlux ) maxFlux = commPair.second.second;
+    }
+
+    return maxFlux;
 }

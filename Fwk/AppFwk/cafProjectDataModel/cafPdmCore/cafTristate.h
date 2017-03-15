@@ -20,7 +20,6 @@ public:
 public:
     Tristate();
 
-    void operator=(const Tristate& other);
     void operator=(const State& state);
 
     bool operator==(const Tristate& other) const;

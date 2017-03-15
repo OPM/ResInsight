@@ -29,7 +29,7 @@ class RimIntersectionBox;
 class RivIntersectionBoxSourceInfo : public cvf::Object
 {
 public:
-    RivIntersectionBoxSourceInfo(RivIntersectionBoxGeometryGenerator* geometryGenerator);
+    explicit RivIntersectionBoxSourceInfo(RivIntersectionBoxGeometryGenerator* geometryGenerator);
 
     const std::vector<size_t>& triangleToCellIndex() const;
 

@@ -90,7 +90,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     RimEclipseResultCase* eclipseCase = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseCase);
-    RigEclipseCaseData::UnitsType caseUnit = eclipseCase->reservoirData()->unitsType();
+    RigEclipseCaseData::UnitsType caseUnit = eclipseCase->eclipseCaseData()->unitsType();
     if      (caseUnit == RigEclipseCaseData::UNITS_METRIC) fracture->fractureUnit = RimDefines::UNITS_METRIC;
     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)  fracture->fractureUnit = RimDefines::UNITS_FIELD;
     

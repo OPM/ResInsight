@@ -94,7 +94,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "\n";
     out << "-- Exported from ResInsight" << "\n";
 
-    RigEclipseCaseData::UnitsType caseUnit = caseToApply->reservoirData()->unitsType();
+    RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC) out << "-- Using metric unit system" << "\n";
     if (caseUnit == RigEclipseCaseData::UNITS_FIELD) out << "-- Using field unit system" << "\n";
     out << "\n";

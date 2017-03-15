@@ -116,7 +116,7 @@ Toolbox::Impl::assignInflowFlux(const CellSetValues& inflow_flux)
     for (const auto& data : inflow_flux) {
         if (data.second > 0.0) {
             only_inflow_flux_[data.first] = data.second;
-        } else {
+        } else if (data.second < 0.0) {
             only_outflow_flux_[data.first] = -data.second;
         }
     }
@@ -128,6 +128,15 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
     // Check that we have specified pore volume and fluxes.
     if (pvol_.empty() || flux_.numConnections() == 0) {
         throw std::logic_error("Must set pore volumes and fluxes before calling diagnostics.");
+    }
+
+    // Check that start sets are valid.
+    for (const auto& start : start_sets) {
+        for (const int cell : start) {
+            if (only_inflow_flux_.count(cell) != 1 || only_outflow_flux_.count(cell) != 0) {
+                throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
+            }
+        }
     }
 
     if (!conn_built_) {
@@ -156,6 +165,15 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
     // Check that we have specified pore volume and fluxes.
     if (pvol_.empty() || flux_.numConnections() == 0) {
         throw std::logic_error("Must set pore volumes and fluxes before calling diagnostics.");
+    }
+
+    // Check that start sets are valid.
+    for (const auto& start : start_sets) {
+        for (const int cell : start) {
+           if (only_inflow_flux_.count(cell) != 0 || only_outflow_flux_.count(cell) != 1) {
+                 throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
+            }
+        }
     }
 
     if (!conn_built_) {

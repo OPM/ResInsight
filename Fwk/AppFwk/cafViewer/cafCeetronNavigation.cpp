@@ -61,6 +61,7 @@ using cvf::ManipulatorTrackball;
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::CeetronNavigation::CeetronNavigation()
+    : m_isRotCenterInitialized(false)
 {
 
 }

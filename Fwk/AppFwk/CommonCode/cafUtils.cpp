@@ -44,6 +44,9 @@
 
 #include <QtOpenGL/QGLContext>
 
+#include <QFileDialog>
+#include <QMessageBox>
+
 namespace caf {
 
 
@@ -159,6 +162,64 @@ QString Utils::indentString(int numSpacesToIndent, const QString& str)
 
     QString retStr = indentString + strList.join("\n" + indentString);
     return retStr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir)
+{
+    bool overWriteFiles = false;
+    (*saveDir) = QFileDialog::getExistingDirectory(NULL, "Select save directory", defaultDir);
+
+    std::vector<QString> filesToOverwrite;
+    for (QString fileName : fileNames)
+    {
+        QFileInfo fileInfo((*saveDir) + "/" +fileName);
+        if (fileInfo.exists())
+        {
+            filesToOverwrite.push_back(fileName);
+        }
+    }
+
+    if (filesToOverwrite.size() == 0)
+    {
+        overWriteFiles = true;
+        return overWriteFiles;
+    }
+    else if (filesToOverwrite.size() > 0)
+    {
+        QMessageBox msgBox;
+
+        QString message = "The following files will be overwritten in the export:";
+        for (QString fileName : filesToOverwrite)
+        {
+            message += "\n" + (*saveDir) + "/" + fileName;
+        }
+        msgBox.setText(message);
+
+
+        msgBox.setInformativeText("Do you want to continue?");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        int ret = msgBox.exec();
+
+        switch (ret)
+        {
+        case QMessageBox::Ok:
+            overWriteFiles = true;
+            break;
+        case QMessageBox::Cancel:
+            overWriteFiles = false;
+            break;
+        default:
+            // should never be reached
+            break;
+        }
+
+    }
+
+    return overWriteFiles;
 }
 
 

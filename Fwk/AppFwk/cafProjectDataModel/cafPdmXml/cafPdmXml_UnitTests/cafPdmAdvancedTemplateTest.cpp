@@ -28,7 +28,7 @@ public:
         CAF_PDM_XML_InitField(&m_name, "Name");
     }
 
-    ItemPdmObject(QString name) :  PdmObjectHandle(), PdmXmlObjectHandle(this, false) 
+    explicit ItemPdmObject(QString name) :  PdmObjectHandle(), PdmXmlObjectHandle(this, false) 
     {   
         CAF_PDM_XML_InitField(&m_name, "Name");
         m_name = name;

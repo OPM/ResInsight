@@ -35,7 +35,6 @@ TEST(RigGridManager, BasicTest)
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
     eclipseCase->setMainGrid(mainGridA.p());
 
-    int count = mainGridA->refCount();
     EXPECT_EQ(mainGridA->refCount(), 2);
 
     RigGridManager gridCollection;

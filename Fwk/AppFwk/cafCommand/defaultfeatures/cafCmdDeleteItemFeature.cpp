@@ -89,7 +89,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
     }
 
     // Did not find currently selected pdm object in the current list field
-    assert(indexAfter != -1);
+    CAF_ASSERT(indexAfter != -1);
 
     CmdDeleteItemExec* executeCmd = new CmdDeleteItemExec(SelectionManager::instance()->notificationCenter());
         
@@ -129,7 +129,7 @@ void CmdDeleteItemFeature::onActionTriggered(bool isChecked)
         }
         else
         {
-            assert(0);
+            CAF_ASSERT(0);
         }
     }
 }

@@ -144,7 +144,7 @@ private:
 class StuctGridTriangleToCellFaceMapper : public Object
 {
 public:
-    StuctGridTriangleToCellFaceMapper(const StructGridQuadToCellFaceMapper* quadMapper) { m_quadMapper = quadMapper; }
+    explicit StuctGridTriangleToCellFaceMapper(const StructGridQuadToCellFaceMapper* quadMapper) { m_quadMapper = quadMapper; }
     size_t triangleCount() const                            { return 2* m_quadMapper->quadCount();}
 
     size_t cellIndex(size_t triangleIdx) const              {return m_quadMapper->cellIndex(triangleIdx/2); }
@@ -163,7 +163,7 @@ private:
 class StructGridGeometryGenerator : public Object
 {
 public:
-    StructGridGeometryGenerator(const StructGridInterface* grid);
+    explicit StructGridGeometryGenerator(const StructGridInterface* grid);
     ~StructGridGeometryGenerator();
 
     // Setup methods

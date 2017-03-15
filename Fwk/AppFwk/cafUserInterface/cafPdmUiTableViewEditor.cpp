@@ -62,7 +62,7 @@ namespace caf
 class FocusEventHandler : public QObject
 {
 public:
-    FocusEventHandler(PdmUiTableViewEditor* tableViewEditor)
+    explicit FocusEventHandler(PdmUiTableViewEditor* tableViewEditor)
         : QObject(tableViewEditor)
     {
         m_tableViewEditor = tableViewEditor;
@@ -93,7 +93,9 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 {
     m_layout = NULL;;
     m_tableView = NULL;
+    m_tableHeading = NULL;
     m_tableModelPdm = NULL;
+    m_tableHeadingIcon = NULL;
     m_pdmListField = NULL;
     m_delegate = NULL;
 

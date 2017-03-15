@@ -632,7 +632,7 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
     this->firstAncestorOrThisOfType(rimCase);
     
     CVF_ASSERT(rimCase);
-
+    /*
     RimEclipseView* eclView = nullptr;
     this->firstAncestorOrThisOfType(eclView);
 
@@ -644,7 +644,7 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
 
     if(false)//useAllCells) // For now, only use the active CellsBBox. 
         return rimCase->allCellsBoundingBox();
-    else
+    else */
         return rimCase->activeCellsBoundingBox();
 
 }

@@ -52,7 +52,7 @@ namespace caf {
 class AboutDialog : public QDialog
 {
 public:
-    AboutDialog(QWidget* parent);
+    explicit AboutDialog(QWidget* parent);
 
     void    setApplicationName(const QString& appName);
     void    setApplicationVersion(const QString& ver);

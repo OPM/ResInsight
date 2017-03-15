@@ -58,8 +58,10 @@ public:
     PdmUiOrdering(): m_forgetRemainingFields(false) { };
     virtual ~PdmUiOrdering();
 
+    PdmUiOrdering(const PdmUiOrdering&) = delete;
+    PdmUiOrdering& operator=(const PdmUiOrdering&) = delete;
+
     PdmUiGroup*                     addNewGroup(QString displayName);
-    //void                            add(PdmUiItem* item)               { m_ordering.push_back(item); }
 
     /// HACK constness of this class and functions must be revisited
     //void                            add(const PdmUiItem* item)         { m_ordering.push_back(const_cast<PdmUiItem*>(item)); }
@@ -70,13 +72,9 @@ public:
     void                            setForgetRemainingFields(bool val) { m_forgetRemainingFields = val; }
 
     const std::vector<PdmUiItem*>&  uiItems() const                    { return m_ordering; }
-    bool                            contains(const PdmUiItem* item);
+    bool                            contains(const PdmUiItem* item) const;
 
 private:
-    // Private copy constructor and assignment to prevent this. (The vectors below will make trouble)
-    PdmUiOrdering(const PdmUiOrdering& other)                                 { }
-    PdmUiOrdering&                  operator= (const PdmUiOrdering& other)    { }
-
     std::vector<PdmUiItem*>         m_ordering;      ///< The order of groups and fields
     std::vector<PdmUiGroup*>        m_createdGroups; ///< Owned PdmUiGroups, for mem management
     bool                            m_forgetRemainingFields;

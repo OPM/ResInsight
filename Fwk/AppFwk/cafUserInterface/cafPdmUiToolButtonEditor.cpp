@@ -54,7 +54,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiToolButtonEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiToolButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_toolButton.isNull());
+    CAF_ASSERT(!m_toolButton.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())

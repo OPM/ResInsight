@@ -53,8 +53,6 @@
 #include <QToolButton>
 #include <QColorDialog>
 
-#include <assert.h>
-
 
 namespace caf
 {
@@ -75,7 +73,7 @@ PdmUiColorEditor::PdmUiColorEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_label.isNull());
+    CAF_ASSERT(!m_label.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())
@@ -143,8 +141,6 @@ QWidget* PdmUiColorEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiColorEditor::colorSelectionClicked()
 {
-    bool ok = false;
-
     QColorDialog::ColorDialogOptions flags;
     if (m_attributes.showAlpha)
     {

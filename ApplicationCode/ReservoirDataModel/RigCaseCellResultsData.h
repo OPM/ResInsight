@@ -42,7 +42,7 @@ class RigStatisticsDataCache;
 class RigCaseCellResultsData : public cvf::Object
 {
 public:
-    RigCaseCellResultsData(RigMainGrid* ownerGrid);
+    explicit RigCaseCellResultsData(RigMainGrid* ownerGrid);
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
     void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}

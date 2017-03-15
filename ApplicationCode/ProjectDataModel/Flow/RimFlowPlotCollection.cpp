@@ -84,7 +84,10 @@ void RimFlowPlotCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 size_t RimFlowPlotCollection::plotCount() const
 {
-    return m_flowPlots.size();
+    size_t plotCount = 0;
+    if (m_defaultPlot) plotCount = 1;
+    plotCount += m_flowPlots.size();
+    return plotCount;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 class RigSimulationWellCoordsAndMD
 {
 public:
-    RigSimulationWellCoordsAndMD(const std::vector<cvf::Vec3d>& wellPathPoints);
+    explicit RigSimulationWellCoordsAndMD(const std::vector<cvf::Vec3d>& wellPathPoints);
 
     const std::vector<cvf::Vec3d>&  wellPathPoints() const;
     const std::vector<double>&      measuredDepths() const;

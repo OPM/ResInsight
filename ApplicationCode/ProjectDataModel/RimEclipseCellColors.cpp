@@ -118,8 +118,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
     if (resultVarNameOfNewLegend != RimDefines::ternarySaturationResultName())
     {
-        bool found = false;
-
         QString legendResultVariable;
 
         if (this->m_legendConfigPtrField())
@@ -129,6 +127,7 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 
         if (!this->m_legendConfigPtrField() || legendResultVariable != resultVarNameOfNewLegend)
         {
+            bool found = false;
             for (size_t i = 0; i < m_legendConfigData.size(); i++)
             {
                 if (m_legendConfigData[i]->resultVariableName() == resultVarNameOfNewLegend)
@@ -318,7 +317,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
         CVF_ASSERT(rimEclipseCase);
         if (!rimEclipseCase) return;
 
-        RigEclipseCaseData* eclipseCase = rimEclipseCase->reservoirData();
+        RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
         CVF_ASSERT(eclipseCase);
         if (!eclipseCase) return;
 

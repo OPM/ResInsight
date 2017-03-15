@@ -84,9 +84,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts()
 
     m_rimWell->calculateWellPipeStaticCenterLine(m_pipeBranchesCLCoords, pipeBranchesCellIds);
 
-    double characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
-    double pipeRadius = m_rimReservoirView->wellCollection()->pipeScaleFactor() * m_rimWell->pipeScaleFactor() * characteristicCellSize;
-
+    double pipeRadius =  m_rimWell->pipeRadius();
 
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
@@ -188,8 +186,6 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLi
     if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
     if (m_needsTransformUpdate) buildWellPipeParts();
-
-    const RigWellResultFrame& wellResultFrame = m_rimWell->wellResults()->wellResultFrame(frameIndex);
 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); ++it)

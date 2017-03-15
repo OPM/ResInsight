@@ -37,7 +37,7 @@ class RiuMessagePanel : public QWidget
     Q_OBJECT
 
 public:
-    RiuMessagePanel(QDockWidget* parent);
+    explicit RiuMessagePanel(QDockWidget* parent);
 
     void            addMessage(RILogLevel messageLevel, const QString& msg);
     virtual QSize	sizeHint () const;
@@ -60,7 +60,7 @@ private:
 class RiuMessagePanelLogger : public RiaLogger
 {
 public:
-    RiuMessagePanelLogger(RiuMessagePanel* messagePanel);
+    explicit RiuMessagePanelLogger(RiuMessagePanel* messagePanel);
 
     virtual int     level() const override;
     virtual void    setLevel(int logLevel) override;
