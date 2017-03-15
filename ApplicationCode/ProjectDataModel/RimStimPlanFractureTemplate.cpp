@@ -282,7 +282,7 @@ bool RimStimPlanFractureTemplate::setPropertyForPolygonDefault()
     {
         if (property.first == "WIDTH")
         {
-            parameterForPolygon = property.first + " " + property.second;
+            parameterForPolygon = property.first;
             return true;
         }
     }
@@ -291,7 +291,7 @@ bool RimStimPlanFractureTemplate::setPropertyForPolygonDefault()
     {
         if (property.first == "CONDUCTIVITY")
         {
-            parameterForPolygon = property.first + " " + property.second;
+            parameterForPolygon = property.first;
             return true;
         }
     }
@@ -330,7 +330,8 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
     {
         for (std::pair<QString, QString> nameUnit : getStimPlanPropertyNamesUnits())
         {
-            options.push_back(caf::PdmOptionItemInfo(nameUnit.first + " [" + nameUnit.second +"]", nameUnit.first + " " + nameUnit.second));
+            //options.push_back(caf::PdmOptionItemInfo(nameUnit.first + " [" + nameUnit.second + "]", nameUnit.first + " " + nameUnit.second));
+            options.push_back(caf::PdmOptionItemInfo(nameUnit.first, nameUnit.first));
         }
     }
 
@@ -474,6 +475,31 @@ void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
         wellPathDepthAtFracture = averageDepth;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString parameterName)
+{
+    QString unit;
+    bool found = false;
+    bool foundMultiple = false;
+
+    for (std::pair<QString, QString> nameUnit : getStimPlanPropertyNamesUnits())
+    {
+        if (nameUnit.first == parameterName)
+        {
+            unit =  nameUnit.second;
+            if (found) foundMultiple = true;
+            found = true;
+        }
+    }
+
+    if (foundMultiple)  RiaLogging::error(QString("Multiple units found for same parameter"));
+    if (!found)         RiaLogging::error(QString("Unit for parameter not found"));
+    return unit;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -688,16 +714,10 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
-    QString parameterName;
-    QString parameterUnit;
 
-    if (parameterForPolygon().split(" ").size() > 1)
-    {
-        parameterName = parameterForPolygon().split(" ")[0];
-        parameterUnit = parameterForPolygon().split(" ")[1];
-    }
-    else return polygon;
-
+    QString parameterName = parameterForPolygon;
+    QString parameterUnit = getUnitForStimPlanParameter(parameterName);
+  
     std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(parameterName, parameterUnit, timestepForPolygon);
 
     for (int k = 0; k < dataAtTimeStep.size(); k++)
@@ -778,9 +798,6 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
     }
 
 
-
-
-
     return polygon;
 }
 
@@ -789,6 +806,8 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::sortPolygon(std::vector<cvf::Vec3f> &polygon)
 {
+    if (polygon.size() == 0) return;
+
     for (int i = 1; i < polygon.size() - 1; i++)
     {
         cvf::Vec3f lastNode = polygon[i - 1];

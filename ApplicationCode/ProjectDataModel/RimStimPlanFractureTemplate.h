@@ -102,4 +102,6 @@ private:
     bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
     bool                                    setPropertyForPolygonDefault();
     void                                    setDepthOfWellPathAtFracture();
+    QString                                 getUnitForStimPlanParameter(QString parameterName);
+
 };
