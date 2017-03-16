@@ -22,7 +22,7 @@
 
 #include <QDialog>
 
-class QTextEdit;
+class QPlainTextEdit;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -34,10 +34,17 @@ class RicTextWidget : public QDialog
 public:
     explicit RicTextWidget(QWidget* parent = 0);
 
-    void showText(const QString& text);
+    void setText(const QString& text);
+
+private slots:
+    void slotCopyContentToClipboard();
+    void slotSelectAll();
 
 private:
-    QTextEdit* m_textEdit;
+    QPlainTextEdit* m_textEdit;
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *) override;
+
 };
 
 
