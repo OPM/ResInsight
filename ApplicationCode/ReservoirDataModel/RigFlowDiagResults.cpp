@@ -625,8 +625,8 @@ double RigFlowDiagResults::maxAbsPairFlux(int frameIndex)
 
     for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[frameIndex])
     {
-        if (fabs(commPair.second.first) > maxFlux ) maxFlux = commPair.second.first;
-        if (fabs(commPair.second.second) > maxFlux ) maxFlux = commPair.second.second;
+        if (fabs(commPair.second.first)  > maxFlux ) maxFlux = fabs(commPair.second.first);
+        if (fabs(commPair.second.second) > maxFlux ) maxFlux = fabs(commPair.second.second);
     }
 
     return maxFlux;
