@@ -94,7 +94,7 @@ private:
     void                                                    calculateFlowPrPseudoLength(size_t branchIdx,
                                                                                         double startPseudoLengthFromTop);
 
-    std::vector<double>                                     calculateFlowPrTracer(const RigWellResultPoint& wellCell, 
+    std::vector<double>                                     calculateWellCellFlowPrTracer(const RigWellResultPoint& wellCell, 
                                                                                   const std::vector<double>& currentAccumulatedFlowPrTracer ) const;
     void                                                    sortTracers();
     void                                                    groupSmallContributions();
@@ -139,7 +139,7 @@ private:
 
     std::vector<double>                                     accumulatedDsBranchFlowPrTracer(const BranchFlow &downStreamBranchFlow) const;
     void                                                    addDownStreamBranchFlow(std::vector<double> *accFlowPrTracer,
-                                                                                    const BranchFlow &downStreamBranchFlow) const;
+                                                                                    const std::vector<double>& accBranchFlowPrTracer) const;
 
     std::vector< BranchFlow >                               m_connectionFlowPrBranch;
     std::vector< BranchFlow >                               m_pseudoLengthFlowPrBranch;
