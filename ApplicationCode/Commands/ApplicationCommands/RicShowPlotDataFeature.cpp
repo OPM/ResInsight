@@ -136,6 +136,9 @@ RicTextWidget::RicTextWidget(QWidget* parent) : QDialog(parent, Qt::WindowTitleH
     m_textEdit->setReadOnly(true);
     m_textEdit->setLineWrapMode(QTextEdit::NoWrap);
 
+    QFont font("Courier", 8);
+    m_textEdit->setFont(font);
+
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_textEdit);
     setLayout(layout);
