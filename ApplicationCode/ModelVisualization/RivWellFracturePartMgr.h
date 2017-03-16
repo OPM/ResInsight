@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cvfBase.h"
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -38,9 +39,8 @@ namespace caf
     class DisplayCoordTransform;
 }
 
-
 class RimFracture;
-
+class RimStimPlanFractureTemplate;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,14 +59,22 @@ private:
     void updatePartGeometryTexture(caf::DisplayCoordTransform* displayCoordTransform);
 
     void generateFractureOutlinePolygonPart(caf::DisplayCoordTransform* displayCoordTransform);
+    void generateStimPlanMeshPart(caf::DisplayCoordTransform* displayCoordTransform);
 
     cvf::ref<cvf::DrawableGeo>          createPolygonDrawable(caf::DisplayCoordTransform* displayCoordTransform);
+    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform);
+    std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> polygon, cvf::Mat4f m, caf::DisplayCoordTransform* displayCoordTransform);
+    bool                                stimPlanCellTouchesPolygon(double xMin, double xMax, double yMin, double yMax);
+
     std::vector<double>                 mirrorDataAtSingleDepth(std::vector<double> depthData);
     static cvf::ref<cvf::DrawableGeo>   createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
-        
+     
+
 private:
     caf::PdmPointer<RimFracture> m_rimFracture;
     cvf::ref<cvf::Part>          m_part;
     cvf::ref<cvf::Part>          m_polygonPart;
+
+   cvf::ref<cvf::Part>           m_StimPlanMeshPart;
 
 };

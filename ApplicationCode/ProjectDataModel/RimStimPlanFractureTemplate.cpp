@@ -59,6 +59,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 
     CAF_PDM_InitField(&parameterForPolygon, "parameterForPolyton", QString(""), "Parameter", "", "", "");
     CAF_PDM_InitField(&timestepForPolygon, "timestepForPolygon", 0, "TimeStep", "", "", "");
+    CAF_PDM_InitField(&showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "")
 
 }
 
@@ -83,7 +84,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         setDefaultsBasedOnXMLfile();
     }
 
-    if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &timestepForPolygon == changedField)
+    if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &timestepForPolygon == changedField || &showStimPlanMesh == changedField)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -838,6 +839,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 
     uiOrdering.add(&name);
+    uiOrdering.add(&showStimPlanMesh);
 
     caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("File");
     fileGroup->add(&m_stimPlanFileName);

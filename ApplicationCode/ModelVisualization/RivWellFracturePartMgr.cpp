@@ -41,6 +41,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapperContinuousLinear.h"
 #include "cvfRenderStateDepth.h"
+#include "RivFaultGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +167,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
         m_part->setDrawable(geo.p());
 
         generateFractureOutlinePolygonPart(displayCoordTransform);
+        generateStimPlanMeshPart(displayCoordTransform);
 
         float opacityLevel = activeView->stimPlanColors->opacityLevel();
         if (legendConfig)
@@ -247,30 +249,96 @@ void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(caf::DisplayCoor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform* displayCoordTransform)
+{
+
+    if (!m_rimFracture->attachedFractureDefinition()) return;
+
+    RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition());
+    if (!stimPlanFracTemplate) return;
+
+    cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = createStimPlanMeshDrawable(stimPlanFracTemplate, displayCoordTransform);
+
+
+    //  From cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
+
+
+
+    m_StimPlanMeshPart = new cvf::Part;
+    m_StimPlanMeshPart->setDrawable(stimPlanMeshGeo.p());
+
+    m_StimPlanMeshPart->updateBoundingBox();
+    m_StimPlanMeshPart->setPriority(RivPartPriority::PartType::TransparentMeshLines);
+
+    caf::MeshEffectGenerator lineEffGen(cvf::Color3::BLACK);
+    lineEffGen.setLineWidth(1.0f);
+    cvf::ref<cvf::Effect> eff = lineEffGen.generateCachedEffect();
+
+    m_StimPlanMeshPart->setEffect(eff.p());
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
+{
+    std::vector<double> depthCoords = stimPlanFracTemplate->adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> xCoords = stimPlanFracTemplate->getNegAndPosXcoords();
+
+    std::vector<cvf::Vec3f> stimPlanMeshVertices;
+    for (int i = 0; i < xCoords.size() - 1; i++)
+    {
+        for (int j = 0; j < depthCoords.size() - 1; j++)
+        {
+            if (stimPlanCellTouchesPolygon(xCoords[i], xCoords[i + 1], depthCoords[j], depthCoords[j + 1]))
+            {
+                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0f));
+                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0f));
+                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0f));
+                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0f));
+            }
+        }
+    }
+
+    cvf::Mat4f m = m_rimFracture->transformMatrix();
+    std::vector<cvf::Vec3f> stimPlanMeshVerticesDisplayCoords = transfromToFractureDisplayCoords(stimPlanMeshVertices, m, displayCoordTransform);
+
+    cvf::Vec3fArray* stimPlanMeshVertexList;
+    stimPlanMeshVertexList = new cvf::Vec3fArray;
+    stimPlanMeshVertexList->assign(stimPlanMeshVerticesDisplayCoords);
+
+    cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = new cvf::DrawableGeo;
+    stimPlanMeshGeo->setVertexArray(stimPlanMeshVertexList);
+    cvf::ref<cvf::UIntArray> indices = RivFaultGeometryGenerator::lineIndicesFromQuadVertexArray(stimPlanMeshVertexList);
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);
+    prim->setIndices(indices.p());
+
+    stimPlanMeshGeo->addPrimitiveSet(prim.p());
+
+
+    return stimPlanMeshGeo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::DisplayCoordTransform* displayCoordTransform)
 {
 
     std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
 
-    //Transform to model coordinates and then display coords
-    std::vector<cvf::Vec3f> polygonInDisplayCoords;
     cvf::Mat4f m = m_rimFracture->transformMatrix();
-    for (cvf::Vec3f v : polygon)
-    {
-        v.transformPoint(m);
-        cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(v);
-        cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
-        polygonInDisplayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
+    std::vector<cvf::Vec3f> polygonDisplayCoords = transfromToFractureDisplayCoords(polygon, m, displayCoordTransform);
 
-    }
 
     std::vector<cvf::uint> lineIndices;
     std::vector<cvf::Vec3f> vertices;
 
-    for (size_t i = 0; i < polygonInDisplayCoords.size(); ++i)
+    for (size_t i = 0; i < polygonDisplayCoords.size(); ++i)
     {
-        vertices.push_back(cvf::Vec3f(polygonInDisplayCoords[i])); 
-        if (i < polygonInDisplayCoords.size() - 1)
+        vertices.push_back(cvf::Vec3f(polygonDisplayCoords[i]));
+        if (i < polygonDisplayCoords.size() - 1)
         {
             lineIndices.push_back(static_cast<cvf::uint>(i));
             lineIndices.push_back(static_cast<cvf::uint>(i + 1));
@@ -292,6 +360,23 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::Di
     polygonGeo->addPrimitiveSet(prim.p());
 
     return polygonGeo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3f> RivWellFracturePartMgr::transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> coordinatesVector, cvf::Mat4f m, caf::DisplayCoordTransform* displayCoordTransform)
+{
+    std::vector<cvf::Vec3f> polygonInDisplayCoords;
+    for (cvf::Vec3f v : coordinatesVector)
+    {
+        v.transformPoint(m);
+        cvf::Vec3d nodeCoordsDouble = static_cast<cvf::Vec3d>(v);
+        cvf::Vec3d displayCoordsDouble = displayCoordTransform->transformToDisplayCoord(nodeCoordsDouble);
+        polygonInDisplayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
+
+    }
+    return polygonInDisplayCoords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,6 +414,14 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
             if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition()))
             {
                 updatePartGeometryTexture(displayCoordTransform);
+
+                RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition());
+                if (stimPlanFracTemplate->showStimPlanMesh() && m_StimPlanMeshPart.notNull())
+                {
+                    model->addPart(m_StimPlanMeshPart.p());
+                }
+
+
             }
             else
             {
@@ -370,5 +463,26 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createGeo(const std::vector<c
     geo->computeNormals();
 
     return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivWellFracturePartMgr::stimPlanCellTouchesPolygon(double xMin, double xMax, double yMin, double yMax)
+{
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
+
+    for (cvf::Vec3f v : polygon)
+    {
+        if (v.x() > xMin && v.x() < xMax)
+        {
+            if (v.y() > yMin && v.y() < yMax)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 

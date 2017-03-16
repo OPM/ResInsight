@@ -52,6 +52,7 @@ public:
 
     caf::PdmField<QString>                  parameterForPolygon;
     caf::PdmField<int>                      timestepForPolygon;
+    caf::PdmField<bool>                     showStimPlanMesh;
     
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
