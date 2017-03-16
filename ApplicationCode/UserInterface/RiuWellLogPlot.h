@@ -62,6 +62,7 @@ protected:
     virtual void                    showEvent(QShowEvent *);
     virtual void                    changeEvent(QEvent *);
     virtual QSize                   sizeHint() const override;
+    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);

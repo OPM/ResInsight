@@ -402,15 +402,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
                  dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
         {
             commandIds << "RicSummaryCurveSwitchAxisFeature";
-
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
-            // Do not add twice to make sure the first position in the menu is used for the action
-            if (!commandIds.contains("RicAsciiExportSummaryPlotFeature"))
-            {
-                commandIds << "RicAsciiExportSummaryPlotFeature";
-            }
+            commandIds << "RicAsciiExportSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
@@ -500,6 +495,13 @@ void RimContextCommandBuilder::appendCommandsToMenu(const QStringList& commandId
         {
             QAction* act = commandManager->action(commandIds[i]);
             CVF_ASSERT(act);
+
+            for (QAction* existingAct : menu->actions())
+            {
+                // If action exist, continue to make sure the action is positioned at the first
+                // location of a command ID
+                if (existingAct == act) continue;
+            }
 
             menu->addAction(act);
         }

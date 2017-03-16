@@ -19,20 +19,25 @@
 
 #include "RiuWellLogPlot.h"
 
+#include "RimContextCommandBuilder.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
 #include "RiuMainWindow.h"
 #include "RiuWellLogTrack.h"
 
-#include "qwt_legend.h"
+#include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
+
+#include "qwt_legend.h"
 
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QScrollBar>
 #include <QTimer>
+#include <QMenu>
 
 #include <math.h>
 
@@ -201,6 +206,27 @@ void RiuWellLogPlot::setDepthZoomAndReplot(double minDepth, double maxDepth)
 QSize RiuWellLogPlot::sizeHint() const
 {
     return QSize(1,1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
+
+    commandIds << "RicShowPlotDataFeature";
+    commandIds << "RicShowContributingWellsFromPlotFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

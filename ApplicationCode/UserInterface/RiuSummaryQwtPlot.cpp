@@ -20,11 +20,14 @@
 
 #include "RiaApplication.h"
 
+#include "RimContextCommandBuilder.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuQwtScalePicker.h"
+
+#include "cafSelectionManager.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
@@ -40,10 +43,8 @@
 #include "qwt_symbol.h"
 
 #include <QEvent>
+#include <QMenu>
 #include <QWheelEvent>
-
-#include <float.h>
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -211,6 +212,16 @@ QSize RiuSummaryQwtPlot::minimumSizeHint() const
     return QSize(0, 100);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;    QStringList commandIds;
+    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
+    commandIds << "RicShowPlotDataFeature";
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    if (menu.actions().size() > 0)    {        menu.exec(event->globalPos());    }}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

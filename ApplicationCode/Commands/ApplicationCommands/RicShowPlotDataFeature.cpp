@@ -42,14 +42,11 @@ bool RicShowPlotDataFeature::isCommandEnabled()
 {
     std::vector<RimSummaryPlot*> selectedSummaryPlots;
     caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
+    if (selectedSummaryPlots.size() > 0) return true;
 
     std::vector<RimWellLogPlot*> wellLogPlots;
     caf::SelectionManager::instance()->objectsByType(&wellLogPlots);
-
-    if (selectedSummaryPlots.size() > 0 || wellLogPlots.size() > 0)
-    {
-        return true;
-    }
+    if (wellLogPlots.size() > 0) return true;
 
     return false;
 }
