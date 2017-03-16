@@ -283,8 +283,14 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
 {
-    std::vector<double> depthCoords = stimPlanFracTemplate->adjustedDepthCoordsAroundWellPathPosition();
-    std::vector<double> xCoords = stimPlanFracTemplate->getNegAndPosXcoords();
+    std::vector<double> depthCoordsAtNodes = stimPlanFracTemplate->adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> xCoordsAtNodes = stimPlanFracTemplate->getNegAndPosXcoords();
+
+    //To show lines in between nodes instead of between nodes
+    std::vector<double> xCoords;
+    for (int i = 0; i < xCoordsAtNodes.size() -1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 1);
+    std::vector<double> depthCoords;
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 1);
 
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
     for (int i = 0; i < xCoords.size() - 1; i++)
@@ -315,7 +321,6 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     prim->setIndices(indices.p());
 
     stimPlanMeshGeo->addPrimitiveSet(prim.p());
-
 
     return stimPlanMeshGeo;
 }
