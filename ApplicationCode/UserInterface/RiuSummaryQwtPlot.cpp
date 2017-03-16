@@ -217,11 +217,21 @@ QSize RiuSummaryQwtPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 {
-    QMenu menu;    QStringList commandIds;
-    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
-    commandIds << "RicShowPlotDataFeature";
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
-    if (menu.actions().size() > 0)    {        menu.exec(event->globalPos());    }}
+    QMenu menu;
+    QStringList commandIds;
+
+    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
+
+    commandIds << "RicShowPlotDataFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
