@@ -35,7 +35,10 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFromPlotFeature, "RicShowContributin
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
+    if (wellAllocationPlot) return true;
+    
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +55,7 @@ void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
     RimEclipseResultCase* wellAllocationResultCase = nullptr;
     wellAllocationPlot->flowDiagSolution()->firstAncestorOrThisOfTypeAsserted(wellAllocationResultCase);
 
-    RicShowContributingWellsFeatureImpl::showViewSelection(wellAllocationResultCase, wellName, timeStep);
+    RicShowContributingWellsFeatureImpl::maniuplateSelectedView(wellAllocationResultCase, wellName, timeStep);
 }
 
 //--------------------------------------------------------------------------------------------------
