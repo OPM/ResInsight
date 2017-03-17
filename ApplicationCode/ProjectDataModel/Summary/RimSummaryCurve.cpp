@@ -181,7 +181,6 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,6 +434,8 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimPlotCurve::updateOptionSensitivity();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
     curveDataGroup->add(&m_summaryCase);
     curveDataGroup->add(&m_selectedVariableDisplayField);

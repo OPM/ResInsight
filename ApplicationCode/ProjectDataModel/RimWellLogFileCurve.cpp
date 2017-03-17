@@ -56,8 +56,6 @@ RimWellLogFileCurve::RimWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
     m_wellPath = NULL;
-
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,6 +169,8 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimPlotCurve::updateOptionSensitivity();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_wellPath);
     curveDataGroup->add(&m_wellLogChannnelName);
