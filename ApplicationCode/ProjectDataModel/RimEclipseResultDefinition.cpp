@@ -33,10 +33,10 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimPlotCurve.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
-#include "RimWellLogCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -242,7 +242,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
         cellColors->updateConnectedEditors();
     }
 
-    RimWellLogCurve* curve = nullptr;
+    RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
@@ -339,7 +339,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimWellLogCurve* curve = nullptr;
+    RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
@@ -521,7 +521,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
 
         // Remove Per Cell Face options
         {
-            RimWellLogCurve* curve = nullptr;
+            RimPlotCurve* curve = nullptr;
             this->firstAncestorOrThisOfType(curve);
 
             RimEclipsePropertyFilter* propFilter = nullptr;
