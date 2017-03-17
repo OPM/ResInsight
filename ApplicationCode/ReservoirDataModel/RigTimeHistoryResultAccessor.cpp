@@ -31,13 +31,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount)
+std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseResultDefinition* resultDefinition, size_t gridIndex, size_t cellIndex, size_t timeStepCount)
 {
     std::vector<double> values;
 
     for (size_t i = 0; i < timeStepCount; i++)
     {
-        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, cellColors);
+        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, resultDefinition);
 
         values.push_back(resultAccessor->cellScalar(cellIndex));
     }
