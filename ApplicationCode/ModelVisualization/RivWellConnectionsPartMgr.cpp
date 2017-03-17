@@ -113,7 +113,6 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     for ( RimEclipseWell * otherWell: wellColl->wells )
     {
         if (  otherWell == m_rimWell ) continue;
-        if ( !otherWell->showWell() ) continue;
         if ( !otherWell->wellResults()->hasWellResult(frameIndex) ) continue;
         if ( !otherWell->wellResults()->wellResultFrame(frameIndex).m_isOpen ) continue;
         if (  otherWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE ) continue;
@@ -127,7 +126,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 
         std::pair<double, double> injProdFluxPair = flowResults->injectorProducerPairFluxes(injectorName, producerName, static_cast<int>(frameIndex));
 
-        if ( fabs(injProdFluxPair.first) < 1e-3 &&  fabs(injProdFluxPair.second) < 1e-3 ) continue;
+        //if ( fabs(injProdFluxPair.first) < 1e-3 &&  fabs(injProdFluxPair.second) < 1e-3 ) continue; // Todo : Needs threshold in Gui
 
         float width = fluxWidthScale * (isProducer ? injProdFluxPair.second:  injProdFluxPair.first);
         
