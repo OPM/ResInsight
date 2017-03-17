@@ -745,9 +745,9 @@ void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector
 
     //Cells are around nodes instead of between nodes
     std::vector<double> xCoords;
-    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 1);
+    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
     std::vector<double> depthCoords;
-    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 1);
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
 
     for (int i = 0; i < xCoords.size() - 1; i++)
     {
