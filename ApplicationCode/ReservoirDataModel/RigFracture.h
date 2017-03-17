@@ -46,6 +46,7 @@ public:
 
     bool cellIsActive;
     
+    double upscaledStimPlanValue;
 
 
 };

@@ -85,6 +85,8 @@ public:
 
     std::vector<size_t>             getPotentiallyFracturedCells();
     void                            computeTransmissibility(RimEclipseCase* caseToApply);
+    void                            computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply);
+
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;

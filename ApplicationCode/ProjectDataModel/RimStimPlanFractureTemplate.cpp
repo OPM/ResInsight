@@ -39,6 +39,8 @@
 #include <QMessageBox>
 
 #include <algorithm>
+#include <vector>
+#include "RivWellFracturePartMgr.h"
 
 
 
@@ -311,13 +313,30 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     updateConnectedEditors();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
     return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
+{
+    std::vector<std::vector<double>> notMirrordedData = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    std::vector<std::vector<double>> mirroredData;
+
+    for (std::vector<double> depthData : notMirrordedData)
+    {
+        std::vector<double> mirrordDepthData = RivWellFracturePartMgr::mirrorDataAtSingleDepth(depthData);
+        mirroredData.push_back(mirrordDepthData);
+    }
+
+
+    return mirroredData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,6 +726,46 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
     {
         m_stimPlanFractureDefinitionData->computeMinMax(resultName, unitName, minValue, maxValue);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValues, const QString& resultName, const QString& unitName, size_t timeStepIndex)
+{
+
+    std::vector<std::vector<double>> propertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+
+    cellsAsPolygons.clear();
+    parameterValues.clear();
+
+    //TODO: Code partly copied from RivWellFracturePartMgr - can this be combined in some function?
+    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+
+    //Cells are around nodes instead of between nodes
+    std::vector<double> xCoords;
+    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 1);
+    std::vector<double> depthCoords;
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 1);
+
+    for (int i = 0; i < xCoords.size() - 1; i++)
+    {
+        for (int j = 0; j < depthCoords.size() - 1; j++)
+        {
+            std::vector<cvf::Vec3d> cellAsPolygon;
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0));
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0));
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellsAsPolygons.push_back(cellAsPolygon);
+            //TODO: Values for both neg and pos x values...
+            parameterValues.push_back(propertyValuesAtTimeStep[j+1][i+1]); //TODO test that this value exsist...
+
+        }
+    }
+
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -54,6 +54,8 @@ public:
     void appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
     void clearGeometryCache();
 
+    static std::vector<double>                 mirrorDataAtSingleDepth(std::vector<double> depthData);
+
 private:
     void updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform);
     void updatePartGeometryTexture(caf::DisplayCoordTransform* displayCoordTransform);
@@ -69,7 +71,6 @@ private:
     std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> polygon, cvf::Mat4f m, caf::DisplayCoordTransform* displayCoordTransform);
     bool                                stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, double xMin, double xMax, double yMin, double yMax, float polygonXmin, float polygonXmax, float polygonYmin, float polygonYmax);
 
-    std::vector<double>                 mirrorDataAtSingleDepth(std::vector<double> depthData);
     static cvf::ref<cvf::DrawableGeo>   createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
      
 

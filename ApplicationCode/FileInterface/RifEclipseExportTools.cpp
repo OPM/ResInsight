@@ -83,7 +83,6 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     }
 
     caf::ProgressInfo pi(fractures.size(), QString("Writing data to file %1").arg(fileName));
-
     RimEclipseWell* simWell = nullptr;
     RimWellPath* wellPath = nullptr;
 
@@ -98,6 +97,45 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC) out << "-- Using metric unit system" << "\n";
     if (caseUnit == RigEclipseCaseData::UNITS_FIELD) out << "-- Using field unit system" << "\n";
     out << "\n";
+
+
+    for (RimFracture* fracture : fractures) //For testing upscaling...
+    {
+        fracture->computeUpscaledPropertyFromStimPlan(caseToApply);
+        std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
+
+        for (RigFractureData fracData : fracDataVector)
+        {
+            out << qSetFieldWidth(4);
+            out << "-- ";
+
+            out << qSetFieldWidth(12);
+            wellPath, simWell = nullptr;
+            fracture->firstAncestorOrThisOfType(simWell);
+            if (simWell) out << simWell->name + " ";    // 1. Well name 
+            fracture->firstAncestorOrThisOfType(wellPath);
+            if (wellPath) out << wellPath->name + " ";  // 1. Well name 
+
+            out << qSetFieldWidth(16);
+            out << fracture->name().left(15) + " ";
+
+
+            out << qSetFieldWidth(5);
+            size_t i, j, k;
+            mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
+            out << i + 1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
+            out << j + 1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
+            out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
+
+            out << qSetFieldWidth(10);
+            out << QString::number(fracData.upscaledStimPlanValue, 'f', 3);
+
+            out << "\n";
+        }
+    }
+
+
+
 
     printBackgroundDataHeaderLine(out);
 
