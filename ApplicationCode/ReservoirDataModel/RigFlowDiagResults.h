@@ -109,7 +109,7 @@ private:
     std::map< RigFlowDiagResultAddress, cvf::ref<RigFlowDiagResultFrames> >  m_resultSets;
     std::map< RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>  >  m_resultStatistics;
 
-    using InjectorProducerCommunicationMap = std::map<std::pair<std::string, std::string>, std::pair<double, double> >;
+    using InjectorProducerCommunicationMap = std::map< std::pair<std::string, std::string>, std::pair<double, double> >;
     std::vector<InjectorProducerCommunicationMap> m_injProdPairFluxCommunicationTimesteps;
 
 };

@@ -127,6 +127,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
         std::pair<double, double> injProdFluxPair = flowResults->injectorProducerPairFluxes(injectorName, producerName, static_cast<int>(frameIndex));
 
         //if ( fabs(injProdFluxPair.first) < 1e-3 &&  fabs(injProdFluxPair.second) < 1e-3 ) continue; // Todo : Needs threshold in Gui
+        if ( injProdFluxPair.first == 0.0 &&  injProdFluxPair.second == 0.0 ) continue; 
 
         float width = fluxWidthScale * (isProducer ? injProdFluxPair.second:  injProdFluxPair.first);
         
@@ -145,7 +146,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
             cvf::Vec3f endPoint = cvf::Vec3f(wellHeadTop + (3* pipeRadius * (otherWellHeadTop - wellHeadTop).getNormalized()));
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            cvf::ref<cvf::DrawableGeo> geo = createArrow(startPoint, endPoint, width, isProducer);
+            cvf::ref<cvf::DrawableGeo> geo = createArrowGeometry(startPoint, endPoint, width, isProducer);
 
             part->setDrawable(geo.p());
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(otherWell->wellPipeColor()), caf::PO_1);
@@ -160,7 +161,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 }
 
 
-cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrow(const cvf::Vec3f& startPoint, 
+cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry(const cvf::Vec3f& startPoint, 
                                                                    const cvf::Vec3f& endPoint, 
                                                                    double width, 
                                                                    bool useArrowEnd)

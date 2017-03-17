@@ -50,7 +50,7 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     
 private:
-    cvf::ref< cvf::DrawableGeo> createArrow(const cvf::Vec3f& startPoint, 
+    cvf::ref< cvf::DrawableGeo> createArrowGeometry(const cvf::Vec3f& startPoint, 
                                             const cvf::Vec3f& endPoint, 
                                             double width, 
                                             bool useArrowEnd);
