@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool hasCrossFlowEnding(const QString& tracerName)
+bool RimFlowDiagSolution::hasCrossFlowEnding(const QString& tracerName)
 {
     return tracerName.endsWith(CROSS_FLOW_ENDING);
 }
@@ -48,7 +48,7 @@ bool hasCrossFlowEnding(const QString& tracerName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString removeCrossFlowEnding(const QString& tracerName)
+QString RimFlowDiagSolution::removeCrossFlowEnding(const QString& tracerName)
 {
     if (tracerName.endsWith(CROSS_FLOW_ENDING))
     {
@@ -63,7 +63,7 @@ QString removeCrossFlowEnding(const QString& tracerName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString addCrossFlowEnding(const QString& wellName)
+QString RimFlowDiagSolution::addCrossFlowEnding(const QString& wellName)
 {
     return wellName + CROSS_FLOW_ENDING;
 }

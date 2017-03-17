@@ -43,6 +43,7 @@ RivWellConnectionsPartMgr::RivWellConnectionsPartMgr(RimEclipseView* reservoirVi
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
+    m_useCurvedArrows = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,8 +76,12 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     double                               mainArrowZHeight;
     cvf::ref<caf::DisplayCoordTransform> displayCordXf;
     RigFlowDiagResults*                  flowResults;
+
     std::string                          injectorName;
     std::string                          producerName;
+    std::string                          crossFlowInjectorName;
+    std::string                          crossFlowProducerName;
+
     double                               fluxWidthScale = 0.0;
 
     {
@@ -97,10 +102,18 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
         wellHeadTop.z() += characteristicCellSize;
 
         cvf::Vec3d activeCellsBoundingBoxMax = displayCordXf->transformToDisplayCoord(m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max());
-        mainArrowZHeight = activeCellsBoundingBoxMax.z() - characteristicCellSize; // Above the bbox somewhat;
+        mainArrowZHeight = activeCellsBoundingBoxMax.z() + 1.5*characteristicCellSize; // Above the bbox somewhat;
 
-        if ( isProducer ) producerName = m_rimWell->name().toStdString();
-        else              injectorName = m_rimWell->name().toStdString();
+        if ( isProducer )
+        { 
+            producerName = m_rimWell->name().toStdString();
+            crossFlowInjectorName = RimFlowDiagSolution::addCrossFlowEnding(m_rimWell->name()).toStdString();
+        }
+        else
+        {
+            injectorName = m_rimWell->name().toStdString();
+            crossFlowProducerName = RimFlowDiagSolution::addCrossFlowEnding(m_rimWell->name()).toStdString();
+        }
 
         double maxAbsFlux = flowResults->maxAbsPairFlux(static_cast<int>(frameIndex));
         if (maxAbsFlux != 0.0) fluxWidthScale = characteristicCellSize / maxAbsFlux;
@@ -110,6 +123,9 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     bool enableLighting                = !m_rimReservoirView->isLightingDisabled();
     RimEclipseWellCollection* wellColl = m_rimReservoirView->wellCollection();
 
+    // Create potentially two the arrows to/from m_rimWell for each of the other wells in the model.
+    // One arrow for the "official" state of the well, and one to account for cross flow contributions 
+
     for ( RimEclipseWell * otherWell: wellColl->wells )
     {
         if (  otherWell == m_rimWell ) continue;
@@ -118,19 +134,52 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
         if (  otherWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE ) continue;
 
         bool isOtherProducer = (otherWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::PRODUCER);
-        
-        if (isProducer == isOtherProducer) continue;
 
-        if ( isOtherProducer ) producerName = otherWell->name().toStdString();
-        else                   injectorName = otherWell->name().toStdString();
+        {
+            std::string otherWellName   =  otherWell->name().toStdString();
+            std::string otherWellXfName = RimFlowDiagSolution::addCrossFlowEnding(otherWell->name()).toStdString();
 
-        std::pair<double, double> injProdFluxPair = flowResults->injectorProducerPairFluxes(injectorName, producerName, static_cast<int>(frameIndex));
+            if ( isProducer != isOtherProducer )
+            {
+                if ( isOtherProducer )
+                {
+                    producerName = otherWellName;
+                    crossFlowInjectorName = otherWellXfName;
+                }
+                else
+                {
+                    injectorName = otherWellName;
+                    crossFlowProducerName = otherWellXfName;
+                }
+            }
+            else
+            {
+                if ( isProducer )
+                {
+                    injectorName = otherWellXfName;
+                    crossFlowProducerName = otherWellName;
+                }
+                else
+                {
+                    producerName = otherWellXfName;
+                    crossFlowInjectorName = otherWellName;
+                }
+            }
+        }
 
-        //if ( fabs(injProdFluxPair.first) < 1e-3 &&  fabs(injProdFluxPair.second) < 1e-3 ) continue; // Todo : Needs threshold in Gui
-        if ( injProdFluxPair.first == 0.0 &&  injProdFluxPair.second == 0.0 ) continue; 
+        std::pair<double, double> injProdFluxPair   = flowResults->injectorProducerPairFluxes(injectorName, producerName, static_cast<int>(frameIndex));
+        std::pair<double, double> injProdFluxPairXF = flowResults->injectorProducerPairFluxes(crossFlowInjectorName, crossFlowProducerName, static_cast<int>(frameIndex));
 
-        float width = fluxWidthScale * (isProducer ? injProdFluxPair.second:  injProdFluxPair.first);
-        
+        const double fluxThreshold = 0.0; // Todo : Needs threshold in Gui
+
+        if (   fabs(injProdFluxPair.first)   <= fluxThreshold 
+            && fabs(injProdFluxPair.second)  <= fluxThreshold 
+            && fabs(injProdFluxPairXF.first) <= fluxThreshold 
+            && fabs(injProdFluxPairXF.second)<= fluxThreshold ) continue; 
+
+        float width   = fluxWidthScale * ( isProducer ? injProdFluxPair.second  :  injProdFluxPair.first);
+        float widthXf = fluxWidthScale * (!isProducer ? injProdFluxPairXF.second:  injProdFluxPairXF.first);
+
         cvf::Vec3d otherWellHeadTop;
         cvf::Vec3d otherWellHeadBottom;
         {
@@ -142,26 +191,63 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
 
         {
             cvf::Vec3f startPoint = cvf::Vec3f(0.5*(wellHeadTop + otherWellHeadTop));
-            startPoint.z() = mainArrowZHeight;
+            if (m_useCurvedArrows) startPoint.z() = mainArrowZHeight;
             cvf::Vec3f endPoint = cvf::Vec3f(wellHeadTop + (3* pipeRadius * (otherWellHeadTop - wellHeadTop).getNormalized()));
+            cvf::Color4f arrowColor(otherWell->wellPipeColor());
 
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            cvf::ref<cvf::DrawableGeo> geo = createArrowGeometry(startPoint, endPoint, width, isProducer);
+            if (   fabs(injProdFluxPair.first)  > fluxThreshold
+                && fabs(injProdFluxPair.second) > fluxThreshold )
+            {
+                if ( isProducer == isOtherProducer )
+                {
+                    startPoint.z() -=  0.5*characteristicCellSize;
+                    endPoint.z()   -= 0.5*characteristicCellSize;
+                }
+                cvf::ref<cvf::Part> arrowPart = createArrowPart(startPoint, endPoint, width, isProducer, arrowColor, enableLighting);
+                model->addPart(arrowPart.p());
+            }
 
-            part->setDrawable(geo.p());
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(otherWell->wellPipeColor()), caf::PO_1);
-            surfaceGen.enableLighting(enableLighting);
-
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-            part->setEffect(eff.p());
-            model->addPart(part.p());
+            if (   fabs(injProdFluxPairXF.first)   > fluxThreshold
+                && fabs(injProdFluxPairXF.second)  > fluxThreshold )
+            {
+                startPoint.z() -= 0.5*characteristicCellSize;
+                endPoint.z()   -= 0.5*characteristicCellSize;
+                cvf::ref<cvf::Part> arrowPart = createArrowPart(startPoint, endPoint, widthXf, !isProducer, arrowColor, enableLighting);
+                model->addPart(arrowPart.p());
+            }
         }
     }
 }
 
 
-cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry(const cvf::Vec3f& startPoint, 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part>  RivWellConnectionsPartMgr::createArrowPart(const cvf::Vec3f& startPoint, 
+                                                                const cvf::Vec3f& endPoint, 
+                                                                float width, 
+                                                                bool isProducer, 
+                                                                const cvf::Color4f& arrowColor, 
+                                                                bool enableLighting)
+{
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    cvf::ref<cvf::DrawableGeo> geo = createArrowGeometry(startPoint, endPoint, width, isProducer);
+
+    part->setDrawable(geo.p());
+    caf::SurfaceEffectGenerator surfaceGen(arrowColor, caf::PO_1);
+    surfaceGen.enableLighting(enableLighting);
+
+    cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+    part->setEffect(eff.p());
+
+    return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry(const cvf::Vec3f& startPoint,
                                                                    const cvf::Vec3f& endPoint, 
                                                                    double width, 
                                                                    bool useArrowEnd)
@@ -197,10 +283,10 @@ cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry(const
 
 
     cvf::Vec3f endPointInTopPlane = endPoint;
-    endPointInTopPlane.z() = startPoint.z();
+    if (m_useCurvedArrows) endPointInTopPlane.z() = startPoint.z();
 
     cvf::Vec3f heightDiff = cvf::Vec3f::ZERO;
-    heightDiff.z() = (startPoint.z() - endPoint.z());
+    if (m_useCurvedArrows)  heightDiff.z() = (startPoint.z() - endPoint.z());
 
     cvf::Vec3f fromTo = endPointInTopPlane - startPoint;
     float length = fromTo.length();
@@ -210,7 +296,8 @@ cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry(const
     
     float heightScale = 0.3*length * 0.15;
     cvf::Vec3f heightScaleVec =  cvf::Vec3f::ZERO;
-    heightScaleVec.z() = heightScale;
+
+    if (m_useCurvedArrows) heightScaleVec.z() = heightScale;
 
     float endStart = 0.4f;
     float endStep  = (1.0f - endStart) / 7.5f;
@@ -242,8 +329,8 @@ cvf::ref< cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry(const
 
     if ( useArrowEnd )
     {
-        (*arrowVertexArray)[16] = (6*endStep + endStart) * fromTo + startPoint + 1.2f * widthVector - 0.5f * heightDiff;
-        (*arrowVertexArray)[17] = (6*endStep + endStart) * fromTo + startPoint - 1.2f * widthVector - 0.5f * heightDiff;
+        (*arrowVertexArray)[16] = (6*endStep + endStart) * fromTo + startPoint + 1.6f * widthVector - 0.5f * heightDiff;
+        (*arrowVertexArray)[17] = (6*endStep + endStart) * fromTo + startPoint - 1.6f * widthVector - 0.5f * heightDiff;
         (*arrowVertexArray)[18] = 1.0f                   * fromTo + startPoint                      - 1.0f * heightDiff;
     }
     else

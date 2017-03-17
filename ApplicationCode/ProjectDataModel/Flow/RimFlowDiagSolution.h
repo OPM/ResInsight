@@ -36,6 +36,7 @@ class RimFlowDiagSolution : public caf::PdmObject
 {
      CAF_PDM_HEADER_INIT;
 public:
+
     RimFlowDiagSolution();
     virtual ~RimFlowDiagSolution();
 
@@ -59,6 +60,9 @@ public:
     TracerStatusType tracerStatusInTimeStep(const QString& tracerName, size_t timeStepIndex) const;
     cvf::Color3f     tracerColor(const QString& tracerName) const;
 
+    static bool    hasCrossFlowEnding(const QString& tracerName);
+    static QString removeCrossFlowEnding(const QString& tracerName);
+    static QString addCrossFlowEnding(const QString& wellName);
 private:
     std::map<std::string, std::vector<int> > allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors) const;
 
