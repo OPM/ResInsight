@@ -218,13 +218,13 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
         if (!curve->isCurveVisible()) continue;
         QString curveCaseName = curve->summaryCase()->caseName();
 
-        int casePosInList = -1;
-        for (int i = 0; i < caseNames.size(); i++)
+        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+        for (size_t i = 0; i < caseNames.size(); i++)
         {
             if (curveCaseName == caseNames[i]) casePosInList = i;
         }
 
-        if (casePosInList < 0)
+        if (casePosInList == cvf::UNDEFINED_SIZE_T)
         {
             caseNames.push_back(curveCaseName);
             
@@ -250,18 +250,18 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
         }
     }
 
-    for (int i = 0; i < timeSteps.size(); i++) //cases
+    for (size_t i = 0; i < timeSteps.size(); i++) //cases
     {
         out += "\n\n";
         out += "Case: " + caseNames[i];
         out += "\n";
 
-        for (int j = 0; j < timeSteps[i].size(); j++) //time steps & data points
+        for (size_t j = 0; j < timeSteps[i].size(); j++) //time steps & data points
         {
             if (j == 0)
             {
                 out += "Date and time";
-                for (int k = 0; k < allCurveNames[i].size(); k++) // curves
+                for (size_t k = 0; k < allCurveNames[i].size(); k++) // curves
                 {
                     out += "\t" + (allCurveNames[i][k]);
                 }
@@ -269,7 +269,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
             out += "\n";
             out += QDateTime::fromTime_t(timeSteps[i][j]).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
 
-            for (int k = 0; k < allCurveData[i].size(); k++) // curves
+            for (size_t k = 0; k < allCurveData[i].size(); k++) // curves
             {
                 out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
             }
