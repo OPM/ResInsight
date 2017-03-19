@@ -29,6 +29,7 @@
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
+#include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -85,6 +86,7 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimWellLogCurve*>(uiItem))              return true;
     if (dynamic_cast<RimSummaryPlot*>(uiItem))               return true;
     if (dynamic_cast<RimSummaryCurve*>(uiItem))              return true;
+    if (dynamic_cast<RimGridTimeHistoryCurve*>(uiItem)) return true;
     if (dynamic_cast<RimSummaryCurveFilter*>(uiItem))        return true;
     if (dynamic_cast<RimIntersection*>(uiItem))              return true;
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;

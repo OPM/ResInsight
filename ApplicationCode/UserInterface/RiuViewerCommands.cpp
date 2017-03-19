@@ -326,6 +326,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         commandIds << "RicUnLinkViewFeature";
     }
 
+    commandIds << "Separator";
+    commandIds << "RicNewGridTimeHistoryCurveFeature";
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
