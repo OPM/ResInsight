@@ -61,7 +61,6 @@ private:
     bool    curveValueRangeY(const QwtPlotCurve* qwtCurve, double* min, double* max) const;
 
 private:
-    RimSummaryYAxisProperties*          m_axisProperties;
     const std::vector<QwtPlotCurve*>    m_singleCurves;
     const std::vector<double>           m_yValuesForAllCurves;
 };
