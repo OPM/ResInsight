@@ -296,8 +296,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "Separator";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
         {
@@ -307,8 +305,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "Separator";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
@@ -382,6 +378,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
 
         commandIds << "RicCopyReferencesToClipboardFeature";
         commandIds << "RicShowPlotDataFeature";
+        commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         // Work in progress -- End
 
@@ -397,11 +394,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
             commandIds << "RicExecuteScriptForCasesFeature";
-        }
-        else if (dynamic_cast<RimSummaryCurve*>(uiItem) ||
-                 dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
-        {
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {

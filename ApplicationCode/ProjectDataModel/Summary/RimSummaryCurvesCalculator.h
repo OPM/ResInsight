@@ -17,9 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <vector>
-
 #include <QString>
+
+#include <vector>
+#include <set>
 
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
