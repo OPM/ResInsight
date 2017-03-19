@@ -29,12 +29,12 @@ class RiuSummaryQwtPlot;
 
 class QwtPlotCurve;
 
-class RimSummaryPlotYAxisFormater
+class RimSummaryPlotYAxisFormatter
 {
 public:
-    RimSummaryPlotYAxisFormater(RimSummaryYAxisProperties* axisProperties,
+    RimSummaryPlotYAxisFormatter(RimSummaryYAxisProperties* axisProperties,
         const std::vector<RimSummaryCurve*>& curves,
-        const std::vector<RimSummaryCurveFilter*>& curveFilters);
+        const std::set<QString>& timeHistoryCurveQuantities);
 
     void    applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot);
 
@@ -43,16 +43,16 @@ private:
 
 private:
     RimSummaryYAxisProperties*          m_axisProperties;
-    std::vector<RimSummaryCurve*>       m_singleCurves;
-    std::vector<RimSummaryCurveFilter*> m_curveFilters;
+    const std::vector<RimSummaryCurve*> m_singleCurves;
+    const std::set<QString>             m_timeHistoryCurveQuantities;
 };
 
 
 class RimSummaryPlotYAxisRangeCalculator
 {
 public:
-    RimSummaryPlotYAxisRangeCalculator(RimSummaryYAxisProperties* axisProperties,
-                                       const std::vector<RimSummaryCurve*>& curves);
+    RimSummaryPlotYAxisRangeCalculator( const std::vector<QwtPlotCurve*>& qwtCurves,
+                                        const std::vector<double>& yValuesForAllCurves);
 
     void    computeYRange(double* min, double* max) const;
 
@@ -61,6 +61,7 @@ private:
 
 private:
     RimSummaryYAxisProperties*          m_axisProperties;
-    std::vector<RimSummaryCurve*>       m_singleCurves;
+    const std::vector<QwtPlotCurve*>    m_singleCurves;
+    const std::vector<double>           m_yValuesForAllCurves;
 };
 
