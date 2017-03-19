@@ -488,22 +488,29 @@ void RimContextCommandBuilder::appendCommandsToMenu(const QStringList& commandId
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
     {
-        caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-        CVF_ASSERT(feature);
-
-        if (feature->canFeatureBeExecuted())
+        if (commandIds[i] == "Separator")
         {
-            QAction* act = commandManager->action(commandIds[i]);
-            CVF_ASSERT(act);
+            menu->addSeparator();
+        }
+        else
+        {
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            CVF_ASSERT(feature);
 
-            for (QAction* existingAct : menu->actions())
+            if (feature->canFeatureBeExecuted())
             {
-                // If action exist, continue to make sure the action is positioned at the first
-                // location of a command ID
-                if (existingAct == act) continue;
-            }
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
 
-            menu->addAction(act);
+                for (QAction* existingAct : menu->actions())
+                {
+                    // If action exist, continue to make sure the action is positioned at the first
+                    // location of a command ID
+                    if (existingAct == act) continue;
+                }
+
+                menu->addAction(act);
+            }
         }
     }
 }
