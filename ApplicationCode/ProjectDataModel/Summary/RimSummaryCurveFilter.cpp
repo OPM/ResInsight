@@ -78,8 +78,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
-    m_summaryFilter = m_summaryFilterObject.get();
+    m_summaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
     m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
@@ -118,8 +117,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_curveNameConfig.uiCapability()->setUiHidden(true);
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
-    m_curveNameConfig = m_curveNameConfigObject.get();
+    m_curveNameConfig = new RimSummaryCurveAutoName;
 }
 
 //--------------------------------------------------------------------------------------------------
