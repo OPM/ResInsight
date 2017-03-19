@@ -18,25 +18,38 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
-class RiuSelectionItem;
 class RimSummaryPlot;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewGridTimeHistoryCurveFeature : public caf::CmdFeature
+class RicSelectSummaryPlotUI : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicSelectSummaryPlotUI();
+
+    void            setDefaultSummaryPlot(RimSummaryPlot* summaryPlot);
+    RimSummaryPlot* selectedSummaryPlot() const;
+    bool            createNewPlot() const;
+    QString         newPlotName() const;
+    
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 protected:
-    // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    static void createCurveFromSelectionItem(const RiuSelectionItem* selectionItem, RimSummaryPlot* plot);
-    static RimSummaryPlot* userSelectedSummaryPlot();
+    static std::vector<RimSummaryPlot*> summaryPlots();
+
+private:
+    caf::PdmPtrField<RimSummaryPlot*>   m_selectedSummaryPlot;
+    caf::PdmField<bool>                 m_createNewPlot;
+    caf::PdmField<QString>              m_newSummaryPlotName;
 };
+
