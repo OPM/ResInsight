@@ -21,6 +21,8 @@
 
 #include "RigCurveDataTools.h"
 
+#include "RimContextCommandBuilder.h"
+
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cvfBase.h"
@@ -34,6 +36,9 @@
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
+
+#include <QMenu>
+#include <QContextMenuEvent>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -122,6 +127,24 @@ QSize RiuResultQwtPlot::sizeHint() const
 QSize RiuResultQwtPlot::minimumSizeHint() const
 {
     return QSize(0, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    commandIds << "RicNewGridTimeHistoryCurveFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
