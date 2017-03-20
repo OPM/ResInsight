@@ -55,7 +55,6 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 
     RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
     newCurve->setFromSelectionItem(selectionItem);
-    newCurve->setYAxis(RimDefines::PLOT_AXIS_RIGHT);
     newCurve->setLineThickness(2);
         
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
@@ -75,7 +74,7 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 {
-    const QString lastUsedViewKey("lastUsedSummaryPlotKey");
+    const QString lastUsedSummaryPlotKey("lastUsedSummaryPlotKey");
 
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
@@ -88,7 +87,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
-        QString lastUsedPlotRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
+        QString lastUsedPlotRef = RiaApplication::instance()->cacheDataObject(lastUsedSummaryPlotKey).toString();
         RimSummaryPlot* lastUsedPlot = dynamic_cast<RimSummaryPlot*>(caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedPlotRef));
         if (lastUsedPlot)
         {
@@ -136,6 +135,9 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
         summaryPlot = featureUi.selectedSummaryPlot();
     }
     
+    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), summaryPlot);
+    RiaApplication::instance()->setCacheDataObject(lastUsedSummaryPlotKey, refFromProjectToView);
+
     return summaryPlot;
 }
 

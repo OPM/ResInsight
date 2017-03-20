@@ -64,7 +64,7 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     CAF_PDM_InitFieldNoDefault(&m_pickingTopologyItem, "PickingTopologyItem", "Picking Topology Item", "", "", "");
     m_pickingTopologyItem.uiCapability()->setUiTreeHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
+    CAF_PDM_InitField(&m_plotAxis, "PlotAxis", caf::AppEnum< RimDefines::PlotAxis >(RimDefines::PLOT_AXIS_LEFT), "Axis", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
