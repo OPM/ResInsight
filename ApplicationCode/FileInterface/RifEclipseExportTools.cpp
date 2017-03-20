@@ -157,8 +157,31 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
         fracture->computeUpscaledPropertyFromStimPlan(caseToApply);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
+        out << qSetFieldWidth(4);
+        out << "-- ";
+
+        out << qSetFieldWidth(12);
+        out << "Well";
+
+        out << qSetFieldWidth(16);
+        out << "Fracture name ";
+
+
+        out << qSetFieldWidth(5);
+        out << "i";          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
+        out << "j";          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
+        out << "k";          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
+
+        out << qSetFieldWidth(10);
+        out << "cellIndex";
+        out << "Aritm. ";
+        out << "Harm. ";
+
+        out << "\n";
+
         for (RigFractureData fracData : fracDataVector)
         {
+
             out << qSetFieldWidth(4);
             out << "-- ";
 
@@ -182,7 +205,8 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 
             out << qSetFieldWidth(10);
             out << fracData.cellIndex;
-            out << QString::number(fracData.upscaledStimPlanValue, 'f', 3);
+            out << QString::number(fracData.upscaledAritmStimPlanValue, 'f', 3);
+            out << QString::number(fracData.upscaledHarmStimPlanValue, 'f', 3);
 
             out << "\n";
         }

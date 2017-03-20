@@ -563,7 +563,7 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
     for (size_t fracCell : fracCells)
     {
 
-        if (fracCell == 168690)
+        if (fracCell == 160050)
         {
             qDebug() << "Test";
         }
@@ -605,8 +605,7 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
 
         double area;
         std::vector<double> areaOfFractureParts;
-        std::vector<double> areaXvalueOfFractureParts;
-
+        std::vector<double> valuesForFractureParts;
 
         for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
         {
@@ -624,35 +623,69 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
                         {
                             area = cvf::GeometryTools::polygonAreaNormal3D(clippedStimPlanPolygon).length();
                             areaOfFractureParts.push_back(area);
-                            areaXvalueOfFractureParts.push_back(area*stimPlanParameterValue);
+                            valuesForFractureParts.push_back(stimPlanParameterValue);
                         }
                     }
                 }
             }
-
-
         }
 
-        if (areaXvalueOfFractureParts.size() > 0)
+        if (areaOfFractureParts.size() > 0)
         {
-            double fractureCellArea = 0.0;
-            for (double area : areaOfFractureParts) fractureCellArea += area;
-            double fractureCellAreaXvalue = 0.0;
-            for (double areaXvalue : areaXvalueOfFractureParts) fractureCellAreaXvalue += areaXvalue;
-            double upscaledValueArithmetic = fractureCellAreaXvalue / fractureCellArea;
+            fracData.upscaledAritmStimPlanValue = areaWeightedArithmeticAverage(areaOfFractureParts, valuesForFractureParts);
+            fracData.upscaledHarmStimPlanValue = areaWeightedHarmonicAverage(areaOfFractureParts, valuesForFractureParts);
 
-            fracData.upscaledStimPlanValue = upscaledValueArithmetic;
             fracData.cellIndex = fracCell;
             fracDataVec.push_back(fracData);
         }
-
-        
     }
 
     m_rigFracture->setFractureData(fracDataVec);
 
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFracture::areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts)
+{
+    //TODO: Unit test?
+    double fractureCellArea = 0.0;
+    for (double area : areaOfFractureParts) fractureCellArea += area;
+
+    if (areaOfFractureParts.size() != valuesForFractureParts.size()) return cvf::UNDEFINED_DOUBLE;
+
+    double fractureCellAreaDivvalue = 0.0;
+    for (int i = 0; i < valuesForFractureParts.size(); i++)
+    {
+        fractureCellAreaDivvalue += areaOfFractureParts[i] / valuesForFractureParts[i];
+    }
+    
+    double upscaledValueHarmonic = fractureCellArea / fractureCellAreaDivvalue;
+    return upscaledValueHarmonic;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFracture::areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts)
+{
+    //TODO: Unit test?
+    double fractureCellArea = 0.0;
+    for (double area : areaOfFractureParts) fractureCellArea += area;
+
+    if (areaOfFractureParts.size() != valuesForFractureParts.size()) return cvf::UNDEFINED_DOUBLE;
+
+    double fractureCellAreaXvalue = 0.0;
+    for (int i = 0; i < valuesForFractureParts.size(); i++)
+    {
+        fractureCellAreaXvalue += areaOfFractureParts[i] * valuesForFractureParts[i];
+    }
+
+    double upscaledValueArithmetic = fractureCellAreaXvalue / fractureCellArea;
+    return upscaledValueArithmetic;
 }
 
 //--------------------------------------------------------------------------------------------------

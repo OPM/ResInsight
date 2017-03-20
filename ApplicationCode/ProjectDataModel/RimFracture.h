@@ -87,6 +87,9 @@ public:
     void                            computeTransmissibility(RimEclipseCase* caseToApply);
     void                            computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply);
 
+    double                          areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
+    double                          areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
+
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
