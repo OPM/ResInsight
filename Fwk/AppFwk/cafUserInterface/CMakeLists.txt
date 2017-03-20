@@ -42,6 +42,7 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeViewModel.h
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
+    QMinimizePanel.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -121,6 +122,8 @@ set( PROJECT_FILES
     cafProgressInfo.h
     cafUiProcess.cpp
     cafUiProcess.h
+    QMinimizePanel.cpp
+    QMinimizePanel.h
 )
 
 add_library( ${PROJECT_NAME}

@@ -45,6 +45,7 @@
 #include <QPointer>
 #include <QString>
 #include <QWidget>
+#include "QMinimizePanel.h"
 
 class QGridLayout;
 
@@ -81,8 +82,8 @@ private:
     void recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames);
 
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 
-    std::map<QString, QPointer<QGroupBox> >     m_groupBoxes;
-    std::map<QString, QPointer<QGroupBox> >     m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
+    std::map<QString, QPointer<QMinimizePanel> >     m_groupBoxes;
+    std::map<QString, QPointer<QMinimizePanel> >     m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
 
     QPointer<QWidget>                           m_mainWidget;
     QPointer<QGridLayout>                       m_layout;
